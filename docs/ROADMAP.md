@@ -70,6 +70,15 @@
 - **Afinidade de mapa por jogador**: sorteada no início e evoluindo com o
   desempenho, pesando na força do time e no pick/ban
 
+- **Picks e bans completos**: quem não escolheu o mapa escolhe o lado de início
+  (no decider, quem não fez o último ban), e a pré-partida ganhou a etapa de
+  comps da série, com a comp provável do adversário ao lado
+- **Mix e Veto** no catálogo de agentes (Controlador e Sentinela)
+- **Diálogo do próprio jogo** no lugar de `alert` e `confirm`
+- **Renovação negociada** (`src/core/renovacao.js`): pedido explicado por moral,
+  minutos, promessa quebrada, mercado e fase da carreira; duração preferida;
+  três propostas baixas e ele fecha a conversa por oito semanas
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

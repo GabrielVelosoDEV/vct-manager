@@ -35,13 +35,13 @@ function ligarEventos(){
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);
-    if(t.caixa<c){alert('Caixa insuficiente: '+money(c)+' necessários.');return;}
+    if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
     t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.');render();
   });
   on('[data-prop]',el=>modalProposta(el.dataset.prop));
   on('[data-assumir]',el=>{
     const r=assumirClube(el.dataset.assumir);
-    if(!r.ok){alert(r.erro||'Não deu para assumir esse clube.');return;}
+    if(!r.ok){avisar(r.erro||'Não deu para assumir esse clube.');return;}
     flash(r.msg);irPara('inicio');
   });
   on('[data-treinomapa]',el=>{definirMapaTreino(t,el.dataset.treinomapa||null);render();});
@@ -53,25 +53,22 @@ function ligarEventos(){
   });
   on('[data-aceitar]',el=>{
     const r=aceitarProposta(el.dataset.aceitar);
-    if(!r.ok){alert(r.erro||'A proposta não pôde ser aceita.');return;}
+    if(!r.ok){avisar(r.erro||'A proposta não pôde ser aceita.');return;}
     noticia('🤝 '+r.msg);render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
-  on('[data-renov]',el=>{
-    const p=P(el.dataset.renov);const novo=Math.round(salario(p)*1.12/100)*100;
-    if(confirm('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
-  });
-  on('[data-disp]',el=>{
+  on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
+  on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);
-    if(t.elenco.length<=5){alert('Você precisa de pelo menos 5 jogadores.');return;}
-    if(confirm('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.')){
+    if(t.elenco.length<=5){avisar('Você precisa de pelo menos 5 jogadores.');return;}
+    if(await confirmar('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.','Dispensar')){
       t.caixa-=p.salario*p.contrato*6;liberar(p);render();}
   });
   /* ---- conversa com o elenco ---- */
   on('[data-conversa]',el=>{
     const [pid,opcao]=String(el.dataset.conversa).split(':');
     const r=conversarCom(t,P(pid),opcao);
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     fechar();
     flash(r.msg+(r.delta?' (moral '+(r.delta>0?'+':'')+r.delta+')':''));
   });
@@ -126,7 +123,7 @@ function ligarEventos(){
       caixa:val('#edCaixa',t2.caixa), patroc:val('#edPatroc',t2.patroc),
       logo:val('#edLogo',t2.logo||''), staff, estrutura, mapPref
     });
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     if(r.tagTrocada){
       Imgs.renomear(Imgs.chaveTime(r.tagTrocada.de),Imgs.chaveTime(r.tagTrocada.para))
         .then(()=>{render();flash('Time atualizado — imagem re-chaveada para '+r.tagTrocada.para+'.');});
@@ -143,9 +140,9 @@ function ligarEventos(){
 
   on('[data-edp]',el=>modalEditarJogador(el.dataset.edp));
   on('[data-edlivre]',el=>{const r=edLiberar(el.dataset.edlivre);render();flash(r.ok?r.msg:r.erro);});
-  on('[data-eddel]',el=>{
+  on('[data-eddel]',async el=>{
     const p=P(el.dataset.eddel);if(!p)return;
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(el.dataset.eddel);render();flash(r.ok?r.msg:r.erro);
   });
   v.querySelectorAll('[data-edmover]').forEach(sel=>sel.addEventListener('change',e=>{
@@ -206,7 +203,7 @@ function ligarEventos(){
     }catch(err){flash('Erro ao ler o arquivo.');}
   });
   on('#edImgLimpar',async()=>{
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -221,10 +218,10 @@ function ligarEventos(){
   on('[data-fichastaff]',el=>modalStaff(el.dataset.fichastaff));
   on('[data-propstaff]',el=>modalPropostaStaff(el.dataset.propstaff));
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));
-  on('[data-dispstaff]',el=>{
+  on('[data-dispstaff]',async el=>{
     const m=G.staff[el.dataset.dispstaff];if(!m)return;
     const multa=Math.round(m.salario*Math.max(1,m.contrato)*4);
-    if(!confirm('Dispensar '+m.nome+'? Multa de '+money(multa)+'.'))return;
+    if(!await confirmar('Dispensar '+m.nome+'? Multa de '+money(multa)+'.','Dispensar'))return;
     t.caixa-=multa;
     const r=liberarStaff(m.id);
     render();flash(r.ok?r.msg:r.erro);
@@ -232,9 +229,9 @@ function ligarEventos(){
   on('[data-edstafflivre]',el=>{
     const r=liberarStaff(el.dataset.edstafflivre);render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-edstaffdel]',el=>{
+  on('[data-edstaffdel]',async el=>{
     const m=G.staff[el.dataset.edstaffdel];if(!m)return;
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(m.id);render();flash(r.ok?r.msg:r.erro);
   });
   on('[data-edstaffnovo]',el=>{
@@ -333,9 +330,9 @@ function ligarEventos(){
     const r=edAddAgente(role,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-agdel]',el=>{
+  on('[data-agdel]',async el=>{
     const nome=el.dataset.agdel;
-    if(!confirm('Remover o agente '+nome+'? Quem já joga com ele continua igual.'))return;
+    if(!await confirmar('Remover o agente '+nome+'? Quem já joga com ele continua igual.','Remover'))return;
     const r=edRemoverAgente(el.dataset.agde,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
@@ -436,8 +433,8 @@ function ligarEventos(){
     if(!js){flash(avisoVazio);return;}
     edSaida=js;render();
   });
-  on('#edNovo',()=>{
-    if(!confirm('Isso apaga a base editada e gera um mundo novo. Continuar?'))return;
+  on('#edNovo',async()=>{
+    if(!await confirmar('Isso apaga a base editada e gera um mundo novo. Continuar?','Gerar mundo novo'))return;
     iniciarPreRun(Math.floor(Math.random()*900000)+1000);
   });
 
@@ -455,13 +452,13 @@ function ligarEventos(){
   bind('#cfgRostos','change',e=>{Prefs.set('rostosGerados',e.target.value);render();});
   on('#cfgApagarRuns',async()=>{
     if(!listaRuns.length){flash('Não há partidas salvas.');return;}
-    if(!confirm('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.'))return;
+    if(!await confirmar('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.','Apagar'))return;
     for(const r of listaRuns.slice())await Storage.apagar(r.id);
     await atualizarRuns();render();flash('Partidas apagadas.');
   });
   on('#cfgLimparImgs',async()=>{
     if(!Imgs.quantos()){flash('O pacote já está vazio.');return;}
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote?'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote?','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -472,9 +469,9 @@ function ligarEventos(){
     await atualizarRuns();render();flash(ok?'Run salva.':'Falha ao salvar — exporte o .json.');
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
-  on('#runNova',()=>{
+  on('#runNova',async()=>{
     const seed=parseInt(val('#runSeed'))||Math.floor(Math.random()*900000)+1000;
-    if(G&&G.meuTime&&!confirm('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.'))return;
+    if(G&&G.meuTime&&!await confirmar('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.','Criar mundo novo'))return;
     iniciarPreRun(seed);
   });
   on('[data-runload]',async el=>{
@@ -483,7 +480,7 @@ function ligarEventos(){
     tela='inicio';render();flash('Run carregada.');
   });
   on('[data-rundel]',async el=>{
-    if(!confirm('Apagar esta run definitivamente?'))return;
+    if(!await confirmar('Apagar esta run definitivamente?','Apagar'))return;
     await Storage.apagar(el.dataset.rundel);await atualizarRuns();render();
   });
   const dz=v.querySelector('#runDrop'),fi=v.querySelector('#runFile');

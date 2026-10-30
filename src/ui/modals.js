@@ -11,6 +11,41 @@ function abrir(html,wide){
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
+/* ---------- diálogo do jogo ----------
+   No lugar das janelas nativas (alert e confirm): elas quebram o visual, travam a
+   página inteira e, dentro do app de PC, dependem da webview para aparecer.
+   Fica numa camada própria acima do modal, então perguntar dentro de uma
+   ficha aberta não apaga a ficha. Devolve uma promessa: true no botão de
+   confirmar, false em cancelar, Esc ou clique fora. */
+function dialogo(o){
+  let c=$('#dialogo');
+  if(!c){c=document.createElement('div');c.id='dialogo';document.body.appendChild(c);}
+  return new Promise(res=>{
+    c.innerHTML=`<div class="ovl"><div class="box">
+      ${o.titulo?`<div class="eyebrow">${esc(o.titulo)}</div>`:''}
+      <div class="dlg-txt">${esc(o.texto||'')}</div>
+      <div class="dlg-bts">
+        ${o.nao?`<button class="btn ghost" id="dlgNao">${esc(o.nao)}</button>`:''}
+        <button class="btn" id="dlgSim">${esc(o.sim||'Entendi')}</button>
+      </div></div></div>`;
+    const sair=v=>{c.innerHTML='';document.removeEventListener('keydown',tecla,true);res(v);};
+    const tecla=e=>{
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sair(!o.nao);}
+      else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sair(true);}
+    };
+    document.addEventListener('keydown',tecla,true);
+    const ovl=c.querySelector('.ovl');
+    ovl.onclick=e=>{e.stopPropagation();if(e.target===ovl)sair(!o.nao);};
+    c.querySelector('#dlgSim').onclick=e=>{e.stopPropagation();sair(true);};
+    const n=c.querySelector('#dlgNao');if(n)n.onclick=e=>{e.stopPropagation();sair(false);};
+    c.querySelector('#dlgSim').focus();
+  });
+}
+function avisar(texto,titulo){return dialogo({texto,titulo:titulo||'Atenção',sim:'Entendi'});}
+function confirmar(texto,sim){
+  return dialogo({texto,titulo:'Confirmar',sim:sim||'Confirmar',nao:'Cancelar'});
+}
+
 function modalJogador(id){
   const p=P(id);if(!p)return;
   const t=meu();
@@ -73,7 +108,61 @@ function modalJogador(id){
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
+  const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+}
+/* ---------- renovação ----------
+   Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
+   duração que ele quer, e o retorno dele quando a oferta não chega. */
+function modalRenovacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  const d=pedidoRenovacao(p,t);
+  const duras=recusasRenovacao(p,t,d.anos[0]);
+  const anos0=d.anos[0];
+  const conta=`<div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
+    <table><tbody>
+      <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
+      ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
+        <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+      <tr><td><b>Pedido por ${d.anos[0]===d.anos[1]?d.anos[0]:d.anos[0]+' a '+d.anos[1]} ano(s)</b></td>
+        <td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
+    </tbody></table>
+    <p class="dim" style="margin-top:6px">${esc(d.motivoAnos)} Cada ano fora disso encarece ${Math.round(RENOV_PREMIO_ANO*100)}%.</p></div>`;
+  abrir(`<div class="eyebrow">Renovação</div><h2 class="sec">${esc(p.nome)}</h2>
+  <p class="dim">Contrato atual: ${money(p.salario)}/mês, mais ${p.contrato} ano(s).
+    ${p.contrato<=1?'<b>Vence no fim desta temporada</b> — se não renovar, ele sai de graça.':''}</p>
+  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
+    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
+  <div class="grid g2" style="margin-top:12px">
+    <div><label class="dim">Salário mensal</label><br>
+      <input type="number" id="rSal" value="${pedidoParaAnos(d,anos0)}" step="500"></div>
+    <div><label class="dim">Anos de contrato</label><br>
+      <input type="number" id="rAnos" value="${anos0}" min="1" max="4"></div>
+  </div>
+  ${conta}
+  <div id="rFeed" style="margin-top:12px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn ghost" id="rJusto">Preencher com o que ele aceita</button>
+    <button class="btn" id="rEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
+    <button class="btn ghost" data-close>Cancelar</button></div>`);
+  $('#rJusto').onclick=()=>{
+    const anos=parseInt($('#rAnos').value)||anos0;
+    $('#rSal').value=pedidoParaAnos(d,anos);
+  };
+  $('#rEnviar').onclick=()=>{
+    const sal=parseFloat($('#rSal').value)||0, anos=parseInt($('#rAnos').value)||anos0;
+    const r=proporRenovacao(p,t,sal,anos);
+    if(!r.ok){
+      $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
+        r.motivos.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;
+      if(renovacaoFechada(p))$('#rEnviar').disabled=true;
+      return;
+    }
+    $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${esc(r.msg)}</div>`;
+    $('#rEnviar').disabled=true;
+  };
 }
 /* A conversa mora na ficha do jogador: é onde você já está olhando quando
    percebe que ele está mal. */
@@ -426,8 +515,8 @@ function modalEditarJogador(id){
   const bDel=M.querySelector('#edjFotoDel');
   if(bDel)bDel.onclick=async()=>{await Imgs.apagar(chaveFoto);modalEditarJogador(id);};
 
-  M.querySelector('#edjApagar').onclick=()=>{
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+  M.querySelector('#edjApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(id);
     fechar();flash(r.ok?r.msg:r.erro);
   };
@@ -629,8 +718,8 @@ function modalEditarStaff(id){
   const bd=M.querySelector('#edsFotoDel');
   if(bd)bd.onclick=async()=>{await Imgs.apagar(chave);modalEditarStaff(id);};
 
-  M.querySelector('#edsApagar').onclick=()=>{
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+  M.querySelector('#edsApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(id);fechar();flash(r.ok?r.msg:r.erro);
   };
   M.querySelector('#edsSalvar').onclick=async()=>{

@@ -161,7 +161,10 @@ function veto(A,B,bo){
      preferência do clube conseguia produzir. */
   const gosta=(t,m)=>gostaDeMapa(t,m)+gauss(0,1.5);
   const banir=t=>{pool.sort((a,b)=>gosta(t,a)-gosta(t,b));const m=pool.shift();seq.push({m,tipo:'ban',t:t.tag});};
-  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();seq.push({m,tipo:'pick',t:t.tag});};
+  /* quem escolhe o mapa entrega o lado ao outro, como no circuito */
+  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();
+    const outro=t===A?B:A, l=ladoPreferido(outro,m);
+    seq.push({m,tipo:'pick',t:t.tag,lado0:outro===A?l:(l==='atk'?'def':'atk'),ladoPor:outro.tag});};
   const ordem=[A,B];
   const picks = bo===1?0 : bo===3?2 : 4;
   /* dois bans de abertura, depois os picks alternados */
@@ -170,11 +173,13 @@ function veto(A,B,bo){
   /* bans alternados até sobrar um: o decider é o mapa que ninguém quis vetar.
      Fazer isso por contagem (e não por número fixo de bans) mantém o veto
      correto com qualquer tamanho de pool. */
-  let v=0;
-  while(pool.length>1){banir(ordem[v%2]);v++;}
-  seq.push({m:pool[0],tipo:'dec',t:'—'});
-  const mapas=seq.filter(s=>s.tipo!=='ban').map(s=>s.m);
-  return{seq,mapas};
+  let v=0,ultimo=null;
+  while(pool.length>1){ultimo=ordem[v%2];banir(ultimo);v++;}
+  /* no decider o lado é de quem não fez o último ban */
+  const dono=ultimo===A?B:A, ld=ladoPreferido(dono,pool[0]);
+  seq.push({m:pool[0],tipo:'dec',t:'—',lado0:dono===A?ld:(ld==='atk'?'def':'atk'),ladoPor:dono.tag});
+  const jogados=seq.filter(s=>s.tipo!=='ban');
+  return{seq,mapas:jogados.map(s=>s.m),lados:jogados.map(s=>s.lado0||null)};
 }
 
 /* ============================================================
@@ -194,7 +199,7 @@ function veto(A,B,bo){
    a tela também consegue conduzir, e aí o tempo pedido no 3-8
    muda o que vem depois.
    ============================================================ */
-function abrirMapa(A,B,mapa){
+function abrirMapa(A,B,mapa,ladoInicialA){
   const st={};
   [A,B].forEach(t=>t.titulares.forEach(id=>{
     st[id]={k:0,d:0,a:0,fk:0,fd:0,cl:0,rounds:0};
@@ -221,7 +226,10 @@ function abrirMapa(A,B,mapa){
      primeiro para ele sempre, e quem cai atrás no primeiro tempo às vezes
      perde o mapa antes de chegar ao tempo em que era forte. Estar listado
      primeiro numa tabela não pode custar partida. */
-  const ladoA=rnd()<0.5?'atk':'def';
+  const sorteio=rnd()<0.5?'atk':'def';
+  /* O lado escolhido no veto vale mais que a moeda. O sorteio acontece mesmo
+     assim, para o resto do mapa consumir o gerador na mesma ordem de sempre. */
+  const ladoA=(ladoInicialA==='atk'||ladoInicialA==='def')?ladoInicialA:sorteio;
   return{A,B,mapa,st,sa:0,sb:0,hist:[],
          ecoA:2,ecoB:2,perdaA:0,perdaB:0,
          diaA,diaB,fA,fB,ladoA,r:0,fim:false,
@@ -354,7 +362,7 @@ function abrirSerie(aId,bId,bo,vetoPronto){
      para o motor continuar sendo o único dono do sorteio: a tela escolhe os
      mapas, o motor joga. */
   const v=(vetoPronto&&vetoPronto.mapas&&vetoPronto.mapas.length)
-    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice()}
+    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice(),lados:(vetoPronto.lados||[]).slice()}
     :veto(A,B,bo);
   return{A,B,aId,bId,bo,veto:v,need:Math.ceil(bo/2),
          mapas:[],wa:0,wb:0,idx:0,M:null,fim:false};
@@ -363,7 +371,7 @@ function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas
 /* Abre o próximo mapa da série, ou devolve null quando não há mais. */
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
-  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx]);
+  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
   return S.M;
 }
 /* Fecha o mapa corrente e contabiliza. */

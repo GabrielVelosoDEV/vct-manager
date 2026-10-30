@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/agentes/` com o nome exato da lista. O nome é
 nome do agente em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-27/27 com imagem.
+29/29 com imagem.
 
 ## Duelista
 
@@ -37,6 +37,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `astra.png` — Astra
 - [x] `harbor.png` — Harbor
 - [x] `clove.png` — Clove
+- [x] `mix.png` — Mix
 
 ## Sentinela
 
@@ -46,3 +47,4 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `chamber.png` — Chamber
 - [x] `deadlock.png` — Deadlock
 - [x] `vyse.png` — Vyse
+- [x] `veto.png` — Veto

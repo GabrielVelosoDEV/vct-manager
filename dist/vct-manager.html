@@ -312,6 +312,11 @@ tr.me:hover{background:rgba(255,70,85,.19)}
 .ovl .box{background:var(--panel);width:100%;max-width:900px;border:1px solid var(--line2);
   border-top:4px solid var(--red);padding:22px 24px}
 .ovl .box.wide{max-width:1140px}
+/* diálogo do jogo: acima do modal, porque a pergunta costuma nascer dentro dele */
+#dialogo .ovl{z-index:80}
+#dialogo .box{max-width:460px}
+#dialogo .dlg-txt{margin:6px 0 18px;line-height:1.5}
+#dialogo .dlg-bts{display:flex;gap:8px;justify-content:flex-end}
 .x{position:absolute;top:14px;right:18px;font-size:22px;color:var(--tx2)}
 .veto{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
 .veto span{font-size:10.5px;padding:4px 8px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;
@@ -614,6 +619,7 @@ tr.descansa td{opacity:.62}
   <main id="view"></main>
 </div>
 <div id="modal"></div>
+<div id="dialogo"></div>
 <div id="toast"></div>
 
 <script>
@@ -673,8 +679,8 @@ const ROLES=['Duelista','Iniciador','Controlador','Sentinela','Flex'];
 const AGENTS={
   Duelista:['Jett','Raze','Phoenix','Reyna','Yoru','Neon','Iso','Waylay'],
   Iniciador:['Sova','Skye','Breach','KAY/O','Fade','Gekko','Tejo'],
-  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove'],
-  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse'],
+  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove','Mix'],
+  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse','Veto'],
   Flex:['Omen','Sage','KAY/O','Raze','Viper','Skye','Cypher']
 };
 const ATTRS=[['mira','Mira'],['reflexo','Reflexo'],['mov','Movimentação'],['util','Utilidade'],
@@ -4530,6 +4536,24 @@ const PRESETS_COMP=[
 function aplicarPreset(t,mapa,preset){
   const c=compDe(t,mapa);
   const linhas=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean);
+  /* Melhor agora é a comp INTEIRA mais forte, não cinco escolhas boas uma de
+     cada vez. Parte do guloso e do conforto, melhora os dois trocando boneco
+     entre jogadores, e fica com o que pesoComp mais gostar. */
+  if(preset==='melhor'){
+    const cands=['_guloso','conforto'].map(pr=>{
+      const x=Object.assign({},c);
+      montarPreset(t,mapa,pr==='_guloso'?'melhor':pr,x,linhas);
+      repararComp(t,mapa,x,linhas);
+      return melhorarComp(mapa,x,linhas);
+    });
+    const melhor=cands.sort((a,b)=>notaDaComp(mapa,b,linhas)-notaDaComp(mapa,a,linhas))[0];
+    linhas.forEach(p=>{if(melhor[p.id])c[p.id]=melhor[p.id];});
+    return c;
+  }
+  montarPreset(t,mapa,preset,c,linhas);
+  return repararComp(t,mapa,c,linhas);
+}
+function montarPreset(t,mapa,preset,c,linhas){
   const tomados=new Set();
   const escolher=p=>{
     const dele=(p.agentes||[]).slice();
@@ -4560,7 +4584,81 @@ function aplicarPreset(t,mapa,preset){
     const ag=escolher(p);
     if(ag){c[p.id]=ag;tomados.add(ag);}
   }
-  return repararComp(t,mapa,c,linhas);
+  return c;
+}
+/* A mesma conta de pesoComp, só que sobre uma comp candidata em vez da que
+   está gravada no time. As duas têm de concordar, senão o preset otimiza uma
+   coisa e a partida mede outra. */
+function notaDaComp(mapa,c,linhas){
+  let f=0;
+  const funs={},usados={};
+  for(const p of linhas){
+    const ag=(c[p.id]&&funcaoConhece(c[p.id]))?c[p.id]:melhorAgenteDe(p);
+    if(!ag)continue;
+    const fun=funcaoDoAgente(ag);
+    f+=(nivelAgente(p,ag)-COMP_FAMILIAR_BASE)*COMP_PESO_FAMILIAR
+      +(forcaMeta(ag)-META_NEUTRO)*COMP_PESO_META
+      +encaixeNoMapa(fun,mapa);
+    funs[fun]=(funs[fun]||0)+1;
+    usados[ag]=(usados[ag]||0)+1;
+  }
+  if(!((funs['Controlador']||0)+(funs['Flex']||0)))f-=COMP_PENA_SEM_SMOKE;
+  if(!(funs['Iniciador']||0))f-=COMP_PENA_SEM_INICIA;
+  for(const ag in usados)if(usados[ag]>1)f-=COMP_PENA_DUPLA*(usados[ag]-1);
+  return f;
+}
+/* Busca local: troca o boneco de um jogador, ou troca bonecos entre dois, e
+   aceita o movimento que mais sobe a nota. O guloso errava justamente aqui:
+   dois controladores que sabem Astra e Harbor, e o primeiro da lista pegava o
+   boneco em que o segundo era melhor. Roda toda semana para os 80 clubes, então
+   o valor de cada jogador em cada boneco é calculado uma vez só e a nota da
+   comp vira soma de tabela. Nada aqui sorteia. */
+function melhorarComp(mapa,c,linhas){
+  const x={};
+  const pools=linhas.map(p=>{
+    const lista=[...new Set([c[p.id],...(p.agentes||[]),...(agentesDe(p.roleAtual||p.role)||[])])]
+      .filter(a=>a&&funcaoConhece(a));
+    const val={},fun={};
+    lista.forEach(a=>{val[a]=valorDoAgente(p,a,mapa);fun[a]=funcaoDoAgente(a);});
+    return{p,lista,val,fun};
+  });
+  pools.forEach(({p,lista})=>{x[p.id]=(c[p.id]&&funcaoConhece(c[p.id]))?c[p.id]:(melhorAgenteDe(p)||lista[0]);});
+  const nota=y=>{
+    let f=0,smoke=0,inicia=0;const usados={};
+    for(const{p,val,fun}of pools){
+      const ag=y[p.id];if(!ag)continue;
+      if(val[ag]===undefined){val[ag]=valorDoAgente(p,ag,mapa);fun[ag]=funcaoDoAgente(ag);}
+      f+=val[ag];
+      if(fun[ag]==='Controlador'||fun[ag]==='Flex')smoke++;
+      if(fun[ag]==='Iniciador')inicia++;
+      usados[ag]=(usados[ag]||0)+1;
+    }
+    if(!smoke)f-=COMP_PENA_SEM_SMOKE;
+    if(!inicia)f-=COMP_PENA_SEM_INICIA;
+    for(const ag in usados)if(usados[ag]>1)f-=COMP_PENA_DUPLA*(usados[ag]-1);
+    return f;
+  };
+  for(let it=0;it<20;it++){
+    const base=nota(x);
+    let melhor=null;
+    for(const{p,lista}of pools){
+      for(const a of lista){
+        if(a===x[p.id])continue;
+        const dono=linhas.find(q=>q.id!==p.id&&x[q.id]===a);
+        const antes=x[p.id];
+        if(dono)x[dono.id]=antes;
+        x[p.id]=a;
+        const n=nota(x);
+        x[p.id]=antes;
+        if(dono)x[dono.id]=a;
+        if(n>base+1e-9&&(!melhor||n>melhor.n))melhor={n,p,a,dono};
+      }
+    }
+    if(!melhor)break;
+    if(melhor.dono)x[melhor.dono.id]=x[melhor.p.id];
+    x[melhor.p.id]=melhor.a;
+  }
+  return Object.assign({},c,x);
 }
 /* Escolher jogador a jogador é guloso e cego para a comp inteira: medido, o
    preset "melhor" saía PIOR que o "conforto" em Ascent (1,22 contra 1,79)
@@ -4612,9 +4710,20 @@ function limparComps(t){
    e o resultado aparecia no relatório de scouting: clubes escalando Deadlock
    com familiaridade 0 porque o meta pedia. Time nenhum faz isso — o meta é
    alvo de treino, não escalação de sábado. */
+/* A busca da comp inteira custa, e roda para 80 clubes. Ela só é refeita
+   quando algo que a decide mudou — titulares, patch, rotação de mapas — ou a
+   cada quatro semanas, que é o ritmo em que a familiaridade anda o bastante
+   para trocar um boneco. */
+const COMP_IA_INTERVALO=4;
 function compIA(t){
   if(!t||t.id===G.meuTime)return null;
-  for(const mapa of (G.mapasAtivos||[]))aplicarPreset(t,mapa,'melhor');
+  const ativos=G.mapasAtivos||[];
+  const assin=(t.titulares||[]).join(',')+'|'+ativos.join(',')+'|'+JSON.stringify(G.meta||{});
+  const semana=(G.ano||0)*100+(G.semana||0);
+  const faltaMapa=ativos.some(m=>!(t.comps&&t.comps[m]));
+  if(!faltaMapa&&t.compAssin===assin&&semana-(t.compSemana||0)<COMP_IA_INTERVALO)return t.comps;
+  for(const mapa of ativos)aplicarPreset(t,mapa,'melhor');
+  t.compAssin=assin;t.compSemana=semana;
   return t.comps;
 }
 
@@ -4908,6 +5017,8 @@ function cobrarPromessas(t){
     if(!venceu)continue;
     p.moral=clamp(p.moral-0.32,0.05,1);
     delete p.promessa;
+    /* guardado para a renovação: ele lembra na hora de assinar */
+    p.promessaQuebrada={ano:G.ano,semana:G.semana};
     quebradas++;
     /* o vestiário toma conhecimento: promessa quebrada não fica entre dois */
     (t.elenco||[]).forEach(i=>{const x=G.jogadores[i];
@@ -5162,9 +5273,38 @@ function iniciarVeto(meuId,advId,bo,euComeco){
     /* lado 0 é quem abre o veto. Em torneio quem abre é o cabeça de chave;
        aqui é quem está listado primeiro, igual ao veto automático. */
     euSouLado:euComeco?0:1,
-    pool, passos:roteiroVeto(bo||3,pool.length),
+    pool, passos:comLados(roteiroVeto(bo||3,pool.length)),
     i:0, seq:[], fim:false
   };
+}
+/* ---------- lado de início ----------
+   No circuito quem escolhe o mapa não escolhe o lado: o outro time decide se
+   começa atacando ou defendendo. No decider, escolhe quem NÃO fez o último
+   ban. O passo de lado entra logo depois do mapa a que ele se refere, e o
+   lado fica gravado no próprio mapa da sequência (lado0 = lado de início de
+   quem abriu o veto, que é o time A da série). */
+function comLados(passos){
+  const out=[];
+  let ultimoBan=0;
+  for(const p of passos){
+    out.push(p);
+    if(p.tipo==='ban')ultimoBan=p.lado;
+    if(p.tipo==='pick')out.push({tipo:'lado',lado:1-p.lado});
+    if(p.tipo==='dec')out.push({tipo:'lado',lado:1-ultimoBan});
+  }
+  return out;
+}
+const outroLado=l=>l==='atk'?'def':'atk';
+/* O lado em que o clube prefere começar: o mais forte dele naquele mapa. Lê
+   forcaTime, que não sorteia. */
+function ladoPreferido(t,mapa){
+  if(!t||typeof forcaTime!=='function')return 'def';
+  return forcaTime(t,mapa,'atk')>forcaTime(t,mapa,'def')?'atk':'def';
+}
+/* O mapa cujo lado está sendo decidido: o último que não foi banido. */
+function vetoMapaDoLado(V){
+  for(let i=V.seq.length-1;i>=0;i--)if(V.seq[i].tipo!=='ban')return V.seq[i];
+  return null;
 }
 function vetoPasso(V){return V&&!V.fim?V.passos[V.i]:null;}
 function vetoMinhaVez(V){
@@ -5180,6 +5320,7 @@ function vetoEscolhaIA(V){
   const p=vetoPasso(V);
   if(!p)return null;
   const t=G.times[p.lado===V.euSouLado?V.meuId:V.advId];
+  if(p.tipo==='lado'){const x=vetoMapaDoLado(V);return x?ladoPreferido(t,x.m):'def';}
   const restam=vetoRestantes(V);
   if(!restam.length)return null;
   const ord=restam.slice().sort((a,b)=>gostaDeMapa(t,b)-gostaDeMapa(t,a));
@@ -5189,11 +5330,21 @@ function vetoEscolhaIA(V){
 function vetoEscolher(V,mapa){
   const p=vetoPasso(V);
   if(!p||V.fim)return null;
+  if(p.tipo==='lado'){
+    const x=vetoMapaDoLado(V);
+    const escolha=(mapa==='atk'||mapa==='def')?mapa:vetoEscolhaIA(V);
+    const dono=G.times[p.lado===V.euSouLado?V.meuId:V.advId];
+    if(x){x.lado0=p.lado===0?escolha:outroLado(escolha);x.ladoPor=dono.tag;}
+    V.i++;
+    if(V.i>=V.passos.length)V.fim=true;
+    return{m:x&&x.m,tipo:'lado',lado:escolha,meu:p.lado===V.euSouLado};
+  }
   const restam=vetoRestantes(V);
   if(p.tipo==='dec'){
     const m=restam[0];
     V.seq.push({m,tipo:'dec',t:'—'});
-    V.i++;V.fim=true;
+    V.i++;
+    if(V.i>=V.passos.length)V.fim=true;
     return{m,tipo:'dec'};
   }
   const m=(mapa&&restam.includes(mapa))?mapa:vetoEscolhaIA(V);
@@ -5212,7 +5363,8 @@ function vetoAvancarAteMim(V){
 }
 /* No formato que simPartida consome. */
 function vetoResultado(V){
-  return{seq:V.seq,mapas:V.seq.filter(x=>x.tipo!=='ban').map(x=>x.m)};
+  const jogados=V.seq.filter(x=>x.tipo!=='ban');
+  return{seq:V.seq,mapas:jogados.map(x=>x.m),lados:jogados.map(x=>x.lado0||null)};
 }
 /* Um veto inteiro resolvido pela máquina, sem sorteio — usado quando você
    desliga o veto manual e quando o teste precisa de um veto reprodutível. */
@@ -5388,7 +5540,10 @@ function veto(A,B,bo){
      preferência do clube conseguia produzir. */
   const gosta=(t,m)=>gostaDeMapa(t,m)+gauss(0,1.5);
   const banir=t=>{pool.sort((a,b)=>gosta(t,a)-gosta(t,b));const m=pool.shift();seq.push({m,tipo:'ban',t:t.tag});};
-  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();seq.push({m,tipo:'pick',t:t.tag});};
+  /* quem escolhe o mapa entrega o lado ao outro, como no circuito */
+  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();
+    const outro=t===A?B:A, l=ladoPreferido(outro,m);
+    seq.push({m,tipo:'pick',t:t.tag,lado0:outro===A?l:(l==='atk'?'def':'atk'),ladoPor:outro.tag});};
   const ordem=[A,B];
   const picks = bo===1?0 : bo===3?2 : 4;
   /* dois bans de abertura, depois os picks alternados */
@@ -5397,11 +5552,13 @@ function veto(A,B,bo){
   /* bans alternados até sobrar um: o decider é o mapa que ninguém quis vetar.
      Fazer isso por contagem (e não por número fixo de bans) mantém o veto
      correto com qualquer tamanho de pool. */
-  let v=0;
-  while(pool.length>1){banir(ordem[v%2]);v++;}
-  seq.push({m:pool[0],tipo:'dec',t:'—'});
-  const mapas=seq.filter(s=>s.tipo!=='ban').map(s=>s.m);
-  return{seq,mapas};
+  let v=0,ultimo=null;
+  while(pool.length>1){ultimo=ordem[v%2];banir(ultimo);v++;}
+  /* no decider o lado é de quem não fez o último ban */
+  const dono=ultimo===A?B:A, ld=ladoPreferido(dono,pool[0]);
+  seq.push({m:pool[0],tipo:'dec',t:'—',lado0:dono===A?ld:(ld==='atk'?'def':'atk'),ladoPor:dono.tag});
+  const jogados=seq.filter(s=>s.tipo!=='ban');
+  return{seq,mapas:jogados.map(s=>s.m),lados:jogados.map(s=>s.lado0||null)};
 }
 
 /* ============================================================
@@ -5421,7 +5578,7 @@ function veto(A,B,bo){
    a tela também consegue conduzir, e aí o tempo pedido no 3-8
    muda o que vem depois.
    ============================================================ */
-function abrirMapa(A,B,mapa){
+function abrirMapa(A,B,mapa,ladoInicialA){
   const st={};
   [A,B].forEach(t=>t.titulares.forEach(id=>{
     st[id]={k:0,d:0,a:0,fk:0,fd:0,cl:0,rounds:0};
@@ -5448,7 +5605,10 @@ function abrirMapa(A,B,mapa){
      primeiro para ele sempre, e quem cai atrás no primeiro tempo às vezes
      perde o mapa antes de chegar ao tempo em que era forte. Estar listado
      primeiro numa tabela não pode custar partida. */
-  const ladoA=rnd()<0.5?'atk':'def';
+  const sorteio=rnd()<0.5?'atk':'def';
+  /* O lado escolhido no veto vale mais que a moeda. O sorteio acontece mesmo
+     assim, para o resto do mapa consumir o gerador na mesma ordem de sempre. */
+  const ladoA=(ladoInicialA==='atk'||ladoInicialA==='def')?ladoInicialA:sorteio;
   return{A,B,mapa,st,sa:0,sb:0,hist:[],
          ecoA:2,ecoB:2,perdaA:0,perdaB:0,
          diaA,diaB,fA,fB,ladoA,r:0,fim:false,
@@ -5581,7 +5741,7 @@ function abrirSerie(aId,bId,bo,vetoPronto){
      para o motor continuar sendo o único dono do sorteio: a tela escolhe os
      mapas, o motor joga. */
   const v=(vetoPronto&&vetoPronto.mapas&&vetoPronto.mapas.length)
-    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice()}
+    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice(),lados:(vetoPronto.lados||[]).slice()}
     :veto(A,B,bo);
   return{A,B,aId,bId,bo,veto:v,need:Math.ceil(bo/2),
          mapas:[],wa:0,wb:0,idx:0,M:null,fim:false};
@@ -5590,7 +5750,7 @@ function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas
 /* Abre o próximo mapa da série, ou devolve null quando não há mais. */
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
-  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx]);
+  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
   return S.M;
 }
 /* Fecha o mapa corrente e contabiliza. */
@@ -7227,6 +7387,134 @@ function mercadoTransferencias(){
   }
   for(const id in G.times)autoEscalar(G.times[id]);
   return fechados;
+}
+
+
+/* ===== src/core/renovacao.js ===== */
+/* ============================================================
+   RENOVAÇÃO DE CONTRATO
+   ------------------------------------------------------------
+   Até aqui renovar era uma pergunta de sim ou não: sempre três
+   anos, sempre 12% a mais, e o jogador nunca dizia não. O único
+   contrato que você assinava sem negociar era o do próprio
+   elenco.
+
+   Agora é a mesma lógica da compra (transferencia.js): o jogador
+   tem um pedido explicado linha a linha e uma duração que ele
+   quer. Três coisas mexem no pedido:
+     · COMO ELE ESTÁ NO CLUBE  moral, minutos, promessa quebrada
+     · O QUE ELE VALE LÁ FORA  quem é melhor que o clube cobra
+                               para ficar
+     · A FASE DA CARREIRA      garoto em ascensão quer contrato
+                               curto para renegociar valorizado;
+                               veterano quer segurança
+
+   Nada aqui sorteia. A negociação acontece a partir de um clique,
+   e o gerador semeado é do motor — o mesmo motivo do veto.
+   ============================================================ */
+
+/* Propostas recusadas antes de ele fechar a porta, e por quanto tempo. */
+const RENOV_TENTATIVAS=3;
+const RENOV_ESPERA=8;
+/* Prêmio por ano fora da duração que ele quer. */
+const RENOV_PREMIO_ANO=0.07;
+
+function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+/* O que ele pede para ficar, e por quê. */
+function pedidoRenovacao(p,t){
+  const base=salario(p);
+  const itens=[];
+  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  let f=1;
+  const titular=(t.titulares||[]).includes(p.id);
+
+  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15);
+  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95);
+  if(!titular)f*=juntar('Quer jogar mais do que joga',1.08);
+  /* promessa quebrada pesa por um ano */
+  const pq=p.promessaQuebrada;
+  if(pq&&((G.ano-pq.ano)*SEMANAS_ANO+((G.semana||1)-pq.semana))<SEMANAS_ANO)
+    f*=juntar('Você quebrou uma promessa com ele',1.20);
+
+  /* quem é melhor que o próprio clube tem mercado e sabe disso */
+  const folga=over(p)-nivelDoClube(t);
+  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
+
+  if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */
+  const caindo=p.pico&&over(p)<p.pico-4;
+  let pedido=Math.round(base*f/100)*100;
+  if(!caindo&&pedido<p.salario){
+    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f)});
+    pedido=p.salario;
+  }
+
+  /* a duração que ele quer */
+  const subindo=p.idade<=22&&p.pot-over(p)>=5;
+  const anos=subindo?[1,2]:p.idade>=29?[2,4]:[2,3];
+  return{base,itens,pedido:Math.max(300,pedido),anos,
+         motivoAnos:subindo?'Está crescendo: quer contrato curto para renegociar valorizado.'
+                   :p.idade>=29?'Veterano: prefere contrato longo.'
+                   :'Aceita de dois a três anos.'};
+}
+/* O pedido para uma duração específica: cada ano fora do que ele quer custa. */
+function pedidoParaAnos(d,anos){
+  const fora=anos<d.anos[0]?d.anos[0]-anos:anos>d.anos[1]?anos-d.anos[1]:0;
+  return Math.round(d.pedido*(1+fora*RENOV_PREMIO_ANO)/100)*100;
+}
+function renovacaoFechada(p){
+  return !!(p.renovBloq&&_semanaAbs()<p.renovBloq);
+}
+function semanasAteRenovar(p){
+  return renovacaoFechada(p)?p.renovBloq-_semanaAbs():0;
+}
+/* Recusa que dinheiro não resolve. */
+function recusasRenovacao(p,t,anos){
+  const fora=[];
+  if(p.timeId!==t.id)fora.push(p.nome+' não é do seu elenco.');
+  if(anos<1||anos>4)fora.push('Duração de contrato inaceitável (1 a 4 anos).');
+  if(renovacaoFechada(p))
+    fora.push(p.nome+' encerrou a conversa. Tente de novo em '+semanasAteRenovar(p)+' semana(s).');
+  if(p.moral<0.25&&!(t.titulares||[]).includes(p.id))
+    fora.push(p.nome+' não quer renovar: está no banco e infeliz. Converse com ele antes.');
+  return fora;
+}
+/* Lista de motivos; vazia é acordo. */
+function avaliarRenovacao(p,t,sal,anos){
+  const mot=recusasRenovacao(p,t,anos);
+  if(mot.length)return mot;
+  const d=pedidoRenovacao(p,t);
+  const alvo=pedidoParaAnos(d,anos);
+  if(sal<alvo*0.97){
+    const principal=d.itens.slice().sort((a,b)=>b.fator-a.fator)[0];
+    mot.push('Ele quer perto de '+money(alvo)+'/mês por '+anos+' ano(s)'+
+      (principal&&principal.fator>1.04?' — pesa: '+principal.rot.toLowerCase():'')+'.');
+  }
+  return mot;
+}
+/* Proposta enviada. Recusa conta tentativa; acordo fecha contrato. */
+function proporRenovacao(p,t,sal,anos){
+  const mot=avaliarRenovacao(p,t,sal,anos);
+  if(mot.length){
+    if(!renovacaoFechada(p)&&p.timeId===t.id){
+      p.renovTent=(p.renovTent||0)+1;
+      if(p.renovTent>=RENOV_TENTATIVAS){
+        p.renovTent=0;p.renovBloq=_semanaAbs()+RENOV_ESPERA;
+        p.moral=clamp(p.moral-0.05,0.05,1);
+        mot.push(p.nome+' cansou de proposta baixa e fechou a conversa por '+RENOV_ESPERA+' semanas.');
+      }else{
+        mot.push('Restam '+(RENOV_TENTATIVAS-p.renovTent)+' proposta(s) antes de ele fechar a conversa.');
+      }
+    }
+    return{ok:false,motivos:mot};
+  }
+  const d=pedidoRenovacao(p,t);
+  const generoso=sal>=pedidoParaAnos(d,anos)*1.10;
+  p.contrato=anos;p.salario=Math.round(sal);
+  p.renovTent=0;delete p.renovBloq;
+  p.moral=clamp(p.moral+(generoso?0.09:0.05),0.05,1);
+  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.');
+  return{ok:true,msg:p.nome+' renovou por '+anos+' ano(s).'+(generoso?' Saiu valorizado.':'')};
 }
 
 
@@ -11541,6 +11829,41 @@ function abrir(html,wide){
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
+/* ---------- diálogo do jogo ----------
+   No lugar das janelas nativas (alert e confirm): elas quebram o visual, travam a
+   página inteira e, dentro do app de PC, dependem da webview para aparecer.
+   Fica numa camada própria acima do modal, então perguntar dentro de uma
+   ficha aberta não apaga a ficha. Devolve uma promessa: true no botão de
+   confirmar, false em cancelar, Esc ou clique fora. */
+function dialogo(o){
+  let c=$('#dialogo');
+  if(!c){c=document.createElement('div');c.id='dialogo';document.body.appendChild(c);}
+  return new Promise(res=>{
+    c.innerHTML=`<div class="ovl"><div class="box">
+      ${o.titulo?`<div class="eyebrow">${esc(o.titulo)}</div>`:''}
+      <div class="dlg-txt">${esc(o.texto||'')}</div>
+      <div class="dlg-bts">
+        ${o.nao?`<button class="btn ghost" id="dlgNao">${esc(o.nao)}</button>`:''}
+        <button class="btn" id="dlgSim">${esc(o.sim||'Entendi')}</button>
+      </div></div></div>`;
+    const sair=v=>{c.innerHTML='';document.removeEventListener('keydown',tecla,true);res(v);};
+    const tecla=e=>{
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sair(!o.nao);}
+      else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sair(true);}
+    };
+    document.addEventListener('keydown',tecla,true);
+    const ovl=c.querySelector('.ovl');
+    ovl.onclick=e=>{e.stopPropagation();if(e.target===ovl)sair(!o.nao);};
+    c.querySelector('#dlgSim').onclick=e=>{e.stopPropagation();sair(true);};
+    const n=c.querySelector('#dlgNao');if(n)n.onclick=e=>{e.stopPropagation();sair(false);};
+    c.querySelector('#dlgSim').focus();
+  });
+}
+function avisar(texto,titulo){return dialogo({texto,titulo:titulo||'Atenção',sim:'Entendi'});}
+function confirmar(texto,sim){
+  return dialogo({texto,titulo:'Confirmar',sim:sim||'Confirmar',nao:'Cancelar'});
+}
+
 function modalJogador(id){
   const p=P(id);if(!p)return;
   const t=meu();
@@ -11603,7 +11926,61 @@ function modalJogador(id){
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
+  const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+}
+/* ---------- renovação ----------
+   Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
+   duração que ele quer, e o retorno dele quando a oferta não chega. */
+function modalRenovacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  const d=pedidoRenovacao(p,t);
+  const duras=recusasRenovacao(p,t,d.anos[0]);
+  const anos0=d.anos[0];
+  const conta=`<div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
+    <table><tbody>
+      <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
+      ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
+        <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+      <tr><td><b>Pedido por ${d.anos[0]===d.anos[1]?d.anos[0]:d.anos[0]+' a '+d.anos[1]} ano(s)</b></td>
+        <td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
+    </tbody></table>
+    <p class="dim" style="margin-top:6px">${esc(d.motivoAnos)} Cada ano fora disso encarece ${Math.round(RENOV_PREMIO_ANO*100)}%.</p></div>`;
+  abrir(`<div class="eyebrow">Renovação</div><h2 class="sec">${esc(p.nome)}</h2>
+  <p class="dim">Contrato atual: ${money(p.salario)}/mês, mais ${p.contrato} ano(s).
+    ${p.contrato<=1?'<b>Vence no fim desta temporada</b> — se não renovar, ele sai de graça.':''}</p>
+  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
+    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
+  <div class="grid g2" style="margin-top:12px">
+    <div><label class="dim">Salário mensal</label><br>
+      <input type="number" id="rSal" value="${pedidoParaAnos(d,anos0)}" step="500"></div>
+    <div><label class="dim">Anos de contrato</label><br>
+      <input type="number" id="rAnos" value="${anos0}" min="1" max="4"></div>
+  </div>
+  ${conta}
+  <div id="rFeed" style="margin-top:12px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn ghost" id="rJusto">Preencher com o que ele aceita</button>
+    <button class="btn" id="rEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
+    <button class="btn ghost" data-close>Cancelar</button></div>`);
+  $('#rJusto').onclick=()=>{
+    const anos=parseInt($('#rAnos').value)||anos0;
+    $('#rSal').value=pedidoParaAnos(d,anos);
+  };
+  $('#rEnviar').onclick=()=>{
+    const sal=parseFloat($('#rSal').value)||0, anos=parseInt($('#rAnos').value)||anos0;
+    const r=proporRenovacao(p,t,sal,anos);
+    if(!r.ok){
+      $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
+        r.motivos.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;
+      if(renovacaoFechada(p))$('#rEnviar').disabled=true;
+      return;
+    }
+    $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${esc(r.msg)}</div>`;
+    $('#rEnviar').disabled=true;
+  };
 }
 /* A conversa mora na ficha do jogador: é onde você já está olhando quando
    percebe que ele está mal. */
@@ -11956,8 +12333,8 @@ function modalEditarJogador(id){
   const bDel=M.querySelector('#edjFotoDel');
   if(bDel)bDel.onclick=async()=>{await Imgs.apagar(chaveFoto);modalEditarJogador(id);};
 
-  M.querySelector('#edjApagar').onclick=()=>{
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+  M.querySelector('#edjApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(id);
     fechar();flash(r.ok?r.msg:r.erro);
   };
@@ -12159,8 +12536,8 @@ function modalEditarStaff(id){
   const bd=M.querySelector('#edsFotoDel');
   if(bd)bd.onclick=async()=>{await Imgs.apagar(chave);modalEditarStaff(id);};
 
-  M.querySelector('#edsApagar').onclick=()=>{
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+  M.querySelector('#edsApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(id);fechar();flash(r.ok?r.msg:r.erro);
   };
   M.querySelector('#edsSalvar').onclick=async()=>{
@@ -12246,7 +12623,7 @@ function modalVeredito(v){
    sabe que mapa o adversário vai banir primeiro.
    ============================================================ */
 
-let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'} */
+let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'|'comps'} */
 
 function prePartidaDisponivel(){
   if(!G||!G.meuTime)return null;
@@ -12274,11 +12651,23 @@ function ppPular(){
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
   ppConfirmar();
 }
+/* Mapa da série sem nenhuma escolha sua: a comissão monta a melhor comp, em
+   vez de cada um entrar no boneco que mais joga — que às vezes eram três
+   iniciadores e nenhum controlador. O que você escolheu não é tocado. */
+function ppCompsAutomaticas(){
+  const t=PP.meu;
+  for(const x of PP.V.seq){
+    if(x.tipo==='ban')continue;
+    const c=(t.comps&&t.comps[x.m])||{};
+    if(!(t.titulares||[]).some(id=>c[id]))aplicarPreset(t,x.m,'melhor');
+  }
+}
 function ppConfirmar(){
   if(!PP)return;
   const V=PP.V;
   let voltas=0;
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
+  ppCompsAutomaticas();
   const comp=PP.comp;
   const plano={stageId:comp.stage.id,veto:vetoResultado(V)};
   const d=PP.depois;PP=null;
@@ -12299,6 +12688,30 @@ function ppConfirmar(){
   }
   if(d)d(plano);
 }
+/* Lado de início do SEU clube num mapa da sequência. lado0 é sempre do time
+   que abriu o veto. */
+function ppMeuLado(x){
+  if(!x||!x.lado0)return null;
+  return PP.V.euSouLado===0?x.lado0:(x.lado0==='atk'?'def':'atk');
+}
+function ppNomeLado(l){return l==='atk'?'atacando':l==='def'?'defendendo':'—';}
+/* O passo de lado: quem não escolheu o mapa decide onde começa. A tela mostra
+   a sua força de cada lado naquele mapa e o viés real do mapa. */
+function ppLadoHTML(minha){
+  const V=PP.V, x=vetoMapaDoLado(V);
+  if(!x)return '';
+  const atk=forcaTime(PP.meu,x.m,'atk'), def=forcaTime(PP.meu,x.m,'def');
+  const vies=(typeof MAPA_ATK!=='undefined'&&MAPA_ATK[x.m])||50;
+  const melhor=atk>def?'atk':'def';
+  return `<div class="card"><div class="eyebrow">${minha?'Sua vez de escolher o LADO':'Vez do '+esc(PP.adv.tag)+' escolher o lado'} · ${esc(x.m)}</div>
+    <div class="dim" style="margin-bottom:8px">${esc(x.m)}: o ataque ganha ${vies}% dos rounds no circuito.
+      Seu time é mais forte ${ppNomeLado(melhor)} aqui (ataque ${atk.toFixed(1)} · defesa ${def.toFixed(1)}).</div>
+    ${minha?`<div style="display:flex;gap:8px">
+      <button class="btn ${melhor==='atk'?'':'ghost'}" data-pplado="atk">Começar atacando</button>
+      <button class="btn ${melhor==='def'?'':'ghost'}" data-pplado="def">Começar defendendo</button></div>`
+      :'<div class="dim">Eles estão decidindo.</div>'}
+  </div>`;
+}
 function ppEscolher(mapa){
   if(!PP||!PP.V)return;
   if(!vetoMinhaVez(PP.V))return;
@@ -12311,9 +12724,19 @@ function ppIrParaVeto(){if(PP){PP.etapa='veto';ppPintar();}}
 /* ---------- desenho ---------- */
 function ppPintar(){
   if(!PP)return;
-  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():ppVetoHTML(),true);
+  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():PP.etapa==='comps'?ppCompsHTML():ppVetoHTML(),true);
   const M=$('#modal');
   M.querySelectorAll('[data-ppmapa]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.ppmapa));
+  M.querySelectorAll('[data-pplado]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.pplado));
+  M.querySelectorAll('[data-pppreset]').forEach(b=>b.onclick=()=>{
+    const [mapa,preset]=b.dataset.pppreset.split('|');
+    const mapas=mapa==='*'?PP.V.seq.filter(x=>x.tipo!=='ban').map(x=>x.m):[mapa];
+    mapas.forEach(m=>aplicarPreset(PP.meu,m,preset));ppPintar();});
+  M.querySelectorAll('[data-ppag]').forEach(el=>el.onchange=()=>{
+    const [mapa,pid]=el.dataset.ppag.split('|');
+    definirAgente(PP.meu,mapa,pid,el.value);ppPintar();});
+  const lcomp=M.querySelector('#ppComps');if(lcomp)lcomp.onclick=()=>{ppCompsAutomaticas();PP.etapa='comps';ppPintar();};
+  const lvv=M.querySelector('#ppVoltarVeto');if(lvv)lvv.onclick=()=>{PP.etapa='veto';ppPintar();};
   const li=M.querySelector('#ppVeto');if(li)li.onclick=ppIrParaVeto;
   const lp=M.querySelector('#ppPular');if(lp)lp.onclick=ppPular;
   const lc=M.querySelector('#ppOk');if(lc)lc.onclick=ppConfirmar;
@@ -12385,7 +12808,7 @@ function ppVetoHTML(){
   const meuT=PP.meu, advT=PP.adv;
   const linhaSeq=V.seq.map(x=>`<span class="chip ${x.tipo==='ban'?'r':x.tipo==='dec'?'':'g'}">
       ${x.tipo==='ban'?'✕':x.tipo==='dec'?'★':'✓'} ${esc(x.m)}
-      <span class="dim">${esc(x.t)}</span></span>`).join(' ');
+      <span class="dim">${esc(x.t)}${x.lado0?' · '+esc(meuT.tag)+' '+ppNomeLado(ppMeuLado(x)):''}</span></span>`).join(' ');
   const cartoes=restam.map(mp=>{
     const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
     const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
@@ -12411,7 +12834,9 @@ function ppVetoHTML(){
           <td class="dim">${x.tipo==='dec'?'decider':('escolha do '+esc(x.t))}</td>
           <td class="c"><span class="pill ${afinidadeElenco(meuT,x.m)>=1?'g':afinidadeElenco(meuT,x.m)<=-1?'r':''}"
             >você ${afinidadeElenco(meuT,x.m)>0?'+':''}${afinidadeElenco(meuT,x.m).toFixed(1)}</span></td>
+          <td class="dim">${x.lado0?'você começa '+ppNomeLado(ppMeuLado(x))+' <span style="font-size:11px">(escolha do '+esc(x.ladoPor||'')+')</span>':''}</td>
           </tr>`).join('')}</tbody></table></div>`
+      :passo.tipo==='lado'?ppLadoHTML(minha)
       :`<div class="card"><div class="eyebrow">${minha
           ?(passo.tipo==='ban'?'Sua vez de BANIR':'Sua vez de ESCOLHER o mapa')
           :'Vez do '+esc(advT.tag)}</div>
@@ -12422,8 +12847,60 @@ function ppVetoHTML(){
         <div class="mp-grid">${cartoes}</div></div>`}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppVoltar">‹ Relatório</button>
-      ${V.fim?'<button class="btn" id="ppOk">Jogar a partida ›</button>'
+      ${V.fim?'<span><button class="btn ghost" id="ppComps">Montar as comps ›</button> <button class="btn" id="ppOk">Jogar a partida ›</button></span>'
              :'<button class="btn ghost" id="ppPular">Deixar a comissão terminar</button>'}
+    </div>`;
+}
+
+/* ---------- comps da série ----------
+   Depois do veto você sabe os mapas, e é agora que a comp de cada um importa.
+   É a mesma comp da tela Comps (gravada por mapa no clube), só que limitada
+   aos mapas desta série e com a comp provável deles ao lado, quando o seu
+   analista consegue ler. */
+function ppCompsHTML(){
+  const V=PP.V, meuT=PP.meu;
+  const jogados=V.seq.filter(x=>x.tipo!=='ban');
+  const r=relatorioScout(meuT,PP.adv,PP.comp.bo);
+  const blocos=jogados.map((x,i)=>{
+    const mp=x.m;
+    const peso=pesoComp(meuT,mp);
+    const deles=(r.mapas.find(m=>m.mapa===mp)||{}).comp;
+    const funs={};compEscalada(meuT,mp).forEach(l=>{funs[l.fun]=(funs[l.fun]||0)+1;});
+    const buracos=[];
+    if(!((funs['Controlador']||0)+(funs['Flex']||0)))buracos.push('sem controlador');
+    if(!(funs['Iniciador']||0))buracos.push('sem iniciador');
+    const linhas=compEscalada(meuT,mp).map(({p,ag,nivel})=>`<tr>
+      <td><b>${esc(p.nome)}</b> <span class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</span></td>
+      <td><select data-ppag="${esc(mp)}|${p.id}">
+        ${agentesParaComp(p).map(a=>`<option value="${esc(a.nome)}" ${a.nome===ag?'selected':''}
+          >${esc(a.nome)} · ${a.nivel}/${a.teto} · meta ${forcaMeta(a.nome)}</option>`).join('')}
+      </select></td>
+      <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
+    </tr>`).join('');
+    return `<div class="card flat"><div class="split">
+        <div class="eyebrow">Mapa ${i+1} · ${esc(mp)}${x.lado0?' · você começa '+ppNomeLado(ppMeuLado(x)):''}</div>
+        <span class="dim">força da comp <b class="num ${peso>=1.5?'up':peso<=0?'dn':''}">${peso>0?'+':''}${peso.toFixed(2)}</b></span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${PRESETS_COMP.map(pr=>
+        `<button class="btn ghost sm" data-pppreset="${esc(mp)}|${pr.id}" title="${esc(pr.dica)}">${esc(pr.rot)}</button>`).join('')}</div>
+      <table class="wide"><thead><tr><th>Jogador</th><th>Agente</th><th class="c">Sabe</th></tr></thead>
+        <tbody>${linhas}</tbody></table>
+      ${buracos.length?`<div style="color:var(--red);font-size:12px;margin-top:6px">⚠ ${buracos.join(' · ')}: a comp perde força em todo round</div>`:''}
+      <div class="dim" style="font-size:11px;margin-top:6px">${esc(PP.adv.tag)}: ${deles
+        ?deles.map(c=>esc(c.ag)+(c.nivel!==null?' '+c.nivel:'')).join(' · ')
+        :'comp desconhecida (o relatório precisa de nível 4)'}</div>
+    </div>`;
+  }).join('');
+  return `<div class="split">
+      <div><div class="eyebrow">Comps da série · Bo${V.bo}</div>
+        <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(PP.adv.tag)}</h2></div>
+    </div>
+    <div class="split" style="margin:8px 0"><p class="dim" style="margin:0">Quem pega o quê em cada mapa. O que você muda aqui fica gravado na comp do mapa, a mesma da tela Comps.</p>
+      <button class="btn ghost sm" data-pppreset="*|melhor">Melhor agora nos ${jogados.length} mapas</button></div>
+    ${blocos}
+    <div class="split" style="margin-top:14px">
+      <button class="btn ghost" id="ppVoltarVeto">‹ Veto</button>
+      <button class="btn" id="ppOk">Jogar a partida ›</button>
     </div>`;
 }
 
@@ -13657,13 +14134,13 @@ function ligarEventos(){
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);
-    if(t.caixa<c){alert('Caixa insuficiente: '+money(c)+' necessários.');return;}
+    if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
     t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.');render();
   });
   on('[data-prop]',el=>modalProposta(el.dataset.prop));
   on('[data-assumir]',el=>{
     const r=assumirClube(el.dataset.assumir);
-    if(!r.ok){alert(r.erro||'Não deu para assumir esse clube.');return;}
+    if(!r.ok){avisar(r.erro||'Não deu para assumir esse clube.');return;}
     flash(r.msg);irPara('inicio');
   });
   on('[data-treinomapa]',el=>{definirMapaTreino(t,el.dataset.treinomapa||null);render();});
@@ -13675,25 +14152,22 @@ function ligarEventos(){
   });
   on('[data-aceitar]',el=>{
     const r=aceitarProposta(el.dataset.aceitar);
-    if(!r.ok){alert(r.erro||'A proposta não pôde ser aceita.');return;}
+    if(!r.ok){avisar(r.erro||'A proposta não pôde ser aceita.');return;}
     noticia('🤝 '+r.msg);render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
-  on('[data-renov]',el=>{
-    const p=P(el.dataset.renov);const novo=Math.round(salario(p)*1.12/100)*100;
-    if(confirm('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
-  });
-  on('[data-disp]',el=>{
+  on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
+  on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);
-    if(t.elenco.length<=5){alert('Você precisa de pelo menos 5 jogadores.');return;}
-    if(confirm('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.')){
+    if(t.elenco.length<=5){avisar('Você precisa de pelo menos 5 jogadores.');return;}
+    if(await confirmar('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.','Dispensar')){
       t.caixa-=p.salario*p.contrato*6;liberar(p);render();}
   });
   /* ---- conversa com o elenco ---- */
   on('[data-conversa]',el=>{
     const [pid,opcao]=String(el.dataset.conversa).split(':');
     const r=conversarCom(t,P(pid),opcao);
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     fechar();
     flash(r.msg+(r.delta?' (moral '+(r.delta>0?'+':'')+r.delta+')':''));
   });
@@ -13748,7 +14222,7 @@ function ligarEventos(){
       caixa:val('#edCaixa',t2.caixa), patroc:val('#edPatroc',t2.patroc),
       logo:val('#edLogo',t2.logo||''), staff, estrutura, mapPref
     });
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     if(r.tagTrocada){
       Imgs.renomear(Imgs.chaveTime(r.tagTrocada.de),Imgs.chaveTime(r.tagTrocada.para))
         .then(()=>{render();flash('Time atualizado — imagem re-chaveada para '+r.tagTrocada.para+'.');});
@@ -13765,9 +14239,9 @@ function ligarEventos(){
 
   on('[data-edp]',el=>modalEditarJogador(el.dataset.edp));
   on('[data-edlivre]',el=>{const r=edLiberar(el.dataset.edlivre);render();flash(r.ok?r.msg:r.erro);});
-  on('[data-eddel]',el=>{
+  on('[data-eddel]',async el=>{
     const p=P(el.dataset.eddel);if(!p)return;
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(el.dataset.eddel);render();flash(r.ok?r.msg:r.erro);
   });
   v.querySelectorAll('[data-edmover]').forEach(sel=>sel.addEventListener('change',e=>{
@@ -13828,7 +14302,7 @@ function ligarEventos(){
     }catch(err){flash('Erro ao ler o arquivo.');}
   });
   on('#edImgLimpar',async()=>{
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -13843,10 +14317,10 @@ function ligarEventos(){
   on('[data-fichastaff]',el=>modalStaff(el.dataset.fichastaff));
   on('[data-propstaff]',el=>modalPropostaStaff(el.dataset.propstaff));
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));
-  on('[data-dispstaff]',el=>{
+  on('[data-dispstaff]',async el=>{
     const m=G.staff[el.dataset.dispstaff];if(!m)return;
     const multa=Math.round(m.salario*Math.max(1,m.contrato)*4);
-    if(!confirm('Dispensar '+m.nome+'? Multa de '+money(multa)+'.'))return;
+    if(!await confirmar('Dispensar '+m.nome+'? Multa de '+money(multa)+'.','Dispensar'))return;
     t.caixa-=multa;
     const r=liberarStaff(m.id);
     render();flash(r.ok?r.msg:r.erro);
@@ -13854,9 +14328,9 @@ function ligarEventos(){
   on('[data-edstafflivre]',el=>{
     const r=liberarStaff(el.dataset.edstafflivre);render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-edstaffdel]',el=>{
+  on('[data-edstaffdel]',async el=>{
     const m=G.staff[el.dataset.edstaffdel];if(!m)return;
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(m.id);render();flash(r.ok?r.msg:r.erro);
   });
   on('[data-edstaffnovo]',el=>{
@@ -13955,9 +14429,9 @@ function ligarEventos(){
     const r=edAddAgente(role,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-agdel]',el=>{
+  on('[data-agdel]',async el=>{
     const nome=el.dataset.agdel;
-    if(!confirm('Remover o agente '+nome+'? Quem já joga com ele continua igual.'))return;
+    if(!await confirmar('Remover o agente '+nome+'? Quem já joga com ele continua igual.','Remover'))return;
     const r=edRemoverAgente(el.dataset.agde,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
@@ -14058,8 +14532,8 @@ function ligarEventos(){
     if(!js){flash(avisoVazio);return;}
     edSaida=js;render();
   });
-  on('#edNovo',()=>{
-    if(!confirm('Isso apaga a base editada e gera um mundo novo. Continuar?'))return;
+  on('#edNovo',async()=>{
+    if(!await confirmar('Isso apaga a base editada e gera um mundo novo. Continuar?','Gerar mundo novo'))return;
     iniciarPreRun(Math.floor(Math.random()*900000)+1000);
   });
 
@@ -14077,13 +14551,13 @@ function ligarEventos(){
   bind('#cfgRostos','change',e=>{Prefs.set('rostosGerados',e.target.value);render();});
   on('#cfgApagarRuns',async()=>{
     if(!listaRuns.length){flash('Não há partidas salvas.');return;}
-    if(!confirm('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.'))return;
+    if(!await confirmar('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.','Apagar'))return;
     for(const r of listaRuns.slice())await Storage.apagar(r.id);
     await atualizarRuns();render();flash('Partidas apagadas.');
   });
   on('#cfgLimparImgs',async()=>{
     if(!Imgs.quantos()){flash('O pacote já está vazio.');return;}
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote?'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote?','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -14094,9 +14568,9 @@ function ligarEventos(){
     await atualizarRuns();render();flash(ok?'Run salva.':'Falha ao salvar — exporte o .json.');
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
-  on('#runNova',()=>{
+  on('#runNova',async()=>{
     const seed=parseInt(val('#runSeed'))||Math.floor(Math.random()*900000)+1000;
-    if(G&&G.meuTime&&!confirm('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.'))return;
+    if(G&&G.meuTime&&!await confirmar('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.','Criar mundo novo'))return;
     iniciarPreRun(seed);
   });
   on('[data-runload]',async el=>{
@@ -14105,7 +14579,7 @@ function ligarEventos(){
     tela='inicio';render();flash('Run carregada.');
   });
   on('[data-rundel]',async el=>{
-    if(!confirm('Apagar esta run definitivamente?'))return;
+    if(!await confirmar('Apagar esta run definitivamente?','Apagar'))return;
     await Storage.apagar(el.dataset.rundel);await atualizarRuns();render();
   });
   const dz=v.querySelector('#runDrop'),fi=v.querySelector('#runFile');

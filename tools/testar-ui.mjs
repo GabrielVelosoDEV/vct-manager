@@ -164,6 +164,8 @@ w.eval(`window.__t={
   get vetoResultado(){return vetoResultado;}, get vetoAvancarAteMim(){return vetoAvancarAteMim;},
   get vetoAutomatico(){return vetoAutomatico;}, get roteiroVeto(){return roteiroVeto;},
   get compromissoDaSemana(){return compromissoDaSemana;},
+  get abrirPrePartida(){return abrirPrePartida;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
+  get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
   get fecharMapa(){return fecharMapa;}, get pedirTempo(){return pedirTempo;},
   get podePedirTempo(){return podePedirTempo;}, get TEMPOS_POR_MAPA(){return TEMPOS_POR_MAPA;},
@@ -225,6 +227,14 @@ const $=s=>w.document.querySelector(s);
 const $$=s=>[...w.document.querySelectorAll(s)];
 const disparar=(el,tipo)=>el.dispatchEvent(new w.Event(tipo,{bubbles:true}));
 const clicar=el=>el.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
+/* O jogo pergunta pela própria janela, não por confirm(): responde a ela. */
+const responder=async(sim=true)=>{
+  await espera(0);
+  const b=w.document.querySelector(sim?'#dlgSim':'#dlgNao');
+  if(!b)throw new Error('o diálogo do jogo não abriu');
+  clicar(b);
+  await espera(10);
+};
 const corpo=()=>$('#menuCorpo')||$('#view');
 
 /* ============================================================
@@ -489,7 +499,7 @@ await teste('upload de escudo entra no pacote e vira o src',async()=>{
   t.edAba='imagens';w.render();
   if(!$$('.imgcard').length)throw new Error('aba Imagens não listou');
   clicar($('#edImgLimpar'));
-  await espera(10);
+  await responder();
   if(t.Imgs.quantos()!==0)throw new Error('limpar não esvaziou');
 });
 
@@ -588,7 +598,7 @@ await teste('aba Agentes lista, adiciona, move de função e remove',async()=>{
   if(!w.agentesDe('Sentinela').includes('Testinha'))throw new Error('não mudou de função');
   if(w.agentesDe('Duelista').includes('Testinha'))throw new Error('ficou nas duas funções');
   clicar($('[data-agdel="Testinha"]'));
-  await espera(10);
+  await responder();
   if(w.todosAgentes().some(a=>a.nome==='Testinha'))throw new Error('não removeu');
 });
 
@@ -3735,6 +3745,165 @@ await teste('o veto segue o formato do circuito em Bo1, Bo3 e Bo5',async()=>{
     if(res.seq.filter(x=>x.tipo==='dec').length!==1)throw new Error('Bo'+bo+': decider errado');
     for(const x of res.seq)if(!t.mapaAtivo(x.m))throw new Error('Bo'+bo+': '+x.m+' não está em rotação');
   }
+});
+
+await teste('renovação: pedido explicado, sem sorteio, e o jogador pode recusar',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.moral=0.6;delete p.renovBloq;p.renovTent=0;
+    const sem=t.semente;
+    const d=w.pedidoRenovacao(p,time);
+    if(!(d.pedido>0)||!d.anos||d.anos[0]>d.anos[1])throw new Error('pedido sem valor ou sem duração: '+JSON.stringify(d));
+    /* proposta baixa: recusa e conta tentativa */
+    const r1=w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    if(r1.ok)throw new Error('aceitou metade do pedido');
+    if(t.semente!==sem)throw new Error('a negociação consumiu sorteio do motor');
+    /* três recusas fecham a porta */
+    w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    if(!w.renovacaoFechada(p))throw new Error('três propostas baixas não fecharam a conversa');
+    const r2=w.proporRenovacao(p,time,d.pedido*2,d.anos[0]);
+    if(r2.ok)throw new Error('com a conversa fechada ainda renovou');
+    /* reaberto, a proposta justa fecha */
+    delete p.renovBloq;
+    const alvo=w.pedidoParaAnos(w.pedidoRenovacao(p,time),d.anos[1]);
+    const moral0=p.moral;
+    const r3=w.proporRenovacao(p,time,alvo,d.anos[1]);
+    if(!r3.ok)throw new Error('recusou o próprio pedido: '+r3.motivos.join(' '));
+    if(p.contrato!==d.anos[1]||p.salario!==alvo)throw new Error('contrato não ficou como acordado');
+    if(!(p.moral>moral0))throw new Error('renovar não levantou a moral');
+  }finally{Object.assign(p,JSON.parse(foto));delete p.renovBloq;}
+});
+
+await teste('renovação: garoto em ascensão quer contrato curto, e longo custa mais',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.idade=20;p.pot=Math.min(99,t.over(p)+12);
+    const d=w.pedidoRenovacao(p,time);
+    if(d.anos[1]>2)throw new Error('garoto em ascensão aceitou até '+d.anos[1]+' anos sem prêmio');
+    if(!(w.pedidoParaAnos(d,4)>w.pedidoParaAnos(d,2)))throw new Error('quatro anos não custaram mais que dois');
+  }finally{Object.assign(p,JSON.parse(foto));}
+});
+
+await teste('Finanças › Renovar abre a negociação e fecha acordo pela tela',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.moral=0.7;delete p.renovBloq;p.renovTent=0;
+    t.tela='financas';w.render();
+    const b=$('[data-renov="'+p.id+'"]');
+    if(!b)throw new Error('sem botão Renovar em Finanças');
+    clicar(b);
+    if(w.document.querySelector('#dialogo .ovl'))throw new Error('ainda abre um confirm em vez da negociação');
+    const M=w.document.querySelector('#modal');
+    if(!/Por que ele pede isso/.test(M.textContent))throw new Error('a negociação não explica o pedido');
+    clicar(M.querySelector('#rJusto'));
+    clicar(M.querySelector('#rEnviar'));
+    if(!/Acordo fechado/.test(M.textContent))throw new Error('o pedido dele não fechou acordo: '+M.querySelector('#rFeed').textContent);
+  }finally{Object.assign(p,JSON.parse(foto));w.document.querySelector('#modal').innerHTML='';}
+});
+
+await teste('nenhuma janela nativa do navegador no jogo',async()=>{
+  /* alert() e confirm() travam a página e, no app de PC, dependem da webview.
+     O jogo usa o próprio diálogo. */
+  const {readdirSync}=await import('node:fs');
+  const dir=resolve(raiz,'src/ui');
+  for(const f of readdirSync(dir).filter(x=>x.endsWith('.js'))){
+    const linhas=readFileSync(resolve(dir,f),'utf8').split('\n');
+    linhas.forEach((l,i)=>{
+      if(/^\s*(\/\*|\*)/.test(l))return;
+      if(/(^|[^.\w])(alert|confirm|prompt)\(/.test(l))
+        throw new Error(f+':'+(i+1)+' usa janela nativa: '+l.trim().slice(0,70));
+    });
+  }
+});
+
+await teste('o diálogo do jogo confirma, cancela e não apaga o modal aberto',async()=>{
+  w.abrir('<p id="fichaAberta">ficha</p>');
+  let r=w.confirmar('Apagar?','Apagar');
+  await responder(false);
+  if(await r!==false)throw new Error('cancelar não devolveu false');
+  if(!w.document.querySelector('#fichaAberta'))throw new Error('o diálogo apagou o modal de baixo');
+  r=w.confirmar('Apagar?','Apagar');
+  await responder(true);
+  if(await r!==true)throw new Error('confirmar não devolveu true');
+  r=w.avisar('Caixa insuficiente.');
+  await responder(true);
+  await r;
+  if(w.document.querySelector('#dialogo .ovl'))throw new Error('o diálogo ficou aberto');
+  w.document.querySelector('#modal').innerHTML='';
+});
+
+await teste('todo mapa jogado sai do veto com lado de início',async()=>{
+  /* Quem escolhe o mapa entrega o lado ao outro; no decider escolhe quem não
+     fez o último ban. Vale para o veto interativo e para o da IA. */
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  for(const bo of [1,3,5]){
+    const v=t.vetoAutomatico(time.id,adv.id,bo,true);
+    if(v.lados.length!==v.mapas.length||v.lados.some(l=>l!=='atk'&&l!=='def'))
+      throw new Error('Bo'+bo+' interativo: lados '+JSON.stringify(v.lados));
+    const sem=t.semente;
+    const S=t.abrirSerie(time.id,adv.id,bo);
+    t.semente=sem;
+    if(S.veto.lados.length!==S.veto.mapas.length||S.veto.lados.some(l=>l!=='atk'&&l!=='def'))
+      throw new Error('Bo'+bo+' da IA: lados '+JSON.stringify(S.veto.lados));
+  }
+  /* o seu clicar no lado vale */
+  const V=t.iniciarVeto(time.id,adv.id,3,true);
+  let n=0,escolhi=null;
+  while(!V.fim&&n++<40){
+    const passo=V.passos[V.i];
+    if(t.vetoMinhaVez(V)&&passo.tipo==='lado'){escolhi='atk';t.vetoEscolher(V,'atk');}
+    else t.vetoEscolher(V,t.vetoMinhaVez(V)?t.vetoRestantes(V)[0]:null);
+  }
+  if(!escolhi)throw new Error('o veto Bo3 não me deu nenhum passo de lado');
+  const meuPick=V.seq.find(x=>x.tipo==='pick'&&!x.meu);
+  if(!meuPick||meuPick.lado0!=='atk')throw new Error('escolhi atacar e o mapa ficou '+(meuPick&&meuPick.lado0));
+});
+
+await teste('o mapa começa no lado escolhido, sem mexer no sorteio',async()=>{
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  const mapa=t.G.mapasAtivos[0];
+  const sem=t.semente;
+  const M1=t.abrirMapa(time,adv,mapa,'def');
+  const depois1=t.semente;
+  t.semente=sem;
+  const M2=t.abrirMapa(time,adv,mapa);
+  const depois2=t.semente;
+  if(M1.ladoA!=='def')throw new Error('pedi defesa e o mapa começou '+M1.ladoA);
+  if(depois1!==depois2)throw new Error('escolher o lado consumiu sorteio diferente da moeda');
+});
+
+await teste('a pré-partida tem a etapa de comps da série',async()=>{
+  let c=null,n=0;
+  while(n<60&&!c){c=t.compromissoDaSemana();if(!c){t.avancar();n++;}}
+  if(!c)throw new Error('nenhuma partida minha em 60 semanas');
+  t.abrirPrePartida(c,()=>{});
+  try{
+    const V=t.PP.V;let k=0;
+    while(!V.fim&&k++<40)t.vetoEscolher(V,null);
+    t.PP.etapa='comps';t.ppPintar();
+    const M=w.document.querySelector('#modal');
+    const jogados=V.seq.filter(x=>x.tipo!=='ban').length;
+    const sel=M.querySelectorAll('[data-ppag]').length;
+    if(sel!==jogados*5)throw new Error(sel+' seletores de agente para '+jogados+' mapas');
+    if(!M.querySelector('[data-pppreset]'))throw new Error('sem presets na etapa de comps');
+    if(!/você começa/.test(M.textContent))throw new Error('a etapa de comps não mostra o lado de início');
+    /* trocar o agente pela tela grava na comp do mapa */
+    const s0=M.querySelector('[data-ppag]');
+    const [mapa,pid]=s0.dataset.ppag.split('|');
+    const outro=[...s0.options].map(o=>o.value).find(v=>v!==s0.value);
+    s0.value=outro;s0.dispatchEvent(new w.Event('change'));
+    const time=t.G.times[t.G.meuTime];
+    if(time.comps[mapa][pid]!==outro)throw new Error('a troca de agente não foi gravada');
+  }finally{t.ppFechar();}
 });
 
 await teste('a partida joga exatamente os mapas que o veto escolheu',async()=>{
