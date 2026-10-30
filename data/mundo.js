@@ -34,8 +34,8 @@ const ROLES=['Duelista','Iniciador','Controlador','Sentinela','Flex'];
 const AGENTS={
   Duelista:['Jett','Raze','Phoenix','Reyna','Yoru','Neon','Iso','Waylay'],
   Iniciador:['Sova','Skye','Breach','KAY/O','Fade','Gekko','Tejo'],
-  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove'],
-  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse'],
+  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove','Mix'],
+  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse','Veto'],
   Flex:['Omen','Sage','KAY/O','Raze','Viper','Skye','Cypher']
 };
 const ATTRS=[['mira','Mira'],['reflexo','Reflexo'],['mov','Movimentação'],['util','Utilidade'],

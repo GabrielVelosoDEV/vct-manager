@@ -673,8 +673,8 @@ const ROLES=['Duelista','Iniciador','Controlador','Sentinela','Flex'];
 const AGENTS={
   Duelista:['Jett','Raze','Phoenix','Reyna','Yoru','Neon','Iso','Waylay'],
   Iniciador:['Sova','Skye','Breach','KAY/O','Fade','Gekko','Tejo'],
-  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove'],
-  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse'],
+  Controlador:['Brimstone','Omen','Viper','Astra','Harbor','Clove','Mix'],
+  Sentinela:['Killjoy','Cypher','Sage','Chamber','Deadlock','Vyse','Veto'],
   Flex:['Omen','Sage','KAY/O','Raze','Viper','Skye','Cypher']
 };
 const ATTRS=[['mira','Mira'],['reflexo','Reflexo'],['mov','Movimentação'],['util','Utilidade'],
@@ -4530,6 +4530,24 @@ const PRESETS_COMP=[
 function aplicarPreset(t,mapa,preset){
   const c=compDe(t,mapa);
   const linhas=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean);
+  /* Melhor agora é a comp INTEIRA mais forte, não cinco escolhas boas uma de
+     cada vez. Parte do guloso e do conforto, melhora os dois trocando boneco
+     entre jogadores, e fica com o que pesoComp mais gostar. */
+  if(preset==='melhor'){
+    const cands=['_guloso','conforto'].map(pr=>{
+      const x=Object.assign({},c);
+      montarPreset(t,mapa,pr==='_guloso'?'melhor':pr,x,linhas);
+      repararComp(t,mapa,x,linhas);
+      return melhorarComp(mapa,x,linhas);
+    });
+    const melhor=cands.sort((a,b)=>notaDaComp(mapa,b,linhas)-notaDaComp(mapa,a,linhas))[0];
+    linhas.forEach(p=>{if(melhor[p.id])c[p.id]=melhor[p.id];});
+    return c;
+  }
+  montarPreset(t,mapa,preset,c,linhas);
+  return repararComp(t,mapa,c,linhas);
+}
+function montarPreset(t,mapa,preset,c,linhas){
   const tomados=new Set();
   const escolher=p=>{
     const dele=(p.agentes||[]).slice();
@@ -4560,7 +4578,81 @@ function aplicarPreset(t,mapa,preset){
     const ag=escolher(p);
     if(ag){c[p.id]=ag;tomados.add(ag);}
   }
-  return repararComp(t,mapa,c,linhas);
+  return c;
+}
+/* A mesma conta de pesoComp, só que sobre uma comp candidata em vez da que
+   está gravada no time. As duas têm de concordar, senão o preset otimiza uma
+   coisa e a partida mede outra. */
+function notaDaComp(mapa,c,linhas){
+  let f=0;
+  const funs={},usados={};
+  for(const p of linhas){
+    const ag=(c[p.id]&&funcaoConhece(c[p.id]))?c[p.id]:melhorAgenteDe(p);
+    if(!ag)continue;
+    const fun=funcaoDoAgente(ag);
+    f+=(nivelAgente(p,ag)-COMP_FAMILIAR_BASE)*COMP_PESO_FAMILIAR
+      +(forcaMeta(ag)-META_NEUTRO)*COMP_PESO_META
+      +encaixeNoMapa(fun,mapa);
+    funs[fun]=(funs[fun]||0)+1;
+    usados[ag]=(usados[ag]||0)+1;
+  }
+  if(!((funs['Controlador']||0)+(funs['Flex']||0)))f-=COMP_PENA_SEM_SMOKE;
+  if(!(funs['Iniciador']||0))f-=COMP_PENA_SEM_INICIA;
+  for(const ag in usados)if(usados[ag]>1)f-=COMP_PENA_DUPLA*(usados[ag]-1);
+  return f;
+}
+/* Busca local: troca o boneco de um jogador, ou troca bonecos entre dois, e
+   aceita o movimento que mais sobe a nota. O guloso errava justamente aqui:
+   dois controladores que sabem Astra e Harbor, e o primeiro da lista pegava o
+   boneco em que o segundo era melhor. Roda toda semana para os 80 clubes, então
+   o valor de cada jogador em cada boneco é calculado uma vez só e a nota da
+   comp vira soma de tabela. Nada aqui sorteia. */
+function melhorarComp(mapa,c,linhas){
+  const x={};
+  const pools=linhas.map(p=>{
+    const lista=[...new Set([c[p.id],...(p.agentes||[]),...(agentesDe(p.roleAtual||p.role)||[])])]
+      .filter(a=>a&&funcaoConhece(a));
+    const val={},fun={};
+    lista.forEach(a=>{val[a]=valorDoAgente(p,a,mapa);fun[a]=funcaoDoAgente(a);});
+    return{p,lista,val,fun};
+  });
+  pools.forEach(({p,lista})=>{x[p.id]=(c[p.id]&&funcaoConhece(c[p.id]))?c[p.id]:(melhorAgenteDe(p)||lista[0]);});
+  const nota=y=>{
+    let f=0,smoke=0,inicia=0;const usados={};
+    for(const{p,val,fun}of pools){
+      const ag=y[p.id];if(!ag)continue;
+      if(val[ag]===undefined){val[ag]=valorDoAgente(p,ag,mapa);fun[ag]=funcaoDoAgente(ag);}
+      f+=val[ag];
+      if(fun[ag]==='Controlador'||fun[ag]==='Flex')smoke++;
+      if(fun[ag]==='Iniciador')inicia++;
+      usados[ag]=(usados[ag]||0)+1;
+    }
+    if(!smoke)f-=COMP_PENA_SEM_SMOKE;
+    if(!inicia)f-=COMP_PENA_SEM_INICIA;
+    for(const ag in usados)if(usados[ag]>1)f-=COMP_PENA_DUPLA*(usados[ag]-1);
+    return f;
+  };
+  for(let it=0;it<20;it++){
+    const base=nota(x);
+    let melhor=null;
+    for(const{p,lista}of pools){
+      for(const a of lista){
+        if(a===x[p.id])continue;
+        const dono=linhas.find(q=>q.id!==p.id&&x[q.id]===a);
+        const antes=x[p.id];
+        if(dono)x[dono.id]=antes;
+        x[p.id]=a;
+        const n=nota(x);
+        x[p.id]=antes;
+        if(dono)x[dono.id]=a;
+        if(n>base+1e-9&&(!melhor||n>melhor.n))melhor={n,p,a,dono};
+      }
+    }
+    if(!melhor)break;
+    if(melhor.dono)x[melhor.dono.id]=x[melhor.p.id];
+    x[melhor.p.id]=melhor.a;
+  }
+  return Object.assign({},c,x);
 }
 /* Escolher jogador a jogador é guloso e cego para a comp inteira: medido, o
    preset "melhor" saía PIOR que o "conforto" em Ascent (1,22 contra 1,79)
@@ -4612,9 +4704,20 @@ function limparComps(t){
    e o resultado aparecia no relatório de scouting: clubes escalando Deadlock
    com familiaridade 0 porque o meta pedia. Time nenhum faz isso — o meta é
    alvo de treino, não escalação de sábado. */
+/* A busca da comp inteira custa, e roda para 80 clubes. Ela só é refeita
+   quando algo que a decide mudou — titulares, patch, rotação de mapas — ou a
+   cada quatro semanas, que é o ritmo em que a familiaridade anda o bastante
+   para trocar um boneco. */
+const COMP_IA_INTERVALO=4;
 function compIA(t){
   if(!t||t.id===G.meuTime)return null;
-  for(const mapa of (G.mapasAtivos||[]))aplicarPreset(t,mapa,'melhor');
+  const ativos=G.mapasAtivos||[];
+  const assin=(t.titulares||[]).join(',')+'|'+ativos.join(',')+'|'+JSON.stringify(G.meta||{});
+  const semana=(G.ano||0)*100+(G.semana||0);
+  const faltaMapa=ativos.some(m=>!(t.comps&&t.comps[m]));
+  if(!faltaMapa&&t.compAssin===assin&&semana-(t.compSemana||0)<COMP_IA_INTERVALO)return t.comps;
+  for(const mapa of ativos)aplicarPreset(t,mapa,'melhor');
+  t.compAssin=assin;t.compSemana=semana;
   return t.comps;
 }
 
