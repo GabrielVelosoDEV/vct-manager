@@ -152,6 +152,7 @@ function stageAplicar(s,res){
      algum torneio de fora e o histórico ficaria mentindo por omissão. */
   if(typeof registrarConfronto==='function')
     registrarConfronto(aId,bId,vencedor,nomeStage(s)||s.id);
+  if(typeof aplicarClassico==='function')aplicarClassico(vencedor,perdedor);
   if(s.tipo==='ko')s.elim.push(perdedor);
 }
 /* Depois de resolver uma rodada, já monta a próxima. É de propósito: assim a

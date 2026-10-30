@@ -245,12 +245,64 @@ function podePedirTempo(M,ehA){
   if(!M||M.fim)return false;
   return (ehA?M.temposA:M.temposB)>0;
 }
+/* O que se faz com o tempo. Antes ele era um bônus só; agora é a hora em que
+   o foco tático e a agressividade viram resposta ao que está acontecendo, em
+   vez de preferência marcada antes da partida. Mudança de tática vale até o
+   fim do mapa; o próximo mapa volta ao que está na tela de Táticas. */
+const TEMPO_OPCOES=[
+  {id:'acalmar',  rot:'Acalmar o time',   dica:'Corta a bola de neve: dois rounds de respiro.'},
+  {id:'agressivo',rot:'Partir para cima', dica:'Agressividade +2 até o fim do mapa.'},
+  {id:'travado',  rot:'Jogar travado',    dica:'Agressividade −2 até o fim do mapa.'},
+  {id:'execucao', rot:'Foco: execução',   dica:'Atropela quem está em default; perde para retake.'},
+  {id:'default',  rot:'Foco: default',    dica:'Lê quem espera retake; perde para execução.'},
+  {id:'retake',   rot:'Foco: retake',     dica:'Come execução; perde para default.'}
+];
+/* Recalcula a força dos dois lados com a tática de mapa em vigor. Lê
+   forcaTime e vantagemTatica, que não sorteiam. */
+function _recalcularMapa(M){
+  const{A,B}=M;
+  const tA=A.tatica,tB=B.tatica;
+  A.tatica=Object.assign({},tA,M.tatA||{});
+  B.tatica=Object.assign({},tB,M.tatB||{});
+  try{
+    const vA=vantagemTatica(A,B), vB=-vA;
+    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA,def:forcaTime(A,M.mapa,'def')+vA};
+    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB,def:forcaTime(B,M.mapa,'def')+vB};
+  }finally{A.tatica=tA;B.tatica=tB;}
+}
 /* Devolve o que aconteceu, para a narração ter o que dizer. */
-function pedirTempo(M,ehA){
+function pedirTempo(M,ehA,opcao){
   if(!podePedirTempo(M,ehA))return null;
-  if(ehA){M.temposA--;M.bonusA=TEMPO_ROUNDS;}
-  else{M.temposB--;M.bonusB=TEMPO_ROUNDS;}
-  return{ehA,restam:ehA?M.temposA:M.temposB,rounds:TEMPO_ROUNDS};
+  const op=TEMPO_OPCOES.find(o=>o.id===opcao)||TEMPO_OPCOES[0];
+  if(ehA)M.temposA--;else M.temposB--;
+  if(op.id==='acalmar'){
+    if(ehA)M.bonusA=TEMPO_ROUNDS;else M.bonusB=TEMPO_ROUNDS;
+  }else{
+    const t=ehA?M.A:M.B;
+    const atual=Object.assign({},t.tatica,(ehA?M.tatA:M.tatB)||{});
+    const mud=op.id==='agressivo'?{agres:clamp((atual.agres||3)+2,1,5)}
+             :op.id==='travado'?{agres:clamp((atual.agres||3)-2,1,5)}
+             :{foco:op.id};
+    if(ehA)M.tatA=Object.assign({},M.tatA||{},mud);else M.tatB=Object.assign({},M.tatB||{},mud);
+    _recalcularMapa(M);
+  }
+  return{ehA,opcao:op.id,rot:op.rot,restam:ehA?M.temposA:M.temposB,rounds:TEMPO_ROUNDS};
+}
+/* A comissão pede tempo sozinha quando o time sangra: quatro rounds
+   perdidos em sequência. Vale para todo clube que não está sendo conduzido
+   por você na tela. É a mesma regra para os dois lados, então não desloca a
+   vitória de ninguém — só corta a bola de neve, como no jogo de verdade. */
+const TEMPO_IA_SEQUENCIA=4;
+function tempoDaComissao(M){
+  for(const ehA of [true,false]){
+    if(ehA?M.manualA:M.manualB)continue;
+    if((ehA?M.seqPerdaA:M.seqPerdaB)>=TEMPO_IA_SEQUENCIA&&podePedirTempo(M,ehA)){
+      pedirTempo(M,ehA,'acalmar');
+      if(ehA)M.seqPerdaA=0;else M.seqPerdaB=0;
+      return ehA?'A':'B';
+    }
+  }
+  return null;
 }
 const ecoDeN=n=>n===0?2:n===1?(rnd()<.6?0:1):n===2?(rnd()<.5?1:2):2;
 /* Um round. Toda a aleatoriedade do mapa passa por aqui, na mesma ordem de
@@ -268,7 +320,7 @@ function passoRound(M){
   let dif=M.fA[ladoA]-M.fB[ladoB]+M.diaA-M.diaB;
   const ecoAntesA=M.ecoA, ecoAntesB=M.ecoB;
   if(!pistol)dif+=(M.ecoA-M.ecoB)*2.0;
-  if(pistol)dif+=(A.tatica.agres-B.tatica.agres)*1.2;
+  if(pistol)dif+=(((M.tatA&&M.tatA.agres)||A.tatica.agres)-((M.tatB&&M.tatB.agres)||B.tatica.agres))*1.2;
   /* Round é aleatório por natureza, e essa aleatoriedade é a mesma para
      todo mundo: um único parâmetro, sem depender de atributo. */
   dif+=gauss(0,RUIDO_ROUND);
@@ -310,6 +362,9 @@ function passoRound(M){
   if((M.sa>=13||M.sb>=13)&&Math.abs(M.sa-M.sb)>=2)M.fim=true;
   if(r>=24&&Math.abs(M.sa-M.sb)>=2&&(M.sa>=13||M.sb>=13))M.fim=true;
   if(r>60)M.fim=true;
+  if(venceA){M.seqPerdaA=0;M.seqPerdaB=(M.seqPerdaB||0)+1;}
+  else{M.seqPerdaB=0;M.seqPerdaA=(M.seqPerdaA||0)+1;}
+  if(!M.fim){const q=tempoDaComissao(M);if(q)linha.tempoPedido=q;}
   return linha;
 }
 function fecharMapa(M){
@@ -372,6 +427,8 @@ function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
   S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
+  /* o lado conduzido na tela pede o próprio tempo; o outro é da comissão */
+  S.M.manualA=!!S.manualA;S.M.manualB=!!S.manualB;
   return S.M;
 }
 /* Fecha o mapa corrente e contabiliza. */

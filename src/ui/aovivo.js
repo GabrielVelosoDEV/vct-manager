@@ -73,6 +73,8 @@ function partidaConduzida(S,ctx,aoFim){
     streak:0,ultimo:null,
     aviso:null      /* recado do pedido de tempo, para a narração dizer */
   };
+  /* o seu lado pede tempo por você; com a preferência desligada, a comissão */
+  if(Prefs.get('tempoTecnico'))S[souA?'manualA':'manualB']=true;
   serieAbrirMapa(S);
   avPintar();
   avAgendar(700);
@@ -80,6 +82,9 @@ function partidaConduzida(S,ctx,aoFim){
 /* Termina a série sem animar e devolve o resultado a quem pediu. */
 function avEncerrarConduzida(){
   const S=AV.S;
+  /* pulou para o fim: a comissão assume os tempos que sobraram */
+  S.manualA=S.manualB=false;
+  if(S.M){S.M.manualA=S.M.manualB=false;}
   while(!S.fim){
     if(!S.M&&!serieAbrirMapa(S))break;
     while(!S.M.fim)passoRound(S.M);
@@ -131,6 +136,13 @@ function avPassoConduzido(){
                          streak:AV.streak,ultimo:false});
   if(AV.aviso){l.texto=AV.aviso+' '+l.texto;AV.aviso=null;}
   AV.linhas.unshift(l);
+  /* tempo que a comissão pediu sozinha depois de uma sequência ruim */
+  if(h.tempoPedido){
+    const meuPediu=(h.tempoPedido==='A')===AV.souA;
+    const tag=meuPediu?AV.meu.tag:AV.adv.tag;
+    AV.linhas.unshift({texto:'⏱ '+tag+' pede tempo para acalmar o time.',peso:0.4,meu:meuPediu,
+      lado:l.lado,placar:l.placar,tempo:true});
+  }
   AV.roundIdx++;
   if(S.M.fim){                /* o round que acabou de sair fechou o mapa */
     avPintar();
@@ -143,13 +155,13 @@ function avPassoConduzido(){
 /* O pedido de tempo. Só existe no modo conduzido — no modo que apenas revela
    uma partida já resolvida ele não teria como mudar nada, e um botão que não
    muda nada é pior do que botão nenhum. */
-function avPedirTempo(){
+function avPedirTempo(opcao){
   if(!AV||!AV.conduzida||!AV.S||!AV.S.M)return;
   const ehA=AV.souA;
-  const r=pedirTempo(AV.S.M,ehA);
+  const r=pedirTempo(AV.S.M,ehA,opcao);
+  AV.escolhendoTempo=false;
   if(!r)return;
-  AV.aviso='⏱ Tempo pedido pelo '+AV.meu.tag+'.';
-  const l={texto:'⏱ '+AV.meu.tag+' pede tempo — '+r.restam+' restante(s) neste mapa.',
+  const l={texto:'⏱ '+AV.meu.tag+' pede tempo: '+r.rot.toLowerCase()+'. '+r.restam+' restante(s) neste mapa.',
            peso:0.5,meu:true,lado:AV.linhas[0]?AV.linhas[0].lado:'atk',
            placar:AV.linhas[0]?AV.linhas[0].placar:{meu:AV.S.M.sa,dele:AV.S.M.sb},
            tempo:true};
@@ -173,7 +185,7 @@ function avNarracaoAtual(){
 function avAgendar(ms){
   if(!AV||AV.fim)return;
   if(AV.timer)clearTimeout(AV.timer);
-  if(AV.pausado)return;
+  if(AV.pausado||AV.escolhendoTempo)return;
   AV.timer=setTimeout(avPasso,Math.max(60,ms));
 }
 
@@ -315,8 +327,12 @@ function avPintar(fim){
     <button class="btn ghost" id="avSair">Fechar</button>`
    :`
     <button class="btn ghost" id="avPausa">${AV.pausado?'Continuar':'Pausar'}</button>
-    ${avPodePedirTempo()?`<button class="btn" id="avTempo">⏱ Pedir tempo
-      <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`:''}
+    ${avPodePedirTempo()?(AV.escolhendoTempo
+      ?`<span class="av-tempo">${TEMPO_OPCOES.map(o=>`<button class="btn ghost sm" data-tempo="${o.id}"
+          title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}
+        <button class="btn ghost sm" id="avTempoCancela">Voltar</button></span>`
+      :`<button class="btn" id="avTempo">⏱ Pedir tempo
+      <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`):''}
     <span class="av-vels">${AV_VEL.map(([v,rot,mult])=>
       `<button class="${Math.abs(AV.vel-mult)<0.01?'on':''}" data-vel="${mult}">${rot}</button>`).join('')}</span>
     <button class="btn" id="avPular">Pular para o fim</button>`;
@@ -326,7 +342,11 @@ function avPintar(fim){
 
   const on=(sel,fn)=>{const el=$('#modal').querySelector(sel);if(el)el.onclick=fn;};
   on('#avPausa',()=>{AV.pausado=!AV.pausado;avPintar();if(!AV.pausado)avAgendar(120);});
-  on('#avTempo',()=>{avPedirTempo();if(!AV.pausado)avAgendar(700);});
+  /* pedir tempo pausa a partida até você escolher o que fazer com ele */
+  on('#avTempo',()=>{AV.escolhendoTempo=true;if(AV.timer)clearTimeout(AV.timer);avPintar();});
+  on('#avTempoCancela',()=>{AV.escolhendoTempo=false;avPintar();if(!AV.pausado)avAgendar(300);});
+  $('#modal').querySelectorAll('[data-tempo]').forEach(b=>b.onclick=()=>{
+    avPedirTempo(b.dataset.tempo);avPintar();if(!AV.pausado)avAgendar(700);});
   on('#avPular',avPular);
   on('#avFicha',()=>{const r=AV.res;avFechar();aba=0;modalPartida(r);});
   on('#avSair',avFechar);

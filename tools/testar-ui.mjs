@@ -164,7 +164,9 @@ w.eval(`window.__t={
   get vetoResultado(){return vetoResultado;}, get vetoAvancarAteMim(){return vetoAvancarAteMim;},
   get vetoAutomatico(){return vetoAutomatico;}, get roteiroVeto(){return roteiroVeto;},
   get compromissoDaSemana(){return compromissoDaSemana;},
-  get abrirPrePartida(){return abrirPrePartida;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
+  get abrirPrePartida(){return abrirPrePartida;}, get TEMPO_OPCOES(){return TEMPO_OPCOES;},
+  get tempoDaComissao(){return tempoDaComissao;}, get aplicarClassico(){return aplicarClassico;},
+  get partidaConduzida(){return partidaConduzida;}, get AV(){return AV;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
   get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
   get fecharMapa(){return fecharMapa;}, get pedirTempo(){return pedirTempo;},
@@ -3581,26 +3583,37 @@ await teste('o patch destrona em vez de achatar tudo em 50',async()=>{
 
 await teste('a comp muda de mapa para mapa',async()=>{
   /* A primeira versão escolhia agente sem olhar o mapa, e o relatório de
-     scouting mostrava literalmente a mesma comp oito vezes. */
+     scouting mostrava literalmente a mesma comp oito vezes.
+     O mapa só muda a comp de quem tem opção em mais de uma função: um elenco
+     em que cada um só conhece bonecos da própria função monta a mesma comp em
+     todo mapa, e isso é honesto. Então o teste dá a um titular um duelista e
+     um sentinela que ele joga igualmente bem, e cobra que o mapa decida. */
   const time=meuTimeDeTeste();
-  const foto=JSON.parse(JSON.stringify(time.comps||{}));
+  const foto=JSON.stringify(time.comps||{});
+  const tit=time.titulares.map(id=>t.G.jogadores[id]);
+  const p=tit.find(x=>['Duelista','Sentinela'].includes(x.roleAtual||x.role))||tit[0];
+  const fotoP={ag:(p.agentes||[]).slice(),nv:{...(p.agenteNivel||{})}};
   try{
-    /* Só dá para exigir variação entre mapas cujo pendor o jogo CONHECE: o
-       viés de lado é dado real (MAPA_ATK) e cobre os oito mapas do pool de
-       2026. Mapa que entrou por rotação e não está na tabela vale neutro, e
-       neutro contra neutro monta a mesma comp — o que é honesto, e não bug. */
+    const duel=t.agentesDe('Duelista'),sent=t.agentesDe('Sentinela');
+    let par=null;
+    for(const d of duel)for(const s2 of sent){
+      const dif=Math.abs(t.forcaMeta(d)-t.forcaMeta(s2));
+      if(!par||dif<par.dif)par={d,s:s2,dif};
+    }
+    p.agentes=[par.d,par.s];
+    p.agenteNivel=Object.assign({},p.agenteNivel,{[par.d]:88,[par.s]:88});
     const pool=(t.G.mapasAtivos||[]).filter(mp=>t.MAPA_ATK[mp]!==undefined);
     if(pool.length<2)throw new Error('nenhum par de mapas com dado de lado para comparar');
-    const pendores=new Set(pool.map(mp=>t.pendorDoMapa(mp).toFixed(2)));
-    if(pendores.size<2)throw new Error('os mapas do pool têm todos o mesmo pendor');
-    const assinaturas=new Set();
+    const deles=new Set();
     for(const mp of pool){
       t.aplicarPreset(time,mp,'melhor');
-      assinaturas.add(t.compEscalada(time,mp).map(l=>l.ag).join('|'));
+      deles.add(t.compEscalada(time,mp).find(l=>l.p.id===p.id).ag);
     }
-    if(assinaturas.size<2)
-      throw new Error('a mesma comp nos '+pool.length+' mapas com pendor diferente');
-  }finally{ time.comps=foto; }
+    if(deles.size<2)
+      throw new Error(p.nome+' pegou '+[...deles].join('/')+' nos '+pool.length+' mapas, com pendor de -0.6 a +1.0');
+  }finally{
+    time.comps=JSON.parse(foto);p.agentes=fotoP.ag;p.agenteNivel=fotoP.nv;
+  }
 });
 
 await teste('o preset Melhor não monta comp com buraco',async()=>{
@@ -3806,6 +3819,90 @@ await teste('Finanças › Renovar abre a negociação e fecha acordo pela tela'
     clicar(M.querySelector('#rEnviar'));
     if(!/Acordo fechado/.test(M.textContent))throw new Error('o pedido dele não fechou acordo: '+M.querySelector('#rFeed').textContent);
   }finally{Object.assign(p,JSON.parse(foto));w.document.querySelector('#modal').innerHTML='';}
+});
+
+await teste('o tempo muda a tática do mapa, e só dele',async()=>{
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  const mapa=t.G.mapasAtivos[0];
+  const foto={a:JSON.stringify(time.tatica),b:JSON.stringify(adv.tatica)};
+  time.tatica.foco='default';adv.tatica.foco='retake';
+  const M=t.abrirMapa(time,adv,mapa);
+  const antes=M.fA.atk;
+  const r=t.pedirTempo(M,true,'execucao');
+  if(!r||r.opcao!=='execucao')throw new Error('o tempo não aceitou trocar o foco');
+  if(M.fA.atk===antes)throw new Error('trocar o foco não mudou a força do mapa');
+  if(time.tatica.foco!=='default')throw new Error('o tempo mexeu na tática gravada do clube');
+  t.pedirTempo(M,true,'agressivo');
+  if(M.tatA.foco!=='execucao'||!(M.tatA.agres>=4))throw new Error('o segundo tempo apagou o primeiro: '+JSON.stringify(M.tatA));
+  if(t.pedirTempo(M,true,'acalmar'))throw new Error('passou do limite de tempos');
+  /* o mapa seguinte volta ao que está na tela de Táticas */
+  const M2=t.abrirMapa(time,adv,mapa);
+  if(M2.tatA)throw new Error('a tática do tempo vazou para o mapa seguinte');
+  time.tatica=JSON.parse(foto.a);adv.tatica=JSON.parse(foto.b);
+});
+
+await teste('a comissão pede tempo depois de quatro rounds perdidos, menos no lado conduzido',async()=>{
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  const M=t.abrirMapa(time,adv,t.G.mapasAtivos[0]);
+  M.seqPerdaA=4;
+  if(t.tempoDaComissao(M)!=='A')throw new Error('a comissão não pediu tempo');
+  if(!(M.bonusA>0)||M.temposA!==t.TEMPOS_POR_MAPA-1)throw new Error('o tempo da comissão não valeu');
+  const M2=t.abrirMapa(time,adv,t.G.mapasAtivos[0]);
+  M2.manualA=true;M2.seqPerdaA=6;
+  if(t.tempoDaComissao(M2))throw new Error('a comissão pediu tempo no lado que você conduz');
+});
+
+await teste('o clássico mexe no vestiário e na torcida, o jogo comum não',async()=>{
+  const time=meuTimeDeTeste();
+  const rival=Object.values(t.G.times).find(x=>x.id!==time.id&&x.regiao===time.regiao&&(x.titulares||[]).length>=5);
+  const ids=[...time.titulares,...rival.titulares];
+  const foto=JSON.stringify({h:t.G.h2h,m:ids.map(id=>t.G.jogadores[id].moral),ta:time.torcida,tb:rival.torcida});
+  try{
+    ids.forEach(id=>{t.G.jogadores[id].moral=0.6;});
+    time.torcida=60;rival.torcida=60;
+    /* sem histórico: não é clássico */
+    t.G.h2h={};
+    if(t.aplicarClassico(time.id,rival.id))throw new Error('primeiro encontro contou como clássico');
+    /* doze jogos empatados entre vizinhos: clássico */
+    for(let i=0;i<12;i++)t.registrarConfronto(time.id,rival.id,i%2?time.id:rival.id,'teste');
+    const r=t.aplicarClassico(time.id,rival.id);
+    if(!r)throw new Error('doze jogos equilibrados entre vizinhos não viraram clássico');
+    if(!(t.G.jogadores[time.titulares[0]].moral>0.6))throw new Error('vencer o clássico não levantou o vestiário');
+    if(!(t.G.jogadores[rival.titulares[0]].moral<0.6))throw new Error('perder o clássico não pesou');
+    if(!(time.torcida>60)||!(rival.torcida<60))throw new Error('o clássico não mexeu na torcida');
+  }finally{
+    const f=JSON.parse(foto);t.G.h2h=f.h;ids.forEach((id,i)=>{t.G.jogadores[id].moral=f.m[i];});
+    time.torcida=f.ta;rival.torcida=f.tb;
+  }
+});
+
+await teste('na partida conduzida, pedir tempo abre as opções e pausa',async()=>{
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  const ligado=t.Prefs.get('tempoTecnico');
+  t.Prefs.set('tempoTecnico',true);
+  const ids=[...time.elenco,...adv.elenco];
+  const foto=JSON.stringify({p:ids.map(id=>t.G.jogadores[id]),a:time,b:adv});
+  try{
+    const S=t.abrirSerie(time.id,adv.id,3);
+    t.partidaConduzida(S,{},()=>{});
+    const M=w.document.querySelector('#modal');
+    const b=M.querySelector('#avTempo');
+    if(!b)throw new Error('sem botão de pedir tempo');
+    clicar(b);
+    const ops=M.querySelectorAll('[data-tempo]');
+    if(ops.length!==t.TEMPO_OPCOES.length)throw new Error(ops.length+' opções de tempo na tela');
+    if(t.AV.timer&&t.AV.escolhendoTempo===false)throw new Error('não pausou para escolher');
+    clicar(M.querySelector('[data-tempo="retake"]'));
+    if(!(S.M.tatA&&S.M.tatA.foco==='retake'))throw new Error('a escolha da tela não chegou ao mapa');
+    if(!/foco: retake/i.test(M.textContent))throw new Error('a narração não contou o tempo');
+  }finally{
+    w.avFechar();t.Prefs.set('tempoTecnico',ligado);
+    const f=JSON.parse(foto);ids.forEach((id,i)=>Object.assign(t.G.jogadores[id],f.p[i]));
+    Object.assign(time,f.a);Object.assign(adv,f.b);
+  }
 });
 
 await teste('nenhuma janela nativa do navegador no jogo',async()=>{
