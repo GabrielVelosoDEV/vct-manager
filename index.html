@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VCT Manager — simulador de e-sports</title>
+<link rel="icon" href="assets/ui/favicon.png">
+<!-- Fontes embutidas em base64. Antes vinham do Google Fonts, e sem rede o
+     jogo caía na fonte de sistema — o que muda a proporção de tudo, porque
+     Bebas Neue é condensada e a fonte de sistema não é.
+     Gerado por tools/fontes.mjs. Licenças em LICENSES-FONTES.md. -->
+<link rel="stylesheet" href="src/ui/fontes.css">
+<link rel="stylesheet" href="src/ui/styles.css">
+</head>
+<body class="modo-menu">
+<div id="app">
+  <!-- shell do menu principal: sem sidebar nem topbar -->
+  <div id="shellMenu"></div>
+  <!-- shell do jogo -->
+  <aside id="side"></aside>
+  <header id="top"></header>
+  <main id="view"></main>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<!-- ORDEM IMPORTA: dados → núcleo → interface → boot -->
+<script src="src/core/rng.js"></script>
+<script src="data/mundo.js"></script>
+<script src="data/times.js"></script>
+<script src="data/elencos.js"></script>
+<script src="data/clubes.js"></script>
+<script src="data/historia.js"></script>
+<script src="data/rostos.js"></script>
+<script src="src/core/datas.js"></script>
+<script src="src/core/state.js"></script>
+<script src="src/core/padrao.js"></script>
+<script src="src/core/economia.js"></script>
+<script src="src/core/player.js"></script>
+<script src="src/core/world.js"></script>
+<script src="src/core/mapas.js"></script>
+<script src="src/core/meta.js"></script>
+<script src="src/core/treino.js"></script>
+<script src="src/core/comp.js"></script>
+<script src="src/core/lineup.js"></script>
+<script src="src/core/conversa.js"></script>
+<script src="src/core/scout.js"></script>
+<script src="src/core/veto.js"></script>
+<script src="src/core/match.js"></script>
+<script src="src/core/formatos.js"></script>
+<script src="src/core/competition.js"></script>
+<script src="src/core/calendar.js"></script>
+<script src="src/core/clock.js"></script>
+<script src="src/core/market.js"></script>
+<script src="src/core/transferencia.js"></script>
+<script src="src/core/saidas.js"></script>
+<script src="src/core/legado.js"></script>
+<script src="src/core/vlr.js"></script>
+<script src="src/core/narra.js"></script>
+<script src="src/core/manager.js"></script>
+<script src="src/core/offseason.js"></script>
+<script src="src/core/bracket.js"></script>
+<script src="src/core/torneios.js"></script>
+<script src="src/core/staff.js"></script>
+<script src="src/core/editar.js"></script>
+<script src="src/data/assets.js"></script>
+<script src="src/data/storage.js"></script>
+<script src="src/data/imagens.js"></script>
+<script src="src/data/rostos.js"></script>
+<script src="src/ui/shell.js"></script>
+<script src="src/ui/menu.js"></script>
+<script src="src/ui/views.js"></script>
+<script src="src/ui/modals.js"></script>
+<script src="src/ui/prepartida.js"></script>
+<script src="src/ui/aovivo.js"></script>
+<script src="src/ui/editor.js"></script>
+<script src="src/ui/runs.js"></script>
+<script src="src/ui/events.js"></script>
+<script src="src/ui/newgame.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

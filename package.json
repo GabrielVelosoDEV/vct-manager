@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@fontsource/bebas-neue": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "jsdom": "^30.0.1",
+    "playwright": "^1.62.1"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "fontes": "node tools/fontes.mjs",
+    "teste": "node tools/build.mjs && node tools/testar-ui.mjs",
+    "motor": "node tools/verificar.mjs 12",
+    "telas": "node tools/telas.mjs"
+  }
+}
