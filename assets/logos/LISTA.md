@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/logos/` com o nome exato da lista. O nome é o
 tag do time em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-64/80 com imagem.
+79/80 com imagem.
 
 ## AMER · Tier 1
 
@@ -47,7 +47,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `bbl.png` — BBL (BBL Esports)
 - [x] `m8.png` — M8 (Gentle Mates)
 - [x] `navi.png` — NAVI (Natus Vincere)
-- [x] `pcf.png` — PCF (PCIFIC Esports)
+- [x] `aur.png` — AUR (Aurora Gaming)
 
 ## EMEA · Challengers
 
@@ -58,7 +58,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `misa.png` — MISA (Misa Esports)
 - [x] `mdr.png` — MDR (Mandatory)
 - [x] `mir.png` — MIR (MIR)
-- [x] `nvj.png` — NVJ (Natus Vincere Junior)
+- [x] `pcf.png` — PCF (PCIFIC Esports)
 
 ## PAC · Tier 1
 
@@ -77,14 +77,14 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## PAC · Challengers
 
-- [ ] `ong.png` — ONG (ONSIDE GAMING)
-- [ ] `dk.png` — DK (Dplus Esports)
-- [ ] `fl.png` — FL (FENNEL)
-- [ ] `rc.png` — RC (REJECT)
-- [ ] `art.png` — ART (ARETE)
+- [x] `ong.png` — ONG (ONSIDE GAMING)
+- [x] `dk.png` — DK (Dplus Esports)
+- [x] `fl.png` — FL (FENNEL)
+- [x] `rc.png` — RC (REJECT)
+- [x] `art.png` — ART (ARETE)
 - [ ] `sp.png` — SP (Sharper Esports)
-- [ ] `qtd.png` — QTD (QT DIG∞)
-- [ ] `xip.png` — XIP (Xipto Esports)
+- [x] `qtd.png` — QTD (QT DIG∞)
+- [x] `xip.png` — XIP (Xipto Esports)
 
 ## CN · Tier 1
 
@@ -103,11 +103,11 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## CN · Challengers
 
-- [ ] `ra.png` — RA (Rare Atom)
-- [ ] `wbg.png` — WBG (Weibo Gaming)
-- [ ] `kbg.png` — KBG (KeepBest Gaming)
-- [ ] `at.png` — AT (A Team)
-- [ ] `aq.png` — AQ (Any Questions Gaming)
-- [ ] `wsig.png` — WSIG (World Sports Invictus Gaming)
-- [ ] `odg.png` — ODG (Octagonal Disposition Gaming)
-- [ ] `vlg.png` — VLG (Victory No Limits Gaming)
+- [x] `ra.png` — RA (Rare Atom)
+- [x] `wbg.png` — WBG (Weibo Gaming)
+- [x] `kbg.png` — KBG (KeepBest Gaming)
+- [x] `at.png` — AT (A Team)
+- [x] `aq.png` — AQ (Any Questions Gaming)
+- [x] `wsig.png` — WSIG (World Sports Invictus Gaming)
+- [x] `odg.png` — ODG (Octagonal Disposition Gaming)
+- [x] `vlg.png` — VLG (Victory No Limits Gaming)

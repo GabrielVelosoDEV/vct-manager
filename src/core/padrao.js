@@ -257,7 +257,7 @@ function padronizarBase(opts){
     const paraT1=over(p)>=FAIXAS.jogador[1][0];
     const tier=paraT1?1:2;
     aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
-    p.pot=potencialDe(over(p),p.idade,tier);
+    if(!p.potFixo)p.pot=potencialDe(over(p),p.idade,tier);
     const agL=sortearAgentes(p.role);
     const trocouL=agL.some(a=>!(p.agentes||[]).includes(a));
     p.agentes=agL;
@@ -366,7 +366,8 @@ function gerarElencosJS(){
     .filter(p=>p&&p.real).sort((a,b)=>over(b)-over(a));
   if(livres.length){
     linhas.push('\n/* ---------------- Sem clube ---------------- */');
-    const corpo=livres.map(p=>'['+[asp(p.nome),asp(p.role),over(p),p.idade,asp(p.pais)].join(',')+']');
+    const corpo=livres.map(p=>'['+[asp(p.nome),asp(p.role),over(p),p.idade,asp(p.pais)]
+      .concat(p.potFixo?[p.pot]:[]).join(',')+']');
     linhas.push('LIVRE:['+corpo.join(',\n       ')+'],');
   }
   const total=livres.length+Object.values(porRegiao).reduce((s,g)=>s+g.reduce((x,y)=>x+y.reais.length,0),0);

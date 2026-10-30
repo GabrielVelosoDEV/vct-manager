@@ -1,8 +1,10 @@
 /* ============================================================
    ELENCOS DE PARTIDA — exportado do Editor em 2026-08-29
    ------------------------------------------------------------
-   434 jogadores, todos no formato completo:
+   453 jogadores, todos no formato completo:
      ['nick','Função',over,idade,'PA']
+   Em LIVRE pode vir um sexto campo, o potencial: é o que faz a jovem
+   promessa sem clube nascer com teto alto e o veterano não.
 
    Este arquivo foi gerado a partir de uma base editada no jogo, então
    função, over, idade e país são as SUAS escolhas, não estimativa.
@@ -172,11 +174,10 @@ GX:[['neT','Iniciador',81,24,'US'],
     ['Flickless','Flex',80,20,'BE'],
     ['ara','Duelista',80,26,'RO'],
     ['Jesse','Controlador',80,23,'TH']],
-PCF:[['qpert','Controlador',80,22,'SV'],
-     ['al0rante','Flex',80,22,'GE'],
-     ['NINJA','Sentinela',80,22,'PL'],
-     ['seven','Duelista',80,21,'MX'],
-     ['waddle','Iniciador',80,20,'GB']],
+AUR:[['Javelin','Duelista',82,23,'SE'],
+     ['Darxcioo','Iniciador',81,24,'DE'],
+     ['sizo','Sentinela',80,20,'FR'],
+     ['avey','Controlador',80,26,'UA']],
 EP:[['paTiTek','Controlador',80,19,'PL'],
     ['kozzy','Duelista',80,20,'RO'],
     ['MAGNUM','Sentinela',79,26,'CZ'],
@@ -216,10 +217,11 @@ MIR:[['Bishepss','Sentinela',73,21,'SE'],
      ['Raz','Flex',70,21,'SE'],
      ['reblyik','Iniciador',69,19,'NL'],
      ['kospa1n','Controlador',69,26,'DK']],
-NVJ:[['Javelin','Duelista',74,23,'SE'],
-     ['Darxcioo','Iniciador',73,24,'DE'],
-     ['sizo','Sentinela',72,20,'FR'],
-     ['avey','Controlador',69,26,'UA']],
+PCF:[['qpert','Controlador',80,22,'SV'],
+     ['al0rante','Flex',80,22,'GE'],
+     ['NINJA','Sentinela',80,22,'PL'],
+     ['seven','Duelista',80,21,'MX'],
+     ['waddle','Iniciador',80,20,'GB']],
 
 /* ---------------- VCT Pacific ---------------- */
 GEN:[['t3xture','Flex',93,22,'KR'],
@@ -442,15 +444,34 @@ VLG:[['Nana','Duelista',75,26,'KR'],
      ['Yunni','Flex',69,20,'CN']],
 
 /* ---------------- Sem clube ---------------- */
-LIVRE:[['eeiu','Iniciador',83,24,'US'],
-       ['cauanzin','Duelista',80,21,'BR'],
-       ['GSR','Flex',77,26,'SE'],
-       ['sheydos','Controlador',76,26,'RU'],
+LIVRE:[['eeiu','Iniciador',76,24,'US'],
+       ['cauanzin','Duelista',74,21,'BR'],
+       ['GSR','Flex',75,26,'SE'],
+       ['sheydos','Controlador',75,26,'RU'],
        ['Shao','Iniciador',74,25,'RU'],
        ['Eggsterr','Controlador',69,21,'PE'],
        ['tomaszy','Iniciador',69,24,'GB'],
        ['bipo','Controlador',69,21,'IT'],
        ['Flicker','Duelista',69,24,'KR'],
        ['thyy','Flex',69,22,'AU'],
-       ['Leviathan','Flex',69,24,'PH']],
+       ['Leviathan','Flex',69,24,'PH'],
+       ['Crws','Iniciador',75,29,'TH'],
+       ['suyjing','Flex',75,28,'CN'],
+       ['CyvOph','Flex',76,27,'FR'],
+       ['Filu','Duelista',75,27,'PL'],
+       ['wayne','Controlador',74,27,'SG'],
+       ['MiradaNinja','Sentinela',74,27,'CL'],
+       ['Moves','Iniciador',74,26,'KR'],
+       ['zjc','Iniciador',74,26,'CN'],
+       ['GREEN','Duelista',73,26,'TW'],
+       ['niffy','Duelista',73,26,'TH'],
+       ['MiniBoo','Duelista',73,20,'LT',90],
+       ['FT','Controlador',72,19,'CN',89],
+       ['Tiyosta','Sentinela',71,19,'TR',88],
+       ['aztex','Controlador',71,18,'BR',90],
+       ['peixeh','Controlador',70,18,'BR',89],
+       ['Luid','Duelista',71,18,'BR',91],
+       ['turkish','Sentinela',70,18,'BR',88],
+       ['sanoj','Flex',69,17,'BR',92],
+       ['znajder','Duelista',69,17,'BR',93]],
 };

@@ -6,43 +6,43 @@ Salve cada imagem aqui em `assets/agentes/` com o nome exato da lista. O nome é
 nome do agente em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-0/27 com imagem.
+27/27 com imagem.
 
 ## Duelista
 
-- [ ] `jett.png` — Jett
-- [ ] `raze.png` — Raze
-- [ ] `phoenix.png` — Phoenix
-- [ ] `reyna.png` — Reyna
-- [ ] `yoru.png` — Yoru
-- [ ] `neon.png` — Neon
-- [ ] `iso.png` — Iso
-- [ ] `waylay.png` — Waylay
+- [x] `jett.png` — Jett
+- [x] `raze.png` — Raze
+- [x] `phoenix.png` — Phoenix
+- [x] `reyna.png` — Reyna
+- [x] `yoru.png` — Yoru
+- [x] `neon.png` — Neon
+- [x] `iso.png` — Iso
+- [x] `waylay.png` — Waylay
 
 ## Iniciador
 
-- [ ] `sova.png` — Sova
-- [ ] `skye.png` — Skye
-- [ ] `breach.png` — Breach
-- [ ] `kay-o.png` — KAY/O
-- [ ] `fade.png` — Fade
-- [ ] `gekko.png` — Gekko
-- [ ] `tejo.png` — Tejo
+- [x] `sova.png` — Sova
+- [x] `skye.png` — Skye
+- [x] `breach.png` — Breach
+- [x] `kay-o.png` — KAY/O
+- [x] `fade.png` — Fade
+- [x] `gekko.png` — Gekko
+- [x] `tejo.png` — Tejo
 
 ## Controlador
 
-- [ ] `brimstone.png` — Brimstone
-- [ ] `omen.png` — Omen
-- [ ] `viper.png` — Viper
-- [ ] `astra.png` — Astra
-- [ ] `harbor.png` — Harbor
-- [ ] `clove.png` — Clove
+- [x] `brimstone.png` — Brimstone
+- [x] `omen.png` — Omen
+- [x] `viper.png` — Viper
+- [x] `astra.png` — Astra
+- [x] `harbor.png` — Harbor
+- [x] `clove.png` — Clove
 
 ## Sentinela
 
-- [ ] `killjoy.png` — Killjoy
-- [ ] `cypher.png` — Cypher
-- [ ] `sage.png` — Sage
-- [ ] `chamber.png` — Chamber
-- [ ] `deadlock.png` — Deadlock
-- [ ] `vyse.png` — Vyse
+- [x] `killjoy.png` — Killjoy
+- [x] `cypher.png` — Cypher
+- [x] `sage.png` — Sage
+- [x] `chamber.png` — Chamber
+- [x] `deadlock.png` — Deadlock
+- [x] `vyse.png` — Vyse

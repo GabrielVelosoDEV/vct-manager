@@ -939,7 +939,8 @@ await teste('elencos.js gerado é JS válido e reabre com os mesmos números',as
   const lidos=w.window.__lidos;
   let n=0;
   for(const tag in lidos)for(const linha of lidos[tag]){
-    if(linha.length!==5)throw new Error(tag+': linha incompleta');
+    /* LIVRE pode levar o potencial como sexto campo */
+    if(linha.length!==5&&!(tag==='LIVRE'&&linha.length===6))throw new Error(tag+': linha incompleta');
     if(esperado.get(linha[0])!==linha[2])
       throw new Error(linha[0]+': exportou '+linha[2]+', na base é '+esperado.get(linha[0]));
     n++;

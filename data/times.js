@@ -14,7 +14,12 @@
    Pacific em Korea WDG, Japan e Southeast Asia; China em National
    Tournament e Evolution Series. As oito equipes de cada região aqui são
    as de Challengers com presença confirmada em 2026 e roster publicado —
-   escolha, não recorte oficial.                                        */
+   escolha, não recorte oficial.
+
+   Mudança pedida em 30/10/2026: a Aurora Gaming ocupa a vaga da PCIFIC
+   no Tier 1 EMEA, com o elenco e a comissão que eram da NAVI Junior; a
+   PCIFIC desce para o Challengers no lugar da NAVI Junior, levando o
+   próprio elenco.                                                      */
 const TIMES_REAIS={
  AMER:{
    t1:[['Sentinels','SEN',65],['NRG','NRG',85],
@@ -33,11 +38,11 @@ const TIMES_REAIS={
      ['Team Liquid','TL',75],['Eternal Fire','EF',65],
      ['Team Vitality','VIT',73],['FUT Esports','FUT',81],
      ['BBL Esports','BBL',73],['Gentle Mates','M8',63],
-     ['Natus Vincere','NAVI',63],['PCIFIC Esports','PCF',58]],
+     ['Natus Vincere','NAVI',63],['Aurora Gaming','AUR',58]],
    t2:[['Enterprise Esports','EP',58],['Fire Flux Esports','FF',57],
      ['Joblife','JL',55],['Eintracht Frankfurt','SGE',52],
      ['Misa Esports','MISA',50],['Mandatory','MDR',49],
-     ['MIR','MIR',48],['Natus Vincere Junior','NVJ',47]]},
+     ['MIR','MIR',48],['PCIFIC Esports','PCF',53]]},
  PAC:{
    t1:[['Paper Rex','PRX',73],['T1','T1',76],
      ['Gen.G','GEN',81],['KIWOOM DRX','KRX',66],

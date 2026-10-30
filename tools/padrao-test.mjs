@@ -64,8 +64,8 @@ vm.runInContext(js+';globalThis.__e=ELENCOS_REAIS;',ctx);
 const tags=Object.keys(ctx.__e);
 const tot=tags.reduce((s,k)=>s+ctx.__e[k].length,0);
 ok(tags.length>0,`elencos.js gerado: ${tags.length} times, ${tot} jogadores`);
-ok(Object.values(ctx.__e).every(l=>l.every(r=>r.length===5&&typeof r[2]==='number')),
-   'toda linha no formato completo [nick,função,over,idade,país]');
+ok(Object.entries(ctx.__e).every(([k,l])=>l.every(r=>(r.length===5||(k==='LIVRE'&&r.length===6))&&typeof r[2]==='number')),
+   'toda linha no formato completo [nick,função,over,idade,país] (+potencial em LIVRE)');
 const nicks=new Set();let dup=0;
 for(const k of tags)for(const r of ctx.__e[k]){if(nicks.has(r[0]))dup++;nicks.add(r[0]);}
 ok(dup===0,`sem nick duplicado (${nicks.size} únicos)`);
