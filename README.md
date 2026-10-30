@@ -29,7 +29,7 @@ node tools/telas.mjs              # visual: abre o dist no Chromium e salva PNG 
 O primeiro roda sem nada instalado. O segundo precisa de `npm install` (só o jsdom,
 só para o teste) e carrega o `dist/` num DOM de verdade, renderizando todas as telas
 e todas as abas do Editor e clicando nos handlers — é o que pega erro de interface
-sem abrir o navegador. `npm run testar` roda os dois.
+sem abrir o navegador. `npm run teste` faz o build e roda o teste de interface; `npm run motor` roda o primeiro com 12 temporadas.
 
 O terceiro (`npm run telas`) existe porque o jsdom prova que a interface funciona
 mas não desenha nada — não tem layout. Ele abre o `dist/` num Chromium de verdade e
