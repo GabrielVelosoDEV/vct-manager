@@ -5265,9 +5265,38 @@ function iniciarVeto(meuId,advId,bo,euComeco){
     /* lado 0 é quem abre o veto. Em torneio quem abre é o cabeça de chave;
        aqui é quem está listado primeiro, igual ao veto automático. */
     euSouLado:euComeco?0:1,
-    pool, passos:roteiroVeto(bo||3,pool.length),
+    pool, passos:comLados(roteiroVeto(bo||3,pool.length)),
     i:0, seq:[], fim:false
   };
+}
+/* ---------- lado de início ----------
+   No circuito quem escolhe o mapa não escolhe o lado: o outro time decide se
+   começa atacando ou defendendo. No decider, escolhe quem NÃO fez o último
+   ban. O passo de lado entra logo depois do mapa a que ele se refere, e o
+   lado fica gravado no próprio mapa da sequência (lado0 = lado de início de
+   quem abriu o veto, que é o time A da série). */
+function comLados(passos){
+  const out=[];
+  let ultimoBan=0;
+  for(const p of passos){
+    out.push(p);
+    if(p.tipo==='ban')ultimoBan=p.lado;
+    if(p.tipo==='pick')out.push({tipo:'lado',lado:1-p.lado});
+    if(p.tipo==='dec')out.push({tipo:'lado',lado:1-ultimoBan});
+  }
+  return out;
+}
+const outroLado=l=>l==='atk'?'def':'atk';
+/* O lado em que o clube prefere começar: o mais forte dele naquele mapa. Lê
+   forcaTime, que não sorteia. */
+function ladoPreferido(t,mapa){
+  if(!t||typeof forcaTime!=='function')return 'def';
+  return forcaTime(t,mapa,'atk')>forcaTime(t,mapa,'def')?'atk':'def';
+}
+/* O mapa cujo lado está sendo decidido: o último que não foi banido. */
+function vetoMapaDoLado(V){
+  for(let i=V.seq.length-1;i>=0;i--)if(V.seq[i].tipo!=='ban')return V.seq[i];
+  return null;
 }
 function vetoPasso(V){return V&&!V.fim?V.passos[V.i]:null;}
 function vetoMinhaVez(V){
@@ -5283,6 +5312,7 @@ function vetoEscolhaIA(V){
   const p=vetoPasso(V);
   if(!p)return null;
   const t=G.times[p.lado===V.euSouLado?V.meuId:V.advId];
+  if(p.tipo==='lado'){const x=vetoMapaDoLado(V);return x?ladoPreferido(t,x.m):'def';}
   const restam=vetoRestantes(V);
   if(!restam.length)return null;
   const ord=restam.slice().sort((a,b)=>gostaDeMapa(t,b)-gostaDeMapa(t,a));
@@ -5292,11 +5322,21 @@ function vetoEscolhaIA(V){
 function vetoEscolher(V,mapa){
   const p=vetoPasso(V);
   if(!p||V.fim)return null;
+  if(p.tipo==='lado'){
+    const x=vetoMapaDoLado(V);
+    const escolha=(mapa==='atk'||mapa==='def')?mapa:vetoEscolhaIA(V);
+    const dono=G.times[p.lado===V.euSouLado?V.meuId:V.advId];
+    if(x){x.lado0=p.lado===0?escolha:outroLado(escolha);x.ladoPor=dono.tag;}
+    V.i++;
+    if(V.i>=V.passos.length)V.fim=true;
+    return{m:x&&x.m,tipo:'lado',lado:escolha,meu:p.lado===V.euSouLado};
+  }
   const restam=vetoRestantes(V);
   if(p.tipo==='dec'){
     const m=restam[0];
     V.seq.push({m,tipo:'dec',t:'—'});
-    V.i++;V.fim=true;
+    V.i++;
+    if(V.i>=V.passos.length)V.fim=true;
     return{m,tipo:'dec'};
   }
   const m=(mapa&&restam.includes(mapa))?mapa:vetoEscolhaIA(V);
@@ -5315,7 +5355,8 @@ function vetoAvancarAteMim(V){
 }
 /* No formato que simPartida consome. */
 function vetoResultado(V){
-  return{seq:V.seq,mapas:V.seq.filter(x=>x.tipo!=='ban').map(x=>x.m)};
+  const jogados=V.seq.filter(x=>x.tipo!=='ban');
+  return{seq:V.seq,mapas:jogados.map(x=>x.m),lados:jogados.map(x=>x.lado0||null)};
 }
 /* Um veto inteiro resolvido pela máquina, sem sorteio — usado quando você
    desliga o veto manual e quando o teste precisa de um veto reprodutível. */
@@ -5491,7 +5532,10 @@ function veto(A,B,bo){
      preferência do clube conseguia produzir. */
   const gosta=(t,m)=>gostaDeMapa(t,m)+gauss(0,1.5);
   const banir=t=>{pool.sort((a,b)=>gosta(t,a)-gosta(t,b));const m=pool.shift();seq.push({m,tipo:'ban',t:t.tag});};
-  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();seq.push({m,tipo:'pick',t:t.tag});};
+  /* quem escolhe o mapa entrega o lado ao outro, como no circuito */
+  const escolher=t=>{pool.sort((a,b)=>gosta(t,b)-gosta(t,a));const m=pool.shift();
+    const outro=t===A?B:A, l=ladoPreferido(outro,m);
+    seq.push({m,tipo:'pick',t:t.tag,lado0:outro===A?l:(l==='atk'?'def':'atk'),ladoPor:outro.tag});};
   const ordem=[A,B];
   const picks = bo===1?0 : bo===3?2 : 4;
   /* dois bans de abertura, depois os picks alternados */
@@ -5500,11 +5544,13 @@ function veto(A,B,bo){
   /* bans alternados até sobrar um: o decider é o mapa que ninguém quis vetar.
      Fazer isso por contagem (e não por número fixo de bans) mantém o veto
      correto com qualquer tamanho de pool. */
-  let v=0;
-  while(pool.length>1){banir(ordem[v%2]);v++;}
-  seq.push({m:pool[0],tipo:'dec',t:'—'});
-  const mapas=seq.filter(s=>s.tipo!=='ban').map(s=>s.m);
-  return{seq,mapas};
+  let v=0,ultimo=null;
+  while(pool.length>1){ultimo=ordem[v%2];banir(ultimo);v++;}
+  /* no decider o lado é de quem não fez o último ban */
+  const dono=ultimo===A?B:A, ld=ladoPreferido(dono,pool[0]);
+  seq.push({m:pool[0],tipo:'dec',t:'—',lado0:dono===A?ld:(ld==='atk'?'def':'atk'),ladoPor:dono.tag});
+  const jogados=seq.filter(s=>s.tipo!=='ban');
+  return{seq,mapas:jogados.map(s=>s.m),lados:jogados.map(s=>s.lado0||null)};
 }
 
 /* ============================================================
@@ -5524,7 +5570,7 @@ function veto(A,B,bo){
    a tela também consegue conduzir, e aí o tempo pedido no 3-8
    muda o que vem depois.
    ============================================================ */
-function abrirMapa(A,B,mapa){
+function abrirMapa(A,B,mapa,ladoInicialA){
   const st={};
   [A,B].forEach(t=>t.titulares.forEach(id=>{
     st[id]={k:0,d:0,a:0,fk:0,fd:0,cl:0,rounds:0};
@@ -5551,7 +5597,10 @@ function abrirMapa(A,B,mapa){
      primeiro para ele sempre, e quem cai atrás no primeiro tempo às vezes
      perde o mapa antes de chegar ao tempo em que era forte. Estar listado
      primeiro numa tabela não pode custar partida. */
-  const ladoA=rnd()<0.5?'atk':'def';
+  const sorteio=rnd()<0.5?'atk':'def';
+  /* O lado escolhido no veto vale mais que a moeda. O sorteio acontece mesmo
+     assim, para o resto do mapa consumir o gerador na mesma ordem de sempre. */
+  const ladoA=(ladoInicialA==='atk'||ladoInicialA==='def')?ladoInicialA:sorteio;
   return{A,B,mapa,st,sa:0,sb:0,hist:[],
          ecoA:2,ecoB:2,perdaA:0,perdaB:0,
          diaA,diaB,fA,fB,ladoA,r:0,fim:false,
@@ -5684,7 +5733,7 @@ function abrirSerie(aId,bId,bo,vetoPronto){
      para o motor continuar sendo o único dono do sorteio: a tela escolhe os
      mapas, o motor joga. */
   const v=(vetoPronto&&vetoPronto.mapas&&vetoPronto.mapas.length)
-    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice()}
+    ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice(),lados:(vetoPronto.lados||[]).slice()}
     :veto(A,B,bo);
   return{A,B,aId,bId,bo,veto:v,need:Math.ceil(bo/2),
          mapas:[],wa:0,wb:0,idx:0,M:null,fim:false};
@@ -5693,7 +5742,7 @@ function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas
 /* Abre o próximo mapa da série, ou devolve null quando não há mais. */
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
-  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx]);
+  S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
   return S.M;
 }
 /* Fecha o mapa corrente e contabiliza. */
@@ -12349,7 +12398,7 @@ function modalVeredito(v){
    sabe que mapa o adversário vai banir primeiro.
    ============================================================ */
 
-let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'} */
+let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'|'comps'} */
 
 function prePartidaDisponivel(){
   if(!G||!G.meuTime)return null;
@@ -12377,11 +12426,23 @@ function ppPular(){
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
   ppConfirmar();
 }
+/* Mapa da série sem nenhuma escolha sua: a comissão monta a melhor comp, em
+   vez de cada um entrar no boneco que mais joga — que às vezes eram três
+   iniciadores e nenhum controlador. O que você escolheu não é tocado. */
+function ppCompsAutomaticas(){
+  const t=PP.meu;
+  for(const x of PP.V.seq){
+    if(x.tipo==='ban')continue;
+    const c=(t.comps&&t.comps[x.m])||{};
+    if(!(t.titulares||[]).some(id=>c[id]))aplicarPreset(t,x.m,'melhor');
+  }
+}
 function ppConfirmar(){
   if(!PP)return;
   const V=PP.V;
   let voltas=0;
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
+  ppCompsAutomaticas();
   const comp=PP.comp;
   const plano={stageId:comp.stage.id,veto:vetoResultado(V)};
   const d=PP.depois;PP=null;
@@ -12402,6 +12463,30 @@ function ppConfirmar(){
   }
   if(d)d(plano);
 }
+/* Lado de início do SEU clube num mapa da sequência. lado0 é sempre do time
+   que abriu o veto. */
+function ppMeuLado(x){
+  if(!x||!x.lado0)return null;
+  return PP.V.euSouLado===0?x.lado0:(x.lado0==='atk'?'def':'atk');
+}
+function ppNomeLado(l){return l==='atk'?'atacando':l==='def'?'defendendo':'—';}
+/* O passo de lado: quem não escolheu o mapa decide onde começa. A tela mostra
+   a sua força de cada lado naquele mapa e o viés real do mapa. */
+function ppLadoHTML(minha){
+  const V=PP.V, x=vetoMapaDoLado(V);
+  if(!x)return '';
+  const atk=forcaTime(PP.meu,x.m,'atk'), def=forcaTime(PP.meu,x.m,'def');
+  const vies=(typeof MAPA_ATK!=='undefined'&&MAPA_ATK[x.m])||50;
+  const melhor=atk>def?'atk':'def';
+  return `<div class="card"><div class="eyebrow">${minha?'Sua vez de escolher o LADO':'Vez do '+esc(PP.adv.tag)+' escolher o lado'} · ${esc(x.m)}</div>
+    <div class="dim" style="margin-bottom:8px">${esc(x.m)}: o ataque ganha ${vies}% dos rounds no circuito.
+      Seu time é mais forte ${ppNomeLado(melhor)} aqui (ataque ${atk.toFixed(1)} · defesa ${def.toFixed(1)}).</div>
+    ${minha?`<div style="display:flex;gap:8px">
+      <button class="btn ${melhor==='atk'?'':'ghost'}" data-pplado="atk">Começar atacando</button>
+      <button class="btn ${melhor==='def'?'':'ghost'}" data-pplado="def">Começar defendendo</button></div>`
+      :'<div class="dim">Eles estão decidindo.</div>'}
+  </div>`;
+}
 function ppEscolher(mapa){
   if(!PP||!PP.V)return;
   if(!vetoMinhaVez(PP.V))return;
@@ -12414,9 +12499,19 @@ function ppIrParaVeto(){if(PP){PP.etapa='veto';ppPintar();}}
 /* ---------- desenho ---------- */
 function ppPintar(){
   if(!PP)return;
-  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():ppVetoHTML(),true);
+  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():PP.etapa==='comps'?ppCompsHTML():ppVetoHTML(),true);
   const M=$('#modal');
   M.querySelectorAll('[data-ppmapa]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.ppmapa));
+  M.querySelectorAll('[data-pplado]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.pplado));
+  M.querySelectorAll('[data-pppreset]').forEach(b=>b.onclick=()=>{
+    const [mapa,preset]=b.dataset.pppreset.split('|');
+    const mapas=mapa==='*'?PP.V.seq.filter(x=>x.tipo!=='ban').map(x=>x.m):[mapa];
+    mapas.forEach(m=>aplicarPreset(PP.meu,m,preset));ppPintar();});
+  M.querySelectorAll('[data-ppag]').forEach(el=>el.onchange=()=>{
+    const [mapa,pid]=el.dataset.ppag.split('|');
+    definirAgente(PP.meu,mapa,pid,el.value);ppPintar();});
+  const lcomp=M.querySelector('#ppComps');if(lcomp)lcomp.onclick=()=>{ppCompsAutomaticas();PP.etapa='comps';ppPintar();};
+  const lvv=M.querySelector('#ppVoltarVeto');if(lvv)lvv.onclick=()=>{PP.etapa='veto';ppPintar();};
   const li=M.querySelector('#ppVeto');if(li)li.onclick=ppIrParaVeto;
   const lp=M.querySelector('#ppPular');if(lp)lp.onclick=ppPular;
   const lc=M.querySelector('#ppOk');if(lc)lc.onclick=ppConfirmar;
@@ -12488,7 +12583,7 @@ function ppVetoHTML(){
   const meuT=PP.meu, advT=PP.adv;
   const linhaSeq=V.seq.map(x=>`<span class="chip ${x.tipo==='ban'?'r':x.tipo==='dec'?'':'g'}">
       ${x.tipo==='ban'?'✕':x.tipo==='dec'?'★':'✓'} ${esc(x.m)}
-      <span class="dim">${esc(x.t)}</span></span>`).join(' ');
+      <span class="dim">${esc(x.t)}${x.lado0?' · '+esc(meuT.tag)+' '+ppNomeLado(ppMeuLado(x)):''}</span></span>`).join(' ');
   const cartoes=restam.map(mp=>{
     const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
     const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
@@ -12514,7 +12609,9 @@ function ppVetoHTML(){
           <td class="dim">${x.tipo==='dec'?'decider':('escolha do '+esc(x.t))}</td>
           <td class="c"><span class="pill ${afinidadeElenco(meuT,x.m)>=1?'g':afinidadeElenco(meuT,x.m)<=-1?'r':''}"
             >você ${afinidadeElenco(meuT,x.m)>0?'+':''}${afinidadeElenco(meuT,x.m).toFixed(1)}</span></td>
+          <td class="dim">${x.lado0?'você começa '+ppNomeLado(ppMeuLado(x))+' <span style="font-size:11px">(escolha do '+esc(x.ladoPor||'')+')</span>':''}</td>
           </tr>`).join('')}</tbody></table></div>`
+      :passo.tipo==='lado'?ppLadoHTML(minha)
       :`<div class="card"><div class="eyebrow">${minha
           ?(passo.tipo==='ban'?'Sua vez de BANIR':'Sua vez de ESCOLHER o mapa')
           :'Vez do '+esc(advT.tag)}</div>
@@ -12525,8 +12622,60 @@ function ppVetoHTML(){
         <div class="mp-grid">${cartoes}</div></div>`}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppVoltar">‹ Relatório</button>
-      ${V.fim?'<button class="btn" id="ppOk">Jogar a partida ›</button>'
+      ${V.fim?'<span><button class="btn ghost" id="ppComps">Montar as comps ›</button> <button class="btn" id="ppOk">Jogar a partida ›</button></span>'
              :'<button class="btn ghost" id="ppPular">Deixar a comissão terminar</button>'}
+    </div>`;
+}
+
+/* ---------- comps da série ----------
+   Depois do veto você sabe os mapas, e é agora que a comp de cada um importa.
+   É a mesma comp da tela Comps (gravada por mapa no clube), só que limitada
+   aos mapas desta série e com a comp provável deles ao lado, quando o seu
+   analista consegue ler. */
+function ppCompsHTML(){
+  const V=PP.V, meuT=PP.meu;
+  const jogados=V.seq.filter(x=>x.tipo!=='ban');
+  const r=relatorioScout(meuT,PP.adv,PP.comp.bo);
+  const blocos=jogados.map((x,i)=>{
+    const mp=x.m;
+    const peso=pesoComp(meuT,mp);
+    const deles=(r.mapas.find(m=>m.mapa===mp)||{}).comp;
+    const funs={};compEscalada(meuT,mp).forEach(l=>{funs[l.fun]=(funs[l.fun]||0)+1;});
+    const buracos=[];
+    if(!((funs['Controlador']||0)+(funs['Flex']||0)))buracos.push('sem controlador');
+    if(!(funs['Iniciador']||0))buracos.push('sem iniciador');
+    const linhas=compEscalada(meuT,mp).map(({p,ag,nivel})=>`<tr>
+      <td><b>${esc(p.nome)}</b> <span class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</span></td>
+      <td><select data-ppag="${esc(mp)}|${p.id}">
+        ${agentesParaComp(p).map(a=>`<option value="${esc(a.nome)}" ${a.nome===ag?'selected':''}
+          >${esc(a.nome)} · ${a.nivel}/${a.teto} · meta ${forcaMeta(a.nome)}</option>`).join('')}
+      </select></td>
+      <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
+    </tr>`).join('');
+    return `<div class="card flat"><div class="split">
+        <div class="eyebrow">Mapa ${i+1} · ${esc(mp)}${x.lado0?' · você começa '+ppNomeLado(ppMeuLado(x)):''}</div>
+        <span class="dim">força da comp <b class="num ${peso>=1.5?'up':peso<=0?'dn':''}">${peso>0?'+':''}${peso.toFixed(2)}</b></span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${PRESETS_COMP.map(pr=>
+        `<button class="btn ghost sm" data-pppreset="${esc(mp)}|${pr.id}" title="${esc(pr.dica)}">${esc(pr.rot)}</button>`).join('')}</div>
+      <table class="wide"><thead><tr><th>Jogador</th><th>Agente</th><th class="c">Sabe</th></tr></thead>
+        <tbody>${linhas}</tbody></table>
+      ${buracos.length?`<div style="color:var(--red);font-size:12px;margin-top:6px">⚠ ${buracos.join(' · ')}: a comp perde força em todo round</div>`:''}
+      <div class="dim" style="font-size:11px;margin-top:6px">${esc(PP.adv.tag)}: ${deles
+        ?deles.map(c=>esc(c.ag)+(c.nivel!==null?' '+c.nivel:'')).join(' · ')
+        :'comp desconhecida (o relatório precisa de nível 4)'}</div>
+    </div>`;
+  }).join('');
+  return `<div class="split">
+      <div><div class="eyebrow">Comps da série · Bo${V.bo}</div>
+        <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(PP.adv.tag)}</h2></div>
+    </div>
+    <div class="split" style="margin:8px 0"><p class="dim" style="margin:0">Quem pega o quê em cada mapa. O que você muda aqui fica gravado na comp do mapa, a mesma da tela Comps.</p>
+      <button class="btn ghost sm" data-pppreset="*|melhor">Melhor agora nos ${jogados.length} mapas</button></div>
+    ${blocos}
+    <div class="split" style="margin-top:14px">
+      <button class="btn ghost" id="ppVoltarVeto">‹ Veto</button>
+      <button class="btn" id="ppOk">Jogar a partida ›</button>
     </div>`;
 }
 

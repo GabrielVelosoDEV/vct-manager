@@ -70,6 +70,11 @@
 - **Afinidade de mapa por jogador**: sorteada no início e evoluindo com o
   desempenho, pesando na força do time e no pick/ban
 
+- **Picks e bans completos**: quem não escolheu o mapa escolhe o lado de início
+  (no decider, quem não fez o último ban), e a pré-partida ganhou a etapa de
+  comps da série, com a comp provável do adversário ao lado
+- **Mix e Veto** no catálogo de agentes (Controlador e Sentinela)
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

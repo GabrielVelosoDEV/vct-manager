@@ -105,6 +105,15 @@ await ev(`if(typeof PP!=='undefined'&&PP){ppIrParaVeto();
   const cs=document.querySelectorAll('[data-ppmapa]:not([disabled])');
   if(cs.length)cs[0].dispatchEvent(new MouseEvent('click',{bubbles:true}));}`);
 await tira('13b-veto');
+/* o resto do veto, parando na escolha de lado se ela for sua, e depois a
+   etapa de comps da série */
+await ev(`if(typeof PP!=='undefined'&&PP){const V=PP.V;let k=0;
+  while(!V.fim&&k++<40){if(vetoMinhaVez(V)&&V.passos[V.i].tipo==='lado')break;vetoEscolher(V,null);vetoAvancarAteMim(V);}
+  ppPintar();}`);
+await tira('13b2-lado');
+await ev(`if(typeof PP!=='undefined'&&PP){const V=PP.V;let k=0;
+  while(!V.fim&&k++<40)vetoEscolher(V,null);ppCompsAutomaticas();PP.etapa='comps';ppPintar();}`);
+await tira('13b3-comps');
 await ev(`if(typeof PP!=='undefined'&&PP){
   /* termina o veto e deixa a série ser conduzida ao vivo, que é o modo em que
      o pedido de tempo existe */

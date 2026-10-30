@@ -164,6 +164,8 @@ w.eval(`window.__t={
   get vetoResultado(){return vetoResultado;}, get vetoAvancarAteMim(){return vetoAvancarAteMim;},
   get vetoAutomatico(){return vetoAutomatico;}, get roteiroVeto(){return roteiroVeto;},
   get compromissoDaSemana(){return compromissoDaSemana;},
+  get abrirPrePartida(){return abrirPrePartida;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
+  get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
   get fecharMapa(){return fecharMapa;}, get pedirTempo(){return pedirTempo;},
   get podePedirTempo(){return podePedirTempo;}, get TEMPOS_POR_MAPA(){return TEMPOS_POR_MAPA;},
@@ -3735,6 +3737,73 @@ await teste('o veto segue o formato do circuito em Bo1, Bo3 e Bo5',async()=>{
     if(res.seq.filter(x=>x.tipo==='dec').length!==1)throw new Error('Bo'+bo+': decider errado');
     for(const x of res.seq)if(!t.mapaAtivo(x.m))throw new Error('Bo'+bo+': '+x.m+' não está em rotação');
   }
+});
+
+await teste('todo mapa jogado sai do veto com lado de início',async()=>{
+  /* Quem escolhe o mapa entrega o lado ao outro; no decider escolhe quem não
+     fez o último ban. Vale para o veto interativo e para o da IA. */
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  for(const bo of [1,3,5]){
+    const v=t.vetoAutomatico(time.id,adv.id,bo,true);
+    if(v.lados.length!==v.mapas.length||v.lados.some(l=>l!=='atk'&&l!=='def'))
+      throw new Error('Bo'+bo+' interativo: lados '+JSON.stringify(v.lados));
+    const sem=t.semente;
+    const S=t.abrirSerie(time.id,adv.id,bo);
+    t.semente=sem;
+    if(S.veto.lados.length!==S.veto.mapas.length||S.veto.lados.some(l=>l!=='atk'&&l!=='def'))
+      throw new Error('Bo'+bo+' da IA: lados '+JSON.stringify(S.veto.lados));
+  }
+  /* o seu clicar no lado vale */
+  const V=t.iniciarVeto(time.id,adv.id,3,true);
+  let n=0,escolhi=null;
+  while(!V.fim&&n++<40){
+    const passo=V.passos[V.i];
+    if(t.vetoMinhaVez(V)&&passo.tipo==='lado'){escolhi='atk';t.vetoEscolher(V,'atk');}
+    else t.vetoEscolher(V,t.vetoMinhaVez(V)?t.vetoRestantes(V)[0]:null);
+  }
+  if(!escolhi)throw new Error('o veto Bo3 não me deu nenhum passo de lado');
+  const meuPick=V.seq.find(x=>x.tipo==='pick'&&!x.meu);
+  if(!meuPick||meuPick.lado0!=='atk')throw new Error('escolhi atacar e o mapa ficou '+(meuPick&&meuPick.lado0));
+});
+
+await teste('o mapa começa no lado escolhido, sem mexer no sorteio',async()=>{
+  const time=meuTimeDeTeste();
+  const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
+  const mapa=t.G.mapasAtivos[0];
+  const sem=t.semente;
+  const M1=t.abrirMapa(time,adv,mapa,'def');
+  const depois1=t.semente;
+  t.semente=sem;
+  const M2=t.abrirMapa(time,adv,mapa);
+  const depois2=t.semente;
+  if(M1.ladoA!=='def')throw new Error('pedi defesa e o mapa começou '+M1.ladoA);
+  if(depois1!==depois2)throw new Error('escolher o lado consumiu sorteio diferente da moeda');
+});
+
+await teste('a pré-partida tem a etapa de comps da série',async()=>{
+  let c=null,n=0;
+  while(n<60&&!c){c=t.compromissoDaSemana();if(!c){t.avancar();n++;}}
+  if(!c)throw new Error('nenhuma partida minha em 60 semanas');
+  t.abrirPrePartida(c,()=>{});
+  try{
+    const V=t.PP.V;let k=0;
+    while(!V.fim&&k++<40)t.vetoEscolher(V,null);
+    t.PP.etapa='comps';t.ppPintar();
+    const M=w.document.querySelector('#modal');
+    const jogados=V.seq.filter(x=>x.tipo!=='ban').length;
+    const sel=M.querySelectorAll('[data-ppag]').length;
+    if(sel!==jogados*5)throw new Error(sel+' seletores de agente para '+jogados+' mapas');
+    if(!M.querySelector('[data-pppreset]'))throw new Error('sem presets na etapa de comps');
+    if(!/você começa/.test(M.textContent))throw new Error('a etapa de comps não mostra o lado de início');
+    /* trocar o agente pela tela grava na comp do mapa */
+    const s0=M.querySelector('[data-ppag]');
+    const [mapa,pid]=s0.dataset.ppag.split('|');
+    const outro=[...s0.options].map(o=>o.value).find(v=>v!==s0.value);
+    s0.value=outro;s0.dispatchEvent(new w.Event('change'));
+    const time=t.G.times[t.G.meuTime];
+    if(time.comps[mapa][pid]!==outro)throw new Error('a troca de agente não foi gravada');
+  }finally{t.ppFechar();}
 });
 
 await teste('a partida joga exatamente os mapas que o veto escolheu',async()=>{
