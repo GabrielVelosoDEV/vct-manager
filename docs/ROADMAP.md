@@ -78,6 +78,11 @@
 - **Renovação negociada** (`src/core/renovacao.js`): pedido explicado por moral,
   minutos, promessa quebrada, mercado e fase da carreira; duração preferida;
   três propostas baixas e ele fecha a conversa por oito semanas
+- **Pedido de tempo com escolha**: acalmar, partir para cima, jogar travado ou
+  trocar o foco até o fim do mapa; a comissão pede tempo sozinha depois de
+  quatro rounds perdidos em sequência, para todo clube que você não conduz
+- **Clássico com consequência**: vencer o rival levanta o vestiário e a
+  torcida, perder pesa, na proporção da nota de rivalidade
 
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.

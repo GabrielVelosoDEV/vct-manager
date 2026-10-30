@@ -5624,12 +5624,64 @@ function podePedirTempo(M,ehA){
   if(!M||M.fim)return false;
   return (ehA?M.temposA:M.temposB)>0;
 }
+/* O que se faz com o tempo. Antes ele era um bônus só; agora é a hora em que
+   o foco tático e a agressividade viram resposta ao que está acontecendo, em
+   vez de preferência marcada antes da partida. Mudança de tática vale até o
+   fim do mapa; o próximo mapa volta ao que está na tela de Táticas. */
+const TEMPO_OPCOES=[
+  {id:'acalmar',  rot:'Acalmar o time',   dica:'Corta a bola de neve: dois rounds de respiro.'},
+  {id:'agressivo',rot:'Partir para cima', dica:'Agressividade +2 até o fim do mapa.'},
+  {id:'travado',  rot:'Jogar travado',    dica:'Agressividade −2 até o fim do mapa.'},
+  {id:'execucao', rot:'Foco: execução',   dica:'Atropela quem está em default; perde para retake.'},
+  {id:'default',  rot:'Foco: default',    dica:'Lê quem espera retake; perde para execução.'},
+  {id:'retake',   rot:'Foco: retake',     dica:'Come execução; perde para default.'}
+];
+/* Recalcula a força dos dois lados com a tática de mapa em vigor. Lê
+   forcaTime e vantagemTatica, que não sorteiam. */
+function _recalcularMapa(M){
+  const{A,B}=M;
+  const tA=A.tatica,tB=B.tatica;
+  A.tatica=Object.assign({},tA,M.tatA||{});
+  B.tatica=Object.assign({},tB,M.tatB||{});
+  try{
+    const vA=vantagemTatica(A,B), vB=-vA;
+    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA,def:forcaTime(A,M.mapa,'def')+vA};
+    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB,def:forcaTime(B,M.mapa,'def')+vB};
+  }finally{A.tatica=tA;B.tatica=tB;}
+}
 /* Devolve o que aconteceu, para a narração ter o que dizer. */
-function pedirTempo(M,ehA){
+function pedirTempo(M,ehA,opcao){
   if(!podePedirTempo(M,ehA))return null;
-  if(ehA){M.temposA--;M.bonusA=TEMPO_ROUNDS;}
-  else{M.temposB--;M.bonusB=TEMPO_ROUNDS;}
-  return{ehA,restam:ehA?M.temposA:M.temposB,rounds:TEMPO_ROUNDS};
+  const op=TEMPO_OPCOES.find(o=>o.id===opcao)||TEMPO_OPCOES[0];
+  if(ehA)M.temposA--;else M.temposB--;
+  if(op.id==='acalmar'){
+    if(ehA)M.bonusA=TEMPO_ROUNDS;else M.bonusB=TEMPO_ROUNDS;
+  }else{
+    const t=ehA?M.A:M.B;
+    const atual=Object.assign({},t.tatica,(ehA?M.tatA:M.tatB)||{});
+    const mud=op.id==='agressivo'?{agres:clamp((atual.agres||3)+2,1,5)}
+             :op.id==='travado'?{agres:clamp((atual.agres||3)-2,1,5)}
+             :{foco:op.id};
+    if(ehA)M.tatA=Object.assign({},M.tatA||{},mud);else M.tatB=Object.assign({},M.tatB||{},mud);
+    _recalcularMapa(M);
+  }
+  return{ehA,opcao:op.id,rot:op.rot,restam:ehA?M.temposA:M.temposB,rounds:TEMPO_ROUNDS};
+}
+/* A comissão pede tempo sozinha quando o time sangra: quatro rounds
+   perdidos em sequência. Vale para todo clube que não está sendo conduzido
+   por você na tela. É a mesma regra para os dois lados, então não desloca a
+   vitória de ninguém — só corta a bola de neve, como no jogo de verdade. */
+const TEMPO_IA_SEQUENCIA=4;
+function tempoDaComissao(M){
+  for(const ehA of [true,false]){
+    if(ehA?M.manualA:M.manualB)continue;
+    if((ehA?M.seqPerdaA:M.seqPerdaB)>=TEMPO_IA_SEQUENCIA&&podePedirTempo(M,ehA)){
+      pedirTempo(M,ehA,'acalmar');
+      if(ehA)M.seqPerdaA=0;else M.seqPerdaB=0;
+      return ehA?'A':'B';
+    }
+  }
+  return null;
 }
 const ecoDeN=n=>n===0?2:n===1?(rnd()<.6?0:1):n===2?(rnd()<.5?1:2):2;
 /* Um round. Toda a aleatoriedade do mapa passa por aqui, na mesma ordem de
@@ -5647,7 +5699,7 @@ function passoRound(M){
   let dif=M.fA[ladoA]-M.fB[ladoB]+M.diaA-M.diaB;
   const ecoAntesA=M.ecoA, ecoAntesB=M.ecoB;
   if(!pistol)dif+=(M.ecoA-M.ecoB)*2.0;
-  if(pistol)dif+=(A.tatica.agres-B.tatica.agres)*1.2;
+  if(pistol)dif+=(((M.tatA&&M.tatA.agres)||A.tatica.agres)-((M.tatB&&M.tatB.agres)||B.tatica.agres))*1.2;
   /* Round é aleatório por natureza, e essa aleatoriedade é a mesma para
      todo mundo: um único parâmetro, sem depender de atributo. */
   dif+=gauss(0,RUIDO_ROUND);
@@ -5689,6 +5741,9 @@ function passoRound(M){
   if((M.sa>=13||M.sb>=13)&&Math.abs(M.sa-M.sb)>=2)M.fim=true;
   if(r>=24&&Math.abs(M.sa-M.sb)>=2&&(M.sa>=13||M.sb>=13))M.fim=true;
   if(r>60)M.fim=true;
+  if(venceA){M.seqPerdaA=0;M.seqPerdaB=(M.seqPerdaB||0)+1;}
+  else{M.seqPerdaB=0;M.seqPerdaA=(M.seqPerdaA||0)+1;}
+  if(!M.fim){const q=tempoDaComissao(M);if(q)linha.tempoPedido=q;}
   return linha;
 }
 function fecharMapa(M){
@@ -5751,6 +5806,8 @@ function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
   S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
+  /* o lado conduzido na tela pede o próprio tempo; o outro é da comissão */
+  S.M.manualA=!!S.manualA;S.M.manualB=!!S.manualB;
   return S.M;
 }
 /* Fecha o mapa corrente e contabiliza. */
@@ -6294,6 +6351,7 @@ function stageAplicar(s,res){
      algum torneio de fora e o histórico ficaria mentindo por omissão. */
   if(typeof registrarConfronto==='function')
     registrarConfronto(aId,bId,vencedor,nomeStage(s)||s.id);
+  if(typeof aplicarClassico==='function')aplicarClassico(vencedor,perdedor);
   if(s.tipo==='ko')s.elim.push(perdedor);
 }
 /* Depois de resolver uma rodada, já monta a próxima. É de propósito: assim a
@@ -7891,6 +7949,32 @@ function notaRivalidade(t,c){
   const vizinhos=t.regiao===c.time.regiao?1:0.55;
   const legado=Math.min(1,(((t.legado||0)+(c.time.legado||0))/6));
   return (volume*0.32+equilibrio*0.30+porte*0.18+legado*0.20)*vizinhos;
+}
+/* ---------- o clássico pesa ----------
+   Até aqui a rivalidade era só uma linha na tela História: nada no jogo
+   mudava por ganhar ou perder do rival. Agora o clássico mexe no vestiário e
+   na torcida, na proporção da nota — clássico morno mexe pouco, o grande
+   clássico da liga mexe muito. A torcida é o que leva isso ao patrocínio
+   (atratividade em economia.js). Nada sorteia. */
+const RIV_CLASSICO=0.28;   /* a mesma régua de rivaisDe */
+function aplicarClassico(vencedorId,perdedorId){
+  const V=G.times[vencedorId],P=G.times[perdedorId];
+  if(!V||!P)return null;
+  const nota=notaRivalidade(V,{...confronto(V.id,P.id),time:P});
+  if(nota<=RIV_CLASSICO)return null;
+  const k=Math.min(1.6,nota/0.5);
+  const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
+    if(p)p.moral=clamp(p.moral+dm,0.15,1);});
+  mexer(V,0.04*k);
+  mexer(P,-0.05*k);
+  const piso=t=>(typeof pisoTorcida==='function')?pisoTorcida(t):0;
+  const teto=(typeof TORCIDA_MAX!=='undefined')?TORCIDA_MAX:100;
+  if(typeof V.torcida==='number')V.torcida=clamp(V.torcida+Math.round(2*k),piso(V),teto);
+  if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
+  if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
+    noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
+      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'));
+  return{nota,k};
 }
 function rivaisDe(id,quantos){
   const t=G.times[id];if(!t)return[];
@@ -12981,6 +13065,8 @@ function partidaConduzida(S,ctx,aoFim){
     streak:0,ultimo:null,
     aviso:null      /* recado do pedido de tempo, para a narração dizer */
   };
+  /* o seu lado pede tempo por você; com a preferência desligada, a comissão */
+  if(Prefs.get('tempoTecnico'))S[souA?'manualA':'manualB']=true;
   serieAbrirMapa(S);
   avPintar();
   avAgendar(700);
@@ -12988,6 +13074,9 @@ function partidaConduzida(S,ctx,aoFim){
 /* Termina a série sem animar e devolve o resultado a quem pediu. */
 function avEncerrarConduzida(){
   const S=AV.S;
+  /* pulou para o fim: a comissão assume os tempos que sobraram */
+  S.manualA=S.manualB=false;
+  if(S.M){S.M.manualA=S.M.manualB=false;}
   while(!S.fim){
     if(!S.M&&!serieAbrirMapa(S))break;
     while(!S.M.fim)passoRound(S.M);
@@ -13039,6 +13128,13 @@ function avPassoConduzido(){
                          streak:AV.streak,ultimo:false});
   if(AV.aviso){l.texto=AV.aviso+' '+l.texto;AV.aviso=null;}
   AV.linhas.unshift(l);
+  /* tempo que a comissão pediu sozinha depois de uma sequência ruim */
+  if(h.tempoPedido){
+    const meuPediu=(h.tempoPedido==='A')===AV.souA;
+    const tag=meuPediu?AV.meu.tag:AV.adv.tag;
+    AV.linhas.unshift({texto:'⏱ '+tag+' pede tempo para acalmar o time.',peso:0.4,meu:meuPediu,
+      lado:l.lado,placar:l.placar,tempo:true});
+  }
   AV.roundIdx++;
   if(S.M.fim){                /* o round que acabou de sair fechou o mapa */
     avPintar();
@@ -13051,13 +13147,13 @@ function avPassoConduzido(){
 /* O pedido de tempo. Só existe no modo conduzido — no modo que apenas revela
    uma partida já resolvida ele não teria como mudar nada, e um botão que não
    muda nada é pior do que botão nenhum. */
-function avPedirTempo(){
+function avPedirTempo(opcao){
   if(!AV||!AV.conduzida||!AV.S||!AV.S.M)return;
   const ehA=AV.souA;
-  const r=pedirTempo(AV.S.M,ehA);
+  const r=pedirTempo(AV.S.M,ehA,opcao);
+  AV.escolhendoTempo=false;
   if(!r)return;
-  AV.aviso='⏱ Tempo pedido pelo '+AV.meu.tag+'.';
-  const l={texto:'⏱ '+AV.meu.tag+' pede tempo — '+r.restam+' restante(s) neste mapa.',
+  const l={texto:'⏱ '+AV.meu.tag+' pede tempo: '+r.rot.toLowerCase()+'. '+r.restam+' restante(s) neste mapa.',
            peso:0.5,meu:true,lado:AV.linhas[0]?AV.linhas[0].lado:'atk',
            placar:AV.linhas[0]?AV.linhas[0].placar:{meu:AV.S.M.sa,dele:AV.S.M.sb},
            tempo:true};
@@ -13081,7 +13177,7 @@ function avNarracaoAtual(){
 function avAgendar(ms){
   if(!AV||AV.fim)return;
   if(AV.timer)clearTimeout(AV.timer);
-  if(AV.pausado)return;
+  if(AV.pausado||AV.escolhendoTempo)return;
   AV.timer=setTimeout(avPasso,Math.max(60,ms));
 }
 
@@ -13223,8 +13319,12 @@ function avPintar(fim){
     <button class="btn ghost" id="avSair">Fechar</button>`
    :`
     <button class="btn ghost" id="avPausa">${AV.pausado?'Continuar':'Pausar'}</button>
-    ${avPodePedirTempo()?`<button class="btn" id="avTempo">⏱ Pedir tempo
-      <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`:''}
+    ${avPodePedirTempo()?(AV.escolhendoTempo
+      ?`<span class="av-tempo">${TEMPO_OPCOES.map(o=>`<button class="btn ghost sm" data-tempo="${o.id}"
+          title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}
+        <button class="btn ghost sm" id="avTempoCancela">Voltar</button></span>`
+      :`<button class="btn" id="avTempo">⏱ Pedir tempo
+      <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`):''}
     <span class="av-vels">${AV_VEL.map(([v,rot,mult])=>
       `<button class="${Math.abs(AV.vel-mult)<0.01?'on':''}" data-vel="${mult}">${rot}</button>`).join('')}</span>
     <button class="btn" id="avPular">Pular para o fim</button>`;
@@ -13234,7 +13334,11 @@ function avPintar(fim){
 
   const on=(sel,fn)=>{const el=$('#modal').querySelector(sel);if(el)el.onclick=fn;};
   on('#avPausa',()=>{AV.pausado=!AV.pausado;avPintar();if(!AV.pausado)avAgendar(120);});
-  on('#avTempo',()=>{avPedirTempo();if(!AV.pausado)avAgendar(700);});
+  /* pedir tempo pausa a partida até você escolher o que fazer com ele */
+  on('#avTempo',()=>{AV.escolhendoTempo=true;if(AV.timer)clearTimeout(AV.timer);avPintar();});
+  on('#avTempoCancela',()=>{AV.escolhendoTempo=false;avPintar();if(!AV.pausado)avAgendar(300);});
+  $('#modal').querySelectorAll('[data-tempo]').forEach(b=>b.onclick=()=>{
+    avPedirTempo(b.dataset.tempo);avPintar();if(!AV.pausado)avAgendar(700);});
   on('#avPular',avPular);
   on('#avFicha',()=>{const r=AV.res;avFechar();aba=0;modalPartida(r);});
   on('#avSair',avFechar);

@@ -125,6 +125,32 @@ function notaRivalidade(t,c){
   const legado=Math.min(1,(((t.legado||0)+(c.time.legado||0))/6));
   return (volume*0.32+equilibrio*0.30+porte*0.18+legado*0.20)*vizinhos;
 }
+/* ---------- o clássico pesa ----------
+   Até aqui a rivalidade era só uma linha na tela História: nada no jogo
+   mudava por ganhar ou perder do rival. Agora o clássico mexe no vestiário e
+   na torcida, na proporção da nota — clássico morno mexe pouco, o grande
+   clássico da liga mexe muito. A torcida é o que leva isso ao patrocínio
+   (atratividade em economia.js). Nada sorteia. */
+const RIV_CLASSICO=0.28;   /* a mesma régua de rivaisDe */
+function aplicarClassico(vencedorId,perdedorId){
+  const V=G.times[vencedorId],P=G.times[perdedorId];
+  if(!V||!P)return null;
+  const nota=notaRivalidade(V,{...confronto(V.id,P.id),time:P});
+  if(nota<=RIV_CLASSICO)return null;
+  const k=Math.min(1.6,nota/0.5);
+  const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
+    if(p)p.moral=clamp(p.moral+dm,0.15,1);});
+  mexer(V,0.04*k);
+  mexer(P,-0.05*k);
+  const piso=t=>(typeof pisoTorcida==='function')?pisoTorcida(t):0;
+  const teto=(typeof TORCIDA_MAX!=='undefined')?TORCIDA_MAX:100;
+  if(typeof V.torcida==='number')V.torcida=clamp(V.torcida+Math.round(2*k),piso(V),teto);
+  if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
+  if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
+    noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
+      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'));
+  return{nota,k};
+}
 function rivaisDe(id,quantos){
   const t=G.times[id];if(!t)return[];
   return confrontosDe(id)
