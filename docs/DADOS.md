@@ -310,3 +310,23 @@ contam mapas, e `temp.acs` passou a ser somado por mapa para que
 `acs/maps` continue sendo a média correta. Ao adicionar campos novos, incremente e
 trate o valor ausente com padrão, em vez de invalidar a run. Runs antigas continuam
 carregando com um aviso no console.
+
+## Comissão técnica real
+
+`COMISSAO_REAL` em `data/comissao.js`, por tag de clube, no formato progressivo
+`['nick','Função','Nome Completo','PA']` — só o nick é obrigatório. Fonte: Liquipedia.
+
+`montarStaff()` sorteia o membro de cada cargo como sempre e, se o clube tem alguém real
+para aquele cargo, troca nome, país e função por ele e marca `real:true`. O fluxo do
+gerador não muda, então o mundo de uma semente continua o mesmo com ou sem a lista.
+`cargoDeFuncao()` traduz a função em inglês para o cargo do jogo. Quem não tem cargo
+(Manager) ou chega com o cargo já ocupado vai para `t.equipeExtra`
+(`{nome, nomeReal, funcao, pais, real}`): aparece no clube com foto, sem efeito em partida.
+
+Membro de comissão ganhou dois campos opcionais: `nomeReal` e `funcao`.
+
+## Manifesto de imagens
+
+`data/midia.js` é gerado por `npm run imagens` (o build roda antes de empacotar):
+`MIDIA.arquivos['players/kingg']='webp'`. `ASSETS.arq(pasta, nome)` usa a extensão do
+manifesto e cai em `ASSETS.ext` quando o arquivo não está lá.

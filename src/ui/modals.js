@@ -361,7 +361,7 @@ function modalEditarJogador(id){
             ${temFoto?`<button class="btn ghost sm" id="edjFotoDel">Remover do pacote</button>`:''}
           </div>
           <label style="margin-top:8px;display:block">Caminho manual (opcional)
-            <input type="text" id="edjFoto" value="${esc(p.foto||'')}" placeholder="${esc(ASSETS.dirFotos+ASSETS.slug(p.nome)+'.'+ASSETS.ext)}"></label>
+            <input type="text" id="edjFoto" value="${esc(p.foto||'')}" placeholder="${esc(ASSETS.arq('players',p.nome))}"></label>
         </div>
       </div>
       <p class="dim" style="margin-top:8px">Renomear o nick re-chaveia a imagem no pacote sozinho.</p>
@@ -477,8 +477,8 @@ function modalStaff(id){
     <div class="linha-t" style="align-items:flex-start;gap:14px">${retratoStaff(m,72)}<div>
       <div class="eyebrow">${t?esc(t.nome):'Sem clube'}</div>
       <h2 class="sec">${esc(m.nome)} ${bandeira(m.pais)}</h2>
-      <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(m.pais))}</div>
-      <span class="tag">${esc(cargoNome(m.cargo))}</span> <span class="pill">${m.idade} anos</span>
+      <div class="dim" style="font-size:12px;margin:-4px 0 6px">${m.nomeReal?esc(m.nomeReal)+' · ':''}${esc(nomePais(m.pais))}</div>
+      <span class="tag">${esc(cargoNome(m.cargo))}</span>${m.funcao?` <span class="pill">${esc(m.funcao)}</span>`:''} <span class="pill">${m.idade} anos</span>
       <span class="pill">Contrato ${m.contrato}a</span></div></div>
     <div style="text-align:right"><div class="ov ${ovClass(o)}" style="font-size:52px">${o}</div>
       <div class="dim">Potencial <b style="color:var(--gold)">${m.pot}</b></div>

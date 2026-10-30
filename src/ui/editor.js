@@ -122,7 +122,7 @@ function edvTimes(){
             ${temImg?`<button class="btn ghost sm" data-edimgdel="${chaveImg}">Remover do pacote</button>`:''}
           </div>
           <label style="margin-top:8px;display:block">Caminho manual (opcional)
-            <input type="text" id="edLogo" value="${esc(t.logo||'')}" placeholder="${esc(ASSETS.dirLogos+ASSETS.slug(t.tag)+'.'+ASSETS.ext)}"></label>
+            <input type="text" id="edLogo" value="${esc(t.logo||'')}" placeholder="${esc(ASSETS.arq('logos',t.tag))}"></label>
         </div>
       </div>
     </div>

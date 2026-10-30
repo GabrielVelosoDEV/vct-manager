@@ -202,10 +202,15 @@ function vTaticas(){
     ${comissaoDe(t).map(({cargo,membro})=>`<div class="slot">
        ${membro?retratoStaff(membro,30):''}
        <span class="n">${membro?`<b>${esc(membro.nome)}</b> ${bandeira(membro.pais)}
-         <div class="dim" style="font-size:11px">${cargo.nome} · ${membro.idade}a · ${money(membro.salario)}/mês</div>`
+         <div class="dim" style="font-size:11px">${cargo.nome}${membro.nomeReal?' · '+esc(membro.nomeReal):''} · ${membro.idade}a · ${money(membro.salario)}/mês</div>`
          :`<b class="dn">${cargo.nome} vago</b><div class="dim" style="font-size:11px">a vaga vale nível 1</div>`}</span>
        <span class="ov ${ovClass(membro?overStaff(membro):40)}">${membro?overStaff(membro):'—'}</span>
        ${membro?`<button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button>`:''}
+      </div>`).join('')}
+    ${(t.equipeExtra||[]).map(x=>`<div class="slot">
+       ${retratoStaff(x,30)}
+       <span class="n"><b>${esc(x.nome)}</b> ${x.pais?bandeira(x.pais):''}
+         <div class="dim" style="font-size:11px">${esc(x.funcao||'Equipe')}${x.nomeReal?' · '+esc(x.nomeReal):''}</div></span>
       </div>`).join('')}
     <p class="dim" style="margin-top:6px">Comissão não se compra com upgrade: contrate no
     <b>Mercado › Comissão</b>. Nível ${NIVEL_NEUTRO} é o ponto neutro — acima ajuda, abaixo

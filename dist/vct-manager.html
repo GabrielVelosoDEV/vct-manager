@@ -1309,6 +1309,69 @@ LIVRE:[['eeiu','Iniciador',83,24,'US'],
 };
 
 
+/* ===== data/comissao.js ===== */
+/* ============================================================
+   COMISSÃO TÉCNICA REAL — por tag de clube
+   ------------------------------------------------------------
+   Fonte: Liquipedia (liquipedia.net/valorant), página de cada time,
+   lida em 2026-10-30. Texto da Liquipedia sob CC-BY-SA 3.0 — o
+   crédito está nos Créditos do jogo.
+
+   Formato progressivo, como ELENCOS_REAIS:
+     ['nick','Função','Nome Completo','PA']
+   Só o nick é obrigatório. A função é a da Liquipedia, em inglês, e
+   staff.js traduz para o cargo do jogo (cargoDeFuncao):
+     Head Coach / Coach            → tecnico
+     Assistant Coach / Analyst     → analista
+     Performance / Mental Coach    → mental
+     Physio                        → fisio
+     Scout                         → olheiro
+   Função sem cargo no jogo (Manager, General Manager) ou cargo já
+   ocupado vira "equipe do clube": aparece com nome e foto, sem efeito
+   na partida. Vaga que não está aqui continua gerada.
+
+   Foto: assets/staff/<nick em slug>.png|jpg|webp — mesma regra de
+   assets/players/. Clube ausente desta lista mantém comissão gerada.
+   ============================================================ */
+const COMISSAO_REAL={
+/* ---------------- VCT Americas ---------------- */
+SEN:[['Ewok','Head Coach','Marthinus Jacobus van der Walt','ZA'],
+     ['GUNTER','Assistant Coach','Luke Clives','GB'],
+     ['Zyto','Team Manager','Bryan Ybanez','US']],
+NRG:[['bonkar','Head Coach','Malkolm Rench','SE'],
+     ['Strong','Assistant Coach','Joseph Edwards','GB'],
+     ['bikeage','General Manager','Jaime Cohenca','US']],
+LOUD:[['Romanilly','Head Coach','Gonzalo Manzano','AR'],
+      ['Bati','Assistant Coach','Miguel Batista','PT'],
+      ['Wenty','Team Manager','Carlos Lira Portela','BR']],
+'100T':[['Nbs','Head Coach','Laurynas Kisielius',''],
+        ['d00mbr0s','Assistant Coach','Carl Erik Victor William Sandgren','SE'],
+        ['Kaimera','Analyst','Nathan McAdams','']],
+MIBR:[['fRoD','Coach','Daniel Montaner','US'],
+      ['Happy','Assistant Coach','Vincent Cervoni Schopenhauer','FR'],
+      ['Chivitz','Manager','Felipe Chivitz','BR']],
+EG:[['potter','Head Coach','Christine Chi','US'],
+    ['pho','Assistant Coach','Mike Panza','US']],
+FUR:[['shaW','Head Coach','Ian Jardim','BR'],
+     ['Kamino','Assistant Coach','Lucas Kamino','BR'],
+     ['zaz','Head of Performance','Júlia Medeiros','BR'],
+     ['lukzera','Manager','Lucas Soares','BR']],
+/* ---------------- VCT EMEA ---------------- */
+TH:[['Neilzinho','Head Coach','Neil Finlay',''],
+    ['weber','Coach','Brandon William Weber',''],
+    ['EsportsRyan','Performance Coach','Ryan Scollan','']],
+TL:[['LohaN','Head Coach','Ivo Renato Da Silva Santos Albino','PT'],
+    ['yaotziN','Assistant Coach','Daniel Roczniak','PL'],
+    ['7Teen','Performance Coach','Tanner Curtis','US'],
+    ['cauzed','Manager','Eamon Drea','GB']],
+/* ---------------- VCT Pacific ---------------- */
+PRX:[['alecks','Coach','Alexandre Sallé','FR'],
+     ['Wendler','Assistant Coach','Ashton Wendler','US'],
+     ['Panda','Performance Coach','Laijhun Cheng','US'],
+     ['Tommy','Team Manager','Kumaresan Ramani','SG']]
+};
+
+
 /* ===== data/clubes.js ===== */
 /* ============================================================
    DADOS DE CLUBE — exportado do Editor em 2026-08-29
@@ -1515,6 +1578,14 @@ const ROSTOS={
   "CN_jovem_f": 50,
   "CN_veterano_f": 30
  }
+};
+
+
+/* ===== data/midia.js ===== */
+/* Gerado por tools/imagens.mjs — não edite à mão; rode `npm run imagens`.
+   Chave: '<pasta de assets>/<slug>'. Valor: a extensão do arquivo. */
+const MIDIA={
+  arquivos:{}
 };
 
 
@@ -7889,14 +7960,53 @@ function evoluirStaff(){
   Object.values(G.times).forEach(atualizarComissao);
 }
 
+/* ---------- comissão real ----------
+   A função vem da Liquipedia, em inglês e sem padrão fixo ("Head Coach",
+   "Coach", "Head of Performance"). A ordem dos testes importa: "assistant
+   coach" contém "coach", então o assistente é lido antes do técnico. */
+function cargoDeFuncao(f){
+  const s=String(f||'').toLowerCase();
+  if(/assist|analy|strateg/.test(s))return 'analista';
+  if(/perform|mental|psych/.test(s))return 'mental';
+  if(/physio|fisio/.test(s))return 'fisio';
+  if(/scout|olheiro/.test(s))return 'olheiro';
+  if(/coach|t[eé]cnico/.test(s))return 'tecnico';
+  return null;
+}
+/* Distribui a comissão real de um clube pelos cargos do jogo. Quem não tem
+   cargo (manager) ou chega com o cargo já ocupado vai para `extra`: entra no
+   clube com nome e foto, sem efeito em partida. Leitura pura, sem sorteio. */
+function comissaoRealDe(tag){
+  const lista=typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL[tag]:null;
+  const cargos={},extra=[];
+  for(const l of lista||[]){
+    const [nick,funcao,nomeReal,pais]=l;
+    if(!nick)continue;
+    const r={nick:String(nick).trim(),funcao:funcao||'',nomeReal:nomeReal||'',pais:pais||''};
+    let c=cargoDeFuncao(funcao);
+    /* segundo técnico ("Coach" ao lado do "Head Coach") é auxiliar na prática */
+    if(c==='tecnico'&&cargos.tecnico)c='analista';
+    if(c&&!cargos[c])cargos[c]=r;else extra.push(r);
+  }
+  return{cargos,extra};
+}
+
 /* ---------- semeadura ---------- */
 function montarStaff(){
   G.staff={};G.staffLivres=[];G.seqS=0;
   const usados=new Set();
+  /* nome real reservado antes de gerar qualquer fictício, como os nicks em
+     world.js: sem isso o gerador poderia batizar alguém com o nick de um
+     técnico de verdade */
+  if(typeof COMISSAO_REAL!=='undefined')
+    for(const tag in COMISSAO_REAL)for(const l of COMISSAO_REAL[tag])if(l[0])usados.add(String(l[0]).trim());
   for(const id in G.times){
     const t=G.times[id];
     t.comissao={};
     const R=REGIONS.find(r=>r.id===t.regiao);
+    const real=comissaoRealDe(t.tag);
+    t.equipeExtra=real.extra.map(r=>({nome:r.nick,nomeReal:r.nomeReal,funcao:r.funcao,
+      pais:r.pais,real:true}));
     for(const c of CARGOS){
       /* Challengers emprega comissão mais barata, e é isso que mantém a divisão
          viável: com o mesmo padrão do Tier 1 a folha comeria o patrocínio */
@@ -7906,6 +8016,11 @@ function montarStaff(){
       const alvo=overAlvoPeso('comissao',t.tier,pesoComissao(t),3);
       const m=criarMembro(c.id,alvo,pick(R.paises),ri(27,52),usados,t.tier);
       aplicarOverStaff(m,alvo);m.pot=potencialStaffDe(alvo,m.idade,t.tier);
+      /* a pessoa real ocupa o membro já sorteado: atributos, idade e contrato
+         seguem a régua do clube, e o fluxo do gerador fica idêntico ao de um
+         mundo sem comissão real */
+      const r=real.cargos[c.id];
+      if(r){m.nome=r.nick;m.nomeReal=r.nomeReal;m.funcao=r.funcao;if(r.pais)m.pais=r.pais;m.real=true;}
       m.timeId=t.id;G.staff[m.id]=m;t.comissao[c.id]=m.id;
     }
     atualizarComissao(t);
@@ -8306,7 +8421,9 @@ function edListarPaises(){
      assets/logos/<slug da tag>.png   ex.: assets/logos/sen.png
      assets/players/<slug do nick>.png ex.: assets/players/zekken.png
    O slug minusculiza, remove acento e troca espaço por hífen.
-   Formatos aceitos: png, jpg, webp, svg (defina em ASSETS.ext).
+   Formatos aceitos: png, jpg, webp, svg. O formato de cada arquivo
+   vem do manifesto data/midia.js, que `npm run imagens` gera varrendo
+   assets/; sem manifesto vale ASSETS.ext.
    Um time ou jogador pode sobrescrever o caminho nos campos
    `logo` e `foto`, editáveis no Editor.
    ============================================================ */
@@ -8314,6 +8431,13 @@ const ASSETS={
   dirLogos:'assets/logos/',
   dirFotos:'assets/players/',
   ext:'png',
+  /* Caminho do arquivo na pasta, com a extensão que ele tem de verdade.
+     `dir` é a subpasta de assets/ ('logos', 'players', 'staff'...). */
+  arq(dir,nome){
+    const s=this.slug(nome);
+    const ext=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos[dir+'/'+s]:null;
+    return 'assets/'+dir+'/'+s+'.'+(ext||this.ext);
+  },
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
@@ -8323,11 +8447,11 @@ const ASSETS={
      o que o usuário acabou de subir. */
   logo(t){
     const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+this.slug(t.tag));
-    return up || t.logo || this.dirLogos+this.slug(t.tag)+'.'+this.ext;
+    return up || t.logo || this.arq('logos',t.tag);
   },
   foto(p){
     const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+this.slug(p.nome));
-    return up || p.foto || this.dirFotos+this.slug(p.nome)+'.'+this.ext;
+    return up || p.foto || this.arq('players',p.nome);
   }
 };
 function svgURI(svg){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}
@@ -8377,7 +8501,7 @@ function retrato(p,px){
   const fb=monogramaJogador(p.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const c=cadeiaRetrato(up||p.foto||'',ASSETS.dirFotos+ASSETS.slug(p.nome)+'.'+ASSETS.ext,gerado,fb);
+  const c=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${px}" loading="lazy" alt="" src="${c.src}"
     onerror="${c.on}">`;
 }
@@ -8395,11 +8519,11 @@ ASSETS.dirAgentes='assets/agentes/';
 ASSETS.arte=function(t){
   if(!t)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('arte:'+this.slug(t.id));
-  return up || t.logo || this.dirArtes+this.slug(t.id)+'.'+this.ext;
+  return up || t.logo || this.arq('torneios',t.id);
 };
 ASSETS.agente=function(nome){
   const up=typeof Imgs!=='undefined'&&Imgs.get('agente:'+this.slug(nome));
-  return up || this.dirAgentes+this.slug(nome)+'.'+this.ext;
+  return up || this.arq('agentes',nome);
 };
 function monogramaTorneio(curto,px){
   const c=corDe(String(curto)),t=esc(String(curto).slice(0,12).toUpperCase());
@@ -8431,7 +8555,7 @@ ASSETS.dirMarcas='assets/marcas/';
 ASSETS.marca=function(mk){
   if(!mk)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('marca:'+this.slug(mk.id));
-  return up || mk.logo || this.dirMarcas+this.slug(mk.id)+'.'+this.ext;
+  return up || mk.logo || this.arq('marcas',mk.id);
 };
 /* Assinatura deitada, com o nome escrito por extenso quando cabe. Marca sem
    logo tem de continuar legível: é o nome dela que identifica, não a cor. */
@@ -8473,14 +8597,14 @@ ASSETS.dirStaff='assets/staff/';
 ASSETS.staff=function(m){
   if(!m)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+this.slug(m.nome));
-  return up || m.foto || this.dirStaff+this.slug(m.nome)+'.'+this.ext;
+  return up || m.foto || this.arq('staff',m.nome);
 };
 function retratoStaff(m,px){
   px=px||44;if(!m)return '';
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
-  const c=cadeiaRetrato(up||m.foto||'',ASSETS.dirStaff+ASSETS.slug(m.nome)+'.'+ASSETS.ext,gerado,fb);
+  const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
 }
@@ -9486,6 +9610,9 @@ function vCreditos(){
     <b>vlr.gg</b>, lidos em 28/08/2026. Nome de clube, tag e nick são dado real. Função, over, idade e
     país são estimativa — os endpoints de estatística por jogador vinham vazios na coleta, então não há
     ACS nem rating de onde derivar. O prestígio do Tier 1 é calibrado pelo aproveitamento real de 2026.</p>
+    <p class="dim" style="margin-top:8px">A comissão técnica real (técnicos, assistentes, analistas e
+    managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), lida em 30/10/2026, sob licença
+    CC-BY-SA 3.0. Cargo sem dado real continua gerado.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Tecnologia</div>
@@ -9496,8 +9623,8 @@ function vCreditos(){
 
   <div class="card" style="border-left:3px solid var(--line2)"><div class="eyebrow">Aviso</div>
     <p class="dim">Projeto de fã, sem qualquer vínculo, patrocínio ou aprovação da Riot Games.
-    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações e de jogadores aparecem
-    a título informativo e pertencem aos seus titulares.</p>
+    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores e comissão
+    técnica, escudos e fotos aparecem a título informativo e pertencem aos seus titulares.</p>
   </div>`;
 }
 
@@ -9707,10 +9834,15 @@ function vTaticas(){
     ${comissaoDe(t).map(({cargo,membro})=>`<div class="slot">
        ${membro?retratoStaff(membro,30):''}
        <span class="n">${membro?`<b>${esc(membro.nome)}</b> ${bandeira(membro.pais)}
-         <div class="dim" style="font-size:11px">${cargo.nome} · ${membro.idade}a · ${money(membro.salario)}/mês</div>`
+         <div class="dim" style="font-size:11px">${cargo.nome}${membro.nomeReal?' · '+esc(membro.nomeReal):''} · ${membro.idade}a · ${money(membro.salario)}/mês</div>`
          :`<b class="dn">${cargo.nome} vago</b><div class="dim" style="font-size:11px">a vaga vale nível 1</div>`}</span>
        <span class="ov ${ovClass(membro?overStaff(membro):40)}">${membro?overStaff(membro):'—'}</span>
        ${membro?`<button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button>`:''}
+      </div>`).join('')}
+    ${(t.equipeExtra||[]).map(x=>`<div class="slot">
+       ${retratoStaff(x,30)}
+       <span class="n"><b>${esc(x.nome)}</b> ${x.pais?bandeira(x.pais):''}
+         <div class="dim" style="font-size:11px">${esc(x.funcao||'Equipe')}${x.nomeReal?' · '+esc(x.nomeReal):''}</div></span>
       </div>`).join('')}
     <p class="dim" style="margin-top:6px">Comissão não se compra com upgrade: contrate no
     <b>Mercado › Comissão</b>. Nível ${NIVEL_NEUTRO} é o ponto neutro — acima ajuda, abaixo
@@ -10835,7 +10967,7 @@ function modalEditarJogador(id){
             ${temFoto?`<button class="btn ghost sm" id="edjFotoDel">Remover do pacote</button>`:''}
           </div>
           <label style="margin-top:8px;display:block">Caminho manual (opcional)
-            <input type="text" id="edjFoto" value="${esc(p.foto||'')}" placeholder="${esc(ASSETS.dirFotos+ASSETS.slug(p.nome)+'.'+ASSETS.ext)}"></label>
+            <input type="text" id="edjFoto" value="${esc(p.foto||'')}" placeholder="${esc(ASSETS.arq('players',p.nome))}"></label>
         </div>
       </div>
       <p class="dim" style="margin-top:8px">Renomear o nick re-chaveia a imagem no pacote sozinho.</p>
@@ -10951,8 +11083,8 @@ function modalStaff(id){
     <div class="linha-t" style="align-items:flex-start;gap:14px">${retratoStaff(m,72)}<div>
       <div class="eyebrow">${t?esc(t.nome):'Sem clube'}</div>
       <h2 class="sec">${esc(m.nome)} ${bandeira(m.pais)}</h2>
-      <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(m.pais))}</div>
-      <span class="tag">${esc(cargoNome(m.cargo))}</span> <span class="pill">${m.idade} anos</span>
+      <div class="dim" style="font-size:12px;margin:-4px 0 6px">${m.nomeReal?esc(m.nomeReal)+' · ':''}${esc(nomePais(m.pais))}</div>
+      <span class="tag">${esc(cargoNome(m.cargo))}</span>${m.funcao?` <span class="pill">${esc(m.funcao)}</span>`:''} <span class="pill">${m.idade} anos</span>
       <span class="pill">Contrato ${m.contrato}a</span></div></div>
     <div style="text-align:right"><div class="ov ${ovClass(o)}" style="font-size:52px">${o}</div>
       <div class="dim">Potencial <b style="color:var(--gold)">${m.pot}</b></div>
@@ -11838,7 +11970,7 @@ function edvTimes(){
             ${temImg?`<button class="btn ghost sm" data-edimgdel="${chaveImg}">Remover do pacote</button>`:''}
           </div>
           <label style="margin-top:8px;display:block">Caminho manual (opcional)
-            <input type="text" id="edLogo" value="${esc(t.logo||'')}" placeholder="${esc(ASSETS.dirLogos+ASSETS.slug(t.tag)+'.'+ASSETS.ext)}"></label>
+            <input type="text" id="edLogo" value="${esc(t.logo||'')}" placeholder="${esc(ASSETS.arq('logos',t.tag))}"></label>
         </div>
       </div>
     </div>

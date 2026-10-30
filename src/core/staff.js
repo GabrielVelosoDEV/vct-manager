@@ -364,14 +364,53 @@ function evoluirStaff(){
   Object.values(G.times).forEach(atualizarComissao);
 }
 
+/* ---------- comissão real ----------
+   A função vem da Liquipedia, em inglês e sem padrão fixo ("Head Coach",
+   "Coach", "Head of Performance"). A ordem dos testes importa: "assistant
+   coach" contém "coach", então o assistente é lido antes do técnico. */
+function cargoDeFuncao(f){
+  const s=String(f||'').toLowerCase();
+  if(/assist|analy|strateg/.test(s))return 'analista';
+  if(/perform|mental|psych/.test(s))return 'mental';
+  if(/physio|fisio/.test(s))return 'fisio';
+  if(/scout|olheiro/.test(s))return 'olheiro';
+  if(/coach|t[eé]cnico/.test(s))return 'tecnico';
+  return null;
+}
+/* Distribui a comissão real de um clube pelos cargos do jogo. Quem não tem
+   cargo (manager) ou chega com o cargo já ocupado vai para `extra`: entra no
+   clube com nome e foto, sem efeito em partida. Leitura pura, sem sorteio. */
+function comissaoRealDe(tag){
+  const lista=typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL[tag]:null;
+  const cargos={},extra=[];
+  for(const l of lista||[]){
+    const [nick,funcao,nomeReal,pais]=l;
+    if(!nick)continue;
+    const r={nick:String(nick).trim(),funcao:funcao||'',nomeReal:nomeReal||'',pais:pais||''};
+    let c=cargoDeFuncao(funcao);
+    /* segundo técnico ("Coach" ao lado do "Head Coach") é auxiliar na prática */
+    if(c==='tecnico'&&cargos.tecnico)c='analista';
+    if(c&&!cargos[c])cargos[c]=r;else extra.push(r);
+  }
+  return{cargos,extra};
+}
+
 /* ---------- semeadura ---------- */
 function montarStaff(){
   G.staff={};G.staffLivres=[];G.seqS=0;
   const usados=new Set();
+  /* nome real reservado antes de gerar qualquer fictício, como os nicks em
+     world.js: sem isso o gerador poderia batizar alguém com o nick de um
+     técnico de verdade */
+  if(typeof COMISSAO_REAL!=='undefined')
+    for(const tag in COMISSAO_REAL)for(const l of COMISSAO_REAL[tag])if(l[0])usados.add(String(l[0]).trim());
   for(const id in G.times){
     const t=G.times[id];
     t.comissao={};
     const R=REGIONS.find(r=>r.id===t.regiao);
+    const real=comissaoRealDe(t.tag);
+    t.equipeExtra=real.extra.map(r=>({nome:r.nick,nomeReal:r.nomeReal,funcao:r.funcao,
+      pais:r.pais,real:true}));
     for(const c of CARGOS){
       /* Challengers emprega comissão mais barata, e é isso que mantém a divisão
          viável: com o mesmo padrão do Tier 1 a folha comeria o patrocínio */
@@ -381,6 +420,11 @@ function montarStaff(){
       const alvo=overAlvoPeso('comissao',t.tier,pesoComissao(t),3);
       const m=criarMembro(c.id,alvo,pick(R.paises),ri(27,52),usados,t.tier);
       aplicarOverStaff(m,alvo);m.pot=potencialStaffDe(alvo,m.idade,t.tier);
+      /* a pessoa real ocupa o membro já sorteado: atributos, idade e contrato
+         seguem a régua do clube, e o fluxo do gerador fica idêntico ao de um
+         mundo sem comissão real */
+      const r=real.cargos[c.id];
+      if(r){m.nome=r.nick;m.nomeReal=r.nomeReal;m.funcao=r.funcao;if(r.pais)m.pais=r.pais;m.real=true;}
       m.timeId=t.id;G.staff[m.id]=m;t.comissao[c.id]=m.id;
     }
     atualizarComissao(t);
