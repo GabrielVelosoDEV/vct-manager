@@ -91,7 +91,8 @@ w.eval(`window.__t={
   get narrarRound(){return narrarRound;}, get partidaAoVivo(){return partidaAoVivo;},
   get avPular(){return avPular;}, get avFechar(){return avFechar;}, get simMapa(){return simMapa;},
   get PAPEIS(){return PAPEIS;}, get criarManager(){return criarManager;},
-  get montarMetas(){return montarMetas;}, get avaliarTemporada(){return avaliarTemporada;},
+  get montarMetas(){return montarMetas;}, get cobrancaDoMeioDoAno(){return cobrancaDoMeioDoAno;},
+  get SEMANA_COBRANCA(){return SEMANA_COBRANCA;}, get avaliarTemporada(){return avaliarTemporada;},
   get souTreinador(){return souTreinador;}, get situacaoManager(){return situacaoManager;},
   get ofertasDeEmprego(){return ofertasDeEmprego;}, get assumirClube(){return assumirClube;},
   get posicaoNaLiga(){return posicaoNaLiga;}, get modalVeredito(){return modalVeredito;},
@@ -2091,6 +2092,54 @@ await teste('assumir novo clube reinicia confiança e metas',async()=>{
     if(t.G.manager.confianca<=0)throw new Error('começou o novo emprego já ameaçado');
     if(!t.G.manager.metas.length)throw new Error('sem metas no novo clube');
   }finally{t.G.manager=antes;t.G.meuTime=meuAntes;}
+});
+
+await teste('a diretoria cobra no meio do ano, e só uma vez',async()=>{
+  const antes=t.G.manager, sem=t.G.semana;
+  try{
+    t.G.semana=1;
+    t.criarManager('Teste','treinador');t.montarMetas();
+    const meio=t.G.manager.metas.filter(x=>x.momento==='meio');
+    if(meio.length!==2)throw new Error(meio.length+' metas de meio de ano, esperado 2');
+    if(!meio.some(x=>x.tipo==='parcial'))throw new Error('sem meta de posição parcial');
+    const c0=t.G.manager.confianca;
+    const v=t.cobrancaDoMeioDoAno();
+    if(!v||!v.meio)throw new Error('a cobrança não devolveu balanço');
+    if(t.G.manager.confianca!==Math.max(0,Math.min(100,c0+v.delta)))throw new Error('a confiança não andou com o balanço');
+    if(meio.some(x=>x.cumprida===undefined))throw new Error('meta sem avaliação');
+    if(t.cobrancaDoMeioDoAno()!==null)throw new Error('cobrou duas vezes no mesmo ano');
+    /* o fim do ano não reavalia o que já foi cobrado */
+    const fim=t.avaliarTemporada();
+    const posMeio=meio.find(x=>x.tipo==='parcial');
+    if(posMeio.resultado.includes('título'))throw new Error('o fim do ano sobrescreveu a meta do meio');
+    if(!fim)throw new Error('o fim do ano deixou de avaliar');
+    /* a tela do balanço */
+    t.modalVeredito(v);
+    if(!/meio do ano/.test($('#modal').textContent))throw new Error('o balanço não diz que é do meio do ano');
+  }finally{t.G.manager=antes;t.G.semana=sem;$('#modal').innerHTML='';}
+});
+
+await teste('quem assume depois da janela não é cobrado por ela',async()=>{
+  const antes=t.G.manager, sem=t.G.semana;
+  try{
+    t.G.semana=t.SEMANA_COBRANCA+3;
+    t.criarManager('Teste','treinador');
+    const metas=t.montarMetas();
+    if(metas.some(x=>x.momento==='meio'))throw new Error('meta de meio de ano para quem chegou depois');
+  }finally{t.G.manager=antes;t.G.semana=sem;}
+});
+
+await teste('cobrança ruim no meio do ano pode demitir',async()=>{
+  const antes=t.G.manager, sem=t.G.semana, meu=t.G.meuTime;
+  try{
+    t.G.semana=1;
+    t.criarManager('Teste','treinador');t.montarMetas();
+    /* meta parcial impossível e confiança no fio */
+    t.G.manager.metas.find(x=>x.tipo==='parcial').alvo=0;
+    t.G.manager.confianca=2;
+    const v=t.cobrancaDoMeioDoAno();
+    if(!v.demitido||!t.G.manager.demitido)throw new Error('confiança zerada no meio do ano não demitiu');
+  }finally{t.G.manager=antes;t.G.semana=sem;t.G.meuTime=meu;}
 });
 
 await teste('o veredito abre e explica o que foi cobrado',async()=>{

@@ -77,8 +77,77 @@ function montarMetas(){
     metas.push({id:'acesso',tipo:'posicao',alvo:sobe,de:_ligaDe(t).length,tier:t.tier,peso:0,cumprida:null,
       texto:'Brigar pelo acesso: '+(sobe<=1?'terminar em primeiro':'terminar entre os '+sobe+' primeiros')});
   }
+  /* As do meio do ano só entram se a janela ainda está por vir: quem assume
+     um clube em setembro não pode ser cobrado por julho. */
+  if((G.semana||1)<SEMANA_COBRANCA)metas.push(...metasDoMeio(t,alvo));
   G.manager.metas=metas;
   return metas;
+}
+
+/* ---------- a cobrança do meio do ano ----------
+   Antes a diretoria só falava no fim da temporada, e as semanas entre um
+   torneio e outro não tinham tensão nenhuma no modo treinador. Agora, na
+   janela do meio do ano, ela confere duas coisas: como o clube está na liga
+   até ali, e uma meta de gestão que sai da situação do clube — dar minutos à
+   promessa da casa, ou arrumar as contas. Pesa menos que o fim do ano, mas
+   pesa, e quem já chega no limite pode cair ali mesmo. */
+const SEMANA_COBRANCA=29;         /* abre a Janela do meio do ano (calendar.js) */
+const MAPAS_PROMESSA=8;
+function metasDoMeio(t,alvo){
+  const de=_ligaDe(t).length;
+  const parcial=clamp(alvo+1,2,Math.max(2,de-2));
+  const out=[{id:'parcial',tipo:'parcial',momento:'meio',alvo:parcial,de,peso:0,cumprida:null,
+    texto:'Chegar à janela do meio do ano entre os '+parcial+' primeiros da liga'}];
+  const promessa=(t.elenco||[]).map(id=>G.jogadores[id])
+    .filter(p=>p&&p.idade<=21&&p.pot>=84&&!(t.titulares||[]).includes(p.id))
+    .sort((a,b)=>b.pot-a.pot)[0];
+  if(promessa)out.push({id:'promessa',tipo:'promessa',momento:'meio',jogador:promessa.id,
+    alvo:MAPAS_PROMESSA,peso:0,cumprida:null,
+    texto:'Dar minutos a '+promessa.nome+': '+MAPAS_PROMESSA+' mapas até o meio do ano'});
+  else out.push({id:'contas',tipo:'contas',momento:'meio',peso:0,cumprida:null,
+    texto:'Chegar ao meio do ano com caixa positivo e folha dentro do teto'});
+  return out;
+}
+function cobrancaDoMeioDoAno(){
+  if(!souTreinador())return null;
+  const m=G.manager, t=G.times[G.meuTime];
+  if(!m||m.demitido||!t)return null;
+  const doMeio=(m.metas||[]).filter(x=>x.momento==='meio'&&x.cumprida===null);
+  if(!doMeio.length)return null;
+  const{pos,de}=posicaoNaLiga(t);
+  let delta=0;
+  for(const meta of doMeio){
+    if(meta.tipo==='parcial'){
+      const alvo=Math.min(meta.alvo,Math.max(2,de-2));
+      meta.cumprida=pos<=alvo;
+      meta.resultado=pos+'º de '+de;
+      delta+=meta.cumprida?6+Math.min(6,(alvo-pos)*2):-6-Math.min(12,(pos-alvo)*3);
+    }else if(meta.tipo==='promessa'){
+      const p=G.jogadores[meta.jogador];
+      if(!p||p.timeId!==t.id){
+        /* vendeu ou emprestou a promessa: a diretoria não cobra o que você
+           decidiu negociar, mas também não aplaude */
+        meta.cumprida=null;meta.resultado='saiu do clube';continue;
+      }
+      const mapas=(p.temp&&p.temp.maps)||0;
+      meta.cumprida=mapas>=meta.alvo;
+      meta.resultado=mapas+' mapa(s)';
+      delta+=meta.cumprida?5:-5;
+    }else if(meta.tipo==='contas'){
+      const folga=(typeof folgaSalarial==='function')?folgaSalarial(t):0;
+      meta.cumprida=t.caixa>=0&&folga>=0;
+      meta.resultado=money(t.caixa)+' em caixa';
+      delta+=meta.cumprida?5:-6;
+    }
+  }
+  m.confianca=clamp(Math.round(m.confianca+delta),0,100);
+  const registro={meio:true,ano:G.ano,clube:t.nome,tag:t.tag,pos,de,titulos:0,
+    metas:doMeio.map(x=>({texto:x.texto,cumprida:x.cumprida,resultado:x.resultado})),
+    confianca:m.confianca,delta};
+  const demitido=m.confianca<=CONF_MIN;
+  if(demitido)demitirManager(t);
+  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.');
+  return{...registro,demitido,avisado:!demitido&&m.confianca<=CONF_PISO_DEMISSAO};
 }
 
 /* Posição do clube na liga pela campanha da temporada corrente. */
@@ -102,6 +171,7 @@ function avaliarTemporada(){
   const titulosAno=(t.titulos||[]).filter(x=>String(x).startsWith(String(G.ano))).length;
 
   for(const meta of m.metas){
+    if(meta.momento==='meio')continue;   /* já cobradas na janela do meio do ano */
     if(meta.tipo==='posicao'){
       /* Acesso ou rebaixamento entre a definição da meta e a avaliação mudam o
          tamanho da liga. Reescalar mantém a exigência equivalente em vez de
@@ -120,7 +190,7 @@ function avaliarTemporada(){
     meta.resultado=meta.tipo==='posicao'?(pos+'º de '+de):(titulosAno+' título(s)');
   }
   const principal=m.metas.find(x=>x.peso>0);
-  const bonus=m.metas.filter(x=>x.peso===0&&x.cumprida).length;
+  const bonus=m.metas.filter(x=>x.peso===0&&x.momento!=='meio'&&x.cumprida).length;
 
   /* A confiança se move pela DISTÂNCIA da meta, não por acertou/errou: ficar
      uma posição fora não pode custar o mesmo que ficar dez. */
