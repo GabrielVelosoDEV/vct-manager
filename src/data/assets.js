@@ -5,7 +5,9 @@
      assets/logos/<slug da tag>.png   ex.: assets/logos/sen.png
      assets/players/<slug do nick>.png ex.: assets/players/zekken.png
    O slug minusculiza, remove acento e troca espaço por hífen.
-   Formatos aceitos: png, jpg, webp, svg (defina em ASSETS.ext).
+   Formatos aceitos: png, jpg, webp, svg. O formato de cada arquivo
+   vem do manifesto data/midia.js, que `npm run imagens` gera varrendo
+   assets/; sem manifesto vale ASSETS.ext.
    Um time ou jogador pode sobrescrever o caminho nos campos
    `logo` e `foto`, editáveis no Editor.
    ============================================================ */
@@ -13,6 +15,13 @@ const ASSETS={
   dirLogos:'assets/logos/',
   dirFotos:'assets/players/',
   ext:'png',
+  /* Caminho do arquivo na pasta, com a extensão que ele tem de verdade.
+     `dir` é a subpasta de assets/ ('logos', 'players', 'staff'...). */
+  arq(dir,nome){
+    const s=this.slug(nome);
+    const ext=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos[dir+'/'+s]:null;
+    return 'assets/'+dir+'/'+s+'.'+(ext||this.ext);
+  },
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
@@ -22,11 +31,11 @@ const ASSETS={
      o que o usuário acabou de subir. */
   logo(t){
     const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+this.slug(t.tag));
-    return up || t.logo || this.dirLogos+this.slug(t.tag)+'.'+this.ext;
+    return up || t.logo || this.arq('logos',t.tag);
   },
   foto(p){
     const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+this.slug(p.nome));
-    return up || p.foto || this.dirFotos+this.slug(p.nome)+'.'+this.ext;
+    return up || p.foto || this.arq('players',p.nome);
   }
 };
 function svgURI(svg){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}
@@ -76,7 +85,7 @@ function retrato(p,px){
   const fb=monogramaJogador(p.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const c=cadeiaRetrato(up||p.foto||'',ASSETS.dirFotos+ASSETS.slug(p.nome)+'.'+ASSETS.ext,gerado,fb);
+  const c=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${px}" loading="lazy" alt="" src="${c.src}"
     onerror="${c.on}">`;
 }
@@ -94,11 +103,11 @@ ASSETS.dirAgentes='assets/agentes/';
 ASSETS.arte=function(t){
   if(!t)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('arte:'+this.slug(t.id));
-  return up || t.logo || this.dirArtes+this.slug(t.id)+'.'+this.ext;
+  return up || t.logo || this.arq('torneios',t.id);
 };
 ASSETS.agente=function(nome){
   const up=typeof Imgs!=='undefined'&&Imgs.get('agente:'+this.slug(nome));
-  return up || this.dirAgentes+this.slug(nome)+'.'+this.ext;
+  return up || this.arq('agentes',nome);
 };
 function monogramaTorneio(curto,px){
   const c=corDe(String(curto)),t=esc(String(curto).slice(0,12).toUpperCase());
@@ -130,7 +139,7 @@ ASSETS.dirMarcas='assets/marcas/';
 ASSETS.marca=function(mk){
   if(!mk)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('marca:'+this.slug(mk.id));
-  return up || mk.logo || this.dirMarcas+this.slug(mk.id)+'.'+this.ext;
+  return up || mk.logo || this.arq('marcas',mk.id);
 };
 /* Assinatura deitada, com o nome escrito por extenso quando cabe. Marca sem
    logo tem de continuar legível: é o nome dela que identifica, não a cor. */
@@ -172,14 +181,14 @@ ASSETS.dirStaff='assets/staff/';
 ASSETS.staff=function(m){
   if(!m)return '';
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+this.slug(m.nome));
-  return up || m.foto || this.dirStaff+this.slug(m.nome)+'.'+this.ext;
+  return up || m.foto || this.arq('staff',m.nome);
 };
 function retratoStaff(m,px){
   px=px||44;if(!m)return '';
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
-  const c=cadeiaRetrato(up||m.foto||'',ASSETS.dirStaff+ASSETS.slug(m.nome)+'.'+ASSETS.ext,gerado,fb);
+  const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
 }

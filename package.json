@@ -7,10 +7,11 @@
     "playwright": "^1.62.1"
   },
   "scripts": {
-    "build": "node tools/build.mjs",
+    "build": "node tools/imagens.mjs && node tools/build.mjs",
     "fontes": "node tools/fontes.mjs",
-    "teste": "node tools/build.mjs && node tools/testar-ui.mjs",
+    "teste": "npm run build && node tools/testar-ui.mjs",
     "motor": "node tools/verificar.mjs 12",
-    "telas": "node tools/telas.mjs"
+    "telas": "node tools/telas.mjs",
+    "imagens": "node tools/imagens.mjs"
   }
 }

@@ -214,6 +214,9 @@ function vCreditos(){
     <b>vlr.gg</b>, lidos em 28/08/2026. Nome de clube, tag e nick são dado real. Função, over, idade e
     país são estimativa — os endpoints de estatística por jogador vinham vazios na coleta, então não há
     ACS nem rating de onde derivar. O prestígio do Tier 1 é calibrado pelo aproveitamento real de 2026.</p>
+    <p class="dim" style="margin-top:8px">A comissão técnica real (técnicos, assistentes, analistas e
+    managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), lida em 30/10/2026, sob licença
+    CC-BY-SA 3.0. Cargo sem dado real continua gerado.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Tecnologia</div>
@@ -224,7 +227,7 @@ function vCreditos(){
 
   <div class="card" style="border-left:3px solid var(--line2)"><div class="eyebrow">Aviso</div>
     <p class="dim">Projeto de fã, sem qualquer vínculo, patrocínio ou aprovação da Riot Games.
-    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações e de jogadores aparecem
-    a título informativo e pertencem aos seus titulares.</p>
+    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores e comissão
+    técnica, escudos e fotos aparecem a título informativo e pertencem aos seus titulares.</p>
   </div>`;
 }
