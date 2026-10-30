@@ -117,7 +117,7 @@ function vInicio(){
       </button>`).join('')}</div>`:''}
     ${sit.livre||!sit.metas.length?'':`<div class="mgr-metas">${sit.metas.map(m=>{
       const est=m.cumprida===true?'ok':m.cumprida===false?'nao':'';
-      return `<div class="mgr-meta ${est}">${m.peso?'<b>Meta</b>':'<span class="dim">Bônus</span>'}
+      return `<div class="mgr-meta ${est}">${m.peso?'<b>Meta</b>':m.momento==='meio'?'<b>Meio do ano</b>':'<span class="dim">Bônus</span>'}
         <span>${esc(m.texto)}</span></div>`;}).join('')}</div>`}
   </div>`:''}
   <div class="hero-t">${escudo(t,64)}<div><h2 class="sec" style="margin:0">${esc(t.nome)}</h2>

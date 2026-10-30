@@ -119,6 +119,11 @@ function fecharSemana(b,resultados,minhaPartida,idx){
     fimDeBloco(b);
   }
 
+  /* a diretoria fala no meio do ano, na abertura da janela */
+  if(typeof cobrancaDoMeioDoAno==='function'&&G.semana===SEMANA_COBRANCA){
+    const v=cobrancaDoMeioDoAno();
+    if(v)G.vereditoPendente=v;
+  }
   const anoAntes=G.ano;
   G.semana++;
   if(G.semana>SEMANAS_ANO){

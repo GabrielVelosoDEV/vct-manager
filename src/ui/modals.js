@@ -751,16 +751,17 @@ function modalVeredito(v){
   const bateu=principal&&principal.cumprida;
   const tom=v.demitido?'ruim':bateu?'bom':v.avisado?'ruim':'neutro';
   const titulo=v.demitido?'Você está demitido'
+    :v.meio?(v.delta>=0?'A diretoria aprova o primeiro semestre':v.avisado?'Último aviso':'A diretoria cobra')
     :bateu?'Temporada aprovada'
     :v.avisado?'Último aviso':'Temporada abaixo do esperado';
 
-  abrir(`<div class="ver ${tom}">
-    <div class="eyebrow">${esc(v.clube)} · temporada ${v.ano}</div>
+  abrir(`<div class="ver ${v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom}">
+    <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
     <h2 class="sec ver-t">${titulo}</h2>
     <p class="dim">${v.pos}º de ${v.de} na liga${v.titulos?' · '+v.titulos+' título(s)':''}.</p>
     <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
       ${v.metas.map(x=>`<div class="mgr-meta ${x.cumprida?'ok':'nao'}" style="margin-bottom:6px">
-        <b>${x.cumprida?'Cumprida':'Não cumprida'}</b>
+        <b>${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}</b>
         <span>${esc(x.texto)} — <span class="dim">${esc(x.resultado||'')}</span></span></div>`).join('')}
     </div>
     <div class="split" style="margin-top:12px">
