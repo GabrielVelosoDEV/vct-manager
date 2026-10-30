@@ -6,120 +6,124 @@ Salve cada imagem aqui em `assets/staff/` com o nome exato da lista. O nome é o
 nick da pessoa em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-0/198 com imagem.
+152/218 com imagem.
 
 ## SEN
 
-- [ ] `ewok.png` — Ewok (SEN, Head Coach)
+- [x] `ewok.png` — Ewok (SEN, Head Coach)
 - [ ] `gunter.png` — GUNTER (SEN, Assistant Coach)
-- [ ] `zyto.png` — Zyto (SEN, Team Manager)
+- [x] `zyto.png` — Zyto (SEN, Team Manager)
 
 ## NRG
 
-- [ ] `bonkar.png` — bonkar (NRG, Head Coach)
+- [x] `bonkar.png` — bonkar (NRG, Head Coach)
 - [ ] `strong.png` — Strong (NRG, Assistant Coach)
 - [ ] `bikeage.png` — bikeage (NRG, General Manager)
+- [x] `mitch.png` — mitch (NRG, Assistant Coach)
 
 ## LOUD
 
-- [ ] `romanilly.png` — Romanilly (LOUD, Head Coach)
-- [ ] `bati.png` — Bati (LOUD, Assistant Coach)
-- [ ] `wenty.png` — Wenty (LOUD, Team Manager)
+- [x] `romanilly.png` — Romanilly (LOUD, Head Coach)
+- [x] `bati.png` — Bati (LOUD, Assistant Coach)
+- [x] `wenty.png` — Wenty (LOUD, Team Manager)
+- [x] `bajerski.png` — bajerski (LOUD, Performance Coach)
 
 ## 100T
 
-- [ ] `nbs.png` — Nbs (100T, Head Coach)
-- [ ] `d00mbr0s.png` — d00mbr0s (100T, Assistant Coach)
+- [x] `nbs.png` — Nbs (100T, Head Coach)
+- [x] `d00mbr0s.png` — d00mbr0s (100T, Assistant Coach)
 - [ ] `kaimera.png` — Kaimera (100T, Analyst)
 
 ## MIBR
 
-- [ ] `frod.png` — fRoD (MIBR, Coach)
-- [ ] `happy.png` — Happy (MIBR, Assistant Coach)
-- [ ] `chivitz.png` — Chivitz (MIBR, Manager)
+- [x] `frod.png` — fRoD (MIBR, Coach)
+- [x] `happy.png` — Happy (MIBR, Assistant Coach)
+- [x] `chivitz.png` — Chivitz (MIBR, Manager)
 
 ## EG
 
-- [ ] `potter.png` — potter (EG, Head Coach)
+- [x] `potter.png` — potter (EG, Head Coach)
 
 ## FPX
 
-- [ ] `pho.png` — PHO (FPX, Staff)
-- [ ] `legija.png` — LEGIJA (FPX, Head Coach)
-- [ ] `york.png` — York (FPX, Assistant Coach)
-- [ ] `9hr.png` — 9hr (FPX, Manager)
+- [x] `pho.png` — PHO (FPX, Staff)
+- [x] `legija.png` — LEGIJA (FPX, Head Coach)
+- [x] `york.png` — York (FPX, Assistant Coach)
+- [x] `9hr.png` — 9hr (FPX, Manager)
 
 ## FUR
 
-- [ ] `shaw.png` — shaW (FUR, Head Coach)
+- [x] `shaw.png` — shaW (FUR, Head Coach)
 - [ ] `kamino.png` — Kamino (FUR, Assistant Coach)
 - [ ] `zaz.png` — zaz (FUR, Head of Performance)
 - [ ] `lukzera.png` — lukzera (FUR, Manager)
 
 ## TH
 
-- [ ] `neilzinho.png` — Neilzinho (TH, Head Coach)
-- [ ] `weber.png` — weber (TH, Coach)
+- [x] `neilzinho.png` — Neilzinho (TH, Head Coach)
+- [x] `weber.png` — weber (TH, Coach)
 - [ ] `esportsryan.png` — EsportsRyan (TH, Performance Coach)
+- [x] `niklas.png` — Niklas (TH, Manager)
 
 ## TL
 
-- [ ] `lohan.png` — LohaN (TL, Head Coach)
-- [ ] `yaotzin.png` — yaotziN (TL, Assistant Coach)
+- [x] `lohan.png` — LohaN (TL, Head Coach)
+- [x] `yaotzin.png` — yaotziN (TL, Assistant Coach)
 - [ ] `7teen.png` — 7Teen (TL, Performance Coach)
 - [ ] `cauzed.png` — cauzed (TL, Manager)
+- [x] `mol.png` — Mol (TL, Manager)
 
 ## PRX
 
-- [ ] `alecks.png` — alecks (PRX, Coach)
-- [ ] `wendler.png` — Wendler (PRX, Assistant Coach)
-- [ ] `panda.png` — Panda (PRX, Performance Coach)
-- [ ] `tommy.png` — Tommy (PRX, Team Manager)
+- [x] `alecks.png` — alecks (PRX, Coach)
+- [x] `wendler.png` — Wendler (PRX, Assistant Coach)
+- [x] `panda.png` — Panda (PRX, Performance Coach)
+- [x] `tommy.png` — Tommy (PRX, Team Manager)
 
 ## LEV
 
-- [ ] `onur.png` — Onur (LEV, Head Coach)
+- [x] `onur.png` — Onur (LEV, Head Coach)
 
 ## G2
 
-- [ ] `joshrt.png` — JoshRT (G2, Head Coach)
-- [ ] `shhhack.png` — shhhack (G2, Assistant Coach)
+- [x] `joshrt.png` — JoshRT (G2, Head Coach)
+- [x] `shhhack.png` — shhhack (G2, Assistant Coach)
 - [ ] `robert.png` — Robert (G2, Performance Coach)
 - [ ] `ambrose.png` — Ambrose (G2, Manager)
 
 ## C9
 
-- [ ] `veer.png` — Veer (C9, Head Coach)
-- [ ] `immi.png` — Immi (C9, Assistant Coach)
+- [x] `veer.png` — Veer (C9, Head Coach)
+- [x] `immi.png` — Immi (C9, Assistant Coach)
 
 ## KRÜ
 
-- [ ] `zonyk.png` — ZONYK (KRÜ, Head Coach)
-- [ ] `fadeout.png` — Fadeout (KRÜ, Analyst)
-- [ ] `torito.png` — torito (KRÜ, Manager)
+- [x] `zonyk.png` — ZONYK (KRÜ, Head Coach)
+- [x] `fadeout.png` — Fadeout (KRÜ, Analyst)
+- [x] `torito.png` — torito (KRÜ, Manager)
 
 ## ENVY
 
-- [ ] `stunner.png` — Stunner (ENVY, Head Coach)
-- [ ] `wkn.png` — WKN (ENVY, Coach)
+- [x] `stunner.png` — Stunner (ENVY, Head Coach)
+- [x] `wkn.png` — WKN (ENVY, Coach)
 
 ## SRB
 
-- [ ] `effys.png` — effys (SRB, Head Coach)
-- [ ] `oderus.png` — oderus (SRB, Assistant Coach)
+- [x] `effys.png` — effys (SRB, Head Coach)
+- [x] `oderus.png` — oderus (SRB, Assistant Coach)
 - [ ] `lyka.png` — lyka (SRB, Manager)
 
 ## RED
 
-- [ ] `dragzikw.png` — DRAGziKW (RED, Head Coach)
+- [x] `dragzikw.png` — DRAGziKW (RED, Head Coach)
 
 ## FX
 
-- [ ] `stkj.png` — stkJ (FX, Coach)
+- [x] `stkj.png` — stkJ (FX, Coach)
 
 ## 2G
 
-- [ ] `gaabxx.png` — gaabxx (2G, Head Coach)
+- [x] `gaabxx.png` — gaabxx (2G, Head Coach)
 
 ## SAD
 
@@ -129,68 +133,76 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## NBG
 
 - [ ] `practo.png` — practo (NBG, Assistant Coach)
-- [ ] `mas.png` — mas (NBG, Staff)
+- [x] `mas.png` — mas (NBG, Staff)
+- [x] `faded.png` — Faded (NBG, Head Coach)
+
+## M80
+
+- [x] `kaplan.png` — kaplan (M80, Head Coach)
 
 ## FNC
 
-- [ ] `desmo.png` — Desmo (FNC, Assistant Coach)
-- [ ] `szed.png` — Szed (FNC, Performance Coach)
-- [ ] `cojo.png` — CoJo (FNC, Manager)
+- [x] `desmo.png` — Desmo (FNC, Assistant Coach)
+- [x] `szed.png` — Szed (FNC, Performance Coach)
+- [x] `cojo.png` — CoJo (FNC, Manager)
+- [x] `engh.png` — ENGH (FNC, Head Coach)
 
 ## GX
 
 - [ ] `waylander.png` — wayLander (GX, Assistant Coach)
 - [ ] `mew.png` — Mew (GX, Performance Coach)
 - [ ] `hehnal.png` — Hehnal (GX, Manager)
+- [x] `pipson.png` — pipsoN (GX, Head Coach)
 
 ## KC
 
-- [ ] `ze1sh.png` — ZE1SH (KC, Head Coach)
-- [ ] `simoz.png` — simoz (KC, Assistant Coach)
+- [x] `ze1sh.png` — ZE1SH (KC, Head Coach)
+- [x] `simoz.png` — simoz (KC, Assistant Coach)
 
 ## EF
 
-- [ ] `afr0nfire.png` — afr0nfire (EF, Head Coach)
-- [ ] `castell0.png` — casteLL0 (EF, Assistant Coach)
+- [x] `afr0nfire.png` — afr0nfire (EF, Head Coach)
+- [x] `castell0.png` — casteLL0 (EF, Assistant Coach)
 
 ## VIT
 
-- [ ] `scuttt.png` — Scuttt (VIT, Coach)
-- [ ] `slk.png` — slk (VIT, Analyst)
-- [ ] `bangovic.png` — Bangovic (VIT, Manager)
+- [x] `scuttt.png` — Scuttt (VIT, Coach)
+- [x] `slk.png` — slk (VIT, Analyst)
+- [x] `bangovic.png` — Bangovic (VIT, Manager)
 
 ## FUT
 
-- [ ] `vlad.png` — Vlad (FUT, Head Coach)
-- [ ] `bambino.png` — Bambino (FUT, Assistant Coach)
-- [ ] `mighty.png` — Mighty (FUT, Manager)
+- [x] `vlad.png` — Vlad (FUT, Head Coach)
+- [x] `bambino.png` — Bambino (FUT, Assistant Coach)
+- [x] `mighty.png` — Mighty (FUT, Manager)
 
 ## BBL
 
-- [ ] `key.png` — KEY (BBL, Head Coach)
-- [ ] `viento.png` — Viento (BBL, Assistant Coach)
+- [x] `key.png` — KEY (BBL, Head Coach)
+- [x] `viento.png` — Viento (BBL, Assistant Coach)
 
 ## M8
 
-- [ ] `manyfender.png` — ManyFender (M8, Manager)
-- [ ] `luinwess.png` — Luinwess (M8, Staff)
+- [x] `manyfender.png` — ManyFender (M8, Manager)
+- [x] `luinwess.png` — Luinwess (M8, Staff)
+- [x] `kundikundi.png` — KUNDIKUNDI (M8, Head Coach)
+- [x] `mavera.png` — Mavera (M8, Assistant Coach)
 
 ## NAVI
 
-- [ ] `ange1.png` — ANGE1 (NAVI, Head Coach)
-- [ ] `salah.png` — salah (NAVI, Assistant Coach)
+- [x] `ange1.png` — ANGE1 (NAVI, Head Coach)
+- [x] `salah.png` — salah (NAVI, Assistant Coach)
 - [ ] `zuzanna.png` — Zuzanna (NAVI, Performance Coach)
 
-## PCF
+## AUR
 
-- [ ] `thinkii.png` — thinkii (PCF, Head Coach)
-- [ ] `zaes.png` — ZaeS (PCF, Assistant Coach)
+- [x] `johnta.png` — Johnta (AUR, Coach)
 
 ## EP
 
-- [ ] `itopata.png` — Itopata (EP, Head Coach)
-- [ ] `shadow.png` — ShadoW (EP, Assistant Coach)
-- [ ] `daky.png` — daky (EP, Staff)
+- [x] `itopata.png` — Itopata (EP, Head Coach)
+- [x] `shadow.png` — ShadoW (EP, Assistant Coach)
+- [x] `daky.png` — daky (EP, Staff)
 
 ## FF
 
@@ -199,77 +211,85 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## JL
 
-- [ ] `pakko.png` — pakko (JL, Head Coach)
+- [x] `pakko.png` — pakko (JL, Head Coach)
 - [ ] `bilal.png` — Bilal (JL, Manager)
+- [x] `pal.png` — PAL (JL, Assistant Coach)
 
 ## SGE
 
-- [ ] `tony.png` — TonY (SGE, Head Coach)
-- [ ] `sebe.png` — Sebe (SGE, Coach)
-- [ ] `lenz.png` — Lenz (SGE, Manager)
+- [x] `tony.png` — TonY (SGE, Head Coach)
+- [x] `sebe.png` — Sebe (SGE, Coach)
+- [x] `lenz.png` — Lenz (SGE, Manager)
 
 ## MISA
 
-- [ ] `draken.png` — Draken (MISA, Head Coach)
+- [x] `draken.png` — Draken (MISA, Head Coach)
 - [ ] `leise.png` — Leise (MISA, Assistant Coach)
 
 ## MDR
 
-- [ ] `larsson.png` — Larsson (MDR, Head Coach)
-- [ ] `skazz.png` — SKAZZ (MDR, Assistant Coach)
+- [x] `larsson.png` — Larsson (MDR, Head Coach)
+- [x] `skazz.png` — SKAZZ (MDR, Assistant Coach)
 
 ## MIR
 
 - [ ] `pops.png` — pops (MIR, Head Coach)
 - [ ] `nightmaster.png` — NightMaster (MIR, Manager)
 
-## NVJ
+## PCF
 
-- [ ] `johnta.png` — Johnta (NVJ, Coach)
+- [x] `thinkii.png` — thinkii (PCF, Head Coach)
+- [x] `zaes.png` — ZaeS (PCF, Assistant Coach)
+- [x] `koyo.png` — Koyo (PCF, Analyst)
 
 ## T1
 
-- [ ] `kdg.png` — KDG (T1, Head Coach)
-- [ ] `norman.png` — Norman (T1, Manager)
+- [x] `kdg.png` — KDG (T1, Head Coach)
+- [x] `norman.png` — Norman (T1, Manager)
+- [x] `cheonggak.png` — CheongGak (T1, Assistant Coach)
 
 ## GEN
 
-- [ ] `solo.png` — solo (GEN, Head Coach)
-- [ ] `hsk.png` — HSK (GEN, Coach)
+- [x] `solo.png` — solo (GEN, Head Coach)
+- [x] `hsk.png` — HSK (GEN, Coach)
 - [ ] `peri.png` — peri (GEN, Coach)
 
 ## KRX
 
-- [ ] `glow.png` — glow (KRX, Coach)
+- [x] `glow.png` — glow (KRX, Coach)
+- [x] `argency.png` — Argency (KRX, Assistant Coach)
 
 ## GE
 
-- [ ] `platoon.png` — Platoon (GE, Head Coach)
-- [ ] `aimix-strange.png` — Aimix Strange (GE, Assistant Coach)
-- [ ] `fields.png` — Fields (GE, Analyst)
-- [ ] `vatsal.png` — Vatsal (GE, Manager)
+- [x] `platoon.png` — Platoon (GE, Head Coach)
+- [x] `aimix-strange.png` — Aimix Strange (GE, Assistant Coach)
+- [x] `fields.png` — Fields (GE, Analyst)
+- [x] `vatsal.png` — Vatsal (GE, Manager)
 - [ ] `taeri.png` — taeri (GE, Staff)
 
 ## NS
 
-- [ ] `silkanon.png` — SilKanoN (NS, Head Coach)
+- [x] `silkanon.png` — SilKanoN (NS, Head Coach)
+- [x] `sungmin.png` — Sungmin (NS, Assistant Coach)
 
 ## RRQ
 
 - [ ] `rebecca.png` — Rebecca (RRQ, Performance Coach)
-- [ ] `seasonz.png` — SeasoNz (RRQ, Manager)
-- [ ] `jomengz.png` — Jomengz (RRQ, Staff)
+- [x] `seasonz.png` — SeasoNz (RRQ, Manager)
+- [x] `jomengz.png` — Jomengz (RRQ, Staff)
+- [x] `warbirds.png` — Warbirds (RRQ, Coach)
 
 ## DFM
 
-- [ ] `vorz.png` — Vorz (DFM, Head Coach)
-- [ ] `melofovia.png` — Melofovia (DFM, Coach)
-- [ ] `northernlights.png` — NorthernLights (DFM, Coach)
+- [x] `vorz.png` — Vorz (DFM, Head Coach)
+- [x] `melofovia.png` — Melofovia (DFM, Coach)
+- [x] `northernlights.png` — NorthernLights (DFM, Coach)
 
 ## TS
 
-- [ ] `skye.png` — skye (TS, Analyst)
-- [ ] `yamyam-yui.png` — yamyam yui (TS, Manager)
+- [x] `skye.png` — skye (TS, Analyst)
+- [x] `yamyam-yui.png` — yamyam yui (TS, Manager)
+- [x] `spin.png` — Spin (TS, Head Coach)
 
 ## VL
 
@@ -278,43 +298,44 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## FS
 
-- [ ] `frost.png` — FrosT (FS, Head Coach)
-- [ ] `theelovefamily.png` — THEELOVEFAMILY (FS, Coach)
-- [ ] `sushiboys.png` — Sushiboys (FS, Assistant Coach)
+- [x] `frost.png` — FrosT (FS, Head Coach)
+- [x] `theelovefamily.png` — THEELOVEFAMILY (FS, Coach)
+- [x] `sushiboys.png` — Sushiboys (FS, Assistant Coach)
 
 ## ZETA
 
-- [ ] `ryota.png` — ryota- (ZETA, Head Coach)
-- [ ] `xqq.png` — XQQ (ZETA, Assistant Coach)
-- [ ] `gya9.png` — gya9 (ZETA, Analyst)
+- [x] `ryota.png` — ryota- (ZETA, Head Coach)
+- [x] `xqq.png` — XQQ (ZETA, Assistant Coach)
+- [x] `gya9.png` — gya9 (ZETA, Analyst)
 
 ## ONG
 
 - [ ] `hype.png` — Hype (ONG, Head Coach)
-- [ ] `mobugi.png` — Mobugi (ONG, Coach)
+- [x] `mobugi.png` — Mobugi (ONG, Coach)
 - [ ] `doo.png` — Doo (ONG, Coach)
 - [ ] `leg1t.png` — Leg1t (ONG, Coach)
 
 ## DK
 
 - [ ] `empty.png` — empty (DK, Coach)
+- [x] `yoman.png` — yoman (DK, Assistant Coach)
 
 ## FL
 
-- [ ] `euler.png` — Euler (FL, Head Coach)
-- [ ] `sieg.png` — sieg (FL, Coach)
+- [x] `euler.png` — Euler (FL, Head Coach)
+- [x] `sieg.png` — sieg (FL, Coach)
 
 ## RC
 
 - [ ] `egi.png` — Egi (RC, Head Coach)
-- [ ] `bullco.png` — Bullco (RC, Coach)
+- [x] `bullco.png` — Bullco (RC, Coach)
 - [ ] `shuu.png` — shuu (RC, Assistant Coach)
 
 ## SP
 
-- [ ] `leaf.png` — Leaf (SP, Head Coach)
-- [ ] `mym.png` — MYM (SP, Assistant Coach)
-- [ ] `psychopath.png` — Psychopath (SP, Analyst)
+- [x] `leaf.png` — Leaf (SP, Head Coach)
+- [x] `mym.png` — MYM (SP, Assistant Coach)
+- [x] `psychopath.png` — Psychopath (SP, Analyst)
 
 ## QTD
 
@@ -323,42 +344,46 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## XIP
 
 - [ ] `asi.png` — ASI (XIP, Coach)
-- [ ] `poomonelove.png` — PoomOneLove (XIP, Assistant Coach)
+- [x] `poomonelove.png` — PoomOneLove (XIP, Assistant Coach)
 - [ ] `bnwgiggs.png` — bnwgiggs (XIP, Staff)
+
+## ART
+
+- [x] `termi.png` — termi (ART, Head Coach)
 
 ## NOVA
 
-- [ ] `24k.png` — 24K (NOVA, Head Coach)
+- [x] `24k.png` — 24K (NOVA, Head Coach)
 - [ ] `onbush.png` — OnbusH (NOVA, Coach)
 
 ## TYL
 
-- [ ] `hypnotizing.png` — hypnotizing (TYL, Head Coach)
-- [ ] `billyo.png` — Billyo (TYL, Assistant Coach)
-- [ ] `sword9.png` — sword9 (TYL, Assistant Coach)
-- [ ] `ominous.png` — Ominous (TYL, Analyst)
+- [x] `hypnotizing.png` — hypnotizing (TYL, Head Coach)
+- [x] `billyo.png` — Billyo (TYL, Assistant Coach)
+- [x] `sword9.png` — sword9 (TYL, Assistant Coach)
+- [x] `ominous.png` — Ominous (TYL, Analyst)
 - [ ] `fc4t.png` — fc4t (TYL, Manager)
 
 ## JDG
 
-- [ ] `bail.png` — bail (JDG, Head Coach)
+- [x] `bail.png` — bail (JDG, Head Coach)
 - [ ] `desire.png` — Desire (JDG, Assistant Coach)
 - [ ] `jiandan.png` — JIANDAN (JDG, Manager)
 - [ ] `phong.png` — Phong (JDG, Staff)
 
 ## BLG
 
-- [ ] `anaks.png` — Anaks (BLG, Head Coach)
+- [x] `anaks.png` — Anaks (BLG, Head Coach)
 - [ ] `yaoxie.png` — YaoXie (BLG, Coach)
-- [ ] `jexen.png` — Jexen (BLG, Coach)
-- [ ] `gandolf.png` — Gandolf (BLG, Manager)
-- [ ] `rain.png` — Rain (BLG, Staff)
+- [x] `jexen.png` — Jexen (BLG, Coach)
+- [x] `gandolf.png` — Gandolf (BLG, Manager)
+- [x] `rain.png` — Rain (BLG, Staff)
 
 ## TE
 
-- [ ] `destroyer.png` — destroyeR (TE, Head Coach)
-- [ ] `yiyee.png` — Yiyee (TE, Coach)
-- [ ] `viva.png` — Viva (TE, Coach)
+- [x] `destroyer.png` — destroyeR (TE, Head Coach)
+- [x] `yiyee.png` — Yiyee (TE, Coach)
+- [x] `viva.png` — Viva (TE, Coach)
 - [ ] `kaka.png` — KaKa (TE, Manager)
 - [ ] `draven.png` — Draven (TE, Staff)
 
@@ -371,59 +396,60 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## TEC
 
-- [ ] `after.png` — AfteR (TEC, Head Coach)
-- [ ] `muggle.png` — Muggle (TEC, Coach)
-- [ ] `3water.png` — 3water (TEC, Assistant Coach)
+- [x] `after.png` — AfteR (TEC, Head Coach)
+- [x] `muggle.png` — Muggle (TEC, Coach)
+- [x] `3water.png` — 3water (TEC, Assistant Coach)
 - [ ] `sora.png` — sora (TEC, Analyst)
 - [ ] `gazero.png` — Gazero (TEC, Manager)
 - [ ] `lemon.png` — LemoN (TEC, Staff)
 
 ## XLG
 
-- [ ] `hvoya.png` — hvoya (XLG, Head Coach)
+- [x] `hvoya.png` — hvoya (XLG, Head Coach)
 - [ ] `steady.png` — steady (XLG, Assistant Coach)
-- [ ] `fayde.png` — Fayde (XLG, Analyst)
+- [x] `fayde.png` — Fayde (XLG, Analyst)
 - [ ] `arty.png` — Arty (XLG, Manager)
 - [ ] `coffin0.png` — Coffin0 (XLG, Staff)
 
 ## EDG
 
-- [ ] `autumn.png` — Autumn (EDG, Head Coach)
-- [ ] `indigo.png` — Indigo (EDG, Coach)
+- [x] `autumn.png` — Autumn (EDG, Head Coach)
+- [x] `indigo.png` — Indigo (EDG, Coach)
 - [ ] `signed.png` — signed (EDG, Coach)
 - [ ] `hibari.png` — Hibari (EDG, Manager)
 
 ## DRG
 
-- [ ] `nathand.png` — NaThanD (DRG, Head Coach)
+- [x] `nathand.png` — NaThanD (DRG, Head Coach)
 - [ ] `alti.png` — Alti (DRG, Coach)
-- [ ] `1t.png` — 1t (DRG, Assistant Coach)
+- [x] `1t.png` — 1t (DRG, Assistant Coach)
 - [ ] `melon.png` — Melon (DRG, Analyst)
 
 ## WOL
 
 - [ ] `chao.png` — Chao (WOL, Manager)
 - [ ] `ja7.png` — Ja7 (WOL, Staff)
+- [x] `alexrr.png` — alexRr (WOL, Head Coach)
 
 ## RA
 
-- [ ] `mikiya.png` — mikiya (RA, Coach)
+- [x] `mikiya.png` — mikiya (RA, Coach)
 - [ ] `punch1.png` — Punch1 (RA, Staff)
 
 ## WBG
 
-- [ ] `milan.png` — Milan (WBG, Head Coach)
+- [x] `milan.png` — Milan (WBG, Head Coach)
 - [ ] `stardust.png` — Stardust (WBG, Coach)
-- [ ] `scott-currie.png` — Scott Currie (WBG, Assistant Coach)
+- [x] `scott-currie.png` — Scott Currie (WBG, Assistant Coach)
 
 ## KBG
 
-- [ ] `naint.png` — Naint (KBG, Coach)
+- [x] `naint.png` — Naint (KBG, Coach)
 
 ## AT
 
-- [ ] `malix.png` — Malix (AT, Head Coach)
+- [x] `malix.png` — Malix (AT, Head Coach)
 
 ## ODG
 
-- [ ] `oi.png` — Oi (ODG, Coach)
+- [x] `oi.png` — Oi (ODG, Coach)

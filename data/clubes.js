@@ -7,6 +7,7 @@
 const CLUBES_BASE={
   "100T":{pais:"US"},   /* 100 Thieves · Tier 1 */
   "AG":{pais:"CN"},   /* All Gamers · Tier 1 */
+  "AUR":{pais:"RS"},   /* Aurora Gaming · Tier 1 */
   "BBL":{pais:"TR"},   /* BBL Esports · Tier 1 */
   "BLG":{pais:"CN"},   /* Guangzhou Huadu Bilibili Gaming · Tier 1 */
   "C9":{pais:"US"},   /* Cloud9 · Tier 1 */
@@ -37,7 +38,6 @@ const CLUBES_BASE={
   "NOVA":{pais:"CN"},   /* Nova Esports · Tier 1 */
   "NRG":{pais:"US"},   /* NRG · Tier 1 */
   "NS":{pais:"KR"},   /* Nongshim RedForce · Tier 1 */
-  "PCF":{pais:"TR"},   /* PCIFIC Esports · Tier 1 */
   "PRX":{pais:"SG"},   /* Paper Rex · Tier 1 */
   "RRQ":{pais:"ID"},   /* Rex Regum Qeon · Tier 1 */
   "SEN":{pais:"US"},   /* Sentinels · Tier 1 */
@@ -70,7 +70,7 @@ const CLUBES_BASE={
   "MIR":{pais:"RU"},   /* MIR · Tier 2 */
   "MISA":{pais:"TR"},   /* Misa Esports · Tier 2 */
   "NBG":{pais:"US"},   /* Nightblood Gaming · Tier 2 */
-  "NVJ":{pais:"UA"},   /* Natus Vincere Junior · Tier 2 */
+  "PCF":{pais:"TR"},   /* PCIFIC Esports · Tier 2 */
   "ODG":{pais:"CN"},   /* Octagonal Disposition Gaming · Tier 2 */
   "ONG":{pais:"KR"},   /* ONSIDE GAMING · Tier 2 */
   "QTD":{pais:"JP"},   /* QT DIG∞ · Tier 2 */

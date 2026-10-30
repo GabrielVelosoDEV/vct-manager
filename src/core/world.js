@@ -146,7 +146,7 @@ function criarMundo(seedVal){
   /* Reais sem clube, se o elencos.js trouxer a chave LIVRE. Vêm antes dos
      gerados para que o nick real nunca perca a vaga para um sorteado. */
   if(typeof ELENCOS_REAIS!=='undefined'&&ELENCOS_REAIS.LIVRE){
-    for(const[nick,roleDado,ovDado,idadeDada,paisDado]of ELENCOS_REAIS.LIVRE){
+    for(const[nick,roleDado,ovDado,idadeDada,paisDado,potDado]of ELENCOS_REAIS.LIVRE){
       const R=pick(REGIONS);
       const role=roleDado||pick(ROLES);
       const idade=idadeDada||ri(19,28);
@@ -155,6 +155,9 @@ function criarMundo(seedVal){
       p.nome=nick;usadosP.add(nick);p.real=true;
       if(paisDado)p.paisReal=true;
       aplicarOver(p,ov);if(ovDado)p.overFixo=true;
+      /* potencial escrito no arquivo manda: é o que separa a promessa do
+         veterano com o mesmo over */
+      if(potDado){p.pot=clamp(potDado,over(p),99);p.potFixo=true;}
       p.contrato=0;p.regiaoOrigem=R.id;p.salario=salario(p);p.valor=valor(p);
       G.jogadores[p.id]=p;G.livres.push(p.id);
     }

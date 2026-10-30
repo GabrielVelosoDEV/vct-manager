@@ -6,39 +6,39 @@ Salve cada imagem aqui em `assets/players/` com o nome exato da lista. O nome é
 nick do jogador em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-6/434 com imagem.
+347/453 com imagem.
 
 ## NRG
 
-- [ ] `keiko.png` — keiko (NRG)
-- [ ] `skuba.png` — skuba (NRG)
-- [ ] `ethan.png` — Ethan (NRG)
-- [ ] `mada.png` — mada (NRG)
-- [ ] `brawk.png` — brawk (NRG)
+- [x] `keiko.png` — keiko (NRG)
+- [x] `skuba.png` — skuba (NRG)
+- [x] `ethan.png` — Ethan (NRG)
+- [x] `mada.png` — mada (NRG)
+- [x] `brawk.png` — brawk (NRG)
 
 ## LEV
 
-- [ ] `neon.png` — Neon (LEV)
-- [ ] `spike.png` — spike (LEV)
-- [ ] `sato.png` — Sato (LEV)
-- [ ] `kingg.png` — kiNgg (LEV)
-- [ ] `blowz.png` — blowz (LEV)
+- [x] `neon.png` — Neon (LEV)
+- [x] `spike.png` — spike (LEV)
+- [x] `sato.png` — Sato (LEV)
+- [x] `kingg.png` — kiNgg (LEV)
+- [x] `blowz.png` — blowz (LEV)
 
 ## 100T
 
-- [ ] `cryocells.png` — Cryocells (100T)
-- [ ] `asuna.png` — Asuna (100T)
-- [ ] `vora.png` — vora (100T)
-- [ ] `timotino.png` — Timotino (100T)
-- [ ] `bang.png` — bang (100T)
+- [x] `cryocells.png` — Cryocells (100T)
+- [x] `asuna.png` — Asuna (100T)
+- [x] `vora.png` — vora (100T)
+- [x] `timotino.png` — Timotino (100T)
+- [x] `bang.png` — bang (100T)
 
 ## G2
 
-- [ ] `trent.png` — trent (G2)
-- [ ] `valyn.png` — valyn (G2)
-- [ ] `babybay.png` — BABYBAY (G2)
-- [ ] `leaf.png` — leaf (G2)
-- [ ] `jawgemo.png` — jawgemo (G2)
+- [x] `trent.png` — trent (G2)
+- [x] `valyn.png` — valyn (G2)
+- [x] `babybay.png` — BABYBAY (G2)
+- [x] `leaf.png` — leaf (G2)
+- [x] `jawgemo.png` — jawgemo (G2)
 
 ## LOUD
 
@@ -50,393 +50,393 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## MIBR
 
-- [ ] `aspas.png` — aspas (MIBR)
-- [ ] `zekken.png` — zekken (MIBR)
-- [ ] `verno.png` — Verno (MIBR)
-- [ ] `mazino.png` — Mazino (MIBR)
-- [ ] `tex.png` — tex (MIBR)
+- [x] `aspas.png` — aspas (MIBR)
+- [x] `zekken.png` — zekken (MIBR)
+- [x] `verno.png` — Verno (MIBR)
+- [x] `mazino.png` — Mazino (MIBR)
+- [x] `tex.png` — tex (MIBR)
 
 ## EG
 
-- [ ] `dgzin.png` — dgzin (EG)
-- [ ] `zerona.png` — zerona (EG)
-- [ ] `paincakes.png` — Paincakes (EG)
-- [ ] `supamen.png` — supamen (EG)
+- [x] `dgzin.png` — dgzin (EG)
+- [x] `zerona.png` — zerona (EG)
+- [x] `paincakes.png` — Paincakes (EG)
+- [x] `supamen.png` — supamen (EG)
 - [ ] `bao.png` — bao (EG)
 
 ## KRÜ
 
-- [ ] `less.png` — Less (KRÜ)
-- [ ] `saadhak.png` — saadhak (KRÜ)
-- [ ] `heat.png` — heat (KRÜ)
-- [ ] `mwzera.png` — mwzera (KRÜ)
-- [ ] `dantedeu5.png` — Dantedeu5 (KRÜ)
+- [x] `less.png` — Less (KRÜ)
+- [x] `saadhak.png` — saadhak (KRÜ)
+- [x] `heat.png` — heat (KRÜ)
+- [x] `mwzera.png` — mwzera (KRÜ)
+- [x] `dantedeu5.png` — Dantedeu5 (KRÜ)
 
 ## C9
 
-- [ ] `oxy.png` — OXY (C9)
-- [ ] `zellsis.png` — Zellsis (C9)
-- [ ] `fireballops.png` — FireBallOps (C9)
-- [ ] `v1c.png` — v1c (C9)
+- [x] `oxy.png` — OXY (C9)
+- [x] `zellsis.png` — Zellsis (C9)
+- [x] `fireballops.png` — FireBallOps (C9)
+- [x] `v1c.png` — v1c (C9)
 - [ ] `jackk.png` — Jackk (C9)
 
 ## ENVY
 
-- [ ] `keznit.png` — keznit (ENVY)
-- [ ] `nightz.png` — nightz (ENVY)
-- [ ] `demon1.png` — Demon1 (ENVY)
-- [ ] `rossy.png` — Rossy (ENVY)
-- [ ] `glyph.png` — GLYPH (ENVY)
+- [x] `keznit.png` — keznit (ENVY)
+- [x] `nightz.png` — nightz (ENVY)
+- [x] `demon1.png` — Demon1 (ENVY)
+- [x] `rossy.png` — Rossy (ENVY)
+- [x] `glyph.png` — GLYPH (ENVY)
 
 ## SEN
 
-- [ ] `johnqt.png` — johnqt (SEN)
-- [ ] `cortezia.png` — cortezia (SEN)
+- [x] `johnqt.png` — johnqt (SEN)
+- [x] `cortezia.png` — cortezia (SEN)
 - [ ] `jerrwin.png` — Jerrwin (SEN)
-- [ ] `reduxx.png` — Reduxx (SEN)
-- [ ] `jonahp.png` — JonahP (SEN)
-- [ ] `marved.png` — Marved (SEN)
+- [x] `reduxx.png` — Reduxx (SEN)
+- [x] `jonahp.png` — JonahP (SEN)
+- [x] `marved.png` — Marved (SEN)
 
 ## FUR
 
-- [ ] `basic.png` — basic (FUR)
-- [ ] `artzin.png` — artzin (FUR)
-- [ ] `shyy.png` — Shyy (FUR)
-- [ ] `koalanoob.png` — koalanoob (FUR)
-- [ ] `c0m.png` — C0M (FUR)
+- [x] `basic.png` — basic (FUR)
+- [x] `artzin.png` — artzin (FUR)
+- [x] `shyy.png` — Shyy (FUR)
+- [x] `koalanoob.png` — koalanoob (FUR)
+- [x] `c0m.png` — C0M (FUR)
 
 ## M80
 
-- [ ] `kyu.png` — Kyu (M80)
+- [x] `kyu.png` — Kyu (M80)
 - [ ] `boni.png` — Boni (M80)
-- [ ] `nismo.png` — NiSMO (M80)
+- [x] `nismo.png` — NiSMO (M80)
 - [ ] `alvinboy.png` — alvinboy (M80)
 - [ ] `spaz.png` — Spaz (M80)
 
 ## 2G
 
-- [ ] `gobera.png` — gobera (2G)
-- [ ] `qck.png` — qck (2G)
-- [ ] `xenom.png` — xenom (2G)
-- [ ] `frz.png` — frz (2G)
-- [ ] `brinks.png` — Brinks (2G)
+- [x] `gobera.png` — gobera (2G)
+- [x] `qck.png` — qck (2G)
+- [x] `xenom.png` — xenom (2G)
+- [x] `frz.png` — frz (2G)
+- [x] `brinks.png` — Brinks (2G)
 
 ## SRB
 
-- [ ] `zander.png` — zander (SRB)
-- [ ] `satellite.png` — satellite (SRB)
-- [ ] `exa.png` — exa (SRB)
+- [x] `zander.png` — zander (SRB)
+- [x] `satellite.png` — satellite (SRB)
+- [x] `exa.png` — exa (SRB)
 - [ ] `smoke.png` — Smoke (SRB)
-- [ ] `nature.png` — NaturE (SRB)
+- [x] `nature.png` — NaturE (SRB)
 
 ## SAD
 
 - [ ] `payne.png` — payne (SAD)
 - [ ] `zaj.png` — zaj (SAD)
-- [ ] `welyy.png` — welyy (SAD)
+- [x] `welyy.png` — welyy (SAD)
 - [ ] `pa1nt.png` — Pa1nt (SAD)
 - [ ] `vita.png` — vita (SAD)
 
 ## RED
 
-- [ ] `forbanz.png` — forbanz (RED)
-- [ ] `prozin.png` — prozin (RED)
-- [ ] `rglmeister.png` — RgLMeister (RED)
-- [ ] `sw.png` — sw (RED)
-- [ ] `urango.png` — Urango (RED)
+- [x] `forbanz.png` — forbanz (RED)
+- [x] `prozin.png` — prozin (RED)
+- [x] `rglmeister.png` — RgLMeister (RED)
+- [x] `sw.png` — sw (RED)
+- [x] `urango.png` — Urango (RED)
 
 ## FX
 
-- [ ] `zanatsu.png` — Zanatsu (FX)
-- [ ] `tuyz.png` — tuyz (FX)
-- [ ] `jzz.png` — jzz (FX)
-- [ ] `palla.png` — Palla (FX)
-- [ ] `mazin.png` — mazin (FX)
+- [x] `zanatsu.png` — Zanatsu (FX)
+- [x] `tuyz.png` — tuyz (FX)
+- [x] `jzz.png` — jzz (FX)
+- [x] `palla.png` — Palla (FX)
+- [x] `mazin.png` — mazin (FX)
 
 ## NBG
 
 - [ ] `toozy.png` — toozy (NBG)
 - [ ] `sonofcar.png` — sonofcar (NBG)
 - [ ] `zeek.png` — zeek (NBG)
-- [ ] `stellar.png` — stellar (NBG)
-- [ ] `stunna.png` — stunna (NBG)
+- [x] `stellar.png` — stellar (NBG)
+- [x] `stunna.png` — stunna (NBG)
 - [ ] `mas.png` — mas (NBG)
 
 ## BST
 
-- [ ] `loss.png` — Loss (BST)
-- [ ] `melser.png` — Melser (BST)
-- [ ] `tacolilla.png` — Tacolilla (BST)
-- [ ] `chubizin.png` — chubizin (BST)
-- [ ] `david.png` — david (BST)
+- [x] `loss.png` — Loss (BST)
+- [x] `melser.png` — Melser (BST)
+- [x] `tacolilla.png` — Tacolilla (BST)
+- [x] `chubizin.png` — chubizin (BST)
+- [x] `david.png` — david (BST)
 
 ## FUT
 
-- [ ] `xeus.png` — xeus (FUT)
+- [x] `xeus.png` — xeus (FUT)
 - [ ] `s0pp.png` — s0pp (FUT)
-- [ ] `yetujey.png` — yetujey (FUT)
-- [ ] `sociablee.png` — sociablEE (FUT)
-- [ ] `krostaly.png` — KROSTALY (FUT)
+- [x] `yetujey.png` — yetujey (FUT)
+- [x] `sociablee.png` — sociablEE (FUT)
+- [x] `krostaly.png` — KROSTALY (FUT)
 
 ## KC
 
-- [ ] `suygetsu.png` — SUYGETSU (KC)
-- [ ] `n4rrate.png` — N4RRATE (KC)
-- [ ] `dos9.png` — dos9 (KC)
-- [ ] `lewn.png` — LewN (KC)
-- [ ] `avez.png` — Avez (KC)
+- [x] `suygetsu.png` — SUYGETSU (KC)
+- [x] `n4rrate.png` — N4RRATE (KC)
+- [x] `dos9.png` — dos9 (KC)
+- [x] `lewn.png` — LewN (KC)
+- [x] `avez.png` — Avez (KC)
 
 ## TL
 
-- [ ] `nats.png` — nAts (TL)
-- [ ] `kamo.png` — kamo (TL)
-- [ ] `trexx.png` — trexx (TL)
-- [ ] `purp0.png` — purp0 (TL)
-- [ ] `kicks.png` — Kicks (TL)
+- [x] `nats.png` — nAts (TL)
+- [x] `kamo.png` — kamo (TL)
+- [x] `trexx.png` — trexx (TL)
+- [x] `purp0.png` — purp0 (TL)
+- [x] `kicks.png` — Kicks (TL)
 
 ## BBL
 
-- [ ] `lar0k.png` — Lar0k (BBL)
-- [ ] `crewen.png` — Crewen (BBL)
-- [ ] `loita.png` — Loita (BBL)
-- [ ] `lovers-rock.png` — lovers rock (BBL)
-- [ ] `rose.png` — Rosé (BBL)
+- [x] `lar0k.png` — Lar0k (BBL)
+- [x] `crewen.png` — Crewen (BBL)
+- [x] `loita.png` — Loita (BBL)
+- [x] `lovers-rock.png` — lovers rock (BBL)
+- [x] `rose.png` — Rosé (BBL)
 
 ## VIT
 
-- [ ] `derke.png` — Derke (VIT)
-- [ ] `chronicle.png` — Chronicle (VIT)
-- [ ] `jamppi.png` — Jamppi (VIT)
-- [ ] `profek.png` — PROFEK (VIT)
-- [ ] `sayonara.png` — Sayonara (VIT)
+- [x] `derke.png` — Derke (VIT)
+- [x] `chronicle.png` — Chronicle (VIT)
+- [x] `jamppi.png` — Jamppi (VIT)
+- [x] `profek.png` — PROFEK (VIT)
+- [x] `sayonara.png` — Sayonara (VIT)
 
 ## TH
 
-- [ ] `riens.png` — RieNs (TH)
-- [ ] `wo0t.png` — Wo0t (TH)
-- [ ] `boo.png` — Boo (TH)
+- [x] `riens.png` — RieNs (TH)
+- [x] `wo0t.png` — Wo0t (TH)
+- [x] `boo.png` — Boo (TH)
 - [ ] `koshmaras.png` — koshmaras (TH)
-- [ ] `benjyfishy.png` — benjyfishy (TH)
+- [x] `benjyfishy.png` — benjyfishy (TH)
 
 ## FNC
 
-- [ ] `alfajer.png` — Alfajer (FNC)
-- [ ] `kaajak.png` — kaajak (FNC)
-- [ ] `crashies.png` — crashies (FNC)
-- [ ] `cloud.png` — Cloud (FNC)
-- [ ] `veqaj.png` — Veqaj (FNC)
-- [ ] `boaster.png` — Boaster (FNC)
+- [x] `alfajer.png` — Alfajer (FNC)
+- [x] `kaajak.png` — kaajak (FNC)
+- [x] `crashies.png` — crashies (FNC)
+- [x] `cloud.png` — Cloud (FNC)
+- [x] `veqaj.png` — Veqaj (FNC)
+- [x] `boaster.png` — Boaster (FNC)
 
 ## EF
 
-- [ ] `spear.png` — Spear (EF)
-- [ ] `izzy.png` — Izzy (EF)
-- [ ] `favian.png` — Favian (EF)
-- [ ] `echo.png` — echo (EF)
-- [ ] `nekky.png` — nekky (EF)
-- [ ] `audaz.png` — audaz (EF)
+- [x] `spear.png` — Spear (EF)
+- [x] `izzy.png` — Izzy (EF)
+- [x] `favian.png` — Favian (EF)
+- [x] `echo.png` — echo (EF)
+- [x] `nekky.png` — nekky (EF)
+- [x] `audaz.png` — audaz (EF)
 
 ## NAVI
 
-- [ ] `chloric.png` — chloric (NAVI)
-- [ ] `hiro.png` — hiro (NAVI)
+- [x] `chloric.png` — chloric (NAVI)
+- [x] `hiro.png` — hiro (NAVI)
 - [ ] `exit.png` — ExiT (NAVI)
-- [ ] `ruxic.png` — Ruxic (NAVI)
-- [ ] `kolosha.png` — Kolosha (NAVI)
+- [x] `ruxic.png` — Ruxic (NAVI)
+- [x] `kolosha.png` — Kolosha (NAVI)
 
 ## M8
 
-- [ ] `marteen.png` — marteen (M8)
-- [ ] `starxo.png` — starxo (M8)
-- [ ] `proxh.png` — Proxh (M8)
-- [ ] `h1ber.png` — H1ber (M8)
-- [ ] `minny.png` — Minny (M8)
+- [x] `marteen.png` — marteen (M8)
+- [x] `starxo.png` — starxo (M8)
+- [x] `proxh.png` — Proxh (M8)
+- [x] `h1ber.png` — H1ber (M8)
+- [x] `minny.png` — Minny (M8)
 
 ## GX
 
-- [ ] `net.png` — neT (GX)
-- [ ] `westside.png` — westside (GX)
-- [ ] `flickless.png` — Flickless (GX)
+- [x] `net.png` — neT (GX)
+- [x] `westside.png` — westside (GX)
+- [x] `flickless.png` — Flickless (GX)
 - [ ] `ara.png` — ara (GX)
-- [ ] `jesse.png` — Jesse (GX)
+- [x] `jesse.png` — Jesse (GX)
 
-## PCF
+## AUR
 
-- [ ] `qpert.png` — qpert (PCF)
-- [ ] `al0rante.png` — al0rante (PCF)
-- [ ] `ninja.png` — NINJA (PCF)
-- [ ] `seven.png` — seven (PCF)
-- [ ] `waddle.png` — waddle (PCF)
+- [x] `javelin.png` — Javelin (AUR)
+- [x] `darxcioo.png` — Darxcioo (AUR)
+- [x] `sizo.png` — sizo (AUR)
+- [x] `avey.png` — avey (AUR)
 
 ## EP
 
-- [ ] `patitek.png` — paTiTek (EP)
-- [ ] `kozzy.png` — kozzy (EP)
-- [ ] `magnum.png` — MAGNUM (EP)
-- [ ] `lime.png` — Lime (EP)
-- [ ] `iluri.png` — iluri (EP)
+- [x] `patitek.png` — paTiTek (EP)
+- [x] `kozzy.png` — kozzy (EP)
+- [x] `magnum.png` — MAGNUM (EP)
+- [x] `lime.png` — Lime (EP)
+- [x] `iluri.png` — iluri (EP)
 
 ## FF
 
-- [ ] `batujnax.png` — batujnax (FF)
-- [ ] `hezacoil.png` — hezacoil (FF)
-- [ ] `kachoww.png` — Kachoww (FF)
-- [ ] `deadink.png` — DeadInk (FF)
-- [ ] `reazy.png` — reazy (FF)
+- [x] `batujnax.png` — batujnax (FF)
+- [x] `hezacoil.png` — hezacoil (FF)
+- [x] `kachoww.png` — Kachoww (FF)
+- [x] `deadink.png` — DeadInk (FF)
+- [x] `reazy.png` — reazy (FF)
 - [ ] `b1squw1.png` — b1squw1 (FF)
 
 ## JL
 
-- [ ] `unfake.png` — UNFAKE (JL)
-- [ ] `kamyk.png` — kamyk (JL)
+- [x] `unfake.png` — UNFAKE (JL)
+- [x] `kamyk.png` — kamyk (JL)
 - [ ] `chiwa.png` — chiwa (JL)
-- [ ] `runner.png` — runneR (JL)
-- [ ] `doma.png` — doma (JL)
-- [ ] `pa1ze.png` — Pa1ze (JL)
+- [x] `runner.png` — runneR (JL)
+- [x] `doma.png` — doma (JL)
+- [x] `pa1ze.png` — Pa1ze (JL)
 
 ## SGE
 
-- [ ] `azury.png` — azury (SGE)
-- [ ] `fizzy.png` — Fizzy (SGE)
-- [ ] `monsteerr.png` — MONSTEERR (SGE)
-- [ ] `musashi.png` — musashi (SGE)
+- [x] `azury.png` — azury (SGE)
+- [x] `fizzy.png` — Fizzy (SGE)
+- [x] `monsteerr.png` — MONSTEERR (SGE)
+- [x] `musashi.png` — musashi (SGE)
 - [ ] `kendo.png` — kendo (SGE)
-- [ ] `jamelinho213.png` — Jamelinho213 (SGE)
+- [x] `jamelinho213.png` — Jamelinho213 (SGE)
 
 ## MISA
 
-- [ ] `sh1va.png` — sh1va (MISA)
-- [ ] `ronniee.png` — Ronniee (MISA)
-- [ ] `merz.png` — MERZ (MISA)
+- [x] `sh1va.png` — sh1va (MISA)
+- [x] `ronniee.png` — Ronniee (MISA)
+- [x] `merz.png` — MERZ (MISA)
 - [ ] `riser.png` — Riser (MISA)
-- [ ] `fortres.png` — Fortres (MISA)
-- [ ] `pawn1.png` — pAwn1 (MISA)
+- [x] `fortres.png` — Fortres (MISA)
+- [x] `pawn1.png` — pAwn1 (MISA)
 
 ## MDR
 
-- [ ] `kada.png` — Kada (MDR)
-- [ ] `sevire.png` — Sevire (MDR)
-- [ ] `natank.png` — nataNk (MDR)
-- [ ] `sh1n.png` — sh1n (MDR)
-- [ ] `takas.png` — TakaS (MDR)
+- [x] `kada.png` — Kada (MDR)
+- [x] `sevire.png` — Sevire (MDR)
+- [x] `natank.png` — nataNk (MDR)
+- [x] `sh1n.png` — sh1n (MDR)
+- [x] `takas.png` — TakaS (MDR)
 
 ## MIR
 
-- [ ] `bishepss.png` — Bishepss (MIR)
-- [ ] `redgar.png` — Redgar (MIR)
-- [ ] `raz.png` — Raz (MIR)
+- [x] `bishepss.png` — Bishepss (MIR)
+- [x] `redgar.png` — Redgar (MIR)
+- [x] `raz.png` — Raz (MIR)
 - [ ] `reblyik.png` — reblyik (MIR)
 - [ ] `kospa1n.png` — kospa1n (MIR)
 
-## NVJ
+## PCF
 
-- [ ] `javelin.png` — Javelin (NVJ)
-- [ ] `darxcioo.png` — Darxcioo (NVJ)
-- [ ] `sizo.png` — sizo (NVJ)
-- [ ] `avey.png` — avey (NVJ)
+- [x] `qpert.png` — qpert (PCF)
+- [x] `al0rante.png` — al0rante (PCF)
+- [x] `ninja.png` — NINJA (PCF)
+- [x] `seven.png` — seven (PCF)
+- [x] `waddle.png` — waddle (PCF)
 
 ## GEN
 
-- [ ] `t3xture.png` — t3xture (GEN)
-- [ ] `karon.png` — Karon (GEN)
+- [x] `t3xture.png` — t3xture (GEN)
+- [x] `karon.png` — Karon (GEN)
 - [ ] `ash.png` — Ash (GEN)
-- [ ] `efina.png` — Efina (GEN)
-- [ ] `raxcal.png` — Raxcal (GEN)
+- [x] `efina.png` — Efina (GEN)
+- [x] `raxcal.png` — Raxcal (GEN)
 
 ## NS
 
-- [ ] `dambi.png` — Dambi (NS)
-- [ ] `rb.png` — Rb (NS)
-- [ ] `francis.png` — Francis (NS)
-- [ ] `xross.png` — Xross (NS)
-- [ ] `ivy.png` — Ivy (NS)
+- [x] `dambi.png` — Dambi (NS)
+- [x] `rb.png` — Rb (NS)
+- [x] `francis.png` — Francis (NS)
+- [x] `xross.png` — Xross (NS)
+- [x] `ivy.png` — Ivy (NS)
 
 ## GE
 
-- [ ] `patmen.png` — PatMen (GE)
-- [ ] `udotan.png` — UdoTan (GE)
-- [ ] `autumn.png` — Autumn (GE)
-- [ ] `xavi8k.png` — xavi8k (GE)
-- [ ] `kr1stal.png` — Kr1stal (GE)
+- [x] `patmen.png` — PatMen (GE)
+- [x] `udotan.png` — UdoTan (GE)
+- [x] `autumn.png` — Autumn (GE)
+- [x] `xavi8k.png` — xavi8k (GE)
+- [x] `kr1stal.png` — Kr1stal (GE)
 
 ## T1
 
-- [ ] `meteor.png` — Meteor (T1)
-- [ ] `buzz.png` — BuZz (T1)
-- [ ] `munchkin.png` — Munchkin (T1)
-- [ ] `dh.png` — DH (T1)
-- [ ] `stax.png` — stax (T1)
-- [ ] `izu.png` — iZu (T1)
+- [x] `meteor.png` — Meteor (T1)
+- [x] `buzz.png` — BuZz (T1)
+- [x] `munchkin.png` — Munchkin (T1)
+- [x] `dh.png` — DH (T1)
+- [x] `stax.png` — stax (T1)
+- [x] `izu.png` — iZu (T1)
 
 ## PRX
 
-- [ ] `f0rsaken.png` — f0rsakeN (PRX)
-- [ ] `jinggg.png` — Jinggg (PRX)
-- [ ] `something.png` — something (PRX)
-- [ ] `d4v41.png` — d4v41 (PRX)
-- [ ] `invy.png` — invy (PRX)
+- [x] `f0rsaken.png` — f0rsakeN (PRX)
+- [x] `jinggg.png` — Jinggg (PRX)
+- [x] `something.png` — something (PRX)
+- [x] `d4v41.png` — d4v41 (PRX)
+- [x] `invy.png` — invy (PRX)
 
 ## DFM
 
-- [ ] `caedye.png` — Caedye (DFM)
-- [ ] `yatsuka.png` — yatsuka (DFM)
-- [ ] `ssees.png` — SSeeS (DFM)
-- [ ] `akame.png` — Akame (DFM)
-- [ ] `meiy.png` — Meiy (DFM)
+- [x] `caedye.png` — Caedye (DFM)
+- [x] `yatsuka.png` — yatsuka (DFM)
+- [x] `ssees.png` — SSeeS (DFM)
+- [x] `akame.png` — Akame (DFM)
+- [x] `meiy.png` — Meiy (DFM)
 
 ## VL
 
 - [ ] `klaus.png` — Klaus (VL)
 - [ ] `oonzmlp.png` — oonzmlp (VL)
-- [ ] `foxy9.png` — Foxy9 (VL)
-- [ ] `c1nder.png` — C1ndeR (VL)
+- [x] `foxy9.png` — Foxy9 (VL)
+- [x] `c1nder.png` — C1ndeR (VL)
 - [ ] `xuna.png` — XuNa (VL)
 - [ ] `zexy.png` — Zexy (VL)
 
 ## KRX
 
-- [ ] `mako.png` — MaKo (KRX)
-- [ ] `hyunmin.png` — HYUNMIN (KRX)
-- [ ] `beyn.png` — BeYN (KRX)
+- [x] `mako.png` — MaKo (KRX)
+- [x] `hyunmin.png` — HYUNMIN (KRX)
+- [x] `beyn.png` — BeYN (KRX)
 - [ ] `yong.png` — yong (KRX)
-- [ ] `free1ng.png` — free1ng (KRX)
+- [x] `free1ng.png` — free1ng (KRX)
 
 ## ZETA
 
-- [ ] `eko.png` — eKo (ZETA)
-- [ ] `sugarz3ro.png` — SugarZ3ro (ZETA)
-- [ ] `absol.png` — Absol (ZETA)
-- [ ] `syouta.png` — SyouTa (ZETA)
-- [ ] `xdll.png` — Xdll (ZETA)
+- [x] `eko.png` — eKo (ZETA)
+- [x] `sugarz3ro.png` — SugarZ3ro (ZETA)
+- [x] `absol.png` — Absol (ZETA)
+- [x] `syouta.png` — SyouTa (ZETA)
+- [x] `xdll.png` — Xdll (ZETA)
 
 ## FS
 
-- [ ] `primmie.png` — primmie (FS)
-- [ ] `seph1roth.png` — seph1roth (FS)
-- [ ] `killua.png` — Killua (FS)
-- [ ] `jitboys.png` — JitBoyS (FS)
+- [x] `primmie.png` — primmie (FS)
+- [x] `seph1roth.png` — seph1roth (FS)
+- [x] `killua.png` — Killua (FS)
+- [x] `jitboys.png` — JitBoyS (FS)
 
 ## RRQ
 
-- [ ] `monyet.png` — Monyet (RRQ)
-- [ ] `xffero.png` — xffero (RRQ)
-- [ ] `crazyguy.png` — crazyguy (RRQ)
+- [x] `monyet.png` — Monyet (RRQ)
+- [x] `xffero.png` — xffero (RRQ)
+- [x] `crazyguy.png` — crazyguy (RRQ)
 - [ ] `xan.png` — Xan (RRQ)
-- [ ] `jemkin.png` — Jemkin (RRQ)
-- [ ] `kushy.png` — Kushy (RRQ)
+- [x] `jemkin.png` — Jemkin (RRQ)
+- [x] `kushy.png` — Kushy (RRQ)
 
 ## TS
 
-- [ ] `sylvan.png` — Sylvan (TS)
-- [ ] `kellys.png` — kellyS (TS)
-- [ ] `natz.png` — natz (TS)
-- [ ] `styron.png` — STYRON (TS)
-- [ ] `zeus.png` — Zeus (TS)
+- [x] `sylvan.png` — Sylvan (TS)
+- [x] `kellys.png` — kellyS (TS)
+- [x] `natz.png` — natz (TS)
+- [x] `styron.png` — STYRON (TS)
+- [x] `zeus.png` — Zeus (TS)
 
 ## ONG
 
 - [ ] `ray.png` — Ray (ONG)
-- [ ] `cloudy.png` — Cloudy (ONG)
+- [x] `cloudy.png` — Cloudy (ONG)
 - [ ] `wolverine.png` — Wolverine (ONG)
 - [ ] `faither.png` — Faither (ONG)
 - [ ] `mobugi.png` — Mobugi (ONG)
@@ -445,49 +445,49 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## DK
 
 - [ ] `kally.png` — Kally (DK)
-- [ ] `shu.png` — shu (DK)
+- [x] `shu.png` — shu (DK)
 - [ ] `jaxe.png` — JaXe (DK)
 - [ ] `cabeza.png` — CabezA (DK)
 - [ ] `ramgi.png` — Ramgi (DK)
 
 ## FL
 
-- [ ] `hals.png` — Hals (FL)
-- [ ] `clz.png` — CLZ (FL)
-- [ ] `gangpin.png` — GangPin (FL)
-- [ ] `anthem.png` — Anthem (FL)
-- [ ] `aace.png` — Aace (FL)
+- [x] `hals.png` — Hals (FL)
+- [x] `clz.png` — CLZ (FL)
+- [x] `gangpin.png` — GangPin (FL)
+- [x] `anthem.png` — Anthem (FL)
+- [x] `aace.png` — Aace (FL)
 
 ## SP
 
-- [ ] `laz.png` — Laz (SP)
-- [ ] `ptc.png` — PTC (SP)
-- [ ] `kadoom.png` — Kadoom (SP)
-- [ ] `apinya.png` — Apinya (SP)
+- [x] `laz.png` — Laz (SP)
+- [x] `ptc.png` — PTC (SP)
+- [x] `kadoom.png` — Kadoom (SP)
+- [x] `apinya.png` — Apinya (SP)
 - [ ] `niz.png` — NIZ (SP)
 
 ## RC
 
-- [ ] `jremy.png` — Jremy (RC)
-- [ ] `persia.png` — Persia (RC)
+- [x] `jremy.png` — Jremy (RC)
+- [x] `persia.png` — Persia (RC)
 - [ ] `brian.png` — BRIAN (RC)
-- [ ] `yoshiii.png` — Yoshiii (RC)
-- [ ] `hiroronn.png` — hiroronn (RC)
-- [ ] `dep.png` — Dep (RC)
+- [x] `yoshiii.png` — Yoshiii (RC)
+- [x] `hiroronn.png` — hiroronn (RC)
+- [x] `dep.png` — Dep (RC)
 
 ## ART
 
-- [ ] `redlight.png` — RedLight (ART)
+- [x] `redlight.png` — RedLight (ART)
 - [ ] `rico.png` — Rico (ART)
 - [ ] `annyeon.png` — ANNYEON (ART)
-- [ ] `jaebin.png` — JaebiN (ART)
+- [x] `jaebin.png` — JaebiN (ART)
 - [ ] `xiv.png` — XIV (ART)
 
 ## XIP
 
 - [ ] `canady.png` — canady (XIP)
 - [ ] `endoist.png` — endoist (XIP)
-- [ ] `alert.png` — aLerT (XIP)
+- [x] `alert.png` — aLerT (XIP)
 - [ ] `doffy.png` — doffy (XIP)
 - [ ] `surf.png` — Surf (XIP)
 - [ ] `bnwgiggs.png` — bnwgiggs (XIP)
@@ -495,25 +495,25 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## QTD
 
 - [ ] `misaya.png` — Misaya (QTD)
-- [ ] `yuran.png` — yuran (QTD)
+- [x] `yuran.png` — yuran (QTD)
 - [ ] `kippei.png` — Kippei (QTD)
 - [ ] `pkm.png` — Pkm (QTD)
 - [ ] `margaret.png` — margaret (QTD)
 
 ## NOVA
 
-- [ ] `ezeir.png` — Ezeir (NOVA)
-- [ ] `qiutian.png` — qiutiaN (NOVA)
-- [ ] `cb.png` — cb (NOVA)
-- [ ] `guang.png` — GuanG (NOVA)
+- [x] `ezeir.png` — Ezeir (NOVA)
+- [x] `qiutian.png` — qiutiaN (NOVA)
+- [x] `cb.png` — cb (NOVA)
+- [x] `guang.png` — GuanG (NOVA)
 - [ ] `swagzor.png` — swagzor (NOVA)
 - [ ] `kodeth.png` — kodeth (NOVA)
 
 ## TYL
 
-- [ ] `siufatbb.png` — SiuFatBB (TYL)
-- [ ] `scales.png` — Scales (TYL)
-- [ ] `slowly.png` — slowly (TYL)
+- [x] `siufatbb.png` — SiuFatBB (TYL)
+- [x] `scales.png` — Scales (TYL)
+- [x] `slowly.png` — slowly (TYL)
 - [ ] `erv.png` — Erv (TYL)
 - [ ] `splash.png` — splash (TYL)
 - [ ] `xihe.png` — xihe (TYL)
@@ -521,69 +521,69 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## BLG
 
 - [ ] `yilai.png` — yilai (BLG)
-- [ ] `rushia.png` — rushia (BLG)
-- [ ] `nephh.png` — nephh (BLG)
-- [ ] `knight.png` — Knight (BLG)
-- [ ] `whzy.png` — whzy (BLG)
+- [x] `rushia.png` — rushia (BLG)
+- [x] `nephh.png` — nephh (BLG)
+- [x] `knight.png` — Knight (BLG)
+- [x] `whzy.png` — whzy (BLG)
 
 ## JDG
 
-- [ ] `zhe.png` — zhe (JDG)
-- [ ] `berlin.png` — BerLIN (JDG)
-- [ ] `jkuro.png` — jkuro (JDG)
-- [ ] `yuicaw.png` — Yuicaw (JDG)
+- [x] `zhe.png` — zhe (JDG)
+- [x] `berlin.png` — BerLIN (JDG)
+- [x] `jkuro.png` — jkuro (JDG)
+- [x] `yuicaw.png` — Yuicaw (JDG)
 - [ ] `crownfisher.png` — crownfisher (JDG)
 
 ## EDG
 
-- [ ] `zmjjkk.png` — ZmjjKK (EDG)
-- [ ] `chichoo.png` — CHICHOO (EDG)
-- [ ] `nobody.png` — nobody (EDG)
-- [ ] `smoggy.png` — Smoggy (EDG)
-- [ ] `stew.png` — stew (EDG)
-- [ ] `jieni7.png` — Jieni7 (EDG)
+- [x] `zmjjkk.png` — ZmjjKK (EDG)
+- [x] `chichoo.png` — CHICHOO (EDG)
+- [x] `nobody.png` — nobody (EDG)
+- [x] `smoggy.png` — Smoggy (EDG)
+- [x] `stew.png` — stew (EDG)
+- [x] `jieni7.png` — Jieni7 (EDG)
 
 ## XLG
 
-- [ ] `happywei.png` — happywei (XLG)
-- [ ] `wsleo.png` — WsLeo (XLG)
-- [ ] `lysoar.png` — Lysoar (XLG)
+- [x] `happywei.png` — happywei (XLG)
+- [x] `wsleo.png` — WsLeo (XLG)
+- [x] `lysoar.png` — Lysoar (XLG)
 - [ ] `sharks.png` — Sharks (XLG)
 - [ ] `noman.png` — NoMan (XLG)
-- [ ] `rarga.png` — Rarga (XLG)
+- [x] `rarga.png` — Rarga (XLG)
 
 ## TE
 
-- [ ] `delb.png` — deLb (TE)
-- [ ] `luok1ng.png` — LuoK1ng (TE)
-- [ ] `kai.png` — Kai (TE)
+- [x] `delb.png` — deLb (TE)
+- [x] `luok1ng.png` — LuoK1ng (TE)
+- [x] `kai.png` — Kai (TE)
 - [ ] `fkey.png` — FKEY (TE)
-- [ ] `abo.png` — Abo (TE)
-- [ ] `fengf.png` — FengF (TE)
+- [x] `abo.png` — Abo (TE)
+- [x] `fengf.png` — FengF (TE)
 
 ## TEC
 
-- [ ] `dynamite.png` — Dynamite (TEC)
+- [x] `dynamite.png` — Dynamite (TEC)
 - [ ] `ra1ny.png` — ra1ny (TEC)
-- [ ] `haodong.png` — Haodong (TEC)
-- [ ] `coco.png` — Coco (TEC)
-- [ ] `spitfires.png` — Spitfires (TEC)
+- [x] `haodong.png` — Haodong (TEC)
+- [x] `coco.png` — Coco (TEC)
+- [x] `spitfires.png` — Spitfires (TEC)
 - [ ] `lucas.png` — lucas (TEC)
 
 ## WOL
 
-- [ ] `spring.png` — Spring (WOL)
-- [ ] `aluba.png` — aluba (WOL)
-- [ ] `deryeon.png` — Deryeon (WOL)
-- [ ] `yosemite.png` — yosemite (WOL)
+- [x] `spring.png` — Spring (WOL)
+- [x] `aluba.png` — aluba (WOL)
+- [x] `deryeon.png` — Deryeon (WOL)
+- [x] `yosemite.png` — yosemite (WOL)
 - [ ] `glacier.png` — glacier (WOL)
 - [ ] `nothing.png` — nothing (WOL)
 
 ## AG
 
-- [ ] `bai.png` — Bai (AG)
-- [ ] `shr1mp.png` — Shr1mp (AG)
-- [ ] `k1ra.png` — K1ra (AG)
+- [x] `bai.png` — Bai (AG)
+- [x] `shr1mp.png` — Shr1mp (AG)
+- [x] `k1ra.png` — K1ra (AG)
 - [ ] `f4ngeer.png` — f4ngeer (AG)
 - [ ] `iamgrq.png` — iamgrq (AG)
 
@@ -591,59 +591,59 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 - [ ] `xlele.png` — Xlele (FPX)
 - [ ] `setrod.png` — Setrod (FPX)
-- [ ] `coconut.png` — coconut (FPX)
-- [ ] `aaaay.png` — AAAAY (FPX)
+- [x] `coconut.png` — coconut (FPX)
+- [x] `aaaay.png` — AAAAY (FPX)
 - [ ] `pho.png` — PHO (FPX)
 
 ## DRG
 
-- [ ] `vo0kashu.png` — vo0kashu (DRG)
-- [ ] `nicc.png` — Nicc (DRG)
-- [ ] `spiritz1.png` — SpiritZ1 (DRG)
-- [ ] `life.png` — Life (DRG)
-- [ ] `flex1n.png` — Flex1n (DRG)
+- [x] `vo0kashu.png` — vo0kashu (DRG)
+- [x] `nicc.png` — Nicc (DRG)
+- [x] `spiritz1.png` — SpiritZ1 (DRG)
+- [x] `life.png` — Life (DRG)
+- [x] `flex1n.png` — Flex1n (DRG)
 - [ ] `verse.png` — Verse (DRG)
 
 ## WBG
 
-- [ ] `acme.png` — AcMe (WBG)
-- [ ] `satoshi.png` — Satoshi (WBG)
-- [ ] `heybay.png` — heybay (WBG)
+- [x] `acme.png` — AcMe (WBG)
+- [x] `satoshi.png` — Satoshi (WBG)
+- [x] `heybay.png` — heybay (WBG)
 - [ ] `leav3u.png` — Leav3u (WBG)
-- [ ] `yoyo.png` — Yoyo (WBG)
+- [x] `yoyo.png` — Yoyo (WBG)
 
 ## RA
 
-- [ ] `guran.png` — Guran (RA)
+- [x] `guran.png` — Guran (RA)
 - [ ] `croudy.png` — Croudy (RA)
 - [ ] `potter.png` — Potter (RA)
-- [ ] `z1yan.png` — Z1yan (RA)
+- [x] `z1yan.png` — Z1yan (RA)
 - [ ] `nnono.png` — nnono (RA)
 - [ ] `ben1ley.png` — Ben1Ley (RA)
 
 ## KBG
 
-- [ ] `sibeastw0w.png` — sibeastw0w (KBG)
+- [x] `sibeastw0w.png` — sibeastw0w (KBG)
 - [ ] `akeman.png` — Akeman (KBG)
-- [ ] `coldfish.png` — coldfish (KBG)
+- [x] `coldfish.png` — coldfish (KBG)
 - [ ] `tonk.png` — Tonk (KBG)
 - [ ] `ying.png` — Ying (KBG)
 - [ ] `krst1ng.png` — Krst1Ng (KBG)
 
 ## AT
 
-- [ ] `dingwei.png` — Dingwei (AT)
-- [ ] `layla.png` — Layla (AT)
+- [x] `dingwei.png` — Dingwei (AT)
+- [x] `layla.png` — Layla (AT)
 - [ ] `folykiki.png` — Folykiki (AT)
-- [ ] `monk.png` — monk (AT)
-- [ ] `eren.png` — Eren (AT)
+- [x] `monk.png` — monk (AT)
+- [x] `eren.png` — Eren (AT)
 - [ ] `pink.png` — Pink (AT)
 
 ## AQ
 
-- [ ] `juicy.png` — Juicy (AQ)
-- [ ] `s1mon.png` — S1Mon (AQ)
-- [ ] `5cm.png` — 5CM (AQ)
+- [x] `juicy.png` — Juicy (AQ)
+- [x] `s1mon.png` — S1Mon (AQ)
+- [x] `5cm.png` — 5CM (AQ)
 - [ ] `dannyy.png` — Dannyy (AQ)
 - [ ] `ffs.png` — FFs (AQ)
 
@@ -652,13 +652,13 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [ ] `m1ng929.png` — M1ng929 (WSIG)
 - [ ] `ye.png` — Ye (WSIG)
 - [ ] `jowa.png` — jowa (WSIG)
-- [ ] `levius.png` — Levius (WSIG)
+- [x] `levius.png` — Levius (WSIG)
 - [ ] `apathy.png` — Apathy (WSIG)
 - [ ] `ugly.png` — Ugly (WSIG)
 
 ## ODG
 
-- [ ] `xyus.png` — XyuS (ODG)
+- [x] `xyus.png` — XyuS (ODG)
 - [ ] `zixuan.png` — ZiXuan (ODG)
 - [ ] `yhchen.png` — YHchen (ODG)
 - [ ] `w1nner.png` — W1nner (ODG)
@@ -673,14 +673,33 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## Sem clube
 
-- [ ] `eeiu.png` — eeiu (LIVRE)
+- [x] `eeiu.png` — eeiu (LIVRE)
 - [x] `cauanzin.png` — cauanzin (LIVRE)
 - [ ] `gsr.png` — GSR (LIVRE)
 - [ ] `sheydos.png` — sheydos (LIVRE)
-- [ ] `shao.png` — Shao (LIVRE)
+- [x] `shao.png` — Shao (LIVRE)
 - [ ] `eggsterr.png` — Eggsterr (LIVRE)
 - [ ] `tomaszy.png` — tomaszy (LIVRE)
-- [ ] `bipo.png` — bipo (LIVRE)
+- [x] `bipo.png` — bipo (LIVRE)
 - [ ] `flicker.png` — Flicker (LIVRE)
-- [ ] `thyy.png` — thyy (LIVRE)
-- [ ] `leviathan.png` — Leviathan (LIVRE)
+- [x] `thyy.png` — thyy (LIVRE)
+- [x] `leviathan.png` — Leviathan (LIVRE)
+- [x] `crws.png` — Crws (LIVRE)
+- [x] `suyjing.png` — suyjing (LIVRE)
+- [x] `cyvoph.png` — CyvOph (LIVRE)
+- [x] `filu.png` — Filu (LIVRE)
+- [x] `wayne.png` — wayne (LIVRE)
+- [x] `miradaninja.png` — MiradaNinja (LIVRE)
+- [x] `moves.png` — Moves (LIVRE)
+- [x] `zjc.png` — zjc (LIVRE)
+- [x] `green.png` — GREEN (LIVRE)
+- [x] `niffy.png` — niffy (LIVRE)
+- [x] `miniboo.png` — MiniBoo (LIVRE)
+- [x] `ft.png` — FT (LIVRE)
+- [x] `tiyosta.png` — Tiyosta (LIVRE)
+- [x] `aztex.png` — aztex (LIVRE)
+- [x] `peixeh.png` — peixeh (LIVRE)
+- [x] `luid.png` — Luid (LIVRE)
+- [x] `turkish.png` — turkish (LIVRE)
+- [x] `sanoj.png` — sanoj (LIVRE)
+- [x] `znajder.png` — znajder (LIVRE)
