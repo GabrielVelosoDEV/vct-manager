@@ -3747,6 +3747,67 @@ await teste('o veto segue o formato do circuito em Bo1, Bo3 e Bo5',async()=>{
   }
 });
 
+await teste('renovação: pedido explicado, sem sorteio, e o jogador pode recusar',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.moral=0.6;delete p.renovBloq;p.renovTent=0;
+    const sem=t.semente;
+    const d=w.pedidoRenovacao(p,time);
+    if(!(d.pedido>0)||!d.anos||d.anos[0]>d.anos[1])throw new Error('pedido sem valor ou sem duração: '+JSON.stringify(d));
+    /* proposta baixa: recusa e conta tentativa */
+    const r1=w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    if(r1.ok)throw new Error('aceitou metade do pedido');
+    if(t.semente!==sem)throw new Error('a negociação consumiu sorteio do motor');
+    /* três recusas fecham a porta */
+    w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    w.proporRenovacao(p,time,Math.round(d.pedido*0.5),d.anos[0]);
+    if(!w.renovacaoFechada(p))throw new Error('três propostas baixas não fecharam a conversa');
+    const r2=w.proporRenovacao(p,time,d.pedido*2,d.anos[0]);
+    if(r2.ok)throw new Error('com a conversa fechada ainda renovou');
+    /* reaberto, a proposta justa fecha */
+    delete p.renovBloq;
+    const alvo=w.pedidoParaAnos(w.pedidoRenovacao(p,time),d.anos[1]);
+    const moral0=p.moral;
+    const r3=w.proporRenovacao(p,time,alvo,d.anos[1]);
+    if(!r3.ok)throw new Error('recusou o próprio pedido: '+r3.motivos.join(' '));
+    if(p.contrato!==d.anos[1]||p.salario!==alvo)throw new Error('contrato não ficou como acordado');
+    if(!(p.moral>moral0))throw new Error('renovar não levantou a moral');
+  }finally{Object.assign(p,JSON.parse(foto));delete p.renovBloq;}
+});
+
+await teste('renovação: garoto em ascensão quer contrato curto, e longo custa mais',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.idade=20;p.pot=Math.min(99,t.over(p)+12);
+    const d=w.pedidoRenovacao(p,time);
+    if(d.anos[1]>2)throw new Error('garoto em ascensão aceitou até '+d.anos[1]+' anos sem prêmio');
+    if(!(w.pedidoParaAnos(d,4)>w.pedidoParaAnos(d,2)))throw new Error('quatro anos não custaram mais que dois');
+  }finally{Object.assign(p,JSON.parse(foto));}
+});
+
+await teste('Finanças › Renovar abre a negociação e fecha acordo pela tela',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.moral=0.7;delete p.renovBloq;p.renovTent=0;
+    t.tela='financas';w.render();
+    const b=$('[data-renov="'+p.id+'"]');
+    if(!b)throw new Error('sem botão Renovar em Finanças');
+    clicar(b);
+    if(w.document.querySelector('#dialogo .ovl'))throw new Error('ainda abre um confirm em vez da negociação');
+    const M=w.document.querySelector('#modal');
+    if(!/Por que ele pede isso/.test(M.textContent))throw new Error('a negociação não explica o pedido');
+    clicar(M.querySelector('#rJusto'));
+    clicar(M.querySelector('#rEnviar'));
+    if(!/Acordo fechado/.test(M.textContent))throw new Error('o pedido dele não fechou acordo: '+M.querySelector('#rFeed').textContent);
+  }finally{Object.assign(p,JSON.parse(foto));w.document.querySelector('#modal').innerHTML='';}
+});
+
 await teste('nenhuma janela nativa do navegador no jogo',async()=>{
   /* alert() e confirm() travam a página e, no app de PC, dependem da webview.
      O jogo usa o próprio diálogo. */

@@ -57,10 +57,7 @@ function ligarEventos(){
     noticia('🤝 '+r.msg);render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
-  on('[data-renov]',async el=>{
-    const p=P(el.dataset.renov);const novo=Math.round(salario(p)*1.12/100)*100;
-    if(await confirmar('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?','Renovar')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
-  });
+  on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
   on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);
     if(t.elenco.length<=5){avisar('Você precisa de pelo menos 5 jogadores.');return;}

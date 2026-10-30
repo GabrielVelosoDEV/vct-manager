@@ -5017,6 +5017,8 @@ function cobrarPromessas(t){
     if(!venceu)continue;
     p.moral=clamp(p.moral-0.32,0.05,1);
     delete p.promessa;
+    /* guardado para a renovação: ele lembra na hora de assinar */
+    p.promessaQuebrada={ano:G.ano,semana:G.semana};
     quebradas++;
     /* o vestiário toma conhecimento: promessa quebrada não fica entre dois */
     (t.elenco||[]).forEach(i=>{const x=G.jogadores[i];
@@ -7385,6 +7387,134 @@ function mercadoTransferencias(){
   }
   for(const id in G.times)autoEscalar(G.times[id]);
   return fechados;
+}
+
+
+/* ===== src/core/renovacao.js ===== */
+/* ============================================================
+   RENOVAÇÃO DE CONTRATO
+   ------------------------------------------------------------
+   Até aqui renovar era uma pergunta de sim ou não: sempre três
+   anos, sempre 12% a mais, e o jogador nunca dizia não. O único
+   contrato que você assinava sem negociar era o do próprio
+   elenco.
+
+   Agora é a mesma lógica da compra (transferencia.js): o jogador
+   tem um pedido explicado linha a linha e uma duração que ele
+   quer. Três coisas mexem no pedido:
+     · COMO ELE ESTÁ NO CLUBE  moral, minutos, promessa quebrada
+     · O QUE ELE VALE LÁ FORA  quem é melhor que o clube cobra
+                               para ficar
+     · A FASE DA CARREIRA      garoto em ascensão quer contrato
+                               curto para renegociar valorizado;
+                               veterano quer segurança
+
+   Nada aqui sorteia. A negociação acontece a partir de um clique,
+   e o gerador semeado é do motor — o mesmo motivo do veto.
+   ============================================================ */
+
+/* Propostas recusadas antes de ele fechar a porta, e por quanto tempo. */
+const RENOV_TENTATIVAS=3;
+const RENOV_ESPERA=8;
+/* Prêmio por ano fora da duração que ele quer. */
+const RENOV_PREMIO_ANO=0.07;
+
+function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+/* O que ele pede para ficar, e por quê. */
+function pedidoRenovacao(p,t){
+  const base=salario(p);
+  const itens=[];
+  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  let f=1;
+  const titular=(t.titulares||[]).includes(p.id);
+
+  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15);
+  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95);
+  if(!titular)f*=juntar('Quer jogar mais do que joga',1.08);
+  /* promessa quebrada pesa por um ano */
+  const pq=p.promessaQuebrada;
+  if(pq&&((G.ano-pq.ano)*SEMANAS_ANO+((G.semana||1)-pq.semana))<SEMANAS_ANO)
+    f*=juntar('Você quebrou uma promessa com ele',1.20);
+
+  /* quem é melhor que o próprio clube tem mercado e sabe disso */
+  const folga=over(p)-nivelDoClube(t);
+  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
+
+  if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */
+  const caindo=p.pico&&over(p)<p.pico-4;
+  let pedido=Math.round(base*f/100)*100;
+  if(!caindo&&pedido<p.salario){
+    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f)});
+    pedido=p.salario;
+  }
+
+  /* a duração que ele quer */
+  const subindo=p.idade<=22&&p.pot-over(p)>=5;
+  const anos=subindo?[1,2]:p.idade>=29?[2,4]:[2,3];
+  return{base,itens,pedido:Math.max(300,pedido),anos,
+         motivoAnos:subindo?'Está crescendo: quer contrato curto para renegociar valorizado.'
+                   :p.idade>=29?'Veterano: prefere contrato longo.'
+                   :'Aceita de dois a três anos.'};
+}
+/* O pedido para uma duração específica: cada ano fora do que ele quer custa. */
+function pedidoParaAnos(d,anos){
+  const fora=anos<d.anos[0]?d.anos[0]-anos:anos>d.anos[1]?anos-d.anos[1]:0;
+  return Math.round(d.pedido*(1+fora*RENOV_PREMIO_ANO)/100)*100;
+}
+function renovacaoFechada(p){
+  return !!(p.renovBloq&&_semanaAbs()<p.renovBloq);
+}
+function semanasAteRenovar(p){
+  return renovacaoFechada(p)?p.renovBloq-_semanaAbs():0;
+}
+/* Recusa que dinheiro não resolve. */
+function recusasRenovacao(p,t,anos){
+  const fora=[];
+  if(p.timeId!==t.id)fora.push(p.nome+' não é do seu elenco.');
+  if(anos<1||anos>4)fora.push('Duração de contrato inaceitável (1 a 4 anos).');
+  if(renovacaoFechada(p))
+    fora.push(p.nome+' encerrou a conversa. Tente de novo em '+semanasAteRenovar(p)+' semana(s).');
+  if(p.moral<0.25&&!(t.titulares||[]).includes(p.id))
+    fora.push(p.nome+' não quer renovar: está no banco e infeliz. Converse com ele antes.');
+  return fora;
+}
+/* Lista de motivos; vazia é acordo. */
+function avaliarRenovacao(p,t,sal,anos){
+  const mot=recusasRenovacao(p,t,anos);
+  if(mot.length)return mot;
+  const d=pedidoRenovacao(p,t);
+  const alvo=pedidoParaAnos(d,anos);
+  if(sal<alvo*0.97){
+    const principal=d.itens.slice().sort((a,b)=>b.fator-a.fator)[0];
+    mot.push('Ele quer perto de '+money(alvo)+'/mês por '+anos+' ano(s)'+
+      (principal&&principal.fator>1.04?' — pesa: '+principal.rot.toLowerCase():'')+'.');
+  }
+  return mot;
+}
+/* Proposta enviada. Recusa conta tentativa; acordo fecha contrato. */
+function proporRenovacao(p,t,sal,anos){
+  const mot=avaliarRenovacao(p,t,sal,anos);
+  if(mot.length){
+    if(!renovacaoFechada(p)&&p.timeId===t.id){
+      p.renovTent=(p.renovTent||0)+1;
+      if(p.renovTent>=RENOV_TENTATIVAS){
+        p.renovTent=0;p.renovBloq=_semanaAbs()+RENOV_ESPERA;
+        p.moral=clamp(p.moral-0.05,0.05,1);
+        mot.push(p.nome+' cansou de proposta baixa e fechou a conversa por '+RENOV_ESPERA+' semanas.');
+      }else{
+        mot.push('Restam '+(RENOV_TENTATIVAS-p.renovTent)+' proposta(s) antes de ele fechar a conversa.');
+      }
+    }
+    return{ok:false,motivos:mot};
+  }
+  const d=pedidoRenovacao(p,t);
+  const generoso=sal>=pedidoParaAnos(d,anos)*1.10;
+  p.contrato=anos;p.salario=Math.round(sal);
+  p.renovTent=0;delete p.renovBloq;
+  p.moral=clamp(p.moral+(generoso?0.09:0.05),0.05,1);
+  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.');
+  return{ok:true,msg:p.nome+' renovou por '+anos+' ano(s).'+(generoso?' Saiu valorizado.':'')};
 }
 
 
@@ -11796,7 +11926,61 @@ function modalJogador(id){
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
+  const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+}
+/* ---------- renovação ----------
+   Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
+   duração que ele quer, e o retorno dele quando a oferta não chega. */
+function modalRenovacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  const d=pedidoRenovacao(p,t);
+  const duras=recusasRenovacao(p,t,d.anos[0]);
+  const anos0=d.anos[0];
+  const conta=`<div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
+    <table><tbody>
+      <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
+      ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
+        <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+      <tr><td><b>Pedido por ${d.anos[0]===d.anos[1]?d.anos[0]:d.anos[0]+' a '+d.anos[1]} ano(s)</b></td>
+        <td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
+    </tbody></table>
+    <p class="dim" style="margin-top:6px">${esc(d.motivoAnos)} Cada ano fora disso encarece ${Math.round(RENOV_PREMIO_ANO*100)}%.</p></div>`;
+  abrir(`<div class="eyebrow">Renovação</div><h2 class="sec">${esc(p.nome)}</h2>
+  <p class="dim">Contrato atual: ${money(p.salario)}/mês, mais ${p.contrato} ano(s).
+    ${p.contrato<=1?'<b>Vence no fim desta temporada</b> — se não renovar, ele sai de graça.':''}</p>
+  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
+    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
+  <div class="grid g2" style="margin-top:12px">
+    <div><label class="dim">Salário mensal</label><br>
+      <input type="number" id="rSal" value="${pedidoParaAnos(d,anos0)}" step="500"></div>
+    <div><label class="dim">Anos de contrato</label><br>
+      <input type="number" id="rAnos" value="${anos0}" min="1" max="4"></div>
+  </div>
+  ${conta}
+  <div id="rFeed" style="margin-top:12px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn ghost" id="rJusto">Preencher com o que ele aceita</button>
+    <button class="btn" id="rEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
+    <button class="btn ghost" data-close>Cancelar</button></div>`);
+  $('#rJusto').onclick=()=>{
+    const anos=parseInt($('#rAnos').value)||anos0;
+    $('#rSal').value=pedidoParaAnos(d,anos);
+  };
+  $('#rEnviar').onclick=()=>{
+    const sal=parseFloat($('#rSal').value)||0, anos=parseInt($('#rAnos').value)||anos0;
+    const r=proporRenovacao(p,t,sal,anos);
+    if(!r.ok){
+      $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
+        r.motivos.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;
+      if(renovacaoFechada(p))$('#rEnviar').disabled=true;
+      return;
+    }
+    $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${esc(r.msg)}</div>`;
+    $('#rEnviar').disabled=true;
+  };
 }
 /* A conversa mora na ficha do jogador: é onde você já está olhando quando
    percebe que ele está mal. */
@@ -13972,10 +14156,7 @@ function ligarEventos(){
     noticia('🤝 '+r.msg);render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
-  on('[data-renov]',async el=>{
-    const p=P(el.dataset.renov);const novo=Math.round(salario(p)*1.12/100)*100;
-    if(await confirmar('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?','Renovar')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
-  });
+  on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
   on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);
     if(t.elenco.length<=5){avisar('Você precisa de pelo menos 5 jogadores.');return;}

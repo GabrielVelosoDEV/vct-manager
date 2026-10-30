@@ -139,6 +139,8 @@ function cobrarPromessas(t){
     if(!venceu)continue;
     p.moral=clamp(p.moral-0.32,0.05,1);
     delete p.promessa;
+    /* guardado para a renovação: ele lembra na hora de assinar */
+    p.promessaQuebrada={ano:G.ano,semana:G.semana};
     quebradas++;
     /* o vestiário toma conhecimento: promessa quebrada não fica entre dois */
     (t.elenco||[]).forEach(i=>{const x=G.jogadores[i];
