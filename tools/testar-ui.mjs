@@ -3772,8 +3772,16 @@ await teste('a série em passos dá o mesmo que a série de uma vez',async()=>{
   const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
   const v=t.vetoAutomatico(time.id,adv.id,3,true);
   const sem=t.semente;
+  /* simPartida aplica o pós-jogo (forma, moral, fadiga, afinidade, sinergia);
+     sem desfazer isso a segunda forma joga com outro elenco e o placar só
+     batia por sorte */
+  const ids=[...time.elenco,...adv.elenco];
+  const foto=JSON.stringify({p:ids.map(id=>t.G.jogadores[id]),a:time,b:adv});
   const direto=t.simPartida(time.id,adv.id,3,{veto:v});
   const depoisDireto=t.semente;
+  const f=JSON.parse(foto);
+  ids.forEach((id,i)=>Object.assign(t.G.jogadores[id],f.p[i]));
+  Object.assign(time,f.a);Object.assign(adv,f.b);
   t.semente=sem;
   const S=t.abrirSerie(time.id,adv.id,3,v);
   while(!S.fim){
