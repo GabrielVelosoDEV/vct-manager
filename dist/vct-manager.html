@@ -312,6 +312,11 @@ tr.me:hover{background:rgba(255,70,85,.19)}
 .ovl .box{background:var(--panel);width:100%;max-width:900px;border:1px solid var(--line2);
   border-top:4px solid var(--red);padding:22px 24px}
 .ovl .box.wide{max-width:1140px}
+/* diálogo do jogo: acima do modal, porque a pergunta costuma nascer dentro dele */
+#dialogo .ovl{z-index:80}
+#dialogo .box{max-width:460px}
+#dialogo .dlg-txt{margin:6px 0 18px;line-height:1.5}
+#dialogo .dlg-bts{display:flex;gap:8px;justify-content:flex-end}
 .x{position:absolute;top:14px;right:18px;font-size:22px;color:var(--tx2)}
 .veto{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
 .veto span{font-size:10.5px;padding:4px 8px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;
@@ -614,6 +619,7 @@ tr.descansa td{opacity:.62}
   <main id="view"></main>
 </div>
 <div id="modal"></div>
+<div id="dialogo"></div>
 <div id="toast"></div>
 
 <script>
@@ -11693,6 +11699,41 @@ function abrir(html,wide){
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
+/* ---------- diálogo do jogo ----------
+   No lugar das janelas nativas (alert e confirm): elas quebram o visual, travam a
+   página inteira e, dentro do app de PC, dependem da webview para aparecer.
+   Fica numa camada própria acima do modal, então perguntar dentro de uma
+   ficha aberta não apaga a ficha. Devolve uma promessa: true no botão de
+   confirmar, false em cancelar, Esc ou clique fora. */
+function dialogo(o){
+  let c=$('#dialogo');
+  if(!c){c=document.createElement('div');c.id='dialogo';document.body.appendChild(c);}
+  return new Promise(res=>{
+    c.innerHTML=`<div class="ovl"><div class="box">
+      ${o.titulo?`<div class="eyebrow">${esc(o.titulo)}</div>`:''}
+      <div class="dlg-txt">${esc(o.texto||'')}</div>
+      <div class="dlg-bts">
+        ${o.nao?`<button class="btn ghost" id="dlgNao">${esc(o.nao)}</button>`:''}
+        <button class="btn" id="dlgSim">${esc(o.sim||'Entendi')}</button>
+      </div></div></div>`;
+    const sair=v=>{c.innerHTML='';document.removeEventListener('keydown',tecla,true);res(v);};
+    const tecla=e=>{
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sair(!o.nao);}
+      else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sair(true);}
+    };
+    document.addEventListener('keydown',tecla,true);
+    const ovl=c.querySelector('.ovl');
+    ovl.onclick=e=>{e.stopPropagation();if(e.target===ovl)sair(!o.nao);};
+    c.querySelector('#dlgSim').onclick=e=>{e.stopPropagation();sair(true);};
+    const n=c.querySelector('#dlgNao');if(n)n.onclick=e=>{e.stopPropagation();sair(false);};
+    c.querySelector('#dlgSim').focus();
+  });
+}
+function avisar(texto,titulo){return dialogo({texto,titulo:titulo||'Atenção',sim:'Entendi'});}
+function confirmar(texto,sim){
+  return dialogo({texto,titulo:'Confirmar',sim:sim||'Confirmar',nao:'Cancelar'});
+}
+
 function modalJogador(id){
   const p=P(id);if(!p)return;
   const t=meu();
@@ -12108,8 +12149,8 @@ function modalEditarJogador(id){
   const bDel=M.querySelector('#edjFotoDel');
   if(bDel)bDel.onclick=async()=>{await Imgs.apagar(chaveFoto);modalEditarJogador(id);};
 
-  M.querySelector('#edjApagar').onclick=()=>{
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+  M.querySelector('#edjApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(id);
     fechar();flash(r.ok?r.msg:r.erro);
   };
@@ -12311,8 +12352,8 @@ function modalEditarStaff(id){
   const bd=M.querySelector('#edsFotoDel');
   if(bd)bd.onclick=async()=>{await Imgs.apagar(chave);modalEditarStaff(id);};
 
-  M.querySelector('#edsApagar').onclick=()=>{
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+  M.querySelector('#edsApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(id);fechar();flash(r.ok?r.msg:r.erro);
   };
   M.querySelector('#edsSalvar').onclick=async()=>{
@@ -13909,13 +13950,13 @@ function ligarEventos(){
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);
-    if(t.caixa<c){alert('Caixa insuficiente: '+money(c)+' necessários.');return;}
+    if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
     t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.');render();
   });
   on('[data-prop]',el=>modalProposta(el.dataset.prop));
   on('[data-assumir]',el=>{
     const r=assumirClube(el.dataset.assumir);
-    if(!r.ok){alert(r.erro||'Não deu para assumir esse clube.');return;}
+    if(!r.ok){avisar(r.erro||'Não deu para assumir esse clube.');return;}
     flash(r.msg);irPara('inicio');
   });
   on('[data-treinomapa]',el=>{definirMapaTreino(t,el.dataset.treinomapa||null);render();});
@@ -13927,25 +13968,25 @@ function ligarEventos(){
   });
   on('[data-aceitar]',el=>{
     const r=aceitarProposta(el.dataset.aceitar);
-    if(!r.ok){alert(r.erro||'A proposta não pôde ser aceita.');return;}
+    if(!r.ok){avisar(r.erro||'A proposta não pôde ser aceita.');return;}
     noticia('🤝 '+r.msg);render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
-  on('[data-renov]',el=>{
+  on('[data-renov]',async el=>{
     const p=P(el.dataset.renov);const novo=Math.round(salario(p)*1.12/100)*100;
-    if(confirm('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
+    if(await confirmar('Renovar '+p.nome+' por 3 anos a '+money(novo)+'/mês?','Renovar')){p.contrato=3;p.salario=novo;p.moral=clamp(p.moral+.08,0,1);render();}
   });
-  on('[data-disp]',el=>{
+  on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);
-    if(t.elenco.length<=5){alert('Você precisa de pelo menos 5 jogadores.');return;}
-    if(confirm('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.')){
+    if(t.elenco.length<=5){avisar('Você precisa de pelo menos 5 jogadores.');return;}
+    if(await confirmar('Dispensar '+p.nome+'? Multa de '+money(p.salario*p.contrato*6)+'.','Dispensar')){
       t.caixa-=p.salario*p.contrato*6;liberar(p);render();}
   });
   /* ---- conversa com o elenco ---- */
   on('[data-conversa]',el=>{
     const [pid,opcao]=String(el.dataset.conversa).split(':');
     const r=conversarCom(t,P(pid),opcao);
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     fechar();
     flash(r.msg+(r.delta?' (moral '+(r.delta>0?'+':'')+r.delta+')':''));
   });
@@ -14000,7 +14041,7 @@ function ligarEventos(){
       caixa:val('#edCaixa',t2.caixa), patroc:val('#edPatroc',t2.patroc),
       logo:val('#edLogo',t2.logo||''), staff, estrutura, mapPref
     });
-    if(!r.ok){alert(r.erro);return;}
+    if(!r.ok){avisar(r.erro);return;}
     if(r.tagTrocada){
       Imgs.renomear(Imgs.chaveTime(r.tagTrocada.de),Imgs.chaveTime(r.tagTrocada.para))
         .then(()=>{render();flash('Time atualizado — imagem re-chaveada para '+r.tagTrocada.para+'.');});
@@ -14017,9 +14058,9 @@ function ligarEventos(){
 
   on('[data-edp]',el=>modalEditarJogador(el.dataset.edp));
   on('[data-edlivre]',el=>{const r=edLiberar(el.dataset.edlivre);render();flash(r.ok?r.msg:r.erro);});
-  on('[data-eddel]',el=>{
+  on('[data-eddel]',async el=>{
     const p=P(el.dataset.eddel);if(!p)return;
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(el.dataset.eddel);render();flash(r.ok?r.msg:r.erro);
   });
   v.querySelectorAll('[data-edmover]').forEach(sel=>sel.addEventListener('change',e=>{
@@ -14080,7 +14121,7 @@ function ligarEventos(){
     }catch(err){flash('Erro ao ler o arquivo.');}
   });
   on('#edImgLimpar',async()=>{
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote? A resolução volta para a pasta assets/.','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -14095,10 +14136,10 @@ function ligarEventos(){
   on('[data-fichastaff]',el=>modalStaff(el.dataset.fichastaff));
   on('[data-propstaff]',el=>modalPropostaStaff(el.dataset.propstaff));
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));
-  on('[data-dispstaff]',el=>{
+  on('[data-dispstaff]',async el=>{
     const m=G.staff[el.dataset.dispstaff];if(!m)return;
     const multa=Math.round(m.salario*Math.max(1,m.contrato)*4);
-    if(!confirm('Dispensar '+m.nome+'? Multa de '+money(multa)+'.'))return;
+    if(!await confirmar('Dispensar '+m.nome+'? Multa de '+money(multa)+'.','Dispensar'))return;
     t.caixa-=multa;
     const r=liberarStaff(m.id);
     render();flash(r.ok?r.msg:r.erro);
@@ -14106,9 +14147,9 @@ function ligarEventos(){
   on('[data-edstafflivre]',el=>{
     const r=liberarStaff(el.dataset.edstafflivre);render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-edstaffdel]',el=>{
+  on('[data-edstaffdel]',async el=>{
     const m=G.staff[el.dataset.edstaffdel];if(!m)return;
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(m.id);render();flash(r.ok?r.msg:r.erro);
   });
   on('[data-edstaffnovo]',el=>{
@@ -14207,9 +14248,9 @@ function ligarEventos(){
     const r=edAddAgente(role,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
-  on('[data-agdel]',el=>{
+  on('[data-agdel]',async el=>{
     const nome=el.dataset.agdel;
-    if(!confirm('Remover o agente '+nome+'? Quem já joga com ele continua igual.'))return;
+    if(!await confirmar('Remover o agente '+nome+'? Quem já joga com ele continua igual.','Remover'))return;
     const r=edRemoverAgente(el.dataset.agde,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
@@ -14310,8 +14351,8 @@ function ligarEventos(){
     if(!js){flash(avisoVazio);return;}
     edSaida=js;render();
   });
-  on('#edNovo',()=>{
-    if(!confirm('Isso apaga a base editada e gera um mundo novo. Continuar?'))return;
+  on('#edNovo',async()=>{
+    if(!await confirmar('Isso apaga a base editada e gera um mundo novo. Continuar?','Gerar mundo novo'))return;
     iniciarPreRun(Math.floor(Math.random()*900000)+1000);
   });
 
@@ -14329,13 +14370,13 @@ function ligarEventos(){
   bind('#cfgRostos','change',e=>{Prefs.set('rostosGerados',e.target.value);render();});
   on('#cfgApagarRuns',async()=>{
     if(!listaRuns.length){flash('Não há partidas salvas.');return;}
-    if(!confirm('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.'))return;
+    if(!await confirmar('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.','Apagar'))return;
     for(const r of listaRuns.slice())await Storage.apagar(r.id);
     await atualizarRuns();render();flash('Partidas apagadas.');
   });
   on('#cfgLimparImgs',async()=>{
     if(!Imgs.quantos()){flash('O pacote já está vazio.');return;}
-    if(!confirm('Limpar as '+Imgs.quantos()+' imagens do pacote?'))return;
+    if(!await confirmar('Limpar as '+Imgs.quantos()+' imagens do pacote?','Limpar'))return;
     await Imgs.limpar();render();flash('Pacote limpo.');
   });
 
@@ -14346,9 +14387,9 @@ function ligarEventos(){
     await atualizarRuns();render();flash(ok?'Run salva.':'Falha ao salvar — exporte o .json.');
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
-  on('#runNova',()=>{
+  on('#runNova',async()=>{
     const seed=parseInt(val('#runSeed'))||Math.floor(Math.random()*900000)+1000;
-    if(G&&G.meuTime&&!confirm('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.'))return;
+    if(G&&G.meuTime&&!await confirmar('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.','Criar mundo novo'))return;
     iniciarPreRun(seed);
   });
   on('[data-runload]',async el=>{
@@ -14357,7 +14398,7 @@ function ligarEventos(){
     tela='inicio';render();flash('Run carregada.');
   });
   on('[data-rundel]',async el=>{
-    if(!confirm('Apagar esta run definitivamente?'))return;
+    if(!await confirmar('Apagar esta run definitivamente?','Apagar'))return;
     await Storage.apagar(el.dataset.rundel);await atualizarRuns();render();
   });
   const dz=v.querySelector('#runDrop'),fi=v.querySelector('#runFile');

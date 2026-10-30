@@ -11,6 +11,41 @@ function abrir(html,wide){
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
+/* ---------- diálogo do jogo ----------
+   No lugar das janelas nativas (alert e confirm): elas quebram o visual, travam a
+   página inteira e, dentro do app de PC, dependem da webview para aparecer.
+   Fica numa camada própria acima do modal, então perguntar dentro de uma
+   ficha aberta não apaga a ficha. Devolve uma promessa: true no botão de
+   confirmar, false em cancelar, Esc ou clique fora. */
+function dialogo(o){
+  let c=$('#dialogo');
+  if(!c){c=document.createElement('div');c.id='dialogo';document.body.appendChild(c);}
+  return new Promise(res=>{
+    c.innerHTML=`<div class="ovl"><div class="box">
+      ${o.titulo?`<div class="eyebrow">${esc(o.titulo)}</div>`:''}
+      <div class="dlg-txt">${esc(o.texto||'')}</div>
+      <div class="dlg-bts">
+        ${o.nao?`<button class="btn ghost" id="dlgNao">${esc(o.nao)}</button>`:''}
+        <button class="btn" id="dlgSim">${esc(o.sim||'Entendi')}</button>
+      </div></div></div>`;
+    const sair=v=>{c.innerHTML='';document.removeEventListener('keydown',tecla,true);res(v);};
+    const tecla=e=>{
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();sair(!o.nao);}
+      else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sair(true);}
+    };
+    document.addEventListener('keydown',tecla,true);
+    const ovl=c.querySelector('.ovl');
+    ovl.onclick=e=>{e.stopPropagation();if(e.target===ovl)sair(!o.nao);};
+    c.querySelector('#dlgSim').onclick=e=>{e.stopPropagation();sair(true);};
+    const n=c.querySelector('#dlgNao');if(n)n.onclick=e=>{e.stopPropagation();sair(false);};
+    c.querySelector('#dlgSim').focus();
+  });
+}
+function avisar(texto,titulo){return dialogo({texto,titulo:titulo||'Atenção',sim:'Entendi'});}
+function confirmar(texto,sim){
+  return dialogo({texto,titulo:'Confirmar',sim:sim||'Confirmar',nao:'Cancelar'});
+}
+
 function modalJogador(id){
   const p=P(id);if(!p)return;
   const t=meu();
@@ -426,8 +461,8 @@ function modalEditarJogador(id){
   const bDel=M.querySelector('#edjFotoDel');
   if(bDel)bDel.onclick=async()=>{await Imgs.apagar(chaveFoto);modalEditarJogador(id);};
 
-  M.querySelector('#edjApagar').onclick=()=>{
-    if(!confirm('Apagar '+p.nome+' da base? Não dá para desfazer.'))return;
+  M.querySelector('#edjApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(id);
     fechar();flash(r.ok?r.msg:r.erro);
   };
@@ -629,8 +664,8 @@ function modalEditarStaff(id){
   const bd=M.querySelector('#edsFotoDel');
   if(bd)bd.onclick=async()=>{await Imgs.apagar(chave);modalEditarStaff(id);};
 
-  M.querySelector('#edsApagar').onclick=()=>{
-    if(!confirm('Apagar '+m.nome+' da base?'))return;
+  M.querySelector('#edsApagar').onclick=async()=>{
+    if(!await confirmar('Apagar '+m.nome+' da base?','Apagar'))return;
     const r=apagarStaff(id);fechar();flash(r.ok?r.msg:r.erro);
   };
   M.querySelector('#edsSalvar').onclick=async()=>{

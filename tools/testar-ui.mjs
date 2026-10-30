@@ -227,6 +227,14 @@ const $=s=>w.document.querySelector(s);
 const $$=s=>[...w.document.querySelectorAll(s)];
 const disparar=(el,tipo)=>el.dispatchEvent(new w.Event(tipo,{bubbles:true}));
 const clicar=el=>el.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
+/* O jogo pergunta pela própria janela, não por confirm(): responde a ela. */
+const responder=async(sim=true)=>{
+  await espera(0);
+  const b=w.document.querySelector(sim?'#dlgSim':'#dlgNao');
+  if(!b)throw new Error('o diálogo do jogo não abriu');
+  clicar(b);
+  await espera(10);
+};
 const corpo=()=>$('#menuCorpo')||$('#view');
 
 /* ============================================================
@@ -491,7 +499,7 @@ await teste('upload de escudo entra no pacote e vira o src',async()=>{
   t.edAba='imagens';w.render();
   if(!$$('.imgcard').length)throw new Error('aba Imagens não listou');
   clicar($('#edImgLimpar'));
-  await espera(10);
+  await responder();
   if(t.Imgs.quantos()!==0)throw new Error('limpar não esvaziou');
 });
 
@@ -590,7 +598,7 @@ await teste('aba Agentes lista, adiciona, move de função e remove',async()=>{
   if(!w.agentesDe('Sentinela').includes('Testinha'))throw new Error('não mudou de função');
   if(w.agentesDe('Duelista').includes('Testinha'))throw new Error('ficou nas duas funções');
   clicar($('[data-agdel="Testinha"]'));
-  await espera(10);
+  await responder();
   if(w.todosAgentes().some(a=>a.nome==='Testinha'))throw new Error('não removeu');
 });
 
@@ -3737,6 +3745,37 @@ await teste('o veto segue o formato do circuito em Bo1, Bo3 e Bo5',async()=>{
     if(res.seq.filter(x=>x.tipo==='dec').length!==1)throw new Error('Bo'+bo+': decider errado');
     for(const x of res.seq)if(!t.mapaAtivo(x.m))throw new Error('Bo'+bo+': '+x.m+' não está em rotação');
   }
+});
+
+await teste('nenhuma janela nativa do navegador no jogo',async()=>{
+  /* alert() e confirm() travam a página e, no app de PC, dependem da webview.
+     O jogo usa o próprio diálogo. */
+  const {readdirSync}=await import('node:fs');
+  const dir=resolve(raiz,'src/ui');
+  for(const f of readdirSync(dir).filter(x=>x.endsWith('.js'))){
+    const linhas=readFileSync(resolve(dir,f),'utf8').split('\n');
+    linhas.forEach((l,i)=>{
+      if(/^\s*(\/\*|\*)/.test(l))return;
+      if(/(^|[^.\w])(alert|confirm|prompt)\(/.test(l))
+        throw new Error(f+':'+(i+1)+' usa janela nativa: '+l.trim().slice(0,70));
+    });
+  }
+});
+
+await teste('o diálogo do jogo confirma, cancela e não apaga o modal aberto',async()=>{
+  w.abrir('<p id="fichaAberta">ficha</p>');
+  let r=w.confirmar('Apagar?','Apagar');
+  await responder(false);
+  if(await r!==false)throw new Error('cancelar não devolveu false');
+  if(!w.document.querySelector('#fichaAberta'))throw new Error('o diálogo apagou o modal de baixo');
+  r=w.confirmar('Apagar?','Apagar');
+  await responder(true);
+  if(await r!==true)throw new Error('confirmar não devolveu true');
+  r=w.avisar('Caixa insuficiente.');
+  await responder(true);
+  await r;
+  if(w.document.querySelector('#dialogo .ovl'))throw new Error('o diálogo ficou aberto');
+  w.document.querySelector('#modal').innerHTML='';
 });
 
 await teste('todo mapa jogado sai do veto com lado de início',async()=>{
