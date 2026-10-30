@@ -215,8 +215,8 @@ function vCreditos(){
     país são estimativa — os endpoints de estatística por jogador vinham vazios na coleta, então não há
     ACS nem rating de onde derivar. O prestígio do Tier 1 é calibrado pelo aproveitamento real de 2026.</p>
     <p class="dim" style="margin-top:8px">A comissão técnica real (técnicos, assistentes, analistas e
-    managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), lida em 30/10/2026, sob licença
-    CC-BY-SA 3.0. Cargo sem dado real continua gerado.</p>
+    managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), sob licença CC-BY-SA 3.0, e da
+    seção de staff do <b>vlr.gg</b>, ambas lidas em 30/10/2026. Cargo sem dado real continua gerado.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Tecnologia</div>
