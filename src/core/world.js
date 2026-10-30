@@ -168,10 +168,11 @@ function criarMundo(seedVal){
     /* O mercado tem de conversar com as duas divisões: a maioria serve ao
        Tier 2, uma minoria é opção real para o Tier 1. Sem isso o Tier 1
        fica sem nenhum reforço possível e o mercado morre. */
-    const paraT1=rnd()<0.22;
-    const alvo=paraT1?overAlvo('jogador',1,ri(58,74),3.5)
-                     :overAlvo('jogador',2,ri(45,58),3.5);
-    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(17,31),usadosP,paraT1?1:2);
+    /* gerado sem clube é promessa: over baixo, idade de base, potencial do
+       Tier 2 — ver overLivreGerado() */
+    const alvo=overLivreGerado();
+    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(16,20),usadosP,2);
+    aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
   /* a comissão precisa de todos os times já criados para semear por prestígio */

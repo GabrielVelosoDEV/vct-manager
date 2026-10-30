@@ -36,6 +36,16 @@ const PRESTIGIO_FAIXA={1:[58,86], 2:[45,58]};
 const TETO_SORTEIO=97;
 const QUANTOS_NO_TOPO={jogador:2, comissao:2};
 
+/* Jogador GERADO sem clube é promessa, não estrela pronta. Antes uma parte do
+   mercado nascia na régua do Tier 1 e aparecia regen de 90 sem clube no meio
+   dos melhores jogadores reais. Agora o teto dele fica abaixo do piso do
+   Tier 2 e o que o torna interessante é o potencial. Quem é bom e está sem
+   clube de verdade vem escrito em LIVRE, no data/elencos.js. */
+const TETO_LIVRE_GERADO=68;
+function overLivreGerado(){
+  return clamp(Math.round(gauss(60,4)),50,TETO_LIVRE_GERADO);
+}
+
 /* Posição do clube dentro da divisão, de 0 (lanterna) a 1 (topo). */
 function pesoPrestigio(tier,prestigio){
   const[pl,ph]=PRESTIGIO_FAIXA[tier]||PRESTIGIO_FAIXA[2];
@@ -256,7 +266,10 @@ function padronizarBase(opts){
     const p=G.jogadores[pid];if(!p)continue;
     const paraT1=over(p)>=FAIXAS.jogador[1][0];
     const tier=paraT1?1:2;
-    aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
+    /* real segue a régua da divisão; gerado só tem teto, nunca é empurrado
+       para cima do over de promessa */
+    if(p.real)aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
+    else if(over(p)>TETO_LIVRE_GERADO)aplicarOver(p,TETO_LIVRE_GERADO);
     if(!p.potFixo)p.pot=potencialDe(over(p),p.idade,tier);
     const agL=sortearAgentes(p.role);
     const trocouL=agL.some(a=>!(p.agentes||[]).includes(a));

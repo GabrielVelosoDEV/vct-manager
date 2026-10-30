@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/players/` com o nome exato da lista. O nome é
 nick do jogador em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-347/453 com imagem.
+349/455 com imagem.
 
 ## NRG
 
@@ -673,6 +673,8 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## Sem clube
 
+- [x] `tenz.png` — TenZ (LIVRE)
+- [x] `sacy.png` — Sacy (LIVRE)
 - [x] `eeiu.png` — eeiu (LIVRE)
 - [x] `cauanzin.png` — cauanzin (LIVRE)
 - [ ] `gsr.png` — GSR (LIVRE)
@@ -685,17 +687,17 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `thyy.png` — thyy (LIVRE)
 - [x] `leviathan.png` — Leviathan (LIVRE)
 - [x] `crws.png` — Crws (LIVRE)
-- [x] `suyjing.png` — suyjing (LIVRE)
 - [x] `cyvoph.png` — CyvOph (LIVRE)
 - [x] `filu.png` — Filu (LIVRE)
-- [x] `wayne.png` — wayne (LIVRE)
-- [x] `miradaninja.png` — MiradaNinja (LIVRE)
 - [x] `moves.png` — Moves (LIVRE)
 - [x] `zjc.png` — zjc (LIVRE)
 - [x] `green.png` — GREEN (LIVRE)
 - [x] `niffy.png` — niffy (LIVRE)
 - [x] `miniboo.png` — MiniBoo (LIVRE)
 - [x] `ft.png` — FT (LIVRE)
+- [x] `miradaninja.png` — MiradaNinja (LIVRE)
+- [x] `wayne.png` — wayne (LIVRE)
+- [x] `suyjing.png` — suyjing (LIVRE)
 - [x] `tiyosta.png` — Tiyosta (LIVRE)
 - [x] `aztex.png` — aztex (LIVRE)
 - [x] `peixeh.png` — peixeh (LIVRE)
