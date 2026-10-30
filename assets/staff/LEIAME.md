@@ -10,3 +10,5 @@ sem foto e qual arquivo não bate com ninguém. Com `--renomear` ele corrige soz
 nomes fora do padrão (maiúscula, acento, espaço).
 
 Sem arquivo, o jogo desenha um monograma. Pessoa real nunca recebe rosto gerado.
+
+A lista com o nome exato de cada arquivo que o jogo procura está em `LISTA.md`, nesta pasta.
