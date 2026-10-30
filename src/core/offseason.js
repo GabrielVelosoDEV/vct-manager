@@ -159,8 +159,9 @@ function fimDeTemporada(){
        entre 17 e 27, e o mercado se renovava com estranhos de 25 anos que
        apareciam do nada. */
     const idade=ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX);
-    const p=makePlayer(overAlvo('jogador',rnd()<0.25?1:2,ri(45,66),4),
-                       pick(ROLES),pick(R.paises),idade,usados,2);
+    const alvo=overLivreGerado();
+    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),idade,usados,2);
+    aplicarOver(p,alvo);p.pot=potencialDe(alvo,idade,2);
     p.contrato=0;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
   evoluirStaff();

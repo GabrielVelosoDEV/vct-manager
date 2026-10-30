@@ -15,7 +15,8 @@
      estava sem dono real: kaplan (M80), termi (ART), alexRr (WOL),
      KUNDIKUNDI e Mavera (M8), ENGH (FNC), pipsoN (GX), Spin (TS),
      Warbirds (RRQ), Argency (KRX), Sungmin (NS), yoman (DK), Faded
-     (NBG), PAL (JL). Os demais acréscimos são do próprio clube no vlr.
+     (NBG), PAL (JL); e, só com o nick da foto, alvez (RED), joaovictor
+     (FX), neves (2G) e phill (SAD). Os demais acréscimos são do próprio clube no vlr.
    - AURORA herdou a comissão da NAVI Junior junto com o elenco.
 
    Formato progressivo, como ELENCOS_REAIS:
@@ -91,11 +92,15 @@ ENVY:[['Stunner','Head Coach','Dakota MacLeod','CA'],
 SRB:[['effys','Head Coach','Loic Sauvageau','CA'],
      ['oderus','Assistant Coach','Chad Miller','US'],
      ['lyka','Manager','Angelika Alda','CA']],
-RED:[['DRAGziKW','Head Coach','Elias Santiles','BR']],
-FX:[['stkJ','Coach','Jordan Nunes','BR']],
-'2G':[['gaabxx','Head Coach','Gabriel Carli','BR']],
+RED:[['DRAGziKW','Head Coach','Elias Santiles','BR'],
+     ['alvez','Assistant Coach','','']],
+FX:[['stkJ','Coach','Jordan Nunes','BR'],
+    ['joaovictor','Assistant Coach','','']],
+'2G':[['gaabxx','Head Coach','Gabriel Carli','BR'],
+      ['neves','Assistant Coach','','']],
 SAD:[['mikey','Head Coach','','US'],
-     ['kaitlynxe','Manager','Kaitlyn Perkovic','US']],
+     ['kaitlynxe','Manager','Kaitlyn Perkovic','US'],
+     ['phill','Assistant Coach','','']],
 NBG:[['practo','Assistant Coach','Christopher Ryu','KR'],
      ['mas','Staff','Michael Smith','US'],
      ['Faded','Head Coach','Daniel Hwang','US']],

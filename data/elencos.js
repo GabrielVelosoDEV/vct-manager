@@ -1,7 +1,7 @@
 /* ============================================================
    ELENCOS DE PARTIDA — exportado do Editor em 2026-08-29
    ------------------------------------------------------------
-   453 jogadores, todos no formato completo:
+   455 jogadores, todos no formato completo:
      ['nick','Função',over,idade,'PA']
    Em LIVRE pode vir um sexto campo, o potencial: é o que faz a jovem
    promessa sem clube nascer com teto alto e o veterano não.
@@ -444,8 +444,10 @@ VLG:[['Nana','Duelista',75,26,'KR'],
      ['Yunni','Flex',69,20,'CN']],
 
 /* ---------------- Sem clube ---------------- */
-LIVRE:[['eeiu','Iniciador',76,24,'US'],
-       ['cauanzin','Duelista',74,21,'BR'],
+LIVRE:[['TenZ','Duelista',86,25,'CA'],
+       ['Sacy','Iniciador',84,29,'BR'],
+       ['eeiu','Iniciador',83,24,'US'],
+       ['cauanzin','Duelista',80,21,'BR'],
        ['GSR','Flex',75,26,'SE'],
        ['sheydos','Controlador',75,26,'RU'],
        ['Shao','Iniciador',74,25,'RU'],
@@ -456,17 +458,17 @@ LIVRE:[['eeiu','Iniciador',76,24,'US'],
        ['thyy','Flex',69,22,'AU'],
        ['Leviathan','Flex',69,24,'PH'],
        ['Crws','Iniciador',75,29,'TH'],
-       ['suyjing','Flex',75,28,'CN'],
        ['CyvOph','Flex',76,27,'FR'],
        ['Filu','Duelista',75,27,'PL'],
-       ['wayne','Controlador',74,27,'SG'],
-       ['MiradaNinja','Sentinela',74,27,'CL'],
-       ['Moves','Iniciador',74,26,'KR'],
+       ['Moves','Iniciador',74,27,'KR'],
        ['zjc','Iniciador',74,26,'CN'],
-       ['GREEN','Duelista',73,26,'TW'],
+       ['GREEN','Duelista',73,27,'TW'],
        ['niffy','Duelista',73,26,'TH'],
-       ['MiniBoo','Duelista',73,20,'LT',90],
-       ['FT','Controlador',72,19,'CN',89],
+       ['MiniBoo','Duelista',74,26,'LT'],
+       ['FT','Controlador',73,26,'CN'],
+       ['MiradaNinja','Sentinela',72,20,'CL',89],
+       ['wayne','Controlador',72,20,'SG',89],
+       ['suyjing','Flex',72,20,'CN',88],
        ['Tiyosta','Sentinela',71,19,'TR',88],
        ['aztex','Controlador',71,18,'BR',90],
        ['peixeh','Controlador',70,18,'BR',89],

@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/staff/` com o nome exato da lista. O nome é o
 nick da pessoa em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-152/218 com imagem.
+156/222 com imagem.
 
 ## SEN
 
@@ -116,19 +116,23 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## RED
 
 - [x] `dragzikw.png` — DRAGziKW (RED, Head Coach)
+- [x] `alvez.png` — alvez (RED, Assistant Coach)
 
 ## FX
 
 - [x] `stkj.png` — stkJ (FX, Coach)
+- [x] `joaovictor.png` — joaovictor (FX, Assistant Coach)
 
 ## 2G
 
 - [x] `gaabxx.png` — gaabxx (2G, Head Coach)
+- [x] `neves.png` — neves (2G, Assistant Coach)
 
 ## SAD
 
 - [ ] `mikey.png` — mikey (SAD, Head Coach)
 - [ ] `kaitlynxe.png` — kaitlynxe (SAD, Manager)
+- [x] `phill.png` — phill (SAD, Assistant Coach)
 
 ## NBG
 

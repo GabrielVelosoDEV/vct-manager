@@ -859,7 +859,7 @@ const TIMES_REAIS={
 /* ============================================================
    ELENCOS DE PARTIDA — exportado do Editor em 2026-08-29
    ------------------------------------------------------------
-   453 jogadores, todos no formato completo:
+   455 jogadores, todos no formato completo:
      ['nick','Função',over,idade,'PA']
    Em LIVRE pode vir um sexto campo, o potencial: é o que faz a jovem
    promessa sem clube nascer com teto alto e o veterano não.
@@ -1302,8 +1302,10 @@ VLG:[['Nana','Duelista',75,26,'KR'],
      ['Yunni','Flex',69,20,'CN']],
 
 /* ---------------- Sem clube ---------------- */
-LIVRE:[['eeiu','Iniciador',76,24,'US'],
-       ['cauanzin','Duelista',74,21,'BR'],
+LIVRE:[['TenZ','Duelista',86,25,'CA'],
+       ['Sacy','Iniciador',84,29,'BR'],
+       ['eeiu','Iniciador',83,24,'US'],
+       ['cauanzin','Duelista',80,21,'BR'],
        ['GSR','Flex',75,26,'SE'],
        ['sheydos','Controlador',75,26,'RU'],
        ['Shao','Iniciador',74,25,'RU'],
@@ -1314,17 +1316,17 @@ LIVRE:[['eeiu','Iniciador',76,24,'US'],
        ['thyy','Flex',69,22,'AU'],
        ['Leviathan','Flex',69,24,'PH'],
        ['Crws','Iniciador',75,29,'TH'],
-       ['suyjing','Flex',75,28,'CN'],
        ['CyvOph','Flex',76,27,'FR'],
        ['Filu','Duelista',75,27,'PL'],
-       ['wayne','Controlador',74,27,'SG'],
-       ['MiradaNinja','Sentinela',74,27,'CL'],
-       ['Moves','Iniciador',74,26,'KR'],
+       ['Moves','Iniciador',74,27,'KR'],
        ['zjc','Iniciador',74,26,'CN'],
-       ['GREEN','Duelista',73,26,'TW'],
+       ['GREEN','Duelista',73,27,'TW'],
        ['niffy','Duelista',73,26,'TH'],
-       ['MiniBoo','Duelista',73,20,'LT',90],
-       ['FT','Controlador',72,19,'CN',89],
+       ['MiniBoo','Duelista',74,26,'LT'],
+       ['FT','Controlador',73,26,'CN'],
+       ['MiradaNinja','Sentinela',72,20,'CL',89],
+       ['wayne','Controlador',72,20,'SG',89],
+       ['suyjing','Flex',72,20,'CN',88],
        ['Tiyosta','Sentinela',71,19,'TR',88],
        ['aztex','Controlador',71,18,'BR',90],
        ['peixeh','Controlador',70,18,'BR',89],
@@ -1353,7 +1355,8 @@ LIVRE:[['eeiu','Iniciador',76,24,'US'],
      estava sem dono real: kaplan (M80), termi (ART), alexRr (WOL),
      KUNDIKUNDI e Mavera (M8), ENGH (FNC), pipsoN (GX), Spin (TS),
      Warbirds (RRQ), Argency (KRX), Sungmin (NS), yoman (DK), Faded
-     (NBG), PAL (JL). Os demais acréscimos são do próprio clube no vlr.
+     (NBG), PAL (JL); e, só com o nick da foto, alvez (RED), joaovictor
+     (FX), neves (2G) e phill (SAD). Os demais acréscimos são do próprio clube no vlr.
    - AURORA herdou a comissão da NAVI Junior junto com o elenco.
 
    Formato progressivo, como ELENCOS_REAIS:
@@ -1429,11 +1432,15 @@ ENVY:[['Stunner','Head Coach','Dakota MacLeod','CA'],
 SRB:[['effys','Head Coach','Loic Sauvageau','CA'],
      ['oderus','Assistant Coach','Chad Miller','US'],
      ['lyka','Manager','Angelika Alda','CA']],
-RED:[['DRAGziKW','Head Coach','Elias Santiles','BR']],
-FX:[['stkJ','Coach','Jordan Nunes','BR']],
-'2G':[['gaabxx','Head Coach','Gabriel Carli','BR']],
+RED:[['DRAGziKW','Head Coach','Elias Santiles','BR'],
+     ['alvez','Assistant Coach','','']],
+FX:[['stkJ','Coach','Jordan Nunes','BR'],
+    ['joaovictor','Assistant Coach','','']],
+'2G':[['gaabxx','Head Coach','Gabriel Carli','BR'],
+      ['neves','Assistant Coach','','']],
 SAD:[['mikey','Head Coach','','US'],
-     ['kaitlynxe','Manager','Kaitlyn Perkovic','US']],
+     ['kaitlynxe','Manager','Kaitlyn Perkovic','US'],
+     ['phill','Assistant Coach','','']],
 NBG:[['practo','Assistant Coach','Christopher Ryu','KR'],
      ['mas','Staff','Michael Smith','US'],
      ['Faded','Head Coach','Daniel Hwang','US']],
@@ -2187,6 +2194,7 @@ const MIDIA={
     'players/ruxic':'png',
     'players/s1mon':'png',
     'players/saadhak':'png',
+    'players/sacy':'png',
     'players/sanoj':'png',
     'players/satellite':'png',
     'players/sato':'png',
@@ -2232,6 +2240,7 @@ const MIDIA={
     'players/t3xture':'png',
     'players/tacolilla':'png',
     'players/takas':'png',
+    'players/tenz':'png',
     'players/tex':'png',
     'players/thyy':'png',
     'players/timotino':'png',
@@ -2583,6 +2592,16 @@ const PRESTIGIO_FAIXA={1:[58,86], 2:[45,58]};
 const TETO_SORTEIO=97;
 const QUANTOS_NO_TOPO={jogador:2, comissao:2};
 
+/* Jogador GERADO sem clube é promessa, não estrela pronta. Antes uma parte do
+   mercado nascia na régua do Tier 1 e aparecia regen de 90 sem clube no meio
+   dos melhores jogadores reais. Agora o teto dele fica abaixo do piso do
+   Tier 2 e o que o torna interessante é o potencial. Quem é bom e está sem
+   clube de verdade vem escrito em LIVRE, no data/elencos.js. */
+const TETO_LIVRE_GERADO=68;
+function overLivreGerado(){
+  return clamp(Math.round(gauss(60,4)),50,TETO_LIVRE_GERADO);
+}
+
 /* Posição do clube dentro da divisão, de 0 (lanterna) a 1 (topo). */
 function pesoPrestigio(tier,prestigio){
   const[pl,ph]=PRESTIGIO_FAIXA[tier]||PRESTIGIO_FAIXA[2];
@@ -2803,7 +2822,10 @@ function padronizarBase(opts){
     const p=G.jogadores[pid];if(!p)continue;
     const paraT1=over(p)>=FAIXAS.jogador[1][0];
     const tier=paraT1?1:2;
-    aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
+    /* real segue a régua da divisão; gerado só tem teto, nunca é empurrado
+       para cima do over de promessa */
+    if(p.real)aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
+    else if(over(p)>TETO_LIVRE_GERADO)aplicarOver(p,TETO_LIVRE_GERADO);
     if(!p.potFixo)p.pot=potencialDe(over(p),p.idade,tier);
     const agL=sortearAgentes(p.role);
     const trocouL=agL.some(a=>!(p.agentes||[]).includes(a));
@@ -3668,10 +3690,11 @@ function criarMundo(seedVal){
     /* O mercado tem de conversar com as duas divisões: a maioria serve ao
        Tier 2, uma minoria é opção real para o Tier 1. Sem isso o Tier 1
        fica sem nenhum reforço possível e o mercado morre. */
-    const paraT1=rnd()<0.22;
-    const alvo=paraT1?overAlvo('jogador',1,ri(58,74),3.5)
-                     :overAlvo('jogador',2,ri(45,58),3.5);
-    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(17,31),usadosP,paraT1?1:2);
+    /* gerado sem clube é promessa: over baixo, idade de base, potencial do
+       Tier 2 — ver overLivreGerado() */
+    const alvo=overLivreGerado();
+    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(16,20),usadosP,2);
+    aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
   /* a comissão precisa de todos os times já criados para semear por prestígio */
@@ -8283,8 +8306,9 @@ function fimDeTemporada(){
        entre 17 e 27, e o mercado se renovava com estranhos de 25 anos que
        apareciam do nada. */
     const idade=ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX);
-    const p=makePlayer(overAlvo('jogador',rnd()<0.25?1:2,ri(45,66),4),
-                       pick(ROLES),pick(R.paises),idade,usados,2);
+    const alvo=overLivreGerado();
+    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),idade,usados,2);
+    aplicarOver(p,alvo);p.pot=potencialDe(alvo,idade,2);
     p.contrato=0;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
   evoluirStaff();
