@@ -284,6 +284,8 @@ function posturaDoClube(p){
   const r=(id,motivo)=>({id,...POSTURAS[id],motivo});
   if(p.anuncio)return r('avenda','O próprio clube colocou o jogador no mercado.');
   if(p.emprestimo)return r('intransferivel','Está emprestado: o clube dono decide no fim do empréstimo.');
+  if(typeof emCrise==='function'&&emCrise(t))return r('avenda','Clube em crise ('+t.crise.motivo+'): liquidação do elenco.');
+  if(p.pedidoSaida&&!p.pedidoSaida.negado)return r('avenda','Pediu para ser negociado.');
   if(titular&&rank>=0&&rank<2&&p.contrato>=2&&!apertado)
     return r('intransferivel','Um dos dois melhores do elenco, com contrato longo.');
   if(apertado)return r('avenda','O clube precisa de caixa e aceita menos.');
@@ -301,7 +303,9 @@ function precoPedido(p){
   const base=p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:pedidoDeVenda(p);
   /* "à venda" por elenco cheio ou jogador infeliz baixa o preço; o desconto
      do clube sem caixa já mora em pedidoDeVenda */
-  const desc=ps.id==='avenda'&&!p.anuncio&&!(G.times[p.timeId].caixa<G.times[p.timeId].patroc*0.15)?0.88:1;
+  const dono=G.times[p.timeId];
+  const desc=typeof emCrise==='function'&&emCrise(dono)&&!p.anuncio?CRISE_DESCONTO
+    :ps.id==='avenda'&&!p.anuncio&&!(dono.caixa<dono.patroc*0.15)?0.88:1;
   return Math.min(multaDe(p),Math.round(base*desc/500)*500);
 }
 
@@ -474,11 +478,13 @@ function tentarReforco(t,candidatos){
   const viaMulta=origem&&esc.taxa>=multaDe(esc.p);
   if(origem&&!viaMulta){
     const titular=(origem.titulares||[]).includes(esc.p.id);
-    const apertado=origem.caixa<origem.patroc*0.2;
+    const apertado=origem.caixa<origem.patroc*0.2||(typeof emCrise==='function'&&emCrise(origem));
     if(titular&&!apertado&&origem.elenco.length<=5)return null;
     if(titular&&!apertado&&rnd()<0.45)return null;
   }
   executarProposta(esc.p,t,esc.taxa,esc.d.pedido,ri(2,3));
+  /* jovem vendido entre clubes da IA às vezes leva revenda junto */
+  if(origem&&esc.taxa>0&&esc.p.idade<=21&&typeof fixarRevenda==='function'&&rnd()<0.25)fixarRevenda(esc.p,origem.id,10);
   return esc;
 }
 

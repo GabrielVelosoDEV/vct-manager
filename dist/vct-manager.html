@@ -830,6 +830,36 @@ tr.descansa td{opacity:.62}
 .troca-nome .dim{font-size:11px}
 @media (max-width:820px){.troca-palco{grid-template-columns:1fr}}
 
+/* ---------- mercado vivo ---------- */
+.merc-prazo{margin:8px 0 12px;padding:10px 14px;border:1px solid var(--red);background:linear-gradient(90deg,rgba(255,70,85,.18),transparent);animation:prazoPulso 1.6s ease-in-out infinite}
+@keyframes prazoPulso{50%{box-shadow:0 0 0 3px rgba(255,70,85,.18)}}
+.prop-card{display:grid;grid-template-columns:270px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.prop-card:first-of-type{border-top:0}
+.prop-card.multa{background:linear-gradient(90deg,rgba(255,70,85,.10),transparent 60%)}
+.prop-jog{display:flex;gap:10px;align-items:flex-start}
+.prop-jog .dim{font-size:12px}
+.prop-alerta{margin-top:6px;font-size:12px;color:var(--red);font-weight:600}
+.prop-lista{display:flex;flex-direction:column;gap:6px}
+.prop-linha{display:grid;grid-template-columns:30px minmax(120px,1.2fr) 1.3fr 1fr 90px 52px auto;gap:10px;align-items:center;padding:8px 10px;background:var(--bg2,rgba(255,255,255,.03));border:1px solid var(--line)}
+.prop-linha.multa{border-color:var(--red)}
+.prop-clube{display:flex;flex-direction:column;line-height:1.2}
+.prop-clube .dim{font-size:11px}
+.prop-valor{display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.prop-valor .dim{font-size:11px}
+.prop-sal,.prop-prazo{text-align:right;font-size:12px}
+.prop-bts{display:flex;gap:6px;justify-content:flex-end}
+.leilao-palco{display:flex;gap:18px;align-items:flex-start;margin:6px 0 14px}
+.leilao-lances{flex:1;display:flex;flex-direction:column;gap:6px}
+.leilao-lance{display:flex;gap:10px;align-items:center;padding:7px 10px;border:1px solid var(--line);opacity:0;animation:lanceEntra .3s ease forwards}
+.leilao-lance span{flex:1}
+.leilao-lance.fora{opacity:0;color:var(--muted,#8a93a3)}
+.leilao-lance.fora span{text-decoration:line-through}
+.leilao-lance.vence{border-color:var(--teal,#2ec4a6);background:rgba(46,196,166,.10)}
+.leilao-fim{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--teal,#2ec4a6);margin-bottom:8px;opacity:0;animation:lanceEntra .4s ease forwards}
+@keyframes lanceEntra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:900px){.prop-card{grid-template-columns:1fr}.prop-linha{grid-template-columns:30px 1fr auto;}.prop-tipo,.prop-sal,.prop-prazo{display:none}}
+.leilao-lances{max-height:420px;overflow-y:auto}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -7611,6 +7641,7 @@ function fimDeBloco(b){
       R.pontos[sobe]=R.pontos[sobe]||0;
       G.times[sobe].prestigio=clamp(G.times[sobe].prestigio+6,20,99);
       G.times[ult].prestigio=clamp(G.times[ult].prestigio-8,20,99);
+      if(typeof declararCrise==='function')declararCrise(G.times[ult],'rebaixado');
       noticia('⬆ '+G.times[sobe].nome+' subiu para a liga principal · ⬇ '+G.times[ult].nome+' foi rebaixado.',{c:'competicoes',t:[sobe,ult],imp:2});
     });
   }
@@ -7818,6 +7849,9 @@ function semana(){
   if(typeof gerarPropostas==='function')gerarPropostas();
   /* último ano de contrato: clubes sondam e assinam pré-contrato com os seus */
   if(typeof rondaPreContratos==='function')rondaPreContratos();
+  /* mercado vivo: propostas sem anúncio, multa paga, pedidos de saída, a IA
+     negociando entre si e o último dia da janela */
+  if(typeof mercadoVivo==='function')mercadoVivo();
   /* O patch da Riot cai na semana marcada, depois de o mundo ter jogado com o
      meta antigo — assim o nerf responde ao uso da temporada. */
   if(typeof patchDaSemana==='function')patchDaSemana();
@@ -7945,7 +7979,7 @@ function contratar(p,time,anos,sal){
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
-  delete p.multa;delete p.sondado;
+  delete p.multa;delete p.sondado;delete p.pedidoSaida;delete p.semInfeliz;
   if(p.preContrato&&p.preContrato.clubeId!==time.id)delete p.preContrato;
   if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
@@ -8365,6 +8399,8 @@ function posturaDoClube(p){
   const r=(id,motivo)=>({id,...POSTURAS[id],motivo});
   if(p.anuncio)return r('avenda','O próprio clube colocou o jogador no mercado.');
   if(p.emprestimo)return r('intransferivel','Está emprestado: o clube dono decide no fim do empréstimo.');
+  if(typeof emCrise==='function'&&emCrise(t))return r('avenda','Clube em crise ('+t.crise.motivo+'): liquidação do elenco.');
+  if(p.pedidoSaida&&!p.pedidoSaida.negado)return r('avenda','Pediu para ser negociado.');
   if(titular&&rank>=0&&rank<2&&p.contrato>=2&&!apertado)
     return r('intransferivel','Um dos dois melhores do elenco, com contrato longo.');
   if(apertado)return r('avenda','O clube precisa de caixa e aceita menos.');
@@ -8382,7 +8418,9 @@ function precoPedido(p){
   const base=p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:pedidoDeVenda(p);
   /* "à venda" por elenco cheio ou jogador infeliz baixa o preço; o desconto
      do clube sem caixa já mora em pedidoDeVenda */
-  const desc=ps.id==='avenda'&&!p.anuncio&&!(G.times[p.timeId].caixa<G.times[p.timeId].patroc*0.15)?0.88:1;
+  const dono=G.times[p.timeId];
+  const desc=typeof emCrise==='function'&&emCrise(dono)&&!p.anuncio?CRISE_DESCONTO
+    :ps.id==='avenda'&&!p.anuncio&&!(dono.caixa<dono.patroc*0.15)?0.88:1;
   return Math.min(multaDe(p),Math.round(base*desc/500)*500);
 }
 
@@ -8555,11 +8593,13 @@ function tentarReforco(t,candidatos){
   const viaMulta=origem&&esc.taxa>=multaDe(esc.p);
   if(origem&&!viaMulta){
     const titular=(origem.titulares||[]).includes(esc.p.id);
-    const apertado=origem.caixa<origem.patroc*0.2;
+    const apertado=origem.caixa<origem.patroc*0.2||(typeof emCrise==='function'&&emCrise(origem));
     if(titular&&!apertado&&origem.elenco.length<=5)return null;
     if(titular&&!apertado&&rnd()<0.45)return null;
   }
   executarProposta(esc.p,t,esc.taxa,esc.d.pedido,ri(2,3));
+  /* jovem vendido entre clubes da IA às vezes leva revenda junto */
+  if(origem&&esc.taxa>0&&esc.p.idade<=21&&typeof fixarRevenda==='function'&&rnd()<0.25)fixarRevenda(esc.p,origem.id,10);
   return esc;
 }
 
@@ -8776,7 +8816,7 @@ function _encerrar(n,quem){
 
 /* ---------- 1. conversa com o clube ---------- */
 /* Devolve {ok, resposta:'aceita'|'contra'|'recusa'|'encerrada', valor, erro} */
-function proporAoClube(n,taxa){
+function proporAoClube(n,taxa,revenda){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
   if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
@@ -8785,16 +8825,19 @@ function proporAoClube(n,taxa){
   const ps=posturaDoClube(p);
   const multa=multaDe(p);
   const preco=precoPedido(p);
-  _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+'.',{valor:taxa});
+  revenda=(typeof REVENDA_OPCOES!=='undefined'&&REVENDA_OPCOES.includes(+revenda))?+revenda:0;
+  _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+(revenda?', mais '+revenda+'% de uma venda futura':'')+'.',{valor:taxa});
   if(taxa>=multa)return pagarMulta(n,true);
   const minimo=ps.id==='intransferivel'?multa:_arred(preco*_ocultoClube(p,dest),500);
-  if(taxa>=minimo){
-    n.taxa=taxa;n.fase='jogador';
-    _fala(n,'clube','Fechado: '+dinheiro(taxa)+'. Podem falar com o jogador.');
+  /* a revenda vale dinheiro para quem vende: a oferta conta como maior */
+  const equiv=revenda&&ps.id!=='intransferivel'?taxa*(1+revenda/100*pesoRevenda(p)):taxa;
+  if(equiv>=minimo){
+    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';
+    _fala(n,'clube','Fechado: '+dinheiro(taxa)+(revenda?' e '+revenda+'% de revenda':'')+'. Podem falar com o jogador.');
     _abrirJogador(n);
     return{ok:true,resposta:'aceita',valor:taxa};
   }
-  const ofensa=taxa<preco*NEG_OFENSA;
+  const ofensa=equiv<preco*NEG_OFENSA;
   n.pacClube-=ofensa?2:1;
   if(n.pacClube<=0){
     _fala(n,'clube',ofensa?'Isso é uma piada. Não temos mais o que conversar.':'Não chegamos a um acordo.');
@@ -8806,7 +8849,7 @@ function proporAoClube(n,taxa){
     return{ok:true,resposta:'recusa',valor:multa};
   }
   /* a contraproposta anda na sua direção, mas nunca abaixo do mínimo dele */
-  n.pedidaClube=Math.max(minimo,_arred(n.pedidaClube-(n.pedidaClube-taxa)*0.35,5000));
+  n.pedidaClube=Math.max(minimo,_arred(n.pedidaClube-(n.pedidaClube-equiv)*0.35,5000));
   _fala(n,'clube',(ofensa?'Proposta muito abaixo do que ele vale. ':'')+'Aceitamos '+dinheiro(n.pedidaClube)+'.',{valor:n.pedidaClube});
   return{ok:true,resposta:'contra',valor:n.pedidaClube};
 }
@@ -8970,6 +9013,7 @@ function concluirNegociacao(n,oferta,a){
   /* quem chega empolgado chega motivado */
   if(empolgado)p.moral=clamp(p.moral+0.05,0.05,1);
   registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
+  if(origem&&n.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,n.revenda);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
     (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',
     {c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id],imp:over(p)>=88||n.viaMulta?2:1});
@@ -9039,6 +9083,7 @@ function cumprirPreContrato(p){
 /* Registro do mercado, para a Central e as notícias de maiores negócios. */
 function registrarTransferencia(p,origem,dest,taxa,tipo){
   G.transferencias=G.transferencias||[];
+  if(tipo!=='troca'&&tipo!=='emprestimo'&&typeof pagarRevenda==='function')pagarRevenda(p,origem,dest,taxa);
   G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
     de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
   /* só as últimas temporadas: o save não precisa carregar a história inteira */
@@ -9291,6 +9336,396 @@ function executarTrocaIA(pr){
   if(!a.jogadoresAceitam)return{ok:false,erro:Object.values(a.reacoes).find(r=>!r.ok).txt};
   executarTroca(n,a);
   return{ok:true,msg:p.nome+' trocado por '+q.nome+(pr.taxa?' mais '+dinheiro(pr.taxa):'')+'.'};
+}
+
+
+/* ===== src/core/mercadovivo.js ===== */
+/* ============================================================
+   MERCADO VIVO
+   ------------------------------------------------------------
+   Até aqui o mercado só se mexia quando você mexia: anunciou,
+   chegou proposta; não anunciou, ninguém olhava. No mundo real o
+   telefone toca sozinho. Este módulo junta o que faz o mercado
+   respirar durante a janela:
+
+   - propostas espontâneas pelos seus jogadores, sem anúncio;
+   - multa paga pela IA: o clube não pode recusar, só o jogador;
+   - pedido de transferência de quem está infeliz;
+   - leilão quando dois ou mais clubes querem o mesmo jogador;
+   - clube em crise (rebaixado ou devendo) vira liquidação;
+   - percentual de revenda, que segue o jogador para a próxima venda;
+   - empréstimo pedido por você, na mesa;
+   - último dia da janela, com tudo mais acelerado;
+   - a IA negocia entre si durante a janela, com o mesmo motor.
+
+   Tudo usa as mesmas peças das etapas anteriores: interessePor,
+   posturaDoClube, precoPedido e tentarReforco.
+   ============================================================ */
+
+/* Chance semanal, por jogador seu, de chegar proposta sem anúncio. Sobe com
+   o over: estrela recebe ligação toda janela, reserva quase nunca. */
+const ESPONTANEA_BASE=0.09;
+const ESPONTANEA_POR_OVER=0.025;    /* por ponto de over acima de 75 */
+const ESPONTANEA_MAX=0.45;
+/* A IA só paga multa por um salto grande no time dela, e com folga no caixa. */
+const MULTA_IA_GANHO=6;
+const MULTA_IA_CAIXA=0.6;
+const PRAZO_MULTA=2;
+/* Aumento que você oferece para segurar quem teve a multa paga. */
+const SEGURAR_AUMENTO=0.25;
+/* Pedido de transferência: semanas infeliz antes de pedir, e a chance por semana. */
+const PEDIDO_SEMANAS=4, PEDIDO_MORAL=0.35, PEDIDO_CHANCE=0.25;
+/* Clube em crise vende com desconto, durante as próximas janelas. */
+const CRISE_DESCONTO=0.80, CRISE_SEMANAS=34;
+/* Revenda: o que cada ponto percentual vale para quem vende agora. Jovem
+   vale mais, porque a próxima venda tende a ser maior. */
+const REVENDA_OPCOES=[0,10,20];
+function pesoRevenda(p){return p.idade<=22?0.9:0.5;}
+/* IA durante a janela: chance por semana de cada clube tentar um reforço. */
+const IA_JANELA_CHANCE=0.05, IA_PRAZO_FINAL=0.14;
+
+/* ---------- último dia da janela ---------- */
+function ultimoDiaDaJanela(){
+  if(!G||!G.janela)return false;
+  return TEMPORADA.some(b=>b.janela&&b.fim===G.semana);
+}
+
+/* ---------- crise ---------- */
+function emCrise(t){
+  return !!(t&&t.crise&&_semanaNeg()<=t.crise.ate);
+}
+function declararCrise(t,motivo){
+  if(!t)return;
+  t.crise={motivo,ate:_semanaNeg()+CRISE_SEMANAS};
+  if(t.id===G.meuTime){
+    noticia('📉 '+t.nome+' entrou em crise ('+motivo+'). Os outros clubes vão chegar com propostas mais baixas, e os ambiciosos podem pedir para sair.',{c:'mercado',t:[t.id],imp:2});
+    /* quem é bom demais para a situação pede para sair */
+    t.elenco.map(i=>G.jogadores[i]).filter(p=>p&&!p.emprestimo&&over(p)>=78&&perfilDe(p)!=='leal')
+      .forEach(p=>abrirPedidoSaida(p,'O clube está em crise ('+motivo+') e ele quer jogar mais alto.'));
+  }else{
+    noticia('🏷 '+t.nome+' está em crise ('+motivo+') e abre liquidação do elenco.',{c:'mercado',t:[t.id]});
+  }
+}
+/* Virada de temporada: quem terminou no vermelho também entra. */
+function conferirCrises(){
+  for(const id in G.times){
+    const t=G.times[id];
+    if(t.caixa<0&&!emCrise(t))declararCrise(t,'dívidas');
+  }
+}
+
+/* ---------- pedido de transferência ---------- */
+function abrirPedidoSaida(p,motivo){
+  if(!p||!p.timeId||p.pedidoSaida||p.emprestimo||p.preContrato)return false;
+  p.pedidoSaida={ano:G.ano,semana:G.semana,motivo};
+  if(p.timeId===G.meuTime)
+    noticia('✋ '+p.nome+' pediu para ser negociado. '+motivo,{c:'mercado',p:[p.id],imp:2});
+  return true;
+}
+function aceitarPedidoSaida(p){
+  if(!p||!p.pedidoSaida)return{ok:false,erro:'Ele não pediu para sair.'};
+  const r=anunciarJogador(p,'venda',false,pedidoDeVenda(p));
+  if(!r.ok)return r;
+  p.pedidoSaida.aceito=true;delete p.pedidoSaida.negado;
+  p.moral=clamp(p.moral+0.06,0.05,1);
+  return{ok:true,msg:p.nome+' foi colocado à venda, como ele pediu.'};
+}
+function negarPedidoSaida(p){
+  if(!p||!p.pedidoSaida)return{ok:false,erro:'Ele não pediu para sair.'};
+  p.pedidoSaida.negado=true;
+  p.moral=clamp(p.moral-0.08,0.05,1);
+  return{ok:true,msg:p.nome+' fica. Ele não gostou.'};
+}
+/* Semanal, o ano inteiro: quem está infeliz há semanas pede para sair; quem
+   teve o pedido negado e voltou a sorrir desiste. */
+function rondaPedidosSaida(){
+  const t=G.times[G.meuTime];if(!t)return;
+  for(const pid of t.elenco){
+    const p=G.jogadores[pid];if(!p)continue;
+    if(p.moral<PEDIDO_MORAL)p.semInfeliz=(p.semInfeliz||0)+1;else delete p.semInfeliz;
+    if(p.pedidoSaida){
+      if(p.pedidoSaida.negado){
+        p.moral=clamp(p.moral-0.01,0.05,1);
+        if(p.moral>0.6){delete p.pedidoSaida;noticia('🙂 '+p.nome+' desistiu de sair.',{c:'mercado',p:[p.id]});}
+      }
+      continue;
+    }
+    if((p.semInfeliz||0)>=PEDIDO_SEMANAS&&rnd()<PEDIDO_CHANCE)
+      abrirPedidoSaida(p,'Está insatisfeito há semanas.');
+  }
+}
+
+/* ---------- propostas espontâneas e multa paga ---------- */
+function chanceEspontanea(p){
+  let c=ESPONTANEA_BASE+Math.max(0,over(p)-75)*ESPONTANEA_POR_OVER;
+  if(p.pedidoSaida&&!p.pedidoSaida.negado)c*=2.5;
+  if(ultimoDiaDaJanela())c*=2;
+  return Math.min(ESPONTANEA_MAX,c);
+}
+function propostasEspontaneas(){
+  if(!G.janela)return 0;
+  const eu=G.times[G.meuTime];if(!eu)return 0;
+  G.propostas=G.propostas||[];
+  let novas=0;
+  for(const pid of eu.elenco){
+    const p=G.jogadores[pid];
+    if(!p||p.anuncio||p.emprestimo||p.preContrato||p.base)continue;
+    if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR)continue;
+    if(rnd()>chanceEspontanea(p))continue;
+    const cand=Object.values(G.times).filter(t=>t.id!==eu.id)
+      .map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0&&!propostasDe(p.id).some(y=>y.clubeId===x.t.id))
+      .sort((a,b)=>b.n-a.n);
+    if(!cand.length)continue;
+    /* até três clubes tentam, do mais interessado para baixo: quem mais
+       precisa nem sempre tem caixa ou folha para bancar */
+    let pr=null,alvo=null;
+    for(let k=0;k<3&&!pr&&cand.length;k++){
+      const i=Math.min(cand.length-1,Math.floor(Math.pow(rnd(),1.8)*cand.length));
+      alvo=cand[i].t;pr=montarEspontanea(p,alvo,cand[i].n);cand.splice(i,1);
+    }
+    if(!pr)continue;
+    G.propostas.push(pr);novas++;
+    noticia(pr.tipo==='multa'
+      ?'💥 '+alvo.nome+' pagou a multa rescisória de '+p.nome+' ('+money(pr.taxa)+'). Você não pode recusar: só ele decide.'
+      :'📞 '+alvo.nome+' ligou por '+p.nome+', que nem estava à venda: '+money(pr.taxa)+(pr.revenda?' e '+pr.revenda+'% de revenda':'')+'.',
+      {c:'mercado',p:[p.id],t:[alvo.id],imp:pr.tipo==='multa'?2:1});
+  }
+  return novas;
+}
+function montarEspontanea(p,alvo,ganho){
+  const eu=G.times[p.timeId];
+  if(alvo.elenco.length>=ELENCO_MAX)return null;
+  const sal=salarioPedido(p,alvo);
+  if(sal>folgaSalarial(alvo)*1.1)return null;
+  const multa=multaDe(p), ps=posturaDoClube(p);
+  const teto=Math.max(0,alvo.caixa*TETO_TAXA);
+  /* multa: o salto precisa ser grande, o caixa precisa aguentar, e o jogador
+     precisa preferir ir */
+  if(ganho>=MULTA_IA_GANHO&&alvo.caixa*MULTA_IA_CAIXA>=multa
+     &&interessePor(p,alvo).nota>=interesseEmFicar(p,eu).nota+5){
+    return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'multa',taxa:multa,
+           salario:Math.round(sal),anos:ri(2,4),opcaoCompra:0,prazo:PRAZO_MULTA,espontanea:true};
+  }
+  if(ps.id==='intransferivel'&&rnd()<0.6)return null;
+  const preco=precoPedido(p);
+  let oferta=Math.round(Math.min(teto,preco*(0.80+rnd()*0.25))/5000)*5000;
+  if(oferta<=0||oferta<preco*0.6)return null;
+  /* jovem: às vezes a oferta vem com revenda, e um pouco menor por isso */
+  let revenda=0;
+  if(p.idade<=21&&rnd()<0.35){revenda=rnd()<0.5?10:15;oferta=Math.round(oferta*0.95/5000)*5000;}
+  return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'compra',taxa:oferta,
+         salario:Math.round(sal),anos:ri(2,3),opcaoCompra:0,prazo:PRAZO_PROPOSTA,
+         pedido:preco,espontanea:true,revenda};
+}
+/* A multa paga pela IA: liberar é aceitar. Também é o que acontece se o prazo
+   vence sem você reagir. */
+function executarMultaIA(pr){
+  const p=G.jogadores[pr.jogadorId], dest=G.times[pr.clubeId];
+  if(!p||!dest||p.timeId===dest.id)return{ok:false,erro:'A proposta não está mais de pé.'};
+  const origem=G.times[p.timeId];
+  if(dest.caixa<pr.taxa)return{ok:false,erro:dest.nome+' não tem mais o dinheiro da multa.'};
+  executarProposta(p,dest,pr.taxa,pr.salario,pr.anos);
+  if(G.transferencias&&G.transferencias.length)G.transferencias[G.transferencias.length-1].tipo='multa';
+  G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
+  return{ok:true,msg:p.nome+' saiu pela multa: '+money(pr.taxa)+' entraram no caixa do '+(origem?origem.nome:'clube')+'.'};
+}
+/* Tentar segurar: você oferece aumento; ele compara ficar (com o aumento)
+   contra ir. Uma tentativa só: se não der, ele vai. */
+function segurarJogador(prId){
+  const pr=proposta(prId);
+  if(!pr||pr.tipo!=='multa')return{ok:false,erro:'Proposta inexistente.'};
+  const p=G.jogadores[pr.jogadorId], eu=G.times[p.timeId], dest=G.times[pr.clubeId];
+  const ficar=interesseEmFicar(p,eu).nota+pontosDoFator(1/(1+SEGURAR_AUMENTO));
+  const ir=interessePor(p,dest).nota;
+  const novoSal=Math.round(p.salario*(1+SEGURAR_AUMENTO)/100)*100;
+  const folgaOk=folgaSalarial(eu)>=novoSal-p.salario;
+  if(folgaOk&&ficar>=ir){
+    p.salario=novoSal;p.moral=clamp(p.moral+0.05,0.05,1);
+    G.propostas=G.propostas.filter(x=>x.id!==pr.id);
+    noticia('🛡 '+p.nome+' recusou o '+dest.nome+' e fica, com aumento para '+money(novoSal)+'/mês.',{c:'mercado',p:[p.id],t:[dest.id]});
+    return{ok:true,ficou:true,msg:p.nome+' fica, com '+money(novoSal)+'/mês.'};
+  }
+  const r=executarMultaIA(pr);
+  return{...r,ficou:false,msg:(folgaOk?p.nome+' agradeceu, mas quer ir. ':'A folha não comporta o aumento. ')+(r.msg||r.erro||'')};
+}
+
+/* ---------- leilão ----------
+   Dois ou mais clubes querem o mesmo jogador: você chama todos para cobrir.
+   Cada um tem um teto (o caixa e o quanto ele precisa do jogador); o leilão
+   sobe em degraus até sobrar um. Quem perde retira a proposta. */
+function _tetoLeilao(t,p,x){
+  const ganho=interesseDe(t,p);
+  /* cada um estica pelo menos um pouco além da própria proposta; quem precisa
+     mais do jogador estica mais */
+  const quer=precoPedido(p)*(1+Math.min(10,ganho)*0.03)*(0.95+(_hashTxt(t.id+p.id)%100)/1000);
+  return Math.round(Math.max(x.taxa*1.08,Math.min(t.caixa*TETO_TAXA*1.4,quer))/5000)*5000;
+}
+function podeLeiloar(jogadorId){
+  return propostasDe(jogadorId).filter(x=>x.tipo==='compra').length>=2;
+}
+function abrirLeilao(jogadorId){
+  const p=G.jogadores[jogadorId];
+  const props=propostasDe(jogadorId).filter(x=>x.tipo==='compra');
+  if(!p||props.length<2)return{ok:false,erro:'Leilão precisa de pelo menos duas propostas de compra.'};
+  const lances=props.map(x=>({x,t:G.times[x.clubeId],teto:_tetoLeilao(G.times[x.clubeId],p,x),valor:x.taxa,fora:false}));
+  const rodadas=[];
+  let atual=Math.max(...lances.map(l=>l.valor));
+  let lider=lances.find(l=>l.valor===atual);
+  rodadas.push({clube:lider.t.id,valor:atual,txt:lider.t.nome+' abre com '+money(atual)+'.'});
+  for(let guarda=0;guarda<40;guarda++){
+    const ativos=lances.filter(l=>!l.fora&&l!==lider);
+    if(!ativos.length)break;
+    const passo=Math.max(5000,Math.round(atual*0.025/5000)*5000);
+    let cobriu=false;
+    for(const l of ativos){
+      if(l.teto>=atual+passo){
+        atual+=passo;l.valor=atual;lider=l;cobriu=true;
+        rodadas.push({clube:l.t.id,valor:atual,txt:l.t.nome+' cobre: '+money(atual)+'.'});
+        break;
+      }
+      l.fora=true;rodadas.push({clube:l.t.id,valor:l.valor,txt:l.t.nome+' desiste.',fora:true});
+    }
+    if(!cobriu&&!lances.some(l=>!l.fora&&l!==lider))break;
+  }
+  /* quem ganhou fica com a proposta; os outros saem da mesa */
+  lider.x.taxa=atual;lider.x.prazo=PRAZO_PROPOSTA;lider.x.leilao=true;
+  G.propostas=G.propostas.filter(x=>x.jogadorId!==jogadorId||x===lider.x||x.tipo!=='compra');
+  rodadas.push({clube:lider.t.id,valor:atual,txt:lider.t.nome+' vence o leilão com '+money(atual)+'.',vence:true});
+  noticia('🔨 Leilão por '+p.nome+': '+lider.t.nome+' venceu com '+money(atual)+'.',{c:'mercado',p:[p.id],t:[lider.t.id]});
+  return{ok:true,vencedor:lider.t.id,valor:atual,rodadas,propostaId:lider.x.id};
+}
+
+/* ---------- revenda ----------
+   Quem vende pode guardar um pedaço da próxima venda. A conta é paga
+   quando o jogador sai de novo por dinheiro, por quem o vende. */
+function pagarRevenda(p,origem,dest,taxa){
+  const r=p.revenda;
+  if(!r||!(taxa>0)||!origem)return 0;
+  const dono=G.times[r.clubeId];
+  delete p.revenda;
+  if(!dono||dono.id===origem.id)return 0;
+  const parte=Math.round(taxa*r.pct/100/500)*500;
+  if(parte<=0)return 0;
+  origem.caixa-=parte;dono.caixa+=parte;
+  if(dono.id===G.meuTime||origem.id===G.meuTime)
+    noticia('🧾 Revenda: '+dono.nome+' recebeu '+money(parte)+' ('+r.pct+'%) pela venda de '+p.nome+' ao '+dest.nome+'.',{c:'mercado',p:[p.id],t:[dono.id]});
+  return parte;
+}
+function fixarRevenda(p,clubeId,pct){
+  if(pct>0&&clubeId)p.revenda={clubeId,pct};
+}
+
+/* ---------- empréstimo pedido por você ---------- */
+/* oferta = {parte (0.5..1, fração do salário que você paga), opcao (valor ou 0)} */
+function avaliarEmprestimoPedido(n,oferta){
+  const p=G.jogadores[n.jogadorId], dono=G.times[n.origemId], eu=G.times[n.destinoId];
+  const parte=clamp(+oferta.parte||0.75,0.5,1), opcao=Math.max(0,_arred(+oferta.opcao||0,5000));
+  const ordem=dono.elenco.map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
+  const rank=ordem.findIndex(x=>x.id===p.id);
+  const titular=dono.titulares.includes(p.id);
+  const erros=[];
+  if(p.emprestimo)erros.push('Ele já está emprestado.');
+  if(titular&&rank<5)erros.push('Ele é titular do '+dono.nome+': não sai emprestado.');
+  if(dono.elenco.length<=ELENCO_MIN)erros.push('O '+dono.nome+' está com o elenco no mínimo.');
+  if(eu.elenco.length>=ELENCO_MAX)erros.push('Seu elenco está cheio.');
+  /* quanto do salário eles querem que você pague: jovem que precisa jogar sai mais barato */
+  const minParte=clamp((p.idade<=20?0.5:0.65)+(opcao?0.1:0),0.5,1);
+  const precoOpcao=_arred(precoPedido(p)*_ocultoClube(p,eu),5000);
+  const sal=_arred(p.salario*parte,100);
+  const taxa=_arred(Math.max(0,(p.valor||0)*0.03),500);
+  /* o jogador: quer minutos. Quem está no banco topa mais fácil */
+  const it=interessePor(p,eu);
+  const vontade=it.nota+(rank>=5?15:0);
+  const clubeOk=!erros.length&&parte>=minParte&&(!opcao||opcao>=precoOpcao);
+  const jogadorOk=vontade>=TROCA_INTERESSE_OK&&!recusasDuras(p,eu,1).length;
+  if(folgaSalarial(eu)<sal)erros.push('A folha não comporta '+money(sal)+'/mês.');
+  if(eu.caixa<taxa)erros.push('Caixa insuficiente para a taxa de '+money(taxa)+'.');
+  return{parte,opcao,minParte,precoOpcao,sal,taxa,clubeOk,jogadorOk,vontade,erros,rank};
+}
+function proporEmprestimo(n,oferta){
+  const p=G.jogadores[n.jogadorId], dono=G.times[n.origemId], eu=G.times[n.destinoId];
+  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  if(!p||!dono||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
+  const a=avaliarEmprestimoPedido(n,oferta);
+  _fala(n,'voce','Queremos '+p.nome+' emprestado: pagamos '+Math.round(a.parte*100)+'% do salário'+
+    (a.opcao?', com opção de compra de '+dinheiro(a.opcao):'')+'.');
+  if(a.erros.length){_fala(n,'clube',a.erros[0]);return{ok:true,resposta:'recusa',erro:a.erros[0]};}
+  if(!a.clubeOk){
+    n.pacClube-=1;
+    const txt=a.parte<a.minParte?'Só emprestamos se vocês pagarem pelo menos '+Math.round(a.minParte*100)+'% do salário.'
+      :'Opção de compra só a partir de '+dinheiro(a.precoOpcao)+'.';
+    _fala(n,'clube',txt);
+    if(n.pacClube<=0){_encerrar(n,'clube');return{ok:true,resposta:'encerrada'};}
+    return{ok:true,resposta:'contra',erro:txt,minParte:a.minParte,precoOpcao:a.precoOpcao};
+  }
+  if(!a.jogadorOk){
+    _fala(n,'jogador','Agradeço, mas não quero ir emprestado para o '+eu.nome+'.');
+    return{ok:true,resposta:'recusa',erro:p.nome+' não quer ir emprestado.'};
+  }
+  n.interesse=interessePor(p,eu);
+  executarEmprestimo(p,eu,{taxa:a.taxa,salario:a.sal,opcaoCompra:a.opcao});
+  registrarTransferencia(p,dono,eu,a.taxa,'emprestimo');
+  n.fase='fechada';n.emprestimo=true;n.taxa=a.taxa;
+  n.final={taxa:a.taxa,sal:a.sal,anos:1,luvas:0,comissao:0};
+  _fala(n,'clube','Fechado. Cuidem bem dele.');
+  if(!negociacoes().includes(n))negociacoes().push(n);
+  return{ok:true,resposta:'aceita'};
+}
+/* Opção de compra de quem está emprestado para você: decisão sua, não sorteio. */
+function exercerOpcao(p){
+  const e=p&&p.emprestimo, eu=G.times[G.meuTime];
+  if(!e||p.timeId!==eu.id||!e.opcaoCompra)return{ok:false,erro:'Não há opção de compra.'};
+  if(!G.janela)return{ok:false,erro:'Só com a janela aberta.'};
+  if(eu.caixa<e.opcaoCompra)return{ok:false,erro:'Caixa insuficiente: a opção é '+money(e.opcaoCompra)+'.'};
+  const dono=G.times[e.donoId];
+  eu.caixa-=e.opcaoCompra;if(dono)dono.caixa+=e.opcaoCompra;
+  delete p.emprestimo;p.contrato=Math.max(2,p.contrato||1);
+  registrarTransferencia(p,dono,eu,e.opcaoCompra,'compra');
+  noticia('💰 '+eu.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.',{c:'mercado',p:[p.id],t:[eu.id]});
+  return{ok:true,msg:p.nome+' agora é seu.'};
+}
+
+/* ---------- IA negociando durante a janela ---------- */
+function mercadoNaJanela(){
+  if(!G.janela)return 0;
+  /* a virada de temporada tem o mercado grande dela; aqui é o do meio */
+  if((G.semana||1)>=49)return 0;
+  const chance=ultimoDiaDaJanela()?IA_PRAZO_FINAL:IA_JANELA_CHANCE;
+  const ocupados=new Set(negociacoes().filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca').map(n=>n.jogadorId));
+  const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.base&&!p.lesao&&!p.emprestimo
+    &&!p.preContrato&&!ocupados.has(p.id)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
+  let feitos=0;
+  for(const t of Object.values(G.times)){
+    if(t.id===G.meuTime||rnd()>chance)continue;
+    const r=tentarReforco(t,cand);
+    if(r){feitos++;autoEscalar(t);}
+  }
+  return feitos;
+}
+
+/* ---------- a semana ---------- */
+function mercadoVivo(){
+  rondaPedidosSaida();
+  /* multa paga corre o prazo com a janela aberta ou fechada: o negócio foi
+     feito dentro dela, e sem reação sua ele sai */
+  for(const x of (G.propostas||[]).filter(y=>y.tipo==='multa')){
+    if(--x.prazo<=0){const r=executarMultaIA(x);if(!r.ok)G.propostas=G.propostas.filter(y=>y!==x);}
+  }
+  if(!G.janela){
+    /* janela fechou: proposta de compra, troca e empréstimo caem junto */
+    const antes=(G.propostas||[]).length;
+    G.propostas=(G.propostas||[]).filter(x=>x.tipo==='multa');
+    if(antes>G.propostas.length&&G._janelaAberta)noticia('🔒 A janela fechou. As propostas que estavam na mesa caíram.',{c:'mercado'});
+    G._janelaAberta=false;
+    return;
+  }
+  G._janelaAberta=true;
+  if(ultimoDiaDaJanela()&&G._prazoAvisado!==_semanaNeg()){
+    G._prazoAvisado=_semanaNeg();
+    noticia('⏰ Último dia da janela! Os clubes correm atrás de reforço e as propostas chegam mais rápido.',{c:'mercado',imp:2});
+  }
+  propostasEspontaneas();
+  mercadoNaJanela();
 }
 
 
@@ -9552,6 +9987,7 @@ function gerarPropostas(){
   }
   /* prazos vencem */
   G.propostas=G.propostas.filter(x=>{
+    if(x.tipo==='multa')return true;   /* corre em mercadoVivo */
     x.prazo--;
     if(x.prazo>0)return true;
     const p=G.jogadores[x.jogadorId];
@@ -9599,6 +10035,7 @@ function aceitarProposta(id){
   if(!p||!destino)return{ok:false,erro:'Proposta inválida.'};
   const origem=G.times[p.timeId];
   if(!origem)return{ok:false,erro:'O jogador não está em nenhum clube.'};
+  if(pr.tipo==='multa')return executarMultaIA(pr);
   if(pr.tipo==='troca'){
     const r=executarTrocaIA(pr);
     G.propostas=(G.propostas||[]).filter(x=>x.id!==id&&x.jogadorId!==p.id);
@@ -9622,6 +10059,8 @@ function aceitarProposta(id){
     ? executarProposta(p,destino,pr.taxa,pr.salario,pr.anos)
     : executarEmprestimo(p,destino,pr);
   if(!r)return{ok:false,erro:'A negociação não pôde ser concluída.'};
+  if(pr.tipo==='compra'&&pr.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,pr.revenda);
+  if(p.pedidoSaida&&pr.tipo==='compra')delete p.pedidoSaida;
   delete p.anuncio;
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
   return{ok:true,msg:pr.tipo==='compra'
@@ -9670,7 +10109,8 @@ function resolverEmprestimos(){
     const partiuDe=typeof e.over==='number'?e.over:over(p);
     const rende=jogou>=8&&over(p)>=partiuDe-1;
     const cabe=atual&&atual.caixa>e.opcaoCompra&&folgaSalarial(atual)>=e.salario;
-    if(e.opcaoCompra&&atual&&atual.id!==dono.id&&rende&&cabe&&rnd()<0.6){
+    /* no seu clube a opção é decisão sua (exercerOpcao), não sorteio */
+    if(e.opcaoCompra&&atual&&atual.id!==dono.id&&atual.id!==G.meuTime&&rende&&cabe&&rnd()<0.6){
       atual.caixa-=e.opcaoCompra;dono.caixa+=e.opcaoCompra;
       delete p.emprestimo;p.contrato=ri(2,3);p.salario=e.salario;
       noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.',{c:'mercado',p:[p.id],t:[atual.id]});
@@ -11019,6 +11459,8 @@ function fimDeTemporada(){
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
+  /* quem fechou o ano no vermelho entra em crise e abre liquidação */
+  if(typeof conferirCrises==='function')conferirCrises();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
   // aposentadorias e contratos
@@ -14259,7 +14701,9 @@ function vMercado(){
       ['saidas','Saídas'+(pend?' ('+pend+')':'')],
       ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
+  const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
+    ${prazo?'<div class="merc-prazo">⏰ <b>Último dia da janela.</b> Os clubes estão correndo atrás de reforço: propostas chegam mais rápido e quem não fechar agora só fecha na próxima janela.</div>':''}
     <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
     mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
@@ -14272,25 +14716,64 @@ function vMercadoSaidas(t){
   const fora=typeof emprestadosDe==='function'?emprestadosDe(t):[];
   const podeSair=t.elenco.length>ELENCO_MIN;
 
+  /* propostas agrupadas por jogador: cada um vira um cartão, com o leilão
+     quando dois clubes ou mais querem o mesmo */
+  const porJog={};props.forEach(x=>(porJog[x.jogadorId]=porJog[x.jogadorId]||[]).push(x));
+  const linhaProp=x=>{const c=T(x.clubeId);const o=x.tipo==='troca'?P(x.oferecidoId):null;
+    const tipo=x.tipo==='multa'?'<span class="chip r">Multa paga</span>'
+      :x.tipo==='troca'&&o?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${o.id}">${esc(o.nome)}</b> ${ovTag(o)}`
+      :x.tipo==='compra'?'<span class="chip">Compra</span>'+(x.leilao?' <span class="chip t">leilão</span>':'')+(x.espontanea?' <span class="dim">sem anúncio</span>':'')
+      :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'');
+    return `<div class="prop-linha ${x.tipo==='multa'?'multa':''}">
+      ${escudo(c,30)}<div class="prop-clube"><b>${esc(c.nome)}</b><span class="dim">${nomeLiga(c)}</span></div>
+      <div class="prop-tipo">${tipo}</div>
+      <div class="prop-valor num"><b>${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}</b>
+        ${x.revenda?`<span class="chip t" title="Você fica com ${x.revenda}% de uma venda futura">+${x.revenda}% revenda</span>`:''}
+        ${x.tipo==='compra'&&x.pedido?`<span class="dim">pede ${money(x.pedido)}</span>`:''}</div>
+      <div class="prop-sal dim num">${money(x.salario)}/mês</div>
+      <div class="prop-prazo dim">${x.prazo} sem.</div>
+      <div class="prop-bts">${x.tipo==='multa'
+        ?`<button class="btn sm" data-segurar="${x.id}" title="Oferece ${Math.round(SEGURAR_AUMENTO*100)}% de aumento; uma tentativa só">Tentar segurar</button>
+          <button class="btn ghost sm" data-aceitar="${x.id}">Liberar</button>`
+        :`<button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
+          <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button>`}</div></div>`;};
   const cxPropostas=props.length?`
   <div class="card flat"><div class="eyebrow">Propostas na mesa</div>
-    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th>Tipo</th>
-      <th class="r">Valor</th><th class="r">Salário</th><th class="c">Prazo</th><th></th></tr></thead>
-    <tbody>${props.map(x=>{const p=P(x.jogadorId),c=T(x.clubeId);return `<tr>
-      <td><b>${esc(p.nome)}</b> <span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
-      <td>${esc(c.nome)} <span class="dim">${nomeLiga(c)}</span></td>
-      <td>${x.tipo==='troca'&&P(x.oferecidoId)?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${x.oferecidoId}">${esc(P(x.oferecidoId).nome)}</b> ${ovTag(P(x.oferecidoId))}`
-           :x.tipo==='compra'?'<span class="chip">Compra</span>'
-            :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'')}</td>
-      <td class="r num">${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}${x.tipo==='compra'&&x.pedido?`<div class="dim" style="font-size:11px">pediu ${money(x.pedido)}</div>`:''}</td>
-      <td class="r num dim">${money(x.salario)}/mês</td>
-      <td class="c num dim">${x.prazo} sem.</td>
-      <td class="r"><button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
-        <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button></td>
-    </tr>`;}).join('')}</tbody></table></div>`
+    ${Object.keys(porJog).map(pid=>{const p=P(pid),lst=porJog[pid];
+      const multa=lst.find(x=>x.tipo==='multa');
+      return `<div class="prop-card ${multa?'multa':''}">
+        <div class="prop-jog">${cartaJogador(p,{w:74})}<div><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b>
+          <div class="dim">${esc(p.role)} · ${p.idade} anos · ${p.contrato}a de contrato</div>
+          <div class="dim">Vale ${money(pedidoDeVenda(p))} · multa ${money(multaDe(p))}</div>
+          ${multa?`<div class="prop-alerta">${esc(T(multa.clubeId).nome)} pagou a multa. O clube não pode recusar: só ele decide, e ele quer ir.</div>`:''}
+          ${podeLeiloar(pid)?`<button class="btn teal sm" data-leilao="${pid}" style="margin-top:6px">Abrir leilão (${lst.filter(x=>x.tipo==='compra').length} clubes)</button>`:''}
+        </div></div>
+        <div class="prop-lista">${lst.map(linhaProp).join('')}</div></div>`;}).join('')}
+  </div>`
   :`<div class="card flat"><div class="eyebrow">Propostas na mesa</div>
       <p class="dim">Nenhuma no momento. Anuncie um jogador abaixo e os clubes que precisam
-      da função dele vão aparecer ao longo das semanas — se a janela estiver aberta.</p></div>`;
+      da função dele vão aparecer ao longo das semanas. Com a janela aberta, clubes também ligam por quem não está à venda.</p></div>`;
+
+  const pedidos=t.elenco.map(P).filter(p=>p&&p.pedidoSaida&&!p.pedidoSaida.aceito);
+  const cxPedidos=pedidos.length?`
+  <div class="card flat" style="border-left:4px solid var(--amber,#e0a030)"><div class="eyebrow">Pedidos de saída</div>
+    ${pedidos.map(p=>`<div class="prop-linha">
+      <span class="ov ${ovClass(over(p))}">${over(p)}</span>
+      <div class="prop-clube"><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b><span class="dim">${esc(p.pedidoSaida.motivo||'')}</span></div>
+      <div class="prop-bts">${p.pedidoSaida.negado?'<span class="chip r">negado</span>'
+        :`<button class="btn sm" data-psaida="sim:${p.id}">Aceitar e pôr à venda</button>
+          <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar</button>`}</div></div>`).join('')}
+    <p class="dim" style="margin-top:6px">Negar segura o jogador, mas a moral dele cai toda semana até ele desistir.</p></div>`:'';
+
+  const comigo=t.elenco.map(P).filter(p=>p&&p.emprestimo&&p.emprestimo.donoId!==t.id);
+  const cxComigo=comigo.length?`
+  <div class="card flat"><div class="eyebrow">Emprestados para você</div>
+    <table><tbody>${comigo.map(p=>`<tr>
+      <td><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b></td><td class="dim">do ${esc(nomeT(p.emprestimo.donoId))}</td>
+      <td class="r num dim">você paga ${money(p.salario)}/mês</td>
+      <td class="r">${p.emprestimo.opcaoCompra?`<button class="btn sm" data-opcao="${p.id}" ${G.janela?'':'disabled'}>Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:'<span class="dim">sem opção</span>'}</td>
+    </tr>`).join('')}</tbody></table>
+    <p class="dim" style="margin-top:6px">Voltam ao dono na virada da temporada, a menos que você exerça a opção.</p></div>`:'';
 
   const cxFora=fora.length?`
   <div class="card flat"><div class="eyebrow">Emprestados por você</div>
@@ -14302,7 +14785,7 @@ function vMercadoSaidas(t){
     <p class="dim" style="margin-top:6px">Voltam na virada de temporada, a menos que o clube exerça a opção.</p></div>`:'';
 
   return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode anunciar, mas proposta só chega com a janela aberta.</div>'}
-  ${cxPropostas}${cxFora}
+  ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
     ${podeSair?'':`<p class="dim">Com ${t.elenco.length} jogadores você não pode vender ninguém — o mínimo é ${ELENCO_MIN}. Emprestar também não, porque o elenco ficaria curto.</p>`}
     <table class="wide"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
@@ -14824,6 +15307,8 @@ function modalJogador(id){
       <tr><td>Salário</td><td class="r num">${money(p.salario)}/mês</td></tr>
       <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(precoPedido(p))+' <span class="chip '+posturaDoClube(p).cls+'">'+esc(posturaDoClube(p).nome)+'</span>':'livre'}</td></tr>
       ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
+      ${p.revenda&&T(p.revenda.clubeId)?`<tr><td>Revenda</td><td class="r num">${p.revenda.pct}% para o ${esc(T(p.revenda.clubeId).nome)}</td></tr>`:''}
+      ${p.emprestimo&&T(p.emprestimo.donoId)?`<tr><td>Emprestado pelo</td><td class="r">${esc(T(p.emprestimo.donoId).nome)}${p.emprestimo.opcaoCompra?' · opção '+money(p.emprestimo.opcaoCompra):''}</td></tr>`:''}
       <tr><td>Agentes</td><td class="r"><span class="agmini">${
         p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
@@ -14835,14 +15320,29 @@ function modalJogador(id){
       <tr><td>MVPs</td><td class="r num">${st.mvp}</td></tr></tbody></table>
     </div></div>
   ${blocoCarreira(p)}
+  ${p.timeId===t.id&&p.pedidoSaida?`<div class="neg-aviso ${p.pedidoSaida.negado?'':'ok'}" style="margin-top:10px">
+    <b>${p.pedidoSaida.negado?'Pedido de saída negado.':p.pedidoSaida.aceito?'Está à venda, como pediu.':'Pediu para ser negociado.'}</b> ${esc(p.pedidoSaida.motivo||'')}
+    ${!p.pedidoSaida.aceito&&!p.pedidoSaida.negado?`<div class="neg-bts" style="margin-top:8px"><button class="btn sm" data-psaida="sim:${p.id}">Aceitar e pôr à venda</button>
+      <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar (a moral cai)</button></div>`:''}</div>`:''}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
     ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
+    ${p.timeId===t.id&&p.emprestimo&&p.emprestimo.opcaoCompra&&G.janela?`<button class="btn teal" data-opcao="${p.id}">Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const bt=$('#mjTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+  /* pedido de saída e opção de compra, direto da ficha */
+  $('#modal').querySelectorAll('[data-psaida]').forEach(b=>b.onclick=()=>{
+    const [r0]=b.dataset.psaida.split(':');
+    const r=r0==='sim'?aceitarPedidoSaida(p):negarPedidoSaida(p);
+    if(!r.ok)return avisar(r.erro);
+    noticia(r.msg,{c:'mercado',p:[p.id]});render();modalJogador(p.id);
+  });
+  $('#modal').querySelectorAll('[data-opcao]').forEach(b=>b.onclick=()=>{
+    const r=exercerOpcao(p);if(!r.ok)return avisar(r.erro);render();modalJogador(p.id);
+  });
 }
 /* Carreira na ficha: totais, prêmios e a tabela ano a ano. Os totais vêm de
    p.carreira, que soma desde o primeiro mapa; a tabela é p.hist. */
@@ -15599,12 +16099,15 @@ function mesa(p,n,bloqueio,tipoBloq){
       <label class="neg-campo"><span>Sua oferta pelo passe</span>
         <input type="range" id="cTaxaR" min="0" max="${Math.round(max)}" step="5000" value="${taxa0}">
         <input type="number" id="pTaxa" value="${taxa0}" step="5000"></label>
+      ${ps.id!=='intransferivel'?`<div class="neg-campo"><span>Percentual de revenda <span class="dim">(o ${esc(origem.nome)} fica com uma parte da próxima venda e aceita menos agora${p.idade<=22?'; jovem, vale mais':''})</span></span>
+        <div class="neg-anos neg-multa">${REVENDA_OPCOES.map(v=>`<button class="${(+_mesaRasc.revenda||0)===v?'on':''}" data-revenda="${v}">${v?v+'%':'Sem'}</button>`).join('')}</div></div>`:''}
       <div id="cBarra"></div>
       <div class="neg-bts">
         <button class="btn" id="cEnviar">Enviar proposta</button>
         ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
         <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
         ${G.janela?`<button class="btn ghost" id="cTroca" title="Ofereça jogadores seus, com ou sem dinheiro">Propor troca</button>`:''}
+        ${G.janela&&!p.emprestimo?`<button class="btn ghost" id="cEmp" title="Ele vem por uma temporada; você paga parte do salário">Pedir empréstimo</button>`:''}
         ${podePreContrato(p,t)?`<button class="btn teal" id="cPre" title="Último ano de contrato: ele chega de graça na virada">Pré-contrato (sem taxa)</button>`:''}
       </div>
       <div id="pFeed"></div>
@@ -15660,15 +16163,16 @@ function mesa(p,n,bloqueio,tipoBloq){
   }else if(fase==='fechada'){
     const f=n.final||{};
     direita=`<div class="neg-col neg-fechada">
-      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':'Contratado'}</div>
+      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':n.emprestimo?'Emprestado':'Contratado'}</div>
       ${pre?`<p class="dim">Chega na virada da temporada, quando o contrato atual dele acabar.</p>`:''}
       <table><tbody>
         ${f.taxa?`<tr><td>${n.viaMulta?'Multa rescisória':'Taxa de transferência'}</td><td class="r num">${dinheiro(f.taxa)}</td></tr>`:''}
         <tr><td>Salário</td><td class="r num">${dinheiro(f.sal)}/mês por ${f.anos} ano(s)</td></tr>
         ${f.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(f.luvas)}</td></tr>`:''}
-        <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>
+        ${n.emprestimo?`<tr><td colspan="2">Por uma temporada${p.emprestimo&&p.emprestimo.opcaoCompra?', com opção de compra de '+dinheiro(p.emprestimo.opcaoCompra):''}</td></tr>`
+          :`<tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>`}
         ${f.promessa?'<tr><td colspan="2">Titularidade prometida em contrato</td></tr>':''}
-        ${pre?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
+        ${pre||n.emprestimo?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
       </tbody></table></div>`;
   }else{
     direita=`<div class="neg-col"><div class="neg-aviso">A conversa terminou sem acordo.
@@ -15704,16 +16208,21 @@ function _ligarMesa(p,n){
       const taxa=parseFloat($('#pTaxa').value)||0;
       _mesaRasc.taxa=taxa;
       const preco=precoPedido(p),multa=multaDe(p);
-      $('#cBarra').innerHTML=_barraNeg(taxa/Math.max(1,preco),_ZONAS_NEG,_legClube(taxa/Math.max(1,preco),taxa>=multa,posturaDoClube(p).id==='intransferivel'));
+      const rv=+_mesaRasc.revenda||0;
+      const eq=rv?taxa*(1+rv/100*pesoRevenda(p)):taxa;
+      $('#cBarra').innerHTML=_barraNeg(eq/Math.max(1,preco),_ZONAS_NEG,_legClube(eq/Math.max(1,preco),taxa>=multa,posturaDoClube(p).id==='intransferivel'));
     };
     par('#cTaxaR','#pTaxa',viva);viva();
     $('#cEnviar').onclick=()=>{
-      const r=proporAoClube(n,parseFloat($('#pTaxa').value)||0);
+      const r=proporAoClube(n,parseFloat($('#pTaxa').value)||0,+_mesaRasc.revenda||0);
       if(!r.ok)return feed(r.erro);
       if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
       depois();
     };
     const bt=$('#cTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
+    const be=$('#cEmp');if(be)be.onclick=()=>modalEmprestimoMesa(n);
+    $('#modal').querySelectorAll('[data-revenda]').forEach(b=>b.onclick=()=>{_mesaRasc.revenda=+b.dataset.revenda;
+      $('#modal').querySelectorAll('[data-revenda]').forEach(x=>x.classList.toggle('on',x===b));viva();});
     const bp=$('#cPre');if(bp)bp.onclick=()=>{const r=irParaPreContrato(n);if(!r.ok)return feed(r.erro);depois();};
     const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
     $('#cMulta').onclick=async()=>{
@@ -15873,6 +16382,106 @@ function telaTroca(n){
   };
   const tc=$('#tContra');if(tc)tc.onclick=()=>{const r=aceitarContraTroca(n);
     if(!r.ok){$('#tFeed').innerHTML=`<div class="neg-aviso">${esc(r.erro)}</div>`;return;}telaTroca(n);};
+}
+
+
+/* ===== src/ui/mercadovivo.js ===== */
+/* ============================================================
+   MERCADO VIVO — telas
+   ------------------------------------------------------------
+   O leilão aparece lance a lance, com o escudo de quem cobriu e
+   de quem desistiu, até sobrar um. O empréstimo pedido por você
+   abre um painel ao lado da mesa: quanto do salário você paga e
+   se quer opção de compra.
+   ============================================================ */
+function modalLeilao(jogadorId){
+  const p=P(jogadorId);if(!p)return;
+  const r=abrirLeilao(jogadorId);
+  if(!r.ok)return avisar(r.erro,'Leilão');
+  const venc=T(r.vencedor);
+  /* o leilão inteiro cabe em uns três segundos, por mais lances que tenha */
+  const passo=Math.min(0.35,3/Math.max(1,r.rodadas.length));
+  abrir(`<div class="neg leilao">
+    <div class="eyebrow">Leilão</div><h2 class="sec">Quem leva ${esc(p.nome)}?</h2>
+    <div class="leilao-palco">${cartaJogador(p,{w:120})}
+      <div class="leilao-lances">${r.rodadas.map((x,i)=>{const c=T(x.clube);
+        return `<div class="leilao-lance ${x.fora?'fora':''} ${x.vence?'vence':''}" style="animation-delay:${(i*passo).toFixed(2)}s">
+          ${escudo(c,28)}<span>${esc(x.txt)}</span>${x.fora?'':`<b class="num">${dinheiro(x.valor)}</b>`}</div>`;}).join('')}
+      </div></div>
+    <div class="leilao-fim" style="animation-delay:${(r.rodadas.length*passo).toFixed(2)}s">
+      ${escudo(venc,44)}<div><div class="eyebrow">Maior lance</div><b>${esc(venc.nome)}</b> oferece <b class="num">${dinheiro(r.valor)}</b></div>
+    </div>
+    <p class="dim">Os outros retiraram as propostas. A do vencedor fica na mesa por ${PRAZO_PROPOSTA} semanas.</p>
+    <div class="neg-bts" style="justify-content:flex-end">
+      <button class="btn" id="lAceitar">Vender por ${dinheiro(r.valor)}</button>
+      <button class="btn ghost" data-close>Pensar depois</button></div>
+  </div>`,true);
+  /* a lista acompanha os lances até o último */
+  const lista=$('#modal .leilao-lances');
+  if(lista)r.rodadas.forEach((x,i)=>setTimeout(()=>{if(lista.isConnected)lista.scrollTop=lista.scrollHeight;},(i+1)*passo*1000));
+  $('#lAceitar').onclick=()=>{
+    const a=aceitarProposta(r.propostaId);
+    if(!a.ok)return avisar(a.erro);
+    noticia('🤝 '+a.msg,{c:'mercado',p:[p.id]});
+    $('#modal').innerHTML='';render();
+  };
+  render();
+}
+
+function modalEmprestimoMesa(n){
+  const p=P(n.jogadorId), dono=T(n.origemId), eu=meu();
+  const rasc={parte:0.75,opcao:0};
+  const desenha=()=>{
+    const a=avaliarEmprestimoPedido(n,rasc);
+    abrir(`<div class="neg">
+      <div class="eyebrow">Empréstimo</div><h2 class="sec">${esc(p.nome)} emprestado do ${esc(dono.nome)}</h2>
+      <div class="neg-palco">
+        ${`<div class="neg-lado">${escudo(dono,56)}<div class="eyebrow">Sai de</div><b>${esc(dono.nome)}</b></div>`}
+        <div class="neg-centro">${cartaJogador(p,{w:130})}</div>
+        <div class="neg-lado">${escudo(eu,56)}<div class="eyebrow">Vem para</div><b>${esc(eu.nome)}</b></div>
+      </div>
+      <div class="neg-corpo">
+        <div class="neg-col">
+          <div class="eyebrow">O que o ${esc(dono.nome)} pensa</div>
+          <p class="dim">${a.rank>=5?'Ele não tem espaço no elenco deles: emprestar dá minutos e alivia a folha.':'Ele está no grupo principal deles: só sai se vocês assumirem boa parte do salário.'}</p>
+          <div class="neg-numeros">
+            <div><span class="dim">Parte mínima do salário</span><b class="num">${Math.round(a.minParte*100)}%</b></div>
+            <div><span class="dim">Opção de compra a partir de</span><b class="num">${dinheiro(a.precoOpcao)}</b></div>
+          </div>
+          <div class="eyebrow" style="margin-top:10px">O que ele pensa</div>
+          <p class="dim">${a.jogadorOk?'Topa ir: '+(a.rank>=5?'quer jogar, e no banco não joga.':'gosta do projeto.'):'Não quer ir emprestado para o '+esc(eu.nome)+'.'}</p>
+        </div>
+        <div class="neg-col">
+          <label class="neg-campo"><span>Você paga do salário dele: <b id="eParteTxt">${Math.round(rasc.parte*100)}%</b> (${dinheiro(a.sal)}/mês)</span>
+            <input type="range" id="eParte" min="50" max="100" step="5" value="${Math.round(rasc.parte*100)}"></label>
+          <label class="neg-campo"><span><input type="checkbox" id="eOpc" ${rasc.opcao?'checked':''}> Com opção de compra no fim</span>
+            <input type="number" id="eOpcV" value="${rasc.opcao||a.precoOpcao}" step="5000" ${rasc.opcao?'':'disabled'}></label>
+          <div class="neg-numeros">
+            <div><span class="dim">Taxa do empréstimo</span><b class="num">${dinheiro(a.taxa)}</b></div>
+            <div><span class="dim">Situação</span><b>${a.erros.length?esc(a.erros[0]):a.clubeOk&&a.jogadorOk?'Tende a fechar':!a.clubeOk?'O clube quer mais':'O jogador resiste'}</b></div>
+          </div>
+          <div class="neg-bts"><button class="btn" id="eEnviar">Propor empréstimo</button>
+            <button class="btn ghost" id="eVoltar">Voltar à mesa</button></div>
+          <div id="eFeed"></div>
+        </div>
+      </div>
+      ${_chat(n)}
+    </div>`,true);
+    $('#eParte').onchange=()=>{rasc.parte=(+$('#eParte').value)/100;desenha();};
+    $('#eParte').oninput=()=>{$('#eParteTxt').textContent=$('#eParte').value+'%';};
+    $('#eOpc').onchange=()=>{rasc.opcao=$('#eOpc').checked?(+$('#eOpcV').value||a.precoOpcao):0;desenha();};
+    $('#eOpcV').onchange=()=>{if($('#eOpc').checked){rasc.opcao=+$('#eOpcV').value||0;desenha();}};
+    $('#eVoltar').onclick=()=>mesa(p,n,null);
+    $('#eEnviar').onclick=()=>{
+      const r=proporEmprestimo(n,rasc);
+      if(!r.ok)return $('#eFeed').innerHTML=`<div class="neg-aviso">${esc(r.erro)}</div>`;
+      if(r.resposta==='aceita'){render();return mesa(p,n,null);}
+      if(r.resposta==='encerrada'){render();return mesa(p,n,null);}
+      desenha();
+      $('#eFeed').innerHTML=`<div class="neg-aviso">${esc(r.erro||'')}</div>`;
+    };
+  };
+  desenha();
 }
 
 
@@ -17611,6 +18220,24 @@ function ligarEventos(){
     noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
+  /* mercado vivo */
+  on('[data-psaida]',el=>{
+    const [r0,pid]=el.dataset.psaida.split(':');const p=P(pid);
+    const r=r0==='sim'?aceitarPedidoSaida(p):negarPedidoSaida(p);
+    if(!r.ok){avisar(r.erro);return;}
+    noticia(r.msg,{c:'mercado',p:[pid]});$('#modal').innerHTML='';render();
+  });
+  on('[data-segurar]',el=>{
+    const r=segurarJogador(el.dataset.segurar);
+    if(!r.ok&&!r.msg){avisar(r.erro);return;}
+    avisar(r.msg,r.ficou?'Ele fica':'Ele vai');render();
+  });
+  on('[data-leilao]',el=>{modalLeilao(el.dataset.leilao);});
+  on('[data-opcao]',el=>{
+    const r=exercerOpcao(P(el.dataset.opcao));
+    if(!r.ok){avisar(r.erro);return;}
+    $('#modal').innerHTML='';render();
+  });
   on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
   on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);

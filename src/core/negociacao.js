@@ -181,7 +181,7 @@ function _encerrar(n,quem){
 
 /* ---------- 1. conversa com o clube ---------- */
 /* Devolve {ok, resposta:'aceita'|'contra'|'recusa'|'encerrada', valor, erro} */
-function proporAoClube(n,taxa){
+function proporAoClube(n,taxa,revenda){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
   if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
@@ -190,16 +190,19 @@ function proporAoClube(n,taxa){
   const ps=posturaDoClube(p);
   const multa=multaDe(p);
   const preco=precoPedido(p);
-  _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+'.',{valor:taxa});
+  revenda=(typeof REVENDA_OPCOES!=='undefined'&&REVENDA_OPCOES.includes(+revenda))?+revenda:0;
+  _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+(revenda?', mais '+revenda+'% de uma venda futura':'')+'.',{valor:taxa});
   if(taxa>=multa)return pagarMulta(n,true);
   const minimo=ps.id==='intransferivel'?multa:_arred(preco*_ocultoClube(p,dest),500);
-  if(taxa>=minimo){
-    n.taxa=taxa;n.fase='jogador';
-    _fala(n,'clube','Fechado: '+dinheiro(taxa)+'. Podem falar com o jogador.');
+  /* a revenda vale dinheiro para quem vende: a oferta conta como maior */
+  const equiv=revenda&&ps.id!=='intransferivel'?taxa*(1+revenda/100*pesoRevenda(p)):taxa;
+  if(equiv>=minimo){
+    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';
+    _fala(n,'clube','Fechado: '+dinheiro(taxa)+(revenda?' e '+revenda+'% de revenda':'')+'. Podem falar com o jogador.');
     _abrirJogador(n);
     return{ok:true,resposta:'aceita',valor:taxa};
   }
-  const ofensa=taxa<preco*NEG_OFENSA;
+  const ofensa=equiv<preco*NEG_OFENSA;
   n.pacClube-=ofensa?2:1;
   if(n.pacClube<=0){
     _fala(n,'clube',ofensa?'Isso é uma piada. Não temos mais o que conversar.':'Não chegamos a um acordo.');
@@ -211,7 +214,7 @@ function proporAoClube(n,taxa){
     return{ok:true,resposta:'recusa',valor:multa};
   }
   /* a contraproposta anda na sua direção, mas nunca abaixo do mínimo dele */
-  n.pedidaClube=Math.max(minimo,_arred(n.pedidaClube-(n.pedidaClube-taxa)*0.35,5000));
+  n.pedidaClube=Math.max(minimo,_arred(n.pedidaClube-(n.pedidaClube-equiv)*0.35,5000));
   _fala(n,'clube',(ofensa?'Proposta muito abaixo do que ele vale. ':'')+'Aceitamos '+dinheiro(n.pedidaClube)+'.',{valor:n.pedidaClube});
   return{ok:true,resposta:'contra',valor:n.pedidaClube};
 }
@@ -375,6 +378,7 @@ function concluirNegociacao(n,oferta,a){
   /* quem chega empolgado chega motivado */
   if(empolgado)p.moral=clamp(p.moral+0.05,0.05,1);
   registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
+  if(origem&&n.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,n.revenda);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
     (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',
     {c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id],imp:over(p)>=88||n.viaMulta?2:1});
@@ -444,6 +448,7 @@ function cumprirPreContrato(p){
 /* Registro do mercado, para a Central e as notícias de maiores negócios. */
 function registrarTransferencia(p,origem,dest,taxa,tipo){
   G.transferencias=G.transferencias||[];
+  if(tipo!=='troca'&&tipo!=='emprestimo'&&typeof pagarRevenda==='function')pagarRevenda(p,origem,dest,taxa);
   G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
     de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
   /* só as últimas temporadas: o save não precisa carregar a história inteira */

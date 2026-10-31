@@ -105,6 +105,7 @@ function gerarPropostas(){
   }
   /* prazos vencem */
   G.propostas=G.propostas.filter(x=>{
+    if(x.tipo==='multa')return true;   /* corre em mercadoVivo */
     x.prazo--;
     if(x.prazo>0)return true;
     const p=G.jogadores[x.jogadorId];
@@ -152,6 +153,7 @@ function aceitarProposta(id){
   if(!p||!destino)return{ok:false,erro:'Proposta inválida.'};
   const origem=G.times[p.timeId];
   if(!origem)return{ok:false,erro:'O jogador não está em nenhum clube.'};
+  if(pr.tipo==='multa')return executarMultaIA(pr);
   if(pr.tipo==='troca'){
     const r=executarTrocaIA(pr);
     G.propostas=(G.propostas||[]).filter(x=>x.id!==id&&x.jogadorId!==p.id);
@@ -175,6 +177,8 @@ function aceitarProposta(id){
     ? executarProposta(p,destino,pr.taxa,pr.salario,pr.anos)
     : executarEmprestimo(p,destino,pr);
   if(!r)return{ok:false,erro:'A negociação não pôde ser concluída.'};
+  if(pr.tipo==='compra'&&pr.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,pr.revenda);
+  if(p.pedidoSaida&&pr.tipo==='compra')delete p.pedidoSaida;
   delete p.anuncio;
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
   return{ok:true,msg:pr.tipo==='compra'
@@ -223,7 +227,8 @@ function resolverEmprestimos(){
     const partiuDe=typeof e.over==='number'?e.over:over(p);
     const rende=jogou>=8&&over(p)>=partiuDe-1;
     const cabe=atual&&atual.caixa>e.opcaoCompra&&folgaSalarial(atual)>=e.salario;
-    if(e.opcaoCompra&&atual&&atual.id!==dono.id&&rende&&cabe&&rnd()<0.6){
+    /* no seu clube a opção é decisão sua (exercerOpcao), não sorteio */
+    if(e.opcaoCompra&&atual&&atual.id!==dono.id&&atual.id!==G.meuTime&&rende&&cabe&&rnd()<0.6){
       atual.caixa-=e.opcaoCompra;dono.caixa+=e.opcaoCompra;
       delete p.emprestimo;p.contrato=ri(2,3);p.salario=e.salario;
       noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.',{c:'mercado',p:[p.id],t:[atual.id]});
