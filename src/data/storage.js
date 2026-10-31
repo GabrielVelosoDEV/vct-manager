@@ -164,7 +164,7 @@ function migrarRun(reg){
       G.bloco=alvo?G.calendario.indexOf(alvo):0;
       if(typeof noticia==='function')
         noticia('📅 O calendário virou semanas com data. A temporada foi remontada a partir de '+
-                (alvo?alvo.nome:'a pré-temporada')+'.');
+                (alvo?alvo.nome:'a pré-temporada')+'.',{c:'outros'});
     }
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();

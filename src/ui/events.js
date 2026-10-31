@@ -13,6 +13,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-bpromo]',async el=>{
     const r=promoverDaBase(t,el.dataset.bpromo);
@@ -49,7 +50,7 @@ function ligarEventos(){
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);
     if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
-    t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.');render();
+    t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.',{c:'clube',t:[t.id]});render();
   });
   on('[data-prop]',el=>modalProposta(el.dataset.prop));
   on('[data-assumir]',el=>{
@@ -61,13 +62,13 @@ function ligarEventos(){
   on('[data-anunciar]',el=>modalAnunciar(el.dataset.anunciar));
   on('[data-desanunciar]',el=>{
     const r=retirarAnuncio(P(el.dataset.desanunciar));
-    if(r&&r.msg)noticia(r.msg);
+    if(r&&r.msg)noticia(r.msg,{c:'mercado',t:[t.id]});
     render();
   });
   on('[data-aceitar]',el=>{
     const r=aceitarProposta(el.dataset.aceitar);
     if(!r.ok){avisar(r.erro||'A proposta não pôde ser aceita.');return;}
-    noticia('🤝 '+r.msg);render();
+    noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
   on('[data-renov]',el=>modalRenovacao(el.dataset.renov));

@@ -136,7 +136,7 @@ function aplicarPatch(motivo){
     const buff=mudou.filter(x=>x.tipo==='buff').map(x=>x.ag);
     noticia('🩹 Patch: '+(nerf.length?nerf.join(' e ')+' levaram nerf':'')+
       (nerf.length&&buff.length?'; ':'')+
-      (buff.length?buff.join(' e ')+' levaram buff':'')+'.');
+      (buff.length?buff.join(' e ')+' levaram buff':'')+'.',{c:'meta',imp:2});
   }
   /* Comp montada em cima de um boneco nerfado continua válida — a conta é o
      jogador descobrir que ela ficou pior. Nada é desmontado por baixo. */

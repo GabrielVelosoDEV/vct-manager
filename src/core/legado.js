@@ -148,7 +148,7 @@ function aplicarClassico(vencedorId,perdedorId){
   if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
   if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
     noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
-      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'));
+      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'),{c:'competicoes',t:[V.id,P.id],imp:2});
   return{nota,k};
 }
 function rivaisDe(id,quantos){

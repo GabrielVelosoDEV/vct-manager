@@ -96,14 +96,14 @@ function gerarPropostas(){
     G.propostas.push(pr);novas++;
     if(p.timeId===G.meuTime)
       noticia('📨 '+alvo.nome+' fez uma proposta por '+p.nome+
-              (tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')));
+              (tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
   }
   /* prazos vencem */
   G.propostas=G.propostas.filter(x=>{
     x.prazo--;
     if(x.prazo>0)return true;
     const p=G.jogadores[x.jogadorId];
-    if(p&&p.timeId===G.meuTime)noticia('⌛ '+G.times[x.clubeId].nome+' retirou a proposta por '+p.nome+'.');
+    if(p&&p.timeId===G.meuTime)noticia('⌛ '+G.times[x.clubeId].nome+' retirou a proposta por '+p.nome+'.',{c:'mercado',p:[p.id]});
     return false;
   });
   return novas;
@@ -192,7 +192,7 @@ function executarEmprestimo(p,destino,pr){
                 over:over(p),
                 parteDono:Math.max(0,salarioOriginal-pr.salario)};
   noticia('🔁 '+p.nome+' foi emprestado ao '+destino.nome+' por uma temporada'+
-          (pr.opcaoCompra?' com opção de compra de '+money(pr.opcaoCompra):'')+'.');
+          (pr.opcaoCompra?' com opção de compra de '+money(pr.opcaoCompra):'')+'.',{c:'mercado',p:[p.id],t:[destino.id]});
   return true;
 }
 /* Fim de temporada: quem estava emprestado volta, ou é comprado. */
@@ -215,12 +215,12 @@ function resolverEmprestimos(){
     if(e.opcaoCompra&&atual&&atual.id!==dono.id&&rende&&cabe&&rnd()<0.6){
       atual.caixa-=e.opcaoCompra;dono.caixa+=e.opcaoCompra;
       delete p.emprestimo;p.contrato=ri(2,3);p.salario=e.salario;
-      noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.');
+      noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.',{c:'mercado',p:[p.id],t:[atual.id]});
       compras++;continue;
     }
     if(atual&&atual.id!==dono.id){
       contratar(p,dono,Math.max(1,e.contrato),e.salario);
-      noticia('↩ '+p.nome+' voltou ao '+dono.nome+' após o empréstimo.');
+      noticia('↩ '+p.nome+' voltou ao '+dono.nome+' após o empréstimo.',{c:'mercado',p:[p.id],t:[dono.id]});
     }
     delete p.emprestimo;voltas++;
   }

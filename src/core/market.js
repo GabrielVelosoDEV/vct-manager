@@ -103,7 +103,7 @@ function reporElenco(t){
       if(emergencias>6)break;   /* cinto de segurança contra laço infinito */
     }
     if(emergencias&&t.id===G.meuTime)
-      noticia('⚠ Sem opção no mercado: '+emergencias+' jogador(es) promovido(s) da base às pressas.');
+      noticia('⚠ Sem opção no mercado: '+emergencias+' jogador(es) promovido(s) da base às pressas.',{c:'clube',t:[t.id]});
     autoEscalar(t);
     return emergencias;
   }finally{ delete t._repondo; }

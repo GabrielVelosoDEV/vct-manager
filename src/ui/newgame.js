@@ -71,9 +71,9 @@ function telaNovoJogo(){
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
-            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.');
+            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
     if(souTreinador()&&eu.metas.length)
-      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.');
+      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
     salvarRun(G.runNome);
     $('#modal').innerHTML='';
     tela='inicio';hist=['inicio'];histPos=0;

@@ -220,7 +220,7 @@ function ordenarTabela(s){
 }
 function pagar(ids,tabela){
   ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;G.times[id].caixa+=v;
-    if(id===G.meuTime)noticia('Premiação recebida: '+money(v));});
+    if(id===G.meuTime)noticia('Premiação recebida: '+money(v),{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.
    Num lugar só porque as três coisas acontecem sempre juntas — espalhadas por
@@ -231,7 +231,7 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao){titulo(campeao,nomeTitulo(s));
+  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2);
     /* título internacional conta à parte: é ele que separa lenda de bom jogador */
     if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
       const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
@@ -251,11 +251,11 @@ function encerrarStage(s){
   if(r){
     r.p.carreira.mvpTorneios=(r.p.carreira.mvpTorneios||0)+1;
     noticia('⭐ '+r.p.nome+' ('+(r.time?r.time.tag:'—')+') é o melhor jogador de '+
-            nomeTitulo(s)+' — '+r.acs+' de ACS e '+r.kd+' de K/D em '+r.maps+' mapas.');
+            nomeTitulo(s)+' — '+r.acs+' de ACS e '+r.kd+' de K/D em '+r.maps+' mapas.',{c:'competicoes',p:[r.p.id],t:[r.time&&r.time.id]});
   }
   return s.mvp;
 }
-function titulo(id,nome){
+function titulo(id,nome,imp){
   const t=G.times[id];if(!t)return;
   t.titulos.push(G.ano+' · '+nome);t.prestigio=clamp(t.prestigio+2.2,20,99);
   t.titulares.forEach(pid=>G.jogadores[pid].carreira.titulos++);
@@ -263,6 +263,37 @@ function titulo(id,nome){
     const m=membroDe(t,c.id);if(m)m.temp.titulos++;
   });
   G.historico.push({ano:G.ano,evento:nome,campeao:t.nome});
-  noticia('🏆 '+t.nome+' é campeão de '+nome+'.');
+  noticia('🏆 '+t.nome+' é campeão de '+nome+'.',{c:'competicoes',t:[t.id],imp:imp||2});
 }
-function noticia(txt){G.noticias.unshift({b:G.bloco,ano:G.ano,txt});if(G.noticias.length>90)G.noticias.pop();}
+/* ---------- sala de imprensa ----------
+   Cada notícia tem categoria (o) e quem ela cita: jogadores (p) e clubes (t).
+   "Do seu clube" é decidido aqui, na hora, e não na tela: o jogador pode
+   trocar de clube depois, e a notícia continua sendo de quando aconteceu.
+   imp vai de 1 a 3 e escolhe a manchete da semana na Central. */
+const CAT_NOTICIA={clube:'Meu clube',mercado:'Mercado',competicoes:'Competições',meta:'Meta e mapas',carreira:'Carreira'};
+const NOTICIAS_MAX=240;
+function noticia(txt,o){
+  o=o||{};
+  const p=(o.p||[]).filter(id=>id&&G.jogadores[id]);
+  const t=(o.t||[]).filter(id=>id&&G.times[id]).filter((x,i,a)=>a.indexOf(x)===i);
+  const n={b:G.bloco,ano:G.ano,s:G.semana,txt,c:o.c||'outros'};
+  const eu=G.meuTime;
+  if(eu&&(t.includes(eu)||p.some(id=>{const j=G.jogadores[id];return j.timeId===eu||j.base===eu;})))n.meu=1;
+  if(p.length)n.p=p;
+  if(t.length)n.t=t;
+  if(o.imp)n.imp=o.imp;
+  G.noticias.unshift(n);
+  if(G.noticias.length>NOTICIAS_MAX)G.noticias.pop();
+}
+/* A manchete: a notícia mais importante das duas últimas semanas, com
+   peso extra para o que é do seu clube. */
+function manchete(){
+  let melhor=null,nota=0;
+  for(const n of G.noticias){
+    if(n.ano!==G.ano||n.s==null||n.s<(G.semana||1)-1)break;
+    if(n.c==='sistema'||!n.txt)continue;
+    const v=(n.imp||1)+(n.meu?1.5:0);
+    if(v>nota){nota=v;melhor=n;}
+  }
+  return nota>=2?melhor:null;
+}

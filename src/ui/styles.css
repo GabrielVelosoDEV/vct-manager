@@ -299,6 +299,11 @@ tr.me:hover{background:rgba(255,70,85,.19)}
 .feed{max-height:260px;overflow:auto;font-size:12.5px}
 .feed div{padding:5px 0;border-bottom:1px solid var(--line)}
 .feed b{font-weight:700}
+.feed .news.me{border-left:2px solid var(--red);padding-left:8px}
+.feed .news-link{display:inline;padding:0;border:0;color:inherit;text-decoration:underline dotted;cursor:pointer;font-weight:600}
+.feed .news-sep{padding:10px 0 4px;color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.manchete{padding:10px 12px;margin:6px 0 10px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.manchete.me{border-left:3px solid var(--red)}
 select,input[type=text],input[type=number],input[type=password],textarea{font-family:inherit;font-size:13px;
   padding:6px 8px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx)}
 select:hover,input:hover{border-color:var(--dim)}

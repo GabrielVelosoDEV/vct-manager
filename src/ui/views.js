@@ -145,7 +145,9 @@ function vInicio(){
     ${cardTabelaDaCasa(t,rr)}
   </div>
   <div class="card"><div class="eyebrow">Sala de imprensa</div>
-    <div class="feed">${G.noticias.slice(0,9).map(n=>`<div><span class="dim num">${n.ano}</span> ${esc(n.txt)}</div>`).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
+    ${(()=>{const m=manchete();return m?`<div class="manchete ${m.meu?'me':''}"><div class="eyebrow">Manchete da semana</div>
+      <h3 class="sub" style="margin:4px 0 0">${esc(m.txt)}</h3></div>`:'';})()}
+    <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
   </div>`;
 }
 function vElenco(){
@@ -961,9 +963,34 @@ function vPremios(){
     :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
       e uma carreira longa.</div>`}</div>`;
 }
+/* ---------- notícias ---------- */
+let newsAba='tudo';
+function linhaNoticia(n){
+  if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
+  /* o nome de quem a notícia cita vira link para a ficha */
+  let txt=esc(n.txt);
+  for(const id of (n.p||[]).slice(0,4)){
+    const p=P(id);if(!p)continue;
+    const nm=esc(p.nome),i=txt.indexOf(nm);
+    if(i<0)continue;
+    txt=txt.slice(0,i)+`<span class="jrow news-link" data-p="${id}">${nm}</span>`+txt.slice(i+nm.length);
+  }
+  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
+}
+function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
+function noticiasDaAba(aba){
+  if(aba==='tudo')return G.noticias;
+  if(aba==='clube')return G.noticias.filter(n=>n.meu);
+  return G.noticias.filter(n=>n.c===aba);
+}
 function vNews(){
+  const abas=[['tudo','Tudo'],...Object.entries(CAT_NOTICIA)];
+  const lista=noticiasDaAba(newsAba).filter(n=>n.txt);
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
-  <div class="card flat"><div class="feed" style="max-height:none">${G.noticias.map(n=>`<div><span class="dim num">${n.ano}</span> ${esc(n.txt)}</div>`).join('')||'<div class="dim">Sem notícias.</div>'}</div></div>`;
+  <div class="tabs">${abas.map(([k,n])=>{
+    const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
+    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${n} <span class="dim">${q}</span></button>`;}).join('')}</div>
+  <div class="card flat"><div class="feed" style="max-height:none">${lista.map(linhaNoticia).join('')||'<div class="dim">Sem notícias aqui.</div>'}</div></div>`;
 }
 
 /* ============================================================

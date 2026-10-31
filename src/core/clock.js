@@ -209,13 +209,13 @@ function desenvolver(p,t){
     :FADIGA_TREINO+((t.treino&&t.treino.mapa)?FADIGA_TREINO_MAPA:0);
   p.fadiga=clamp(p.fadiga-0.035-(t.estrutura.gh*0.004)+(t.tatica.scrim-2)*0.008
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
-  if(p.lesao>0){p.lesao--;if(!p.lesao)noticia(p.nome+' está recuperado.');}
+  if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}
   p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004,.15,1);
   /* burnout: fadiga acumulada cobra moral e abre risco de lesão */
   if(p.fadiga>0.82){
     p.moral=clamp(p.moral-0.022,.15,1);
     if(rnd()<0.02+ (p.fadiga-0.82)*0.10){p.lesao=ri(1,2);
-      if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.');}
+      if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.',{c:'clube',p:[p.id]});}
   }
   const o=over(p),gap=p.pot-o;
   /* Pico e declínio acompanham a carreira mais longa: cresce até 27, estabiliza
