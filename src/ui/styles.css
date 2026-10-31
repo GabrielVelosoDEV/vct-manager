@@ -774,3 +774,6 @@ tr.descansa td{opacity:.62}
 .int-mini.f-morno i{background:var(--amber)}
 .int-mini.f-frio i,.int-mini.f-fechado i{background:var(--red)}
 .int-mini b{font-size:11.5px;min-width:18px}
+.neg-contrato{display:flex;flex-direction:column;gap:4px;align-items:center;padding:10px 14px;border:1px solid var(--line2);background:var(--panel)}
+.neg-contrato b{font-size:20px}
+.neg-multa button{width:auto;padding:0 10px}

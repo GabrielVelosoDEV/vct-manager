@@ -22,7 +22,7 @@ function modalNegociacao(id){
   let n=negociacaoAtivaDe(p.id);
   if(!n){
     /* janela fechada ou porta fechada: mostra a mesa só para olhar */
-    const bloqueio=!G.janela?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta.'
+    const bloqueio=!G.janela&&!podePreContrato(p,t)?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta (ou pré-contrato, no último ano dele, da semana '+SEMANA_PRECONTRATO+' em diante).'
       :conversaFechada(p)?'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'
       :null;
     const duras=recusasDuras(p,t,2);
@@ -31,6 +31,18 @@ function modalNegociacao(id){
     if(!r.ok)return mesa(p,null,r.erro);
     n=r.neg;
     _mesaRasc={};
+  }
+  mesa(p,n,null);
+}
+/* renovação: a mesma mesa, só com a conversa com o jogador */
+function modalRenovacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  let n=negociacaoAtivaDe(p.id);
+  if(!n||n.tipo!=='renovacao'){
+    const r=abrirRenovacao(p,t);
+    if(!r.ok)return mesa(p,null,r.erro,'renovacao');
+    n=r.neg;_mesaRasc={};
   }
   mesa(p,n,null);
 }
@@ -84,14 +96,17 @@ function _chat(n){
     <div class="neg-msg m-${h.de}">${quem[h.de]?`<span class="neg-quem">${quem[h.de]}</span>`:''}${esc(h.txt)}</div>`).join('')}</div>`;
 }
 
-function mesa(p,n,bloqueio){
+function mesa(p,n,bloqueio,tipoBloq){
   const t=meu();
+  const tipo=n?n.tipo||'compra':tipoBloq||'compra';
+  const renov=tipo==='renovacao', pre=tipo==='precontrato';
   const fechada=n&&n.fase==='fechada';
   /* depois de assinar ele já é seu: o lado de lá e o termômetro ficam como estavam na mesa */
   const origem=fechada?(n.origemId?T(n.origemId):null):p.timeId?T(p.timeId):null;
   const ps=posturaDoClube(p);
   const promRasc=!!_mesaRasc.promessa;
-  const it=fechada&&n.interesse?n.interesse:interessePor(p,t,{promessa:promRasc});
+  const it=fechada&&n.interesse?n.interesse:n?interesseDaNeg(n,promRasc)
+    :renov?interesseEmFicar(p,t):interessePor(p,t);
   const pf=PERFIS[perfilDe(p)];
   const fase=n?n.fase:'bloqueada';
   const multa=multaDe(p);
@@ -100,7 +115,16 @@ function mesa(p,n,bloqueio){
   const lado=(time,rot,extra)=>`<div class="neg-lado">
     ${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
     <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
-  const palco=`<div class="neg-palco">
+  const palco=renov?`<div class="neg-palco">
+    <div class="neg-lado"><div class="neg-contrato"><span class="eyebrow">Contrato atual</span>
+      <b class="num">${dinheiro(fechada&&n.final?n.final.sal:p.salario)}/mês</b>
+      <span class="dim">${fechada?'renovado':p.contrato<=1?'vence no fim desta temporada':'mais '+p.contrato+' ano(s)'}</span>
+      <span class="dim">Multa ${dinheiro(multaDe(p))}</span></div></div>
+    <div class="neg-centro">${cartaJogador(p,{w:150})}
+      <div class="neg-perfil" title="${esc(pf.desc)}">Perfil: <b>${esc(pf.nome)}</b></div></div>
+    <div class="neg-seta${fase==='fechada'?' ok':''}"><span></span></div>
+    ${lado(t,'Renova com',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
+  </div>`:`<div class="neg-palco">
     ${lado(origem,'Sai de',fechada?'':origem?`<div><span class="chip ${ps.cls}">${esc(ps.nome)}</span></div>
       <div class="dim neg-sub">Multa ${dinheiro(multa)}</div>`:'<div class="dim neg-sub">Sem taxa de transferência</div>')}
     <div class="neg-centro">${cartaJogador(p,{w:150})}
@@ -112,11 +136,13 @@ function mesa(p,n,bloqueio){
   const passo=(k,rot,est)=>`<div class="neg-passo ${est}"><i>${k}</i>${rot}</div>`;
   const est1=!origem?'pulado':fase==='clube'?'atual':(fase==='jogador'||fase==='fechada'||(n&&n.taxa))?'feito':'';
   const est2=fase==='jogador'?'atual':fase==='fechada'?'feito':'';
-  const passos=`<div class="neg-passos">${passo(1,origem?'Acordo com o clube':'Sem clube a negociar',est1)}
+  const passos=renov?`<div class="neg-passos">${passo(1,'Proposta de renovação',fase==='jogador'?'atual':fase==='fechada'?'feito':'')}
+    <b></b>${passo(2,'Assinatura',fase==='fechada'?'feito':'')}</div>`
+   :`<div class="neg-passos">${passo(1,pre?'Pré-contrato: sem taxa':origem?'Acordo com o clube':'Sem clube a negociar',pre?'feito':est1)}
     <b></b>${passo(2,'Contrato com o jogador',est2)}<b></b>${passo(3,'Assinatura',fase==='fechada'?'feito':'')}</div>`;
 
   const esquerda=`<div class="neg-col">
-    <div class="eyebrow">O que ele pensa do ${esc(t.nome)}</div>
+    <div class="eyebrow">${renov?'Vontade de ficar no ':'O que ele pensa do '}${esc(t.nome)}</div>
     ${_termometro(it)}
     ${_fatores(it)}
     <p class="dim neg-nota">${esc(pf.nome)}: ${esc(pf.desc)}</p>
@@ -144,6 +170,7 @@ function mesa(p,n,bloqueio){
         <button class="btn" id="cEnviar">Enviar proposta</button>
         ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
         <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
+        ${podePreContrato(p,t)?`<button class="btn teal" id="cPre" title="Último ano de contrato: ele chega de graça na virada">Pré-contrato (sem taxa)</button>`:''}
       </div>
       <div id="pFeed"></div>
       <div class="neg-previa"><div class="eyebrow">Depois, com o jogador</div>
@@ -154,13 +181,15 @@ function mesa(p,n,bloqueio){
     const c=n.contraJog||{};
     const sal0=_mesaRasc.sal!=null?_mesaRasc.sal:(c.sal||0);
     const anos0=_mesaRasc.anos||c.anos||2;
-    const luvas0=_mesaRasc.luvas!=null?_mesaRasc.luvas:0;
+    const luvas0=_mesaRasc.luvas!=null?_mesaRasc.luvas:(c.luvas||0);
     const maxSal=Math.max(1000,Math.round((c.sal||1000)*1.8/100)*100);
     const maxLuvas=Math.max(10000,Math.round((c.sal||1000)*24/500)*500);
-    const d=pedidoContrato(p,t,anos0,promRasc).d;
+    const multa0=_mesaRasc.multa||c.multa||'padrao';
+    const d=pedidoDaNeg(n,anos0,promRasc,multa0).d;
     direita=`<div class="neg-col">
       <div class="split"><div class="eyebrow">Conversa com ${esc(p.nome)}</div>${_pac(n.pacJog,n.pacJogMax)}</div>
-      ${n.taxa?`<p class="dim">${n.viaMulta?'Multa paga':'Taxa acertada'}: <b>${dinheiro(n.taxa)}</b>. ${esc(anosPreferidos(p).txt)}</p>`
+      ${pre?`<p class="dim">Pré-contrato: ele cumpre o contrato com o ${esc(T(p.timeId).nome)} e chega de graça na virada. ${esc(anosPreferidos(p).txt)}</p>`
+       :n.taxa?`<p class="dim">${n.viaMulta?'Multa paga':'Taxa acertada'}: <b>${dinheiro(n.taxa)}</b>. ${esc(anosPreferidos(p).txt)}</p>`
               :`<p class="dim">${esc(anosPreferidos(p).txt)}</p>`}
       <label class="neg-campo"><span>Salário mensal</span>
         <input type="range" id="pSalR" min="0" max="${maxSal}" step="100" value="${sal0}">
@@ -171,6 +200,9 @@ function mesa(p,n,bloqueio){
       <label class="neg-campo"><span>Luvas (na assinatura)</span>
         <input type="range" id="pLuvasR" min="0" max="${maxLuvas}" step="500" value="${luvas0}">
         <input type="number" id="pLuvas" value="${luvas0}" step="500"></label>
+      <div class="neg-campo"><span>Multa rescisória</span>
+        <div class="neg-anos neg-multa">${Object.entries(NIVEIS_MULTA).map(([k,m])=>`<button class="${k===multa0?'on':''}" data-multa="${k}" title="${esc(m.txt)}">${m.nome}</button>`).join('')}</div>
+        <input type="hidden" id="pMulta" value="${multa0}"></div>
       <label class="neg-check"><input type="checkbox" id="pProm" ${promRasc?'checked':''}>
         Prometer titularidade em contrato <span class="dim">(se ele não for titular em ${typeof PROMESSA_PRAZO!=='undefined'?PROMESSA_PRAZO:8} semanas, a moral despenca)</span></label>
       <div id="pBarra"></div>
@@ -186,28 +218,30 @@ function mesa(p,n,bloqueio){
           <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${dinheiro(d.base)}</td></tr>
           ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
             <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+          ${multa0!=='padrao'?`<tr><td>Multa ${NIVEIS_MULTA[multa0].nome.toLowerCase()}</td><td class="r num ${NIVEIS_MULTA[multa0].f>1?'dn':'up'}">${NIVEIS_MULTA[multa0].f>1?'+':''}${Math.round((NIVEIS_MULTA[multa0].f-1)*100)}%</td></tr>`:''}
           ${premioAnos(p,anos0)>1?`<tr><td>Fora da duração que ele quer</td><td class="r num dn">+${Math.round((premioAnos(p,anos0)-1)*100)}%</td></tr>`:''}
         </tbody></table></details>
     </div>`;
   }else if(fase==='fechada'){
     const f=n.final||{};
     direita=`<div class="neg-col neg-fechada">
-      <div class="neg-carimbo">Contratado</div>
+      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':'Contratado'}</div>
+      ${pre?`<p class="dim">Chega na virada da temporada, quando o contrato atual dele acabar.</p>`:''}
       <table><tbody>
         ${f.taxa?`<tr><td>${n.viaMulta?'Multa rescisória':'Taxa de transferência'}</td><td class="r num">${dinheiro(f.taxa)}</td></tr>`:''}
         <tr><td>Salário</td><td class="r num">${dinheiro(f.sal)}/mês por ${f.anos} ano(s)</td></tr>
         ${f.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(f.luvas)}</td></tr>`:''}
         <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>
         ${f.promessa?'<tr><td colspan="2">Titularidade prometida em contrato</td></tr>':''}
-        <tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>
+        ${pre?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
       </tbody></table></div>`;
   }else{
     direita=`<div class="neg-col"><div class="neg-aviso">A conversa terminou sem acordo.
-      Dá para tentar de novo em ${semanasAteNegociar(p)} semana(s).</div></div>`;
+      Dá para tentar de novo em ${renov?semanasAteRenovar(p):semanasAteNegociar(p)} semana(s).</div></div>`;
   }
 
   abrir(`<div class="neg">
-    <div class="eyebrow">Negociação</div><h2 class="sec">${esc(p.nome)}</h2>
+    <div class="eyebrow">${renov?'Renovação':pre?'Pré-contrato':'Negociação'}</div><h2 class="sec">${esc(p.nome)}</h2>
     ${palco}${passos}
     <div class="neg-corpo">${esquerda}${direita}</div>
     ${_chat(n)}
@@ -244,6 +278,7 @@ function _ligarMesa(p,n){
       if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
       depois();
     };
+    const bp=$('#cPre');if(bp)bp.onclick=()=>{const r=irParaPreContrato(n);if(!r.ok)return feed(r.erro);depois();};
     const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
     $('#cMulta').onclick=async()=>{
       const ok=await confirmar('Pagar a multa rescisória de '+dinheiro(multaDe(p))+'? O clube não pode recusar, mas o dinheiro só sai se o jogador assinar.','Pagar a multa');
@@ -253,7 +288,7 @@ function _ligarMesa(p,n){
   }
   if(n.fase==='jogador'){
     const oferta=()=>({sal:parseFloat($('#pSal').value)||0,anos:parseInt($('#pAnos').value)||2,
-      luvas:parseFloat($('#pLuvas').value)||0,promessa:$('#pProm').checked});
+      luvas:parseFloat($('#pLuvas').value)||0,promessa:$('#pProm').checked,multa:$('#pMulta').value});
     const viva=()=>{
       const o=oferta();
       Object.assign(_mesaRasc,o);
@@ -275,6 +310,8 @@ function _ligarMesa(p,n){
     $('#modal').querySelectorAll('[data-anos]').forEach(b=>b.onclick=()=>{
       $('#pAnos').value=b.dataset.anos;_mesaRasc.anos=+b.dataset.anos;
       $('#modal').querySelectorAll('[data-anos]').forEach(x=>x.classList.toggle('on',x===b));viva();});
+    $('#modal').querySelectorAll('[data-multa]').forEach(b=>b.onclick=()=>{
+      $('#pMulta').value=b.dataset.multa;Object.assign(_mesaRasc,oferta());depois();});
     /* a promessa muda o pedido e o interesse: redesenha a mesa inteira */
     $('#pProm').onchange=()=>{Object.assign(_mesaRasc,oferta());depois();};
     viva();
@@ -287,7 +324,7 @@ function _ligarMesa(p,n){
     const jc=$('#jContra');if(jc)jc.onclick=()=>{const r=aceitarContraJogador(n);if(!r.ok)return feed(r.erro);depois();};
     $('#pJusto').onclick=()=>{
       const o=oferta();
-      const {pedido}=pedidoContrato(p,t,o.anos,o.promessa);
+      const {pedido}=pedidoDaNeg(n,o.anos,o.promessa,o.multa);
       const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
       const sal=Math.max(300,Math.ceil((pedido-(o.luvas*k)/(o.anos*12))/100)*100);
       $('#pSal').value=sal;$('#pSalR').value=sal;viva();

@@ -4004,10 +4004,81 @@ await teste('Finanças › Renovar abre a negociação e fecha acordo pela tela'
     if(w.document.querySelector('#dialogo .ovl'))throw new Error('ainda abre um confirm em vez da negociação');
     const M=w.document.querySelector('#modal');
     if(!/Por que ele pede isso/.test(M.textContent))throw new Error('a negociação não explica o pedido');
-    clicar(M.querySelector('#rJusto'));
-    clicar(M.querySelector('#rEnviar'));
-    if(!/Acordo fechado/.test(M.textContent))throw new Error('o pedido dele não fechou acordo: '+M.querySelector('#rFeed').textContent);
-  }finally{Object.assign(p,JSON.parse(foto));w.document.querySelector('#modal').innerHTML='';}
+    if(!/Vontade de ficar/.test(M.textContent))throw new Error('sem termômetro de vontade de ficar');
+    clicar(M.querySelector('#pJusto'));
+    clicar(M.querySelector('#pEnviar'));
+    if(!/Renovado/.test(M.textContent))throw new Error('o pedido dele não fechou acordo: '+M.querySelector('.neg-chat').textContent);
+  }finally{Object.assign(p,JSON.parse(foto));t.G.negociacoes=[];w.document.querySelector('#modal').innerHTML='';}
+});
+
+await teste('renovação na mesa: multa alta custa mais, luvas baixam o salário, e esgotar fecha a porta',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.elenco[1]];
+  const foto=JSON.stringify(p);const caixa=time.caixa;
+  try{
+    p.moral=0.7;delete p.renovBloq;delete p.preContrato;time.caixa=9e7;
+    const n=w.abrirRenovacao(p,time).neg;
+    const pad=w.pedidoDaNeg(n,2,false,'padrao').pedido, alta=w.pedidoDaNeg(n,2,false,'alta').pedido;
+    if(!(alta>pad))throw new Error('multa alta não custou mais');
+    const semLuvas=w.avaliarOfertaJogador(n,{sal:pad*0.9,anos:2,luvas:0}).razao;
+    const comLuvas=w.avaliarOfertaJogador(n,{sal:pad*0.9,anos:2,luvas:pad*6}).razao;
+    if(!(comLuvas>semLuvas))throw new Error('luvas não compensaram salário');
+    let k=0;while(n.fase==='jogador'&&k++<10)w.proporAoJogador(n,{sal:300,anos:2});
+    if(n.fase!=='encerrada')throw new Error('proposta ridícula repetida não encerrou');
+    if(!w.renovacaoFechada(p))throw new Error('a renovação não ficou fechada');
+  }finally{Object.assign(p,JSON.parse(foto));time.caixa=caixa;t.G.negociacoes=[];}
+});
+
+await teste('pré-contrato: no último ano ele acerta sem taxa e chega na virada',async()=>{
+  const time=meuTimeDeTeste();
+  const semana=t.G.semana, caixa=time.caixa, janela=t.G.janela;
+  const p=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==time.id&&!x.base&&!x.emprestimo
+    &&!t.recusasDuras(x,time,2).length);
+  const foto=JSON.stringify(p);
+  const dono=t.G.times[p.timeId];
+  const elencos=JSON.stringify([time.elenco,time.titulares,dono.elenco,dono.titulares]);
+  try{
+    t.G.semana=30;t.G.janela=false;time.caixa=9e7;p.contrato=1;
+    if(!w.podePreContrato(p,time))throw new Error('não liberou pré-contrato no último ano');
+    const n=w.abrirNegociacao(p,time).neg;
+    if(!n||n.tipo!=='precontrato')throw new Error('com a janela fechada não abriu como pré-contrato');
+    const a=w.pedidoDaNeg(n,n.contraJog.anos,false,'padrao');
+    const r=w.proporAoJogador(n,{sal:a.pedido,anos:n.contraJog.anos});
+    if(r.resposta!=='aceita')throw new Error('o pedido dele não fechou: '+JSON.stringify(r));
+    if(!p.preContrato||p.preContrato.clubeId!==time.id)throw new Error('pré-contrato não registrado');
+    if(p.timeId===time.id)throw new Error('ele chegou antes da hora');
+    p.contrato=0;
+    if(!w.cumprirPreContrato(p)||p.timeId!==time.id)throw new Error('na virada ele não se apresentou');
+  }finally{
+    Object.assign(p,JSON.parse(foto));delete p.preContrato;
+    [time.elenco,time.titulares,dono.elenco,dono.titulares]=JSON.parse(elencos);
+    t.G.semana=semana;time.caixa=caixa;t.G.janela=janela;t.G.negociacoes=[];
+  }
+});
+
+await teste('a IA sonda e assina pré-contrato com quem você não renovou',async()=>{
+  const time=meuTimeDeTeste();
+  const semana=t.G.semana;
+  const fotos=time.elenco.map(i=>JSON.stringify(t.G.jogadores[i]));
+  try{
+    t.G.semana=28;
+    time.elenco.forEach(i=>{const x=t.G.jogadores[i];x.contrato=1;delete x.preContrato;delete x.sondado;});
+    let sondou=false,assinou=false;
+    for(let k=0;k<30&&!assinou;k++){
+      w.rondaPreContratos();
+      sondou=sondou||time.elenco.some(i=>t.G.jogadores[i].sondado);
+      assinou=time.elenco.some(i=>t.G.jogadores[i].preContrato);
+      t.G.semana=Math.min(51,t.G.semana+1);
+    }
+    if(!sondou)throw new Error('ninguém sondou');
+    if(!assinou)throw new Error('ninguém assinou pré-contrato em 30 rodadas');
+    const x=time.elenco.map(i=>t.G.jogadores[i]).find(y=>y.preContrato);
+    if(w.abrirRenovacao(x,time).ok)throw new Error('deixou renovar com quem já assinou com outro');
+  }finally{
+    time.elenco.forEach((i,k)=>Object.assign(t.G.jogadores[i],JSON.parse(fotos[k])));
+    time.elenco.forEach(i=>{delete t.G.jogadores[i].preContrato;delete t.G.jogadores[i].sondado;});
+    t.G.semana=semana;t.G.negociacoes=[];
+  }
 });
 
 await teste('o tempo muda a tática do mapa, e só dele',async()=>{

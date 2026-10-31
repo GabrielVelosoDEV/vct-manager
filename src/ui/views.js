@@ -663,12 +663,14 @@ let mercAba='jogadores';
 function vMercado(){
   const t=meu();
   const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
+  const venc=t.elenco.map(P).filter(p=>p&&p.contrato<=1).length;
   const abas=`<div class="tabs">${[['jogadores','Jogadores'],['comissao','Comissão técnica'],
-      ['saidas','Saídas'+(pend?' ('+pend+')':'')]]
+      ['saidas','Saídas'+(pend?' ('+pend+')':'')],
+      ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
-    <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':'Scout'}</h2>${abas}${
-    mercAba==='comissao'?vMercadoStaff(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
+    <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
+    mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
 /* ---------- saídas: vender e emprestar ----------
    A tela é deliberadamente do lado de cá do balcão: você anuncia, e as
@@ -758,6 +760,46 @@ function vMercadoStaff(t){
       <td class="r num">${money(salarioPedidoStaff(m,t))}</td>
       <td class="r"><button class="btn sm" data-propstaff="${m.id}" ${G.janela?'':'disabled'}>Propor</button></td>
     </tr>`).join('')}</tbody></table></div>`;
+}
+/* ---------- contratos ----------
+   Quem vence, quanto cada um quer ficar e quem já está sendo sondado. Do
+   outro lado, quem está no último ano nos outros clubes: alvo de pré-contrato. */
+function vMercadoContratos(t){
+  const meus=t.elenco.map(P).filter(Boolean).sort((a,b)=>a.contrato-b.contrato||over(b)-over(a));
+  const situacao=p=>{
+    if(p.preContrato&&T(p.preContrato.clubeId))return `<span class="chip r">Pré-contrato com ${esc(T(p.preContrato.clubeId).tag)}</span>`;
+    if(p.sondado&&T(p.sondado.clubeId))return `<span class="chip" style="color:var(--amber)">Sondado pelo ${esc(T(p.sondado.clubeId).tag)}</span>`;
+    if(renovacaoFechada(p))return `<span class="dim">conversa fechada · ${semanasAteRenovar(p)} sem.</span>`;
+    if(negociacaoAtivaDe(p.id))return '<span class="chip t">em negociação</span>';
+    return p.contrato<=1?'<span class="dn">vence no fim da temporada</span>':'<span class="dim">—</span>';
+  };
+  const ficar=p=>{const it=interesseEmFicar(p,t);
+    return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;};
+  const outros=Object.values(G.jogadores).filter(p=>p.timeId&&p.timeId!==t.id&&p.contrato<=1&&!p.base&&!p.emprestimo)
+    .sort((a,b)=>over(b)-over(a)).slice(0,30);
+  const aberto=janelaPreContrato();
+  return `<div class="card flat"><div class="eyebrow">Seus contratos</div>
+    <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
+    pré-contrato com outro clube e sair de graça. Renove antes.</p>
+    <table class="wide"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
+      <th class="c">Vontade de ficar</th><th>Situação</th><th></th></tr></thead>
+    <tbody>${meus.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
+      <td class="c">${ovTag(p)}</td><td class="r num">${money(p.salario)}</td>
+      <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td><td class="c">${ficar(p)}</td>
+      <td>${situacao(p)}</td>
+      <td class="r"><button class="btn ghost sm" data-renov="${p.id}" ${p.preContrato?'disabled':''}>Renovar</button></td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="card flat"><div class="eyebrow">Último ano em outros clubes</div>
+    <p class="dim" style="margin-bottom:8px">${aberto?'Pré-contrato liberado: negocie direto com o jogador, sem taxa. Ele chega na virada.'
+      :'O pré-contrato abre na semana '+SEMANA_PRECONTRATO+'. Até lá, só comprando do clube.'}</p>
+    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
+      <th class="c">Interesse</th><th>Situação</th><th></th></tr></thead>
+    <tbody>${outros.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
+      <td class="dim">${esc(nomeT(p.timeId))}</td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
+      <td class="c">${interesseMini(p,t)}</td>
+      <td>${p.preContrato&&T(p.preContrato.clubeId)?'<span class="chip r">acertado com '+esc(T(p.preContrato.clubeId).tag)+'</span>':'<span class="dim">livre para conversar</span>'}</td>
+      <td class="r"><button class="btn sm" data-prop="${p.id}" ${p.preContrato?'disabled':''}>${aberto?'Pré-contrato':'Negociar'}</button></td></tr>`).join('')}
+    </tbody></table></div>`;
 }
 /* termômetro de bolso para a lista do mercado */
 function interesseMini(p,t){

@@ -808,6 +808,9 @@ tr.descansa td{opacity:.62}
 .int-mini.f-morno i{background:var(--amber)}
 .int-mini.f-frio i,.int-mini.f-fechado i{background:var(--red)}
 .int-mini b{font-size:11.5px;min-width:18px}
+.neg-contrato{display:flex;flex-direction:column;gap:4px;align-items:center;padding:10px 14px;border:1px solid var(--line2);background:var(--panel)}
+.neg-contrato b{font-size:20px}
+.neg-multa button{width:auto;padding:0 10px}
 
 </style>
 </head>
@@ -7795,6 +7798,8 @@ function semana(){
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
+  /* último ano de contrato: clubes sondam e assinam pré-contrato com os seus */
+  if(typeof rondaPreContratos==='function')rondaPreContratos();
   /* O patch da Riot cai na semana marcada, depois de o mundo ter jogado com o
      meta antigo — assim o nerf responde ao uso da temporada. */
   if(typeof patchDaSemana==='function')patchDaSemana();
@@ -7922,7 +7927,8 @@ function contratar(p,time,anos,sal){
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
-  delete p.multa;
+  delete p.multa;delete p.sondado;
+  if(p.preContrato&&p.preContrato.clubeId!==time.id)delete p.preContrato;
   if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de
@@ -8666,10 +8672,12 @@ function abrirNegociacao(p,dest){
   if(conversaFechada(p))
     return{ok:false,erro:'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'};
   const origem=p.timeId?G.times[p.timeId]:null;
+  if(!G.janela&&!podePreContrato(p,dest))
+    return{ok:false,erro:'A janela está fechada.'};
   const ps=posturaDoClube(p);
   const it=interessePor(p,dest);
   const preco=precoPedido(p);
-  const n={id:'ng'+G.ano+'_'+(_hashTxt(p.id+'|'+_semanaNeg()+'|'+negociacoes().length)%1e6).toString(36),
+  const n={tipo:'compra',id:'ng'+G.ano+'_'+(_hashTxt(p.id+'|'+_semanaNeg()+'|'+negociacoes().length)%1e6).toString(36),
     jogadorId:p.id,origemId:origem?origem.id:null,destinoId:dest.id,
     fase:origem?'clube':'jogador',
     postura:ps.id,
@@ -8688,6 +8696,49 @@ function abrirNegociacao(p,dest){
     _fala(n,'jogador','Estou sem clube e aberto a propostas. Vamos conversar.');
   }
   negociacoes().push(n);
+  /* com a janela fechada, o único caminho é o pré-contrato */
+  if(!G.janela&&origem)irParaPreContrato(n);
+  return{ok:true,neg:n};
+}
+
+/* ---------- pré-contrato ----------
+   No último ano de contrato, da segunda metade da temporada em diante, o
+   jogador pode acertar com outro clube sem taxa nenhuma. Ele cumpre o
+   contrato até o fim e só se apresenta na virada. É a porta que faz renovar
+   cedo valer a pena. */
+const SEMANA_PRECONTRATO=27;
+function janelaPreContrato(){return (G.semana||1)>=SEMANA_PRECONTRATO;}
+function podePreContrato(p,dest){
+  return !!(p&&p.timeId&&dest&&p.timeId!==dest.id&&p.contrato<=1&&janelaPreContrato()
+    &&!p.preContrato&&!p.emprestimo&&!p.base);
+}
+function irParaPreContrato(n){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
+  if(!podePreContrato(p,dest))return{ok:false,erro:p.nome+' não está no último ano de contrato, ou ainda não é a segunda metade da temporada.'};
+  n.tipo='precontrato';n.fase='jogador';n.taxa=0;
+  _fala(n,'voce','Queremos acertar um pré-contrato: você chega de graça quando o contrato com o '+G.times[p.timeId].nome+' acabar.');
+  _abrirJogador(n);
+  return{ok:true};
+}
+
+/* ---------- renovação na mesa ---------- */
+function abrirRenovacao(p,t){
+  t=t||G.times[G.meuTime];
+  if(!p||!t||p.timeId!==t.id)return{ok:false,erro:'Só dá para renovar com jogador do seu elenco.'};
+  const ja=negociacaoAtivaDe(p.id);
+  if(ja&&ja.tipo==='renovacao')return{ok:true,neg:ja};
+  const duras=recusasRenovacao(p,t,anosPreferidos(p).faixa[0]);
+  if(duras.length)return{ok:false,erro:duras.join(' ')};
+  const it=interesseEmFicar(p,t);
+  const n={tipo:'renovacao',id:'rn'+G.ano+'_'+(_hashTxt(p.id+'|r|'+_semanaNeg()+'|'+negociacoes().length)%1e6).toString(36),
+    jogadorId:p.id,origemId:t.id,destinoId:t.id,fase:'jogador',postura:'',
+    pacClube:0,pacClubeMax:0,
+    pacJog:RENOV_TENTATIVAS+(it.nota>=48?1:0)+(it.nota>=70?1:0),pacJogMax:0,
+    pedidaClube:0,taxa:0,viaMulta:false,contraJog:null,hist:[],ano:G.ano,semana:G.semana};
+  n.pacJogMax=n.pacJog;
+  negociacoes().push(n);
+  _abrirJogador(n);
   return{ok:true,neg:n};
 }
 
@@ -8695,6 +8746,12 @@ function abrirNegociacao(p,dest){
 function _encerrar(n,quem){
   const p=G.jogadores[n.jogadorId];
   n.fase='encerrada';
+  if(p&&n.tipo==='renovacao'){
+    /* renovação usa a trava própria (renovacao.js), que a ficha e Finanças leem */
+    p.renovTent=0;p.renovBloq=_semanaNeg()+RENOV_ESPERA;p.moral=clamp(p.moral-0.05,0.05,1);
+    _fala(n,'sistema',p.nome+' cansou e encerrou a conversa. Dá para tentar de novo em '+RENOV_ESPERA+' semanas.');
+    return;
+  }
   if(p){p.negBloq=_semanaNeg()+NEG_ESPERA;}
   _fala(n,'sistema',(quem==='clube'?'O clube':'O jogador')+' encerrou as conversas. Dá para tentar de novo em '+NEG_ESPERA+' semanas.');
 }
@@ -8748,41 +8805,80 @@ function pagarMulta(n,jaFalou){
   _abrirJogador(n);
   return{ok:true,resposta:'aceita',valor:multa,multa:true};
 }
+/* ---------- multa no contrato novo ----------
+   Multa baixa facilita a saída e o jogador gosta; multa alta prende e ele
+   cobra por isso. */
+const NIVEIS_MULTA={
+  baixa: {nome:'Baixa', k:0.7, f:0.96, txt:'Facilita a saída: ele pede um pouco menos.'},
+  padrao:{nome:'Padrão',k:1,   f:1,    txt:'Pelo valor de mercado e os anos de contrato.'},
+  alta:  {nome:'Alta',  k:1.5, f:1.06, txt:'Prende o jogador: ele cobra mais por isso.'}};
+function _nivelMulta(m){return NIVEIS_MULTA[m]?m:'padrao';}
+
+/* Pedido do jogador para esta conversa: compra e pré-contrato usam o pedido
+   de mudança de clube; renovação usa o de ficar. */
+function pedidoDaNeg(n,anos,promessa,multa){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  const fm=NIVEIS_MULTA[_nivelMulta(multa)].f;
+  if(n.tipo==='renovacao'){
+    const d=pedidoRenovacao(p,dest,{promessa});
+    return{d,pedido:Math.max(300,_arred(d.pedido*premioAnos(p,anos)*fm,100))};
+  }
+  const r=pedidoContrato(p,dest,anos,promessa);
+  return{d:r.d,pedido:Math.max(300,_arred(r.pedido*fm,100))};
+}
+function interesseDaNeg(n,promessa){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  return n.tipo==='renovacao'?interesseEmFicar(p,dest,{promessa}):interessePor(p,dest,{promessa});
+}
+
 function _abrirJogador(n){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
-  const it=interessePor(p,dest);
+  const it=interesseDaNeg(n,false);
   const pref=anosPreferidos(p);
-  const {pedido}=pedidoContrato(p,dest,pref.faixa[0],false);
-  n.contraJog={sal:pedido,anos:pref.faixa[0],luvas:0};
-  _fala(n,'jogador',it.nota>=70?'Seria um sonho jogar no '+dest.nome+'. Penso em '+dinheiro(pedido)+'/mês.'
-    :it.nota>=48?'Gosto do projeto. Penso em '+dinheiro(pedido)+'/mês por '+pref.faixa[0]+' ano(s).'
-    :'Posso ouvir. Mas para mudar quero '+dinheiro(pedido)+'/mês.',{valor:pedido});
+  const {pedido}=pedidoDaNeg(n,pref.faixa[0],false,'padrao');
+  n.contraJog={sal:pedido,anos:pref.faixa[0],luvas:0,multa:'padrao'};
+  let txt;
+  if(n.tipo==='renovacao')
+    txt=it.nota>=70?'Quero ficar. Por '+dinheiro(pedido)+'/mês a gente fecha rápido.'
+      :it.nota>=48?'Topo conversar. Penso em '+dinheiro(pedido)+'/mês por '+pref.faixa[0]+' ano(s).'
+      :it.nota>=INTERESSE_MIN?'Não sei se fico. Para ficar, quero '+dinheiro(pedido)+'/mês.'
+      :'Estou pensando em sair. Só fico por '+dinheiro(pedido)+'/mês.';
+  else
+    txt=it.nota>=70?'Seria um sonho jogar no '+dest.nome+'. Penso em '+dinheiro(pedido)+'/mês.'
+      :it.nota>=48?'Gosto do projeto. Penso em '+dinheiro(pedido)+'/mês por '+pref.faixa[0]+' ano(s).'
+      :'Posso ouvir. Mas para mudar quero '+dinheiro(pedido)+'/mês.';
+  _fala(n,'jogador',txt,{valor:pedido});
 }
 
 /* ---------- 2. conversa com o jogador ---------- */
-/* oferta = {sal, anos, luvas, promessa} */
+/* oferta = {sal, anos, luvas, promessa, multa} */
 function avaliarOfertaJogador(n,oferta){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   const anos=clamp(parseInt(oferta.anos)||2,1,4);
-  const {d,pedido}=pedidoContrato(p,dest,anos,!!oferta.promessa);
+  const {d,pedido}=pedidoDaNeg(n,anos,!!oferta.promessa,oferta.multa);
   const eq=salarioEquivalente(p,oferta.sal,anos,oferta.luvas);
   const minimo=pedido*_ocultoJogador(p,dest);
-  const comissao=comissaoEmpresario(p,n.taxa,oferta.sal,anos,oferta.luvas);
+  /* na renovação o empresário leva metade: não há transferência a intermediar */
+  const comissao=Math.round(comissaoEmpresario(p,n.taxa,oferta.sal,anos,oferta.luvas)*(n.tipo==='renovacao'?0.5:1)/500)*500;
   const custo=(n.taxa||0)+(oferta.luvas||0)+comissao;
-  return{d,pedido,eq,minimo,anos,comissao,custo,razao:eq/Math.max(1,pedido),
-         duras:recusasDuras(p,dest,anos)};
+  const duras=n.tipo==='renovacao'?recusasRenovacao(p,dest,anos):recusasDuras(p,dest,anos);
+  return{d,pedido,eq,minimo,anos,comissao,custo,razao:eq/Math.max(1,pedido),duras};
+}
+function _limparOferta(o){
+  return{sal:Math.max(0,_arred(o.sal||0,100)),anos:clamp(parseInt(o.anos)||2,1,4),
+         luvas:Math.max(0,_arred(o.luvas||0,500)),promessa:!!o.promessa,multa:_nivelMulta(o.multa)};
 }
 function proporAoJogador(n,oferta){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   if(!p||!dest||n.fase!=='jogador')return{ok:false,erro:'Essa etapa não está aberta.'};
-  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
-  oferta={sal:Math.max(0,_arred(oferta.sal||0,100)),anos:clamp(parseInt(oferta.anos)||2,1,4),
-          luvas:Math.max(0,_arred(oferta.luvas||0,500)),promessa:!!oferta.promessa};
+  if(n.tipo==='compra'&&!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  oferta=_limparOferta(oferta);
   const a=avaliarOfertaJogador(n,oferta);
   if(a.duras.length)return{ok:false,erro:a.duras.join(' ')};
-  if(dest.caixa<a.custo)return{ok:false,erro:'Caixa insuficiente: taxa, luvas e comissão somam '+dinheiro(a.custo)+'.'};
+  if(dest.caixa<a.custo)return{ok:false,erro:'Caixa insuficiente: '+(n.taxa?'taxa, ':'')+'luvas e comissão somam '+dinheiro(a.custo)+'.'};
   _fala(n,'voce',dinheiro(oferta.sal)+'/mês por '+oferta.anos+' ano(s)'+
-    (oferta.luvas?', '+dinheiro(oferta.luvas)+' de luvas':'')+(oferta.promessa?', titularidade garantida':'')+'.',{valor:oferta.sal});
+    (oferta.luvas?', '+dinheiro(oferta.luvas)+' de luvas':'')+(oferta.promessa?', titularidade garantida':'')+
+    (oferta.multa!=='padrao'?', multa '+NIVEIS_MULTA[oferta.multa].nome.toLowerCase():'')+'.',{valor:oferta.sal});
   if(a.eq>=a.minimo){
     concluirNegociacao(n,oferta,a);
     return{ok:true,resposta:'aceita'};
@@ -8798,10 +8894,10 @@ function proporAoJogador(n,oferta){
      luvas que você ofereceu */
   const pref=anosPreferidos(p).faixa;
   const anos=clamp(oferta.anos,pref[0],pref[1]);
-  const quer=pedidoContrato(p,dest,anos,oferta.promessa).pedido;
+  const quer=pedidoDaNeg(n,anos,oferta.promessa,oferta.multa).pedido;
   const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
   const sal=Math.max(300,_arred(quer-(oferta.luvas*k)/(anos*12)+50,100));
-  n.contraJog={sal,anos,luvas:oferta.luvas,promessa:oferta.promessa};
+  n.contraJog={sal,anos,luvas:oferta.luvas,promessa:oferta.promessa,multa:oferta.multa};
   const principal=a.d.itens.filter(i=>i.fator>1.04).sort((x,y)=>y.fator-x.fator)[0];
   _fala(n,'jogador',(ofensa?'Isso está muito longe. ':'')+'Fecho por '+dinheiro(sal)+'/mês e '+anos+' ano(s)'+
     (oferta.luvas?' com as luvas':'')+'.'+(principal?' Pesa para mim: '+principal.rot.toLowerCase()+'.':''),{valor:sal});
@@ -8813,31 +8909,113 @@ function aceitarContraJogador(n){
 }
 
 /* ---------- fechamento ---------- */
+function _promessaEmContrato(p,clubeId){
+  const prazo=(typeof PROMESSA_PRAZO!=='undefined')?PROMESSA_PRAZO:8;
+  p.promessa={tipo:'titular',ate:(G.semana||1)+prazo,ano:G.ano,clube:clubeId};
+}
 function concluirNegociacao(n,oferta,a){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   const origem=p.timeId?G.times[p.timeId]:null;
+  n.fase='fechada';
+  n.interesse=interesseDaNeg(n,oferta.promessa);
+  n.final={...oferta,taxa:n.taxa,comissao:a.comissao,deId:origem?origem.id:null};
+  const empolgado=n.interesse.nota>=70;
+  if(n.tipo==='renovacao'){
+    dest.caixa-=(oferta.luvas||0)+a.comissao;
+    const generoso=a.eq>=a.pedido*1.10;
+    p.contrato=oferta.anos;p.salario=Math.round(oferta.sal);
+    p.multa=Math.round(multaPadrao(p,oferta.anos)*NIVEIS_MULTA[oferta.multa].k/5000)*5000;
+    p.renovTent=0;delete p.renovBloq;delete p.sondado;
+    p.moral=clamp(p.moral+(generoso?0.09:0.05),0.05,1);
+    if(oferta.promessa&&!(dest.titulares||[]).includes(p.id))_promessaEmContrato(p,dest.id);
+    _fala(n,'jogador',empolgado?'Fechado! Aqui é a minha casa.':'Fechado. Sigo com vocês.');
+    noticia('📄 '+p.nome+' renovou com '+dest.nome+' por '+oferta.anos+' ano(s), '+dinheiro(p.salario)+'/mês'+
+      (oferta.luvas?' e '+dinheiro(oferta.luvas)+' de luvas':'')+'.',{c:'mercado',p:[p.id],t:[dest.id]});
+    return;
+  }
+  if(n.tipo==='precontrato'){
+    dest.caixa-=a.comissao;
+    p.preContrato={clubeId:dest.id,sal:oferta.sal,anos:oferta.anos,luvas:oferta.luvas,
+                   multa:oferta.multa,promessa:oferta.promessa,ano:G.ano};
+    _fala(n,'jogador','Combinado. Cumpro meu contrato e no fim da temporada sou do '+dest.nome+'.');
+    noticia('🤝 '+p.nome+' ('+(origem?origem.tag:'')+') assinou pré-contrato com '+dest.nome+
+      ' e chega de graça na virada da temporada.',{c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id],imp:over(p)>=85?2:1});
+    return;
+  }
   dest.caixa-=(n.taxa||0)+(oferta.luvas||0)+a.comissao;
   if(origem)origem.caixa+=(n.taxa||0);
   const de=origem?origem.tag:'sem clube';
-  n.fase='fechada';
-  n.interesse=interessePor(p,dest,{promessa:oferta.promessa});
-  n.final={...oferta,taxa:n.taxa,comissao:a.comissao,deId:origem?origem.id:null};
-  _fala(n,'jogador',interessePor(p,dest).nota>=70?'Fechado! Mal posso esperar para começar.':'Fechado. Vamos trabalhar.');
+  _fala(n,'jogador',empolgado?'Fechado! Mal posso esperar para começar.':'Fechado. Vamos trabalhar.');
   contratar(p,dest,oferta.anos,oferta.sal);
-  p.multa=multaPadrao(p,oferta.anos);
-  if(oferta.promessa){
-    const prazo=(typeof PROMESSA_PRAZO!=='undefined')?PROMESSA_PRAZO:8;
-    p.promessa={tipo:'titular',ate:(G.semana||1)+prazo,ano:G.ano,clube:dest.id};
-  }
+  p.multa=Math.round(multaPadrao(p,oferta.anos)*NIVEIS_MULTA[oferta.multa].k/5000)*5000;
+  if(oferta.promessa)_promessaEmContrato(p,dest.id);
   /* quem chega empolgado chega motivado */
-  const it=interessePor(p,dest).nota;
-  if(it>=70)p.moral=clamp(p.moral+0.05,0.05,1);
+  if(empolgado)p.moral=clamp(p.moral+0.05,0.05,1);
   registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
   noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
     (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',
     {c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id],imp:over(p)>=88||n.viaMulta?2:1});
   /* contratar() limpa as negociações do jogador; a fechada fica para a tela */
   if(!negociacoes().includes(n))negociacoes().push(n);
+}
+
+/* ---------- pré-contratos da IA pelos seus jogadores ----------
+   Da semana 27 em diante, quem está no último ano e não renovou vira alvo.
+   Primeiro o clube sonda (notícia, para você ter tempo de renovar); duas
+   semanas depois, se ninguém renovou, pode assinar. Roda toda semana. */
+const PRECONTRATO_AVISO=2;
+const PRECONTRATO_CHANCE=0.35;
+function rondaPreContratos(){
+  if(!janelaPreContrato()||!G.meuTime)return 0;
+  const eu=G.times[G.meuTime];if(!eu)return 0;
+  let assinados=0;
+  for(const id of (eu.elenco||[]).slice()){
+    const p=G.jogadores[id];
+    if(!p||p.contrato>1||p.preContrato||p.emprestimo||p.base)continue;
+    if(p.sondado&&!G.times[p.sondado.clubeId])delete p.sondado;
+    if(!p.sondado){
+      const cand=Object.values(G.times).filter(t=>t.id!==eu.id&&(t.elenco||[]).length<ELENCO_MAX)
+        .map(t=>({t,n:interesseDe(t,p)}))
+        .filter(x=>x.n>0&&salarioPedido(p,x.t)<=folgaSalarial(x.t)*1.15)
+        .sort((a,b)=>b.n-a.n);
+      if(!cand.length||rnd()>0.30)continue;
+      const t=cand[0].t;
+      p.sondado={clubeId:t.id,ano:G.ano,semana:G.semana};
+      noticia('👀 '+t.nome+' está sondando '+p.nome+', que está no último ano de contrato. Renove antes que ele assine um pré-contrato.',
+        {c:'mercado',p:[p.id],t:[t.id,eu.id],imp:2});
+      continue;
+    }
+    const sd=p.sondado;
+    const passou=(G.ano-sd.ano)*SEMANAS_ANO+(G.semana-sd.semana);
+    if(passou<PRECONTRATO_AVISO||rnd()>PRECONTRATO_CHANCE)continue;
+    const t=G.times[sd.clubeId];
+    /* ele só vai se quiser mais o clube novo que o atual */
+    const vaiQuerer=interessePor(p,t).nota>=interesseEmFicar(p,eu).nota-5;
+    if(!vaiQuerer||recusasDuras(p,t,2).length){delete p.sondado;continue;}
+    p.preContrato={clubeId:t.id,sal:salarioPedido(p,t),anos:anosPreferidos(p).faixa[1],luvas:0,multa:'padrao',ano:G.ano};
+    delete p.sondado;assinados++;
+    noticia('🤝 '+p.nome+' assinou pré-contrato com '+t.nome+'. Cumpre o contrato e sai de graça no fim da temporada.',
+      {c:'mercado',p:[p.id],t:[t.id,eu.id],imp:2});
+  }
+  return assinados;
+}
+/* Virada: quem tinha pré-contrato e ficou sem contrato se apresenta no clube
+   novo. Devolve true se ele foi. Chamado por fimDeTemporada. */
+function cumprirPreContrato(p){
+  const pc=p.preContrato;
+  if(!pc)return false;
+  delete p.preContrato;
+  const dest=G.times[pc.clubeId];
+  if(!dest||(dest.elenco||[]).length>=ELENCO_MAX)return false;
+  const origem=p.timeId?G.times[p.timeId]:null;
+  dest.caixa-=pc.luvas||0;
+  contratar(p,dest,pc.anos||2,pc.sal||salario(p,dest));
+  p.multa=Math.round(multaPadrao(p,pc.anos||2)*NIVEIS_MULTA[_nivelMulta(pc.multa)].k/5000)*5000;
+  if(pc.promessa)_promessaEmContrato(p,dest.id);
+  registrarTransferencia(p,origem,dest,0,'precontrato');
+  noticia('🤝 '+p.nome+' se apresentou ao '+dest.nome+' pelo pré-contrato'+(origem?', deixando o '+origem.nome:'')+'.',
+    {c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id]});
+  return true;
 }
 
 /* Registro do mercado, para a Central e as notícias de maiores negócios. */
@@ -8855,8 +9033,10 @@ function registrarTransferencia(p,origem,dest,taxa,tipo){
 function limparNegociacoes(){
   const agora=_semanaNeg();
   G.negociacoes=negociacoes().filter(n=>{
-    if(n.fase==='clube'||n.fase==='jogador')return !!G.janela;
-    return agora-((n.ano||0)*SEMANAS_ANO+(n.semana||1))<NEG_ESPERA+2&&!!G.janela;
+    /* renovação e pré-contrato não dependem da janela */
+    const foraDaJanela=n.tipo==='renovacao'||n.tipo==='precontrato';
+    if(n.fase==='clube'||n.fase==='jogador')return !!G.janela||foraDaJanela;
+    return agora-((n.ano||0)*SEMANAS_ANO+(n.semana||1))<NEG_ESPERA+2&&(!!G.janela||foraDaJanela);
   });
 }
 
@@ -8891,27 +9071,40 @@ const RENOV_ESPERA=8;
 const RENOV_PREMIO_ANO=0.07;
 
 function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
-/* O que ele pede para ficar, e por quê. */
-function pedidoRenovacao(p,t){
+/* O que ele pede para ficar, e por quê. Cada linha tem um tipo, como no
+   pedido de compra: o que não é dinheiro decide a VONTADE DE FICAR
+   (interesseEmFicar), o termômetro da mesa de renovação. */
+function pedidoRenovacao(p,t,opts){
+  opts=opts||{};
   const base=salario(p,t,true);
+  const pf=PERFIS[perfilDe(p)];
   const itens=[];
-  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  const juntar=(rot,f,tipo,k)=>{
+    if(k!=null&&k!==1)f=Math.pow(f,k);
+    if(Math.abs(f-1)>0.005)itens.push({rot,fator:f,tipo:tipo||'dinheiro'});return f;};
   let f=1;
   const titular=(t.titulares||[]).includes(p.id);
 
-  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15);
-  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95);
-  if(!titular)f*=juntar('Quer jogar mais do que joga',1.08);
+  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15,'momento');
+  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95,'momento');
+  if(opts.promessa)f*=juntar('Titularidade prometida em contrato',titular?0.98:1.0,'minutos');
+  else if(!titular)f*=juntar('Quer jogar mais do que joga',1.08,'minutos',p.idade<=21?1.3:1);
   /* promessa quebrada pesa por um ano */
   const pq=p.promessaQuebrada;
   if(pq&&((G.ano-pq.ano)*SEMANAS_ANO+((G.semana||1)-pq.semana))<SEMANAS_ANO)
-    f*=juntar('Você quebrou uma promessa com ele',1.20);
+    f*=juntar('Você quebrou uma promessa com ele',1.20,'historia');
 
   /* quem é melhor que o próprio clube tem mercado e sabe disso */
   const folga=over(p)-nivelDoClube(t);
-  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
+  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012),'esporte',pf.esporte);
+  const tr=titulosRecentes(t);
+  if(tr)f*=juntar('Clube campeão recente ('+tr+' título'+(tr>1?'s':'')+')',1-Math.min(0.06,tr*0.02),'esporte',pf.esporte);
+  const anosClube=temporadasNoClube(p);
+  if(pf.renova&&anosClube>=1)f*=juntar('Leal ao clube',pf.renova,'historia');
+  if(p.daCasa===t.id)f*=juntar('Cria da casa',0.95,'historia');
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(pf.premio)f*=juntar('Perfil mercenário: quer o melhor salário do mercado',pf.premio);
   if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(t));
   if(t.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
@@ -8919,17 +9112,21 @@ function pedidoRenovacao(p,t){
   const caindo=p.pico&&over(p)<p.pico-4;
   let pedido=Math.round(base*f/100)*100;
   if(!caindo&&pedido<p.salario){
-    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f)});
+    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f),tipo:'dinheiro'});
     pedido=p.salario;
   }
 
-  /* a duração que ele quer */
-  const subindo=p.idade<=22&&p.pot-over(p)>=5;
-  const anos=subindo?[1,2]:p.idade>=29?[2,4]:[2,3];
-  return{base,itens,pedido:Math.max(300,pedido),anos,
-         motivoAnos:subindo?'Está crescendo: quer contrato curto para renegociar valorizado.'
-                   :p.idade>=29?'Veterano: prefere contrato longo.'
-                   :'Aceita de dois a três anos.'};
+  /* a duração que ele quer: mesma regra da contratação */
+  const pref=anosPreferidos(p);
+  return{base,itens,pedido:Math.max(300,pedido),anos:pref.faixa,motivoAnos:pref.txt,perfil:perfilDe(p)};
+}
+/* Vontade de ficar, de 0 a 100, pela mesma régua do interesse de compra. */
+function interesseEmFicar(p,t,opts){
+  const d=pedidoRenovacao(p,t,opts);
+  const itens=d.itens.filter(i=>i.tipo!=='dinheiro').map(i=>({...i,pontos:Math.round(pontosDoFator(i.fator))}));
+  let pts=INTERESSE_NEUTRO;for(const i of itens)pts+=pontosDoFator(i.fator);
+  const nota=clamp(Math.round(pts),0,100);
+  return{nota,faixa:faixaInteresse(nota),itens,perfil:d.perfil};
 }
 /* O pedido para uma duração específica: cada ano fora do que ele quer custa. */
 function pedidoParaAnos(d,anos){
@@ -8949,6 +9146,8 @@ function recusasRenovacao(p,t,anos){
   if(anos<1||anos>4)fora.push('Duração de contrato inaceitável (1 a 4 anos).');
   if(renovacaoFechada(p))
     fora.push(p.nome+' encerrou a conversa. Tente de novo em '+semanasAteRenovar(p)+' semana(s).');
+  if(p.preContrato&&G.times[p.preContrato.clubeId])
+    fora.push(p.nome+' já assinou pré-contrato com o '+G.times[p.preContrato.clubeId].nome+' e sai no fim da temporada.');
   if(p.moral<0.25&&!(t.titulares||[]).includes(p.id))
     fora.push(p.nome+' não quer renovar: está no banco e infeliz. Converse com ele antes.');
   return fora;
@@ -9029,6 +9228,7 @@ function anunciados(){
 function anunciarJogador(p,modo,opcao,pedido){
   if(!p||!p.timeId)return{ok:false,erro:'Jogador sem clube.'};
   if(p.emprestimo)return{ok:false,erro:'Jogador emprestado não pode ser anunciado.'};
+  if(p.preContrato)return{ok:false,erro:p.nome+' já assinou pré-contrato e sai no fim da temporada.'};
   const t=G.times[p.timeId];
   if((t.elenco||[]).length<=ELENCO_MIN&&modo!=='emprestimo')
     return{ok:false,erro:'Com '+t.elenco.length+' jogadores o clube não pode abrir mão de ninguém. Contrate antes de anunciar.'};
@@ -9579,15 +9779,17 @@ function premiarTemporada(){
   if(igl){reg.igl=fichaPremio(igl.id,jog[igl.id]);darPremio(igl.id,'igl',ROT_PREMIO.igl);}
 
   /* treinador: campanha, com um empurrão para quem fez mais com menos */
-  const tr=t1.map(t=>({t,n:campanha(t.id)+(60-t.prestigio)*0.03})).sort((a,b)=>b.n-a.n)[0];
-  if(tr){
+  /* clube sem head coach no momento não tem quem receber: o prêmio vai para o
+     próximo da fila, em vez de ficar sem treinador do ano */
+  const fila=t1.map(t=>({t,n:campanha(t.id)+(60-t.prestigio)*0.03})).sort((a,b)=>b.n-a.n);
+  for(const tr of fila){
     const t=tr.t,m=membroDe(t,'tecnico');
     const voce=t.id===G.meuTime&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido;
     const nome=voce?G.manager.nome:m?m.nome:null;
-    if(nome){
-      reg.treinador={nome,timeId:t.id,tag:t.tag,staffId:voce?null:m.id,voce};
-      if(m&&!voce)(m.premios=m.premios||[]).push({ano:G.ano,tipo:'treinador',rot:'Treinador do ano'});
-    }
+    if(!nome)continue;
+    reg.treinador={nome,timeId:t.id,tag:t.tag,staffId:voce?null:m.id,voce};
+    if(m&&!voce)(m.premios=m.premios||[]).push({ano:G.ano,tipo:'treinador',rot:'Treinador do ano'});
+    break;
   }
 
   (G.premios=G.premios||[]).push(reg);
@@ -10478,6 +10680,8 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
 function renovarSePuder(p){
   const t=G.times[p.timeId];
   if(!t){liberar(p);return false;}
+  /* quem não quer ficar não fica, nem por dinheiro: a mesma régua da sua mesa */
+  if(typeof interesseEmFicar==='function'&&t.elenco.length>5&&interesseEmFicar(p,t).nota<INTERESSE_MIN){liberar(p);return false;}
   const novo=salario(p,t);
   const depois=folhaAnual(t)-(p.salario||0)*12+novo*12;
   const teto=receitaLivre(t)*tetoFolhaDe(t);
@@ -10569,7 +10773,9 @@ function fimDeTemporada(){
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[id];aposentados++;continue;
     }
-    if(p.contrato===0&&p.timeId){
+    /* pré-contrato assinado na temporada: ele se apresenta no clube novo */
+    if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){}
+    else if(p.contrato===0&&p.timeId){
       if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
       else liberar(p);
@@ -13785,12 +13991,14 @@ let mercAba='jogadores';
 function vMercado(){
   const t=meu();
   const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
+  const venc=t.elenco.map(P).filter(p=>p&&p.contrato<=1).length;
   const abas=`<div class="tabs">${[['jogadores','Jogadores'],['comissao','Comissão técnica'],
-      ['saidas','Saídas'+(pend?' ('+pend+')':'')]]
+      ['saidas','Saídas'+(pend?' ('+pend+')':'')],
+      ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
-    <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':'Scout'}</h2>${abas}${
-    mercAba==='comissao'?vMercadoStaff(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
+    <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
+    mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
 /* ---------- saídas: vender e emprestar ----------
    A tela é deliberadamente do lado de cá do balcão: você anuncia, e as
@@ -13880,6 +14088,46 @@ function vMercadoStaff(t){
       <td class="r num">${money(salarioPedidoStaff(m,t))}</td>
       <td class="r"><button class="btn sm" data-propstaff="${m.id}" ${G.janela?'':'disabled'}>Propor</button></td>
     </tr>`).join('')}</tbody></table></div>`;
+}
+/* ---------- contratos ----------
+   Quem vence, quanto cada um quer ficar e quem já está sendo sondado. Do
+   outro lado, quem está no último ano nos outros clubes: alvo de pré-contrato. */
+function vMercadoContratos(t){
+  const meus=t.elenco.map(P).filter(Boolean).sort((a,b)=>a.contrato-b.contrato||over(b)-over(a));
+  const situacao=p=>{
+    if(p.preContrato&&T(p.preContrato.clubeId))return `<span class="chip r">Pré-contrato com ${esc(T(p.preContrato.clubeId).tag)}</span>`;
+    if(p.sondado&&T(p.sondado.clubeId))return `<span class="chip" style="color:var(--amber)">Sondado pelo ${esc(T(p.sondado.clubeId).tag)}</span>`;
+    if(renovacaoFechada(p))return `<span class="dim">conversa fechada · ${semanasAteRenovar(p)} sem.</span>`;
+    if(negociacaoAtivaDe(p.id))return '<span class="chip t">em negociação</span>';
+    return p.contrato<=1?'<span class="dn">vence no fim da temporada</span>':'<span class="dim">—</span>';
+  };
+  const ficar=p=>{const it=interesseEmFicar(p,t);
+    return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;};
+  const outros=Object.values(G.jogadores).filter(p=>p.timeId&&p.timeId!==t.id&&p.contrato<=1&&!p.base&&!p.emprestimo)
+    .sort((a,b)=>over(b)-over(a)).slice(0,30);
+  const aberto=janelaPreContrato();
+  return `<div class="card flat"><div class="eyebrow">Seus contratos</div>
+    <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
+    pré-contrato com outro clube e sair de graça. Renove antes.</p>
+    <table class="wide"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
+      <th class="c">Vontade de ficar</th><th>Situação</th><th></th></tr></thead>
+    <tbody>${meus.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
+      <td class="c">${ovTag(p)}</td><td class="r num">${money(p.salario)}</td>
+      <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td><td class="c">${ficar(p)}</td>
+      <td>${situacao(p)}</td>
+      <td class="r"><button class="btn ghost sm" data-renov="${p.id}" ${p.preContrato?'disabled':''}>Renovar</button></td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="card flat"><div class="eyebrow">Último ano em outros clubes</div>
+    <p class="dim" style="margin-bottom:8px">${aberto?'Pré-contrato liberado: negocie direto com o jogador, sem taxa. Ele chega na virada.'
+      :'O pré-contrato abre na semana '+SEMANA_PRECONTRATO+'. Até lá, só comprando do clube.'}</p>
+    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
+      <th class="c">Interesse</th><th>Situação</th><th></th></tr></thead>
+    <tbody>${outros.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
+      <td class="dim">${esc(nomeT(p.timeId))}</td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
+      <td class="c">${interesseMini(p,t)}</td>
+      <td>${p.preContrato&&T(p.preContrato.clubeId)?'<span class="chip r">acertado com '+esc(T(p.preContrato.clubeId).tag)+'</span>':'<span class="dim">livre para conversar</span>'}</td>
+      <td class="r"><button class="btn sm" data-prop="${p.id}" ${p.preContrato?'disabled':''}>${aberto?'Pré-contrato':'Negociar'}</button></td></tr>`).join('')}
+    </tbody></table></div>`;
 }
 /* termômetro de bolso para a lista do mercado */
 function interesseMini(p,t){
@@ -14348,58 +14596,6 @@ function blocoCarreira(p){
     <tbody>${p.hist.slice().reverse().map(h=>`<tr><td class="num">${h.ano}</td><td>${esc(h.time)}</td><td class="c num">${h.over}</td>
     <td class="r num">${h.maps||0}</td><td class="r num">${(h.k/Math.max(1,h.d)).toFixed(2)}</td><td class="r num">${h.mvp}</td></tr>`).join('')}</tbody></table>`:''}
   </div>`;
-}
-/* ---------- renovação ----------
-   Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
-   duração que ele quer, e o retorno dele quando a oferta não chega. */
-function modalRenovacao(id){
-  const p=P(id),t=meu();
-  if(!p||!t)return;
-  const d=pedidoRenovacao(p,t);
-  const duras=recusasRenovacao(p,t,d.anos[0]);
-  const anos0=d.anos[0];
-  const conta=`<div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
-    <table><tbody>
-      <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
-      ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
-        <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
-      <tr><td><b>Pedido por ${d.anos[0]===d.anos[1]?d.anos[0]:d.anos[0]+' a '+d.anos[1]} ano(s)</b></td>
-        <td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
-    </tbody></table>
-    <p class="dim" style="margin-top:6px">${esc(d.motivoAnos)} Cada ano fora disso encarece ${Math.round(RENOV_PREMIO_ANO*100)}%.</p></div>`;
-  abrir(`<div class="eyebrow">Renovação</div><h2 class="sec">${esc(p.nome)}</h2>
-  <p class="dim">Contrato atual: ${money(p.salario)}/mês, mais ${p.contrato} ano(s).
-    ${p.contrato<=1?'<b>Vence no fim desta temporada</b> — se não renovar, ele sai de graça.':''}</p>
-  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
-    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
-  <div class="grid g2" style="margin-top:12px">
-    <div><label class="dim">Salário mensal</label><br>
-      <input type="number" id="rSal" value="${pedidoParaAnos(d,anos0)}" step="500"></div>
-    <div><label class="dim">Anos de contrato</label><br>
-      <input type="number" id="rAnos" value="${anos0}" min="1" max="4"></div>
-  </div>
-  ${conta}
-  <div id="rFeed" style="margin-top:12px"></div>
-  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-    <button class="btn ghost" id="rJusto">Preencher com o que ele aceita</button>
-    <button class="btn" id="rEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
-    <button class="btn ghost" data-close>Cancelar</button></div>`);
-  $('#rJusto').onclick=()=>{
-    const anos=parseInt($('#rAnos').value)||anos0;
-    $('#rSal').value=pedidoParaAnos(d,anos);
-  };
-  $('#rEnviar').onclick=()=>{
-    const sal=parseFloat($('#rSal').value)||0, anos=parseInt($('#rAnos').value)||anos0;
-    const r=proporRenovacao(p,t,sal,anos);
-    if(!r.ok){
-      $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
-        r.motivos.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;
-      if(renovacaoFechada(p))$('#rEnviar').disabled=true;
-      return;
-    }
-    $('#rFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${esc(r.msg)}</div>`;
-    $('#rEnviar').disabled=true;
-  };
 }
 /* A conversa mora na ficha do jogador: é onde você já está olhando quando
    percebe que ele está mal. */
@@ -14994,7 +15190,7 @@ function modalNegociacao(id){
   let n=negociacaoAtivaDe(p.id);
   if(!n){
     /* janela fechada ou porta fechada: mostra a mesa só para olhar */
-    const bloqueio=!G.janela?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta.'
+    const bloqueio=!G.janela&&!podePreContrato(p,t)?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta (ou pré-contrato, no último ano dele, da semana '+SEMANA_PRECONTRATO+' em diante).'
       :conversaFechada(p)?'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'
       :null;
     const duras=recusasDuras(p,t,2);
@@ -15003,6 +15199,18 @@ function modalNegociacao(id){
     if(!r.ok)return mesa(p,null,r.erro);
     n=r.neg;
     _mesaRasc={};
+  }
+  mesa(p,n,null);
+}
+/* renovação: a mesma mesa, só com a conversa com o jogador */
+function modalRenovacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  let n=negociacaoAtivaDe(p.id);
+  if(!n||n.tipo!=='renovacao'){
+    const r=abrirRenovacao(p,t);
+    if(!r.ok)return mesa(p,null,r.erro,'renovacao');
+    n=r.neg;_mesaRasc={};
   }
   mesa(p,n,null);
 }
@@ -15056,14 +15264,17 @@ function _chat(n){
     <div class="neg-msg m-${h.de}">${quem[h.de]?`<span class="neg-quem">${quem[h.de]}</span>`:''}${esc(h.txt)}</div>`).join('')}</div>`;
 }
 
-function mesa(p,n,bloqueio){
+function mesa(p,n,bloqueio,tipoBloq){
   const t=meu();
+  const tipo=n?n.tipo||'compra':tipoBloq||'compra';
+  const renov=tipo==='renovacao', pre=tipo==='precontrato';
   const fechada=n&&n.fase==='fechada';
   /* depois de assinar ele já é seu: o lado de lá e o termômetro ficam como estavam na mesa */
   const origem=fechada?(n.origemId?T(n.origemId):null):p.timeId?T(p.timeId):null;
   const ps=posturaDoClube(p);
   const promRasc=!!_mesaRasc.promessa;
-  const it=fechada&&n.interesse?n.interesse:interessePor(p,t,{promessa:promRasc});
+  const it=fechada&&n.interesse?n.interesse:n?interesseDaNeg(n,promRasc)
+    :renov?interesseEmFicar(p,t):interessePor(p,t);
   const pf=PERFIS[perfilDe(p)];
   const fase=n?n.fase:'bloqueada';
   const multa=multaDe(p);
@@ -15072,7 +15283,16 @@ function mesa(p,n,bloqueio){
   const lado=(time,rot,extra)=>`<div class="neg-lado">
     ${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
     <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
-  const palco=`<div class="neg-palco">
+  const palco=renov?`<div class="neg-palco">
+    <div class="neg-lado"><div class="neg-contrato"><span class="eyebrow">Contrato atual</span>
+      <b class="num">${dinheiro(fechada&&n.final?n.final.sal:p.salario)}/mês</b>
+      <span class="dim">${fechada?'renovado':p.contrato<=1?'vence no fim desta temporada':'mais '+p.contrato+' ano(s)'}</span>
+      <span class="dim">Multa ${dinheiro(multaDe(p))}</span></div></div>
+    <div class="neg-centro">${cartaJogador(p,{w:150})}
+      <div class="neg-perfil" title="${esc(pf.desc)}">Perfil: <b>${esc(pf.nome)}</b></div></div>
+    <div class="neg-seta${fase==='fechada'?' ok':''}"><span></span></div>
+    ${lado(t,'Renova com',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
+  </div>`:`<div class="neg-palco">
     ${lado(origem,'Sai de',fechada?'':origem?`<div><span class="chip ${ps.cls}">${esc(ps.nome)}</span></div>
       <div class="dim neg-sub">Multa ${dinheiro(multa)}</div>`:'<div class="dim neg-sub">Sem taxa de transferência</div>')}
     <div class="neg-centro">${cartaJogador(p,{w:150})}
@@ -15084,11 +15304,13 @@ function mesa(p,n,bloqueio){
   const passo=(k,rot,est)=>`<div class="neg-passo ${est}"><i>${k}</i>${rot}</div>`;
   const est1=!origem?'pulado':fase==='clube'?'atual':(fase==='jogador'||fase==='fechada'||(n&&n.taxa))?'feito':'';
   const est2=fase==='jogador'?'atual':fase==='fechada'?'feito':'';
-  const passos=`<div class="neg-passos">${passo(1,origem?'Acordo com o clube':'Sem clube a negociar',est1)}
+  const passos=renov?`<div class="neg-passos">${passo(1,'Proposta de renovação',fase==='jogador'?'atual':fase==='fechada'?'feito':'')}
+    <b></b>${passo(2,'Assinatura',fase==='fechada'?'feito':'')}</div>`
+   :`<div class="neg-passos">${passo(1,pre?'Pré-contrato: sem taxa':origem?'Acordo com o clube':'Sem clube a negociar',pre?'feito':est1)}
     <b></b>${passo(2,'Contrato com o jogador',est2)}<b></b>${passo(3,'Assinatura',fase==='fechada'?'feito':'')}</div>`;
 
   const esquerda=`<div class="neg-col">
-    <div class="eyebrow">O que ele pensa do ${esc(t.nome)}</div>
+    <div class="eyebrow">${renov?'Vontade de ficar no ':'O que ele pensa do '}${esc(t.nome)}</div>
     ${_termometro(it)}
     ${_fatores(it)}
     <p class="dim neg-nota">${esc(pf.nome)}: ${esc(pf.desc)}</p>
@@ -15116,6 +15338,7 @@ function mesa(p,n,bloqueio){
         <button class="btn" id="cEnviar">Enviar proposta</button>
         ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
         <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
+        ${podePreContrato(p,t)?`<button class="btn teal" id="cPre" title="Último ano de contrato: ele chega de graça na virada">Pré-contrato (sem taxa)</button>`:''}
       </div>
       <div id="pFeed"></div>
       <div class="neg-previa"><div class="eyebrow">Depois, com o jogador</div>
@@ -15126,13 +15349,15 @@ function mesa(p,n,bloqueio){
     const c=n.contraJog||{};
     const sal0=_mesaRasc.sal!=null?_mesaRasc.sal:(c.sal||0);
     const anos0=_mesaRasc.anos||c.anos||2;
-    const luvas0=_mesaRasc.luvas!=null?_mesaRasc.luvas:0;
+    const luvas0=_mesaRasc.luvas!=null?_mesaRasc.luvas:(c.luvas||0);
     const maxSal=Math.max(1000,Math.round((c.sal||1000)*1.8/100)*100);
     const maxLuvas=Math.max(10000,Math.round((c.sal||1000)*24/500)*500);
-    const d=pedidoContrato(p,t,anos0,promRasc).d;
+    const multa0=_mesaRasc.multa||c.multa||'padrao';
+    const d=pedidoDaNeg(n,anos0,promRasc,multa0).d;
     direita=`<div class="neg-col">
       <div class="split"><div class="eyebrow">Conversa com ${esc(p.nome)}</div>${_pac(n.pacJog,n.pacJogMax)}</div>
-      ${n.taxa?`<p class="dim">${n.viaMulta?'Multa paga':'Taxa acertada'}: <b>${dinheiro(n.taxa)}</b>. ${esc(anosPreferidos(p).txt)}</p>`
+      ${pre?`<p class="dim">Pré-contrato: ele cumpre o contrato com o ${esc(T(p.timeId).nome)} e chega de graça na virada. ${esc(anosPreferidos(p).txt)}</p>`
+       :n.taxa?`<p class="dim">${n.viaMulta?'Multa paga':'Taxa acertada'}: <b>${dinheiro(n.taxa)}</b>. ${esc(anosPreferidos(p).txt)}</p>`
               :`<p class="dim">${esc(anosPreferidos(p).txt)}</p>`}
       <label class="neg-campo"><span>Salário mensal</span>
         <input type="range" id="pSalR" min="0" max="${maxSal}" step="100" value="${sal0}">
@@ -15143,6 +15368,9 @@ function mesa(p,n,bloqueio){
       <label class="neg-campo"><span>Luvas (na assinatura)</span>
         <input type="range" id="pLuvasR" min="0" max="${maxLuvas}" step="500" value="${luvas0}">
         <input type="number" id="pLuvas" value="${luvas0}" step="500"></label>
+      <div class="neg-campo"><span>Multa rescisória</span>
+        <div class="neg-anos neg-multa">${Object.entries(NIVEIS_MULTA).map(([k,m])=>`<button class="${k===multa0?'on':''}" data-multa="${k}" title="${esc(m.txt)}">${m.nome}</button>`).join('')}</div>
+        <input type="hidden" id="pMulta" value="${multa0}"></div>
       <label class="neg-check"><input type="checkbox" id="pProm" ${promRasc?'checked':''}>
         Prometer titularidade em contrato <span class="dim">(se ele não for titular em ${typeof PROMESSA_PRAZO!=='undefined'?PROMESSA_PRAZO:8} semanas, a moral despenca)</span></label>
       <div id="pBarra"></div>
@@ -15158,28 +15386,30 @@ function mesa(p,n,bloqueio){
           <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${dinheiro(d.base)}</td></tr>
           ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
             <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+          ${multa0!=='padrao'?`<tr><td>Multa ${NIVEIS_MULTA[multa0].nome.toLowerCase()}</td><td class="r num ${NIVEIS_MULTA[multa0].f>1?'dn':'up'}">${NIVEIS_MULTA[multa0].f>1?'+':''}${Math.round((NIVEIS_MULTA[multa0].f-1)*100)}%</td></tr>`:''}
           ${premioAnos(p,anos0)>1?`<tr><td>Fora da duração que ele quer</td><td class="r num dn">+${Math.round((premioAnos(p,anos0)-1)*100)}%</td></tr>`:''}
         </tbody></table></details>
     </div>`;
   }else if(fase==='fechada'){
     const f=n.final||{};
     direita=`<div class="neg-col neg-fechada">
-      <div class="neg-carimbo">Contratado</div>
+      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':'Contratado'}</div>
+      ${pre?`<p class="dim">Chega na virada da temporada, quando o contrato atual dele acabar.</p>`:''}
       <table><tbody>
         ${f.taxa?`<tr><td>${n.viaMulta?'Multa rescisória':'Taxa de transferência'}</td><td class="r num">${dinheiro(f.taxa)}</td></tr>`:''}
         <tr><td>Salário</td><td class="r num">${dinheiro(f.sal)}/mês por ${f.anos} ano(s)</td></tr>
         ${f.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(f.luvas)}</td></tr>`:''}
         <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>
         ${f.promessa?'<tr><td colspan="2">Titularidade prometida em contrato</td></tr>':''}
-        <tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>
+        ${pre?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
       </tbody></table></div>`;
   }else{
     direita=`<div class="neg-col"><div class="neg-aviso">A conversa terminou sem acordo.
-      Dá para tentar de novo em ${semanasAteNegociar(p)} semana(s).</div></div>`;
+      Dá para tentar de novo em ${renov?semanasAteRenovar(p):semanasAteNegociar(p)} semana(s).</div></div>`;
   }
 
   abrir(`<div class="neg">
-    <div class="eyebrow">Negociação</div><h2 class="sec">${esc(p.nome)}</h2>
+    <div class="eyebrow">${renov?'Renovação':pre?'Pré-contrato':'Negociação'}</div><h2 class="sec">${esc(p.nome)}</h2>
     ${palco}${passos}
     <div class="neg-corpo">${esquerda}${direita}</div>
     ${_chat(n)}
@@ -15216,6 +15446,7 @@ function _ligarMesa(p,n){
       if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
       depois();
     };
+    const bp=$('#cPre');if(bp)bp.onclick=()=>{const r=irParaPreContrato(n);if(!r.ok)return feed(r.erro);depois();};
     const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
     $('#cMulta').onclick=async()=>{
       const ok=await confirmar('Pagar a multa rescisória de '+dinheiro(multaDe(p))+'? O clube não pode recusar, mas o dinheiro só sai se o jogador assinar.','Pagar a multa');
@@ -15225,7 +15456,7 @@ function _ligarMesa(p,n){
   }
   if(n.fase==='jogador'){
     const oferta=()=>({sal:parseFloat($('#pSal').value)||0,anos:parseInt($('#pAnos').value)||2,
-      luvas:parseFloat($('#pLuvas').value)||0,promessa:$('#pProm').checked});
+      luvas:parseFloat($('#pLuvas').value)||0,promessa:$('#pProm').checked,multa:$('#pMulta').value});
     const viva=()=>{
       const o=oferta();
       Object.assign(_mesaRasc,o);
@@ -15247,6 +15478,8 @@ function _ligarMesa(p,n){
     $('#modal').querySelectorAll('[data-anos]').forEach(b=>b.onclick=()=>{
       $('#pAnos').value=b.dataset.anos;_mesaRasc.anos=+b.dataset.anos;
       $('#modal').querySelectorAll('[data-anos]').forEach(x=>x.classList.toggle('on',x===b));viva();});
+    $('#modal').querySelectorAll('[data-multa]').forEach(b=>b.onclick=()=>{
+      $('#pMulta').value=b.dataset.multa;Object.assign(_mesaRasc,oferta());depois();});
     /* a promessa muda o pedido e o interesse: redesenha a mesa inteira */
     $('#pProm').onchange=()=>{Object.assign(_mesaRasc,oferta());depois();};
     viva();
@@ -15259,7 +15492,7 @@ function _ligarMesa(p,n){
     const jc=$('#jContra');if(jc)jc.onclick=()=>{const r=aceitarContraJogador(n);if(!r.ok)return feed(r.erro);depois();};
     $('#pJusto').onclick=()=>{
       const o=oferta();
-      const {pedido}=pedidoContrato(p,t,o.anos,o.promessa);
+      const {pedido}=pedidoDaNeg(n,o.anos,o.promessa,o.multa);
       const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
       const sal=Math.max(300,Math.ceil((pedido-(o.luvas*k)/(o.anos*12))/100)*100);
       $('#pSal').value=sal;$('#pSalR').value=sal;viva();

@@ -27,27 +27,40 @@ const RENOV_ESPERA=8;
 const RENOV_PREMIO_ANO=0.07;
 
 function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
-/* O que ele pede para ficar, e por quê. */
-function pedidoRenovacao(p,t){
+/* O que ele pede para ficar, e por quê. Cada linha tem um tipo, como no
+   pedido de compra: o que não é dinheiro decide a VONTADE DE FICAR
+   (interesseEmFicar), o termômetro da mesa de renovação. */
+function pedidoRenovacao(p,t,opts){
+  opts=opts||{};
   const base=salario(p,t,true);
+  const pf=PERFIS[perfilDe(p)];
   const itens=[];
-  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  const juntar=(rot,f,tipo,k)=>{
+    if(k!=null&&k!==1)f=Math.pow(f,k);
+    if(Math.abs(f-1)>0.005)itens.push({rot,fator:f,tipo:tipo||'dinheiro'});return f;};
   let f=1;
   const titular=(t.titulares||[]).includes(p.id);
 
-  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15);
-  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95);
-  if(!titular)f*=juntar('Quer jogar mais do que joga',1.08);
+  if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15,'momento');
+  else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95,'momento');
+  if(opts.promessa)f*=juntar('Titularidade prometida em contrato',titular?0.98:1.0,'minutos');
+  else if(!titular)f*=juntar('Quer jogar mais do que joga',1.08,'minutos',p.idade<=21?1.3:1);
   /* promessa quebrada pesa por um ano */
   const pq=p.promessaQuebrada;
   if(pq&&((G.ano-pq.ano)*SEMANAS_ANO+((G.semana||1)-pq.semana))<SEMANAS_ANO)
-    f*=juntar('Você quebrou uma promessa com ele',1.20);
+    f*=juntar('Você quebrou uma promessa com ele',1.20,'historia');
 
   /* quem é melhor que o próprio clube tem mercado e sabe disso */
   const folga=over(p)-nivelDoClube(t);
-  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
+  if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012),'esporte',pf.esporte);
+  const tr=titulosRecentes(t);
+  if(tr)f*=juntar('Clube campeão recente ('+tr+' título'+(tr>1?'s':'')+')',1-Math.min(0.06,tr*0.02),'esporte',pf.esporte);
+  const anosClube=temporadasNoClube(p);
+  if(pf.renova&&anosClube>=1)f*=juntar('Leal ao clube',pf.renova,'historia');
+  if(p.daCasa===t.id)f*=juntar('Cria da casa',0.95,'historia');
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(pf.premio)f*=juntar('Perfil mercenário: quer o melhor salário do mercado',pf.premio);
   if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(t));
   if(t.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
@@ -55,17 +68,21 @@ function pedidoRenovacao(p,t){
   const caindo=p.pico&&over(p)<p.pico-4;
   let pedido=Math.round(base*f/100)*100;
   if(!caindo&&pedido<p.salario){
-    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f)});
+    itens.push({rot:'Não aceita ganhar menos que hoje',fator:p.salario/Math.max(1,base*f),tipo:'dinheiro'});
     pedido=p.salario;
   }
 
-  /* a duração que ele quer */
-  const subindo=p.idade<=22&&p.pot-over(p)>=5;
-  const anos=subindo?[1,2]:p.idade>=29?[2,4]:[2,3];
-  return{base,itens,pedido:Math.max(300,pedido),anos,
-         motivoAnos:subindo?'Está crescendo: quer contrato curto para renegociar valorizado.'
-                   :p.idade>=29?'Veterano: prefere contrato longo.'
-                   :'Aceita de dois a três anos.'};
+  /* a duração que ele quer: mesma regra da contratação */
+  const pref=anosPreferidos(p);
+  return{base,itens,pedido:Math.max(300,pedido),anos:pref.faixa,motivoAnos:pref.txt,perfil:perfilDe(p)};
+}
+/* Vontade de ficar, de 0 a 100, pela mesma régua do interesse de compra. */
+function interesseEmFicar(p,t,opts){
+  const d=pedidoRenovacao(p,t,opts);
+  const itens=d.itens.filter(i=>i.tipo!=='dinheiro').map(i=>({...i,pontos:Math.round(pontosDoFator(i.fator))}));
+  let pts=INTERESSE_NEUTRO;for(const i of itens)pts+=pontosDoFator(i.fator);
+  const nota=clamp(Math.round(pts),0,100);
+  return{nota,faixa:faixaInteresse(nota),itens,perfil:d.perfil};
 }
 /* O pedido para uma duração específica: cada ano fora do que ele quer custa. */
 function pedidoParaAnos(d,anos){
@@ -85,6 +102,8 @@ function recusasRenovacao(p,t,anos){
   if(anos<1||anos>4)fora.push('Duração de contrato inaceitável (1 a 4 anos).');
   if(renovacaoFechada(p))
     fora.push(p.nome+' encerrou a conversa. Tente de novo em '+semanasAteRenovar(p)+' semana(s).');
+  if(p.preContrato&&G.times[p.preContrato.clubeId])
+    fora.push(p.nome+' já assinou pré-contrato com o '+G.times[p.preContrato.clubeId].nome+' e sai no fim da temporada.');
   if(p.moral<0.25&&!(t.titulares||[]).includes(p.id))
     fora.push(p.nome+' não quer renovar: está no banco e infeliz. Converse com ele antes.');
   return fora;

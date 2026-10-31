@@ -25,6 +25,8 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
 function renovarSePuder(p){
   const t=G.times[p.timeId];
   if(!t){liberar(p);return false;}
+  /* quem não quer ficar não fica, nem por dinheiro: a mesma régua da sua mesa */
+  if(typeof interesseEmFicar==='function'&&t.elenco.length>5&&interesseEmFicar(p,t).nota<INTERESSE_MIN){liberar(p);return false;}
   const novo=salario(p,t);
   const depois=folhaAnual(t)-(p.salario||0)*12+novo*12;
   const teto=receitaLivre(t)*tetoFolhaDe(t);
@@ -116,7 +118,9 @@ function fimDeTemporada(){
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[id];aposentados++;continue;
     }
-    if(p.contrato===0&&p.timeId){
+    /* pré-contrato assinado na temporada: ele se apresenta no clube novo */
+    if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){}
+    else if(p.contrato===0&&p.timeId){
       if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
       else liberar(p);
