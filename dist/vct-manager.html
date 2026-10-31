@@ -699,6 +699,116 @@ tr.descansa td{opacity:.62}
 .revela.c-lenda{--glow:rgba(255,40,50,.25)}
 @media (prefers-reduced-motion:reduce){.revela-giro{animation:none;transform:rotateY(180deg)}.carta.anima::after{display:none}}
 
+/* ============================================================
+   MESA DE NEGOCIAÇÃO
+   Palco (clube → carta → clube), passos, duas colunas (o que ele
+   pensa | a conversa da vez) e a conversa em balões no pé.
+   ============================================================ */
+.neg .sec{margin-bottom:6px}
+.neg-palco{display:grid;grid-template-columns:1fr auto 90px 1fr;align-items:center;gap:14px;
+  padding:16px;margin:6px 0 12px;border:1px solid var(--line);
+  background:radial-gradient(ellipse at 50% 40%,rgba(255,70,85,.10),transparent 65%),var(--bg2)}
+.neg-lado{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.neg-lado b{font-size:15px}
+.neg-sub{font-size:11.5px}
+.neg-semclube{width:64px;height:64px;display:grid;place-items:center;border:1px dashed var(--line2);
+  font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--dim);line-height:1.2}
+.neg-centro{display:flex;flex-direction:column;align-items:center;gap:6px}
+.neg-perfil{font-size:11px;color:var(--tx2);border:1px solid var(--line2);padding:2px 8px}
+.neg-seta{position:relative;height:4px;background:var(--line2);overflow:hidden}
+.neg-seta span{position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,var(--red));
+  animation:negFlui 1.6s linear infinite}
+.neg-seta.ok{background:var(--teal)}
+.neg-seta.ok span{display:none}
+@keyframes negFlui{from{left:-40%}to{left:100%}}
+.neg-passos{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.neg-passos>b{flex:1;height:1px;background:var(--line2)}
+.neg-passo{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--dim)}
+.neg-passo i{font-style:normal;width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--line2);
+  font-family:'JetBrains Mono',monospace}
+.neg-passo.atual{color:var(--tx)}.neg-passo.atual i{border-color:var(--red);background:var(--red);color:#fff}
+.neg-passo.feito{color:var(--teal)}.neg-passo.feito i{border-color:var(--teal);color:var(--teal)}
+.neg-passo.pulado{opacity:.45;text-decoration:line-through}
+.neg-corpo{display:grid;grid-template-columns:1fr 1.15fr;gap:14px}
+.neg-col{background:var(--panel2);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.neg-nota{font-size:11.5px;margin-top:10px}
+/* termômetro */
+.neg-termo{margin:8px 0 12px}
+.neg-termo-barra{position:relative;height:14px}
+.neg-termo-escala{position:absolute;inset:0;
+  background:linear-gradient(90deg,#7a1f2a 0%,var(--red) 15%,var(--amber) 30%,#c9c25a 48%,var(--teal) 70%,#7ff5d6 100%)}
+.neg-termo-barra i{position:absolute;top:-5px;bottom:-5px;width:4px;margin-left:-2px;background:#fff;
+  box-shadow:0 0 0 2px var(--bg),0 0 12px rgba(255,255,255,.6);transition:left .4s}
+.neg-termo-marcas{display:grid;grid-template-columns:15fr 15fr 18fr 22fr 30fr;font-size:9.5px;color:var(--dim);
+  letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.neg-termo-nota{display:flex;align-items:center;gap:12px;margin-top:10px}
+.neg-termo-nota>.num{font-size:38px;line-height:1;font-family:'Bebas Neue',Impact,sans-serif}
+.neg-termo.f-empolgado .neg-termo-nota>.num,.neg-termo.f-interessado .neg-termo-nota>.num{color:var(--teal)}
+.neg-termo.f-morno .neg-termo-nota>.num{color:var(--amber)}
+.neg-termo.f-frio .neg-termo-nota>.num,.neg-termo.f-fechado .neg-termo-nota>.num{color:var(--red)}
+.neg-fatores{display:flex;flex-direction:column;gap:4px}
+.neg-fator{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 8px;background:var(--panel)}
+.neg-fator b{min-width:34px;text-align:right}
+/* controles */
+.neg-numeros{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.neg-numeros>div{background:var(--panel);padding:8px 10px;display:flex;flex-direction:column}
+.neg-numeros b{font-size:18px}
+.neg-campo{display:grid;grid-template-columns:1fr 110px;gap:4px 10px;align-items:center;margin:10px 0}
+.neg-campo>span{grid-column:1/-1;font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
+.neg-campo input[type=range]{width:100%;accent-color:var(--red)}
+.neg-campo input[type=number]{width:100%}
+.neg-anos{display:flex;gap:4px}
+.neg-anos button{width:38px;height:30px;border:1px solid var(--line2);font-weight:700}
+.neg-anos button.on{background:var(--red);border-color:var(--red);color:#fff}
+.neg-check{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;margin:8px 0}
+.neg-medidor{position:relative;height:10px;margin-top:10px}
+.neg-escala{display:flex;height:100%}
+.neg-escala span{display:block;height:100%}
+.neg-escala .z-r{background:rgba(255,70,85,.55)}.neg-escala .z-a{background:rgba(232,163,61,.55)}
+.neg-escala .z-y{background:rgba(201,194,90,.6)}.neg-escala .z-t{background:rgba(24,229,180,.55)}
+.neg-medidor i{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#fff;transition:left .2s}
+.neg-leg{font-size:12px;margin:6px 0 4px}
+.neg-pac{display:inline-flex;gap:3px}
+.neg-pac i{width:10px;height:10px;border:1px solid var(--line2);transform:rotate(45deg)}
+.neg-pac i.on{background:var(--amber);border-color:var(--amber)}
+.neg-bts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.neg-aviso{border-left:4px solid var(--red);background:var(--panel);padding:8px 12px;margin-top:10px;font-size:12.5px}
+.neg-aviso.ok{border-left-color:var(--teal)}
+.neg-previa{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+.neg-custo{margin-top:10px}
+.neg-conta{margin-top:12px;font-size:12.5px}
+.neg-conta summary{cursor:pointer;color:var(--tx2);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+/* fechada */
+.neg-fechada{position:relative}
+.neg-carimbo{display:inline-block;font-family:'Bebas Neue',Impact,sans-serif;font-size:42px;letter-spacing:.08em;
+  color:var(--teal);border:3px solid var(--teal);padding:2px 16px;transform:rotate(-6deg);margin:4px 0 14px;
+  animation:negCarimbo .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes negCarimbo{from{transform:rotate(-6deg) scale(2.2);opacity:0}to{transform:rotate(-6deg) scale(1);opacity:1}}
+/* conversa */
+.neg-chat{margin-top:14px;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+  padding:10px;background:var(--bg2);border:1px solid var(--line)}
+.neg-msg{max-width:78%;padding:7px 11px;font-size:12.5px;background:var(--panel2);align-self:flex-start;
+  border-left:3px solid var(--line2)}
+.neg-msg.m-voce{align-self:flex-end;border-left:none;border-right:3px solid var(--red);background:var(--red-soft)}
+.neg-msg.m-clube{border-left-color:var(--amber)}
+.neg-msg.m-jogador{border-left-color:var(--teal)}
+.neg-msg.m-sistema{align-self:center;background:none;border:none;color:var(--dim);font-size:11.5px}
+.neg-quem{display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+@media (max-width:820px){
+  .neg-palco{grid-template-columns:1fr 1fr}
+  .neg-seta{display:none}
+  .neg-centro{grid-column:1/-1;order:-1}
+  .neg-corpo{grid-template-columns:1fr}
+}
+.int-mini{display:inline-flex;align-items:center;gap:6px}
+.int-tr{display:block;width:44px;height:6px;background:var(--panel2)}
+.int-tr i{display:block;height:100%;background:var(--dim)}
+.int-mini.f-empolgado i,.int-mini.f-interessado i{background:var(--teal)}
+.int-mini.f-morno i{background:var(--amber)}
+.int-mini.f-frio i,.int-mini.f-fechado i{background:var(--red)}
+.int-mini b{font-size:11.5px;min-width:18px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -2385,7 +2495,6 @@ const MIDIA={
     'marcas/kt':'png',
     'marcas/lacoste':'png',
     'marcas/latam-airlines':'png',
-    'marcas/lawson':'png',
     'marcas/lazada':'png',
     'marcas/ldlc':'png',
     'marcas/lenovo-legion':'png',
@@ -4282,7 +4391,7 @@ function criarMundo(seedVal){
   srand(seedVal);
   G={seed:seedVal,seqP:1,ano:2027,times:{},jogadores:{},livres:[],regioes:{},h2h:{},manager:null,
      meuTime:null,caixa:0,log:[],historico:[],bloco:0,fase:'',temporadaFim:false,
-     mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],
+     mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],negociacoes:[],transferencias:[],
      meta:(typeof metaInicial==='function'?metaInicial():{}),patches:[],patchFeito:{}};
   montarTorneios();montarAgentes();montarMarcas();
   const usadosT=new Set(), usadosP=new Set();
@@ -7550,6 +7659,7 @@ function avancar(plano){
     G.fase='Intervalo';
   }
   G.janela=b?!!b.janela:false;
+  if(typeof limparNegociacoes==='function')limparNegociacoes();
 
   const resultados=[];let minhaPartida=null;
   if(b){
@@ -7811,6 +7921,9 @@ function contratar(p,time,anos,sal){
   G.livres=G.livres.filter(x=>x!==p.id);
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
+  /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
+  delete p.multa;
+  if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de
      "à venda" no pescoço, e as propostas continuavam chegando para quem
@@ -8014,57 +8127,165 @@ function nivelDoClube(t){
   return forca*0.62+t.prestigio*0.28+(t.tier===1?10:0);
 }
 
+/* ---------- perfil ----------
+   Todo jogador tem um jeito de decidir, e ele não muda: é o que faz dois
+   jogadores de mesmo over reagirem diferente à mesma proposta. O perfil não
+   inventa motivo novo, ele muda o PESO dos que já existem: o ambicioso sente o
+   dobro a queda de nível, o mercenário quase não sente, o patriota sofre para
+   sair de casa. Sai do nome, então é estável entre saves e não depende da
+   base; o Editor pode fixar outro em p.perfil. */
+const PERFIS={
+  ambicioso:  {nome:'Ambicioso', desc:'Quer título. Clube forte vale mais que salário, e clube fraco ele recusa.',
+               esporte:1.5, lugar:1},
+  mercenario: {nome:'Mercenário',desc:'Vai atrás do maior salário. O projeto pesa pouco, luvas pesam muito.',
+               esporte:0.5, lugar:0.6, premio:1.08, luvas:1.5},
+  leal:       {nome:'Leal',      desc:'Apegado ao clube. Renova mais barato e é difícil de tirar de onde está.',
+               esporte:1, lugar:1, saida:1.15, renova:0.93},
+  patriota:   {nome:'Patriota',  desc:'Quer jogar perto de casa. Sair da região custa o dobro.',
+               esporte:1, lugar:2},
+  equilibrado:{nome:'Equilibrado',desc:'Pesa tudo na mesma medida.',esporte:1, lugar:1}
+};
+function _hashTxt(s){let h=2166136261;s=String(s);
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function perfilDe(p){
+  if(p&&p.perfil&&PERFIS[p.perfil])return p.perfil;
+  const r=_hashTxt((p&&p.nome)+'|perfil')%100;
+  return r<20?'ambicioso':r<38?'mercenario':r<52?'leal':r<66?'patriota':'equilibrado';
+}
+/* Temporadas seguidas no clube atual, contadas do histórico. */
+function temporadasNoClube(p){
+  const t=p.timeId?G.times[p.timeId]:null;if(!t)return 0;
+  let n=0;
+  for(let i=(p.hist||[]).length-1;i>=0;i--){if(p.hist[i].time===t.nome)n++;else break;}
+  return n;
+}
+/* Rival de verdade, pela mesma régua do clássico (legado.js). Olha só o
+   confronto direto entre os dois: varrer todos os rivais do clube a cada
+   pedido custaria caro, porque a IA pede preço de centenas de jogadores. */
+function saoRivais(a,b){
+  if(!a||!b||a.id===b.id||typeof confronto!=='function'||typeof notaRivalidade!=='function')return false;
+  const c=confronto(a.id,b.id);
+  if(!c.jogos)return false;
+  const corte=(typeof RIV_CLASSICO!=='undefined')?RIV_CLASSICO:0.28;
+  return notaRivalidade(a,{...c,time:b})>corte;
+}
+function titulosRecentes(t){
+  const desde=(G.ano||0)-1;
+  return (t.titulos||[]).filter(x=>parseInt(String(x),10)>=desde).length;
+}
+
 /* ---------- o pedido salarial ---------- */
 const PREMIO_QUEDA_DIVISAO=1.55;   /* Tier 1 → Tier 2 */
 const DESCONTO_SUBIDA_DIVISAO=0.88;/* Tier 2 → Tier 1: ele quer ir, aceita menos */
 const PREMIO_POR_PONTO_QUEDA=0.014;/* por ponto de nível de clube perdido */
 const DESCONTO_POR_PONTO_SUBIDA=0.006;
 const PREMIO_BANCO=[1,1,1,1,1,1.18,1.30,1.42,1.52];  /* por posição no elenco */
+const PREMIO_RIVAL=1.22, PREMIO_RIVAL_LEAL=1.40;
 
 /* Detalhamento do pedido, para a interface conseguir explicar linha a linha
-   em vez de mostrar um número que caiu do céu. */
-function detalharPedido(p,destino){
+   em vez de mostrar um número que caiu do céu.
+
+   Cada linha tem um TIPO. O que não é dinheiro (nível, minutos, lugar,
+   história, momento) é também o que decide o INTERESSE dele pelo clube —
+   interessePor() lê as mesmas linhas, então o termômetro da tela e o salário
+   pedido nunca discordam. `opts.promessa` é a titularidade prometida no
+   contrato. */
+function detalharPedido(p,destino,opts){
+  opts=opts||{};
   const origem=p.timeId?G.times[p.timeId]:null;
   const base=salario(p,destino,true);
+  const pf=PERFIS[perfilDe(p)];
   const itens=[];
-  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  const juntar=(rot,f,tipo,k)=>{
+    if(k!=null&&k!==1)f=Math.pow(f,k);
+    if(Math.abs(f-1)>0.005)itens.push({rot,fator:f,tipo:tipo||'dinheiro'});
+    return f;
+  };
 
   let f=1;
   /* divisão */
-  if(origem&&origem.tier===1&&destino.tier===2)f*=juntar('Cair para o Tier 2',PREMIO_QUEDA_DIVISAO);
-  else if(origem&&origem.tier===2&&destino.tier===1)f*=juntar('Subir para o Tier 1',DESCONTO_SUBIDA_DIVISAO);
+  if(origem&&origem.tier===1&&destino.tier===2)f*=juntar('Cair para o Tier 2',PREMIO_QUEDA_DIVISAO,'esporte',pf.esporte);
+  else if(origem&&origem.tier===2&&destino.tier===1)f*=juntar('Subir para o Tier 1',DESCONTO_SUBIDA_DIVISAO,'esporte',pf.esporte);
 
   /* qualidade do clube */
   const nOrigem=origem?nivelDoClube(origem):nivelDoClube(destino)-6;
   const nDestino=nivelDoClube(destino);
   const salto=nDestino-nOrigem;
-  if(salto<0)f*=juntar('Clube mais fraco que o atual',1+(-salto)*PREMIO_POR_PONTO_QUEDA);
-  else if(salto>0)f*=juntar('Clube melhor que o atual',1-Math.min(0.14,salto*DESCONTO_POR_PONTO_SUBIDA));
+  if(salto<0)f*=juntar('Clube mais fraco que o atual',1+(-salto)*PREMIO_POR_PONTO_QUEDA,'esporte',pf.esporte);
+  else if(salto>0)f*=juntar('Clube melhor que o atual',1-Math.min(0.14,salto*DESCONTO_POR_PONTO_SUBIDA),'esporte',pf.esporte);
+  const tr=titulosRecentes(destino);
+  if(tr)f*=juntar('Clube campeão recente ('+tr+' título'+(tr>1?'s':'')+')',1-Math.min(0.09,tr*0.03),'esporte',pf.esporte);
 
   /* minutos */
   const pos=posicaoNoElenco(p,destino);
-  if(pos>5)f*=juntar('Entraria como reserva ('+pos+'º do elenco)',
-                     PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)]);
+  const jovem=p.idade<=21;
+  if(opts.promessa){
+    f*=juntar('Titularidade prometida em contrato',pos>5?1.03:0.97,'minutos');
+  }else if(pos>5){
+    f*=juntar('Entraria como reserva ('+pos+'º do elenco)',
+              PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)],'minutos',jovem?1.3:1);
+  }
+  if(origem&&origem.id!==destino.id&&!(origem.titulares||[]).includes(p.id)&&(pos<=5||opts.promessa))
+    f*=juntar('Ganharia a vaga de titular que não tem hoje',0.92,'minutos',jovem?1.3:1);
 
   /* região */
   const pr=premioRegiao(p,destino);
   if(pr!==1){
     const casa=regiaoNatal(p);
     const R=REGIONS.find(r=>r.id===destino.regiao);
-    f*=juntar('Mudar de '+casa+' para '+((R&&R.nome)||destino.regiao),pr);
+    f*=juntar('Mudar de '+casa+' para '+((R&&R.nome)||destino.regiao),pr,'lugar',pf.lugar);
   }
 
+  /* história: rival, clube formador, raízes no clube atual */
+  if(origem&&origem.id!==destino.id){
+    if(saoRivais(origem,destino))
+      f*=juntar('Ir para o rival do '+origem.nome,perfilDe(p)==='leal'?PREMIO_RIVAL_LEAL:PREMIO_RIVAL,'historia');
+    const anos=temporadasNoClube(p);
+    if(pf.saida&&anos>=2)f*=juntar('Identificado com o '+origem.nome+' ('+anos+' temporadas)',pf.saida,'historia');
+    else if(anos>=4)f*=juntar('Raízes no '+origem.nome+' ('+anos+' temporadas)',1.05,'historia');
+    /* o momento no clube atual: quem está mal quer sair */
+    if(p.moral<0.45)f*=juntar('Infeliz no '+origem.nome+': quer sair',0.92,'momento');
+  }
+  if(p.daCasa&&p.daCasa===destino.id&&(!origem||origem.id!==destino.id))
+    f*=juntar('Voltar ao clube que o revelou',0.88,'historia');
+
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
-  if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
+  if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93,'esporte');
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  if(pf.premio)f*=juntar('Perfil mercenário: quer o melhor salário do mercado',pf.premio);
   if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(destino));
-  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p));
+  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p),'momento');
   /* dificuldade da carreira: só no que é cobrado de você */
   if(destino.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
 
-  return{base,fator:f,itens,pos,salto,
+  return{base,fator:f,itens,pos,salto,perfil:perfilDe(p),
          pedido:Math.max(300,Math.round(base*f/100)*100)};
+}
+
+/* ---------- interesse ----------
+   De 0 a 100, quanto ele quer jogar no clube, deixando o dinheiro de fora.
+   Sai das mesmas linhas do pedido: um fator de ×1,30 tira cerca de 15
+   pontos, um de ×0,88 dá cerca de 7. Abaixo de INTERESSE_MIN ele nem atende
+   — é a recusa que salário não compra. */
+const INTERESSE_MIN=15;
+const INTERESSE_ESCALA=58, INTERESSE_NEUTRO=52;
+const FAIXAS_INTERESSE=[
+  {min:70,id:'empolgado', nome:'Empolgado',  txt:'Quer muito vir. Aceita até ganhar um pouco menos.'},
+  {min:48,id:'interessado',nome:'Interessado',txt:'Gosta do projeto. Aceita o salário justo.'},
+  {min:30,id:'morno',     nome:'Morno',      txt:'Ouve a proposta, mas só vem se o dinheiro compensar.'},
+  {min:INTERESSE_MIN,id:'frio',nome:'Frio',  txt:'Não se anima. Só vem bem acima do normal.'},
+  {min:0, id:'fechado',   nome:'Não atende', txt:'Não quer nem conversar com o clube.'}];
+function pontosDoFator(f){return -INTERESSE_ESCALA*Math.log(f);}
+function faixaInteresse(n){return FAIXAS_INTERESSE.find(x=>n>=x.min)||FAIXAS_INTERESSE[FAIXAS_INTERESSE.length-1];}
+function interessePor(p,destino,opts){
+  const d=(opts&&opts.d)||detalharPedido(p,destino,opts);
+  const itens=d.itens.filter(i=>i.tipo!=='dinheiro')
+    .map(i=>({...i,pontos:Math.round(pontosDoFator(i.fator))}));
+  let pts=INTERESSE_NEUTRO;
+  for(const i of itens)pts+=pontosDoFator(i.fator);
+  const nota=clamp(Math.round(pts),0,100);
+  return{nota,faixa:faixaInteresse(nota),itens,perfil:d.perfil};
 }
 function salarioPedido(p,destino){return detalharPedido(p,destino).pedido;}
 
@@ -8087,6 +8308,70 @@ function pedidoDeVenda(p){
   return Math.round(p.valor*m/500)*500;
 }
 
+/* ---------- multa rescisória ----------
+   Todo contrato tem uma. Paga a multa, o clube dono não tem como recusar: só
+   o jogador decide. Enquanto ninguém fixa um valor (contrato vindo da base de
+   dados), ela segue o valor de mercado e os anos restantes. */
+function multaPadrao(p,anos){
+  const a=anos!=null?anos:(p.contrato||1);
+  return Math.max(25000,Math.round((p.valor||valor(p))*(1.7+0.25*a)/5000)*5000);
+}
+function multaDe(p){
+  if(!p||!p.timeId)return 0;
+  return p.multa>0?p.multa:multaPadrao(p);
+}
+
+/* ---------- postura do clube dono ----------
+   Antes de qualquer número, o clube tem uma posição sobre o jogador. É o que
+   aparece na mesa ao lado do escudo, e é o que decide se dá para negociar ou
+   se a única porta é a multa. */
+const POSTURAS={
+  intransferivel:{nome:'Intransferível',cls:'r'},
+  negociavel:    {nome:'Negociável',    cls:''},
+  avenda:        {nome:'À venda',       cls:'t'},
+  livre:         {nome:'Sem clube',     cls:'t'}};
+function posturaDoClube(p){
+  const t=p.timeId?G.times[p.timeId]:null;
+  if(!t)return{id:'livre',...POSTURAS.livre,motivo:'Agente livre: não há taxa de transferência.'};
+  const min=(typeof ELENCO_MIN!=='undefined')?ELENCO_MIN:5;
+  const titular=(t.titulares||[]).includes(p.id);
+  const apertado=t.caixa<0||t.caixa<t.patroc*0.15;
+  const ordem=(t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
+  const rank=ordem.findIndex(x=>x.id===p.id);
+  const r=(id,motivo)=>({id,...POSTURAS[id],motivo});
+  if(p.anuncio)return r('avenda','O próprio clube colocou o jogador no mercado.');
+  if(p.emprestimo)return r('intransferivel','Está emprestado: o clube dono decide no fim do empréstimo.');
+  if(titular&&rank>=0&&rank<2&&p.contrato>=2&&!apertado)
+    return r('intransferivel','Um dos dois melhores do elenco, com contrato longo.');
+  if(apertado)return r('avenda','O clube precisa de caixa e aceita menos.');
+  if(!titular&&rank>=6)return r('avenda','Sem espaço no elenco.');
+  if(p.moral<0.40)return r('avenda','O jogador está insatisfeito e quer sair.');
+  if(p.contrato<=1)return r('negociavel','Último ano de contrato: o clube prefere vender a perder de graça.');
+  if((t.elenco||[]).length<=min+1)return r('negociavel','Elenco curto: vender obriga a repor, e isso entra no preço.');
+  return r('negociavel',titular?'Titular, mas tem preço.':'Reserva com preço de mercado.');
+}
+/* O preço que o clube pede, já com a postura. Intransferível = multa. */
+function precoPedido(p){
+  if(!p.timeId)return 0;
+  const ps=posturaDoClube(p);
+  if(ps.id==='intransferivel')return multaDe(p);
+  const base=p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:pedidoDeVenda(p);
+  /* "à venda" por elenco cheio ou jogador infeliz baixa o preço; o desconto
+     do clube sem caixa já mora em pedidoDeVenda */
+  const desc=ps.id==='avenda'&&!p.anuncio&&!(G.times[p.timeId].caixa<G.times[p.timeId].patroc*0.15)?0.88:1;
+  return Math.min(multaDe(p),Math.round(base*desc/500)*500);
+}
+
+/* ---------- comissão do empresário ----------
+   Quem traz o jogador cobra: um pedaço da taxa, das luvas e do contrato.
+   Estrela tem empresário mais caro. Sai do caixa de quem contrata e não vai
+   para clube nenhum. */
+function comissaoEmpresario(p,taxa,sal,anos,luvas){
+  const k=over(p)>=85?1.5:over(p)>=78?1.2:1;
+  const v=((taxa||0)*0.04+(sal||0)*12*(anos||1)*0.04+(luvas||0)*0.05)*k;
+  return Math.round(v/500)*500;
+}
+
 /* ---------- recusas que dinheiro não compra ---------- */
 function recusasDuras(p,destino,anos){
   const fora=[];
@@ -8102,6 +8387,14 @@ function recusasDuras(p,destino,anos){
   /* Nem vai para um clube muito pior só para ser reserva. */
   if(origem&&nivelDoClube(destino)<nivelDoClube(origem)-14&&posicaoNoElenco(p,destino)>5)
     fora.push('Clube mais fraco E sem vaga de titular: o jogador não vê sentido.');
+  /* O interesse é a última porta: só conta se nada acima já fechou. */
+  if(!fora.length&&!(origem&&origem.id===destino.id)){
+    const it=interessePor(p,destino);
+    if(it.nota<INTERESSE_MIN){
+      const pior=it.itens.slice().sort((a,b)=>a.pontos-b.pontos)[0];
+      fora.push(p.nome+' não tem interesse no '+destino.nome+(pior?' — pesa: '+pior.rot.toLowerCase():'')+'.');
+    }
+  }
   return fora;
 }
 
@@ -8110,9 +8403,14 @@ function recusasDuras(p,destino,anos){
 function avaliarProposta(p,destino,taxa,sal,anos){
   const motivos=recusasDuras(p,destino,anos);
   if(p.timeId&&p.timeId!==destino.id){
-    const pedido=pedidoDeVenda(p);
-    if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' pelo passe.');
-    else if(taxa<pedido&&rnd()<.5)motivos.push('O clube recusou por pouco. Suba a proposta.');
+    const multa=multaDe(p);
+    if(taxa<multa){
+      const ps=posturaDoClube(p);
+      const pedido=precoPedido(p);
+      if(ps.id==='intransferivel')motivos.push('O clube não vende: só pela multa de '+money(multa)+'.');
+      else if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' pelo passe.');
+      else if(taxa<pedido&&rnd()<.5)motivos.push('O clube recusou por pouco. Suba a proposta.');
+    }
   }
   const d=detalharPedido(p,destino);
   if(sal<d.pedido*0.95){
@@ -8128,6 +8426,7 @@ function executarProposta(p,destino,taxa,sal,anos){
   destino.caixa-=taxa;if(origem)origem.caixa+=taxa;
   const de=origem?origem.tag:'sem clube';
   contratar(p,destino,anos,sal);
+  if(typeof registrarTransferencia==='function')registrarTransferencia(p,origem,destino,taxa,origem?'compra':'livre');
   noticia('✍ '+p.nome+' ('+de+') assinou com '+destino.nome+
           (taxa?' por '+money(taxa):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
   return true;
@@ -8213,8 +8512,10 @@ function tentarReforco(t,candidatos){
     if(ganho<2)continue;
     const d=detalharPedido(p,t);
     if(d.pedido>folga)continue;
-    const taxa=p.timeId?pedidoDeVenda(p):0;
+    const taxa=p.timeId?precoPedido(p):0;
     if(taxa>tetoTaxa)continue;
+    /* intransferível só sai pela multa, e a IA só paga multa por salto grande */
+    if(p.timeId&&taxa>=multaDe(p)&&ganho<5)continue;
     if(recusasDuras(p,t,3).length)continue;
     /* nota do negócio: ganho esportivo por real gasto */
     avaliados.push({p,d,taxa,nota:ganho/(1+(taxa+d.pedido*12)/500000)});
@@ -8226,7 +8527,9 @@ function tentarReforco(t,candidatos){
   /* o clube dono precisa querer vender: só solta titular por proposta acima do
      pedido, ou se estiver apertado de caixa */
   const origem=esc.p.timeId?G.times[esc.p.timeId]:null;
-  if(origem){
+  /* multa paga não tem recusa do clube: é para isso que ela existe */
+  const viaMulta=origem&&esc.taxa>=multaDe(esc.p);
+  if(origem&&!viaMulta){
     const titular=(origem.titulares||[]).includes(esc.p.id);
     const apertado=origem.caixa<origem.patroc*0.2;
     if(titular&&!apertado&&origem.elenco.length<=5)return null;
@@ -8262,6 +8565,299 @@ function mercadoTransferencias(){
   }
   for(const id in G.times)autoEscalar(G.times[id]);
   return fechados;
+}
+
+
+/* ===== src/core/negociacao.js ===== */
+/* ============================================================
+   MESA DE NEGOCIAÇÃO
+   ------------------------------------------------------------
+   Até aqui comprar era um formulário: três números, e a resposta
+   era sim ou não. Aqui vira negociação de verdade, em duas
+   conversas, na ordem em que acontece no cenário real:
+
+     1. COM O CLUBE DONO  a taxa. O clube tem uma postura
+        (intransferível, negociável, à venda), abre pedindo um
+        pouco acima do preço e responde com contraproposta.
+        Pagar a multa rescisória pula esta conversa.
+     2. COM O JOGADOR     salário, anos, luvas e promessa de
+        titularidade. Ele responde com o que quer.
+
+   Os dois lados têm PACIÊNCIA. Proposta recusada gasta um
+   ponto, proposta ofensiva gasta dois. Acabou a paciência, a
+   conversa fecha por algumas semanas.
+
+   O que ele aceita é o mesmo pedido que a IA paga
+   (detalharPedido em transferencia.js): o jogo não tem uma régua
+   para você e outra para os clubes da IA. O que muda é que você
+   negocia em rodadas e vê a resposta.
+
+   Nada aqui sorteia. O mínimo escondido de cada lado sai do
+   próprio jogador, do clube e do ano, para o mesmo clique dar
+   sempre a mesma resposta e não mexer no gerador do motor.
+   ============================================================ */
+
+const NEG_ESPERA=6;               /* semanas de conversa fechada depois de esgotar a paciência */
+const NEG_ABERTURA_CLUBE=1.06;    /* o clube abre pedindo acima do preço */
+const NEG_OFENSA=0.60;            /* abaixo disto do pedido, a proposta ofende */
+const LUVAS_PESO=1.2;             /* quanto um real de luvas vale contra um real de salário */
+
+function _semanaNeg(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+function _arred(v,passo){return Math.round(v/passo)*passo;}
+/* money() arredonda para o milhar; na mesa a diferença de 7,6k para 8k é a
+   diferença entre fechar e não fechar, então o valor aparece inteiro. */
+function dinheiro(v){
+  const n=Math.round(v||0),a=Math.abs(n);
+  if(a>=1e6)return '$'+(n/1e6).toFixed(2).replace('.',',')+'M';
+  if(a>=1e5)return '$'+Math.round(n/1e3)+'k';
+  if(a>=1e3)return '$'+(n/1e3).toFixed(1).replace('.',',').replace(',0','')+'k';
+  return '$'+n;
+}
+
+/* Fração do pedido abaixo da qual cada lado não desce. Varia de jogador para
+   jogador e de ano para ano, mas não de clique para clique. */
+function _ocultoClube(p,dest){return 0.92+(_hashTxt(p.id+'|c|'+dest.id+'|'+G.ano)%8)/100;}
+function _ocultoJogador(p,dest){return 0.95+(_hashTxt(p.id+'|j|'+dest.id+'|'+G.ano)%6)/100;}
+
+/* Anos que ele quer. Mesma regra da renovação. */
+function anosPreferidos(p){
+  if(p.idade<=22&&p.pot-over(p)>=5)return{faixa:[1,2],txt:'Está crescendo: quer contrato curto para renegociar valorizado.'};
+  if(p.idade>=29)return{faixa:[2,4],txt:'Veterano: prefere contrato longo.'};
+  return{faixa:[2,3],txt:'Aceita de dois a três anos.'};
+}
+function premioAnos(p,anos){
+  const f=anosPreferidos(p).faixa;
+  const fora=anos<f[0]?f[0]-anos:anos>f[1]?anos-f[1]:0;
+  return 1+fora*((typeof RENOV_PREMIO_ANO!=='undefined')?RENOV_PREMIO_ANO:0.07);
+}
+/* Salário que ele pede para essa duração e essas condições. */
+function pedidoContrato(p,dest,anos,promessa){
+  const d=detalharPedido(p,dest,{promessa});
+  return{d,pedido:Math.max(300,_arred(d.pedido*premioAnos(p,anos),100))};
+}
+/* Luvas viram salário equivalente: o que ele recebe na assinatura, diluído
+   pelo contrato. O mercenário valoriza mais o dinheiro na mão. */
+function salarioEquivalente(p,sal,anos,luvas){
+  const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
+  return (sal||0)+((luvas||0)*k)/(Math.max(1,anos)*12);
+}
+
+/* ---------- estado ---------- */
+function negociacoes(){return G.negociacoes||(G.negociacoes=[]);}
+function negociacao(id){return negociacoes().find(n=>n.id===id)||null;}
+function negociacaoAtivaDe(jogadorId){
+  return negociacoes().find(n=>n.jogadorId===jogadorId&&n.destinoId===G.meuTime
+    &&(n.fase==='clube'||n.fase==='jogador'))||null;
+}
+function conversaFechada(p){return !!(p.negBloq&&_semanaNeg()<p.negBloq);}
+function semanasAteNegociar(p){return conversaFechada(p)?p.negBloq-_semanaNeg():0;}
+
+function _fala(n,de,txt,extra){
+  n.hist.push({de,txt,sem:G.semana,ano:G.ano,...(extra||{})});
+}
+
+/* Abre (ou devolve a que já existe) a negociação do seu clube por um jogador. */
+function abrirNegociacao(p,dest){
+  dest=dest||G.times[G.meuTime];
+  if(!p||!dest)return{ok:false,erro:'Negociação inválida.'};
+  const ja=negociacaoAtivaDe(p.id);
+  if(ja)return{ok:true,neg:ja};
+  if(p.timeId===dest.id)return{ok:false,erro:p.nome+' já é do seu clube.'};
+  if(conversaFechada(p))
+    return{ok:false,erro:'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'};
+  const origem=p.timeId?G.times[p.timeId]:null;
+  const ps=posturaDoClube(p);
+  const it=interessePor(p,dest);
+  const preco=precoPedido(p);
+  const n={id:'ng'+G.ano+'_'+(_hashTxt(p.id+'|'+_semanaNeg()+'|'+negociacoes().length)%1e6).toString(36),
+    jogadorId:p.id,origemId:origem?origem.id:null,destinoId:dest.id,
+    fase:origem?'clube':'jogador',
+    postura:ps.id,
+    pacClube:origem?(ps.id==='avenda'?5:ps.id==='negociavel'?4:2):0,
+    pacJog:3+(it.nota>=48?1:0)+(it.nota>=70?1:0),
+    pacClubeMax:0,pacJogMax:0,
+    pedidaClube:origem?(ps.id==='intransferivel'?preco:_arred(preco*NEG_ABERTURA_CLUBE,5000)):0,
+    taxa:0,viaMulta:false,contraJog:null,
+    hist:[],ano:G.ano,semana:G.semana};
+  n.pacClubeMax=n.pacClube;n.pacJogMax=n.pacJog;
+  if(origem){
+    _fala(n,'clube',ps.id==='intransferivel'
+      ?'Ele não está à venda. Só sai pela multa rescisória de '+dinheiro(multaDe(p))+'.'
+      :'Para conversar sobre '+p.nome+', pensamos em '+dinheiro(n.pedidaClube)+'.');
+  }else{
+    _fala(n,'jogador','Estou sem clube e aberto a propostas. Vamos conversar.');
+  }
+  negociacoes().push(n);
+  return{ok:true,neg:n};
+}
+
+/* Fecha a conversa, gastando ou não o tempo de espera. */
+function _encerrar(n,quem){
+  const p=G.jogadores[n.jogadorId];
+  n.fase='encerrada';
+  if(p){p.negBloq=_semanaNeg()+NEG_ESPERA;}
+  _fala(n,'sistema',(quem==='clube'?'O clube':'O jogador')+' encerrou as conversas. Dá para tentar de novo em '+NEG_ESPERA+' semanas.');
+}
+
+/* ---------- 1. conversa com o clube ---------- */
+/* Devolve {ok, resposta:'aceita'|'contra'|'recusa'|'encerrada', valor, erro} */
+function proporAoClube(n,taxa){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
+  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  taxa=Math.max(0,_arred(taxa||0,500));
+  if(dest.caixa<taxa)return{ok:false,erro:'Caixa insuficiente: você tem '+dinheiro(dest.caixa)+'.'};
+  const ps=posturaDoClube(p);
+  const multa=multaDe(p);
+  const preco=precoPedido(p);
+  _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+'.',{valor:taxa});
+  if(taxa>=multa)return pagarMulta(n,true);
+  const minimo=ps.id==='intransferivel'?multa:_arred(preco*_ocultoClube(p,dest),500);
+  if(taxa>=minimo){
+    n.taxa=taxa;n.fase='jogador';
+    _fala(n,'clube','Fechado: '+dinheiro(taxa)+'. Podem falar com o jogador.');
+    _abrirJogador(n);
+    return{ok:true,resposta:'aceita',valor:taxa};
+  }
+  const ofensa=taxa<preco*NEG_OFENSA;
+  n.pacClube-=ofensa?2:1;
+  if(n.pacClube<=0){
+    _fala(n,'clube',ofensa?'Isso é uma piada. Não temos mais o que conversar.':'Não chegamos a um acordo.');
+    _encerrar(n,'clube');
+    return{ok:true,resposta:'encerrada'};
+  }
+  if(ps.id==='intransferivel'){
+    _fala(n,'clube','Já dissemos: ele não está à venda. A multa é '+dinheiro(multa)+'.');
+    return{ok:true,resposta:'recusa',valor:multa};
+  }
+  /* a contraproposta anda na sua direção, mas nunca abaixo do mínimo dele */
+  n.pedidaClube=Math.max(minimo,_arred(n.pedidaClube-(n.pedidaClube-taxa)*0.35,5000));
+  _fala(n,'clube',(ofensa?'Proposta muito abaixo do que ele vale. ':'')+'Aceitamos '+dinheiro(n.pedidaClube)+'.',{valor:n.pedidaClube});
+  return{ok:true,resposta:'contra',valor:n.pedidaClube};
+}
+function aceitarContraClube(n){return proporAoClube(n,n.pedidaClube);}
+/* Multa paga: o clube não tem como recusar. */
+function pagarMulta(n,jaFalou){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
+  const multa=multaDe(p);
+  if(dest.caixa<multa)return{ok:false,erro:'A multa é '+dinheiro(multa)+' e você tem '+dinheiro(dest.caixa)+' em caixa.'};
+  if(!jaFalou)_fala(n,'voce','Vamos pagar a multa rescisória de '+dinheiro(multa)+'.',{valor:multa});
+  n.taxa=multa;n.viaMulta=true;n.fase='jogador';
+  _fala(n,'clube','Multa é multa. Não podemos impedir. Agora é com ele.');
+  _abrirJogador(n);
+  return{ok:true,resposta:'aceita',valor:multa,multa:true};
+}
+function _abrirJogador(n){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  const it=interessePor(p,dest);
+  const pref=anosPreferidos(p);
+  const {pedido}=pedidoContrato(p,dest,pref.faixa[0],false);
+  n.contraJog={sal:pedido,anos:pref.faixa[0],luvas:0};
+  _fala(n,'jogador',it.nota>=70?'Seria um sonho jogar no '+dest.nome+'. Penso em '+dinheiro(pedido)+'/mês.'
+    :it.nota>=48?'Gosto do projeto. Penso em '+dinheiro(pedido)+'/mês por '+pref.faixa[0]+' ano(s).'
+    :'Posso ouvir. Mas para mudar quero '+dinheiro(pedido)+'/mês.',{valor:pedido});
+}
+
+/* ---------- 2. conversa com o jogador ---------- */
+/* oferta = {sal, anos, luvas, promessa} */
+function avaliarOfertaJogador(n,oferta){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  const anos=clamp(parseInt(oferta.anos)||2,1,4);
+  const {d,pedido}=pedidoContrato(p,dest,anos,!!oferta.promessa);
+  const eq=salarioEquivalente(p,oferta.sal,anos,oferta.luvas);
+  const minimo=pedido*_ocultoJogador(p,dest);
+  const comissao=comissaoEmpresario(p,n.taxa,oferta.sal,anos,oferta.luvas);
+  const custo=(n.taxa||0)+(oferta.luvas||0)+comissao;
+  return{d,pedido,eq,minimo,anos,comissao,custo,razao:eq/Math.max(1,pedido),
+         duras:recusasDuras(p,dest,anos)};
+}
+function proporAoJogador(n,oferta){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  if(!p||!dest||n.fase!=='jogador')return{ok:false,erro:'Essa etapa não está aberta.'};
+  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  oferta={sal:Math.max(0,_arred(oferta.sal||0,100)),anos:clamp(parseInt(oferta.anos)||2,1,4),
+          luvas:Math.max(0,_arred(oferta.luvas||0,500)),promessa:!!oferta.promessa};
+  const a=avaliarOfertaJogador(n,oferta);
+  if(a.duras.length)return{ok:false,erro:a.duras.join(' ')};
+  if(dest.caixa<a.custo)return{ok:false,erro:'Caixa insuficiente: taxa, luvas e comissão somam '+dinheiro(a.custo)+'.'};
+  _fala(n,'voce',dinheiro(oferta.sal)+'/mês por '+oferta.anos+' ano(s)'+
+    (oferta.luvas?', '+dinheiro(oferta.luvas)+' de luvas':'')+(oferta.promessa?', titularidade garantida':'')+'.',{valor:oferta.sal});
+  if(a.eq>=a.minimo){
+    concluirNegociacao(n,oferta,a);
+    return{ok:true,resposta:'aceita'};
+  }
+  const ofensa=a.eq<a.pedido*0.70;
+  n.pacJog-=ofensa?2:1;
+  if(n.pacJog<=0){
+    _fala(n,'jogador',ofensa?'Vocês não me levam a sério. Não tenho interesse.':'Não vamos chegar a um acordo.');
+    _encerrar(n,'jogador');
+    return{ok:true,resposta:'encerrada'};
+  }
+  /* o que ele quer: a duração dele e o salário que fecha, já descontadas as
+     luvas que você ofereceu */
+  const pref=anosPreferidos(p).faixa;
+  const anos=clamp(oferta.anos,pref[0],pref[1]);
+  const quer=pedidoContrato(p,dest,anos,oferta.promessa).pedido;
+  const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
+  const sal=Math.max(300,_arred(quer-(oferta.luvas*k)/(anos*12)+50,100));
+  n.contraJog={sal,anos,luvas:oferta.luvas,promessa:oferta.promessa};
+  const principal=a.d.itens.filter(i=>i.fator>1.04).sort((x,y)=>y.fator-x.fator)[0];
+  _fala(n,'jogador',(ofensa?'Isso está muito longe. ':'')+'Fecho por '+dinheiro(sal)+'/mês e '+anos+' ano(s)'+
+    (oferta.luvas?' com as luvas':'')+'.'+(principal?' Pesa para mim: '+principal.rot.toLowerCase()+'.':''),{valor:sal});
+  return{ok:true,resposta:'contra',contra:n.contraJog};
+}
+function aceitarContraJogador(n){
+  if(!n.contraJog)return{ok:false,erro:'Ele ainda não fez contraproposta.'};
+  return proporAoJogador(n,n.contraJog);
+}
+
+/* ---------- fechamento ---------- */
+function concluirNegociacao(n,oferta,a){
+  const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
+  const origem=p.timeId?G.times[p.timeId]:null;
+  dest.caixa-=(n.taxa||0)+(oferta.luvas||0)+a.comissao;
+  if(origem)origem.caixa+=(n.taxa||0);
+  const de=origem?origem.tag:'sem clube';
+  n.fase='fechada';
+  n.interesse=interessePor(p,dest,{promessa:oferta.promessa});
+  n.final={...oferta,taxa:n.taxa,comissao:a.comissao,deId:origem?origem.id:null};
+  _fala(n,'jogador',interessePor(p,dest).nota>=70?'Fechado! Mal posso esperar para começar.':'Fechado. Vamos trabalhar.');
+  contratar(p,dest,oferta.anos,oferta.sal);
+  p.multa=multaPadrao(p,oferta.anos);
+  if(oferta.promessa){
+    const prazo=(typeof PROMESSA_PRAZO!=='undefined')?PROMESSA_PRAZO:8;
+    p.promessa={tipo:'titular',ate:(G.semana||1)+prazo,ano:G.ano,clube:dest.id};
+  }
+  /* quem chega empolgado chega motivado */
+  const it=interessePor(p,dest).nota;
+  if(it>=70)p.moral=clamp(p.moral+0.05,0.05,1);
+  registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
+  noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
+    (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',
+    {c:'mercado',p:[p.id],t:[dest.id,origem&&origem.id],imp:over(p)>=88||n.viaMulta?2:1});
+  /* contratar() limpa as negociações do jogador; a fechada fica para a tela */
+  if(!negociacoes().includes(n))negociacoes().push(n);
+}
+
+/* Registro do mercado, para a Central e as notícias de maiores negócios. */
+function registrarTransferencia(p,origem,dest,taxa,tipo){
+  G.transferencias=G.transferencias||[];
+  G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
+    de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
+  /* só as últimas temporadas: o save não precisa carregar a história inteira */
+  const corte=(G.ano||0)-3;
+  if(G.transferencias.length>400)G.transferencias=G.transferencias.filter(x=>x.ano>=corte).slice(-400);
+}
+
+/* Fim de janela: o que estava em andamento cai. Fechadas e encerradas antigas
+   saem da lista. */
+function limparNegociacoes(){
+  const agora=_semanaNeg();
+  G.negociacoes=negociacoes().filter(n=>{
+    if(n.fase==='clube'||n.fase==='jogador')return !!G.janela;
+    return agora-((n.ano||0)*SEMANAS_ANO+(n.semana||1))<NEG_ESPERA+2&&!!G.janela;
+  });
 }
 
 
@@ -11422,6 +12018,8 @@ function migrarRun(reg){
        jogador escolher, para nada parar de evoluir num save que veio de antes */
     for(const id in G.times)if(!G.times[id].treino)G.times[id].treino={mapa:null,individual:{}};
     if(!G.propostas)G.propostas=[];
+    if(!G.negociacoes)G.negociacoes=[];
+    if(!G.transferencias)G.transferencias=[];
     /* Calendário antigo: os blocos não tinham semana. Sem `ini`/`fim`,
        blocoDaSemana() não acha bloco nenhum, o relógio passa o ano inteiro em
        "Intervalo" e a temporada some sem um único jogo — e sem erro, que é o
@@ -13283,6 +13881,11 @@ function vMercadoStaff(t){
       <td class="r"><button class="btn sm" data-propstaff="${m.id}" ${G.janela?'':'disabled'}>Propor</button></td>
     </tr>`).join('')}</tbody></table></div>`;
 }
+/* termômetro de bolso para a lista do mercado */
+function interesseMini(p,t){
+  const it=interessePor(p,t);
+  return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;
+}
 function vMercadoJogadores(t){
   let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
@@ -13301,14 +13904,15 @@ function vMercadoJogadores(t){
     <select id="fOrd">${[['over','Ordenar por over'],['pot','Ordenar por potencial'],['valor','Ordenar por preço']].map(([k,n])=>`<option value="${k}" ${mFiltro.ordem===k?'selected':''}>${n}</option>`).join('')}</select>
     <span class="dim">${lista.length} resultados</span></div></div>
   <div class="card flat"><table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
-    <th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
+    <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
-      <td class="r num">${p.timeId?money(pedidoDeVenda(p)):'—'}</td>
+      <td class="c">${interesseMini(p,t)}</td>
+      <td class="r num">${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?' <span class="chip r" title="Só pela multa">multa</span>':''}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
-      <td class="r"><button class="btn sm" data-prop="${p.id}" ${G.janela?'':'disabled'}>Propor</button></td></tr>`).join('')}
+      <td class="r"><button class="btn sm" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Mesa':'Negociar'}</button></td></tr>`).join('')}
     </tbody></table></div>`;
 }
 function vBase(){
@@ -13676,6 +14280,7 @@ function modalJogador(id){
       `<span class="tag ${p.role2}" style="opacity:.55" title="função secundária: perde ${
         custoDeFuncao(p,p.role2)} de over">2ª ${p.role2}</span>`:''} <span class="pill">${p.idade} anos</span>
     <span class="pill">Contrato ${p.contrato}a</span> ${p.igl?'<span class="pill">IGL</span>':''}
+    <span class="pill" title="${esc(PERFIS[perfilDe(p)].desc)}">Perfil ${esc(PERFIS[perfilDe(p)].nome)}</span>
     <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
       <span class="badge ${p.lesao?'no':'ok'}">${p.lesao?'lesionado · '+p.lesao+' sem.':'apto'}</span>
       <span class="badge ${p.moral>=.7?'ok':p.moral>=.45?'at':'no'}">${p.moral>=.7?'motivado':p.moral>=.45?'neutro':'insatisfeito'}</span>
@@ -13705,7 +14310,8 @@ function modalJogador(id){
       <table><tbody>
       <tr><td>Valor de mercado</td><td class="r num">${money(p.valor)}</td></tr>
       <tr><td>Salário</td><td class="r num">${money(p.salario)}/mês</td></tr>
-      <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(pedidoDeVenda(p)):'livre'}</td></tr>
+      <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(precoPedido(p))+' <span class="chip '+posturaDoClube(p).cls+'">'+esc(posturaDoClube(p).nome)+'</span>':'livre'}</td></tr>
+      ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
       <tr><td>Agentes</td><td class="r"><span class="agmini">${
         p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
@@ -13719,7 +14325,7 @@ function modalJogador(id){
   ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
@@ -13819,66 +14425,6 @@ function blocoConversa(t,p){
      :`<p class="dim" style="margin-top:8px">Vocês conversaram há pouco. Dá para chamar de novo
        em ${semanasAteConversar(p)} semana(s).</p>`}
   </div>`;
-}
-function modalProposta(id){
-  const p=P(id),t=meu();
-  const taxa=p.timeId?pedidoDeVenda(p):0;
-  const d=detalharPedido(p,t);
-  const duras=recusasDuras(p,t,2);
-  const R=REGIONS.find(r=>r.id===t.regiao);
-  const casa=regiaoNatal(p);
-
-  /* Mostrar a conta linha a linha é o ponto: sem isso o pedido salarial é um
-     número que caiu do céu, e você não tem como saber se vale insistir, subir
-     a oferta ou procurar outro jogador. */
-  const conta=d.itens.length?`
-    <div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
-      <table><tbody>
-        <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
-        ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
-          <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
-        <tr><td><b>Pedido</b></td><td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
-      </tbody></table></div>`:'';
-
-  const contexto=`<p class="dim">${
-    p.timeId?'Sob contrato com <b>'+esc(nomeT(p.timeId))+'</b> por mais '+p.contrato+' ano(s).'
-            :'Agente livre — sem taxa de transferência.'}
-    Natural de ${esc(casa)}${casa!==t.regiao?', jogaria fora da região dele':''}.
-    Entraria como <b>${d.pos<=5?d.pos+'º e titular':d.pos+'º do elenco, no banco'}</b>.</p>`;
-
-  abrir(`<div class="eyebrow">Proposta</div><h2 class="sec">${esc(p.nome)}</h2>
-  ${contexto}
-  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
-    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
-  <div class="grid g3" style="margin-top:12px">
-    <div><label class="dim">Taxa de transferência</label><br>
-      <input type="number" id="pTaxa" value="${taxa}" step="5000" ${p.timeId?'':'disabled'}></div>
-    <div><label class="dim">Salário mensal</label><br>
-      <input type="number" id="pSal" value="${d.pedido}" step="500"></div>
-    <div><label class="dim">Anos de contrato</label><br>
-      <input type="number" id="pAnos" value="2" min="1" max="4"></div>
-  </div>
-  ${conta}
-  <div id="pFeed" style="margin-top:12px"></div>
-  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-    <button class="btn ghost" id="pJusto">Preencher com o que ele aceita</button>
-    <button class="btn" id="pEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
-    <button class="btn ghost" data-close>Cancelar</button></div>`);
-
-  $('#pJusto').onclick=()=>{
-    $('#pTaxa').value=taxa;$('#pSal').value=d.pedido;
-  };
-  $('#pEnviar').onclick=()=>{
-    const taxa2=parseFloat($('#pTaxa').value)||0,sal2=parseFloat($('#pSal').value)||0,
-          anos=parseInt($('#pAnos').value)||2;
-    const m=avaliarProposta(p,t,taxa2,sal2,anos);
-    if(m.length){$('#pFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
-      m.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;return;}
-    executarProposta(p,t,taxa2,sal2,anos);
-    $('#pFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${
-      esc(p.nome)} é jogador do ${esc(t.nome)}.</div>`;
-    $('#pEnviar').disabled=true;
-  };
 }
 /* ---------- anunciar um jogador ----------
    Três decisões, e as três importam: se aceita venda, se aceita empréstimo, e
@@ -14420,6 +14966,305 @@ function modalVeredito(v){
     const r=assumirClube(b.dataset.assumir);
     fechar();render();flash(r.ok?r.msg:r.erro);
   });
+}
+
+
+/* ===== src/ui/negociacao.js ===== */
+/* ============================================================
+   MESA DE NEGOCIAÇÃO — tela
+   ------------------------------------------------------------
+   No topo, o palco: o clube de onde ele sai, a carta dele e o
+   seu clube. Embaixo, à esquerda, o que ele pensa do seu clube
+   (termômetro de interesse, linha a linha); à direita, a
+   conversa da vez (clube ou jogador) com os controles e as
+   barras que mostram, ao vivo, onde a sua oferta está. No pé,
+   a conversa inteira em balões.
+
+   Toda ação passa pelo motor (core/negociacao.js) e redesenha
+   a mesa. Os controles só mexem nas barras, sem gastar nada.
+   ============================================================ */
+
+/* o que você estava montando, para o redesenho não apagar */
+let _mesaRasc={};
+
+function modalProposta(id){return modalNegociacao(id);}
+function modalNegociacao(id){
+  const p=P(id),t=meu();
+  if(!p||!t)return;
+  let n=negociacaoAtivaDe(p.id);
+  if(!n){
+    /* janela fechada ou porta fechada: mostra a mesa só para olhar */
+    const bloqueio=!G.janela?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta.'
+      :conversaFechada(p)?'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'
+      :null;
+    const duras=recusasDuras(p,t,2);
+    if(bloqueio||duras.length)return mesa(p,null,bloqueio||duras.join(' '));
+    const r=abrirNegociacao(p,t);
+    if(!r.ok)return mesa(p,null,r.erro);
+    n=r.neg;
+    _mesaRasc={};
+  }
+  mesa(p,n,null);
+}
+/* reabre a mesa de uma negociação que acabou de fechar, pelo id */
+function mesaPorId(negId){
+  const n=negociacao(negId);if(!n)return;
+  mesa(P(n.jogadorId),n,null);
+}
+
+function _barraNeg(razao,zonas,legenda){
+  /* razao 0..1.3 → 0..100% da barra; as zonas são cortes no mesmo eixo */
+  const pos=clamp(razao/1.3*100,0,100);
+  return `<div class="neg-medidor">
+    <div class="neg-escala">${zonas.map(z=>`<span class="z-${z.c}" style="width:${z.w}%"></span>`).join('')}</div>
+    <i style="left:${pos}%"></i>
+  </div><div class="neg-leg"><b>${esc(legenda)}</b></div>`;
+}
+const _ZONAS_NEG=[{c:'r',w:0.70/1.3*100},{c:'a',w:(0.95-0.70)/1.3*100},{c:'y',w:(1-0.95)/1.3*100},{c:'t',w:0.30/1.3*100}];
+function _legClube(razao,multa,intrans){
+  if(multa)return 'Multa rescisória: o clube não pode recusar';
+  if(intrans)return 'Intransferível: abaixo da multa eles recusam';
+  return razao<NEG_OFENSA?'Ofensiva: gasta duas vezes a paciência':razao<0.92?'Abaixo do preço: vão contrapropor'
+    :razao<1?'Perto do que eles querem':'No preço ou acima';
+}
+function _legJog(razao){
+  return razao<0.70?'Ofensiva: gasta duas vezes a paciência':razao<0.95?'Abaixo do que ele quer'
+    :razao<1?'Perto: pode passar':'Ele aceita';
+}
+function _pac(n,max){
+  return `<span class="neg-pac" title="Paciência: cada proposta recusada gasta um ponto">${
+    Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+}
+function _termometro(it){
+  const f=it.faixa;
+  return `<div class="neg-termo f-${f.id}">
+    <div class="neg-termo-barra"><div class="neg-termo-escala"></div><i style="left:${it.nota}%"></i></div>
+    <div class="neg-termo-marcas"><span>Não atende</span><span>Frio</span><span>Morno</span><span>Interessado</span><span>Empolgado</span></div>
+    <div class="neg-termo-nota"><b class="num">${it.nota}</b><div><b>${esc(f.nome)}</b><div class="dim">${esc(f.txt)}</div></div></div>
+  </div>`;
+}
+function _fatores(it){
+  if(!it.itens.length)return '<p class="dim">Nada pesa a favor nem contra: ele avalia só o dinheiro.</p>';
+  return `<div class="neg-fatores">${it.itens.slice().sort((a,b)=>b.pontos-a.pontos).map(i=>`
+    <div class="neg-fator"><span>${esc(i.rot)}</span>
+      <b class="num ${i.pontos>0?'up':i.pontos<0?'dn':''}">${i.pontos>0?'+':''}${i.pontos}</b></div>`).join('')}</div>`;
+}
+function _chat(n){
+  if(!n||!n.hist.length)return '';
+  const quem={voce:'Você',clube:'Clube',jogador:'Jogador',sistema:''};
+  return `<div class="neg-chat">${n.hist.map(h=>`
+    <div class="neg-msg m-${h.de}">${quem[h.de]?`<span class="neg-quem">${quem[h.de]}</span>`:''}${esc(h.txt)}</div>`).join('')}</div>`;
+}
+
+function mesa(p,n,bloqueio){
+  const t=meu();
+  const fechada=n&&n.fase==='fechada';
+  /* depois de assinar ele já é seu: o lado de lá e o termômetro ficam como estavam na mesa */
+  const origem=fechada?(n.origemId?T(n.origemId):null):p.timeId?T(p.timeId):null;
+  const ps=posturaDoClube(p);
+  const promRasc=!!_mesaRasc.promessa;
+  const it=fechada&&n.interesse?n.interesse:interessePor(p,t,{promessa:promRasc});
+  const pf=PERFIS[perfilDe(p)];
+  const fase=n?n.fase:'bloqueada';
+  const multa=multaDe(p);
+  const preco=precoPedido(p);
+
+  const lado=(time,rot,extra)=>`<div class="neg-lado">
+    ${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
+    <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
+  const palco=`<div class="neg-palco">
+    ${lado(origem,'Sai de',fechada?'':origem?`<div><span class="chip ${ps.cls}">${esc(ps.nome)}</span></div>
+      <div class="dim neg-sub">Multa ${dinheiro(multa)}</div>`:'<div class="dim neg-sub">Sem taxa de transferência</div>')}
+    <div class="neg-centro">${cartaJogador(p,{w:150})}
+      <div class="neg-perfil" title="${esc(pf.desc)}">Perfil: <b>${esc(pf.nome)}</b></div></div>
+    <div class="neg-seta${fase==='fechada'?' ok':''}"><span></span></div>
+    ${lado(t,'Vai para',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
+  </div>`;
+
+  const passo=(k,rot,est)=>`<div class="neg-passo ${est}"><i>${k}</i>${rot}</div>`;
+  const est1=!origem?'pulado':fase==='clube'?'atual':(fase==='jogador'||fase==='fechada'||(n&&n.taxa))?'feito':'';
+  const est2=fase==='jogador'?'atual':fase==='fechada'?'feito':'';
+  const passos=`<div class="neg-passos">${passo(1,origem?'Acordo com o clube':'Sem clube a negociar',est1)}
+    <b></b>${passo(2,'Contrato com o jogador',est2)}<b></b>${passo(3,'Assinatura',fase==='fechada'?'feito':'')}</div>`;
+
+  const esquerda=`<div class="neg-col">
+    <div class="eyebrow">O que ele pensa do ${esc(t.nome)}</div>
+    ${_termometro(it)}
+    ${_fatores(it)}
+    <p class="dim neg-nota">${esc(pf.nome)}: ${esc(pf.desc)}</p>
+  </div>`;
+
+  let direita='';
+  if(fase==='bloqueada'){
+    direita=`<div class="neg-col"><div class="neg-aviso">${esc(bloqueio||'')}</div>
+      <p class="dim">Preço pedido pelo clube: <b>${origem?dinheiro(preco):'—'}</b>. ${origem?'Multa: <b>'+dinheiro(multa)+'</b>.':''}</p></div>`;
+  }else if(fase==='clube'){
+    const taxa0=_mesaRasc.taxa!=null?_mesaRasc.taxa:_arred(preco*0.85,5000);
+    const max=Math.max(multa,preco)*1.05;
+    direita=`<div class="neg-col">
+      <div class="split"><div class="eyebrow">Conversa com o ${esc(origem.nome)}</div>${_pac(n.pacClube,n.pacClubeMax)}</div>
+      <p class="dim">${esc(ps.motivo)}</p>
+      <div class="neg-numeros">
+        <div><span class="dim">Eles pedem</span><b class="num">${dinheiro(n.pedidaClube)}</b></div>
+        <div><span class="dim">Multa rescisória</span><b class="num">${dinheiro(multa)}</b></div>
+      </div>
+      <label class="neg-campo"><span>Sua oferta pelo passe</span>
+        <input type="range" id="cTaxaR" min="0" max="${Math.round(max)}" step="5000" value="${taxa0}">
+        <input type="number" id="pTaxa" value="${taxa0}" step="5000"></label>
+      <div id="cBarra"></div>
+      <div class="neg-bts">
+        <button class="btn" id="cEnviar">Enviar proposta</button>
+        ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
+        <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
+      </div>
+      <div id="pFeed"></div>
+      <div class="neg-previa"><div class="eyebrow">Depois, com o jogador</div>
+        <p class="dim">Ele deve pedir perto de <b>${dinheiro(pedidoContrato(p,t,anosPreferidos(p).faixa[0],false).pedido)}/mês</b>.
+        ${esc(anosPreferidos(p).txt)}</p></div>
+    </div>`;
+  }else if(fase==='jogador'){
+    const c=n.contraJog||{};
+    const sal0=_mesaRasc.sal!=null?_mesaRasc.sal:(c.sal||0);
+    const anos0=_mesaRasc.anos||c.anos||2;
+    const luvas0=_mesaRasc.luvas!=null?_mesaRasc.luvas:0;
+    const maxSal=Math.max(1000,Math.round((c.sal||1000)*1.8/100)*100);
+    const maxLuvas=Math.max(10000,Math.round((c.sal||1000)*24/500)*500);
+    const d=pedidoContrato(p,t,anos0,promRasc).d;
+    direita=`<div class="neg-col">
+      <div class="split"><div class="eyebrow">Conversa com ${esc(p.nome)}</div>${_pac(n.pacJog,n.pacJogMax)}</div>
+      ${n.taxa?`<p class="dim">${n.viaMulta?'Multa paga':'Taxa acertada'}: <b>${dinheiro(n.taxa)}</b>. ${esc(anosPreferidos(p).txt)}</p>`
+              :`<p class="dim">${esc(anosPreferidos(p).txt)}</p>`}
+      <label class="neg-campo"><span>Salário mensal</span>
+        <input type="range" id="pSalR" min="0" max="${maxSal}" step="100" value="${sal0}">
+        <input type="number" id="pSal" value="${sal0}" step="100"></label>
+      <div class="neg-campo"><span>Anos de contrato</span>
+        <div class="neg-anos">${[1,2,3,4].map(a=>`<button class="${a===anos0?'on':''}" data-anos="${a}">${a}</button>`).join('')}</div>
+        <input type="hidden" id="pAnos" value="${anos0}"></div>
+      <label class="neg-campo"><span>Luvas (na assinatura)</span>
+        <input type="range" id="pLuvasR" min="0" max="${maxLuvas}" step="500" value="${luvas0}">
+        <input type="number" id="pLuvas" value="${luvas0}" step="500"></label>
+      <label class="neg-check"><input type="checkbox" id="pProm" ${promRasc?'checked':''}>
+        Prometer titularidade em contrato <span class="dim">(se ele não for titular em ${typeof PROMESSA_PRAZO!=='undefined'?PROMESSA_PRAZO:8} semanas, a moral despenca)</span></label>
+      <div id="pBarra"></div>
+      <div id="pCusto"></div>
+      <div class="neg-bts">
+        <button class="btn" id="pEnviar">Enviar proposta</button>
+        ${n.contraJog?`<button class="btn ghost" id="jContra">Aceitar ${dinheiro(c.sal)}/mês · ${c.anos}a</button>`:''}
+        <button class="btn ghost" id="pJusto">Preencher com o que ele aceita</button>
+      </div>
+      <div id="pFeed"></div>
+      <details class="neg-conta"><summary>Por que ele pede isso</summary>
+        <table><tbody>
+          <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${dinheiro(d.base)}</td></tr>
+          ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
+            <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
+          ${premioAnos(p,anos0)>1?`<tr><td>Fora da duração que ele quer</td><td class="r num dn">+${Math.round((premioAnos(p,anos0)-1)*100)}%</td></tr>`:''}
+        </tbody></table></details>
+    </div>`;
+  }else if(fase==='fechada'){
+    const f=n.final||{};
+    direita=`<div class="neg-col neg-fechada">
+      <div class="neg-carimbo">Contratado</div>
+      <table><tbody>
+        ${f.taxa?`<tr><td>${n.viaMulta?'Multa rescisória':'Taxa de transferência'}</td><td class="r num">${dinheiro(f.taxa)}</td></tr>`:''}
+        <tr><td>Salário</td><td class="r num">${dinheiro(f.sal)}/mês por ${f.anos} ano(s)</td></tr>
+        ${f.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(f.luvas)}</td></tr>`:''}
+        <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>
+        ${f.promessa?'<tr><td colspan="2">Titularidade prometida em contrato</td></tr>':''}
+        <tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>
+      </tbody></table></div>`;
+  }else{
+    direita=`<div class="neg-col"><div class="neg-aviso">A conversa terminou sem acordo.
+      Dá para tentar de novo em ${semanasAteNegociar(p)} semana(s).</div></div>`;
+  }
+
+  abrir(`<div class="neg">
+    <div class="eyebrow">Negociação</div><h2 class="sec">${esc(p.nome)}</h2>
+    ${palco}${passos}
+    <div class="neg-corpo">${esquerda}${direita}</div>
+    ${_chat(n)}
+    <div class="neg-bts" style="justify-content:flex-end">
+      <button class="btn ghost" data-ficha="${p.id}">Ver ficha</button>
+      <button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true);
+  const bf=$('#modal [data-ficha]');if(bf)bf.onclick=()=>modalJogador(p.id);
+  if(n)_ligarMesa(p,n);
+  const chat=$('#modal .neg-chat');if(chat)chat.scrollTop=chat.scrollHeight;
+}
+
+function _ligarMesa(p,n){
+  const t=meu();
+  const par=(r,num,onChange)=>{
+    const a=$(r),b=$(num);if(!a||!b)return;
+    a.oninput=()=>{b.value=a.value;onChange();};
+    b.oninput=()=>{a.value=b.value;onChange();};
+  };
+  const feed=(txt,ok)=>{const f=$('#pFeed');if(f)f.innerHTML=`<div class="neg-aviso ${ok?'ok':''}">${esc(txt)}</div>`;};
+  const depois=()=>mesa(p,n,null);
+
+  if(n.fase==='clube'){
+    const viva=()=>{
+      const taxa=parseFloat($('#pTaxa').value)||0;
+      _mesaRasc.taxa=taxa;
+      const preco=precoPedido(p),multa=multaDe(p);
+      $('#cBarra').innerHTML=_barraNeg(taxa/Math.max(1,preco),_ZONAS_NEG,_legClube(taxa/Math.max(1,preco),taxa>=multa,posturaDoClube(p).id==='intransferivel'));
+    };
+    par('#cTaxaR','#pTaxa',viva);viva();
+    $('#cEnviar').onclick=()=>{
+      const r=proporAoClube(n,parseFloat($('#pTaxa').value)||0);
+      if(!r.ok)return feed(r.erro);
+      if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
+      depois();
+    };
+    const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
+    $('#cMulta').onclick=async()=>{
+      const ok=await confirmar('Pagar a multa rescisória de '+dinheiro(multaDe(p))+'? O clube não pode recusar, mas o dinheiro só sai se o jogador assinar.','Pagar a multa');
+      if(!ok)return;
+      const r=pagarMulta(n);if(!r.ok)return feed(r.erro);depois();
+    };
+  }
+  if(n.fase==='jogador'){
+    const oferta=()=>({sal:parseFloat($('#pSal').value)||0,anos:parseInt($('#pAnos').value)||2,
+      luvas:parseFloat($('#pLuvas').value)||0,promessa:$('#pProm').checked});
+    const viva=()=>{
+      const o=oferta();
+      Object.assign(_mesaRasc,o);
+      const a=avaliarOfertaJogador(n,o);
+      $('#pBarra').innerHTML=_barraNeg(a.razao,_ZONAS_NEG,_legJog(a.razao));
+      const folha=o.sal*12*o.anos;
+      const caixaDepois=t.caixa-a.custo;
+      $('#pCusto').innerHTML=`<table class="neg-custo"><tbody>
+        ${n.taxa?`<tr><td>${n.viaMulta?'Multa':'Taxa'}</td><td class="r num">${dinheiro(n.taxa)}</td></tr>`:''}
+        ${o.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(o.luvas)}</td></tr>`:''}
+        <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(a.comissao)}</td></tr>
+        <tr><td><b>Sai do caixa agora</b></td><td class="r num"><b>${dinheiro(a.custo)}</b></td></tr>
+        <tr><td class="dim">Salários no contrato inteiro</td><td class="r num dim">${dinheiro(folha)}</td></tr>
+        <tr><td class="dim">Caixa depois</td><td class="r num ${caixaDepois<0?'dn':'dim'}">${dinheiro(caixaDepois)}</td></tr>
+      </tbody></table>`;
+      if(a.duras.length)feed(a.duras.join(' '));
+    };
+    par('#pSalR','#pSal',viva);par('#pLuvasR','#pLuvas',viva);
+    $('#modal').querySelectorAll('[data-anos]').forEach(b=>b.onclick=()=>{
+      $('#pAnos').value=b.dataset.anos;_mesaRasc.anos=+b.dataset.anos;
+      $('#modal').querySelectorAll('[data-anos]').forEach(x=>x.classList.toggle('on',x===b));viva();});
+    /* a promessa muda o pedido e o interesse: redesenha a mesa inteira */
+    $('#pProm').onchange=()=>{Object.assign(_mesaRasc,oferta());depois();};
+    viva();
+    $('#pEnviar').onclick=()=>{
+      const r=proporAoJogador(n,oferta());
+      if(!r.ok)return feed(r.erro);
+      if(r.resposta==='contra')Object.assign(_mesaRasc,{sal:r.contra.sal,anos:r.contra.anos});
+      depois();
+    };
+    const jc=$('#jContra');if(jc)jc.onclick=()=>{const r=aceitarContraJogador(n);if(!r.ok)return feed(r.erro);depois();};
+    $('#pJusto').onclick=()=>{
+      const o=oferta();
+      const {pedido}=pedidoContrato(p,t,o.anos,o.promessa);
+      const k=(PERFIS[perfilDe(p)].luvas||LUVAS_PESO);
+      const sal=Math.max(300,Math.ceil((pedido-(o.luvas*k)/(o.anos*12))/100)*100);
+      $('#pSal').value=sal;$('#pSalR').value=sal;viva();
+    };
+  }
 }
 
 

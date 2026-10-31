@@ -53,6 +53,7 @@ function avancar(plano){
     G.fase='Intervalo';
   }
   G.janela=b?!!b.janela:false;
+  if(typeof limparNegociacoes==='function')limparNegociacoes();
 
   const resultados=[];let minhaPartida=null;
   if(b){
@@ -314,6 +315,9 @@ function contratar(p,time,anos,sal){
   G.livres=G.livres.filter(x=>x!==p.id);
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
+  /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
+  delete p.multa;
+  if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de
      "à venda" no pescoço, e as propostas continuavam chegando para quem

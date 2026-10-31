@@ -148,6 +148,14 @@ await ev(`for(let i=0;i<12;i++)avancar();render()`);
 await tira('09c-competicoes-chave');
 await ev(`irPara('mercado');mercAba='jogadores';render()`); await tira('10-mercado');
 await ev(`mercAba='comissao';render()`);           await tira('10b-mercado-comissao');
+/* mesa de negociação: conversa com o clube e, depois da multa, com o jogador */
+await ev(`G.janela=true;(function(){const t=meu();t.caixa=Math.max(t.caixa,5e6);
+  const p=Object.values(G.jogadores).find(x=>x.timeId&&x.timeId!==t.id&&!recusasDuras(x,t,2).length);
+  window.__neg=p.id;modalNegociacao(p.id);})()`);
+await tira('10d-mesa-clube');
+await ev(`(function(){const n=negociacaoAtivaDe(window.__neg);if(n){pagarMulta(n);mesa(P(window.__neg),n,null);}})()`);
+await tira('10e-mesa-jogador');
+await ev(`$('#modal').innerHTML=''`);
 /* Saídas com um anúncio de pé e uma proposta na mesa: a tela vazia não mostra
    nada do que precisa ser conferido. */
 await ev(`$('#modal').innerHTML='';irPara('mercado');mercAba='saidas';

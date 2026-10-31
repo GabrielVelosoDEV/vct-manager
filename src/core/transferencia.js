@@ -70,57 +70,165 @@ function nivelDoClube(t){
   return forca*0.62+t.prestigio*0.28+(t.tier===1?10:0);
 }
 
+/* ---------- perfil ----------
+   Todo jogador tem um jeito de decidir, e ele não muda: é o que faz dois
+   jogadores de mesmo over reagirem diferente à mesma proposta. O perfil não
+   inventa motivo novo, ele muda o PESO dos que já existem: o ambicioso sente o
+   dobro a queda de nível, o mercenário quase não sente, o patriota sofre para
+   sair de casa. Sai do nome, então é estável entre saves e não depende da
+   base; o Editor pode fixar outro em p.perfil. */
+const PERFIS={
+  ambicioso:  {nome:'Ambicioso', desc:'Quer título. Clube forte vale mais que salário, e clube fraco ele recusa.',
+               esporte:1.5, lugar:1},
+  mercenario: {nome:'Mercenário',desc:'Vai atrás do maior salário. O projeto pesa pouco, luvas pesam muito.',
+               esporte:0.5, lugar:0.6, premio:1.08, luvas:1.5},
+  leal:       {nome:'Leal',      desc:'Apegado ao clube. Renova mais barato e é difícil de tirar de onde está.',
+               esporte:1, lugar:1, saida:1.15, renova:0.93},
+  patriota:   {nome:'Patriota',  desc:'Quer jogar perto de casa. Sair da região custa o dobro.',
+               esporte:1, lugar:2},
+  equilibrado:{nome:'Equilibrado',desc:'Pesa tudo na mesma medida.',esporte:1, lugar:1}
+};
+function _hashTxt(s){let h=2166136261;s=String(s);
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function perfilDe(p){
+  if(p&&p.perfil&&PERFIS[p.perfil])return p.perfil;
+  const r=_hashTxt((p&&p.nome)+'|perfil')%100;
+  return r<20?'ambicioso':r<38?'mercenario':r<52?'leal':r<66?'patriota':'equilibrado';
+}
+/* Temporadas seguidas no clube atual, contadas do histórico. */
+function temporadasNoClube(p){
+  const t=p.timeId?G.times[p.timeId]:null;if(!t)return 0;
+  let n=0;
+  for(let i=(p.hist||[]).length-1;i>=0;i--){if(p.hist[i].time===t.nome)n++;else break;}
+  return n;
+}
+/* Rival de verdade, pela mesma régua do clássico (legado.js). Olha só o
+   confronto direto entre os dois: varrer todos os rivais do clube a cada
+   pedido custaria caro, porque a IA pede preço de centenas de jogadores. */
+function saoRivais(a,b){
+  if(!a||!b||a.id===b.id||typeof confronto!=='function'||typeof notaRivalidade!=='function')return false;
+  const c=confronto(a.id,b.id);
+  if(!c.jogos)return false;
+  const corte=(typeof RIV_CLASSICO!=='undefined')?RIV_CLASSICO:0.28;
+  return notaRivalidade(a,{...c,time:b})>corte;
+}
+function titulosRecentes(t){
+  const desde=(G.ano||0)-1;
+  return (t.titulos||[]).filter(x=>parseInt(String(x),10)>=desde).length;
+}
+
 /* ---------- o pedido salarial ---------- */
 const PREMIO_QUEDA_DIVISAO=1.55;   /* Tier 1 → Tier 2 */
 const DESCONTO_SUBIDA_DIVISAO=0.88;/* Tier 2 → Tier 1: ele quer ir, aceita menos */
 const PREMIO_POR_PONTO_QUEDA=0.014;/* por ponto de nível de clube perdido */
 const DESCONTO_POR_PONTO_SUBIDA=0.006;
 const PREMIO_BANCO=[1,1,1,1,1,1.18,1.30,1.42,1.52];  /* por posição no elenco */
+const PREMIO_RIVAL=1.22, PREMIO_RIVAL_LEAL=1.40;
 
 /* Detalhamento do pedido, para a interface conseguir explicar linha a linha
-   em vez de mostrar um número que caiu do céu. */
-function detalharPedido(p,destino){
+   em vez de mostrar um número que caiu do céu.
+
+   Cada linha tem um TIPO. O que não é dinheiro (nível, minutos, lugar,
+   história, momento) é também o que decide o INTERESSE dele pelo clube —
+   interessePor() lê as mesmas linhas, então o termômetro da tela e o salário
+   pedido nunca discordam. `opts.promessa` é a titularidade prometida no
+   contrato. */
+function detalharPedido(p,destino,opts){
+  opts=opts||{};
   const origem=p.timeId?G.times[p.timeId]:null;
   const base=salario(p,destino,true);
+  const pf=PERFIS[perfilDe(p)];
   const itens=[];
-  const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
+  const juntar=(rot,f,tipo,k)=>{
+    if(k!=null&&k!==1)f=Math.pow(f,k);
+    if(Math.abs(f-1)>0.005)itens.push({rot,fator:f,tipo:tipo||'dinheiro'});
+    return f;
+  };
 
   let f=1;
   /* divisão */
-  if(origem&&origem.tier===1&&destino.tier===2)f*=juntar('Cair para o Tier 2',PREMIO_QUEDA_DIVISAO);
-  else if(origem&&origem.tier===2&&destino.tier===1)f*=juntar('Subir para o Tier 1',DESCONTO_SUBIDA_DIVISAO);
+  if(origem&&origem.tier===1&&destino.tier===2)f*=juntar('Cair para o Tier 2',PREMIO_QUEDA_DIVISAO,'esporte',pf.esporte);
+  else if(origem&&origem.tier===2&&destino.tier===1)f*=juntar('Subir para o Tier 1',DESCONTO_SUBIDA_DIVISAO,'esporte',pf.esporte);
 
   /* qualidade do clube */
   const nOrigem=origem?nivelDoClube(origem):nivelDoClube(destino)-6;
   const nDestino=nivelDoClube(destino);
   const salto=nDestino-nOrigem;
-  if(salto<0)f*=juntar('Clube mais fraco que o atual',1+(-salto)*PREMIO_POR_PONTO_QUEDA);
-  else if(salto>0)f*=juntar('Clube melhor que o atual',1-Math.min(0.14,salto*DESCONTO_POR_PONTO_SUBIDA));
+  if(salto<0)f*=juntar('Clube mais fraco que o atual',1+(-salto)*PREMIO_POR_PONTO_QUEDA,'esporte',pf.esporte);
+  else if(salto>0)f*=juntar('Clube melhor que o atual',1-Math.min(0.14,salto*DESCONTO_POR_PONTO_SUBIDA),'esporte',pf.esporte);
+  const tr=titulosRecentes(destino);
+  if(tr)f*=juntar('Clube campeão recente ('+tr+' título'+(tr>1?'s':'')+')',1-Math.min(0.09,tr*0.03),'esporte',pf.esporte);
 
   /* minutos */
   const pos=posicaoNoElenco(p,destino);
-  if(pos>5)f*=juntar('Entraria como reserva ('+pos+'º do elenco)',
-                     PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)]);
+  const jovem=p.idade<=21;
+  if(opts.promessa){
+    f*=juntar('Titularidade prometida em contrato',pos>5?1.03:0.97,'minutos');
+  }else if(pos>5){
+    f*=juntar('Entraria como reserva ('+pos+'º do elenco)',
+              PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)],'minutos',jovem?1.3:1);
+  }
+  if(origem&&origem.id!==destino.id&&!(origem.titulares||[]).includes(p.id)&&(pos<=5||opts.promessa))
+    f*=juntar('Ganharia a vaga de titular que não tem hoje',0.92,'minutos',jovem?1.3:1);
 
   /* região */
   const pr=premioRegiao(p,destino);
   if(pr!==1){
     const casa=regiaoNatal(p);
     const R=REGIONS.find(r=>r.id===destino.regiao);
-    f*=juntar('Mudar de '+casa+' para '+((R&&R.nome)||destino.regiao),pr);
+    f*=juntar('Mudar de '+casa+' para '+((R&&R.nome)||destino.regiao),pr,'lugar',pf.lugar);
   }
 
+  /* história: rival, clube formador, raízes no clube atual */
+  if(origem&&origem.id!==destino.id){
+    if(saoRivais(origem,destino))
+      f*=juntar('Ir para o rival do '+origem.nome,perfilDe(p)==='leal'?PREMIO_RIVAL_LEAL:PREMIO_RIVAL,'historia');
+    const anos=temporadasNoClube(p);
+    if(pf.saida&&anos>=2)f*=juntar('Identificado com o '+origem.nome+' ('+anos+' temporadas)',pf.saida,'historia');
+    else if(anos>=4)f*=juntar('Raízes no '+origem.nome+' ('+anos+' temporadas)',1.05,'historia');
+    /* o momento no clube atual: quem está mal quer sair */
+    if(p.moral<0.45)f*=juntar('Infeliz no '+origem.nome+': quer sair',0.92,'momento');
+  }
+  if(p.daCasa&&p.daCasa===destino.id&&(!origem||origem.id!==destino.id))
+    f*=juntar('Voltar ao clube que o revelou',0.88,'historia');
+
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
-  if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
+  if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93,'esporte');
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  if(pf.premio)f*=juntar('Perfil mercenário: quer o melhor salário do mercado',pf.premio);
   if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(destino));
-  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p));
+  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p),'momento');
   /* dificuldade da carreira: só no que é cobrado de você */
   if(destino.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
 
-  return{base,fator:f,itens,pos,salto,
+  return{base,fator:f,itens,pos,salto,perfil:perfilDe(p),
          pedido:Math.max(300,Math.round(base*f/100)*100)};
+}
+
+/* ---------- interesse ----------
+   De 0 a 100, quanto ele quer jogar no clube, deixando o dinheiro de fora.
+   Sai das mesmas linhas do pedido: um fator de ×1,30 tira cerca de 15
+   pontos, um de ×0,88 dá cerca de 7. Abaixo de INTERESSE_MIN ele nem atende
+   — é a recusa que salário não compra. */
+const INTERESSE_MIN=15;
+const INTERESSE_ESCALA=58, INTERESSE_NEUTRO=52;
+const FAIXAS_INTERESSE=[
+  {min:70,id:'empolgado', nome:'Empolgado',  txt:'Quer muito vir. Aceita até ganhar um pouco menos.'},
+  {min:48,id:'interessado',nome:'Interessado',txt:'Gosta do projeto. Aceita o salário justo.'},
+  {min:30,id:'morno',     nome:'Morno',      txt:'Ouve a proposta, mas só vem se o dinheiro compensar.'},
+  {min:INTERESSE_MIN,id:'frio',nome:'Frio',  txt:'Não se anima. Só vem bem acima do normal.'},
+  {min:0, id:'fechado',   nome:'Não atende', txt:'Não quer nem conversar com o clube.'}];
+function pontosDoFator(f){return -INTERESSE_ESCALA*Math.log(f);}
+function faixaInteresse(n){return FAIXAS_INTERESSE.find(x=>n>=x.min)||FAIXAS_INTERESSE[FAIXAS_INTERESSE.length-1];}
+function interessePor(p,destino,opts){
+  const d=(opts&&opts.d)||detalharPedido(p,destino,opts);
+  const itens=d.itens.filter(i=>i.tipo!=='dinheiro')
+    .map(i=>({...i,pontos:Math.round(pontosDoFator(i.fator))}));
+  let pts=INTERESSE_NEUTRO;
+  for(const i of itens)pts+=pontosDoFator(i.fator);
+  const nota=clamp(Math.round(pts),0,100);
+  return{nota,faixa:faixaInteresse(nota),itens,perfil:d.perfil};
 }
 function salarioPedido(p,destino){return detalharPedido(p,destino).pedido;}
 
@@ -143,6 +251,70 @@ function pedidoDeVenda(p){
   return Math.round(p.valor*m/500)*500;
 }
 
+/* ---------- multa rescisória ----------
+   Todo contrato tem uma. Paga a multa, o clube dono não tem como recusar: só
+   o jogador decide. Enquanto ninguém fixa um valor (contrato vindo da base de
+   dados), ela segue o valor de mercado e os anos restantes. */
+function multaPadrao(p,anos){
+  const a=anos!=null?anos:(p.contrato||1);
+  return Math.max(25000,Math.round((p.valor||valor(p))*(1.7+0.25*a)/5000)*5000);
+}
+function multaDe(p){
+  if(!p||!p.timeId)return 0;
+  return p.multa>0?p.multa:multaPadrao(p);
+}
+
+/* ---------- postura do clube dono ----------
+   Antes de qualquer número, o clube tem uma posição sobre o jogador. É o que
+   aparece na mesa ao lado do escudo, e é o que decide se dá para negociar ou
+   se a única porta é a multa. */
+const POSTURAS={
+  intransferivel:{nome:'Intransferível',cls:'r'},
+  negociavel:    {nome:'Negociável',    cls:''},
+  avenda:        {nome:'À venda',       cls:'t'},
+  livre:         {nome:'Sem clube',     cls:'t'}};
+function posturaDoClube(p){
+  const t=p.timeId?G.times[p.timeId]:null;
+  if(!t)return{id:'livre',...POSTURAS.livre,motivo:'Agente livre: não há taxa de transferência.'};
+  const min=(typeof ELENCO_MIN!=='undefined')?ELENCO_MIN:5;
+  const titular=(t.titulares||[]).includes(p.id);
+  const apertado=t.caixa<0||t.caixa<t.patroc*0.15;
+  const ordem=(t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
+  const rank=ordem.findIndex(x=>x.id===p.id);
+  const r=(id,motivo)=>({id,...POSTURAS[id],motivo});
+  if(p.anuncio)return r('avenda','O próprio clube colocou o jogador no mercado.');
+  if(p.emprestimo)return r('intransferivel','Está emprestado: o clube dono decide no fim do empréstimo.');
+  if(titular&&rank>=0&&rank<2&&p.contrato>=2&&!apertado)
+    return r('intransferivel','Um dos dois melhores do elenco, com contrato longo.');
+  if(apertado)return r('avenda','O clube precisa de caixa e aceita menos.');
+  if(!titular&&rank>=6)return r('avenda','Sem espaço no elenco.');
+  if(p.moral<0.40)return r('avenda','O jogador está insatisfeito e quer sair.');
+  if(p.contrato<=1)return r('negociavel','Último ano de contrato: o clube prefere vender a perder de graça.');
+  if((t.elenco||[]).length<=min+1)return r('negociavel','Elenco curto: vender obriga a repor, e isso entra no preço.');
+  return r('negociavel',titular?'Titular, mas tem preço.':'Reserva com preço de mercado.');
+}
+/* O preço que o clube pede, já com a postura. Intransferível = multa. */
+function precoPedido(p){
+  if(!p.timeId)return 0;
+  const ps=posturaDoClube(p);
+  if(ps.id==='intransferivel')return multaDe(p);
+  const base=p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:pedidoDeVenda(p);
+  /* "à venda" por elenco cheio ou jogador infeliz baixa o preço; o desconto
+     do clube sem caixa já mora em pedidoDeVenda */
+  const desc=ps.id==='avenda'&&!p.anuncio&&!(G.times[p.timeId].caixa<G.times[p.timeId].patroc*0.15)?0.88:1;
+  return Math.min(multaDe(p),Math.round(base*desc/500)*500);
+}
+
+/* ---------- comissão do empresário ----------
+   Quem traz o jogador cobra: um pedaço da taxa, das luvas e do contrato.
+   Estrela tem empresário mais caro. Sai do caixa de quem contrata e não vai
+   para clube nenhum. */
+function comissaoEmpresario(p,taxa,sal,anos,luvas){
+  const k=over(p)>=85?1.5:over(p)>=78?1.2:1;
+  const v=((taxa||0)*0.04+(sal||0)*12*(anos||1)*0.04+(luvas||0)*0.05)*k;
+  return Math.round(v/500)*500;
+}
+
 /* ---------- recusas que dinheiro não compra ---------- */
 function recusasDuras(p,destino,anos){
   const fora=[];
@@ -158,6 +330,14 @@ function recusasDuras(p,destino,anos){
   /* Nem vai para um clube muito pior só para ser reserva. */
   if(origem&&nivelDoClube(destino)<nivelDoClube(origem)-14&&posicaoNoElenco(p,destino)>5)
     fora.push('Clube mais fraco E sem vaga de titular: o jogador não vê sentido.');
+  /* O interesse é a última porta: só conta se nada acima já fechou. */
+  if(!fora.length&&!(origem&&origem.id===destino.id)){
+    const it=interessePor(p,destino);
+    if(it.nota<INTERESSE_MIN){
+      const pior=it.itens.slice().sort((a,b)=>a.pontos-b.pontos)[0];
+      fora.push(p.nome+' não tem interesse no '+destino.nome+(pior?' — pesa: '+pior.rot.toLowerCase():'')+'.');
+    }
+  }
   return fora;
 }
 
@@ -166,9 +346,14 @@ function recusasDuras(p,destino,anos){
 function avaliarProposta(p,destino,taxa,sal,anos){
   const motivos=recusasDuras(p,destino,anos);
   if(p.timeId&&p.timeId!==destino.id){
-    const pedido=pedidoDeVenda(p);
-    if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' pelo passe.');
-    else if(taxa<pedido&&rnd()<.5)motivos.push('O clube recusou por pouco. Suba a proposta.');
+    const multa=multaDe(p);
+    if(taxa<multa){
+      const ps=posturaDoClube(p);
+      const pedido=precoPedido(p);
+      if(ps.id==='intransferivel')motivos.push('O clube não vende: só pela multa de '+money(multa)+'.');
+      else if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' pelo passe.');
+      else if(taxa<pedido&&rnd()<.5)motivos.push('O clube recusou por pouco. Suba a proposta.');
+    }
   }
   const d=detalharPedido(p,destino);
   if(sal<d.pedido*0.95){
@@ -184,6 +369,7 @@ function executarProposta(p,destino,taxa,sal,anos){
   destino.caixa-=taxa;if(origem)origem.caixa+=taxa;
   const de=origem?origem.tag:'sem clube';
   contratar(p,destino,anos,sal);
+  if(typeof registrarTransferencia==='function')registrarTransferencia(p,origem,destino,taxa,origem?'compra':'livre');
   noticia('✍ '+p.nome+' ('+de+') assinou com '+destino.nome+
           (taxa?' por '+money(taxa):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
   return true;
@@ -269,8 +455,10 @@ function tentarReforco(t,candidatos){
     if(ganho<2)continue;
     const d=detalharPedido(p,t);
     if(d.pedido>folga)continue;
-    const taxa=p.timeId?pedidoDeVenda(p):0;
+    const taxa=p.timeId?precoPedido(p):0;
     if(taxa>tetoTaxa)continue;
+    /* intransferível só sai pela multa, e a IA só paga multa por salto grande */
+    if(p.timeId&&taxa>=multaDe(p)&&ganho<5)continue;
     if(recusasDuras(p,t,3).length)continue;
     /* nota do negócio: ganho esportivo por real gasto */
     avaliados.push({p,d,taxa,nota:ganho/(1+(taxa+d.pedido*12)/500000)});
@@ -282,7 +470,9 @@ function tentarReforco(t,candidatos){
   /* o clube dono precisa querer vender: só solta titular por proposta acima do
      pedido, ou se estiver apertado de caixa */
   const origem=esc.p.timeId?G.times[esc.p.timeId]:null;
-  if(origem){
+  /* multa paga não tem recusa do clube: é para isso que ela existe */
+  const viaMulta=origem&&esc.taxa>=multaDe(esc.p);
+  if(origem&&!viaMulta){
     const titular=(origem.titulares||[]).includes(esc.p.id);
     const apertado=origem.caixa<origem.patroc*0.2;
     if(titular&&!apertado&&origem.elenco.length<=5)return null;
