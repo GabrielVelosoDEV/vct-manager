@@ -873,7 +873,7 @@ function vFinancas(){
     <tbody>${patrociniosDe(t).map(({vaga,mk})=>`<tr>
       <td style="width:104px">${mk?logoMarca(mk,96):''}</td>
       <td><b>${esc(vaga.nome)}</b></td>
-      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+'</span>':'<span class="dn">vaga aberta</span>'}</td>
+      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+' · '+esc(areaMarca(mk))+'</span>':'<span class="dn">vaga aberta</span>'}</td>
       <td class="c num">${mk?mk.nivel:'—'}</td>
       <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}</td></tr>`).join('')}
     </tbody></table>

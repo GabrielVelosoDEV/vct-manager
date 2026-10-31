@@ -69,6 +69,10 @@ const POP_PAIS={
    permite o sistema funcionar sem uma tabela escrita à mão para 80 clubes. */
 function paisDoClube(t){
   if(t.pais)return t.pais;
+  /* congelado na criação do mundo: sem isso, quando os jogadores de nome
+     real se aposentam o clube "perde" o país, e é dele que saem a base e as
+     marcas nacionais */
+  if(t.paisSede)return t.paisSede;
   const conta={};
   for(const id of (t.elenco||[])){
     const p=G.jogadores[id];
@@ -119,47 +123,65 @@ function atratividade(t){
 }
 
 /* ---------- catálogo de marcas ---------- */
-/* Marcas fictícias, geradas por combinação. São editáveis no Banco de
-   dados (aba Patrocinadores), inclusive nome, setor, nível e logo — a
-   ideia é você trocar por marcas que façam sentido para você. */
-const MARCA_A=['Nova','Vertex','Hyper','Aurora','Titan','Orbit','Zenit','Kraken','Lumen','Pulsar',
-               'Ember','Quantum','Rift','Solaris','Vanta','Nimbus','Cobalt','Helix','Volt','Arcadia',
-               'Meridian','Onyx','Prisma','Stellar'];
-/* O sufixo decide o setor. Sorteá-los em separado produzia "Arcadia Beverage,
-   setor Automotivo", que denuncia o gerador na primeira olhada. */
-const RAMOS=[['Energy','Energético'],['Bank','Banco'],['Mobile','Telecom'],['Tech','Hardware'],
-             ['Motors','Automotivo'],['Gear','Periféricos'],['Labs','Tecnologia'],
-             ['Foods','Alimentos'],['Wear','Vestuário'],['Chips','Snacks'],
-             ['Telecom','Telecom'],['Seguros','Seguros'],['Beverage','Bebida'],
-             ['Systems','Software'],['Audio','Áudio'],['Cloud','Nuvem']];
-const SETORES=RAMOS.map(r=>r[1]);
-/* Pirâmide: poucas marcas globais, muitas locais. É o que faz a vaga de
-   máster valer alguma coisa. */
-const PIRAMIDE_NIVEL=[5,5,5,5, 4,4,4,4,4,4,4,4, 3,3,3,3,3,3,3,3,3,3,3,3,
-                      2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 1,1,1,1,1,1,1,1];
-const MARCAS_POR_MUNDO=96;
-
+/* Marcas reais, em data/patrocinadores.js: cada uma com região, países,
+   setor, patamar e nível. Toda carreira nova copia o catálogo para G.marcas,
+   e o Editor (aba Patrocinadores) muda só o save. */
+const REGIOES_MARCA=['GLOBAL','AMER','EMEA','PAC','CN'];
+const SETORES=[...new Set((typeof PATROCINADORES!=='undefined'?PATROCINADORES:[]).map(m=>m.setor))]
+  .sort((a,b)=>a.localeCompare(b,'pt-BR'));
+/* a mesma regra de ASSETS.slug: o id da marca é o nome do arquivo do logo */
+function slugMarca(s){
+  /* apóstrofo some em vez de virar hífen: McDonald's → mcdonalds */
+  return String(s).replace(/['’]/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+}
+function idMarcaLivre(nome){
+  const base=slugMarca(nome)||'marca';
+  let id=base,i=2;
+  while(G.marcas[id])id=base+'-'+(i++);
+  return id;
+}
+function nivelNoPatamar(patamar,nivel){
+  const f=(PATAMARES[patamar]||PATAMARES.medio).faixa;
+  return clamp(Math.round(nivel)||f[0],f[0],f[1]);
+}
 function montarMarcas(){
   G.marcas={};
-  const usados=new Set();
-  for(let i=0;i<MARCAS_POR_MUNDO;i++){
-    let nome,ramo;
-    for(let tent=0;tent<60;tent++){
-      ramo=pick(RAMOS);
-      nome=pick(MARCA_A)+' '+ramo[0];
-      if(!usados.has(nome))break;
-    }
-    if(usados.has(nome))nome=nome+' '+(i+1);
-    usados.add(nome);
-    const id='m'+(i+1);
-    G.marcas[id]={id,nome,setor:ramo[1],nivel:PIRAMIDE_NIVEL[i%PIRAMIDE_NIVEL.length]};
+  for(const m of PATROCINADORES){
+    const id=idMarcaLivre(m.nome);
+    G.marcas[id]={id,nome:m.nome,setor:m.setor,patamar:m.patamar,regiao:m.regiao,
+                  paises:(m.paises||[]).slice(),nivel:nivelNoPatamar(m.patamar,m.nivel)};
   }
   return G.marcas;
 }
 function marca(id){return (G&&G.marcas&&G.marcas[id])||null;}
 function listaMarcas(){
-  return Object.values(G.marcas||{}).sort((a,b)=>b.nivel-a.nivel||a.nome.localeCompare(b.nome,'pt-BR'));
+  const ordR=r=>{const i=REGIOES_MARCA.indexOf(r);return i<0?99:i;};
+  return Object.values(G.marcas||{}).sort((a,b)=>
+    b.nivel-a.nivel||ordR(a.regiao)-ordR(b.regiao)||a.nome.localeCompare(b.nome,'pt-BR'));
 }
+/* A marca topa assinar com este clube? Global assina com qualquer um; as
+   outras só com clube da região delas e, se tiverem lista de países, do
+   país do clube. Clube sem país conhecido aceita as marcas da região. */
+function marcaAtende(mk,t){
+  if(!mk||!t)return false;
+  if(!mk.regiao||mk.regiao==='GLOBAL')return true;
+  if(mk.regiao!==t.regiao)return false;
+  if(!mk.paises||!mk.paises.length)return true;
+  const pais=paisDoClube(t);
+  return !pais||mk.paises.includes(pais);
+}
+/* Rótulo curto de onde a marca atua: "Global", "Brasil", "América Latina". */
+function areaMarca(mk){
+  if(!mk||!mk.regiao||mk.regiao==='GLOBAL')return 'Global';
+  const ps=mk.paises||[];
+  if(!ps.length){const R=(typeof REGIONS!=='undefined')&&REGIONS.find(r=>r.id===mk.regiao);
+    return mk.regiao==='CN'?'China':(R?R.nome.replace('VCT ',''):mk.regiao);}
+  for(const b in BLOCOS_MARCA)if(BLOCOS_MARCA[b].join()===ps.join())return NOME_BLOCO_MARCA[b];
+  const nome=c=>(typeof PAISES!=='undefined'&&PAISES[c])||c;
+  return ps.map(nome).join(', ');
+}
+function patamarDe(mk){return PATAMARES[mk&&mk.patamar]||PATAMARES.medio;}
 
 /* ---------- as três vagas ---------- */
 const VAGAS=[
@@ -200,6 +222,8 @@ function receitaPatrocinio(t){
 
    Clube mais atraente escolhe primeiro. Não é leilão porque leilão daria
    o mesmo resultado com dez vezes mais código. */
+/* Setores de quem faz uniforme e periférico: o fornecedor prefere estes. */
+const SETORES_FORNECEDOR=new Set(['Vestuário','Periféricos','Hardware','Cadeiras','Computadores','Áudio','Esporte']);
 function atribuirPatrocinios(){
   const clubes=Object.values(G.times).sort((a,b)=>atratividade(b)-atratividade(a));
   const usoExclusivo=new Set();
@@ -216,20 +240,36 @@ function atribuirPatrocinios(){
        esse teto, o lanterna do Tier 2 ficaria com a sobra do topo e a vaga de
        máster não significaria nada. */
     let teto=Math.max(1,Math.round(atratividade(t)*(t.tier===1?4.2:2.8)));
+    const setores=new Set();
     for(const v of VAGAS){
-      const cand=todas.filter(mk=>{
+      const livre=mk=>{
         if(mk.nivel>teto)return false;
         if(v.exclusiva)return !usoExclusivo.has(mk.id);
         return (uso[mk.id]||0)<MAX_CLUBES_POR_MARCA&&t.patrocinios.master!==mk.id
                &&t.patrocinios.secundario!==mk.id;
-      });
+      };
+      /* Marca da região/país do clube e de setor que ele ainda não tem. Se
+         não houver nenhuma (catálogo editado, país sem marca), afrouxa o
+         setor e depois a região, para a vaga não ficar aberta à toa. */
+      let cand=todas.filter(mk=>livre(mk)&&marcaAtende(mk,t)&&!setores.has(mk.setor));
+      if(!cand.length)cand=todas.filter(mk=>livre(mk)&&marcaAtende(mk,t));
+      if(!cand.length)cand=todas.filter(mk=>livre(mk)&&(mk.regiao===t.regiao||mk.regiao==='GLOBAL'));
       if(!cand.length)continue;
       /* entre as elegíveis, a melhor — com um empurrãozinho aleatório para
          que duas temporadas iguais não deem exatamente o mesmo quadro */
-      const escolhida=cand.sort((a,b)=>(b.nivel+rnd()*0.9)-(a.nivel+rnd()*0.9))[0];
+      /* Mesmo nível, a marca mais próxima ganha: nacional antes de regional,
+         regional antes de global. É o que deixa as marcas de bloco para o
+         clube de país pequeno, que não tem marca nacional nenhuma. */
+      const pais=paisDoClube(t);
+      const perto=mk=>mk.regiao==='GLOBAL'?0:(mk.paises&&mk.paises.length&&pais&&mk.paises.includes(pais))?
+        (mk.paises.length<=2?0.35:0.2):0.1;
+      const bonus=mk=>perto(mk)+(v.id==='fornecedor'&&SETORES_FORNECEDOR.has(mk.setor)?0.6:0);
+      const nota=new Map(cand.map(mk=>[mk.id,mk.nivel+bonus(mk)+rnd()*0.9]));
+      const escolhida=cand.sort((a,b)=>nota.get(b.id)-nota.get(a.id))[0];
       t.patrocinios[v.id]=escolhida.id;
       uso[escolhida.id]=(uso[escolhida.id]||0)+1;
       if(v.exclusiva)usoExclusivo.add(escolhida.id);
+      setores.add(escolhida.setor);
       teto=escolhida.nivel;   /* a próxima vaga não pode superar esta */
     }
   }
@@ -382,6 +422,15 @@ function atualizarIndiceSalarial(){
 /* ---------- edição no Banco de dados ----------
    Como no resto do Editor, estas funções não conhecem DOM: recebem valores,
    devolvem {ok, msg|erro}. É o que permite testá-las sem navegador. */
+/* Países digitados no Editor: "BR, ar" → ['BR','AR']. Aceita o nome de um
+   bloco (LATAM, SEA) no lugar da lista. */
+function lerPaisesMarca(txt){
+  const out=[];
+  for(const x of String(txt||'').split(/[\s,;]+/).map(s=>s.trim().toUpperCase()).filter(Boolean)){
+    if(BLOCOS_MARCA[x])out.push(...BLOCOS_MARCA[x]);else out.push(x);
+  }
+  return [...new Set(out)];
+}
 function edMarcaAplicar(id,campos){
   const mk=marca(id);
   if(!mk)return{ok:false,erro:'Marca não encontrada.'};
@@ -393,14 +442,28 @@ function edMarcaAplicar(id,campos){
     mk.nome=nome;
   }
   if(campos.setor!=null)mk.setor=String(campos.setor).trim()||mk.setor;
+  if(campos.regiao!=null){
+    const r=String(campos.regiao).trim().toUpperCase();
+    if(!REGIOES_MARCA.includes(r))return{ok:false,erro:'Região inválida: '+r+'.'};
+    mk.regiao=r;
+    if(r==='GLOBAL')mk.paises=[];
+  }
+  if(campos.paises!=null&&mk.regiao!=='GLOBAL')mk.paises=lerPaisesMarca(campos.paises);
+  if(campos.patamar!=null){
+    if(!PATAMARES[campos.patamar])return{ok:false,erro:'Patamar inválido.'};
+    mk.patamar=campos.patamar;
+  }
   if(campos.nivel!=null){
     const n=Math.round(parseFloat(campos.nivel));
     if(!(n>=1&&n<=5))return{ok:false,erro:'Nível vai de 1 a 5.'};
     mk.nivel=n;
   }
+  /* o patamar manda na faixa de nível: marca global não vale 1, loja local
+     não vale 5 */
+  mk.nivel=nivelNoPatamar(mk.patamar||'medio',mk.nivel);
   return{ok:true,msg:mk.nome+' atualizada.'};
 }
-function edMarcaCriar(nome,nivel,setor){
+function edMarcaCriar(nome,nivel,setor,patamar,regiao,paises){
   if(!G.marcas)montarMarcas();
   nome=String(nome||'').trim();
   if(!nome)return{ok:false,erro:'Dê um nome à marca.'};
@@ -408,9 +471,14 @@ function edMarcaCriar(nome,nivel,setor){
     return{ok:false,erro:nome+' já existe no catálogo.'};
   const n=Math.round(parseFloat(nivel)||3);
   if(!(n>=1&&n<=5))return{ok:false,erro:'Nível vai de 1 a 5.'};
-  let i=1;while(G.marcas['m'+i])i++;
-  const id='m'+i;
-  G.marcas[id]={id,nome,setor:String(setor||'').trim()||pick(SETORES),nivel:n};
+  /* sem patamar dito, sai do nível: 4–5 global, 2–3 nacional, 1 local */
+  const pat=PATAMARES[patamar]?patamar:(n>=4?'alto':n>=2?'medio':'baixo');
+  let reg=String(regiao||'').trim().toUpperCase();
+  if(!REGIOES_MARCA.includes(reg))reg=pat==='alto'?'GLOBAL':
+    ((G.meuTime&&G.times[G.meuTime]&&G.times[G.meuTime].regiao)||'GLOBAL');
+  const id=idMarcaLivre(nome);
+  G.marcas[id]={id,nome,setor:String(setor||'').trim()||'Outros',patamar:pat,regiao:reg,
+                paises:reg==='GLOBAL'?[]:lerPaisesMarca(paises),nivel:nivelNoPatamar(pat,n)};
   return{ok:true,msg:nome+' entrou no catálogo.',id};
 }
 function edMarcaRemover(id){

@@ -882,6 +882,219 @@ const TN2=['Legion','Syndicate','Collective','Dynasty','Vanguard','Order','Union
  'Society','Corps','Circuit','Company','Front','Assembly','Crew','Faction','Line','Pack','Sect','Wing'];
 
 
+/* ===== data/patrocinadores.js ===== */
+/* ============================================================
+   PATROCINADORES — catálogo de marcas reais
+   ------------------------------------------------------------
+   Base fixa: toda carreira nova nasce com este catálogo. O Editor
+   (Banco de dados › Patrocinadores) muda só o save atual.
+
+   Cada marca tem três classificações:
+
+     · PATAMAR  alto  = multinacional, patrocina qualquer clube do
+                        mundo (nível 4 ou 5);
+                medio = marca grande de um país ou de um bloco de
+                        países (nível 2 ou 3);
+                baixo = marca local, quase sempre loja de hardware
+                        ou periférico do país (nível 1 ou 2).
+     · REGIÃO   GLOBAL, AMER, EMEA, PAC ou CN.
+     · PAÍSES   para quem a marca assina. Lista vazia = a região
+                inteira. Um clube só recebe marca global, da região
+                dele com lista vazia, ou cuja lista tem o país dele.
+
+   O NÍVEL (1 a 5) é o que pesa no dinheiro: decide quanto o
+   contrato vale e quais clubes alcançam a marca (ver economia.js).
+
+   LOGO: assets/marcas/<id>.png, onde o id é o nome em minúsculas,
+   sem acento, com hífen no lugar de espaço e símbolo
+   (Mercedes-Benz → mercedes-benz.png, Guaraná Antarctica →
+   guarana-antarctica.png). A lista completa com o nome exato de
+   cada arquivo é gerada em assets/marcas/LISTA.md pelo build.
+   Sem logo, o jogo desenha uma assinatura com o nome da marca.
+   ============================================================ */
+
+const PATAMARES={
+  alto:  {nome:'Alto',  desc:'Global',   faixa:[4,5]},
+  medio: {nome:'Médio', desc:'Nacional', faixa:[2,3]},
+  baixo: {nome:'Baixo', desc:'Local',    faixa:[1,2]}
+};
+
+/* Blocos de países que algumas marcas atendem juntos. */
+const BLOCOS_MARCA={
+  LATAM:['BR','AR','CL','MX','CO','PE','UY','PY','BO','EC','VE','GT','CR','PA','DO','PR','HN','SV'],
+  SEA:['SG','ID','TH','PH','MY','VN','KH','MM','BN']
+};
+const NOME_BLOCO_MARCA={LATAM:'América Latina',SEA:'Sudeste Asiático'};
+
+const PATROCINADORES=(()=>{
+  const L=[];
+  /* g(patamar, região, países, [[nome, setor, nível], ...]) */
+  const g=(patamar,regiao,paises,itens)=>itens.forEach(([nome,setor,nivel])=>
+    L.push({nome,setor,patamar,regiao,paises:paises.slice(),nivel}));
+
+  /* ---------------- ALTO · GLOBAL ---------------- */
+  g('alto','GLOBAL',[],[
+    ['Mercedes-Benz','Automotivo',5], ['Red Bull','Energético',5], ['PlayStation','Games',5],
+    ['Uber','Mobilidade',5],          ['Nike','Vestuário',5],      ['Coca-Cola','Bebida',5],
+    ['Intel','Hardware',5],           ['Samsung','Eletrônicos',5], ['Mastercard','Pagamentos',5],
+    ['AWS','Nuvem',5],
+    ['Monster Energy','Energético',4],['Logitech G','Periféricos',4],['Razer','Periféricos',4],
+    ['HyperX','Periféricos',4],       ['Secretlab','Cadeiras',4],  ['AMD','Hardware',4],
+    ['NVIDIA','Hardware',4],          ['Adidas','Vestuário',4],    ['Puma','Vestuário',4],
+    ['Visa','Pagamentos',4],          ['BMW','Automotivo',4],      ['Honda','Automotivo',4],
+    ['McDonald\'s','Alimentação',4],  ['KFC','Alimentação',4],     ['DHL','Logística',4],
+    ['Spotify','Streaming',4],        ['Lenovo Legion','Computadores',4],['Pepsi','Bebida',4],
+    ['Discord','Software',4]
+  ]);
+
+  /* ---------------- AMÉRICAS ---------------- */
+  g('medio','AMER',['BR'],[
+    ['Guaraná Antarctica','Bebida',3], ['iFood','Delivery',3],      ['Itaú','Banco',3],
+    ['Nubank','Banco',3],              ['Vivo','Telecom',3],        ['Natura','Cosméticos',3],
+    ['Havaianas','Vestuário',3],       ['Magalu','Varejo',3],       ['Bradesco','Banco',3],
+    ['Sadia','Alimentos',2],           ['Positivo Tecnologia','Computadores',2],
+    ['TIM Brasil','Telecom',2],        ['PicPay','Pagamentos',2],   ['Localiza','Mobilidade',2],
+    ['Riachuelo','Vestuário',2]
+  ]);
+  g('baixo','AMER',['BR'],[
+    ['KaBuM!','Hardware',2], ['Pichau','Hardware',1], ['Terabyte Shop','Hardware',1],
+    ['DT3 Sports','Cadeiras',1], ['Gamers Club','Plataforma',1]
+  ]);
+  g('medio','AMER',['US','CA'],[
+    ['Verizon','Telecom',3],      ['T-Mobile','Telecom',3],     ['State Farm','Seguros',3],
+    ['Chipotle','Alimentação',3], ['Mountain Dew','Bebida',3],  ['Doritos','Snacks',3],
+    ['Bank of America','Banco',3],['Ford','Automotivo',3],      ['GEICO','Seguros',2],
+    ['Wendy\'s','Alimentação',2], ['Taco Bell','Alimentação',2],['Gatorade','Bebida',2],
+    ['Best Buy','Varejo',2],      ['Xfinity','Telecom',2]
+  ]);
+  g('baixo','AMER',['US','CA'],[
+    ['Corsair','Periféricos',2], ['Turtle Beach','Áudio',2], ['NZXT','Hardware',2],
+    ['SCUF Gaming','Periféricos',1], ['G Fuel','Energético',1], ['CyberPowerPC','Computadores',1]
+  ]);
+  g('medio','AMER',BLOCOS_MARCA.LATAM,[
+    ['Mercado Livre','E-commerce',3], ['Claro','Telecom',3], ['Rappi','Delivery',2],
+    ['Movistar','Telecom',2],         ['Bimbo','Alimentos',2], ['Despegar','Turismo',2]
+  ]);
+  g('medio','AMER',['AR'],[
+    ['YPF','Energia',3], ['Arcor','Alimentos',3], ['Personal','Telecom',2],
+    ['Banco Galicia','Banco',2], ['Ualá','Pagamentos',2]
+  ]);
+  g('baixo','AMER',['AR'],[['Compra Gamer','Hardware',1]]);
+  g('medio','AMER',['CL'],[
+    ['Falabella','Varejo',3], ['Entel','Telecom',3], ['LATAM Airlines','Aviação',3],
+    ['Banco de Chile','Banco',2], ['Copec','Energia',2]
+  ]);
+  g('baixo','AMER',['CL'],[['SP Digital','Hardware',1]]);
+  g('medio','AMER',['MX'],[
+    ['Telcel','Telecom',3], ['OXXO','Varejo',3], ['Banorte','Banco',2]
+  ]);
+
+  /* ---------------- EMEA ---------------- */
+  g('medio','EMEA',[],[
+    ['Vodafone','Telecom',3], ['Zalando','E-commerce',3], ['Booking.com','Turismo',3],
+    ['Revolut','Pagamentos',3], ['IKEA','Casa',3], ['Bolt','Mobilidade',3],
+    ['Ryanair','Aviação',3], ['Lidl','Varejo',2], ['Elgato','Streaming',2],
+    ['Wolt','Delivery',2], ['Glovo','Delivery',2], ['Raiffeisen Bank','Banco',2],
+    ['Bitdefender','Software',2], ['DPD','Logística',2]
+  ]);
+  g('baixo','EMEA',[],[
+    ['noblechairs','Cadeiras',1], ['Endgame Gear','Periféricos',1], ['CHERRY','Periféricos',1],
+    ['be quiet!','Hardware',1]
+  ]);
+  g('medio','EMEA',['FR'],[
+    ['Orange','Telecom',3], ['Renault','Automotivo',3], ['BNP Paribas','Banco',3],
+    ['Carrefour','Varejo',3], ['Decathlon','Esporte',3], ['Peugeot','Automotivo',2],
+    ['Lacoste','Vestuário',2], ['Ubisoft','Games',2]
+  ]);
+  g('baixo','EMEA',['FR'],[['LDLC','Hardware',2], ['Materiel.net','Hardware',1], ['Konix','Periféricos',1]]);
+  g('medio','EMEA',['ES'],[
+    ['Telefónica','Telecom',3], ['Santander','Banco',3], ['SEAT','Automotivo',3],
+    ['Zara','Vestuário',3], ['Iberia','Aviação',2], ['El Corte Inglés','Varejo',2]
+  ]);
+  g('baixo','EMEA',['ES'],[['PcComponentes','Hardware',2], ['Newskill','Periféricos',1], ['Mars Gaming','Periféricos',1]]);
+  g('medio','EMEA',['DE','AT'],[
+    ['Deutsche Telekom','Telecom',3], ['Volkswagen','Automotivo',3], ['Allianz','Seguros',3],
+    ['MediaMarkt','Varejo',3], ['Lufthansa','Aviação',2], ['Haribo','Doces',2]
+  ]);
+  g('baixo','EMEA',['DE','AT'],[['Caseking','Hardware',1], ['Mindfactory','Hardware',1]]);
+  g('medio','EMEA',['GB','IE'],[
+    ['BT','Telecom',3], ['Barclays','Banco',3], ['Tesco','Varejo',3],
+    ['JD Sports','Vestuário',2], ['Deliveroo','Delivery',2], ['Monzo','Banco',2]
+  ]);
+  g('baixo','EMEA',['GB','IE'],[['Scan','Hardware',1], ['Overclockers UK','Hardware',1]]);
+  g('medio','EMEA',['TR'],[
+    ['Turkcell','Telecom',3], ['Turkish Airlines','Aviação',3], ['Beko','Eletrodomésticos',3],
+    ['Ülker','Snacks',3], ['Trendyol','E-commerce',3], ['Garanti BBVA','Banco',2],
+    ['Getir','Delivery',2]
+  ]);
+  g('baixo','EMEA',['TR'],[['Monster Notebook','Computadores',2], ['Rampage','Periféricos',1]]);
+  g('medio','EMEA',['NL','BE'],[
+    ['Philips','Eletrônicos',3], ['ING','Banco',3], ['KLM','Aviação',2], ['bol.com','E-commerce',2]
+  ]);
+  g('medio','EMEA',['CZ','SK'],[['Škoda','Automotivo',3], ['Alza','Varejo',2]]);
+  g('medio','EMEA',['PL'],[['Allegro','E-commerce',3], ['Orlen','Energia',3]]);
+  g('baixo','EMEA',['PL'],[['x-kom','Hardware',1]]);
+
+  /* ---------------- PACÍFICO ---------------- */
+  g('medio','PAC',BLOCOS_MARCA.SEA,[
+    ['Grab','Mobilidade',3], ['Shopee','E-commerce',3], ['Lazada','E-commerce',2],
+    ['AirAsia','Aviação',2], ['foodpanda','Delivery',2]
+  ]);
+  g('medio','PAC',['KR'],[
+    ['SK Telecom','Telecom',3], ['Hyundai','Automotivo',3], ['Kia','Automotivo',3],
+    ['LG','Eletrônicos',3], ['Woori Bank','Banco',3], ['Nongshim','Alimentos',3],
+    ['Lotte','Varejo',3], ['Coupang','E-commerce',3], ['Kakao','Software',3],
+    ['KT','Telecom',2], ['Shinhan','Banco',2], ['Baemin','Delivery',2],
+    ['Hanwha Life','Seguros',2], ['Naver','Streaming',2]
+  ]);
+  g('baixo','PAC',['KR'],[['ABKO','Periféricos',1], ['Hansung','Computadores',1]]);
+  g('medio','PAC',['JP'],[
+    ['Toyota','Automotivo',3], ['NTT Docomo','Telecom',3], ['Uniqlo','Vestuário',3],
+    ['Nissin','Alimentos',3], ['Rakuten','E-commerce',3], ['SoftBank','Telecom',3],
+    ['Pocari Sweat','Bebida',2], ['Lawson','Varejo',2], ['Mynavi','Serviços',2]
+  ]);
+  g('baixo','PAC',['JP'],[['ELECOM','Periféricos',1], ['GALLERIA','Computadores',1]]);
+  g('medio','PAC',['TH'],[
+    ['AIS','Telecom',3], ['CP Group','Alimentos',3], ['True','Telecom',2],
+    ['Kasikornbank','Banco',2], ['Central','Varejo',2]
+  ]);
+  g('baixo','PAC',['TH'],[['Nubwo','Periféricos',1]]);
+  g('medio','PAC',['ID'],[
+    ['Telkomsel','Telecom',3], ['Indomie','Alimentos',3], ['Gojek','Mobilidade',3],
+    ['Tokopedia','E-commerce',2], ['Bank Mandiri','Banco',2]
+  ]);
+  g('baixo','PAC',['ID'],[['Rexus','Periféricos',1]]);
+  g('medio','PAC',['PH'],[
+    ['Smart','Telecom',3], ['Jollibee','Alimentação',3], ['Globe','Telecom',2], ['GCash','Pagamentos',2]
+  ]);
+  g('medio','PAC',['SG'],[
+    ['Singtel','Telecom',3], ['DBS','Banco',3], ['Singapore Airlines','Aviação',2]
+  ]);
+  g('medio','PAC',['IN'],[
+    ['Jio','Telecom',3], ['Tata Motors','Automotivo',3], ['boAt','Áudio',2],
+    ['Zomato','Delivery',2], ['Paytm','Pagamentos',2]
+  ]);
+  g('baixo','PAC',['IN'],[['Ant Esports','Periféricos',1]]);
+
+  /* ---------------- CHINA ---------------- */
+  g('medio','CN',[],[
+    ['Huawei','Eletrônicos',3], ['Xiaomi','Eletrônicos',3], ['JD.com','E-commerce',3],
+    ['Meituan','Delivery',3],   ['Nongfu Spring','Bebida',3],['Li-Ning','Vestuário',3],
+    ['BYD','Automotivo',3],     ['China Mobile','Telecom',3],['Bilibili','Streaming',3],
+    ['Yili','Laticínios',3],    ['Alipay','Pagamentos',3],
+    ['Anta','Vestuário',2],     ['Geely','Automotivo',2],    ['Luckin Coffee','Bebida',2],
+    ['iQOO','Eletrônicos',2],   ['Douyu','Streaming',2],     ['Huya','Streaming',2],
+    ['Mengniu','Laticínios',2], ['Pop Mart','Colecionáveis',2],['Haier','Eletrodomésticos',2],
+    ['Wahaha','Bebida',2],      ['RedMagic','Eletrônicos',2]
+  ]);
+  g('baixo','CN',[],[
+    ['AULA','Periféricos',1], ['Royal Kludge','Periféricos',1], ['Rapoo','Periféricos',1],
+    ['Machenike','Computadores',1], ['Thunderobot','Computadores',1]
+  ]);
+  return L;
+})();
+
+
 /* ===== data/times.js ===== */
 /* ---------- Organizações reais do circuito (editáveis no jogo) ----------
    Composição das quatro ligas franqueadas e do Tier 2, conforme a base do
@@ -3183,6 +3396,10 @@ const POP_PAIS={
    permite o sistema funcionar sem uma tabela escrita à mão para 80 clubes. */
 function paisDoClube(t){
   if(t.pais)return t.pais;
+  /* congelado na criação do mundo: sem isso, quando os jogadores de nome
+     real se aposentam o clube "perde" o país, e é dele que saem a base e as
+     marcas nacionais */
+  if(t.paisSede)return t.paisSede;
   const conta={};
   for(const id of (t.elenco||[])){
     const p=G.jogadores[id];
@@ -3233,47 +3450,65 @@ function atratividade(t){
 }
 
 /* ---------- catálogo de marcas ---------- */
-/* Marcas fictícias, geradas por combinação. São editáveis no Banco de
-   dados (aba Patrocinadores), inclusive nome, setor, nível e logo — a
-   ideia é você trocar por marcas que façam sentido para você. */
-const MARCA_A=['Nova','Vertex','Hyper','Aurora','Titan','Orbit','Zenit','Kraken','Lumen','Pulsar',
-               'Ember','Quantum','Rift','Solaris','Vanta','Nimbus','Cobalt','Helix','Volt','Arcadia',
-               'Meridian','Onyx','Prisma','Stellar'];
-/* O sufixo decide o setor. Sorteá-los em separado produzia "Arcadia Beverage,
-   setor Automotivo", que denuncia o gerador na primeira olhada. */
-const RAMOS=[['Energy','Energético'],['Bank','Banco'],['Mobile','Telecom'],['Tech','Hardware'],
-             ['Motors','Automotivo'],['Gear','Periféricos'],['Labs','Tecnologia'],
-             ['Foods','Alimentos'],['Wear','Vestuário'],['Chips','Snacks'],
-             ['Telecom','Telecom'],['Seguros','Seguros'],['Beverage','Bebida'],
-             ['Systems','Software'],['Audio','Áudio'],['Cloud','Nuvem']];
-const SETORES=RAMOS.map(r=>r[1]);
-/* Pirâmide: poucas marcas globais, muitas locais. É o que faz a vaga de
-   máster valer alguma coisa. */
-const PIRAMIDE_NIVEL=[5,5,5,5, 4,4,4,4,4,4,4,4, 3,3,3,3,3,3,3,3,3,3,3,3,
-                      2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 1,1,1,1,1,1,1,1];
-const MARCAS_POR_MUNDO=96;
-
+/* Marcas reais, em data/patrocinadores.js: cada uma com região, países,
+   setor, patamar e nível. Toda carreira nova copia o catálogo para G.marcas,
+   e o Editor (aba Patrocinadores) muda só o save. */
+const REGIOES_MARCA=['GLOBAL','AMER','EMEA','PAC','CN'];
+const SETORES=[...new Set((typeof PATROCINADORES!=='undefined'?PATROCINADORES:[]).map(m=>m.setor))]
+  .sort((a,b)=>a.localeCompare(b,'pt-BR'));
+/* a mesma regra de ASSETS.slug: o id da marca é o nome do arquivo do logo */
+function slugMarca(s){
+  /* apóstrofo some em vez de virar hífen: McDonald's → mcdonalds */
+  return String(s).replace(/['’]/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+}
+function idMarcaLivre(nome){
+  const base=slugMarca(nome)||'marca';
+  let id=base,i=2;
+  while(G.marcas[id])id=base+'-'+(i++);
+  return id;
+}
+function nivelNoPatamar(patamar,nivel){
+  const f=(PATAMARES[patamar]||PATAMARES.medio).faixa;
+  return clamp(Math.round(nivel)||f[0],f[0],f[1]);
+}
 function montarMarcas(){
   G.marcas={};
-  const usados=new Set();
-  for(let i=0;i<MARCAS_POR_MUNDO;i++){
-    let nome,ramo;
-    for(let tent=0;tent<60;tent++){
-      ramo=pick(RAMOS);
-      nome=pick(MARCA_A)+' '+ramo[0];
-      if(!usados.has(nome))break;
-    }
-    if(usados.has(nome))nome=nome+' '+(i+1);
-    usados.add(nome);
-    const id='m'+(i+1);
-    G.marcas[id]={id,nome,setor:ramo[1],nivel:PIRAMIDE_NIVEL[i%PIRAMIDE_NIVEL.length]};
+  for(const m of PATROCINADORES){
+    const id=idMarcaLivre(m.nome);
+    G.marcas[id]={id,nome:m.nome,setor:m.setor,patamar:m.patamar,regiao:m.regiao,
+                  paises:(m.paises||[]).slice(),nivel:nivelNoPatamar(m.patamar,m.nivel)};
   }
   return G.marcas;
 }
 function marca(id){return (G&&G.marcas&&G.marcas[id])||null;}
 function listaMarcas(){
-  return Object.values(G.marcas||{}).sort((a,b)=>b.nivel-a.nivel||a.nome.localeCompare(b.nome,'pt-BR'));
+  const ordR=r=>{const i=REGIOES_MARCA.indexOf(r);return i<0?99:i;};
+  return Object.values(G.marcas||{}).sort((a,b)=>
+    b.nivel-a.nivel||ordR(a.regiao)-ordR(b.regiao)||a.nome.localeCompare(b.nome,'pt-BR'));
 }
+/* A marca topa assinar com este clube? Global assina com qualquer um; as
+   outras só com clube da região delas e, se tiverem lista de países, do
+   país do clube. Clube sem país conhecido aceita as marcas da região. */
+function marcaAtende(mk,t){
+  if(!mk||!t)return false;
+  if(!mk.regiao||mk.regiao==='GLOBAL')return true;
+  if(mk.regiao!==t.regiao)return false;
+  if(!mk.paises||!mk.paises.length)return true;
+  const pais=paisDoClube(t);
+  return !pais||mk.paises.includes(pais);
+}
+/* Rótulo curto de onde a marca atua: "Global", "Brasil", "América Latina". */
+function areaMarca(mk){
+  if(!mk||!mk.regiao||mk.regiao==='GLOBAL')return 'Global';
+  const ps=mk.paises||[];
+  if(!ps.length){const R=(typeof REGIONS!=='undefined')&&REGIONS.find(r=>r.id===mk.regiao);
+    return mk.regiao==='CN'?'China':(R?R.nome.replace('VCT ',''):mk.regiao);}
+  for(const b in BLOCOS_MARCA)if(BLOCOS_MARCA[b].join()===ps.join())return NOME_BLOCO_MARCA[b];
+  const nome=c=>(typeof PAISES!=='undefined'&&PAISES[c])||c;
+  return ps.map(nome).join(', ');
+}
+function patamarDe(mk){return PATAMARES[mk&&mk.patamar]||PATAMARES.medio;}
 
 /* ---------- as três vagas ---------- */
 const VAGAS=[
@@ -3314,6 +3549,8 @@ function receitaPatrocinio(t){
 
    Clube mais atraente escolhe primeiro. Não é leilão porque leilão daria
    o mesmo resultado com dez vezes mais código. */
+/* Setores de quem faz uniforme e periférico: o fornecedor prefere estes. */
+const SETORES_FORNECEDOR=new Set(['Vestuário','Periféricos','Hardware','Cadeiras','Computadores','Áudio','Esporte']);
 function atribuirPatrocinios(){
   const clubes=Object.values(G.times).sort((a,b)=>atratividade(b)-atratividade(a));
   const usoExclusivo=new Set();
@@ -3330,20 +3567,36 @@ function atribuirPatrocinios(){
        esse teto, o lanterna do Tier 2 ficaria com a sobra do topo e a vaga de
        máster não significaria nada. */
     let teto=Math.max(1,Math.round(atratividade(t)*(t.tier===1?4.2:2.8)));
+    const setores=new Set();
     for(const v of VAGAS){
-      const cand=todas.filter(mk=>{
+      const livre=mk=>{
         if(mk.nivel>teto)return false;
         if(v.exclusiva)return !usoExclusivo.has(mk.id);
         return (uso[mk.id]||0)<MAX_CLUBES_POR_MARCA&&t.patrocinios.master!==mk.id
                &&t.patrocinios.secundario!==mk.id;
-      });
+      };
+      /* Marca da região/país do clube e de setor que ele ainda não tem. Se
+         não houver nenhuma (catálogo editado, país sem marca), afrouxa o
+         setor e depois a região, para a vaga não ficar aberta à toa. */
+      let cand=todas.filter(mk=>livre(mk)&&marcaAtende(mk,t)&&!setores.has(mk.setor));
+      if(!cand.length)cand=todas.filter(mk=>livre(mk)&&marcaAtende(mk,t));
+      if(!cand.length)cand=todas.filter(mk=>livre(mk)&&(mk.regiao===t.regiao||mk.regiao==='GLOBAL'));
       if(!cand.length)continue;
       /* entre as elegíveis, a melhor — com um empurrãozinho aleatório para
          que duas temporadas iguais não deem exatamente o mesmo quadro */
-      const escolhida=cand.sort((a,b)=>(b.nivel+rnd()*0.9)-(a.nivel+rnd()*0.9))[0];
+      /* Mesmo nível, a marca mais próxima ganha: nacional antes de regional,
+         regional antes de global. É o que deixa as marcas de bloco para o
+         clube de país pequeno, que não tem marca nacional nenhuma. */
+      const pais=paisDoClube(t);
+      const perto=mk=>mk.regiao==='GLOBAL'?0:(mk.paises&&mk.paises.length&&pais&&mk.paises.includes(pais))?
+        (mk.paises.length<=2?0.35:0.2):0.1;
+      const bonus=mk=>perto(mk)+(v.id==='fornecedor'&&SETORES_FORNECEDOR.has(mk.setor)?0.6:0);
+      const nota=new Map(cand.map(mk=>[mk.id,mk.nivel+bonus(mk)+rnd()*0.9]));
+      const escolhida=cand.sort((a,b)=>nota.get(b.id)-nota.get(a.id))[0];
       t.patrocinios[v.id]=escolhida.id;
       uso[escolhida.id]=(uso[escolhida.id]||0)+1;
       if(v.exclusiva)usoExclusivo.add(escolhida.id);
+      setores.add(escolhida.setor);
       teto=escolhida.nivel;   /* a próxima vaga não pode superar esta */
     }
   }
@@ -3496,6 +3749,15 @@ function atualizarIndiceSalarial(){
 /* ---------- edição no Banco de dados ----------
    Como no resto do Editor, estas funções não conhecem DOM: recebem valores,
    devolvem {ok, msg|erro}. É o que permite testá-las sem navegador. */
+/* Países digitados no Editor: "BR, ar" → ['BR','AR']. Aceita o nome de um
+   bloco (LATAM, SEA) no lugar da lista. */
+function lerPaisesMarca(txt){
+  const out=[];
+  for(const x of String(txt||'').split(/[\s,;]+/).map(s=>s.trim().toUpperCase()).filter(Boolean)){
+    if(BLOCOS_MARCA[x])out.push(...BLOCOS_MARCA[x]);else out.push(x);
+  }
+  return [...new Set(out)];
+}
 function edMarcaAplicar(id,campos){
   const mk=marca(id);
   if(!mk)return{ok:false,erro:'Marca não encontrada.'};
@@ -3507,14 +3769,28 @@ function edMarcaAplicar(id,campos){
     mk.nome=nome;
   }
   if(campos.setor!=null)mk.setor=String(campos.setor).trim()||mk.setor;
+  if(campos.regiao!=null){
+    const r=String(campos.regiao).trim().toUpperCase();
+    if(!REGIOES_MARCA.includes(r))return{ok:false,erro:'Região inválida: '+r+'.'};
+    mk.regiao=r;
+    if(r==='GLOBAL')mk.paises=[];
+  }
+  if(campos.paises!=null&&mk.regiao!=='GLOBAL')mk.paises=lerPaisesMarca(campos.paises);
+  if(campos.patamar!=null){
+    if(!PATAMARES[campos.patamar])return{ok:false,erro:'Patamar inválido.'};
+    mk.patamar=campos.patamar;
+  }
   if(campos.nivel!=null){
     const n=Math.round(parseFloat(campos.nivel));
     if(!(n>=1&&n<=5))return{ok:false,erro:'Nível vai de 1 a 5.'};
     mk.nivel=n;
   }
+  /* o patamar manda na faixa de nível: marca global não vale 1, loja local
+     não vale 5 */
+  mk.nivel=nivelNoPatamar(mk.patamar||'medio',mk.nivel);
   return{ok:true,msg:mk.nome+' atualizada.'};
 }
-function edMarcaCriar(nome,nivel,setor){
+function edMarcaCriar(nome,nivel,setor,patamar,regiao,paises){
   if(!G.marcas)montarMarcas();
   nome=String(nome||'').trim();
   if(!nome)return{ok:false,erro:'Dê um nome à marca.'};
@@ -3522,9 +3798,14 @@ function edMarcaCriar(nome,nivel,setor){
     return{ok:false,erro:nome+' já existe no catálogo.'};
   const n=Math.round(parseFloat(nivel)||3);
   if(!(n>=1&&n<=5))return{ok:false,erro:'Nível vai de 1 a 5.'};
-  let i=1;while(G.marcas['m'+i])i++;
-  const id='m'+i;
-  G.marcas[id]={id,nome,setor:String(setor||'').trim()||pick(SETORES),nivel:n};
+  /* sem patamar dito, sai do nível: 4–5 global, 2–3 nacional, 1 local */
+  const pat=PATAMARES[patamar]?patamar:(n>=4?'alto':n>=2?'medio':'baixo');
+  let reg=String(regiao||'').trim().toUpperCase();
+  if(!REGIOES_MARCA.includes(reg))reg=pat==='alto'?'GLOBAL':
+    ((G.meuTime&&G.times[G.meuTime]&&G.times[G.meuTime].regiao)||'GLOBAL');
+  const id=idMarcaLivre(nome);
+  G.marcas[id]={id,nome,setor:String(setor||'').trim()||'Outros',patamar:pat,regiao:reg,
+                paises:reg==='GLOBAL'?[]:lerPaisesMarca(paises),nivel:nivelNoPatamar(pat,n)};
   return{ok:true,msg:nome+' entrou no catálogo.',id};
 }
 function edMarcaRemover(id){
@@ -3927,6 +4208,9 @@ function criarMundo(seedVal){
     aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
+  /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
+     saem os garotos da base e as marcas nacionais (ver paisDoClube) */
+  for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e
@@ -8617,12 +8901,11 @@ function revelarUm(t,usados){
   const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
   const olh=(t.staff&&t.staff.olheiro)||neutro;
   const acad=(t.estrutura&&t.estrutura.academia)||1;
-  const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
   /* Garoto de 15 ou 16 anos: na régua do agente livre gerado (60), um pouco
      acima com academia e olheiro bons. É projeto de três ou quatro anos. */
   const alvo=clamp(Math.round(gauss(52+acad*2+(olh-neutro)*2+(t.tier===1?2:0),4)),45,70);
   const role=t.baseFoco||pick(ROLES);
-  const p=makePlayer(alvo,role,pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
+  const p=makePlayer(alvo,role,paisDaBase(t),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
   aplicarOver(p,alvo);
   p.pot=clamp(Math.round(over(p)+ri(14,28)+acad+(olh-neutro)),over(p)+10,96);
   p.timeId=null;p.contrato=0;p.salario=0;
@@ -8630,6 +8913,14 @@ function revelarUm(t,usados){
   G.jogadores[p.id]=p;
   (t.base=t.base||[]).push(p.id);
   return p;
+}
+/* A base só revela garoto do país do clube. O sorteio de país continua
+   acontecendo (e é descartado) para não deslocar o gerador do resto da
+   virada; clube sem país conhecido usa o sorteado da região. */
+function paisDaBase(t){
+  const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
+  const sorteado=pick(R.paises);
+  return (typeof paisDoClube==='function'&&paisDoClube(t))||sorteado;
 }
 function usadosNomes(){return new Set(Object.values(G.jogadores).map(p=>p.nome));}
 
@@ -9464,7 +9755,6 @@ function fimDeTemporada(){
     if((t.elenco||[]).length>=ELENCO_MIN)continue;
     const n=(rnd()<t.estrutura.academia*0.16*(1-neutro*0.05+olh*0.05))?1:0;
     if(!n)continue;
-    const R=REGIONS.find(r=>r.id===t.regiao);
     /* Promessa nasce abaixo do piso da divisão de propósito: é projeto, não
        titular. O potencial é que a torna interessante. */
     const[piso]=FAIXAS.jogador[t.tier];
@@ -9474,7 +9764,7 @@ function fimDeTemporada(){
        vinte temporadas, metade dos cinquenta melhores do mundo era 98. */
     const alvo=clamp(Math.round(gauss(piso-12+t.estrutura.academia+(olh-neutro),5)),
                      FAIXAS.jogador[2][0]-14,piso-2);
-    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
+    const p=makePlayer(alvo,pick(ROLES),paisDaBase(t),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
     p.pot=clamp(over(p)+ri(8,20)+t.estrutura.academia,over(p)+6,96);
     p.salario=salario(p,t);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
@@ -10933,6 +11223,7 @@ function migrarRun(reg){
       if(!t.tierInicial)t.tierInicial=t.tier;
       if(typeof t.legado!=='number')t.legado=0;
       if(typeof t.vices!=='number')t.vices=0;
+      if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;
       if(typeof t.torcida!=='number'||!isFinite(t.torcida))t.torcida=torcidaInicial(t);
       if(!t.patrocinios){t.patrocinios={master:null,secundario:null,fornecedor:null};semPatroc++;}
       if(typeof atualizarComissao==='function')atualizarComissao(t);
@@ -12694,7 +12985,7 @@ function vFinancas(){
     <tbody>${patrociniosDe(t).map(({vaga,mk})=>`<tr>
       <td style="width:104px">${mk?logoMarca(mk,96):''}</td>
       <td><b>${esc(vaga.nome)}</b></td>
-      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+'</span>':'<span class="dn">vaga aberta</span>'}</td>
+      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+' · '+esc(areaMarca(mk))+'</span>':'<span class="dn">vaga aberta</span>'}</td>
       <td class="c num">${mk?mk.nivel:'—'}</td>
       <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}</td></tr>`).join('')}
     </tbody></table>
@@ -14493,6 +14784,8 @@ function avPintar(fim){
    aqui só desenha e liga eventos.
    ============================================================ */
 let edTime=null,edModo='substituir',edSaida='';
+/* filtro de região do catálogo de marcas ('' = todas) */
+let edMkRegiao='';
 let edAba='times';
 let edFiltro={busca:'',role:'',reg:'',time:'',status:'todos',ordem:'over'};
 let edFeedImg='';
@@ -15116,32 +15409,41 @@ function edvPatrocinadores(){
     if(mid)(ocupacao[mid]=ocupacao[mid]||[]).push(G.times[id].tag);
   }
 
-  const selMarca=(vagaId,atual)=>`<select data-patroc="${vagaId}" style="max-width:220px">
+  /* só marca que topa assinar com este clube (região/país), mais a atual */
+  const selMarca=(vagaId,atual)=>`<select data-patroc="${vagaId}" style="max-width:240px">
     <option value="">— vaga aberta —</option>
-    ${listaMarcas().map(mk=>`<option value="${mk.id}" ${mk.id===atual?'selected':''}>
-       ${esc(mk.nome)} · nível ${mk.nivel}</option>`).join('')}</select>`;
+    ${listaMarcas().filter(mk=>mk.id===atual||marcaAtende(mk,t)).map(mk=>`<option value="${mk.id}" ${mk.id===atual?'selected':''}>
+       ${esc(mk.nome)} · nível ${mk.nivel} · ${esc(areaMarca(mk))}</option>`).join('')}</select>`;
 
   const linhaVaga=({vaga,mk})=>`<tr>
     <td>${mk?logoMarca(mk,96):''}</td>
     <td><b>${esc(vaga.nome)}</b><div class="dim" style="font-size:11px">${esc(vaga.desc)}</div></td>
-    <td>${mk?`<b>${esc(mk.nome)}</b><div class="dim" style="font-size:11px">${esc(mk.setor)}</div>`
+    <td>${mk?`<b>${esc(mk.nome)}</b><div class="dim" style="font-size:11px">${esc(mk.setor)} · ${esc(patamarDe(mk).nome)} · ${esc(areaMarca(mk))}</div>`
             :'<span class="dn">vaga aberta</span>'}</td>
     <td class="c num">${mk?mk.nivel:'—'}</td>
     <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}/ano</td>
     <td>${selMarca(vaga.id,mk?mk.id:'')}</td></tr>`;
 
   const linhaMarca=mk=>`<tr>
-    <td>${logoMarca(mk,88)}</td>
-    <td><input type="text" value="${esc(mk.nome)}" data-mknome="${esc(mk.id)}" style="width:190px"></td>
-    <td><input type="text" value="${esc(mk.setor)}" data-mksetor="${esc(mk.id)}" style="width:150px"></td>
+    <td>${logoMarca(mk,88)}<div class="dim num" style="font-size:10px">${esc(mk.id)}.png</div></td>
+    <td><input type="text" value="${esc(mk.nome)}" data-mknome="${esc(mk.id)}" style="width:170px"></td>
+    <td><input type="text" value="${esc(mk.setor)}" data-mksetor="${esc(mk.id)}" style="width:120px"></td>
+    <td><select data-mkpatamar="${esc(mk.id)}">${Object.keys(PATAMARES).map(k=>
+      `<option value="${k}" ${mk.patamar===k?'selected':''}>${esc(PATAMARES[k].nome)} · ${esc(PATAMARES[k].desc)}</option>`).join('')}</select></td>
+    <td><select data-mkregiao="${esc(mk.id)}">${REGIOES_MARCA.map(r=>
+      `<option value="${r}" ${mk.regiao===r?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" value="${esc((mk.paises||[]).join(' '))}" data-mkpaises="${esc(mk.id)}"
+        placeholder="toda a região" title="${esc(areaMarca(mk))}" style="width:96px" ${mk.regiao==='GLOBAL'?'disabled':''}></td>
     <td class="c"><input type="number" value="${mk.nivel}" data-mknivel="${esc(mk.id)}"
-        min="1" max="5" step="1" style="width:62px"></td>
+        min="${patamarDe(mk).faixa[0]}" max="${patamarDe(mk).faixa[1]}" step="1" style="width:54px"></td>
     <td class="dim">${(ocupacao[mk.id]||[]).join(', ')||'sem clube'}</td>
     <td class="r nowrap">
       <label class="lk">logo<input type="file" accept="image/*" data-mklogo="${esc(mk.id)}" style="display:none"></label>
       ${Imgs.tem(Imgs.chaveMarca(mk.id))?`<button class="btn ghost sm" data-edimgdel="${esc(Imgs.chaveMarca(mk.id))}">✕</button>`:''}
       <button class="btn ghost sm" data-mkdel="${esc(mk.id)}">excluir</button>
     </td></tr>`;
+  const filtro=REGIOES_MARCA.includes(edMkRegiao)?edMkRegiao:'';
+  const catalogo=listaMarcas().filter(mk=>!filtro||mk.regiao===filtro);
 
   return `
   <div class="card"><div class="eyebrow">Como o patrocínio pesa</div>
@@ -15151,8 +15453,10 @@ function edvPatrocinadores(){
     <p class="dim">A redistribuição acontece na virada de temporada: o clube mais atraente escolhe
     primeiro. A vaga de <b>máster</b> é exclusiva no mundo inteiro; as outras duas a mesma marca
     pode ocupar em até ${MAX_CLUBES_POR_MARCA} clubes.</p>
-    <p class="dim">Logo normalizado em ${Imgs.formatos.marca[0]}×${Imgs.formatos.marca[1]} PNG — deitado,
-    não quadrado. Em lote, o arquivo tem de se chamar como o id da marca: <code>m1.png</code>.</p>
+    <p class="dim">As marcas são reais e cada uma tem <b>patamar</b> (alto = global, médio = nacional,
+    baixo = local), <b>região</b> e <b>países</b>: um clube só recebe marca global ou do país/bloco dele.</p>
+    <p class="dim">Logo deitado, não quadrado (${Imgs.formatos.marca[0]}×${Imgs.formatos.marca[1]}). Para a base fixa,
+    salve em <code>assets/marcas/</code> com o nome mostrado embaixo do logo, como <code>guarana-antarctica.png</code>.</p>
   </div>
 
   <div class="card"><div class="split">
@@ -15173,19 +15477,26 @@ function edvPatrocinadores(){
     </div>
   </div>
 
-  <div class="card"><div class="eyebrow">Catálogo de marcas · ${listaMarcas().length}</div>
-    <p class="dim">Nível vai de 1 (marca local) a 5 (global) e decide quanto o contrato vale e
-    quais clubes conseguem alcançar a marca. São fictícias de propósito — troque por nomes que
-    façam sentido para você.</p>
+  <div class="card"><div class="eyebrow">Catálogo de marcas · ${catalogo.length} de ${listaMarcas().length}</div>
+    <p class="dim">Nível vai de 1 a 5 dentro da faixa do patamar (alto 4–5, médio 2–3, baixo 1–2) e
+    decide quanto o contrato vale e quais clubes alcançam a marca. Países: siglas separadas por
+    espaço (<code>BR AR</code>) ou um bloco (<code>LATAM</code>, <code>SEA</code>); vazio = a região inteira.</p>
     <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:center">
-      <input type="text" id="mkNovo" placeholder="Nome da marca" style="width:200px">
+      <select id="edMkRegiao"><option value="">Todas as regiões</option>${REGIOES_MARCA.map(r=>
+        `<option value="${r}" ${filtro===r?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" id="mkNovo" placeholder="Nome da marca" style="width:180px">
+      <input type="text" id="mkNovoSetor" placeholder="Setor" style="width:110px">
+      <select id="mkNovoPatamar">${Object.keys(PATAMARES).map(k=>
+        `<option value="${k}" ${k==='medio'?'selected':''}>${esc(PATAMARES[k].nome)} · ${esc(PATAMARES[k].desc)}</option>`).join('')}</select>
+      <select id="mkNovoRegiao">${REGIOES_MARCA.map(r=>`<option value="${r}" ${r===(t.regiao||'GLOBAL')?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" id="mkNovoPaises" placeholder="Países (vazio = região)" style="width:150px">
       <input type="number" id="mkNovoNivel" value="3" min="1" max="5" style="width:62px">
       <button class="btn" id="mkAdd">Adicionar</button>
       <button class="btn ghost" id="edSalvarMarcas">Aplicar alterações</button>
     </div>
     <div class="rolagem"><table class="wide"><thead><tr><th></th><th>Nome</th><th>Setor</th>
-      <th class="c">Nível</th><th>Patrocina</th><th class="r">Logo</th></tr></thead>
-    <tbody>${listaMarcas().map(linhaMarca).join('')}</tbody></table></div>
+      <th>Patamar</th><th>Região · países</th><th class="c">Nível</th><th>Patrocina</th><th class="r">Logo</th></tr></thead>
+    <tbody>${catalogo.map(linhaMarca).join('')}</tbody></table></div>
   </div>`;
 }
 
@@ -15648,8 +15959,11 @@ function ligarEventos(){
     for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
+  const fMk=v.querySelector('#edMkRegiao');
+  if(fMk)fMk.addEventListener('change',()=>{edMkRegiao=fMk.value;render();});
   on('#mkAdd',()=>{
-    const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'));
+    const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'),val('#mkNovoSetor'),
+      val('#mkNovoPatamar'),val('#mkNovoRegiao'),val('#mkNovoPaises'));
     render();flash(r.ok?r.msg:r.erro);
   });
   on('[data-mkdel]',el=>{
@@ -15662,6 +15976,7 @@ function ligarEventos(){
       (campos[el.getAttribute(sel)]=campos[el.getAttribute(sel)]||{})[campo]=el.value;
     });
     junta('data-mknome','nome');junta('data-mksetor','setor');junta('data-mknivel','nivel');
+    junta('data-mkpatamar','patamar');junta('data-mkregiao','regiao');junta('data-mkpaises','paises');
     const erros=[];let n=0;
     for(const id in campos){
       const r=edMarcaAplicar(id,campos[id]);

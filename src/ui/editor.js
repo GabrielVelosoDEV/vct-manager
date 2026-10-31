@@ -6,6 +6,8 @@
    aqui só desenha e liga eventos.
    ============================================================ */
 let edTime=null,edModo='substituir',edSaida='';
+/* filtro de região do catálogo de marcas ('' = todas) */
+let edMkRegiao='';
 let edAba='times';
 let edFiltro={busca:'',role:'',reg:'',time:'',status:'todos',ordem:'over'};
 let edFeedImg='';
@@ -629,32 +631,41 @@ function edvPatrocinadores(){
     if(mid)(ocupacao[mid]=ocupacao[mid]||[]).push(G.times[id].tag);
   }
 
-  const selMarca=(vagaId,atual)=>`<select data-patroc="${vagaId}" style="max-width:220px">
+  /* só marca que topa assinar com este clube (região/país), mais a atual */
+  const selMarca=(vagaId,atual)=>`<select data-patroc="${vagaId}" style="max-width:240px">
     <option value="">— vaga aberta —</option>
-    ${listaMarcas().map(mk=>`<option value="${mk.id}" ${mk.id===atual?'selected':''}>
-       ${esc(mk.nome)} · nível ${mk.nivel}</option>`).join('')}</select>`;
+    ${listaMarcas().filter(mk=>mk.id===atual||marcaAtende(mk,t)).map(mk=>`<option value="${mk.id}" ${mk.id===atual?'selected':''}>
+       ${esc(mk.nome)} · nível ${mk.nivel} · ${esc(areaMarca(mk))}</option>`).join('')}</select>`;
 
   const linhaVaga=({vaga,mk})=>`<tr>
     <td>${mk?logoMarca(mk,96):''}</td>
     <td><b>${esc(vaga.nome)}</b><div class="dim" style="font-size:11px">${esc(vaga.desc)}</div></td>
-    <td>${mk?`<b>${esc(mk.nome)}</b><div class="dim" style="font-size:11px">${esc(mk.setor)}</div>`
+    <td>${mk?`<b>${esc(mk.nome)}</b><div class="dim" style="font-size:11px">${esc(mk.setor)} · ${esc(patamarDe(mk).nome)} · ${esc(areaMarca(mk))}</div>`
             :'<span class="dn">vaga aberta</span>'}</td>
     <td class="c num">${mk?mk.nivel:'—'}</td>
     <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}/ano</td>
     <td>${selMarca(vaga.id,mk?mk.id:'')}</td></tr>`;
 
   const linhaMarca=mk=>`<tr>
-    <td>${logoMarca(mk,88)}</td>
-    <td><input type="text" value="${esc(mk.nome)}" data-mknome="${esc(mk.id)}" style="width:190px"></td>
-    <td><input type="text" value="${esc(mk.setor)}" data-mksetor="${esc(mk.id)}" style="width:150px"></td>
+    <td>${logoMarca(mk,88)}<div class="dim num" style="font-size:10px">${esc(mk.id)}.png</div></td>
+    <td><input type="text" value="${esc(mk.nome)}" data-mknome="${esc(mk.id)}" style="width:170px"></td>
+    <td><input type="text" value="${esc(mk.setor)}" data-mksetor="${esc(mk.id)}" style="width:120px"></td>
+    <td><select data-mkpatamar="${esc(mk.id)}">${Object.keys(PATAMARES).map(k=>
+      `<option value="${k}" ${mk.patamar===k?'selected':''}>${esc(PATAMARES[k].nome)} · ${esc(PATAMARES[k].desc)}</option>`).join('')}</select></td>
+    <td><select data-mkregiao="${esc(mk.id)}">${REGIOES_MARCA.map(r=>
+      `<option value="${r}" ${mk.regiao===r?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" value="${esc((mk.paises||[]).join(' '))}" data-mkpaises="${esc(mk.id)}"
+        placeholder="toda a região" title="${esc(areaMarca(mk))}" style="width:96px" ${mk.regiao==='GLOBAL'?'disabled':''}></td>
     <td class="c"><input type="number" value="${mk.nivel}" data-mknivel="${esc(mk.id)}"
-        min="1" max="5" step="1" style="width:62px"></td>
+        min="${patamarDe(mk).faixa[0]}" max="${patamarDe(mk).faixa[1]}" step="1" style="width:54px"></td>
     <td class="dim">${(ocupacao[mk.id]||[]).join(', ')||'sem clube'}</td>
     <td class="r nowrap">
       <label class="lk">logo<input type="file" accept="image/*" data-mklogo="${esc(mk.id)}" style="display:none"></label>
       ${Imgs.tem(Imgs.chaveMarca(mk.id))?`<button class="btn ghost sm" data-edimgdel="${esc(Imgs.chaveMarca(mk.id))}">✕</button>`:''}
       <button class="btn ghost sm" data-mkdel="${esc(mk.id)}">excluir</button>
     </td></tr>`;
+  const filtro=REGIOES_MARCA.includes(edMkRegiao)?edMkRegiao:'';
+  const catalogo=listaMarcas().filter(mk=>!filtro||mk.regiao===filtro);
 
   return `
   <div class="card"><div class="eyebrow">Como o patrocínio pesa</div>
@@ -664,8 +675,10 @@ function edvPatrocinadores(){
     <p class="dim">A redistribuição acontece na virada de temporada: o clube mais atraente escolhe
     primeiro. A vaga de <b>máster</b> é exclusiva no mundo inteiro; as outras duas a mesma marca
     pode ocupar em até ${MAX_CLUBES_POR_MARCA} clubes.</p>
-    <p class="dim">Logo normalizado em ${Imgs.formatos.marca[0]}×${Imgs.formatos.marca[1]} PNG — deitado,
-    não quadrado. Em lote, o arquivo tem de se chamar como o id da marca: <code>m1.png</code>.</p>
+    <p class="dim">As marcas são reais e cada uma tem <b>patamar</b> (alto = global, médio = nacional,
+    baixo = local), <b>região</b> e <b>países</b>: um clube só recebe marca global ou do país/bloco dele.</p>
+    <p class="dim">Logo deitado, não quadrado (${Imgs.formatos.marca[0]}×${Imgs.formatos.marca[1]}). Para a base fixa,
+    salve em <code>assets/marcas/</code> com o nome mostrado embaixo do logo, como <code>guarana-antarctica.png</code>.</p>
   </div>
 
   <div class="card"><div class="split">
@@ -686,19 +699,26 @@ function edvPatrocinadores(){
     </div>
   </div>
 
-  <div class="card"><div class="eyebrow">Catálogo de marcas · ${listaMarcas().length}</div>
-    <p class="dim">Nível vai de 1 (marca local) a 5 (global) e decide quanto o contrato vale e
-    quais clubes conseguem alcançar a marca. São fictícias de propósito — troque por nomes que
-    façam sentido para você.</p>
+  <div class="card"><div class="eyebrow">Catálogo de marcas · ${catalogo.length} de ${listaMarcas().length}</div>
+    <p class="dim">Nível vai de 1 a 5 dentro da faixa do patamar (alto 4–5, médio 2–3, baixo 1–2) e
+    decide quanto o contrato vale e quais clubes alcançam a marca. Países: siglas separadas por
+    espaço (<code>BR AR</code>) ou um bloco (<code>LATAM</code>, <code>SEA</code>); vazio = a região inteira.</p>
     <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:center">
-      <input type="text" id="mkNovo" placeholder="Nome da marca" style="width:200px">
+      <select id="edMkRegiao"><option value="">Todas as regiões</option>${REGIOES_MARCA.map(r=>
+        `<option value="${r}" ${filtro===r?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" id="mkNovo" placeholder="Nome da marca" style="width:180px">
+      <input type="text" id="mkNovoSetor" placeholder="Setor" style="width:110px">
+      <select id="mkNovoPatamar">${Object.keys(PATAMARES).map(k=>
+        `<option value="${k}" ${k==='medio'?'selected':''}>${esc(PATAMARES[k].nome)} · ${esc(PATAMARES[k].desc)}</option>`).join('')}</select>
+      <select id="mkNovoRegiao">${REGIOES_MARCA.map(r=>`<option value="${r}" ${r===(t.regiao||'GLOBAL')?'selected':''}>${r==='GLOBAL'?'Global':r}</option>`).join('')}</select>
+      <input type="text" id="mkNovoPaises" placeholder="Países (vazio = região)" style="width:150px">
       <input type="number" id="mkNovoNivel" value="3" min="1" max="5" style="width:62px">
       <button class="btn" id="mkAdd">Adicionar</button>
       <button class="btn ghost" id="edSalvarMarcas">Aplicar alterações</button>
     </div>
     <div class="rolagem"><table class="wide"><thead><tr><th></th><th>Nome</th><th>Setor</th>
-      <th class="c">Nível</th><th>Patrocina</th><th class="r">Logo</th></tr></thead>
-    <tbody>${listaMarcas().map(linhaMarca).join('')}</tbody></table></div>
+      <th>Patamar</th><th>Região · países</th><th class="c">Nível</th><th>Patrocina</th><th class="r">Logo</th></tr></thead>
+    <tbody>${catalogo.map(linhaMarca).join('')}</tbody></table></div>
   </div>`;
 }
 
