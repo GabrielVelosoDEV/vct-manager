@@ -159,15 +159,17 @@ function premiarTemporada(){
   if(igl){reg.igl=fichaPremio(igl.id,jog[igl.id]);darPremio(igl.id,'igl',ROT_PREMIO.igl);}
 
   /* treinador: campanha, com um empurrão para quem fez mais com menos */
-  const tr=t1.map(t=>({t,n:campanha(t.id)+(60-t.prestigio)*0.03})).sort((a,b)=>b.n-a.n)[0];
-  if(tr){
+  /* clube sem head coach no momento não tem quem receber: o prêmio vai para o
+     próximo da fila, em vez de ficar sem treinador do ano */
+  const fila=t1.map(t=>({t,n:campanha(t.id)+(60-t.prestigio)*0.03})).sort((a,b)=>b.n-a.n);
+  for(const tr of fila){
     const t=tr.t,m=membroDe(t,'tecnico');
     const voce=t.id===G.meuTime&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido;
     const nome=voce?G.manager.nome:m?m.nome:null;
-    if(nome){
-      reg.treinador={nome,timeId:t.id,tag:t.tag,staffId:voce?null:m.id,voce};
-      if(m&&!voce)(m.premios=m.premios||[]).push({ano:G.ano,tipo:'treinador',rot:'Treinador do ano'});
-    }
+    if(!nome)continue;
+    reg.treinador={nome,timeId:t.id,tag:t.tag,staffId:voce?null:m.id,voce};
+    if(m&&!voce)(m.premios=m.premios||[]).push({ano:G.ano,tipo:'treinador',rot:'Treinador do ano'});
+    break;
   }
 
   (G.premios=G.premios||[]).push(reg);

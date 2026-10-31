@@ -189,6 +189,8 @@ function semana(){
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
+  /* último ano de contrato: clubes sondam e assinam pré-contrato com os seus */
+  if(typeof rondaPreContratos==='function')rondaPreContratos();
   /* O patch da Riot cai na semana marcada, depois de o mundo ter jogado com o
      meta antigo — assim o nerf responde ao uso da temporada. */
   if(typeof patchDaSemana==='function')patchDaSemana();
@@ -316,7 +318,8 @@ function contratar(p,time,anos,sal){
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
-  delete p.multa;
+  delete p.multa;delete p.sondado;
+  if(p.preContrato&&p.preContrato.clubeId!==time.id)delete p.preContrato;
   if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de

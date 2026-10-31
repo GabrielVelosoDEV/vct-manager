@@ -34,6 +34,7 @@ function anunciados(){
 function anunciarJogador(p,modo,opcao,pedido){
   if(!p||!p.timeId)return{ok:false,erro:'Jogador sem clube.'};
   if(p.emprestimo)return{ok:false,erro:'Jogador emprestado não pode ser anunciado.'};
+  if(p.preContrato)return{ok:false,erro:p.nome+' já assinou pré-contrato e sai no fim da temporada.'};
   const t=G.times[p.timeId];
   if((t.elenco||[]).length<=ELENCO_MIN&&modo!=='emprestimo')
     return{ok:false,erro:'Com '+t.elenco.length+' jogadores o clube não pode abrir mão de ninguém. Contrate antes de anunciar.'};

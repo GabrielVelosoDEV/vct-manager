@@ -156,6 +156,9 @@ await tira('10d-mesa-clube');
 await ev(`(function(){const n=negociacaoAtivaDe(window.__neg);if(n){pagarMulta(n);mesa(P(window.__neg),n,null);}})()`);
 await tira('10e-mesa-jogador');
 await ev(`$('#modal').innerHTML=''`);
+await ev(`mercAba='contratos';render()`);           await tira('10f-mercado-contratos');
+await ev(`modalRenovacao(meu().elenco[0])`);        await tira('10g-mesa-renovacao');
+await ev(`$('#modal').innerHTML=''`);
 /* Saídas com um anúncio de pé e uma proposta na mesa: a tela vazia não mostra
    nada do que precisa ser conferido. */
 await ev(`$('#modal').innerHTML='';irPara('mercado');mercAba='saidas';
