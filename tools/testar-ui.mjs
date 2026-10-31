@@ -167,6 +167,8 @@ w.eval(`window.__t={
   get compromissoDaSemana(){return compromissoDaSemana;},
   get abrirPrePartida(){return abrirPrePartida;}, get TEMPO_OPCOES(){return TEMPO_OPCOES;},
   get tempoDaComissao(){return tempoDaComissao;}, get aplicarClassico(){return aplicarClassico;},
+  get premiarTemporada(){return premiarTemporada;}, get talvezHallDaFama(){return talvezHallDaFama;},
+  get podarHistorico(){return podarHistorico;}, get HIST_DETALHE(){return HIST_DETALHE;},
   get partidaConduzida(){return partidaConduzida;}, get AV(){return AV;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
   get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
@@ -4416,6 +4418,109 @@ await teste('jogador gerado depois do mundo nasce com 15 ou 16 anos',async()=>{
   }
 });
 
+
+/* Temporada de mentira: um stage internacional encerrado, com a estatística
+   que a gente quiser. É o que premiarTemporada() lê. */
+function temporadaDeTeste(){
+  const t1=Object.values(t.G.times).filter(x=>x.tier===1&&(x.titulares||[]).length>=5).slice(0,4);
+  const ids=t1.flatMap(x=>x.titulares);
+  const stats={};
+  ids.forEach(id=>{stats[id]={maps:20,k:300,d:300,a:100,acs:200*20,fk:20,cl:3,mvp:1,timeId:t.G.jogadores[id].timeId};});
+  return{t1,ids,stage:{id:'teste_int',nome:'Teste',regiao:'INT',tier:1,tipo:'de',feito:true,
+    ranking:t1.map(x=>x.id),stats,times:t1.map(x=>x.id)}};
+}
+await teste('fim de temporada elege MVP, seleção, revelação, IGL e treinador',async()=>{
+  const {t1,ids,stage}=temporadaDeTeste();
+  const foto=JSON.stringify({cal:t.G.calendario,pr:t.G.premios,n:t.G.noticias,
+    p:ids.map(id=>t.G.jogadores[id]),st:t.G.staff});
+  try{
+    const estrela=ids.find(id=>t.G.jogadores[id].timeId===t1[2].id);
+    Object.assign(stage.stats[estrela],{k:460,d:240,acs:300*20,mvp:9});
+    const garoto=ids.find(id=>id!==estrela&&t.G.jogadores[id].timeId===t1[3].id);
+    t.G.jogadores[garoto].idade=19;
+    Object.assign(stage.stats[garoto],{k:360,d:280,acs:240*20,mvp:4});
+    t.G.calendario=[{stages:[stage]}];t.G.premios=[];
+    const moral=t.G.jogadores[estrela].moral;
+    const r=t.premiarTemporada();
+    if(!r)throw new Error('não elegeu nada');
+    if(r.mvp.id!==estrela)throw new Error('o MVP do ano foi '+r.mvp.nome+', não quem dominou o torneio');
+    if(r.selecao.length!==5)throw new Error('seleção com '+r.selecao.length+' jogadores');
+    const funcoes=new Set(r.selecao.map(f=>f.role).filter(x=>x!=='Flex'));
+    if(funcoes.size<3)throw new Error('a seleção não cobre as funções: '+[...funcoes].join(', '));
+    if(!r.revelacao||r.revelacao.id!==garoto)throw new Error('a revelação não foi o garoto de 19 anos');
+    if(!r.igl)throw new Error('sem IGL do ano');
+    if(!r.treinador)throw new Error('sem treinador do ano');
+    if(!(t.G.jogadores[estrela].premios||[]).some(x=>x.tipo==='mvp'))throw new Error('o prêmio não foi para a ficha');
+    if(!(t.G.jogadores[estrela].moral>moral))throw new Error('o prêmio não mexeu na moral');
+    if(t.G.premios.length!==1||t.G.premios[0].ano!==t.G.ano)throw new Error('não gravou em G.premios');
+    /* a tela mostra o ano e o premiado */
+    t.tela='premios';w.render();
+    const txt=$('#view').textContent;
+    if(!txt.includes(r.mvp.nome)||!/Seleção do ano/.test(txt))throw new Error('a tela de prêmios não mostra o MVP');
+    w.modalJogador(estrela);
+    if(!/MVP do ano/.test($('#modal').textContent))throw new Error('a ficha não mostra o prêmio');
+    $('#modal').innerHTML='';
+  }finally{
+    const f=JSON.parse(foto);t.G.calendario=f.cal;t.G.premios=f.pr;t.G.noticias=f.n;t.G.staff=f.st;
+    f.p.forEach(p=>{t.G.jogadores[p.id]=p;});t.tela='inicio';w.render();
+  }
+});
+
+await teste('os prêmios não sorteiam',async()=>{
+  const {ids,stage}=temporadaDeTeste();
+  const foto=JSON.stringify({cal:t.G.calendario,pr:t.G.premios,n:t.G.noticias,
+    p:ids.map(id=>t.G.jogadores[id]),st:t.G.staff});
+  try{
+    t.G.calendario=[{stages:[stage]}];t.G.premios=[];
+    const semente=t.semente;
+    t.premiarTemporada();
+    if(t.semente!==semente)throw new Error('premiar consumiu o gerador do motor');
+  }finally{
+    const f=JSON.parse(foto);t.G.calendario=f.cal;t.G.premios=f.pr;t.G.noticias=f.n;t.G.staff=f.st;
+    f.p.forEach(p=>{t.G.jogadores[p.id]=p;});
+  }
+});
+
+await teste('quem se aposenta com carreira grande entra no Hall da Fama',async()=>{
+  const time=meuTimeDeTeste();
+  const [a,b]=time.titulares.map(id=>t.G.jogadores[id]);
+  const foto=JSON.stringify({l:t.G.lendas,n:t.G.noticias,a,b});
+  try{
+    t.G.lendas=[];
+    b.premios=[];b.carreira=Object.assign({},b.carreira,{titulos:0,intl:0,mvpTorneios:0,maps:40});
+    if(t.talvezHallDaFama(b))throw new Error('carreira comum entrou no Hall da Fama');
+    a.premios=[{ano:2026,tipo:'mvp',rot:'MVP do ano'},{ano:2027,tipo:'selecao',rot:'Seleção do ano'}];
+    a.carreira=Object.assign({},a.carreira,{intl:3,titulos:4,maps:400});
+    const l=t.talvezHallDaFama(a);
+    if(!l||t.G.lendas.length!==1)throw new Error('carreira de lenda ficou de fora');
+    if(l.carreira.maps!==400||l.premios.length!==2)throw new Error('o Hall da Fama não guardou o resumo');
+    t.tela='premios';w.render();
+    if(!$('#view').textContent.includes(a.nome))throw new Error('a tela não mostra o Hall da Fama');
+  }finally{
+    const f=JSON.parse(foto);t.G.lendas=f.l;t.G.noticias=f.n;
+    t.G.jogadores[f.a.id]=f.a;t.G.jogadores[f.b.id]=f.b;t.tela='inicio';w.render();
+  }
+});
+
+await teste('a ficha mostra a carreira somada e a temporada antiga é resumida',async()=>{
+  const time=meuTimeDeTeste();
+  const p=t.G.jogadores[time.titulares[0]];
+  const foto=JSON.stringify(p);
+  try{
+    p.carreira=Object.assign({},p.carreira,{maps:120,k:1800,d:1500,acs:120*210,intl:1});
+    p.hist=[];
+    for(let i=0;i<8;i++)p.hist.push({ano:2018+i,time:'X',over:70,maps:30,k:400,d:380,a:120,acs:6000,fk:30,cl:4,mvp:3});
+    t.podarHistorico(p);
+    const velhos=p.hist.slice(0,p.hist.length-t.HIST_DETALHE);
+    if(!velhos.length||velhos.some(h=>!h.c||'acs' in h))throw new Error('temporada antiga não foi resumida');
+    if(p.hist.slice(-t.HIST_DETALHE).some(h=>h.c))throw new Error('resumiu temporada recente');
+    if(velhos.some(h=>h.k!==400||h.d!==380||h.mvp!==3))throw new Error('o resumo perdeu o que a tabela mostra');
+    w.modalJogador(p.id);
+    const txt=$('#modal').textContent;
+    if(!/Internacionais/.test(txt)||!txt.includes('1.20'))throw new Error('a ficha não mostra o total de carreira');
+    $('#modal').innerHTML='';
+  }finally{t.G.jogadores[p.id]=JSON.parse(foto);}
+});
 
 const larg=Math.max(...passos.map(p=>p[1].length));
 console.log('TESTE DE INTERFACE — '+passos.length+' casos\n');

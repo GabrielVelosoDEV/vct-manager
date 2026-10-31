@@ -487,7 +487,8 @@ function aplicarPos(A,B,vencedor,agg,mvp,ctx){
     p.temp.maps+=s.maps; p.temp.k+=s.k;p.temp.d+=s.d;p.temp.a+=s.a;
     p.temp.fk+=s.fk;p.temp.cl+=s.cl;p.temp.acs+=s.acsSoma;
     p.carreira.k+=s.k;p.carreira.d+=s.d;p.carreira.a+=s.a;p.carreira.maps+=s.maps;
-    if(id===mvp)p.temp.mvp++;
+    p.carreira.acs=(p.carreira.acs||0)+s.acsSoma;
+    if(id===mvp){p.temp.mvp++;p.carreira.mvp=(p.carreira.mvp||0)+1;}
     const kd=s.d?s.k/s.d:2;
     p.forma=clamp(p.forma+(kd-1.02)*0.055+gauss(0,.03),.15,1);
     p.fadiga=clamp(p.fadiga+0.05+ (A.tatica.scrim+B.tatica.scrim)/300,0,1);

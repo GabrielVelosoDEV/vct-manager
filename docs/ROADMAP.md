@@ -84,6 +84,15 @@
 - **Cobrança do meio do ano**: na abertura da janela do meio do ano a diretoria
   confere a posição parcial e uma meta de gestão (minutos para a promessa da
   casa, ou contas em dia), mexe na confiança e pode demitir ali mesmo
+- **Prêmios da temporada** (`src/core/premios.js`): MVP do ano, MVP de cada
+  região, seleção do ano (um por função e um flex), revelação, IGL e treinador
+  do ano, eleitos na virada pelo palco de cada torneio e comparando ACS e K/D
+  com a própria função; tela Circuito › Prêmios com a galeria ano a ano
+- **Carreira na ficha**: mapas, K/D, ACS, MVPs, títulos, títulos internacionais
+  e prêmios somados desde o primeiro mapa; temporadas com mais de cinco anos
+  ficam resumidas no save
+- **Hall da Fama**: quem se aposenta com prêmios, títulos internacionais e
+  carreira longa fica guardado com o resumo, em vez de sumir do save
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

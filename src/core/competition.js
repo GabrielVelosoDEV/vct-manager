@@ -231,7 +231,10 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao)titulo(campeao,nomeTitulo(s));
+  if(campeao){titulo(campeao,nomeTitulo(s));
+    /* título internacional conta à parte: é ele que separa lenda de bom jogador */
+    if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
+      const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
   /* O vice também entra na história. Só a semeadura de 2021–2025 contava
      finais perdidas: no jogo, um clube podia perder dez decisões e a ficha
      dele continuava marcando zero vice — um número que nunca mudava e por

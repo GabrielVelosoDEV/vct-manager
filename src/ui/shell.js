@@ -27,6 +27,7 @@ const NAV=[
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Líderes','Circuito','grafico'],
+  ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
   ['mercado','Mercado','Gestão','troca'],
   ['financas','Finanças','Gestão','dinheiro'],
@@ -85,7 +86,7 @@ function render(){
   pintarSide();pintarTop();
   const v=$('#view');
   const fn={inicio:vInicio,elenco:vElenco,taticas:vTaticas,treino:vTreino,comps:vComps,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,news:vNews,
+            base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   v.innerHTML=(fn||vInicio)();
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));

@@ -296,6 +296,7 @@ function evoluirStaff(){
     const aprov=jogos?m.temp.v/jogos:0.5;
     m.hist.push({ano:G.ano,time:t?t.nome:'Sem clube',over:overStaff(m),
                  v:m.temp.v,d:m.temp.d,titulos:m.temp.titulos});
+    if(m.hist.length>12)m.hist.shift();
     m.carreira.anos++;m.carreira.titulos+=m.temp.titulos;
     const o=overStaff(m),gap=m.pot-o;
     let g=0;
