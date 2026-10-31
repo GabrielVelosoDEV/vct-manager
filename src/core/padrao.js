@@ -259,6 +259,13 @@ function padronizarBase(opts){
       atualizarComissao(t);
     }
     t.patroc=patrocinioDe(t);
+    /* garotos da categoria de base só acompanham o catálogo de agentes */
+    for(const p of (t.base||[]).map(pid=>G.jogadores[pid]).filter(Boolean)){
+      const ag=sortearAgentes(p.role);
+      const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
+      p.agentes=ag;
+      if(trocou&&typeof semearAgentes==='function')semearAgentes(p);
+    }
   }
 
   /* ---- sem clube: acompanham a régua, senão o mercado fica inútil ---- */

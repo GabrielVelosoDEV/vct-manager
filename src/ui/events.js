@@ -13,6 +13,18 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
+  on('[data-bpromo]',async el=>{
+    const r=promoverDaBase(t,el.dataset.bpromo);
+    if(!r.ok){await avisar(r.msg);return;}
+    flash(r.msg);render();
+  });
+  on('[data-bdisp]',async el=>{
+    const p=P(el.dataset.bdisp);if(!p)return;
+    if(!await confirmar('Dispensar '+p.nome+' da base? Ele vai para o mercado e qualquer clube pode contratar.','Dispensar'))return;
+    const r=dispensarDaBase(t,p.id);
+    if(r.ok)flash(r.msg);render();
+  });
   on('#autoEsc',()=>{autoEscalar(t);render();});
   on('[data-banco]',el=>{
     if(t.titulares.length<=5&&t.elenco.length>5){

@@ -99,7 +99,7 @@ function fimDeTemporada(){
   // aposentadorias e contratos
   for(const id in G.jogadores){
     const p=G.jogadores[id];
-    p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:'Sem clube',over:over(p),...p.temp});
+    p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:p.base&&G.times[p.base]?'Base · '+G.times[p.base].nome:'Sem clube',over:over(p),...p.temp});
     if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
@@ -119,6 +119,9 @@ function fimDeTemporada(){
     p.fadiga=0;p.forma=clamp(gauss(.6,.12),.3,.9);
     p.valor=valor(p);
   }
+  /* categoria de base do seu clube: sai quem fez 20, entra a turma nova. Não
+     conta como promessa: garoto de base não é oferta de mercado */
+  if(typeof virarBase==='function')virarBase(usados);
   // promessas da base
   let promessas=0;
   for(const tid in G.times){
@@ -144,7 +147,7 @@ function fimDeTemporada(){
                      FAIXAS.jogador[2][0]-14,piso+2);
     const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
     p.pot=clamp(over(p)+ri(10,28)+t.estrutura.academia*2,over(p)+8,99);
-    p.salario=salario(p);p.contrato=3;
+    p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
       if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').');}

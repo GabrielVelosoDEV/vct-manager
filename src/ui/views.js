@@ -754,7 +754,7 @@ function vMercadoStaff(t){
     </tr>`).join('')}</tbody></table></div>`;
 }
 function vMercadoJogadores(t){
-  let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id);
+  let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
   if(mFiltro.so==='promessas')lista=lista.filter(p=>p.idade<=21&&p.pot-over(p)>=8);
   if(mFiltro.role)lista=lista.filter(p=>p.role===mFiltro.role);
@@ -784,12 +784,41 @@ function vMercadoJogadores(t){
 function vBase(){
   const t=meu();
   const jovens=t.elenco.map(P).filter(p=>p.idade<=22).sort((a,b)=>b.pot-a.pot);
-  const prom=Object.values(G.jogadores).filter(p=>p.idade<=19&&p.pot>=82).sort((a,b)=>b.pot-a.pot).slice(0,15);
+  const prom=Object.values(G.jogadores).filter(p=>p.idade<=19&&p.pot>=82&&!p.base).sort((a,b)=>b.pot-a.pot).slice(0,15);
+  const base=baseDe(t).sort((a,b)=>b.pot-a.pot);
+  const vagas=vagasDaBase(t);
+  const casa=reveladosPelaCasa(t).slice(0,20);
+  const cheio=t.elenco.length>=9;
   return `<div class="eyebrow">Desenvolvimento</div><h2 class="sec">Base e promessas</h2>
   <div class="card"><div class="eyebrow">Academia nível ${t.estrutura.academia}</div>
-    <p class="dim">Chance de revelar uma promessa por temporada: ${(t.estrutura.academia*16)}%. Quanto maior o nível, maior o teto do talento revelado.</p></div>
+    <p class="dim">${base.length} de ${vagas} vagas na categoria. Cada nível de academia abre uma vaga, revela garotos
+    melhores e acelera o crescimento; o head coach também conta. Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana.
+    Na virada do ano a academia revela a turma nova, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+      <span class="dim">O olheiro procura:</span>
+      ${[['','Qualquer função'],...ROLES.filter(r=>r!=='Flex').map(r=>[r,r])].map(([k,n])=>
+        `<button class="btn sm ${(t.baseFoco||'')===k?'':'ghost'}" data-basefoco="${k}">${n}</button>`).join('')}
+    </div></div>
+  <div class="card flat"><div class="eyebrow">Categoria de base</div>
+    ${base.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th>
+      <th class="c">Pot</th><th class="c">Na base desde</th><th class="r"></th></tr></thead>
+    <tbody>${base.map(p=>`<tr><td><b class="jrow" data-p="${p.id}" style="cursor:pointer">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      ${p.idade>=BASE_IDADE_SAI-1?' <span class="chip">último ano</span>':''}</td>
+      <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
+      <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
+      <td class="c num">${p.baseDesde||'—'}</td>
+      <td class="r" style="white-space:nowrap"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
+        <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
+    :'<div class="empty">Nenhum garoto na categoria agora. A academia revela a próxima turma na virada do ano.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
     ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
+  <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
+    ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
+    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+      <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
+      <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
+      <td class="c">${ovTag(p)}</td><td class="c num">${p.pot}</td></tr>`).join('')}</tbody></table>`
+    :'<div class="empty">Ninguém saiu da sua base ainda.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Radar mundial de talentos (sub-19)</div>
     <table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th></tr></thead>
     <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>

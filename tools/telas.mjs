@@ -93,6 +93,9 @@ await ev(`irPara('premios')`);                     await tira('14b-premios');
 await ev(`(function(){const r=(G.premios||[]).slice(-1)[0];if(r&&G.jogadores[r.mvp.id])modalJogador(r.mvp.id);})()`);
 await tira('14c-ficha-premiado');
 await ev(`$('#modal').innerHTML=''`);
+/* base depois de duas viradas: categoria com garotos e alguém promovido */
+await ev(`(function(){const t=G.times[G.meuTime];const b=baseDe(t);if(b[0]&&t.elenco.length<9)promoverDaBase(t,b[0].id);})();irPara('base')`);
+await tira('14d-base');
 await ev(`irPara('comp')`);                        await tira('09-competicoes');
 /* partida ao vivo: só existe durante um jogo do seu clube, então precisa ser
    capturada no momento certo — é a tela que o jogador mais olha */

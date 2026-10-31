@@ -55,7 +55,7 @@ function modalJogador(id){
     <b class="num" style="width:26px;text-align:right">${Math.round(p.at[k])}</b></div>`;
   const st=p.temp;
   return abrir(`<div class="split"><div class="linha-t" style="align-items:flex-start;gap:14px">${retrato(p,72)}<div>
-    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):'Agente livre'}</div>
+    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
     <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
     <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
@@ -105,7 +105,7 @@ function modalJogador(id){
   ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);

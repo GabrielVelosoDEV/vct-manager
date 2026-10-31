@@ -105,6 +105,13 @@ for(const id in G.times){const t=G.times[id];
   if(t.titulares.length!==5)erros.push(t.nome+' com '+t.titulares.length+' titulares');
   if(t.elenco.some(p=>!G.jogadores[p]))erros.push(t.nome+' referencia jogador inexistente');
   if(t.igl&&!t.elenco.includes(t.igl))erros.push(t.nome+' com IGL fora do elenco');
+  /* categoria de base: garoto existe, é da base deste clube e não está em elenco nenhum */
+  for(const id of t.base||[]){
+    const p=G.jogadores[id];
+    if(!p){erros.push(t.nome+' com garoto da base inexistente');continue;}
+    if(p.base!==t.id||p.timeId)erros.push(t.nome+': '+p.nome+' está na base e em outro lugar');
+    if(p.idade>=20)erros.push(t.nome+': '+p.nome+' ficou na base com '+p.idade+' anos');
+  }
 }
 const nomes={};
 Object.values(G.jogadores).forEach(p=>{nomes[p.nome]=(nomes[p.nome]||0)+1;});

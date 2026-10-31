@@ -67,6 +67,7 @@ function telaNovoJogo(){
     G.meuTime=b.dataset.pick;
     G.iniciadaEm=Date.now();
     criarManager(escNome,escPapel);
+    iniciarBase(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
