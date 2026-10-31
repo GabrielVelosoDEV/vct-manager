@@ -181,7 +181,7 @@ function ligarEventos(){
       render();flash(ok?'Imagem no pacote.':'Guardei só em memória — exporte o pacote.');
     }catch(e){flash(e.message||'Falha ao subir a imagem.');}
   };
-  if(edAba==='times'&&G.times[edTime]){
+  if(edAba==='times'&&G&&G.times[edTime]){
     ligarDropzone(v.querySelector('#edDropLogo'),v.querySelector('#edFileLogo'),
       f=>subirPara(Imgs.chaveTime(G.times[edTime].tag),f));
   }
@@ -451,9 +451,11 @@ function ligarEventos(){
     if(!js){flash(avisoVazio);return;}
     edSaida=js;render();
   });
-  on('#edNovo',async()=>{
-    if(!await confirmar('Isso apaga a base editada e gera um mundo novo. Continuar?','Gerar mundo novo'))return;
-    iniciarPreRun(Math.floor(Math.random()*900000)+1000);
+  on('#edNovo, #edRestaurar',async()=>{
+    if(!Base.editando)return;
+    if(!await confirmar('Restaurar a base original? Todas as suas edições na base de dados serão descartadas. Carreiras já salvas não mudam.','Restaurar'))return;
+    await Base.restaurarOriginal();
+    render();flash('Base original restaurada.');
   });
 
   /* ---------- guia da primeira temporada ---------- */
@@ -492,11 +494,7 @@ function ligarEventos(){
     await atualizarRuns();render();flash(ok?'Run salva.':'Falha ao salvar — exporte o .json.');
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
-  on('#runNova',async()=>{
-    const seed=parseInt(val('#runSeed'))||Math.floor(Math.random()*900000)+1000;
-    if(G&&G.meuTime&&!await confirmar('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.','Criar mundo novo'))return;
-    iniciarPreRun(seed);
-  });
+  on('#runNova',()=>novaCarreira());
   on('[data-runload]',async el=>{
     const ok=await carregarRun(el.dataset.runload);
     if(!ok){flash('Não foi possível carregar essa run.');return;}

@@ -10,8 +10,8 @@ function telaNovoJogo(){
     $('#modal').innerHTML=`<div class="ovl"><div class="box">
       <div class="eyebrow">Não dá para começar ainda</div>
       <h2 class="sec">${val.erros.length} erro(s) na base</h2>
-      <p class="dim">O Editor deixa a base ficar inconsistente enquanto você monta, mas a temporada
-      precisa dela fechada. Resolva o que está abaixo e volte.</p>
+      <p class="dim">O Banco de dados do menu deixa a base ficar inconsistente enquanto você monta, mas a
+      temporada precisa dela fechada. Resolva o que está abaixo e volte.</p>
       <div class="card flat" style="margin-top:10px"><div class="feed">
         ${val.erros.slice(0,14).map(e=>'<div class="err">· '+esc(e)+'</div>').join('')}
         ${val.erros.length>14?'<div class="dim">… e mais '+(val.erros.length-14)+'</div>':''}
@@ -20,7 +20,7 @@ function telaNovoJogo(){
         <button class="btn" id="njValidar">Abrir a aba Validação</button>
         <button class="btn ghost" data-close>Fechar</button></div></div></div>`;
     $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
-    $('#njValidar').onclick=()=>{tela='editor';edAba='validar';$('#modal').innerHTML='';render();};
+    $('#njValidar').onclick=()=>{edAba='validar';$('#modal').innerHTML='';modo='menu';telaMenu='banco';render();};
     return;
   }
   const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].slice().sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
@@ -52,8 +52,9 @@ function telaNovoJogo(){
       <td class="r num">${money(fo)}</td><td class="r"><button class="btn sm" data-pick="${id}">Assumir</button></td></tr>`;}).join('')}
     </tbody></table></div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
-      <span class="dim">Semente do mundo</span><input type="number" id="seedIn" value="${G?G.seed:12345}" style="width:120px">
-      <button class="btn ghost" id="regen">Gerar outro mundo</button></div>
+      <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
+        Para mudar, use o Banco de dados do menu principal.</span>
+      <button class="btn ghost" data-close>Cancelar</button></div>
   </div></div>`;
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
@@ -65,7 +66,7 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
-  $('#regen').onclick=()=>{iniciarPreRun(parseInt($('#seedIn').value)||12345);$('#modal').innerHTML='';};
+  $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
     guardaNome();
     G.meuTime=b.dataset.pick;

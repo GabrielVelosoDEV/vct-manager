@@ -208,7 +208,10 @@ w.eval(`window.__t={
   get rotacionarMapas(){return rotacionarMapas;}, get MAPAS_ATIVOS(){return MAPAS_ATIVOS;},
   get esquecerMapas(){return esquecerMapas;}, get desenvolver(){return desenvolver;},
   get normalizarPool(){return normalizarPool;}, get mapaDaSemanaIA(){return mapaDaSemanaIA;},
-  get afinidadeElenco2(){return afinidadeElenco;}
+  get afinidadeElenco2(){return afinidadeElenco;},
+  get Base(){return Base;}, get telaMenu(){return telaMenu;}, set telaMenu(v){telaMenu=v;},
+  get edAba(){return edAba;}, set edAba(v){edAba=v;}, get ED_ABAS(){return ED_ABAS;},
+  get BASE_ID(){return BASE_ID;}, get Storage(){return Storage;}
 }`);
 const t=w.__t;
 
@@ -257,12 +260,12 @@ const corpo=()=>$('#menuCorpo')||$('#view');
    SHELL DO MENU
    ============================================================ */
 await teste('boot cai no menu principal',async()=>{
-  if(!w.G&&!t.G)throw new Error('G não existe depois do boot');
+  if(t.G)throw new Error('sem carreira salva, o boot não deveria ter mundo de carreira');
+  if(!t.Base.reg||Object.keys(t.Base.reg.estado.times).length!==80)throw new Error('base de dados não montou com 80 times');
   if(t.modo!=='menu')throw new Error('modo deveria ser menu, veio '+t.modo);
   if(!w.document.body.classList.contains('modo-menu'))throw new Error('body sem a classe modo-menu');
   if(!$('#shellMenu').innerHTML.trim())throw new Error('shell do menu vazio');
   if(!$('#mnNovo'))throw new Error('item Novo jogo não apareceu');
-  if(Object.keys(t.G.times).length!==80)throw new Error('esperado 80 times');
 });
 
 await teste('menu mostra mosaico de escudos e rodapé de estado',async()=>{
@@ -270,16 +273,13 @@ await teste('menu mostra mosaico de escudos e rodapé de estado',async()=>{
   if(!$('.menu-pe').textContent.includes('Armazenamento'))throw new Error('rodapé sem armazenamento');
 });
 
-await teste('Novo jogo gera mundo e cai no Banco de dados',async()=>{
-  clicar($('#mnNovo'));
-  if(!$('#nmGerar'))throw new Error('modal de novo mundo não abriu');
-  $('#nmSeed').value='4242';
-  clicar($('#nmGerar'));
-  await espera(10);
+await teste('Banco de dados do menu edita a base, não uma carreira',async()=>{
+  clicar($('#mnBanco'));
   if(t.telaMenu!=='banco')throw new Error('não foi para o banco de dados');
-  if(t.G.seed!==4242)throw new Error('semente não aplicou');
-  if(!$('#menuCorpo'))throw new Error('corpo do menu não montou');
-  if(!$('#menuComecar'))throw new Error('sem botão de escolher clube na pré-run');
+  if(!t.Base.editando)throw new Error('a base não foi aberta para edição');
+  if(t.G!==t.Base.reg.estado)throw new Error('o Editor do menu não está sobre a base');
+  if(!$('#menuCorpo').textContent.includes('editando a base de dados'))throw new Error('sem aviso de edição permanente');
+  if(!$('#menuComecar'))throw new Error('sem botão de novo jogo com esta base');
 });
 
 await teste('abas do Banco de dados renderizam dentro do menu',async()=>{
@@ -297,6 +297,37 @@ await teste('handlers do Editor funcionam no shell do menu',async()=>{
   const destino=Object.values(t.G.times).find(x=>x.id!==w.P(pid).timeId&&x.elenco.length<9);
   sel.value=destino.id;disparar(sel,'change');
   if(w.P(pid).timeId!==destino.id)throw new Error('mover não funcionou fora do HUD');
+});
+
+let moveBase=null;
+await teste('edição da base é permanente e vale para carreira nova',async()=>{
+  /* um jogador movido na base; sair da tela grava e devolve o G */
+  /* sai de um elenco com sobra, para a base continuar válida */
+  const origem=Object.values(t.G.times).find(x=>x.elenco.length>5);
+  t.edAba='times';w.eval('edTime='+JSON.stringify(origem.id));w.render();
+  const sel=$$('[data-edmover]')[0];
+  const pid=sel.dataset.edmover;
+  const destino=Object.values(t.G.times).find(x=>x.id!==w.P(pid).timeId&&x.elenco.length<9);
+  sel.value=destino.id;disparar(sel,'change');
+  if(w.P(pid).timeId!==destino.id)throw new Error('mover na base não funcionou');
+  if(!w.edValidar().ok)throw new Error('teste deixou a base inválida: '+w.edValidar().erros[0]);
+  moveBase={pid,time:destino.id};
+  w.eval('edTime=null');
+  t.telaMenu='menu';w.render();
+  if(t.Base.editando)throw new Error('a base continuou aberta fora do Banco de dados');
+  if(t.G)throw new Error('o G não voltou a ser a carreira (nenhuma)');
+  if(!t.Base.reg.editada)throw new Error('a base não ficou marcada como editada');
+  await espera(20);
+  const gravada=await t.Storage.ler(t.BASE_ID);
+  if(!gravada||gravada.estado.jogadores[pid].timeId!==destino.id)throw new Error('a edição não foi gravada no armazenamento');
+  if((await t.Storage.listar()).some(r=>r.id===t.BASE_ID))throw new Error('a base apareceu na lista de partidas salvas');
+  /* carreira nova copia a base: mesmo elenco, objeto diferente */
+  clicar($('#mnNovo'));
+  await espera(10);
+  if(!$$('[data-pick]').length)throw new Error('Novo jogo não abriu a escolha de clube');
+  if(t.G===t.Base.reg.estado)throw new Error('a carreira está usando a base em vez de uma cópia');
+  if(w.P(pid).timeId!==destino.id)throw new Error('a carreira nova não trouxe a edição da base');
+  $('#modal').innerHTML='';
 });
 
 await teste('Partidas salvas, Configurações e Créditos abrem',async()=>{
@@ -341,7 +372,10 @@ await teste('base quebrada barra a seleção de clube',async()=>{
 
 await teste('escolher clube entra no HUD',async()=>{
   t.telaMenu='banco';w.render();
-  clicar($('#menuComecar'));
+  if(!$('#menuComecar'))throw new Error('sem botão de novo jogo no Banco de dados');
+  /* semente fixa: os casos de baixo dependem de um mundo reproduzível */
+  await w.novaCarreira(4242);
+  if(t.G.seed!==4242)throw new Error('semente não aplicou');
   const pick=$$('[data-pick]')[0];
   if(!pick)throw new Error('lista de clubes não abriu');
   clicar(pick);
@@ -4486,6 +4520,9 @@ await teste('fim de temporada elege MVP, seleção, revelação, IGL e treinador
     t.G.jogadores[garoto].idade=19;
     Object.assign(stage.stats[garoto],{k:360,d:280,acs:240*20,mvp:4});
     t.G.calendario=[{stages:[stage]}];t.G.premios=[];
+    /* moral no meio da escala: se o mundo sorteado já a deixar no teto, o
+       prêmio não tem para onde subir e o teste não mede o que quer */
+    t.G.jogadores[estrela].moral=0.5;
     const moral=t.G.jogadores[estrela].moral;
     const r=t.premiarTemporada();
     if(!r)throw new Error('não elegeu nada');

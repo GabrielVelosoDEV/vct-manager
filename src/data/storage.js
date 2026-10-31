@@ -52,7 +52,8 @@ const Storage={
     if(this.modo==='indexeddb')itens=await this._idb(st=>st.getAll());
     else if(this.modo==='localstorage')itens=Object.values(this._lsTudo());
     else itens=Object.values(this._mem);
-    return itens.map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
+    /* o registro da base de dados mora no mesmo store, mas não é partida */
+    return itens.filter(r=>r&&r.id!==BASE_ID).map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
       .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
   },
   async gravar(reg){

@@ -469,19 +469,18 @@ function edvIO(){
 
   <div class="card"><div class="eyebrow">Salvar os elencos no projeto</div>
     <p class="dim">Gera o <code>data/elencos.js</code> a partir desta base e baixa o arquivo.
-    Ponha ele na pasta <code>data/</code> do projeto, por cima do que está lá, e todo jogo novo
-    passa a começar com os seus ajustes — hoje eles existem só neste save.</p>
+    Serve para levar os ajustes para o código do projeto (e para outros computadores): no jogo,
+    a base de dados do menu já guarda as edições sozinha.</p>
     <p class="dim">Só entram jogadores de nome real. Reservas gerados ficam de fora de
-    propósito: eles voltam a ser sorteados a cada partida nova, e é isso que mantém
-    os elencos variados.</p>
+    propósito: eles são refeitos a partir da semente da base.</p>
     <button class="btn" id="edGerarElencos">Baixar data/elencos.js</button>
     <button class="btn ghost" id="edVerElencos">Ver antes de baixar</button>
     <div id="edElencosFeed" style="margin-top:10px"></div></div>
 
-  <div class="card"><div class="eyebrow">Zona de risco</div>
-    <p class="dim">Gerar um mundo novo apaga a base editada e recomeça dos dados de
-    <code>data/times.js</code> e <code>data/elencos.js</code>. O pacote de imagens não é afetado.</p>
-    <button class="btn ghost" id="edNovo">Começar novo jogo</button></div>`;
+  ${Base.editando?`<div class="card"><div class="eyebrow">Zona de risco</div>
+    <p class="dim">Restaurar a base original descarta todas as suas edições na base de dados e volta aos
+    arquivos de <code>data/</code>. Carreiras já salvas e o pacote de imagens não são afetados.</p>
+    <button class="btn ghost" id="edNovo">Restaurar base original</button></div>`:''}`;
 }
 
 /* ============================================================
@@ -526,13 +525,40 @@ function vEditor(){
                agentes:edvAgentes,
                imagens:edvImagens,io:edvIO,validar:edvValidar}[edAba]||edvTimes;
   return `<div class="eyebrow">Banco de dados</div><h2 class="sec">Editor</h2>
-  ${preRun()?'':'<div class="card" style="border-left:4px solid var(--gold)">A run já começou. Editar over e atributos agora muda a temporada em andamento — o lugar de montar a base é a pré-run.</div>'}
+  ${edAviso()}
   ${v.erros.length?`<div class="card" style="border-left:4px solid var(--red)">
     <b>${v.erros.length} erro(s) de consistência.</b> <span class="dim">A run não começa até resolver.</span>
     <button class="btn ghost sm" data-edaba="validar" style="margin-left:8px">Ver na aba Validação</button></div>`:''}
   <div class="tabs">${ED_ABAS.map(([k,n])=>
     `<button data-edaba="${k}" class="${edAba===k?'on':''}">${n}</button>`).join('')}</div>
   ${corpo()}`;
+}
+
+/* Quem está sendo editado: a base (menu principal) ou só este save. A
+   diferença é grande e precisa estar escrita no topo, não implícita. */
+function edAviso(){
+  if(Base.editando){
+    const r=Base.reg||{};
+    return `<div class="card" style="border-left:4px solid var(--teal)">
+      <div class="split"><div>
+        <b>Você está editando a base de dados.</b>
+        <span class="dim">A mudança é permanente: vale para toda carreira nova daqui para frente.
+        Carreiras que já existem não mudam.</span>
+        <div class="dim" style="margin-top:4px">Situação: <b>${r.editada?'base editada por você':'base original (arquivos de data/)'}</b>
+          · ${Base.resumo().times} clubes · ${Base.resumo().jogadores} jogadores · gravada sozinha a cada mudança.</div>
+      </div>
+      ${r.editada?'<button class="btn ghost sm" id="edRestaurar">Restaurar base original</button>':''}</div>
+      ${Base.desatualizada?`<div class="card flat" style="border-left:3px solid var(--amber);margin-top:10px">
+        Os dados originais do jogo foram atualizados depois da sua edição (elencos, times ou comissão novos).
+        Sua base editada foi mantida. Para receber as novidades, restaure a base original — isso descarta
+        as suas edições.</div>`:''}
+    </div>`;
+  }
+  return `<div class="card" style="border-left:4px solid var(--gold)">
+    <b>Você está editando só este save${G&&G.meuTime?' ('+esc(T(G.meuTime).nome)+' · '+G.ano+')':''}.</b>
+    <span class="dim">A base de dados não muda: carreiras novas continuam nascendo dela. Para uma mudança
+    permanente, use o Banco de dados do menu principal. Editar over e atributos aqui muda a temporada em andamento.</span>
+  </div>`;
 }
 
 /* ============================================================

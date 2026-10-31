@@ -6,19 +6,25 @@ async function boot(){
   Prefs.iniciar();
   await Imgs.iniciar();
   Rostos.iniciar();
+  await Base.iniciar();
   await atualizarRuns();
 
-  /* carrega a partida mais recente, inclusive em pré-run: o Banco de dados é
-     o fluxo principal antes de assumir um clube e não pode ser descartado no
-     reload. Mas o boot para no menu — quem decide entrar é você. */
-  const salvas=listaRuns;
+  /* carrega a carreira mais recente, para o Continuar. A base de dados não
+     precisa disso: ela mora no próprio armazenamento e é aberta pelo menu.
+     O boot para no menu — quem decide entrar é você. */
+  const salva=listaRuns.find(r=>r.clube&&r.clube!=='—');
   let carregou=false;
-  if(salvas.length)carregou=await carregarRun(salvas[0].id);
-  if(!carregou||!G)iniciarPreRun(Math.floor(Math.random()*900000)+1000);
+  if(salva)carregou=await carregarRun(salva.id);
+  if(!carregou||!G||!G.meuTime)G=null;
 
   modo='menu';telaMenu='menu';
   render();
-  window.addEventListener('beforeunload',()=>{if(G)salvarRun(G.runNome);});
+  window.addEventListener('beforeunload',()=>{
+    /* com o Banco de dados do menu aberto, o G é a base: grava ela e devolve
+       a carreira antes de gravar a carreira */
+    Base.fecharEdicao();
+    if(G&&G.meuTime)salvarRun(G.runNome);
+  });
 }
 
 /* liga os botões da topbar; chamado a cada pintarTop() */
