@@ -1022,7 +1022,7 @@ function vHistoria(){
       <td class="c"><span class="serie">${ult}</span></td></tr>`;};
 
   /* o mundo lembra de campeões que já não competem: é o que faz a linha do
-     tempo parecer que aconteceu, em vez de começar em 2026 do nada */
+     tempo parecer que aconteceu, em vez de começar em 2027 do nada */
   const pre=(G.historico||[]).filter(h=>h.pre);
   const anos=[...new Set(pre.map(h=>h.ano))].sort((a,b)=>b-a);
 
@@ -1066,7 +1066,7 @@ function vHistoria(){
       :'<div class="empty">Nenhuma partida disputada ainda nesta run.</div>'}
   </div>
 
-  <div class="card"><div class="eyebrow">Antes de você · o circuito de 2021 a 2025</div>
+  <div class="card"><div class="eyebrow">Antes de você · o circuito de 2021 a 2026</div>
     <p class="dim">Resultados reais. Alguns campeões já não competem — o circuito
     lembra deles mesmo assim.</p>
     ${anos.map(a=>`<div class="ano-bloco"><div class="ano-rot num">${a}</div>

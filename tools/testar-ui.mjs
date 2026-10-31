@@ -1538,12 +1538,19 @@ await teste('o botão de exportar recusa base vazia em vez de baixar',async()=>{
 /* ============================================================
    LEGADO, CONFRONTO DIRETO E RIVALIDADE
    ============================================================ */
-await teste('a pré-história de 2021 a 2025 entra no mundo',async()=>{
+await teste('a pré-história de 2021 a 2026 entra no mundo',async()=>{
   const pre=(t.G.historico||[]).filter(h=>h.pre);
   if(pre.length!==t.HISTORIA_REAL.length)
     throw new Error(`registrou ${pre.length} de ${t.HISTORIA_REAL.length} títulos`);
-  if(pre.some(h=>h.ano>2025))throw new Error('2026 não podia entrar: é a temporada que se joga');
+  if(pre.some(h=>h.ano>2026))throw new Error('2027 não podia entrar: é a temporada que se joga');
+  const de26=pre.filter(h=>h.ano===2026);
+  if(de26.length!==15)throw new Error('2026 devia ter 15 títulos (3 internacionais e 12 de liga), tem '+de26.length);
+  if(de26.some(h=>!h.vice))throw new Error('todo título de 2026 tem vice no vlr.gg');
+  for(const h of t.HISTORIA_REAL.filter(h=>h.ano===2026))
+    for(const n of [h.campeao,h.vice])if(!w.acharClubePorNome(n))throw new Error(n+' (2026) não casa com nenhum clube');
   if(pre.some(h=>h.ano<2021))throw new Error('ano fora da faixa');
+  if(t.G.ano<2027)throw new Error('a carreira começa em 2027, e o mundo está em '+t.G.ano);
+  if((t.G.historico||[]).some(h=>!h.pre&&h.ano<2027))throw new Error('título jogado antes de 2027');
 });
 
 await teste('campeão que ainda existe recebe o título; quem sumiu fica só no registro',async()=>{

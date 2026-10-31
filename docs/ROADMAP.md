@@ -108,6 +108,10 @@
 - **Primeira temporada guiada** (`src/ui/guia.js`): dica no topo de cada tela
   na primeira visita e primeiros passos na Central, desligável nas
   Configurações
+- **Histórico de 2026 e carreira em 2027**: os 15 títulos reais de 2026
+  (Kickoffs, Stages, Masters Santiago, Masters Londres e Champions Xangai,
+  com vice, do vlr.gg) entram na pré-história, e a carreira começa em 2027
+  com os elencos de 2026
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

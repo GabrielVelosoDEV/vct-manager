@@ -1,14 +1,15 @@
 /* ============================================================
-   PRÉ-HISTÓRIA DO CIRCUITO — 2021 a 2025
+   PRÉ-HISTÓRIA DO CIRCUITO — 2021 a 2026
    ------------------------------------------------------------
    PROVENIÊNCIA: resultados reais, lidos da página "Valorant
    Champions Tour" da Wikipédia em 29/08/2026. Não há nada
    estimado aqui — campeão e vice são o que a fonte diz, e onde a
    fonte não trazia o vice o campo fica vazio em vez de chute.
 
-   A temporada de 2026 NÃO entra: ela é a temporada em que o jogo
-   começa, e quem ganha o quê é o que você vai jogar. Semear
-   Kickoff 2026 aqui faria o título ser conquistado duas vezes.
+   2026 veio do vlr.gg (páginas de cada evento, lidas em
+   31/10/2026), com campeão e vice. A carreira começa em 2027:
+   os elencos da base são os de 2026, e o que eles ganharam em
+   2026 já faz parte da história do clube.
 
    Clubes que já não competem (Acend, Gambit, OpTic) continuam no
    registro. Eles não recebem nada — não existem mais — mas o
@@ -76,7 +77,23 @@ const HISTORIA_REAL=[
   {ano:2025,escopo:'AMER',evento:'Stage 2 Americas', campeao:'G2 Esports',      vice:''},
   {ano:2025,escopo:'EMEA',evento:'Stage 2 EMEA',     campeao:'Team Liquid',     vice:''},
   {ano:2025,escopo:'PAC', evento:'Stage 2 Pacific',  campeao:'Paper Rex',       vice:''},
-  {ano:2025,escopo:'CN',  evento:'Stage 2 China',    campeao:'Bilibili Gaming', vice:''}
+  {ano:2025,escopo:'CN',  evento:'Stage 2 China',    campeao:'Bilibili Gaming', vice:''},
+  /* ---------------- 2026 (vlr.gg) ---------------- */
+  {ano:2026,escopo:'AMER',evento:'Kickoff Americas', campeao:'FURIA',              vice:'G2 Esports'},
+  {ano:2026,escopo:'EMEA',evento:'Kickoff EMEA',     campeao:'BBL Esports',        vice:'Gentle Mates'},
+  {ano:2026,escopo:'PAC', evento:'Kickoff Pacific',  campeao:'Nongshim RedForce',  vice:'T1'},
+  {ano:2026,escopo:'CN',  evento:'Kickoff China',    campeao:'All Gamers',         vice:'Xi Lai Gaming'},
+  {ano:2026,escopo:'INT', evento:'Masters Santiago', campeao:'Nongshim RedForce',  vice:'Paper Rex'},
+  {ano:2026,escopo:'AMER',evento:'Stage 1 Americas', campeao:'G2 Esports',         vice:'LEVIATÁN'},
+  {ano:2026,escopo:'EMEA',evento:'Stage 1 EMEA',     campeao:'Team Heretics',      vice:'Team Vitality'},
+  {ano:2026,escopo:'PAC', evento:'Stage 1 Pacific',  campeao:'Paper Rex',          vice:'FULL SENSE'},
+  {ano:2026,escopo:'CN',  evento:'Stage 1 China',    campeao:'EDward Gaming',      vice:'Xi Lai Gaming'},
+  {ano:2026,escopo:'INT', evento:'Masters Londres',  campeao:'LEVIATÁN',           vice:'Paper Rex'},
+  {ano:2026,escopo:'AMER',evento:'Stage 2 Americas', campeao:'100 Thieves',        vice:'LOUD'},
+  {ano:2026,escopo:'EMEA',evento:'Stage 2 EMEA',     campeao:'Karmine Corp',       vice:'Team Liquid'},
+  {ano:2026,escopo:'PAC', evento:'Stage 2 Pacific',  campeao:'Global Esports',     vice:'Nongshim RedForce'},
+  {ano:2026,escopo:'CN',  evento:'Stage 2 China',    campeao:'TYLOO',              vice:'JD Gaming'},
+  {ano:2026,escopo:'INT', evento:'Champions Xangai', campeao:'LOUD',               vice:'Team Vitality'}
 ];
 
 /* Quanto cada tipo de título pesa no legado do clube: torcida herdada e

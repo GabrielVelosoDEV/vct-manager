@@ -55,7 +55,7 @@ function vMenuPrincipal(){
     <div class="menu-lado">
       <div class="menu-marca">
         <span class="l1">VCT</span><span class="l2">MANAGER</span>
-        <span class="ver">v${VERSAO_JOGO} · temporada 2026</span>
+        <span class="ver">v${VERSAO_JOGO} · temporada 2027</span>
       </div>
       <div class="menu-lista">
         ${item('mnContinuar','jogar','Continuar',ondeEstou,{destaque:podeContinuar,off:!podeContinuar})}
