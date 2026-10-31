@@ -12,6 +12,7 @@ function ligarEventos(){
   const val=(sel,padrao)=>{const el=v.querySelector(sel);return el?el.value:(padrao===undefined?'':padrao);};
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
+  on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('#autoEsc',()=>{autoEscalar(t);render();});
   on('[data-banco]',el=>{
     if(t.titulares.length<=5&&t.elenco.length>5){

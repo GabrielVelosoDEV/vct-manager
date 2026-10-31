@@ -70,7 +70,7 @@ function makePlayer(alvo,role,pais,idade,usados,tier){
     id:'p'+(G.seqP++), nome:nomeUnico(usados), pais, role, at, idade, genero:'m',
     pot:0, contrato:ri(1,3), salario:0, moral:ri(60,85)/100, forma:ri(45,75)/100,
     fadiga:ri(0,15)/100, timeId:null, agentes:sortearAgentes(role), agenteNivel:null,
-    hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,titulos:0},
+    hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,acs:0,mvp:0,titulos:0,intl:0},
     lesao:0, igl:false, role2:null, roleAtual:role,
     mapas:afinidadeInicial()
   };

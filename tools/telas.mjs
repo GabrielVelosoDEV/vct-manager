@@ -88,6 +88,11 @@ await ev(`if(window.__mgAntes)G.manager=JSON.parse(window.__mgAntes);irPara('ini
    existem depois que o circuito girou */
 await ev(`for(let i=0;i<120;i++)avancar();irPara('historia')`);
 await tira('14-historia');
+/* prêmios com duas viradas já entregues, e a ficha de quem ganhou o MVP */
+await ev(`irPara('premios')`);                     await tira('14b-premios');
+await ev(`(function(){const r=(G.premios||[]).slice(-1)[0];if(r&&G.jogadores[r.mvp.id])modalJogador(r.mvp.id);})()`);
+await tira('14c-ficha-premiado');
+await ev(`$('#modal').innerHTML=''`);
 await ev(`irPara('comp')`);                        await tira('09-competicoes');
 /* partida ao vivo: só existe durante um jogo do seu clube, então precisa ser
    capturada no momento certo — é a tela que o jogador mais olha */

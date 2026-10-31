@@ -3436,7 +3436,7 @@ function makePlayer(alvo,role,pais,idade,usados,tier){
     id:'p'+(G.seqP++), nome:nomeUnico(usados), pais, role, at, idade, genero:'m',
     pot:0, contrato:ri(1,3), salario:0, moral:ri(60,85)/100, forma:ri(45,75)/100,
     fadiga:ri(0,15)/100, timeId:null, agentes:sortearAgentes(role), agenteNivel:null,
-    hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,titulos:0},
+    hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,acs:0,mvp:0,titulos:0,intl:0},
     lesao:0, igl:false, role2:null, roleAtual:role,
     mapas:afinidadeInicial()
   };
@@ -5866,7 +5866,8 @@ function aplicarPos(A,B,vencedor,agg,mvp,ctx){
     p.temp.maps+=s.maps; p.temp.k+=s.k;p.temp.d+=s.d;p.temp.a+=s.a;
     p.temp.fk+=s.fk;p.temp.cl+=s.cl;p.temp.acs+=s.acsSoma;
     p.carreira.k+=s.k;p.carreira.d+=s.d;p.carreira.a+=s.a;p.carreira.maps+=s.maps;
-    if(id===mvp)p.temp.mvp++;
+    p.carreira.acs=(p.carreira.acs||0)+s.acsSoma;
+    if(id===mvp){p.temp.mvp++;p.carreira.mvp=(p.carreira.mvp||0)+1;}
     const kd=s.d?s.k/s.d:2;
     p.forma=clamp(p.forma+(kd-1.02)*0.055+gauss(0,.03),.15,1);
     p.fadiga=clamp(p.fadiga+0.05+ (A.tatica.scrim+B.tatica.scrim)/300,0,1);
@@ -6430,7 +6431,10 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao)titulo(campeao,nomeTitulo(s));
+  if(campeao){titulo(campeao,nomeTitulo(s));
+    /* título internacional conta à parte: é ele que separa lenda de bom jogador */
+    if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
+      const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
   /* O vice também entra na história. Só a semeadura de 2021–2025 contava
      finais perdidas: no jogo, um clube podia perder dez decisões e a ficha
      dele continuava marcando zero vice — um número que nunca mudava e por
@@ -8003,6 +8007,238 @@ function motivoRivalidade(t,c){
 }
 
 
+/* ===== src/core/premios.js ===== */
+/* ============================================================
+   PRÊMIOS DA TEMPORADA E HALL DA FAMA
+   ------------------------------------------------------------
+   Até aqui o jogo esquecia tudo na virada do ano: o melhor de
+   cada torneio era eleito, mas ninguém era o melhor DO ANO, e o
+   jogador que se aposentava sumia do save junto com a história
+   dele.
+
+   A temporada é lida dos stages do calendário, que ainda estão
+   todos lá quando fimDeTemporada() começa. Cada stage pesa pelo
+   tamanho do palco: um Champions vale mais que um split de
+   Challengers, e é por isso que o MVP do ano sai do Tier 1 mesmo
+   quando um garoto do Challengers faz 300 de ACS.
+
+   Nada aqui sorteia: os prêmios são uma leitura do que já
+   aconteceu, e o gerador semeado é do motor.
+   ============================================================ */
+
+/* Mínimo de mapas para concorrer: quem jogou um torneio e brilhou não é o
+   melhor do ano. */
+const PREMIO_MIN_MAPAS=14;
+const PREMIO_MIN_MAPAS_REVELACAO=10;
+const IDADE_REVELACAO=20;
+/* Corte do Hall da Fama, em pontos de carreira (ver pontosDeLenda). */
+const LENDA_CORTE=14;
+/* Quanto a comparação é contra a própria função (o resto é contra todos). */
+const PREMIO_PESO_FUNCAO=0.7;
+
+function pesoDoStagePremio(s){
+  if(s.tier===2)return 0.4;
+  if(s.regiao==='INT')return /^ch/.test(s.id)?1.8:1.4;
+  return 1;
+}
+
+/* Função contra a qual o jogador é comparado: a que ele joga. Flex não
+   tem grupo próprio grande o bastante e é comparado com todo mundo. */
+function funcaoPremio(p){
+  const r=p.roleAtual&&p.roleAtual!=='Flex'?p.roleAtual:p.role;
+  return r==='Flex'?'todos':r;
+}
+/* Soma da temporada de cada jogador e de cada time, stage a stage. */
+function lerTemporada(){
+  const jog={},times={};
+  const stages=(G.calendario||[]).flatMap(b=>b.stages||[]).filter(s=>s&&s.feito);
+  for(const s of stages){
+    const w=pesoDoStagePremio(s);
+    const rk=s.ranking||[];
+    const n=Math.max(1,rk.length-1);
+    rk.forEach((id,i)=>{
+      const r=times[id]||(times[id]={camp:0,peso:0,titulos:0});
+      r.camp+=w*(1-i/n);r.peso+=w;
+      if(i===0&&s.tipo!=='grupos'&&s.tipo!=='swiss')r.titulos+=w;
+    });
+    if(!s.stats)continue;
+    /* ACS e K/D comparados com a média da função no próprio stage. Contra a
+       média geral pura, Duelista ganhava todo prêmio: ele faz mais abate por
+       desenho, não por jogar melhor. */
+    const fn={todos:{acs:0,maps:0,k:0,d:0}};
+    for(const id in s.stats){
+      const e=s.stats[id],p=G.jogadores[id];if(!e.maps||!p)continue;
+      for(const k of [funcaoPremio(p),'todos']){
+        const f=fn[k]||(fn[k]={acs:0,maps:0,k:0,d:0});
+        f.acs+=e.acs;f.maps+=e.maps;f.k+=e.k;f.d+=e.d;
+      }
+    }
+    const pos=id=>{const i=rk.indexOf(id);return i<0?0.35:1-i/n;};
+    for(const id in s.stats){
+      const e=s.stats[id],p=G.jogadores[id];if(!e.maps||!p)continue;
+      const f=fn[funcaoPremio(p)];
+      /* parte função, parte geral: só contra a função, um Controlador de
+         170 de ACS virava MVP do ano, e ninguém olha para isso e concorda */
+      const T=fn.todos;
+      const q=PREMIO_PESO_FUNCAO;
+      const acsFn=q*f.acs/Math.max(1,f.maps)+(1-q)*T.acs/Math.max(1,T.maps);
+      const kdFn=q*f.k/Math.max(1,f.d)+(1-q)*T.k/Math.max(1,T.d);
+      const a=jog[id]||(jog[id]={maps:0,k:0,d:0,acs:0,mvp:0,rel:0,krel:0,wd:0,wm:0,camp:0,timeId:null});
+      a.maps+=e.maps;a.k+=e.k;a.d+=e.d;a.acs+=e.acs;a.mvp+=e.mvp;
+      a.rel+=w*e.acs/Math.max(1,acsFn);a.krel+=w*e.k/Math.max(0.1,kdFn);a.wd+=w*e.d;
+      a.wm+=w*e.maps;a.camp+=w*e.maps*pos(e.timeId);
+      a.timeId=e.timeId||a.timeId;
+    }
+  }
+  return{jog,times};
+}
+
+/* Nota do ano de um jogador. Mesmo desenho da nota de MVP de torneio
+   (notaMVP em formatos.js), com ACS e K/D relativos à função, mais um termo de palco: quem jogou muito mapa
+   em torneio grande ganha até 0,35. */
+function notaDoAno(a){
+  const rel=a.rel/Math.max(1,a.wm);
+  const kd=a.krel/Math.max(1,a.wd);
+  return (rel-1)*1.9+(Math.min(2.2,kd)-1)*0.55+(a.mvp/a.maps)*0.95
+        +0.35*Math.min(1,a.wm/60)+0.25*(a.camp/Math.max(1,a.wm));
+}
+
+/* Foto do premiado, como a do MVP de torneio: ele pode se aposentar e
+   ser apagado, o prêmio não. */
+function fichaPremio(id,a){
+  const p=G.jogadores[id];if(!p)return null;
+  const t=a&&a.timeId&&G.times[a.timeId];
+  return{id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
+    timeId:t?t.id:null,tag:t?t.tag:'—',
+    maps:a?a.maps:0,acs:a?Math.round(a.acs/Math.max(1,a.maps)):0,
+    kd:a?Number((a.d?a.k/a.d:a.k).toFixed(2)):0};
+}
+
+function darPremio(id,tipo,rot){
+  const p=G.jogadores[id];if(!p)return;
+  (p.premios=p.premios||[]).push({ano:G.ano,tipo,rot});
+}
+
+const ROT_PREMIO={mvp:'MVP do ano',regional:'MVP regional',selecao:'Seleção do ano',
+                  revelacao:'Revelação do ano',igl:'IGL do ano'};
+
+/* Elege tudo de uma vez e grava em G.premios. Chamada no começo da virada,
+   antes de aposentadoria, contrato e empréstimo mexerem nos elencos. */
+function premiarTemporada(){
+  const {jog,times}=lerTemporada();
+  const cand=Object.keys(jog).filter(id=>G.jogadores[id]&&jog[id].maps>=PREMIO_MIN_MAPAS);
+  if(!cand.length)return null;
+  const nota={};
+  for(const id in jog)if(jog[id].maps)nota[id]=notaDoAno(jog[id]);
+  const porNota=(a,b)=>nota[b]-nota[a];
+  cand.sort(porNota);
+
+  const reg={ano:G.ano,mvp:null,regioes:{},selecao:[],revelacao:null,igl:null,treinador:null};
+  const mvp=cand[0];
+  reg.mvp=fichaPremio(mvp,jog[mvp]);darPremio(mvp,'mvp',ROT_PREMIO.mvp);
+
+  for(const R of REGIONS){
+    const id=cand.find(i=>{const t=G.times[jog[i].timeId];return t&&t.regiao===R.id&&t.tier===1;});
+    if(!id)continue;
+    reg.regioes[R.id]=fichaPremio(id,jog[id]);
+    darPremio(id,'regional',ROT_PREMIO.regional+' · '+R.nome);
+  }
+
+  /* um por função e o quinto é o melhor que sobrou, como as seleções de
+     verdade fazem com o flex */
+  const usados=new Set();
+  for(const role of ROLES.filter(r=>r!=='Flex')){
+    const id=cand.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
+    if(id)usados.add(id);
+  }
+  const flex=cand.find(i=>!usados.has(i));
+  if(flex)usados.add(flex);
+  reg.selecao=[...usados].sort(porNota).map(id=>fichaPremio(id,jog[id]));
+  usados.forEach(id=>darPremio(id,'selecao',ROT_PREMIO.selecao));
+
+  const rev=Object.keys(jog).filter(id=>{const p=G.jogadores[id];
+    return p&&p.idade<=IDADE_REVELACAO&&jog[id].maps>=PREMIO_MIN_MAPAS_REVELACAO;}).sort(porNota)[0];
+  if(rev){reg.revelacao=fichaPremio(rev,jog[rev]);darPremio(rev,'revelacao',ROT_PREMIO.revelacao);}
+
+  /* IGL e treinador são prêmio de campanha: o desempenho individual pesa
+     pouco no IGL e nada no treinador */
+  const campanha=id=>{const r=times[id];return r?r.camp+r.titulos*0.6:0;};
+  const t1=Object.values(G.times).filter(t=>t.tier===1);
+  const igl=t1.filter(t=>t.igl&&G.jogadores[t.igl]&&jog[t.igl])
+    .map(t=>({id:t.igl,n:campanha(t.id)+0.4*(nota[t.igl]||0)})).sort((a,b)=>b.n-a.n)[0];
+  if(igl){reg.igl=fichaPremio(igl.id,jog[igl.id]);darPremio(igl.id,'igl',ROT_PREMIO.igl);}
+
+  /* treinador: campanha, com um empurrão para quem fez mais com menos */
+  const tr=t1.map(t=>({t,n:campanha(t.id)+(60-t.prestigio)*0.03})).sort((a,b)=>b.n-a.n)[0];
+  if(tr){
+    const t=tr.t,m=membroDe(t,'tecnico');
+    const voce=t.id===G.meuTime&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido;
+    const nome=voce?G.manager.nome:m?m.nome:null;
+    if(nome){
+      reg.treinador={nome,timeId:t.id,tag:t.tag,staffId:voce?null:m.id,voce};
+      if(m&&!voce)(m.premios=m.premios||[]).push({ano:G.ano,tipo:'treinador',rot:'Treinador do ano'});
+    }
+  }
+
+  (G.premios=G.premios||[]).push(reg);
+  /* reconhecimento vale vestiário */
+  const premiados=new Set([mvp,...usados,rev,igl&&igl.id].filter(Boolean));
+  premiados.forEach(id=>{const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.05,0.05,1);});
+
+  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.');
+  const meus=[...premiados].filter(id=>G.jogadores[id].timeId===G.meuTime);
+  if(meus.length)noticia('🏅 Prêmios de '+G.ano+' no seu clube: '+
+    meus.map(id=>G.jogadores[id].nome).join(', ')+'.');
+  if(reg.treinador&&reg.treinador.voce)noticia('🏅 Você foi eleito o treinador do ano de '+G.ano+'.');
+  return reg;
+}
+
+/* ---------- hall da fama ---------- */
+/* Pontos de carreira: prêmio do ano vale mais que título regional, título
+   internacional vale mais que qualquer um dos dois. */
+function pontosDeLenda(p){
+  const c=p.carreira||{};
+  const pr=p.premios||[];
+  const conta=t=>pr.filter(x=>x.tipo===t).length;
+  return conta('mvp')*5+conta('selecao')*2+conta('regional')*1.5+conta('igl')*1.5+conta('revelacao')
+        +(c.intl||0)*2+(c.titulos||0)*0.3+(c.mvpTorneios||0)*0.75+Math.floor((c.maps||0)/400);
+}
+/* Resumo de carreira, usado na ficha e no Hall da Fama. */
+function resumoCarreira(p){
+  const c=p.carreira||{};
+  return{maps:c.maps||0,k:c.k||0,d:c.d||0,a:c.a||0,
+    acs:c.maps?Math.round((c.acs||0)/c.maps):0,
+    kd:Number(((c.k||0)/Math.max(1,c.d||0)).toFixed(2)),
+    mvp:c.mvp||0,titulos:c.titulos||0,intl:c.intl||0,mvpTorneios:c.mvpTorneios||0,
+    premios:(p.premios||[]).length};
+}
+/* Chamada na aposentadoria, antes de o jogador ser apagado. */
+function talvezHallDaFama(p){
+  const pts=pontosDeLenda(p);
+  if(pts<LENDA_CORTE)return null;
+  const clubes=[...new Set((p.hist||[]).map(h=>h.time).filter(n=>n&&n!=='Sem clube'))];
+  const l={id:p.id,nome:p.nome,pais:p.pais,role:p.role,ano:G.ano,idade:p.idade,
+    pico:p.pico||over(p),pontos:Math.round(pts*10)/10,clubes,
+    carreira:resumoCarreira(p),premios:(p.premios||[]).map(x=>({ano:x.ano,rot:x.rot}))};
+  (G.lendas=G.lendas||[]).push(l);
+  noticia('🏛 '+p.nome+' se aposenta e entra para o Hall da Fama.');
+  return l;
+}
+
+/* ---------- peso do save ---------- */
+/* As temporadas antigas da ficha guardam só o que a tabela de carreira
+   mostra. O detalhe (assistências, first kills, clutches) já está somado
+   em p.carreira. */
+const HIST_DETALHE=5;
+function podarHistorico(p){
+  const h=p.hist;if(!h||h.length<=HIST_DETALHE)return;
+  for(let i=0;i<h.length-HIST_DETALHE;i++){
+    const e=h[i];if(e.c)continue;
+    h[i]={ano:e.ano,time:e.time,over:e.over,maps:e.maps,k:e.k,d:e.d,mvp:e.mvp,c:1};
+  }
+}
+
+
 /* ===== src/core/vlr.js ===== */
 /* ============================================================
    PARSER DA PÁGINA DE TIME DO VLR.GG
@@ -8684,6 +8920,9 @@ function fimDeTemporada(){
      contrato pelo meio — caía no mercado como agente livre. O dono perdia um
      titular de graça sem nunca ser avisado. Devolver antes de qualquer conta
      é o que faz o contrato de verdade dele voltar a valer. */
+  /* os prêmios leem os elencos como a temporada terminou: antes de o
+     empréstimo voltar e de alguém se aposentar */
+  if(typeof premiarTemporada==='function')premiarTemporada();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
@@ -8691,10 +8930,12 @@ function fimDeTemporada(){
   for(const id in G.jogadores){
     const p=G.jogadores[id];
     p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:'Sem clube',over:over(p),...p.temp});
+    if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.');
+      if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
@@ -9263,6 +9504,7 @@ function evoluirStaff(){
     const aprov=jogos?m.temp.v/jogos:0.5;
     m.hist.push({ano:G.ano,time:t?t.nome:'Sem clube',over:overStaff(m),
                  v:m.temp.v,d:m.temp.d,titulos:m.temp.titulos});
+    if(m.hist.length>12)m.hist.shift();
     m.carreira.anos++;m.carreira.titulos+=m.temp.titulos;
     const o=overStaff(m),gap=m.pot-o;
     let g=0;
@@ -10498,6 +10740,7 @@ const NAV=[
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Líderes','Circuito','grafico'],
+  ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
   ['mercado','Mercado','Gestão','troca'],
   ['financas','Finanças','Gestão','dinheiro'],
@@ -10556,7 +10799,7 @@ function render(){
   pintarSide();pintarTop();
   const v=$('#view');
   const fn={inicio:vInicio,elenco:vElenco,taticas:vTaticas,treino:vTreino,comps:vComps,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,news:vNews,
+            base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   v.innerHTML=(fn||vInicio)();
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
@@ -11881,6 +12124,60 @@ function vStats(){
     <table><thead><tr><th class="c">Ano</th><th>Competição</th><th>Campeão</th></tr></thead>
     <tbody>${G.historico.slice().reverse().slice(0,40).map(h=>`<tr><td class="c num">${h.ano}</td><td>${esc(h.evento)}</td><td><b>${esc(h.campeao)}</b></td></tr>`).join('')||'<tr><td class="dim">Ainda sem títulos registrados.</td></tr>'}</tbody></table></div>`;
 }
+/* ============================================================
+   PRÊMIOS E HALL DA FAMA
+   ============================================================ */
+let premioAno=null;
+function linhaPremiado(f,rot){
+  if(!f)return '';
+  const vivo=!!P(f.id);
+  return `<tr class="${vivo?'jrow':''} ${f.timeId===G.meuTime?'me':''}" ${vivo?`data-p="${f.id}"`:''}>
+    ${rot?`<td class="dim">${esc(rot)}</td>`:''}
+    <td><b>${esc(f.nome)}</b> ${FLAG[f.pais]||''}${vivo?'':' <span class="chip">aposentado</span>'}</td>
+    <td><span class="tag ${f.role}">${f.role}</span></td><td class="dim">${esc(f.tag)}</td>
+    <td class="r num">${f.maps}</td><td class="r num">${f.acs}</td><td class="r num">${Number(f.kd).toFixed(2)}</td></tr>`;
+}
+const TH_PREMIO=(rot)=>`<thead><tr>${rot?'<th></th>':''}<th>Jogador</th><th>Função</th><th>Clube</th>
+  <th class="r">Mapas</th><th class="r">ACS</th><th class="r">K/D</th></tr></thead>`;
+function vPremios(){
+  const lista=G.premios||[];
+  const anos=lista.map(r=>r.ano);
+  if(premioAno==null||!anos.includes(premioAno))premioAno=anos[anos.length-1];
+  const r=lista.find(x=>x.ano===premioAno);
+  const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
+      O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
+  <div class="grid g2">
+    <div class="card"><div class="eyebrow">MVP de ${r.ano}</div>
+      <h3 style="margin:4px 0">${esc(r.mvp.nome)} ${FLAG[r.mvp.pais]||''}</h3>
+      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div>
+    <div class="card"><div class="eyebrow">Treinador do ano</div>
+      ${r.treinador?`<h3 style="margin:4px 0">${esc(r.treinador.nome)}${r.treinador.voce?' <span class="chip t">você</span>':''}</h3>
+      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div>
+  </div>
+  <div class="card flat"><div class="eyebrow">Seleção do ano</div>
+    <table>${TH_PREMIO(false)}<tbody>${r.selecao.map(f=>linhaPremiado(f)).join('')}</tbody></table></div>
+  <div class="card flat"><div class="eyebrow">Destaques</div>
+    <table>${TH_PREMIO(true)}<tbody>
+      ${REGIONS.map(R=>linhaPremiado(r.regioes[R.id],'MVP · '+R.nome)).join('')}
+      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano')}
+    </tbody></table></div>`;
+  const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
+  return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
+  ${anos.length>1?`<div class="tabs">${anos.slice().reverse().map(a=>
+    `<button data-pano="${a}" class="${a===premioAno?'on':''}">${a}</button>`).join('')}</div>`:''}
+  ${corpo}
+  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
+    ${lendas.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
+      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
+    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
+      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
+      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
+      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
+      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
+      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table>`
+    :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
+      e uma carreira longa.</div>`}</div>`;
+}
 function vNews(){
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
   <div class="card flat"><div class="feed" style="max-height:none">${G.noticias.map(n=>`<div><span class="dim num">${n.ano}</span> ${esc(n.txt)}</div>`).join('')||'<div class="dim">Sem notícias.</div>'}</div></div>`;
@@ -12079,15 +12376,32 @@ function modalJogador(id){
       <tr><td>First kills · clutches</td><td class="r num">${st.fk} · ${st.cl}</td></tr>
       <tr><td>MVPs</td><td class="r num">${st.mvp}</td></tr></tbody></table>
     </div></div>
-  ${p.hist.length?`<div class="card flat"><div class="eyebrow">Carreira</div><table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">K/D</th><th class="r">MVPs</th></tr></thead>
-    <tbody>${p.hist.slice().reverse().map(h=>`<tr><td class="num">${h.ano}</td><td>${esc(h.time)}</td><td class="c num">${h.over}</td>
-    <td class="r num">${(h.k/Math.max(1,h.d)).toFixed(2)}</td><td class="r num">${h.mvp}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+}
+/* Carreira na ficha: totais, prêmios e a tabela ano a ano. Os totais vêm de
+   p.carreira, que soma desde o primeiro mapa; a tabela é p.hist. */
+function blocoCarreira(p){
+  const c=resumoCarreira(p);
+  const pr=(p.premios||[]).slice().reverse();
+  if(!c.maps&&!p.hist.length&&!pr.length)return '';
+  return `<div class="card flat"><div class="eyebrow">Carreira</div>
+    <div class="grid g4" style="margin:4px 0 10px">
+      ${[['Mapas',c.maps],['K/D',c.kd.toFixed(2)],['ACS médio',c.acs],['MVPs de mapa',c.mvp],
+         ['Títulos',c.titulos],['Internacionais',c.intl],['MVP de torneio',c.mvpTorneios],['Prêmios do ano',c.premios]]
+        .map(([k,v])=>`<div><div class="dim" style="font-size:11px">${k}</div><b class="num">${v}</b></div>`).join('')}
+    </div>
+    ${pr.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${pr.map(x=>
+      `<span class="pill">🏅 ${x.ano} · ${esc(x.rot)}</span>`).join('')}</div>`:''}
+    ${p.hist.length?`<table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">Mapas</th><th class="r">K/D</th><th class="r">MVPs</th></tr></thead>
+    <tbody>${p.hist.slice().reverse().map(h=>`<tr><td class="num">${h.ano}</td><td>${esc(h.time)}</td><td class="c num">${h.over}</td>
+    <td class="r num">${h.maps||0}</td><td class="r num">${(h.k/Math.max(1,h.d)).toFixed(2)}</td><td class="r num">${h.mvp}</td></tr>`).join('')}</tbody></table>`:''}
+  </div>`;
 }
 /* ---------- renovação ----------
    Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
@@ -12562,7 +12876,8 @@ function modalStaff(id){
         <tr><td>Salário</td><td class="r num">${money(m.salario)}/mês</td></tr>
         <tr><td>Pedido do clube</td><td class="r num">${m.timeId?money(pedidoStaff(m)):'livre'}</td></tr>
         <tr><td>Temporada</td><td class="r num">${m.temp.v}V-${m.temp.d}D · ${m.temp.titulos} título(s)</td></tr>
-        <tr><td>Carreira</td><td class="r num">${m.carreira.anos} ano(s) · ${m.carreira.titulos} título(s)</td></tr>
+        <tr><td>Carreira</td><td class="r num">${m.carreira.anos} ano(s) · ${m.carreira.titulos} título(s)${
+          (m.premios||[]).length?' · 🏅 treinador do ano '+m.premios.map(x=>x.ano).join(', '):''}</td></tr>
       </tbody></table>
       ${m.hist.length?`<div class="eyebrow" style="margin-top:12px">Histórico</div>
       <table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">V-D</th><th class="r">Tít.</th></tr></thead>
@@ -14291,6 +14606,7 @@ function ligarEventos(){
   const val=(sel,padrao)=>{const el=v.querySelector(sel);return el?el.value:(padrao===undefined?'':padrao);};
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
+  on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('#autoEsc',()=>{autoEscalar(t);render();});
   on('[data-banco]',el=>{
     if(t.titulares.length<=5&&t.elenco.length>5){

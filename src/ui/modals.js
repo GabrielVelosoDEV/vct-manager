@@ -102,15 +102,32 @@ function modalJogador(id){
       <tr><td>First kills · clutches</td><td class="r num">${st.fk} · ${st.cl}</td></tr>
       <tr><td>MVPs</td><td class="r num">${st.mvp}</td></tr></tbody></table>
     </div></div>
-  ${p.hist.length?`<div class="card flat"><div class="eyebrow">Carreira</div><table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">K/D</th><th class="r">MVPs</th></tr></thead>
-    <tbody>${p.hist.slice().reverse().map(h=>`<tr><td class="num">${h.ano}</td><td>${esc(h.time)}</td><td class="c num">${h.over}</td>
-    <td class="r num">${(h.k/Math.max(1,h.d)).toFixed(2)}</td><td class="r num">${h.mvp}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+}
+/* Carreira na ficha: totais, prêmios e a tabela ano a ano. Os totais vêm de
+   p.carreira, que soma desde o primeiro mapa; a tabela é p.hist. */
+function blocoCarreira(p){
+  const c=resumoCarreira(p);
+  const pr=(p.premios||[]).slice().reverse();
+  if(!c.maps&&!p.hist.length&&!pr.length)return '';
+  return `<div class="card flat"><div class="eyebrow">Carreira</div>
+    <div class="grid g4" style="margin:4px 0 10px">
+      ${[['Mapas',c.maps],['K/D',c.kd.toFixed(2)],['ACS médio',c.acs],['MVPs de mapa',c.mvp],
+         ['Títulos',c.titulos],['Internacionais',c.intl],['MVP de torneio',c.mvpTorneios],['Prêmios do ano',c.premios]]
+        .map(([k,v])=>`<div><div class="dim" style="font-size:11px">${k}</div><b class="num">${v}</b></div>`).join('')}
+    </div>
+    ${pr.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${pr.map(x=>
+      `<span class="pill">🏅 ${x.ano} · ${esc(x.rot)}</span>`).join('')}</div>`:''}
+    ${p.hist.length?`<table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">Mapas</th><th class="r">K/D</th><th class="r">MVPs</th></tr></thead>
+    <tbody>${p.hist.slice().reverse().map(h=>`<tr><td class="num">${h.ano}</td><td>${esc(h.time)}</td><td class="c num">${h.over}</td>
+    <td class="r num">${h.maps||0}</td><td class="r num">${(h.k/Math.max(1,h.d)).toFixed(2)}</td><td class="r num">${h.mvp}</td></tr>`).join('')}</tbody></table>`:''}
+  </div>`;
 }
 /* ---------- renovação ----------
    Mesmo desenho da proposta de compra: o pedido explicado linha a linha, a
@@ -585,7 +602,8 @@ function modalStaff(id){
         <tr><td>Salário</td><td class="r num">${money(m.salario)}/mês</td></tr>
         <tr><td>Pedido do clube</td><td class="r num">${m.timeId?money(pedidoStaff(m)):'livre'}</td></tr>
         <tr><td>Temporada</td><td class="r num">${m.temp.v}V-${m.temp.d}D · ${m.temp.titulos} título(s)</td></tr>
-        <tr><td>Carreira</td><td class="r num">${m.carreira.anos} ano(s) · ${m.carreira.titulos} título(s)</td></tr>
+        <tr><td>Carreira</td><td class="r num">${m.carreira.anos} ano(s) · ${m.carreira.titulos} título(s)${
+          (m.premios||[]).length?' · 🏅 treinador do ano '+m.premios.map(x=>x.ano).join(', '):''}</td></tr>
       </tbody></table>
       ${m.hist.length?`<div class="eyebrow" style="margin-top:12px">Histórico</div>
       <table><thead><tr><th>Ano</th><th>Clube</th><th class="c">Over</th><th class="r">V-D</th><th class="r">Tít.</th></tr></thead>

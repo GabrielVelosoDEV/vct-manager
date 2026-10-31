@@ -90,6 +90,9 @@ function fimDeTemporada(){
      contrato pelo meio — caía no mercado como agente livre. O dono perdia um
      titular de graça sem nunca ser avisado. Devolver antes de qualquer conta
      é o que faz o contrato de verdade dele voltar a valer. */
+  /* os prêmios leem os elencos como a temporada terminou: antes de o
+     empréstimo voltar e de alguém se aposentar */
+  if(typeof premiarTemporada==='function')premiarTemporada();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
@@ -97,10 +100,12 @@ function fimDeTemporada(){
   for(const id in G.jogadores){
     const p=G.jogadores[id];
     p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:'Sem clube',over:over(p),...p.temp});
+    if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.');
+      if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
