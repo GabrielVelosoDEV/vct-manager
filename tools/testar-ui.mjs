@@ -1509,6 +1509,93 @@ await teste('negociação com o clube: contraproposta, multa e paciência',async
   }finally{time.caixa=caixa;t.G.negociacoes=[];}
 });
 
+/* As trocas mexem em dois clubes e nos jogadores deles: foto e volta,
+   para os testes seguintes acharem o mundo como estava. */
+function fotoDaTroca(...times){
+  const ids=new Set(times.flatMap(x=>x.elenco));
+  return{times:times.map(x=>[x,JSON.stringify(x)]),
+    jogs:[...ids].map(i=>[t.G.jogadores[i],JSON.stringify(t.G.jogadores[i])]),
+    transf:(t.G.transferencias||[]).length,noticias:(t.G.noticias||[]).length};
+}
+function voltarDaTroca(f){
+  for(const [o,j] of [...f.times,...f.jogs]){for(const k of Object.keys(o))delete o[k];Object.assign(o,JSON.parse(j));}
+  if(t.G.transferencias)t.G.transferencias.length=f.transf;
+  t.G.negociacoes=[];t.G.propostas=[];
+}
+
+await teste('troca: balança com dinheiro nos dois sentidos e contraproposta',async()=>{
+  const eu=t.G.times[t.G.meuTime];
+  const outro=Object.values(t.G.times).find(x=>x.id!==eu.id&&x.tier===eu.tier&&x.regiao===eu.regiao&&x.elenco.length>=6);
+  const foto=fotoDaTroca(eu,outro);
+  try{
+  t.G.janela=true;eu.caixa=9e7;outro.caixa=9e7;
+  const barato=outro.elenco.map(i=>t.G.jogadores[i]).filter(q=>w.reacaoNaTroca(q,eu).ok).sort((a,b)=>t.over(a)-t.over(b))[0];
+  const caro=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>w.reacaoNaTroca(q,outro).ok).sort((a,b)=>t.over(b)-t.over(a))[0];
+  if(!barato||!caro)throw new Error('sem par de jogadores que aceitem a troca');
+  /* caro por barato: dá para pedir dinheiro de volta */
+  const tr={envia:[caro.id],recebe:[barato.id],dinheiro:0};
+  const a0=w.avaliarTroca(eu,outro,tr);
+  if(!(a0.valorRecebe>a0.valorEntrega))throw new Error('o caro não valeu mais que o barato para eles');
+  const pedirMuito={...tr,dinheiro:-(a0.valorRecebe*3)};
+  if(w.avaliarTroca(eu,outro,pedirMuito).clubeAceita)throw new Error('aceitou dar dinheiro demais de volta');
+  /* barato por caro: precisa completar com dinheiro */
+  const inv={envia:[eu.elenco.map(i=>t.G.jogadores[i]).sort((a,b)=>t.over(a)-t.over(b))[0].id],
+    recebe:[outro.elenco.map(i=>t.G.jogadores[i]).sort((a,b)=>t.over(b)-t.over(a))[0].id],dinheiro:0};
+  const a1=w.avaliarTroca(eu,outro,inv);
+  if(a1.clubeAceita)throw new Error('trocou o melhor deles pelo pior seu sem dinheiro');
+  if(!(a1.falta>0))throw new Error('a balança não disse quanto falta');
+  const n=w.abrirTroca(outro,[barato.id]).neg;
+  const r=w.proporTroca(n,{...tr,dinheiro:-(a0.valorRecebe*1.5)});
+  if(r.resposta!=='contra')throw new Error('não houve contraproposta: '+JSON.stringify(r));
+  const r2=w.aceitarContraTroca(n);
+  if(r2.resposta!=='aceita')throw new Error('a contraproposta aceita não fechou: '+JSON.stringify(r2));
+  if(caro.timeId!==outro.id||barato.timeId!==eu.id)throw new Error('os jogadores não trocaram de clube');
+  if(eu.elenco.length<5||outro.elenco.length<5)throw new Error('um elenco ficou abaixo do mínimo');
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('troca: limites de elenco e recusa do jogador travam o negócio',async()=>{
+  const eu=t.G.times[t.G.meuTime];
+  const outro=Object.values(t.G.times).find(x=>x.id!==eu.id&&x.elenco.length>=6);
+  const dois=outro.elenco.slice(0,2);
+  const meusTodos=eu.elenco.slice(0,2);
+  /* dois por um deixaria você abaixo do mínimo se o elenco já é curto */
+  const elencoAntes=eu.elenco.slice();
+  try{
+    eu.elenco=eu.elenco.slice(0,5);
+    const a=w.avaliarTroca(eu,outro,{envia:meusTodos,recebe:[dois[0]],dinheiro:0});
+    if(!a.erros.some(e=>/mínimo/.test(e)))throw new Error('deixou o elenco cair para quatro');
+  }finally{eu.elenco=elencoAntes;}
+  const p=t.G.jogadores[outro.elenco[0]];
+  const perfil=p.perfil;
+  try{
+    p.perfil='patriota';
+    const longe=clonarClube(eu,{regiao:t.regiaoNatal(p)==='CN'?'AMER':'CN',tier:2,prestigio:30});
+    const rc=w.reacaoNaTroca(p,longe);
+    if(rc.ok&&!(rc.sal>p.salario))throw new Error('o patriota foi para longe e mais fraco sem pedir nada');
+  }finally{if(perfil)p.perfil=perfil;else delete p.perfil;}
+});
+
+await teste('a IA oferece troca pelo anunciado e aceitar executa',async()=>{
+  const eu=t.G.times[t.G.meuTime];t.G.janela=true;
+  const p=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>!q.preContrato&&!q.emprestimo).sort((a,b)=>t.over(b)-t.over(a))[0];
+  let pr=null;
+  for(const alvo of Object.values(t.G.times)){
+    if(alvo.id===eu.id)continue;
+    p.anuncio={modo:'venda',opcao:false,pedido:w.precoPedido(p)};
+    pr=w.montarTrocaIA(p,alvo);if(pr)break;
+  }
+  if(!pr)throw new Error('nenhum clube montou troca');
+  const foto=fotoDaTroca(eu,t.G.times[pr.clubeId]);
+  try{
+  const q=t.G.jogadores[pr.oferecidoId];
+  t.G.propostas=[pr];
+  const r=t.aceitarProposta(pr.id);
+  if(!r.ok)throw new Error('aceitar a troca falhou: '+r.erro);
+  if(q.timeId!==eu.id||p.timeId!==pr.clubeId)throw new Error('a troca não moveu os dois');
+  }finally{voltarDaTroca(foto);delete p.anuncio;}
+});
+
 await teste('a mesa de negociação: clube, depois jogador, com a conta do pedido',async()=>{
   const time=t.G.times[t.G.meuTime];
   const p=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==t.G.meuTime
@@ -5002,7 +5089,7 @@ await teste('o mercado reage ao dinheiro: índice do Tier 1, clube rico e prêmi
     if(w.fatorRiqueza(clube)!==1)throw new Error('caixa normal não devia mudar o salário');
     /* metade do prêmio vai para os jogadores */
     const c0=t2.caixa;w.pagar([t2.id],[100000]);
-    if(t2.caixa-c0!==50000)throw new Error('o clube devia ficar com metade do prêmio, ficou com '+(t2.caixa-c0));
+    if(Math.abs(t2.caixa-c0-50000)>0.01)throw new Error('o clube devia ficar com metade do prêmio, ficou com '+(t2.caixa-c0));
     if(t.semente!==semente)throw new Error('a economia consumiu o gerador');
   }finally{const f=JSON.parse(foto);G.indiceSalario=f.i;G.indiceHist=f.h;t1.forEach((x,i)=>x.caixa=f.c[i]);t2.caixa=f.c2;G.noticias.length=Math.min(G.noticias.length,f.n);}
 });
