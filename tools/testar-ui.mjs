@@ -169,6 +169,10 @@ w.eval(`window.__t={
   get tempoDaComissao(){return tempoDaComissao;}, get aplicarClassico(){return aplicarClassico;},
   get premiarTemporada(){return premiarTemporada;}, get talvezHallDaFama(){return talvezHallDaFama;},
   get podarHistorico(){return podarHistorico;}, get HIST_DETALHE(){return HIST_DETALHE;},
+  get iniciarBase(){return iniciarBase;}, get virarBase(){return virarBase;}, get baseDe(){return baseDe;},
+  get crescerNaBase(){return crescerNaBase;}, get vagasDaBase(){return vagasDaBase;},
+  get BASE_IDADE_SAI(){return BASE_IDADE_SAI;}, get metasDoMeio(){return metasDoMeio;},
+  get custeioSemanal(){return custeioSemanal;},
   get partidaConduzida(){return partidaConduzida;}, get AV(){return AV;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
   get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
@@ -4520,6 +4524,126 @@ await teste('a ficha mostra a carreira somada e a temporada antiga é resumida',
     if(!/Internacionais/.test(txt)||!txt.includes('1.20'))throw new Error('a ficha não mostra o total de carreira');
     $('#modal').innerHTML='';
   }finally{t.G.jogadores[p.id]=JSON.parse(foto);}
+});
+
+/* Foto do que a categoria de base mexe, para cada teste voltar ao estado
+   em que achou o mundo. */
+function fotoDaBase(time){
+  return{base:time.base?time.base.slice():undefined,foco:time.baseFoco,elenco:time.elenco.slice(),
+    titulares:time.titulares.slice(),igl:time.igl,livres:t.G.livres.slice(),n:t.G.noticias.slice(),
+    ids:new Set(Object.keys(t.G.jogadores)),
+    jog:JSON.stringify(Object.fromEntries((time.base||[]).map(id=>[id,t.G.jogadores[id]])))};
+}
+function voltarBase(time,f){
+  for(const id of Object.keys(t.G.jogadores))if(!f.ids.has(id))delete t.G.jogadores[id];
+  Object.assign(t.G.jogadores,JSON.parse(f.jog));
+  if(f.base===undefined)delete time.base;else time.base=f.base;
+  time.baseFoco=f.foco;time.elenco=f.elenco;time.titulares=f.titulares;time.igl=f.igl;
+  t.G.livres=f.livres;t.G.noticias=f.n;
+}
+function baseNova(time){
+  delete time.base;
+  while(time.elenco.length>8){const id=time.elenco.find(x=>!time.titulares.includes(x));if(!id)break;
+    time.elenco=time.elenco.filter(x=>x!==id);t.G.livres.push(id);t.G.jogadores[id].timeId=null;}
+  t.iniciarBase(time);
+}
+
+await teste('a categoria de base aparece na tela, promove e dispensa sem sortear',async()=>{
+  const time=meuTimeDeTeste();
+  const f=fotoDaBase(time);
+  try{
+    baseNova(time);
+    const base=t.baseDe(time);
+    if(base.length<2)throw new Error('o clube começou com '+base.length+' garoto(s) na base');
+    for(const p of base){
+      if(p.timeId||time.elenco.includes(p.id)||t.G.livres.includes(p.id))throw new Error(p.nome+' da base está no elenco ou no mercado');
+      if(p.idade>16||p.daCasa!==time.id)throw new Error(p.nome+' entrou na base fora do desenho');
+    }
+    t.tela='base';w.render();
+    if(!$('#view').textContent.includes(base[0].nome))throw new Error('a tela Base não mostra a categoria');
+    const semente=t.semente;
+    /* foco do olheiro */
+    clicar($('[data-basefoco="Sentinela"]'));
+    if(time.baseFoco!=='Sentinela')throw new Error('o foco do olheiro não foi gravado');
+    /* promover */
+    const [a,b]=t.baseDe(time);
+    clicar($(`[data-bpromo="${a.id}"]`));await espera(10);
+    if(!time.elenco.includes(a.id)||a.timeId!==time.id||a.base)throw new Error('promover não levou ao elenco');
+    if(!(a.contrato>0)||!(a.salario>0))throw new Error('o promovido ficou sem contrato');
+    if(time.base.includes(a.id))throw new Error('o promovido continuou na base');
+    /* dispensar, com o diálogo do jogo */
+    clicar($(`[data-bdisp="${b.id}"]`));await responder(true);
+    if(!t.G.livres.includes(b.id)||b.base||time.base.includes(b.id))throw new Error('dispensar não mandou ao mercado');
+    if(t.semente!==semente)throw new Error('mexer na base consumiu o gerador do motor');
+    /* quem saiu da base aparece nos revelados pela casa */
+    w.render();
+    if(!/Revelados pela casa/.test($('#view').textContent)||!$('#view').textContent.includes(a.nome))
+      throw new Error('o promovido não aparece nos revelados pela casa');
+  }finally{voltarBase(time,f);t.tela='inicio';w.render();}
+});
+
+await teste('na virada, quem faz 20 sai da base e a academia revela na função do foco',async()=>{
+  const time=meuTimeDeTeste();
+  const f=fotoDaBase(time);
+  try{
+    baseNova(time);
+    const velho=t.baseDe(time)[0];
+    velho.idade=t.BASE_IDADE_SAI;
+    time.baseFoco='Controlador';
+    const usados=new Set(Object.values(t.G.jogadores).map(p=>p.nome));
+    const antes=new Set(time.base);
+    t.virarBase(usados);
+    if(time.base.includes(velho.id)||!t.G.livres.includes(velho.id))throw new Error('quem fez 20 continuou na base');
+    const novos=time.base.filter(id=>!antes.has(id));
+    if(!novos.length)throw new Error('a academia não revelou ninguém');
+    if(novos.some(id=>t.G.jogadores[id].role!=='Controlador'))throw new Error('a revelação ignorou o foco do olheiro');
+    if(time.base.length>t.vagasDaBase(time))throw new Error('a base passou do número de vagas');
+    /* com a base cheia, ninguém entra */
+    while(time.base.length<t.vagasDaBase(time))t.virarBase(usados);
+    const cheia=time.base.length;
+    t.virarBase(usados);
+    if(time.base.length!==cheia)throw new Error('revelou com a base cheia');
+  }finally{voltarBase(time,f);}
+});
+
+await teste('o garoto da base cresce com o tempo, custa e não está à venda',async()=>{
+  const time=meuTimeDeTeste();
+  const f=fotoDaBase(time);
+  try{
+    baseNova(time);
+    const p=t.baseDe(time)[0];
+    const ov=t.over(p);
+    const semente=t.semente;
+    for(let i=0;i<52;i++)t.crescerNaBase(p,time);
+    if(t.semente!==semente)throw new Error('crescer na base sorteou');
+    const ganho=t.over(p)-ov;
+    if(ganho<3||ganho>10)throw new Error('cresceu '+ganho+' pontos em um ano (esperado de 3 a 10)');
+    /* custo no custeio */
+    const comBase=t.custeioSemanal(time);
+    const guarda=time.base;time.base=[];
+    const semBase=t.custeioSemanal(time);time.base=guarda;
+    if(!(comBase>semBase))throw new Error('a base não custa nada');
+    /* fora do mercado */
+    const outro=Object.values(t.G.times).find(x=>x.id!==time.id&&x.elenco.length<9);
+    if(!t.recusasDuras(p,outro,2).some(m=>/base/.test(m)))throw new Error('outro clube conseguiu contratar o garoto da base');
+    t.tela='mercado';t.mercAba='jogadores';w.render();
+    if($(`#view [data-p="${p.id}"]`))throw new Error('o garoto da base aparece no mercado');
+  }finally{voltarBase(time,f);t.tela='inicio';w.render();}
+});
+
+await teste('a meta de promessa da diretoria prefere o garoto da casa',async()=>{
+  const time=meuTimeDeTeste();
+  const bancos=time.elenco.filter(id=>!time.titulares.includes(id)).map(id=>t.G.jogadores[id]);
+  if(bancos.length<2)return;
+  const [x,y]=bancos;
+  const foto=JSON.stringify([x,y]);
+  try{
+    x.idade=19;x.pot=95;delete x.daCasa;
+    y.idade=19;y.pot=86;y.daCasa=time.id;
+    const metas=t.metasDoMeio(time,4);
+    const m=metas.find(q=>q.tipo==='promessa');
+    if(!m||m.jogador!==y.id)throw new Error('a meta não escolheu o garoto da casa');
+  }finally{const [a,b]=JSON.parse(foto);t.G.jogadores[a.id]=a;t.G.jogadores[b.id]=b;}
 });
 
 const larg=Math.max(...passos.map(p=>p[1].length));

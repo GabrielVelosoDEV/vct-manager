@@ -42,6 +42,9 @@ function edMover(pid,destinoId){
     edRemendarEscalacao(origem);
   }
   G.livres=G.livres.filter(x=>x!==pid);
+  /* garoto da categoria de base sai dela ao ser movido ou apagado */
+  if(p.base&&G.times[p.base]){G.times[p.base].base=(G.times[p.base].base||[]).filter(x=>x!==pid);}
+  delete p.base;
   if(destino){
     p.timeId=destino.id;
     if(!p.contrato)p.contrato=ri(2,3);
@@ -68,6 +71,9 @@ function edApagar(pid){
     edRemendarEscalacao(t);
   }
   G.livres=G.livres.filter(x=>x!==pid);
+  /* garoto da categoria de base sai dela ao ser movido ou apagado */
+  if(p.base&&G.times[p.base]){G.times[p.base].base=(G.times[p.base].base||[]).filter(x=>x!==pid);}
+  delete p.base;
   /* Tudo o que aponta para ele sai junto — proposta, plano de treino, crachá
      de IGL. A limpeza é a mesma da aposentadoria, e mora em clock.js. */
   if(typeof esquecerJogador==='function')esquecerJogador(pid);
@@ -239,8 +245,10 @@ function edValidar(){
       erros.push('Jogador '+p.nome+' aponta para um clube que não existe.');
     if(p.timeId&&!G.times[p.timeId].elenco.includes(id))
       erros.push('Jogador '+p.nome+' diz ser do '+G.times[p.timeId].tag+', mas não está no elenco.');
-    if(!p.timeId&&!G.livres.includes(id))
+    if(!p.timeId&&!p.base&&!G.livres.includes(id))
       erros.push('Jogador '+p.nome+' está sem clube e fora da lista de agentes livres.');
+    if(p.base&&!(G.times[p.base]&&(G.times[p.base].base||[]).includes(id)))
+      erros.push('Jogador '+p.nome+' diz ser da base de um clube que não o tem na categoria.');
     if(p.pot<over(p))avisos.push(p.nome+' tem potencial abaixo do over atual.');
   }
   for(const n in nomes)if(nomes[n]>1)

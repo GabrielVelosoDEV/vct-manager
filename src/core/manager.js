@@ -100,7 +100,8 @@ function metasDoMeio(t,alvo){
     texto:'Chegar à janela do meio do ano entre os '+parcial+' primeiros da liga'}];
   const promessa=(t.elenco||[]).map(id=>G.jogadores[id])
     .filter(p=>p&&p.idade<=21&&p.pot>=84&&!(t.titulares||[]).includes(p.id))
-    .sort((a,b)=>b.pot-a.pot)[0];
+    /* a diretoria cobra primeiro o garoto que saiu da própria base */
+    .sort((a,b)=>((b.daCasa===t.id)-(a.daCasa===t.id))||b.pot-a.pot)[0];
   if(promessa)out.push({id:'promessa',tipo:'promessa',momento:'meio',jogador:promessa.id,
     alvo:MAPAS_PROMESSA,peso:0,cumprida:null,
     texto:'Dar minutos a '+promessa.nome+': '+MAPAS_PROMESSA+' mapas até o meio do ano'});
@@ -240,6 +241,7 @@ function assumirClube(id){
   G.meuTime=id;
   const m=G.manager;
   m.demitido=false;m.desde=G.ano;m.confianca=58;
+  if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.');
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};

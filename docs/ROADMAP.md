@@ -93,6 +93,11 @@
   ficam resumidas no save
 - **Hall da Fama**: quem se aposenta com prêmios, títulos internacionais e
   carreira longa fica guardado com o resumo, em vez de sumir do save
+- **Categoria de base** (`src/core/academia.js`): o seu clube tem de três a
+  sete garotos de 15 a 19 anos fora do elenco, que crescem com a academia e o
+  head coach; promover, dispensar e escolher a função que o olheiro procura;
+  quem faz 20 sem subir vai para o mercado; lista de revelados pela casa. Os
+  clubes da IA ficam com a versão resumida
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

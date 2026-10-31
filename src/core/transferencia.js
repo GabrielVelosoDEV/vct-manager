@@ -145,6 +145,7 @@ function recusasDuras(p,destino,anos){
   if(destino.elenco.length>=9)fora.push('Elenco cheio (máximo 9). Libere alguém antes.');
   if(anos<1||anos>4)fora.push('Duração de contrato inaceitável.');
   if(origem&&origem.id===destino.id)fora.push('O jogador já é do clube.');
+  if(p.base)fora.push(p.nome+' é da categoria de base de '+((G.times[p.base]||{}).nome||'outro clube')+' e não está à venda.');
   /* Um titular de elite não desce de divisão por dinheiro nenhum enquanto
      ainda está no auge. É a única barreira de ambição pura do modelo. */
   if(origem&&origem.tier===1&&destino.tier===2&&over(p)>=88&&p.idade<=27)
@@ -300,6 +301,7 @@ function mercadoTransferencias(){
          Seu elenco fica de fora: a IA não tira jogador seu pelas suas costas. */
       const cand=Object.values(G.jogadores).filter(p=>{
         if(p.timeId===G.meuTime)return false;
+        if(p.base)return false;                   /* garoto de base não é mercado */
         if(p.lesao)return false;
         if(p.timeId&&p.contrato>2)return false;   /* contrato longo não sai */
         return true;

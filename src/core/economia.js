@@ -315,7 +315,8 @@ function receitaAnual(t){
 function custeioSemanal(t){
   const e=t.estrutura||{gh:1,treino:1,academia:1};
   const scrim=(t.tatica&&t.tatica.scrim)||3;
-  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6);
+  const base=(typeof custoDaBase==='function')?custoDaBase(t):0;
+  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6)+base;
 }
 function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */

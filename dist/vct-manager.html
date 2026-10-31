@@ -2821,6 +2821,13 @@ function padronizarBase(opts){
       atualizarComissao(t);
     }
     t.patroc=patrocinioDe(t);
+    /* garotos da categoria de base só acompanham o catálogo de agentes */
+    for(const p of (t.base||[]).map(pid=>G.jogadores[pid]).filter(Boolean)){
+      const ag=sortearAgentes(p.role);
+      const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
+      p.agentes=ag;
+      if(trocou&&typeof semearAgentes==='function')semearAgentes(p);
+    }
   }
 
   /* ---- sem clube: acompanham a régua, senão o mercado fica inútil ---- */
@@ -3282,7 +3289,8 @@ function receitaAnual(t){
 function custeioSemanal(t){
   const e=t.estrutura||{gh:1,treino:1,academia:1};
   const scrim=(t.tatica&&t.tatica.scrim)||3;
-  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6);
+  const base=(typeof custoDaBase==='function')?custoDaBase(t):0;
+  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6)+base;
 }
 function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */
@@ -6879,6 +6887,7 @@ function semana(){
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
+    if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }
   G.livres.forEach(pid=>{const p=G.jogadores[pid];p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
@@ -7288,6 +7297,7 @@ function recusasDuras(p,destino,anos){
   if(destino.elenco.length>=9)fora.push('Elenco cheio (máximo 9). Libere alguém antes.');
   if(anos<1||anos>4)fora.push('Duração de contrato inaceitável.');
   if(origem&&origem.id===destino.id)fora.push('O jogador já é do clube.');
+  if(p.base)fora.push(p.nome+' é da categoria de base de '+((G.times[p.base]||{}).nome||'outro clube')+' e não está à venda.');
   /* Um titular de elite não desce de divisão por dinheiro nenhum enquanto
      ainda está no auge. É a única barreira de ambição pura do modelo. */
   if(origem&&origem.tier===1&&destino.tier===2&&over(p)>=88&&p.idade<=27)
@@ -7443,6 +7453,7 @@ function mercadoTransferencias(){
          Seu elenco fica de fora: a IA não tira jogador seu pelas suas costas. */
       const cand=Object.values(G.jogadores).filter(p=>{
         if(p.timeId===G.meuTime)return false;
+        if(p.base)return false;                   /* garoto de base não é mercado */
         if(p.lesao)return false;
         if(p.timeId&&p.contrato>2)return false;   /* contrato longo não sai */
         return true;
@@ -8239,6 +8250,151 @@ function podarHistorico(p){
 }
 
 
+/* ===== src/core/academia.js ===== */
+/* ============================================================
+   CATEGORIA DE BASE
+   ------------------------------------------------------------
+   A academia era uma chance por temporada de aparecer alguém
+   pronto no elenco, e uma lista. Agora o seu clube tem garotos
+   de verdade, fora do elenco principal, que crescem conforme a
+   academia e o head coach, e cada um pede uma decisão: promover
+   para o elenco ou dispensar. Quem chega aos 20 sem ser
+   promovido sai para o mercado.
+
+   A categoria existe para o clube que você comanda. Os clubes da
+   IA continuam com a versão resumida (uma chance de revelar
+   quando falta gente, em offseason.js): dar base de verdade a 80
+   clubes punha 300 garotos a mais no save e na simulação sem
+   ninguém olhando para eles.
+
+   Sorteio só na revelação, que é parte da virada do ano. O resto
+   (crescer, promover, dispensar, mudar o foco) não toca o
+   gerador do motor.
+   ============================================================ */
+
+const BASE_IDADE_SAI=20;
+/* Custo semanal de cada garoto, somado ao custeio do clube. */
+const BASE_CUSTO_SEMANA=200;
+const BASE_INICIAL=2;
+
+function vagasDaBase(t){return 2+((t.estrutura&&t.estrutura.academia)||1);}
+function baseDe(t){return ((t&&t.base)||[]).map(id=>G.jogadores[id]).filter(Boolean);}
+function custoDaBase(t){return ((t&&t.base)||[]).length*BASE_CUSTO_SEMANA;}
+
+/* Um garoto novo na categoria. O olheiro procura a função do foco, se
+   houver; a academia e o olheiro mexem no nível e no teto. */
+function revelarUm(t,usados){
+  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
+  const olh=(t.staff&&t.staff.olheiro)||neutro;
+  const acad=(t.estrutura&&t.estrutura.academia)||1;
+  const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
+  /* Garoto de 15 ou 16 anos: na régua do agente livre gerado (60), um pouco
+     acima com academia e olheiro bons. É projeto de três ou quatro anos. */
+  const alvo=clamp(Math.round(gauss(52+acad*2+(olh-neutro)*2+(t.tier===1?2:0),4)),45,70);
+  const role=t.baseFoco||pick(ROLES);
+  const p=makePlayer(alvo,role,pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
+  aplicarOver(p,alvo);
+  p.pot=clamp(Math.round(over(p)+ri(14,28)+acad+(olh-neutro)),over(p)+10,96);
+  p.timeId=null;p.contrato=0;p.salario=0;
+  p.base=t.id;p.daCasa=t.id;p.baseDesde=G.ano;
+  G.jogadores[p.id]=p;
+  (t.base=t.base||[]).push(p.id);
+  return p;
+}
+function usadosNomes(){return new Set(Object.values(G.jogadores).map(p=>p.nome));}
+
+/* Primeira leva, quando você assume o clube. */
+function iniciarBase(t){
+  if(!t||t.base)return;
+  t.base=[];
+  const usados=usadosNomes();
+  for(let i=0;i<BASE_INICIAL;i++)revelarUm(t,usados);
+}
+
+/* Virada do ano, depois do aniversário: quem fez 20 sai, e a academia revela
+   a turma nova. */
+function virarBase(usados){
+  for(const id in G.times){
+    const t=G.times[id];
+    if(!t.base||!t.base.length)continue;
+    for(const p of baseDe(t)){
+      if(p.idade<BASE_IDADE_SAI)continue;
+      sairDaBase(t,p);G.livres.push(p.id);
+      if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.');
+    }
+  }
+  const t=G.meuTime&&G.times[G.meuTime];
+  if(!t)return 0;
+  if(!t.base)t.base=[];
+  const vagas=vagasDaBase(t)-baseDe(t).length;
+  if(vagas<=0)return 0;
+  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
+  const olh=(t.staff&&t.staff.olheiro)||neutro;
+  const acad=(t.estrutura&&t.estrutura.academia)||1;
+  const n=Math.min(vagas,1+(rnd()<acad*0.15+(olh-neutro)*0.05?1:0));
+  const novos=[];
+  for(let i=0;i<n;i++)novos.push(revelarUm(t,usados));
+  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.');
+  return n;
+}
+
+function sairDaBase(t,p){
+  t.base=(t.base||[]).filter(x=>x!==p.id);
+  delete p.base;
+}
+
+/* Cresce toda semana, sem jogar: academia e head coach no lugar dos minutos.
+   O progresso acumula em fração e vira ponto de over quando passa de 1. */
+function crescerNaBase(p,t){
+  const o=over(p),gap=p.pot-o;
+  if(gap<=0)return;
+  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
+  const acad=(t.estrutura&&t.estrutura.academia)||1;
+  const tec=(t.staff&&t.staff.tecnico)||neutro;
+  /* calibrado para uns 6 pontos por ano com academia 3 e 25 de folga até o
+     potencial: o garoto de 60 chega perto de 80 aos 19 */
+  const taxa=p.idade<=17?0.006:0.0045;
+  p.baseProg=(p.baseProg||0)+gap*taxa*(0.5+acad*0.1+(tec-neutro)*0.05);
+  if(p.baseProg>=1){
+    const sobe=Math.floor(p.baseProg);
+    p.baseProg-=sobe;
+    aplicarOver(p,Math.min(p.pot,o+sobe));
+    p.salario=0;
+  }
+}
+
+function promoverDaBase(t,id){
+  const p=G.jogadores[id];
+  if(!p||p.base!==t.id)return{ok:false,msg:'Esse jogador não está na sua base.'};
+  if(t.elenco.length>=9)return{ok:false,msg:'O elenco já tem nove jogadores. Libere uma vaga antes de promover.'};
+  sairDaBase(t,p);
+  p.timeId=t.id;t.elenco.push(p.id);
+  p.contrato=3;p.salario=salario(p);p.valor=valor(p);
+  p.moral=clamp(p.moral+0.08,0.05,1);
+  noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').');
+  return{ok:true,msg:p.nome+' agora é do elenco principal, com contrato de 3 anos.'};
+}
+
+function dispensarDaBase(t,id){
+  const p=G.jogadores[id];
+  if(!p||p.base!==t.id)return{ok:false,msg:'Esse jogador não está na sua base.'};
+  sairDaBase(t,p);
+  p.contrato=0;G.livres.push(p.id);
+  noticia(p.nome+' foi dispensado da base de '+t.nome+'.');
+  return{ok:true,msg:p.nome+' foi dispensado e está no mercado.'};
+}
+
+function definirFocoBase(t,role){
+  t.baseFoco=role&&ROLES.includes(role)?role:null;
+}
+
+/* Quem saiu da sua base e onde está hoje. */
+function reveladosPelaCasa(t){
+  return Object.values(G.jogadores).filter(p=>p.daCasa===t.id&&p.base!==t.id)
+    .sort((a,b)=>over(b)-over(a));
+}
+
+
 /* ===== src/core/vlr.js ===== */
 /* ============================================================
    PARSER DA PÁGINA DE TIME DO VLR.GG
@@ -8653,7 +8809,8 @@ function metasDoMeio(t,alvo){
     texto:'Chegar à janela do meio do ano entre os '+parcial+' primeiros da liga'}];
   const promessa=(t.elenco||[]).map(id=>G.jogadores[id])
     .filter(p=>p&&p.idade<=21&&p.pot>=84&&!(t.titulares||[]).includes(p.id))
-    .sort((a,b)=>b.pot-a.pot)[0];
+    /* a diretoria cobra primeiro o garoto que saiu da própria base */
+    .sort((a,b)=>((b.daCasa===t.id)-(a.daCasa===t.id))||b.pot-a.pot)[0];
   if(promessa)out.push({id:'promessa',tipo:'promessa',momento:'meio',jogador:promessa.id,
     alvo:MAPAS_PROMESSA,peso:0,cumprida:null,
     texto:'Dar minutos a '+promessa.nome+': '+MAPAS_PROMESSA+' mapas até o meio do ano'});
@@ -8793,6 +8950,7 @@ function assumirClube(id){
   G.meuTime=id;
   const m=G.manager;
   m.demitido=false;m.desde=G.ano;m.confianca=58;
+  if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.');
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
@@ -8929,7 +9087,7 @@ function fimDeTemporada(){
   // aposentadorias e contratos
   for(const id in G.jogadores){
     const p=G.jogadores[id];
-    p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:'Sem clube',over:over(p),...p.temp});
+    p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:p.base&&G.times[p.base]?'Base · '+G.times[p.base].nome:'Sem clube',over:over(p),...p.temp});
     if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
@@ -8949,6 +9107,9 @@ function fimDeTemporada(){
     p.fadiga=0;p.forma=clamp(gauss(.6,.12),.3,.9);
     p.valor=valor(p);
   }
+  /* categoria de base do seu clube: sai quem fez 20, entra a turma nova. Não
+     conta como promessa: garoto de base não é oferta de mercado */
+  if(typeof virarBase==='function')virarBase(usados);
   // promessas da base
   let promessas=0;
   for(const tid in G.times){
@@ -8974,7 +9135,7 @@ function fimDeTemporada(){
                      FAIXAS.jogador[2][0]-14,piso+2);
     const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
     p.pot=clamp(over(p)+ri(10,28)+t.estrutura.academia*2,over(p)+8,99);
-    p.salario=salario(p);p.contrato=3;
+    p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
       if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').');}
@@ -9749,6 +9910,9 @@ function edMover(pid,destinoId){
     edRemendarEscalacao(origem);
   }
   G.livres=G.livres.filter(x=>x!==pid);
+  /* garoto da categoria de base sai dela ao ser movido ou apagado */
+  if(p.base&&G.times[p.base]){G.times[p.base].base=(G.times[p.base].base||[]).filter(x=>x!==pid);}
+  delete p.base;
   if(destino){
     p.timeId=destino.id;
     if(!p.contrato)p.contrato=ri(2,3);
@@ -9775,6 +9939,9 @@ function edApagar(pid){
     edRemendarEscalacao(t);
   }
   G.livres=G.livres.filter(x=>x!==pid);
+  /* garoto da categoria de base sai dela ao ser movido ou apagado */
+  if(p.base&&G.times[p.base]){G.times[p.base].base=(G.times[p.base].base||[]).filter(x=>x!==pid);}
+  delete p.base;
   /* Tudo o que aponta para ele sai junto — proposta, plano de treino, crachá
      de IGL. A limpeza é a mesma da aposentadoria, e mora em clock.js. */
   if(typeof esquecerJogador==='function')esquecerJogador(pid);
@@ -9946,8 +10113,10 @@ function edValidar(){
       erros.push('Jogador '+p.nome+' aponta para um clube que não existe.');
     if(p.timeId&&!G.times[p.timeId].elenco.includes(id))
       erros.push('Jogador '+p.nome+' diz ser do '+G.times[p.timeId].tag+', mas não está no elenco.');
-    if(!p.timeId&&!G.livres.includes(id))
+    if(!p.timeId&&!p.base&&!G.livres.includes(id))
       erros.push('Jogador '+p.nome+' está sem clube e fora da lista de agentes livres.');
+    if(p.base&&!(G.times[p.base]&&(G.times[p.base].base||[]).includes(id)))
+      erros.push('Jogador '+p.nome+' diz ser da base de um clube que não o tem na categoria.');
     if(p.pot<over(p))avisos.push(p.nome+' tem potencial abaixo do over atual.');
   }
   for(const n in nomes)if(nomes[n]>1)
@@ -12000,7 +12169,7 @@ function vMercadoStaff(t){
     </tr>`).join('')}</tbody></table></div>`;
 }
 function vMercadoJogadores(t){
-  let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id);
+  let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
   if(mFiltro.so==='promessas')lista=lista.filter(p=>p.idade<=21&&p.pot-over(p)>=8);
   if(mFiltro.role)lista=lista.filter(p=>p.role===mFiltro.role);
@@ -12030,12 +12199,41 @@ function vMercadoJogadores(t){
 function vBase(){
   const t=meu();
   const jovens=t.elenco.map(P).filter(p=>p.idade<=22).sort((a,b)=>b.pot-a.pot);
-  const prom=Object.values(G.jogadores).filter(p=>p.idade<=19&&p.pot>=82).sort((a,b)=>b.pot-a.pot).slice(0,15);
+  const prom=Object.values(G.jogadores).filter(p=>p.idade<=19&&p.pot>=82&&!p.base).sort((a,b)=>b.pot-a.pot).slice(0,15);
+  const base=baseDe(t).sort((a,b)=>b.pot-a.pot);
+  const vagas=vagasDaBase(t);
+  const casa=reveladosPelaCasa(t).slice(0,20);
+  const cheio=t.elenco.length>=9;
   return `<div class="eyebrow">Desenvolvimento</div><h2 class="sec">Base e promessas</h2>
   <div class="card"><div class="eyebrow">Academia nível ${t.estrutura.academia}</div>
-    <p class="dim">Chance de revelar uma promessa por temporada: ${(t.estrutura.academia*16)}%. Quanto maior o nível, maior o teto do talento revelado.</p></div>
+    <p class="dim">${base.length} de ${vagas} vagas na categoria. Cada nível de academia abre uma vaga, revela garotos
+    melhores e acelera o crescimento; o head coach também conta. Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana.
+    Na virada do ano a academia revela a turma nova, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+      <span class="dim">O olheiro procura:</span>
+      ${[['','Qualquer função'],...ROLES.filter(r=>r!=='Flex').map(r=>[r,r])].map(([k,n])=>
+        `<button class="btn sm ${(t.baseFoco||'')===k?'':'ghost'}" data-basefoco="${k}">${n}</button>`).join('')}
+    </div></div>
+  <div class="card flat"><div class="eyebrow">Categoria de base</div>
+    ${base.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th>
+      <th class="c">Pot</th><th class="c">Na base desde</th><th class="r"></th></tr></thead>
+    <tbody>${base.map(p=>`<tr><td><b class="jrow" data-p="${p.id}" style="cursor:pointer">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      ${p.idade>=BASE_IDADE_SAI-1?' <span class="chip">último ano</span>':''}</td>
+      <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
+      <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
+      <td class="c num">${p.baseDesde||'—'}</td>
+      <td class="r" style="white-space:nowrap"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
+        <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
+    :'<div class="empty">Nenhum garoto na categoria agora. A academia revela a próxima turma na virada do ano.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
     ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
+  <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
+    ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
+    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+      <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
+      <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
+      <td class="c">${ovTag(p)}</td><td class="c num">${p.pot}</td></tr>`).join('')}</tbody></table>`
+    :'<div class="empty">Ninguém saiu da sua base ainda.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Radar mundial de talentos (sub-19)</div>
     <table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th></tr></thead>
     <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
@@ -12329,7 +12527,7 @@ function modalJogador(id){
     <b class="num" style="width:26px;text-align:right">${Math.round(p.at[k])}</b></div>`;
   const st=p.temp;
   return abrir(`<div class="split"><div class="linha-t" style="align-items:flex-start;gap:14px">${retrato(p,72)}<div>
-    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):'Agente livre'}</div>
+    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
     <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
     <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
@@ -12379,7 +12577,7 @@ function modalJogador(id){
   ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId!==t.id&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
@@ -14607,6 +14805,18 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
+  on('[data-bpromo]',async el=>{
+    const r=promoverDaBase(t,el.dataset.bpromo);
+    if(!r.ok){await avisar(r.msg);return;}
+    flash(r.msg);render();
+  });
+  on('[data-bdisp]',async el=>{
+    const p=P(el.dataset.bdisp);if(!p)return;
+    if(!await confirmar('Dispensar '+p.nome+' da base? Ele vai para o mercado e qualquer clube pode contratar.','Dispensar'))return;
+    const r=dispensarDaBase(t,p.id);
+    if(r.ok)flash(r.msg);render();
+  });
   on('#autoEsc',()=>{autoEscalar(t);render();});
   on('[data-banco]',el=>{
     if(t.titulares.length<=5&&t.elenco.length>5){
@@ -15167,6 +15377,7 @@ function telaNovoJogo(){
     G.meuTime=b.dataset.pick;
     G.iniciadaEm=Date.now();
     criarManager(escNome,escPapel);
+    iniciarBase(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
