@@ -167,6 +167,10 @@ function vElenco(){
       <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim num">${p.idade}a · pot ${p.pot}</span></span>
       ${ovTag(p)} <button class="btn ghost sm" data-tit="${p.id}">Escalar</button></div>`).join(''):'<div class="empty">Sem reservas.</div>'}</div>
   </div>
+  <div class="card flat"><div class="split"><div class="eyebrow">Cartas do elenco</div>
+    <span class="dim">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</span></div>
+    <div class="cartas-grade">${[...tit,...res].map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
+      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot}</span></div>`).join('')}</div></div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
     <table><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;

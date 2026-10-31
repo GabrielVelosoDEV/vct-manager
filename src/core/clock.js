@@ -180,6 +180,7 @@ function semana(){
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
+    if(typeof conferirCartas==='function')conferirCartas(t);
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }

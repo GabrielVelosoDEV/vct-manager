@@ -4812,6 +4812,34 @@ await teste('a IA não treina atributo que já está no teto',async()=>{
 });
 
 
+await teste('cartas: faixa pelo over, revelação ao subir e sem festa repetida',async()=>{
+  const G=t.G;const time=G.times[G.meuTime];
+  const p=G.jogadores[time.elenco[0]];
+  const foto=JSON.stringify({at:p.at,carta:p.carta,cartaT:p.cartaT,pot:p.pot});
+  const filaAntes=G.cartasNovas;const notAntes=G.noticias.length;
+  try{
+    if(w.indiceCarta(70)!==0||w.indiceCarta(71)!==1||w.indiceCarta(81)!==2||w.indiceCarta(91)!==3)
+      throw new Error('cortes errados');
+    G.cartasNovas=[];
+    w.aplicarOver(p,79);delete p.carta;w.conferirCartas(time);
+    if(p.carta!==1||G.cartasNovas.length)throw new Error('primeira conferência deveria só anotar');
+    w.aplicarOver(p,82);w.conferirCartas(time);
+    if(G.cartasNovas.length!==1||G.cartasNovas[0].para!==2)throw new Error('não entrou na fila ao virar Elite');
+    if(!G.noticias[0].txt.includes('Elite'))throw new Error('sem notícia da carta');
+    w.aplicarOver(p,80);w.conferirCartas(time);w.aplicarOver(p,81);w.conferirCartas(time);
+    if(G.cartasNovas.length!==1)throw new Error('oscilar 80/81 não pode repetir a festa');
+    const html=w.cartaJogador(p,{w:150});
+    if(!html.includes('c-elite')||!html.includes('assets/cartas/elite.webp'))throw new Error('carta desenhada com a moldura errada');
+    if(!w.modalCartaNova())throw new Error('revelação não abriu');
+    if(!$('#modal .revela-giro')||$$('#modal .carta').length!==2)throw new Error('revelação sem as duas cartas');
+    $('#modal').innerHTML='';
+    w.eval(`tela='elenco';render()`);
+    if($$('#view .cartas-grade .carta').length!==time.elenco.length)throw new Error('grade de cartas incompleta no elenco');
+  }finally{const f=JSON.parse(foto);p.at=f.at;p.pot=f.pot;p.carta=f.carta;p.cartaT=f.cartaT;
+    G.cartasNovas=filaAntes;G.noticias.splice(0,G.noticias.length-notAntes);$('#modal').innerHTML='';}
+});
+
+
 const larg=Math.max(...passos.map(p=>p[1].length));
 console.log('TESTE DE INTERFACE — '+passos.length+' casos\n');
 passos.forEach(([st,nome,det])=>{

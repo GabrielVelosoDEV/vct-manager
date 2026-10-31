@@ -71,6 +71,10 @@ function aplicarAvanco(r,quantas){
     const v=G.vereditoPendente;G.vereditoPendente=null;
     modalVeredito(v);
   }
+  /* Carta nova de jogador seu: só quando nada mais está aberto, para não
+     cobrir resultado nem veredito. Quem ficou na fila sai no próximo avanço. */
+  if(G&&G.cartasNovas&&G.cartasNovas.length&&!$('#modal').innerHTML&&typeof modalCartaNova==='function')
+    modalCartaNova();
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'&&!$('#modal').innerHTML){pintarTop();pintarSide();}
   if(quantas>1)flash(quantas+' rodadas resolvidas.');
