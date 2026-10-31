@@ -194,6 +194,7 @@ function migrarRun(reg){
       if(!t.tierInicial)t.tierInicial=t.tier;
       if(typeof t.legado!=='number')t.legado=0;
       if(typeof t.vices!=='number')t.vices=0;
+      if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;
       if(typeof t.torcida!=='number'||!isFinite(t.torcida))t.torcida=torcidaInicial(t);
       if(!t.patrocinios){t.patrocinios={master:null,secundario:null,fornecedor:null};semPatroc++;}
       if(typeof atualizarComissao==='function')atualizarComissao(t);

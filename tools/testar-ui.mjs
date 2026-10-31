@@ -78,6 +78,8 @@ w.eval(`window.__t={
   get premiosDoStage(){return premiosDoStage;}, get edPatrocinioTrocar(){return edPatrocinioTrocar;},
   get edMarcaCriar(){return edMarcaCriar;}, get edMarcaRemover(){return edMarcaRemover;},
   get MAX_CLUBES_POR_MARCA(){return MAX_CLUBES_POR_MARCA;},
+  get PATAMARES(){return PATAMARES;}, get marcaAtende(){return marcaAtende;}, get areaMarca(){return areaMarca;},
+  get edMarcaAplicar(){return edMarcaAplicar;},
   get remarcarReais(){return remarcarReais;}, get quantosReais(){return quantosReais;},
   get legadoDe(){return legadoDe;}, get rivaisDe(){return rivaisDe;},
   get confronto(){return confronto;}, get confrontosDe(){return confrontosDe;},
@@ -1025,17 +1027,41 @@ await teste('marca não excede o limite de clubes nas vagas repetíveis',async()
   }
 });
 
-await teste('o nome da marca combina com o setor',async()=>{
-  const par={Telecom:['Telecom','Mobile'],Bebida:['Beverage'],Hardware:['Tech'],
-             Automotivo:['Motors'],Alimentos:['Foods'],Vestuário:['Wear'],
-             Energético:['Energy'],Banco:['Bank'],Nuvem:['Cloud'],Áudio:['Audio'],
-             Periféricos:['Gear'],Software:['Systems'],Snacks:['Chips'],
-             Seguros:['Seguros'],Tecnologia:['Labs']};
-  for(const mk of t.listaMarcas()){
-    const esperados=par[mk.setor];
-    if(!esperados)continue;
-    if(!esperados.some(suf=>mk.nome.includes(suf)))
-      throw new Error(mk.nome+' está marcada como '+mk.setor);
+await teste('marcas reais: catálogo com região, setor e patamar',async()=>{
+  const ms=t.listaMarcas();
+  if(ms.length<150)throw new Error('catálogo pequeno: '+ms.length);
+  for(const mk of ms){
+    if(!mk.setor||!mk.regiao||!t.PATAMARES[mk.patamar])throw new Error(mk.nome+' sem classificação');
+    const [lo,hi]=t.PATAMARES[mk.patamar].faixa;
+    if(mk.nivel<lo||mk.nivel>hi)throw new Error(mk.nome+' com nível '+mk.nivel+' fora do patamar '+mk.patamar);
+    if(mk.id!==t.ASSETS.slug(mk.id))throw new Error(mk.id+' não serve de nome de arquivo');
+  }
+  if(!t.marca('guarana-antarctica')||!t.marca('mercedes-benz'))throw new Error('id da marca não é o slug do nome');
+  for(const R of ['AMER','EMEA','PAC','CN'])
+    if(ms.filter(mk=>mk.regiao===R).length<20)throw new Error(R+' com poucas marcas');
+});
+
+await teste('clube só recebe marca global ou da região/país dele',async()=>{
+  t.atribuirPatrocinios();
+  for(const id in t.G.times){
+    const time=t.G.times[id];
+    for(const v of t.VAGAS){
+      const mk=t.marca(time.patrocinios[v.id]);
+      if(mk&&!t.marcaAtende(mk,time))
+        throw new Error(time.tag+' ('+t.paisDoClube(time)+') com '+mk.nome+' de '+t.areaMarca(mk));
+    }
+  }
+  const br=Object.values(t.G.times).find(x=>t.paisDoClube(x)==='BR');
+  const us=Object.values(t.G.times).find(x=>t.paisDoClube(x)==='US');
+  if(br&&!t.marcaAtende(t.marca('ifood'),br))throw new Error('iFood recusou clube brasileiro');
+  if(us&&t.marcaAtende(t.marca('ifood'),us))throw new Error('iFood assinou com clube americano');
+  if(us&&!t.marcaAtende(t.marca('red-bull'),us))throw new Error('marca global recusou clube');
+});
+
+await teste('clube não repete setor entre as três vagas',async()=>{
+  for(const id in t.G.times){
+    const set=t.VAGAS.map(v=>t.marca(t.G.times[id].patrocinios[v.id])).filter(Boolean).map(mk=>mk.setor);
+    if(new Set(set).size!==set.length)throw new Error(t.G.times[id].tag+': '+set.join(', '));
   }
 });
 
@@ -4453,6 +4479,9 @@ await teste('fim de temporada elege MVP, seleção, revelação, IGL e treinador
   try{
     const estrela=ids.find(id=>t.G.jogadores[id].timeId===t1[2].id);
     Object.assign(stage.stats[estrela],{k:460,d:240,acs:300*20,mvp:9});
+    /* a estrela é veterana: se o mundo sorteado a fizer jovem, ela leva a
+       revelação também e o teste não mede o que quer */
+    t.G.jogadores[estrela].idade=25;
     const garoto=ids.find(id=>id!==estrela&&t.G.jogadores[id].timeId===t1[3].id);
     t.G.jogadores[garoto].idade=19;
     Object.assign(stage.stats[garoto],{k:360,d:280,acs:240*20,mvp:4});
@@ -4560,6 +4589,21 @@ function baseNova(time){
     time.elenco=time.elenco.filter(x=>x!==id);t.G.livres.push(id);t.G.jogadores[id].timeId=null;}
   t.iniciarBase(time);
 }
+
+await teste('a base só revela garoto do país do clube',async()=>{
+  const time=meuTimeDeTeste();
+  const pais=t.paisDoClube(time);
+  if(!pais)throw new Error(time.tag+' sem país de sede');
+  const f=fotoDaBase(time);
+  try{
+    baseNova(time);
+    for(let i=0;i<4;i++)t.virarBase(new Set());
+    const base=t.baseDe(time);
+    if(!base.length)throw new Error('a base não revelou ninguém');
+    const fora=base.filter(p=>p.pais!==pais);
+    if(fora.length)throw new Error(fora.map(p=>p.nome+' ('+p.pais+')').join(', ')+' na base de um clube '+pais);
+  }finally{voltarBase(time,f);}
+});
 
 await teste('a categoria de base aparece na tela, promove e dispensa sem sortear',async()=>{
   const time=meuTimeDeTeste();

@@ -175,6 +175,9 @@ function criarMundo(seedVal){
     aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
+  /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
+     saem os garotos da base e as marcas nacionais (ver paisDoClube) */
+  for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e

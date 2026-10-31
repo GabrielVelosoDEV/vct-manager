@@ -144,7 +144,6 @@ function fimDeTemporada(){
     if((t.elenco||[]).length>=ELENCO_MIN)continue;
     const n=(rnd()<t.estrutura.academia*0.16*(1-neutro*0.05+olh*0.05))?1:0;
     if(!n)continue;
-    const R=REGIONS.find(r=>r.id===t.regiao);
     /* Promessa nasce abaixo do piso da divisão de propósito: é projeto, não
        titular. O potencial é que a torna interessante. */
     const[piso]=FAIXAS.jogador[t.tier];
@@ -154,7 +153,7 @@ function fimDeTemporada(){
        vinte temporadas, metade dos cinquenta melhores do mundo era 98. */
     const alvo=clamp(Math.round(gauss(piso-12+t.estrutura.academia+(olh-neutro),5)),
                      FAIXAS.jogador[2][0]-14,piso-2);
-    const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
+    const p=makePlayer(alvo,pick(ROLES),paisDaBase(t),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
     p.pot=clamp(over(p)+ri(8,20)+t.estrutura.academia,over(p)+6,96);
     p.salario=salario(p,t);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;

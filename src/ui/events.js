@@ -311,8 +311,11 @@ function ligarEventos(){
     for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
+  const fMk=v.querySelector('#edMkRegiao');
+  if(fMk)fMk.addEventListener('change',()=>{edMkRegiao=fMk.value;render();});
   on('#mkAdd',()=>{
-    const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'));
+    const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'),val('#mkNovoSetor'),
+      val('#mkNovoPatamar'),val('#mkNovoRegiao'),val('#mkNovoPaises'));
     render();flash(r.ok?r.msg:r.erro);
   });
   on('[data-mkdel]',el=>{
@@ -325,6 +328,7 @@ function ligarEventos(){
       (campos[el.getAttribute(sel)]=campos[el.getAttribute(sel)]||{})[campo]=el.value;
     });
     junta('data-mknome','nome');junta('data-mksetor','setor');junta('data-mknivel','nivel');
+    junta('data-mkpatamar','patamar');junta('data-mkregiao','regiao');junta('data-mkpaises','paises');
     const erros=[];let n=0;
     for(const id in campos){
       const r=edMarcaAplicar(id,campos[id]);

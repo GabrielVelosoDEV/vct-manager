@@ -34,12 +34,11 @@ function revelarUm(t,usados){
   const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
   const olh=(t.staff&&t.staff.olheiro)||neutro;
   const acad=(t.estrutura&&t.estrutura.academia)||1;
-  const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
   /* Garoto de 15 ou 16 anos: na régua do agente livre gerado (60), um pouco
      acima com academia e olheiro bons. É projeto de três ou quatro anos. */
   const alvo=clamp(Math.round(gauss(52+acad*2+(olh-neutro)*2+(t.tier===1?2:0),4)),45,70);
   const role=t.baseFoco||pick(ROLES);
-  const p=makePlayer(alvo,role,pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
+  const p=makePlayer(alvo,role,paisDaBase(t),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
   aplicarOver(p,alvo);
   p.pot=clamp(Math.round(over(p)+ri(14,28)+acad+(olh-neutro)),over(p)+10,96);
   p.timeId=null;p.contrato=0;p.salario=0;
@@ -47,6 +46,14 @@ function revelarUm(t,usados){
   G.jogadores[p.id]=p;
   (t.base=t.base||[]).push(p.id);
   return p;
+}
+/* A base só revela garoto do país do clube. O sorteio de país continua
+   acontecendo (e é descartado) para não deslocar o gerador do resto da
+   virada; clube sem país conhecido usa o sorteado da região. */
+function paisDaBase(t){
+  const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
+  const sorteado=pick(R.paises);
+  return (typeof paisDoClube==='function'&&paisDoClube(t))||sorteado;
 }
 function usadosNomes(){return new Set(Object.values(G.jogadores).map(p=>p.nome));}
 

@@ -41,7 +41,7 @@ const PASTAS=['logos','players','staff','torneios','agentes','marcas'];
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);
-for(const f of ['data/mundo.js','data/times.js','data/elencos.js','data/comissao.js','src/core/torneios.js']){
+for(const f of ['data/mundo.js','data/patrocinadores.js','data/times.js','data/elencos.js','data/comissao.js','src/core/torneios.js']){
   const p=resolve(raiz,f);
   if(existsSync(p))vm.runInContext(readFileSync(p,'utf8')+
     ';this.TIMES_REAIS=typeof TIMES_REAIS!=="undefined"?TIMES_REAIS:this.TIMES_REAIS;'+
@@ -49,11 +49,16 @@ for(const f of ['data/mundo.js','data/times.js','data/elencos.js','data/comissao
     'this.COMISSAO_REAL=typeof COMISSAO_REAL!=="undefined"?COMISSAO_REAL:this.COMISSAO_REAL;'+
     'this.AGENTS=typeof AGENTS!=="undefined"?AGENTS:this.AGENTS;'+
     'this.REGIONS=typeof REGIONS!=="undefined"?REGIONS:this.REGIONS;'+
+    'this.PAISES=typeof PAISES!=="undefined"?PAISES:this.PAISES;'+
+    'this.PATROCINADORES=typeof PATROCINADORES!=="undefined"?PATROCINADORES:this.PATROCINADORES;'+
+    'this.PATAMARES=typeof PATAMARES!=="undefined"?PATAMARES:this.PATAMARES;'+
+    'this.BLOCOS_MARCA=typeof BLOCOS_MARCA!=="undefined"?BLOCOS_MARCA:this.BLOCOS_MARCA;'+
+    'this.NOME_BLOCO_MARCA=typeof NOME_BLOCO_MARCA!=="undefined"?NOME_BLOCO_MARCA:this.NOME_BLOCO_MARCA;'+
     'this.montarTorneios=typeof montarTorneios!=="undefined"?montarTorneios:this.montarTorneios;',ctx);
 }
 /* Cada mapa: slug → rótulo. `grupo` separa a LISTA.md por clube/região. */
-const base={logos:new Map(),players:new Map(),staff:new Map(),torneios:new Map(),agentes:new Map()};
-const grupo={logos:new Map(),players:new Map(),staff:new Map(),torneios:new Map(),agentes:new Map()};
+const base={logos:new Map(),players:new Map(),staff:new Map(),torneios:new Map(),agentes:new Map(),marcas:new Map()};
+const grupo={logos:new Map(),players:new Map(),staff:new Map(),torneios:new Map(),agentes:new Map(),marcas:new Map()};
 for(const r in ctx.TIMES_REAIS||{})for(const d of ['t1','t2'])
   for(const [nome,tag] of ctx.TIMES_REAIS[r][d]||[]){
     base.logos.set(slug(tag),tag+' ('+nome+')');grupo.logos.set(slug(tag),r+(d==='t1'?' · Tier 1':' · Challengers'));
@@ -66,6 +71,23 @@ for(const tag in ctx.COMISSAO_REAL||{})for(const l of ctx.COMISSAO_REAL[tag])
 if(ctx.montarTorneios&&ctx.REGIONS){
   ctx.G={};const T=ctx.montarTorneios();
   for(const id in T){base.torneios.set(slug(id),T[id].nome);grupo.torneios.set(slug(id),T[id].escopo==='INT'?'Internacional':T[id].escopo);}
+}
+/* marcas: o id é o slug do nome, igual a montarMarcas() em economia.js */
+{
+  const area=m=>{
+    if(!m.regiao||m.regiao==='GLOBAL')return 'Global';
+    const ps=m.paises||[];
+    if(!ps.length)return m.regiao==='CN'?'China':m.regiao+' (toda a região)';
+    for(const b in ctx.BLOCOS_MARCA||{})if(ctx.BLOCOS_MARCA[b].join()===ps.join())return ctx.NOME_BLOCO_MARCA[b];
+    return ps.map(c=>(ctx.PAISES&&ctx.PAISES[c])||c).join(', ');
+  };
+  for(const m of ctx.PATROCINADORES||[]){
+    let id=slug(String(m.nome).replace(/['’]/g,''))||'marca',i=2;const b=id;
+    while(base.marcas.has(id))id=b+'-'+(i++);
+    const pat=(ctx.PATAMARES&&ctx.PATAMARES[m.patamar])||{nome:m.patamar,desc:''};
+    base.marcas.set(id,m.nome+' ('+m.setor+', nível '+m.nivel+')');
+    grupo.marcas.set(id,(m.regiao==='GLOBAL'?'':m.regiao+' · ')+area(m)+' · patamar '+pat.nome.toLowerCase());
+  }
 }
 for(const role in ctx.AGENTS||{})if(role!=='Flex')for(const a of ctx.AGENTS[role]){
   base.agentes.set(slug(a),a);grupo.agentes.set(slug(a),role);
@@ -107,8 +129,8 @@ const MIDIA={
 writeFileSync(resolve(raiz,'data/midia.js'),saida);
 
 /* ---------- relatório ---------- */
-const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes'};
-const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente'};
+const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores'};
+const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca'};
 let semDono=0;
 console.log(`data/midia.js gravado — ${chaves.length} imagem(ns).\n`);
 /* LISTA.md em cada pasta: o nome exato de cada arquivo que o jogo procura,
