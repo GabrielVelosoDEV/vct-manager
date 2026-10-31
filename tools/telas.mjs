@@ -163,6 +163,10 @@ await tira('12-ficha-comissao');
 /* fecha a ficha antes: sem isso a captura de Finanças saía com o modal da
    comissão por cima, e a tela que mostra a economia nunca era conferida */
 await ev(`$('#modal').innerHTML='';irPara('financas')`); await tira('11-financas');
+/* guia da primeira temporada: dica no topo e primeiros passos na Central */
+await ev(`iniciarGuia();G.guia.ano=G.ano;G.guia.vistos.elenco=true;irPara('inicio')`); await tira('16-guia-central');
+await ev(`irPara('treino')`);                      await tira('16b-guia-dica');
+await ev(`G.guia.fim=true;render()`);
 
 console.log(erros.length?'\nERROS DE PÁGINA:\n'+erros.map(e=>' · '+e).join('\n'):'\nnenhum erro de página.');
 await nav.close();

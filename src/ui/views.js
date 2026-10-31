@@ -90,7 +90,7 @@ function vInicio(){
   const px=proximoConfronto();
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   const chateados=(typeof insatisfeitos==='function')?insatisfeitos(t):[];
-  return `${faixaCircuito()}
+  return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   <div class="eyebrow">Central de comando</div>
   ${chateados.length?`<div class="card flat" style="border-left:4px solid var(--amber)">
     <div class="split"><div class="eyebrow">Vestiário</div>

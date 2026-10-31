@@ -48,6 +48,8 @@ function pedidoRenovacao(p,t){
   if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(t.id===G.meuTime&&dificuldade().salario!==1)
+    f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
   /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */
   const caindo=p.pico&&over(p)<p.pico-4;
   let pedido=Math.round(base*f/100)*100;

@@ -452,6 +452,11 @@ function ligarEventos(){
     iniciarPreRun(Math.floor(Math.random()*900000)+1000);
   });
 
+  /* ---------- guia da primeira temporada ---------- */
+  on('[data-guiaok]',el=>{if(G.guia){G.guia.ok[el.dataset.guiaok]=true;render();}});
+  on('[data-guiair]',el=>irPara(el.dataset.guiair));
+  on('#guiaFim',()=>{if(G.guia){G.guia.fim=true;render();}});
+
   /* ---------- pré-run ---------- */
   on('#prIniciar',()=>telaNovoJogo());
 

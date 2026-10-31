@@ -612,6 +612,16 @@ tr.descansa td{opacity:.62}
 .num.am{color:var(--amber)}
 .chip.r{border-color:var(--red);color:var(--red)}
 
+/* guia da primeira temporada */
+.guia{display:flex;gap:12px;align-items:center;padding:10px 14px;margin:0 0 14px;border:1px solid var(--line);
+  border-left:3px solid var(--gold);background:rgba(200,148,58,.07);font-size:13px}
+.guia>span:nth-child(2){flex:1}
+.guia-tag{color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.guia-card .guia-passos{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;margin-top:6px;font-size:13px}
+.guia-passos .feito{color:var(--txt2,#8a97a3);text-decoration:line-through}
+.guia-passos span{display:inline-block;width:18px;color:var(--gold)}
+.guia-passos a{color:inherit}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -2562,6 +2572,37 @@ function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
 /* ===== src/core/state.js ===== */
 /* ---------- Estado global ---------- */
 let G=null;
+
+
+/* ===== src/core/dificuldade.js ===== */
+/* ============================================================
+   DIFICULDADE
+   ------------------------------------------------------------
+   Escolhida na carreira nova e fixa até o fim dela. Mexe só no
+   que cerca o SEU clube: dinheiro para começar, paciência da
+   diretoria, meta de posição e quanto o jogador cobra de você.
+   O motor de partida e a IA não mudam — vencer continua sendo
+   a mesma coisa em qualquer nível.
+   ============================================================ */
+const DIFICULDADES={
+  facil  :{nome:'Fácil',  resumo:'Mais caixa, diretoria paciente e jogador que cobra menos.',
+           caixa:1.5, confianca:72, cobranca:0.7,  alvo:1,  salario:0.92},
+  normal :{nome:'Normal', resumo:'O jogo como foi calibrado.',
+           caixa:1,   confianca:62, cobranca:1,    alvo:0,  salario:1},
+  dificil:{nome:'Difícil',resumo:'Menos caixa, diretoria exigente e jogador que cobra mais.',
+           caixa:0.6, confianca:52, cobranca:1.3,  alvo:-1, salario:1.10}
+};
+function dificuldade(){return DIFICULDADES[(G&&G.dificuldade)||'normal']||DIFICULDADES.normal;}
+
+/* Na carreira nova: grava o nível e ajusta o caixa do clube escolhido. */
+function aplicarDificuldade(id,t){
+  G.dificuldade=DIFICULDADES[id]?id:'normal';
+  const d=dificuldade();
+  if(t&&d.caixa!==1)t.caixa=Math.round(t.caixa*d.caixa/1000)*1000;
+  return d;
+}
+/* Quanto uma queda de confiança pesa. Ganho de confiança não muda. */
+function pesoDaCobranca(delta){return delta<0?delta*dificuldade().cobranca:delta;}
 
 
 /* ===== src/core/padrao.js ===== */
@@ -7301,6 +7342,9 @@ function detalharPedido(p,destino){
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
   if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  /* dificuldade da carreira: só no que é cobrado de você */
+  if(destino.id===G.meuTime&&dificuldade().salario!==1)
+    f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
 
   return{base,fator:f,itens,pos,salto,
          pedido:Math.max(300,Math.round(base*f/100)*100)};
@@ -7555,6 +7599,8 @@ function pedidoRenovacao(p,t){
   if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(t.id===G.meuTime&&dificuldade().salario!==1)
+    f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
   /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */
   const caindo=p.pico&&over(p)<p.pico-4;
   let pedido=Math.round(base*f/100)*100;
@@ -8776,7 +8822,7 @@ function criarManager(nome,papel){
   const p=PAPEIS.some(x=>x.id===papel)?papel:'diretoria';
   G.manager={
     nome:String(nome||'').trim().slice(0,28)||'Manager',
-    papel:p, desde:G.ano, confianca:62,
+    papel:p, desde:G.ano, confianca:dificuldade().confianca,
     metas:[], historico:[], demitido:false, clubes:[]
   };
   return G.manager;
@@ -8797,7 +8843,7 @@ function _posicaoAlvo(t){
   const onde=ord.indexOf(t.id)+1;            /* 1 = mais prestigiado da liga */
   const n=ord.length;
   if(n<4)return 1;
-  return clamp(Math.round(onde-Math.max(1,n*0.12)),2,n-2);
+  return clamp(Math.round(onde-Math.max(1,n*0.12))+dificuldade().alvo,2,n-2);
 }
 function _textoPosicao(alvo){
   return alvo<=1?'Terminar a liga em primeiro'
@@ -8886,6 +8932,7 @@ function cobrancaDoMeioDoAno(){
       delta+=meta.cumprida?5:-6;
     }
   }
+  delta=Math.round(pesoDaCobranca(delta));
   m.confianca=clamp(Math.round(m.confianca+delta),0,100);
   const registro={meio:true,ano:G.ano,clube:t.nome,tag:t.tag,pos,de,titulos:0,
     metas:doMeio.map(x=>({texto:x.texto,cumprida:x.cumprida,resultado:x.resultado})),
@@ -8945,6 +8992,7 @@ function avaliarTemporada(){
   else delta=-10-Math.min(24,(pos-(principal?principal.alvo:pos))*4);
   delta+=bonus*10;
   if(titulosAno)delta+=8;
+  delta=Math.round(pesoDaCobranca(delta));
   m.confianca=clamp(Math.round(m.confianca+delta),0,100);
 
   const registro={ano:G.ano,clube:t.nome,tag:t.tag,pos,de,titulos:titulosAno,
@@ -8985,7 +9033,7 @@ function assumirClube(id){
   if(!t)return{ok:false,erro:'Clube não encontrado.'};
   G.meuTime=id;
   const m=G.manager;
-  m.demitido=false;m.desde=G.ano;m.confianca=58;
+  m.demitido=false;m.desde=G.ano;m.confianca=dificuldade().confianca-4;
   if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
@@ -10512,7 +10560,7 @@ const Prefs={
   padrao:{modalPartida:true,resumoRodada:true,autosave:true,animacoes:true,
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
-          prePartida:true, tempoTecnico:true},
+          prePartida:true, tempoTecnico:true, dicas:true},
   dados:null,
   iniciar(){
     this.dados=Object.assign({},this.padrao);
@@ -11006,7 +11054,8 @@ function render(){
   const fn={inicio:vInicio,elenco:vElenco,taticas:vTaticas,treino:vTreino,comps:vComps,comp:vComp,mercado:vMercado,
             base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
-  v.innerHTML=(fn||vInicio)();
+  if(typeof guiaMarcar==='function')guiaMarcar(tela);
+  v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
 }
@@ -11212,6 +11261,62 @@ function lerJSON(file){
 }
 
 
+/* ===== src/ui/guia.js ===== */
+/* ============================================================
+   PRIMEIRA TEMPORADA GUIADA
+   ------------------------------------------------------------
+   Dicas curtas para quem nunca jogou: um aviso no topo de cada
+   tela na primeira visita e uma lista de primeiros passos na
+   Central. Vale só na primeira temporada da carreira e some com
+   a preferência "Dicas da primeira temporada" desligada.
+
+   É só interface: não toca o motor nem o gerador semeado.
+   ============================================================ */
+const GUIA_TELAS={
+  inicio:'A Central resume o seu clube: quem está insatisfeito, o próximo jogo, a tabela e a manchete da semana. O botão Avançar, lá em cima, passa a semana.',
+  elenco:'Aqui ficam os titulares e o banco. A escalação automática monta os cinco mais fortes por função; troque à mão se quiser dar minutos a alguém.',
+  taticas:'Foco tático e agressividade valem para todos os jogos. Execução rende no ataque e perde na defesa; retake é o contrário.',
+  treino:'Cada jogador tem um plano por semana: atributo, agente ou descanso. Treinar cansa, e cansaço é o que mais faz um time perder.',
+  comps:'A comp de cada mapa decide quem joga com qual agente. O preset Melhor monta uma comp completa com quem você tem.',
+  base:'A categoria de base cresce sozinha com a academia e o head coach. Promova quando o garoto estiver pronto; aos 20 ele vai embora.',
+  mercado:'A janela de transferências abre duas vezes por ano. Cada jogador diz o que quer, e as objeções dele viram salário a mais.',
+  financas:'Patrocínio, torcida e liga pagam a folha. Fique de olho no teto: a diretoria não aceita estourar o caixa.',
+  comp:'Todos os torneios do circuito, com tabela, chaveamento e campeões. O seu aparece primeiro.'
+};
+/* Primeiros passos da Central: cada um se marca sozinho quando acontece. */
+const GUIA_PASSOS=[
+  {id:'elenco', texto:'Confira a escalação',             tela:'elenco'},
+  {id:'taticas',texto:'Escolha o foco tático',           tela:'taticas'},
+  {id:'treino', texto:'Monte o plano de treino da semana',tela:'treino'},
+  {id:'comps',  texto:'Veja as comps de cada mapa',      tela:'comps'},
+  {id:'mercado',texto:'Dê uma olhada no mercado',        tela:'mercado'},
+  {id:'partida',texto:'Jogue a primeira partida com relatório e veto'}
+];
+function iniciarGuia(){G.guia={ano:G.ano,vistos:{},ok:{},fim:false};}
+function guiaAtivo(){
+  return !!(G&&G.guia&&!G.guia.fim&&G.ano===G.guia.ano&&Prefs.get('dicas')!==false);
+}
+function guiaMarcar(k){if(G&&G.guia&&G.guia.vistos)G.guia.vistos[k]=true;}
+/* Aviso no topo da tela, até você dizer que entendeu. */
+function guiaBanner(k){
+  if(!guiaAtivo()||!GUIA_TELAS[k]||G.guia.ok[k])return '';
+  return `<div class="guia"><span class="guia-tag">Dica</span><span>${esc(GUIA_TELAS[k])}</span>
+    <button class="btn sm ghost" data-guiaok="${k}">Entendi</button></div>`;
+}
+function guiaPassosHTML(){
+  if(!guiaAtivo())return '';
+  const v=G.guia.vistos;
+  const feitos=GUIA_PASSOS.filter(p=>v[p.id]).length;
+  if(feitos===GUIA_PASSOS.length)return '';
+  return `<div class="card guia-card"><div class="eyebrow">Primeiros passos · ${feitos} de ${GUIA_PASSOS.length}</div>
+    <div class="guia-passos">${GUIA_PASSOS.map(p=>`<div class="${v[p.id]?'feito':''}">
+      <span>${v[p.id]?'✓':'○'}</span>
+      ${p.tela&&!v[p.id]?`<a href="#" data-guiair="${p.tela}">${esc(p.texto)}</a>`:esc(p.texto)}</div>`).join('')}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="btn sm ghost" id="guiaFim">Dispensar o guia</button></div></div>`;
+}
+
+
 /* ===== src/ui/menu.js ===== */
 /* ============================================================
    SHELL DO MENU — fora da partida
@@ -11377,6 +11482,11 @@ function vConfig(){
   </div>
 
   <div class="card"><div class="eyebrow">Interface</div>
+    ${sw('dicas','Dicas da primeira temporada',
+         'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
+         'só durante a primeira temporada da carreira.')}
+    ${G&&G.meuTime?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
+      <span>${esc(dificuldade().resumo)} Escolhida na carreira nova e fixa até o fim dela.</span></div></div>`:''}
     ${sw('animacoes','Animação de entrada dos painéis',
          'Painéis entram com um leve deslocamento. Desligue se preferir a tela estática.')}
     <div class="opt"><div class="txt"><b>Rostos gerados</b>
@@ -11541,7 +11651,7 @@ function vInicio(){
   const px=proximoConfronto();
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   const chateados=(typeof insatisfeitos==='function')?insatisfeitos(t):[];
-  return `${faixaCircuito()}
+  return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   <div class="eyebrow">Central de comando</div>
   ${chateados.length?`<div class="card flat" style="border-left:4px solid var(--amber)">
     <div class="split"><div class="eyebrow">Vestiário</div>
@@ -13369,6 +13479,7 @@ function prePartidaDisponivel(){
 /* Ponto de entrada: chamado pelo botão de avançar antes de a semana rodar. */
 function abrirPrePartida(comp,depois){
   const meu=G.times[G.meuTime], adv=G.times[comp.advId];
+  if(typeof guiaMarcar==='function')guiaMarcar('partida');
   PP={comp,adv,meu,depois,etapa:'relatorio',
       V:iniciarVeto(G.meuTime,comp.advId,comp.bo,comp.euSouA)};
   vetoAvancarAteMim(PP.V);
@@ -15307,6 +15418,11 @@ function ligarEventos(){
     iniciarPreRun(Math.floor(Math.random()*900000)+1000);
   });
 
+  /* ---------- guia da primeira temporada ---------- */
+  on('[data-guiaok]',el=>{if(G.guia){G.guia.ok[el.dataset.guiaok]=true;render();}});
+  on('[data-guiair]',el=>irPara(el.dataset.guiair));
+  on('#guiaFim',()=>{if(G.guia){G.guia.fim=true;render();}});
+
   /* ---------- pré-run ---------- */
   on('#prIniciar',()=>telaNovoJogo());
 
@@ -15375,7 +15491,7 @@ function ligarEventos(){
 /* ============================================================
    NOVO JOGO
    ============================================================ */
-let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='';
+let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal';
 function telaNovoJogo(){
   const val=edValidar();
   if(!val.ok){
@@ -15411,6 +15527,9 @@ function telaNovoJogo(){
           <i>${esc(p.detalhe)}</i>
         </button>`).join('')}</div>
     </div>
+    <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
+    <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
+      <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
     <h2 class="sec" style="margin-top:18px">Escolha seu clube</h2>
     <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
@@ -15433,6 +15552,7 @@ function telaNovoJogo(){
   if(inNome)inNome.oninput=guardaNome;
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
   $('#regen').onclick=()=>{iniciarPreRun(parseInt($('#seedIn').value)||12345);$('#modal').innerHTML='';};
@@ -15440,6 +15560,8 @@ function telaNovoJogo(){
     guardaNome();
     G.meuTime=b.dataset.pick;
     G.iniciadaEm=Date.now();
+    aplicarDificuldade(escDif,T(G.meuTime));
+    iniciarGuia();
     criarManager(escNome,escPapel);
     iniciarBase(T(G.meuTime));
     montarMetas();

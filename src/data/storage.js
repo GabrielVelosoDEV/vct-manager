@@ -81,7 +81,7 @@ const Prefs={
   padrao:{modalPartida:true,resumoRodada:true,autosave:true,animacoes:true,
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
-          prePartida:true, tempoTecnico:true},
+          prePartida:true, tempoTecnico:true, dicas:true},
   dados:null,
   iniciar(){
     this.dados=Object.assign({},this.padrao);
