@@ -3,7 +3,7 @@ function criarMundo(seedVal){
   srand(seedVal);
   G={seed:seedVal,seqP:1,ano:2027,times:{},jogadores:{},livres:[],regioes:{},h2h:{},manager:null,
      meuTime:null,caixa:0,log:[],historico:[],bloco:0,fase:'',temporadaFim:false,
-     mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],
+     mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],negociacoes:[],transferencias:[],
      meta:(typeof metaInicial==='function'?metaInicial():{}),patches:[],patchFeito:{}};
   montarTorneios();montarAgentes();montarMarcas();
   const usadosT=new Set(), usadosP=new Set();

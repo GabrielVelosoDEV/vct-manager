@@ -1457,22 +1457,83 @@ await teste('a IA não estoura o teto de folha',async()=>{
     throw new Error(estourados.length+' clubes acima de 95% da receita: '+estourados.slice(0,5).join(', '));
 });
 
-await teste('a proposta mostra a conta do pedido e o botão de preencher',async()=>{
+await teste('interesse: clube melhor, rival e perfil mexem no termômetro',async()=>{
+  const p=Object.values(t.G.jogadores).find(x=>x.timeId&&t.G.times[x.timeId].tier===1);
+  const base=t.G.times[p.timeId];
+  const semEle={elenco:base.elenco.filter(i=>i!==p.id),titulares:base.titulares.filter(i=>i!==p.id)};
+  const pior=clonarClube(base,{prestigio:Math.max(35,base.prestigio-25),...semEle});
+  const melhor=clonarClube(base,{prestigio:Math.min(92,base.prestigio+15),...semEle});
+  if(!(w.interessePor(p,melhor).nota>w.interessePor(p,pior).nota))throw new Error('clube melhor não interessou mais');
+  const perfil=p.perfil;
+  try{
+    p.perfil='ambicioso';const amb=w.interessePor(p,pior).nota;
+    p.perfil='mercenario';const mer=w.interessePor(p,pior).nota;
+    if(!(mer>amb))throw new Error('mercenário ('+mer+') não ligou menos para clube fraco que o ambicioso ('+amb+')');
+  }finally{if(perfil)p.perfil=perfil;else delete p.perfil;}
+  /* rival: confronto forjado e equilibrado entre os dois */
+  const h2h=JSON.stringify(t.G.h2h||{});
+  try{
+    const outro=clonarClube(base,{id:'rivalX',...semEle,torcida:90});
+    t.G.times.rivalX=outro;
+    const k=base.id<'rivalX'?base.id+'|rivalX':'rivalX|'+base.id;
+    t.G.h2h[k]={a:base.id<'rivalX'?base.id:'rivalX',b:base.id<'rivalX'?'rivalX':base.id,va:7,vb:7,jogos:14,ultimos:[]};
+    base.torcida=90;
+    const d=t.detalharPedido(p,outro);
+    if(!d.itens.some(i=>/rival/.test(i.rot)))throw new Error('ir para o rival não pesou');
+  }finally{t.G.h2h=JSON.parse(h2h);delete t.G.times.rivalX;}
+});
+
+await teste('negociação com o clube: contraproposta, multa e paciência',async()=>{
+  const time=t.G.times[t.G.meuTime];
+  t.G.janela=true;const caixa=time.caixa;time.caixa=9e7;
+  try{
+    const p=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==time.id
+      &&w.posturaDoClube(x).id==='negociavel'&&!t.recusasDuras(x,time,2).length&&!w.negociacaoAtivaDe(x.id));
+    const n=w.abrirNegociacao(p,time).neg;
+    const preco=w.precoPedido(p);
+    const r=w.proporAoClube(n,preco*0.8);
+    if(r.resposta!=='contra')throw new Error('não houve contraproposta: '+JSON.stringify(r));
+    if(!(r.valor>=preco*0.92&&r.valor<=preco*1.06))throw new Error('contraproposta fora do lugar: '+r.valor+' para preço '+preco);
+    let k=0;while(n.fase==='clube'&&k++<10)w.proporAoClube(n,preco*0.3);
+    if(n.fase!=='encerrada')throw new Error('proposta ofensiva repetida não encerrou a conversa');
+    if(!w.conversaFechada(p))throw new Error('a porta não fechou por algumas semanas');
+    if(w.abrirNegociacao(p,time).ok)throw new Error('reabriu a conversa na mesma semana');
+    /* intransferível só sai pela multa, e a multa o clube não recusa */
+    const q=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==time.id
+      &&w.posturaDoClube(x).id==='intransferivel'&&!t.recusasDuras(x,time,2).length);
+    const m=w.abrirNegociacao(q,time).neg;
+    const r2=w.proporAoClube(m,w.multaDe(q)*0.9);
+    if(r2.resposta==='aceita')throw new Error('intransferível saiu abaixo da multa');
+    const r3=w.pagarMulta(m);
+    if(!r3.ok||m.fase!=='jogador')throw new Error('pagar a multa não abriu a conversa com o jogador');
+  }finally{time.caixa=caixa;t.G.negociacoes=[];}
+});
+
+await teste('a mesa de negociação: clube, depois jogador, com a conta do pedido',async()=>{
+  const time=t.G.times[t.G.meuTime];
   const p=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==t.G.meuTime
-    &&t.G.times[x.timeId].regiao!==t.G.times[t.G.meuTime].regiao);
-  t.G.janela=true;
-  w.modalProposta(p.id);
-  if(!$('#pSal'))throw new Error('modal não abriu');
-  const d=t.detalharPedido(p,t.G.times[t.G.meuTime]);
-  if(Number($('#pSal').value)!==d.pedido)
-    throw new Error('o campo veio com '+$('#pSal').value+', esperado '+d.pedido);
-  if(d.itens.length&&!w.document.body.innerHTML.includes('Por que ele pede isso'))
-    throw new Error('a conta não apareceu');
-  /* cada fator do pedido tem de estar visível, não só o total */
-  for(const it of d.itens)
-    if(!w.document.body.innerHTML.includes(it.rot))
-      throw new Error('fator não listado na conta: '+it.rot);
-  if(!$('#pJusto'))throw new Error('sem botão de preencher com o valor aceito');
+    &&t.G.times[x.timeId].regiao!==time.regiao&&!t.recusasDuras(x,time,2).length);
+  const foto={caixa:time.caixa,neg:JSON.stringify(t.G.negociacoes||[])};
+  t.G.janela=true;time.caixa=9e7;
+  try{
+    w.modalProposta(p.id);
+    if(!$('#cEnviar'))throw new Error('a mesa não abriu na conversa com o clube');
+    if(!/O que ele pensa do/.test(w.document.body.innerHTML))throw new Error('sem termômetro de interesse');
+    clicar($('#cMulta'));
+    await new Promise(r=>setTimeout(r,0));
+    const sim=w.document.querySelector('#dlgSim');if(sim)clicar(sim);
+    await new Promise(r=>setTimeout(r,0));
+    if(!$('#pSal'))throw new Error('pagar a multa não levou à conversa com o jogador');
+    const d=w.pedidoContrato(p,time,Number($('#pAnos').value),false);
+    if(Number($('#pSal').value)!==d.pedido)
+      throw new Error('o campo veio com '+$('#pSal').value+', esperado '+d.pedido);
+    if(!w.document.body.innerHTML.includes('Por que ele pede isso'))throw new Error('a conta não apareceu');
+    for(const it of d.d.itens)
+      if(!w.document.body.innerHTML.includes(it.rot))throw new Error('fator não listado na conta: '+it.rot);
+    clicar($('#pJusto'));clicar($('#pEnviar'));
+    if(p.timeId!==time.id)throw new Error('o pedido dele não fechou: '+w.document.querySelector('.neg-chat').textContent);
+    if(!/Contratado/.test(w.document.body.textContent))throw new Error('sem carimbo de contratado');
+  }finally{time.caixa=foto.caixa;w.document.querySelector('#modal').innerHTML='';}
 });
 
 

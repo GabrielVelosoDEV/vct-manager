@@ -759,6 +759,11 @@ function vMercadoStaff(t){
       <td class="r"><button class="btn sm" data-propstaff="${m.id}" ${G.janela?'':'disabled'}>Propor</button></td>
     </tr>`).join('')}</tbody></table></div>`;
 }
+/* termômetro de bolso para a lista do mercado */
+function interesseMini(p,t){
+  const it=interessePor(p,t);
+  return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;
+}
 function vMercadoJogadores(t){
   let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
@@ -777,14 +782,15 @@ function vMercadoJogadores(t){
     <select id="fOrd">${[['over','Ordenar por over'],['pot','Ordenar por potencial'],['valor','Ordenar por preço']].map(([k,n])=>`<option value="${k}" ${mFiltro.ordem===k?'selected':''}>${n}</option>`).join('')}</select>
     <span class="dim">${lista.length} resultados</span></div></div>
   <div class="card flat"><table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
-    <th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
+    <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
-      <td class="r num">${p.timeId?money(pedidoDeVenda(p)):'—'}</td>
+      <td class="c">${interesseMini(p,t)}</td>
+      <td class="r num">${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?' <span class="chip r" title="Só pela multa">multa</span>':''}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
-      <td class="r"><button class="btn sm" data-prop="${p.id}" ${G.janela?'':'disabled'}>Propor</button></td></tr>`).join('')}
+      <td class="r"><button class="btn sm" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Mesa':'Negociar'}</button></td></tr>`).join('')}
     </tbody></table></div>`;
 }
 function vBase(){

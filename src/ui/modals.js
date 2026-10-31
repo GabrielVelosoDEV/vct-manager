@@ -62,6 +62,7 @@ function modalJogador(id){
       `<span class="tag ${p.role2}" style="opacity:.55" title="função secundária: perde ${
         custoDeFuncao(p,p.role2)} de over">2ª ${p.role2}</span>`:''} <span class="pill">${p.idade} anos</span>
     <span class="pill">Contrato ${p.contrato}a</span> ${p.igl?'<span class="pill">IGL</span>':''}
+    <span class="pill" title="${esc(PERFIS[perfilDe(p)].desc)}">Perfil ${esc(PERFIS[perfilDe(p)].nome)}</span>
     <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
       <span class="badge ${p.lesao?'no':'ok'}">${p.lesao?'lesionado · '+p.lesao+' sem.':'apto'}</span>
       <span class="badge ${p.moral>=.7?'ok':p.moral>=.45?'at':'no'}">${p.moral>=.7?'motivado':p.moral>=.45?'neutro':'insatisfeito'}</span>
@@ -91,7 +92,8 @@ function modalJogador(id){
       <table><tbody>
       <tr><td>Valor de mercado</td><td class="r num">${money(p.valor)}</td></tr>
       <tr><td>Salário</td><td class="r num">${money(p.salario)}/mês</td></tr>
-      <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(pedidoDeVenda(p)):'livre'}</td></tr>
+      <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(precoPedido(p))+' <span class="chip '+posturaDoClube(p).cls+'">'+esc(posturaDoClube(p).nome)+'</span>':'livre'}</td></tr>
+      ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
       <tr><td>Agentes</td><td class="r"><span class="agmini">${
         p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
@@ -105,7 +107,7 @@ function modalJogador(id){
   ${blocoCarreira(p)}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn" data-prop="${p.id}">Fazer proposta</button>`:''}
+    ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
@@ -205,66 +207,6 @@ function blocoConversa(t,p){
      :`<p class="dim" style="margin-top:8px">Vocês conversaram há pouco. Dá para chamar de novo
        em ${semanasAteConversar(p)} semana(s).</p>`}
   </div>`;
-}
-function modalProposta(id){
-  const p=P(id),t=meu();
-  const taxa=p.timeId?pedidoDeVenda(p):0;
-  const d=detalharPedido(p,t);
-  const duras=recusasDuras(p,t,2);
-  const R=REGIONS.find(r=>r.id===t.regiao);
-  const casa=regiaoNatal(p);
-
-  /* Mostrar a conta linha a linha é o ponto: sem isso o pedido salarial é um
-     número que caiu do céu, e você não tem como saber se vale insistir, subir
-     a oferta ou procurar outro jogador. */
-  const conta=d.itens.length?`
-    <div class="card flat" style="margin-top:12px"><div class="eyebrow">Por que ele pede isso</div>
-      <table><tbody>
-        <tr><td class="dim">Salário de mercado pelo over</td><td class="r num">${money(d.base)}</td></tr>
-        ${d.itens.map(i=>`<tr><td>${esc(i.rot)}</td>
-          <td class="r num ${i.fator>1?'dn':'up'}">${i.fator>1?'+':''}${Math.round((i.fator-1)*100)}%</td></tr>`).join('')}
-        <tr><td><b>Pedido</b></td><td class="r num"><b>${money(d.pedido)}</b>/mês</td></tr>
-      </tbody></table></div>`:'';
-
-  const contexto=`<p class="dim">${
-    p.timeId?'Sob contrato com <b>'+esc(nomeT(p.timeId))+'</b> por mais '+p.contrato+' ano(s).'
-            :'Agente livre — sem taxa de transferência.'}
-    Natural de ${esc(casa)}${casa!==t.regiao?', jogaria fora da região dele':''}.
-    Entraria como <b>${d.pos<=5?d.pos+'º e titular':d.pos+'º do elenco, no banco'}</b>.</p>`;
-
-  abrir(`<div class="eyebrow">Proposta</div><h2 class="sec">${esc(p.nome)}</h2>
-  ${contexto}
-  ${duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">
-    <b>Não é questão de dinheiro:</b>${duras.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`:''}
-  <div class="grid g3" style="margin-top:12px">
-    <div><label class="dim">Taxa de transferência</label><br>
-      <input type="number" id="pTaxa" value="${taxa}" step="5000" ${p.timeId?'':'disabled'}></div>
-    <div><label class="dim">Salário mensal</label><br>
-      <input type="number" id="pSal" value="${d.pedido}" step="500"></div>
-    <div><label class="dim">Anos de contrato</label><br>
-      <input type="number" id="pAnos" value="2" min="1" max="4"></div>
-  </div>
-  ${conta}
-  <div id="pFeed" style="margin-top:12px"></div>
-  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-    <button class="btn ghost" id="pJusto">Preencher com o que ele aceita</button>
-    <button class="btn" id="pEnviar" ${duras.length?'disabled':''}>Enviar proposta</button>
-    <button class="btn ghost" data-close>Cancelar</button></div>`);
-
-  $('#pJusto').onclick=()=>{
-    $('#pTaxa').value=taxa;$('#pSal').value=d.pedido;
-  };
-  $('#pEnviar').onclick=()=>{
-    const taxa2=parseFloat($('#pTaxa').value)||0,sal2=parseFloat($('#pSal').value)||0,
-          anos=parseInt($('#pAnos').value)||2;
-    const m=avaliarProposta(p,t,taxa2,sal2,anos);
-    if(m.length){$('#pFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${
-      m.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>`;return;}
-    executarProposta(p,t,taxa2,sal2,anos);
-    $('#pFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--teal)"><b>Acordo fechado.</b> ${
-      esc(p.nome)} é jogador do ${esc(t.nome)}.</div>`;
-    $('#pEnviar').disabled=true;
-  };
 }
 /* ---------- anunciar um jogador ----------
    Três decisões, e as três importam: se aceita venda, se aceita empréstimo, e

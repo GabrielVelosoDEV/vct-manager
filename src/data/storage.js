@@ -147,6 +147,8 @@ function migrarRun(reg){
        jogador escolher, para nada parar de evoluir num save que veio de antes */
     for(const id in G.times)if(!G.times[id].treino)G.times[id].treino={mapa:null,individual:{}};
     if(!G.propostas)G.propostas=[];
+    if(!G.negociacoes)G.negociacoes=[];
+    if(!G.transferencias)G.transferencias=[];
     /* Calendário antigo: os blocos não tinham semana. Sem `ini`/`fim`,
        blocoDaSemana() não acha bloco nenhum, o relógio passa o ano inteiro em
        "Intervalo" e a temporada some sem um único jogo — e sem erro, que é o
