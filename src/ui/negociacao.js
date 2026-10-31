@@ -170,6 +170,7 @@ function mesa(p,n,bloqueio,tipoBloq){
         <button class="btn" id="cEnviar">Enviar proposta</button>
         ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
         <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
+        ${G.janela?`<button class="btn ghost" id="cTroca" title="Ofereça jogadores seus, com ou sem dinheiro">Propor troca</button>`:''}
         ${podePreContrato(p,t)?`<button class="btn teal" id="cPre" title="Último ano de contrato: ele chega de graça na virada">Pré-contrato (sem taxa)</button>`:''}
       </div>
       <div id="pFeed"></div>
@@ -278,6 +279,7 @@ function _ligarMesa(p,n){
       if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
       depois();
     };
+    const bt=$('#cTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
     const bp=$('#cPre');if(bp)bp.onclick=()=>{const r=irParaPreContrato(n);if(!r.ok)return feed(r.erro);depois();};
     const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
     $('#cMulta').onclick=async()=>{

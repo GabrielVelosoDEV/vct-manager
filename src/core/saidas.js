@@ -92,12 +92,16 @@ function gerarPropostas(){
     const tipo=(podeComprar&&podeEmprestar)
       ? (nivelDoClube(alvo)>=nivelDoClube(dono)-6?'compra':'emprestimo')
       : (podeComprar?'compra':'emprestimo');
-    const pr=tipo==='compra'?montarCompra(p,alvo):montarEmprestimo(p,alvo);
+    /* às vezes, em vez de dinheiro, o clube oferece um jogador dele mais a diferença */
+    let pr=null;
+    if(tipo==='compra'&&p.timeId===G.meuTime&&typeof montarTrocaIA==='function'&&rnd()<0.30)pr=montarTrocaIA(p,alvo);
+    if(!pr)pr=tipo==='compra'?montarCompra(p,alvo):montarEmprestimo(p,alvo);
     if(!pr)continue;
     G.propostas.push(pr);novas++;
     if(p.timeId===G.meuTime)
       noticia('📨 '+alvo.nome+' fez uma proposta por '+p.nome+
-              (tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
+              (pr.tipo==='troca'?' — troca por '+G.jogadores[pr.oferecidoId].nome+(pr.taxa?' mais '+money(pr.taxa):'')
+               :tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
   }
   /* prazos vencem */
   G.propostas=G.propostas.filter(x=>{
@@ -148,6 +152,12 @@ function aceitarProposta(id){
   if(!p||!destino)return{ok:false,erro:'Proposta inválida.'};
   const origem=G.times[p.timeId];
   if(!origem)return{ok:false,erro:'O jogador não está em nenhum clube.'};
+  if(pr.tipo==='troca'){
+    const r=executarTrocaIA(pr);
+    G.propostas=(G.propostas||[]).filter(x=>x.id!==id&&x.jogadorId!==p.id);
+    if(r.ok)delete p.anuncio;
+    return r;
+  }
   if((origem.elenco||[]).length<=ELENCO_MIN&&pr.tipo==='compra')
     return{ok:false,erro:'Você ficaria com menos de '+ELENCO_MIN+' jogadores.'};
   /* A proposta ficou de pé algumas semanas. Nesse tempo o caixa do outro clube

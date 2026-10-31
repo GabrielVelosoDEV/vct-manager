@@ -52,7 +52,10 @@ await ev(`edAba='jogadores';render()`);            await tira('04-banco-jogadore
 await ev(`edAba='comissao';render()`);             await tira('04a-banco-comissao');
 await ev(`edAba='torneios';render()`);             await tira('04b-banco-torneios');
 await ev(`edAba='agentes';render()`);              await tira('04c-banco-agentes');
-await ev(`G.meuTime=G.regioes.AMER.t1[0];tela='inicio';hist=['inicio'];histPos=0;entrarNoJogo()`);
+/* a base do menu não cria carreira: recarrega e começa uma antes de entrar no jogo */
+await pg.goto('file://'+alvo);await pg.waitForTimeout(900);
+await ev(`(async()=>{if(!G)await novaCarreira(4242);})()`);await pg.waitForTimeout(600);
+await ev(`$('#modal').innerHTML='';G.meuTime=G.regioes.AMER.t1[0];tela='inicio';hist=['inicio'];histPos=0;entrarNoJogo()`);
 await tira('05-central');
 await ev(`irPara('elenco')`);                      await tira('06-elenco');
 await ev(`modalJogador(meu().titulares[0])`);      await tira('07-ficha-jogador');
@@ -158,6 +161,9 @@ await tira('10e-mesa-jogador');
 await ev(`$('#modal').innerHTML=''`);
 await ev(`mercAba='contratos';render()`);           await tira('10f-mercado-contratos');
 await ev(`modalRenovacao(meu().elenco[0])`);        await tira('10g-mesa-renovacao');
+await ev(`$('#modal').innerHTML='';(function(){const eu=meu();const o=Object.values(G.times).find(x=>x.id!==eu.id&&x.regiao===eu.regiao&&x.tier===eu.tier);
+  modalTroca(o.id,o.elenco[o.elenco.length-1]);const n=trocaAtiva(o.id);if(n){n.envia=[eu.elenco[eu.elenco.length-1]];telaTroca(n);}})()`);
+await tira('10h-troca');
 await ev(`$('#modal').innerHTML=''`);
 /* Saídas com um anúncio de pé e uma proposta na mesa: a tela vazia não mostra
    nada do que precisa ser conferido. */

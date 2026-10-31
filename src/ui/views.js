@@ -688,9 +688,10 @@ function vMercadoSaidas(t){
     <tbody>${props.map(x=>{const p=P(x.jogadorId),c=T(x.clubeId);return `<tr>
       <td><b>${esc(p.nome)}</b> <span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
       <td>${esc(c.nome)} <span class="dim">${nomeLiga(c)}</span></td>
-      <td>${x.tipo==='compra'?'<span class="chip">Compra</span>'
+      <td>${x.tipo==='troca'&&P(x.oferecidoId)?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${x.oferecidoId}">${esc(P(x.oferecidoId).nome)}</b> ${ovTag(P(x.oferecidoId))}`
+           :x.tipo==='compra'?'<span class="chip">Compra</span>'
             :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'')}</td>
-      <td class="r num">${money(x.taxa)}${x.tipo==='compra'&&x.pedido?`<div class="dim" style="font-size:11px">pediu ${money(x.pedido)}</div>`:''}</td>
+      <td class="r num">${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}${x.tipo==='compra'&&x.pedido?`<div class="dim" style="font-size:11px">pediu ${money(x.pedido)}</div>`:''}</td>
       <td class="r num dim">${money(x.salario)}/mês</td>
       <td class="c num dim">${x.prazo} sem.</td>
       <td class="r"><button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
