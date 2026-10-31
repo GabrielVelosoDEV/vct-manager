@@ -55,7 +55,7 @@ function vMenuPrincipal(){
     <div class="menu-lado">
       <div class="menu-marca">
         <span class="l1">VCT</span><span class="l2">MANAGER</span>
-        <span class="ver">v${VERSAO_JOGO} · temporada 2026</span>
+        <span class="ver">v${VERSAO_JOGO} · temporada 2027</span>
       </div>
       <div class="menu-lista">
         ${item('mnContinuar','jogar','Continuar',ondeEstou,{destaque:podeContinuar,off:!podeContinuar})}
@@ -162,6 +162,11 @@ function vConfig(){
   </div>
 
   <div class="card"><div class="eyebrow">Interface</div>
+    ${sw('dicas','Dicas da primeira temporada',
+         'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
+         'só durante a primeira temporada da carreira.')}
+    ${G&&G.meuTime?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
+      <span>${esc(dificuldade().resumo)} Escolhida na carreira nova e fixa até o fim dela.</span></div></div>`:''}
     ${sw('animacoes','Animação de entrada dos painéis',
          'Painéis entram com um leve deslocamento. Desligue se preferir a tela estática.')}
     <div class="opt"><div class="txt"><b>Rostos gerados</b>

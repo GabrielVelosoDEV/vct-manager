@@ -113,6 +113,9 @@ function detalharPedido(p,destino){
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
   if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  /* dificuldade da carreira: só no que é cobrado de você */
+  if(destino.id===G.meuTime&&dificuldade().salario!==1)
+    f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
 
   return{base,fator:f,itens,pos,salto,
          pedido:Math.max(300,Math.round(base*f/100)*100)};

@@ -17,7 +17,8 @@ m.criarMundo(20260828);m.montarCalendario();const G=m.G;
 G.meuTime=G.regioes.AMER.t1[0];
 
 const semDono=m.HISTORIA_REAL.filter(h=>!m.acharClubePorNome(h.campeao));
-console.log(`pré-história: ${m.HISTORIA_REAL.length} títulos de 2021 a 2025`);
+console.log(`pré-história: ${m.HISTORIA_REAL.length} títulos de 2021 a 2026`);
+for(const h of m.HISTORIA_REAL.filter(h=>h.ano===2026))for(const n of [h.campeao,h.vice])if(n&&!m.acharClubePorNome(n))console.log('  2026 SEM CLUBE: '+n);
 console.log(`  campeões que não existem mais: ${[...new Set(semDono.map(h=>h.campeao))].join(', ')||'nenhum'}`);
 const comTitulo=Object.values(G.times).filter(t=>t.tier===1&&(t.titulos||[]).length);
 console.log(`  clubes de Tier 1 com história: ${comTitulo.length} de 48`);

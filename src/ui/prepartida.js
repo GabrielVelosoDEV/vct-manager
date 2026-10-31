@@ -22,6 +22,7 @@ function prePartidaDisponivel(){
 /* Ponto de entrada: chamado pelo botão de avançar antes de a semana rodar. */
 function abrirPrePartida(comp,depois){
   const meu=G.times[G.meuTime], adv=G.times[comp.advId];
+  if(typeof guiaMarcar==='function')guiaMarcar('partida');
   PP={comp,adv,meu,depois,etapa:'relatorio',
       V:iniciarVeto(G.meuTime,comp.advId,comp.bo,comp.euSouA)};
   vetoAvancarAteMim(PP.V);

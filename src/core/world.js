@@ -1,7 +1,7 @@
 /* ---------- Geração do mundo ---------- */
 function criarMundo(seedVal){
   srand(seedVal);
-  G={seed:seedVal,seqP:1,ano:2026,times:{},jogadores:{},livres:[],regioes:{},h2h:{},manager:null,
+  G={seed:seedVal,seqP:1,ano:2027,times:{},jogadores:{},livres:[],regioes:{},h2h:{},manager:null,
      meuTime:null,caixa:0,log:[],historico:[],bloco:0,fase:'',temporadaFim:false,
      mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],
      meta:(typeof metaInicial==='function'?metaInicial():{}),patches:[],patchFeito:{}};

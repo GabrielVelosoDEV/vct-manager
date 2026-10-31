@@ -577,3 +577,13 @@ body.sem-anim .card{animation:none}
 tr.descansa td{opacity:.62}
 .num.am{color:var(--amber)}
 .chip.r{border-color:var(--red);color:var(--red)}
+
+/* guia da primeira temporada */
+.guia{display:flex;gap:12px;align-items:center;padding:10px 14px;margin:0 0 14px;border:1px solid var(--line);
+  border-left:3px solid var(--gold);background:rgba(200,148,58,.07);font-size:13px}
+.guia>span:nth-child(2){flex:1}
+.guia-tag{color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.guia-card .guia-passos{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;margin-top:6px;font-size:13px}
+.guia-passos .feito{color:var(--txt2,#8a97a3);text-decoration:line-through}
+.guia-passos span{display:inline-block;width:18px;color:var(--gold)}
+.guia-passos a{color:inherit}

@@ -173,7 +173,10 @@ w.eval(`window.__t={
   get crescerNaBase(){return crescerNaBase;}, get vagasDaBase(){return vagasDaBase;},
   get BASE_IDADE_SAI(){return BASE_IDADE_SAI;}, get metasDoMeio(){return metasDoMeio;},
   get custeioSemanal(){return custeioSemanal;},
-  get noticia(){return noticia;}, get manchete(){return manchete;}, get CAT_NOTICIA(){return CAT_NOTICIA;},
+  get noticia(){return noticia;}, get aplicarDificuldade(){return aplicarDificuldade;},
+  get dificuldade(){return dificuldade;}, get pesoDaCobranca(){return pesoDaCobranca;},
+  get detalharPedido(){return detalharPedido;}, get pedidoRenovacao(){return pedidoRenovacao;},
+  get criarManager(){return criarManager;}, get iniciarGuia(){return iniciarGuia;}, get Prefs(){return Prefs;}, get manchete(){return manchete;}, get CAT_NOTICIA(){return CAT_NOTICIA;},
   get newsAba(){return newsAba;}, set newsAba(v){newsAba=v;},
   get partidaConduzida(){return partidaConduzida;}, get AV(){return AV;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
   get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
@@ -1535,12 +1538,19 @@ await teste('o botão de exportar recusa base vazia em vez de baixar',async()=>{
 /* ============================================================
    LEGADO, CONFRONTO DIRETO E RIVALIDADE
    ============================================================ */
-await teste('a pré-história de 2021 a 2025 entra no mundo',async()=>{
+await teste('a pré-história de 2021 a 2026 entra no mundo',async()=>{
   const pre=(t.G.historico||[]).filter(h=>h.pre);
   if(pre.length!==t.HISTORIA_REAL.length)
     throw new Error(`registrou ${pre.length} de ${t.HISTORIA_REAL.length} títulos`);
-  if(pre.some(h=>h.ano>2025))throw new Error('2026 não podia entrar: é a temporada que se joga');
+  if(pre.some(h=>h.ano>2026))throw new Error('2027 não podia entrar: é a temporada que se joga');
+  const de26=pre.filter(h=>h.ano===2026);
+  if(de26.length!==15)throw new Error('2026 devia ter 15 títulos (3 internacionais e 12 de liga), tem '+de26.length);
+  if(de26.some(h=>!h.vice))throw new Error('todo título de 2026 tem vice no vlr.gg');
+  for(const h of t.HISTORIA_REAL.filter(h=>h.ano===2026))
+    for(const n of [h.campeao,h.vice])if(!w.acharClubePorNome(n))throw new Error(n+' (2026) não casa com nenhum clube');
   if(pre.some(h=>h.ano<2021))throw new Error('ano fora da faixa');
+  if(t.G.ano<2027)throw new Error('a carreira começa em 2027, e o mundo está em '+t.G.ano);
+  if((t.G.historico||[]).some(h=>!h.pre&&h.ano<2027))throw new Error('título jogado antes de 2027');
 });
 
 await teste('campeão que ainda existe recebe o título; quem sumiu fica só no registro',async()=>{
@@ -4685,6 +4695,67 @@ await teste('notícias por aba, com destaque do seu clube, link e manchete',asyn
     t.tela='inicio';w.render();
     if(!/Manchete da semana/.test($('#view').textContent))throw new Error('a Central não mostra a manchete');
   }finally{t.G.noticias=foto;t.newsAba='tudo';t.tela='inicio';w.render();}
+});
+
+await teste('a dificuldade mexe no caixa, na diretoria e no salário, só do seu clube',async()=>{
+  const time=meuTimeDeTeste();
+  const outro=Object.values(t.G.times).find(x=>x.id!==time.id&&x.elenco.length<9);
+  const foto=JSON.stringify({dif:t.G.dificuldade,caixa:time.caixa,m:t.G.manager});
+  const alvo=Object.values(t.G.jogadores).find(p=>p.timeId&&p.timeId!==time.id&&p.timeId!==outro.id);
+  try{
+    t.G.dificuldade='normal';
+    const salN=t.detalharPedido(alvo,time).pedido, salOutroN=t.detalharPedido(alvo,outro).pedido;
+    const caixa=time.caixa;
+    t.aplicarDificuldade('dificil',time);
+    if(Math.abs(time.caixa-caixa*0.6)>1000)throw new Error('o caixa não caiu no difícil');
+    if(t.criarManager('Teste','treinador').confianca!==t.dificuldade().confianca)throw new Error('confiança inicial não seguiu a dificuldade');
+    if(!(t.detalharPedido(alvo,time).pedido>salN))throw new Error('o jogador não cobra mais de você no difícil');
+    if(t.detalharPedido(alvo,outro).pedido!==salOutroN)throw new Error('a dificuldade mexeu no salário da IA');
+    if(!(t.pesoDaCobranca(-10)<-10)||t.pesoDaCobranca(10)!==10)throw new Error('a cobrança do difícil não pesa mais');
+    t.G.dificuldade='facil';
+    if(!(t.detalharPedido(alvo,time).pedido<salN))throw new Error('o jogador não cobra menos no fácil');
+    /* a tela de carreira nova oferece os três níveis */
+    /* outros testes deixam o banco de dados inconsistente de propósito; a
+       validação não é o que se mede aqui */
+    const validar=w.edValidar;w.edValidar=()=>({ok:true,erros:[],avisos:[]});
+    try{w.telaNovoJogo();}finally{w.edValidar=validar;}
+    if($$('#modal [data-dif]').length!==3)throw new Error('a carreira nova não mostra a dificuldade');
+    w.edValidar=()=>({ok:true,erros:[],avisos:[]});
+    try{clicar($('#modal [data-dif="dificil"]'));}finally{w.edValidar=validar;}
+    if(!$('#modal [data-dif="dificil"]').classList.contains('on'))throw new Error('escolher a dificuldade não marcou');
+    w.edValidar=()=>({ok:true,erros:[],avisos:[]});
+    try{clicar($('#modal [data-dif="normal"]'));}finally{w.edValidar=validar;}
+    $('#modal').innerHTML='';
+  }finally{const f=JSON.parse(foto);t.G.dificuldade=f.dif;time.caixa=f.caixa;t.G.manager=f.m;}
+});
+
+await teste('primeira temporada guiada: dica, primeiros passos e desligar',async()=>{
+  const foto=JSON.stringify({g:t.G.guia,ano:t.G.ano});
+  const pref=t.Prefs.get('dicas');
+  try{
+    t.Prefs.set('dicas',true);
+    t.iniciarGuia();
+    const semente=t.semente;
+    t.tela='inicio';w.render();
+    if(!/Primeiros passos · 0 de/.test($('#view').textContent))throw new Error('a Central não mostra os primeiros passos');
+    w.irPara('elenco');
+    if(!$('#view .guia'))throw new Error('a primeira visita ao elenco não mostrou a dica');
+    clicar($('[data-guiaok="elenco"]'));
+    if($('#view .guia'))throw new Error('Entendi não fechou a dica');
+    w.irPara('inicio');
+    if(!/Primeiros passos · 1 de/.test($('#view').textContent))throw new Error('visitar o elenco não marcou o passo');
+    if(t.semente!==semente)throw new Error('o guia mexeu no gerador do motor');
+    /* desligado nas configurações, some */
+    t.Prefs.set('dicas',false);w.render();
+    if(/Primeiros passos/.test($('#view').textContent))throw new Error('com as dicas desligadas o guia continuou');
+    t.Prefs.set('dicas',true);
+    /* na segunda temporada, some */
+    t.G.guia.ano=t.G.ano-1;w.render();
+    if(/Primeiros passos/.test($('#view').textContent))throw new Error('o guia passou da primeira temporada');
+    t.G.guia.ano=t.G.ano;
+    clicar($('#guiaFim')||$('#view'));
+    w.render();
+  }finally{const f=JSON.parse(foto);t.G.guia=f.g;t.Prefs.set('dicas',pref);t.tela='inicio';w.render();}
 });
 
 const larg=Math.max(...passos.map(p=>p[1].length));

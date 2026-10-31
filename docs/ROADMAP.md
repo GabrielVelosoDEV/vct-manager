@@ -101,6 +101,17 @@
 - **Notícias com categoria**: cada notícia é do seu clube, mercado,
   competições, meta e mapas ou carreira; abas na tela, destaque do que é seu,
   nome do jogador como link para a ficha e manchete da semana na Central
+- **Dificuldade** (`src/core/dificuldade.js`): fácil, normal ou difícil na
+  carreira nova, mexendo no caixa inicial, na confiança e na cobrança da
+  diretoria, na meta de posição e no salário que o jogador pede de você. O
+  motor e a IA não mudam
+- **Primeira temporada guiada** (`src/ui/guia.js`): dica no topo de cada tela
+  na primeira visita e primeiros passos na Central, desligável nas
+  Configurações
+- **Histórico de 2026 e carreira em 2027**: os 15 títulos reais de 2026
+  (Kickoffs, Stages, Masters Santiago, Masters Londres e Champions Xangai,
+  com vice, do vlr.gg) entram na pré-história, e a carreira começa em 2027
+  com os elencos de 2026
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

@@ -31,7 +31,7 @@ function criarManager(nome,papel){
   const p=PAPEIS.some(x=>x.id===papel)?papel:'diretoria';
   G.manager={
     nome:String(nome||'').trim().slice(0,28)||'Manager',
-    papel:p, desde:G.ano, confianca:62,
+    papel:p, desde:G.ano, confianca:dificuldade().confianca,
     metas:[], historico:[], demitido:false, clubes:[]
   };
   return G.manager;
@@ -52,7 +52,7 @@ function _posicaoAlvo(t){
   const onde=ord.indexOf(t.id)+1;            /* 1 = mais prestigiado da liga */
   const n=ord.length;
   if(n<4)return 1;
-  return clamp(Math.round(onde-Math.max(1,n*0.12)),2,n-2);
+  return clamp(Math.round(onde-Math.max(1,n*0.12))+dificuldade().alvo,2,n-2);
 }
 function _textoPosicao(alvo){
   return alvo<=1?'Terminar a liga em primeiro'
@@ -141,6 +141,7 @@ function cobrancaDoMeioDoAno(){
       delta+=meta.cumprida?5:-6;
     }
   }
+  delta=Math.round(pesoDaCobranca(delta));
   m.confianca=clamp(Math.round(m.confianca+delta),0,100);
   const registro={meio:true,ano:G.ano,clube:t.nome,tag:t.tag,pos,de,titulos:0,
     metas:doMeio.map(x=>({texto:x.texto,cumprida:x.cumprida,resultado:x.resultado})),
@@ -200,6 +201,7 @@ function avaliarTemporada(){
   else delta=-10-Math.min(24,(pos-(principal?principal.alvo:pos))*4);
   delta+=bonus*10;
   if(titulosAno)delta+=8;
+  delta=Math.round(pesoDaCobranca(delta));
   m.confianca=clamp(Math.round(m.confianca+delta),0,100);
 
   const registro={ano:G.ano,clube:t.nome,tag:t.tag,pos,de,titulos:titulosAno,
@@ -240,7 +242,7 @@ function assumirClube(id){
   if(!t)return{ok:false,erro:'Clube não encontrado.'};
   G.meuTime=id;
   const m=G.manager;
-  m.demitido=false;m.desde=G.ano;m.confianca=58;
+  m.demitido=false;m.desde=G.ano;m.confianca=dificuldade().confianca-4;
   if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});

@@ -1,7 +1,7 @@
 /* ============================================================
    NOVO JOGO
    ============================================================ */
-let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='';
+let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal';
 function telaNovoJogo(){
   const val=edValidar();
   if(!val.ok){
@@ -37,6 +37,9 @@ function telaNovoJogo(){
           <i>${esc(p.detalhe)}</i>
         </button>`).join('')}</div>
     </div>
+    <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
+    <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
+      <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
     <h2 class="sec" style="margin-top:18px">Escolha seu clube</h2>
     <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
@@ -59,6 +62,7 @@ function telaNovoJogo(){
   if(inNome)inNome.oninput=guardaNome;
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
   $('#regen').onclick=()=>{iniciarPreRun(parseInt($('#seedIn').value)||12345);$('#modal').innerHTML='';};
@@ -66,6 +70,8 @@ function telaNovoJogo(){
     guardaNome();
     G.meuTime=b.dataset.pick;
     G.iniciadaEm=Date.now();
+    aplicarDificuldade(escDif,T(G.meuTime));
+    iniciarGuia();
     criarManager(escNome,escPapel);
     iniciarBase(T(G.meuTime));
     montarMetas();

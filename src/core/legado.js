@@ -4,7 +4,7 @@
    Um clube sem passado é um nome com um escudo. Este módulo dá
    enredo às franquias em três camadas:
 
-     · o que já ganharam antes de 2026 (data/historia.js)
+     · o que já ganharam antes de 2027 (data/historia.js)
      · quem enfrentaram desde então, e com que placar
      · de quem eles não gostam, e por quê
 
@@ -30,7 +30,7 @@ function acharClubePorNome(nome){
   return null;
 }
 
-/* Torcida herdada. Um clube que ganhou Champions em 2022 chega em 2026 com
+/* Torcida herdada. Um clube que ganhou Champions em 2022 chega em 2027 com
    público maior do que um que nunca ganhou nada, mesmo que hoje jogue igual.
    É por isso que legado é diferente de prestígio: prestígio é o que você é
    agora, torcida é o que você já foi. */
