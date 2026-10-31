@@ -288,10 +288,14 @@ function planoIA(t){
     if(p.fadiga>0.7||p.lesao){pl.individual[id]={tipo:'descanso',alvo:null};continue;}
     const gap=(p.pot||0)-over(p);
     if(gap<=1){pl.individual[id]={tipo:'descanso',alvo:null};continue;}
-    /* o atributo mais fraco entre os que a função dele cobra */
+    /* O atributo que mais rende over: peso na função vezes o espaço que ainda
+       tem até 99. A conta antiga (o mais fraco pelo peso, at/w) escolhia a
+       mira do Duelista mesmo com a mira em 99, e todo o treino se perdia no
+       teto: o regen empacava aos 20 anos com 74 de over e potencial 88, e a
+       média do Tier 1 caía de 84 para 79 conforme os reais se aposentavam. */
     const w=ROLE_W[p.role]||ROLE_W.Flex;
     const alvo=Object.keys(w).sort((a,b)=>
-      (p.at[a]/1)*(1/w[a])-(p.at[b]/1)*(1/w[b]))[0]||'mira';
+      w[b]*(99-(p.at[b]||0))-w[a]*(99-(p.at[a]||0)))[0]||'mira';
     pl.individual[id]={tipo:'atributo',alvo};
   }
   return pl;

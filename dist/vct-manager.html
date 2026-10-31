@@ -3359,6 +3359,63 @@ function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */
 function receitaLivre(t){return Math.max(0,receitaAnual(t)-custeioAnual(t));}
 
+/* ---------- índice salarial do Tier 1 ----------
+   Sem isto o dinheiro parava no topo: o salário saía só do over, a estrutura
+   chegava ao nível máximo em poucas temporadas e o Tier 1 terminava vinte anos
+   com mediana de 5 milhões no caixa e folha em um quarto da receita. Ganhar
+   dinheiro deixava de significar alguma coisa.
+
+   Agora o mercado reage à riqueza, como num circuito de verdade: quando os
+   clubes de cima guardam mais do que precisam, o salário pedido no Tier 1
+   sobe; quando apertam, ele cede. Vale para contrato novo e renovação, então
+   o efeito chega aos poucos. O Challengers fica fora: lá a folha já come
+   metade da receita. Só aritmética: não sorteia nada. */
+const INDICE_SAL_MIN=1, INDICE_SAL_MAX=3;
+/* Quantos anos de receita no caixa o mercado considera normal. */
+const INDICE_SAL_ALVO=1.5;
+const INDICE_SAL_PASSO=0.05, INDICE_SAL_SOBE=0.08, INDICE_SAL_DESCE=0.05;
+function indiceSalarial(tier){
+  if(tier!==1)return 1;
+  return (typeof G!=='undefined'&&G&&G.indiceSalario)||1;
+}
+/* Clube com dinheiro sobrando paga mais pelo mesmo jogador: o empresário sabe
+   quanto tem no banco. O índice acompanha a mediana do Tier 1 e não alcança os
+   ricos de verdade (o p90 terminava vinte anos com 17 milhões); isto alcança.
+   Até três anos de receita guardados não muda nada. */
+const RIQUEZA_ANOS_LIVRES=3, RIQUEZA_POR_ANO=0.10, RIQUEZA_TETO=0.6;
+function fatorRiqueza(t){
+  if(!t)return 1;
+  const rec=receitaAnual(t);
+  if(!(rec>0))return 1;
+  const anos=(t.caixa||0)/rec;
+  return 1+clamp((anos-RIQUEZA_ANOS_LIVRES)*RIQUEZA_POR_ANO,0,RIQUEZA_TETO);
+}
+function _mediana(xs){
+  const v=xs.slice().sort((a,b)=>a-b);
+  return v.length?v[Math.floor(v.length/2)]:0;
+}
+/* Anos de receita que o Tier 1 tem guardados (mediana, sem o seu clube). */
+function folegoDoTier1(){
+  const ts=Object.values(G.times).filter(t=>t.tier===1&&t.id!==G.meuTime);
+  const rec=_mediana(ts.map(receitaAnual));
+  return rec>0?_mediana(ts.map(t=>t.caixa||0))/rec:0;
+}
+function atualizarIndiceSalarial(){
+  const antes=G.indiceSalario||1;
+  const r=folegoDoTier1();
+  const f=clamp(1+(r-INDICE_SAL_ALVO)*INDICE_SAL_PASSO,1-INDICE_SAL_DESCE,1+INDICE_SAL_SOBE);
+  const depois=Math.round(clamp(antes*f,INDICE_SAL_MIN,INDICE_SAL_MAX)*1000)/1000;
+  G.indiceSalario=depois;
+  (G.indiceHist=G.indiceHist||[]).push({ano:G.ano,i:depois});
+  if(G.indiceHist.length>40)G.indiceHist.shift();
+  const pct=Math.round((depois/antes-1)*100);
+  if(Math.abs(pct)>=2&&typeof noticia==='function')
+    noticia((pct>0?'📈 Os salários do Tier 1 subiram ':'📉 Os salários do Tier 1 caíram ')+Math.abs(pct)+
+      '% na virada: '+(pct>0?'os clubes de cima estão com dinheiro sobrando.':'os clubes de cima apertaram o cinto.'),
+      {c:'mercado',imp:1});
+  return depois;
+}
+
 /* ---------- edição no Banco de dados ----------
    Como no resto do Editor, estas funções não conhecem DOM: recebem valores,
    devolvem {ok, msg|erro}. É o que permite testá-las sem navegador. */
@@ -3454,11 +3511,30 @@ function valor(p){
   v*= .9+p.forma*.2;
   return Math.round(v/500)*500;
 }
-function salario(p){
+/* Com o clube, o salário sai na régua da divisão dele: o Tier 1 paga pelo
+   índice salarial do circuito (economia.js), que sobe quando os clubes de cima
+   acumulam dinheiro sem ter onde gastar. Sem clube, é o salário de referência. */
+function salario(p,t,explicado){
   const o=over(p);
   let s=Math.pow(Math.max(PISO_SALARIO_JOGADOR+4,o)-PISO_SALARIO_JOGADOR,2.1)*K_SALARIO_JOGADOR;
   if(p.idade<=20)s*=.72;
+  if(t&&typeof indiceSalarial==='function')s*=indiceSalarial(t.tier);
+  /* o que depende do clube e do momento: quem chama com `explicado` mostra
+     cada fator numa linha própria (detalharPedido, pedidoRenovacao) */
+  if(t&&!explicado){
+    if(typeof fatorRiqueza==='function')s*=fatorRiqueza(t);
+    s*=descontoSemClube(p);
+  }
   return Math.round(s/100)*100;
+}
+/* Quem está sem clube há meses baixa o pedido. Sem isto o veterano de 84 que
+   não renovou ficava no mercado pedindo o salário cheio e ninguém pagava: em
+   vinte temporadas, metade dos agentes livres tinha over 84 ou mais enquanto o
+   pior titular do Tier 1 tinha 75. */
+const DESCONTO_LIVRE_SEMANA=0.008, DESCONTO_LIVRE_MAX=0.4;
+function descontoSemClube(p){
+  if(!p||p.timeId||!p.semLivre)return 1;
+  return 1-Math.min(DESCONTO_LIVRE_MAX,p.semLivre*DESCONTO_LIVRE_SEMANA);
 }
 function nomeUnico(usados){
   for(let i=0;i<400;i++){
@@ -4429,10 +4505,14 @@ function planoIA(t){
     if(p.fadiga>0.7||p.lesao){pl.individual[id]={tipo:'descanso',alvo:null};continue;}
     const gap=(p.pot||0)-over(p);
     if(gap<=1){pl.individual[id]={tipo:'descanso',alvo:null};continue;}
-    /* o atributo mais fraco entre os que a função dele cobra */
+    /* O atributo que mais rende over: peso na função vezes o espaço que ainda
+       tem até 99. A conta antiga (o mais fraco pelo peso, at/w) escolhia a
+       mira do Duelista mesmo com a mira em 99, e todo o treino se perdia no
+       teto: o regen empacava aos 20 anos com 74 de over e potencial 88, e a
+       média do Tier 1 caía de 84 para 79 conforme os reais se aposentavam. */
     const w=ROLE_W[p.role]||ROLE_W.Flex;
     const alvo=Object.keys(w).sort((a,b)=>
-      (p.at[a]/1)*(1/w[a])-(p.at[b]/1)*(1/w[b]))[0]||'mira';
+      w[b]*(99-(p.at[b]||0))-w[a]*(99-(p.at[a]||0)))[0]||'mira';
     pl.individual[id]={tipo:'atributo',alvo};
   }
   return pl;
@@ -6489,9 +6569,18 @@ function ordenarTabela(s){
     return b.v-a.v||(b.mv-b.md)-(a.mv-a.md)||(b.rv-b.rd)-(a.rv-a.rd);
   });
 }
+/* Metade do prêmio é dos jogadores, como no circuito de verdade. Com o prêmio
+   inteiro no caixa, quem ganhava Masters e Champions terminava dez temporadas
+   com 15 milhões parados, que nem salário nem estrutura conseguiam gastar. O
+   bônus deixa o elenco um pouco mais feliz. Não sorteia nada. */
+const PARTE_DOS_JOGADORES=0.5;
 function pagar(ids,tabela){
-  ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;G.times[id].caixa+=v;
-    if(id===G.meuTime)noticia('Premiação recebida: '+money(v),{c:'clube',t:[id]});});
+  ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;
+    const t=G.times[id];if(!t)return;
+    const clube=Math.round(v*(1-PARTE_DOS_JOGADORES));
+    t.caixa+=clube;
+    (t.elenco||[]).forEach(pid=>{const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+0.02,0.05,1);});
+    if(id===G.meuTime)noticia('Premiação: '+money(v)+'. '+money(clube)+' ficam no clube e o resto vai de bônus para os jogadores.',{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.
    Num lugar só porque as três coisas acontecem sempre juntas — espalhadas por
@@ -6984,7 +7073,7 @@ function semana(){
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }
-  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
+  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
@@ -7069,7 +7158,7 @@ function desenvolver(p,t){
   /* Marca de quão bom ele já foi. É a régua do declínio: quem caiu muito do
      próprio pico é quem pendura o mouse, independentemente da idade. */
   p.pico=Math.max(p.pico||0,over(p));
-  p.valor=valor(p);p.salarioJusto=salario(p);
+  p.valor=valor(p);p.salarioJusto=salario(p,p.timeId&&G.times[p.timeId]);
 }
 function venderPorDinheiro(t){
   if(t.elenco.length<=5)return;
@@ -7102,7 +7191,7 @@ function liberar(p){
        saiu no meio da semana ficava planejado até o próximo aplicarTreino, e a
        tela de Treino mostrava o nome de quem já não era do clube */
     if(typeof limparPlano==='function')limparPlano(t);}
-  p.timeId=null;p.contrato=0;G.livres.push(p.id);
+  p.timeId=null;p.contrato=0;p.semLivre=0;G.livres.push(p.id);
 }
 function contratar(p,time,anos,sal){
   let origem=null;
@@ -7112,6 +7201,7 @@ function contratar(p,time,anos,sal){
     origem.sinergia=clamp(origem.sinergia-10,0,100);autoEscalar(origem);
     if(typeof limparPlano==='function')limparPlano(origem);}
   G.livres=G.livres.filter(x=>x!==p.id);
+  delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de
@@ -7157,13 +7247,13 @@ function mercadoIA(){
       const alvo=G.livres.map(i=>G.jogadores[i])
         .filter(p=>p.role===falta||p.role==='Flex')
         .sort((a,b)=>over(b)-over(a))
-        .find(p=>salario(p)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
+        .find(p=>salario(p,t)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
       const esc=alvo
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p)*12<teto)
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a)-salario(b))
-            .find(p=>salario(p)*12<teto);
+        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
+        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a,t)-salario(b,t))
+            .find(p=>salario(p,t)*12<teto);
       if(!esc)break;
-      contratar(esc,t,ri(1,3),salario(esc));
+      contratar(esc,t,ri(1,3),salario(esc,t));
     }
     /* Reforço: trocar o pior titular. Antes era um dado de 30% e pronto, o que
        deixava clube rico sentado em cima de meio milhão de folga enquanto o
@@ -7175,9 +7265,9 @@ function mercadoIA(){
       const pior=t.titulares.map(i=>G.jogadores[i]).sort((a,b)=>over(a)-over(b))[0];
       if(!pior)continue;
       const tetoR=Math.min(t.caixa*.4,folgaSalarial(t)*12);
-      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p)*12<tetoR)
+      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
         .sort((a,b)=>over(b)-over(a))[0];
-      if(alvo)contratar(alvo,t,ri(2,3),salario(alvo));
+      if(alvo)contratar(alvo,t,ri(2,3),salario(alvo,t));
     }
     autoEscalar(t);
   }
@@ -7222,15 +7312,15 @@ function reporElenco(t){
       const disp=G.livres.map(i=>G.jogadores[i]).filter(Boolean)
         .sort((a,b)=>over(b)-over(a));
       const teto=folgaSalarial(t)*12;
-      const livre=disp.find(p=>salario(p)*12<=teto)
-        ||disp.slice().sort((a,b)=>salario(a)-salario(b))[0];
-      if(livre){contratar(livre,t,ri(1,2),salario(livre));continue;}
+      const livre=disp.find(p=>salario(p,t)*12<=teto)
+        ||disp.slice().sort((a,b)=>salario(a,t)-salario(b,t))[0];
+      if(livre){contratar(livre,t,ri(1,2),salario(livre,t));continue;}
       const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
       const falta=ROLES.find(r=>!t.elenco.some(i=>G.jogadores[i].role===r))||pick(ROLES);
       const[piso]=FAIXAS.jogador[t.tier];
       const p=makePlayer(clamp(piso-8+ri(0,6),FAIXAS.jogador[2][0]-14,piso),
                          falta,pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
-      p.contrato=2;p.salario=salario(p);p.valor=valor(p);
+      p.contrato=2;p.salario=salario(p,t);p.valor=valor(p);
       p.timeId=t.id;G.jogadores[p.id]=p;t.elenco.push(p.id);
       emergencias++;
       if(emergencias>6)break;   /* cinto de segurança contra laço infinito */
@@ -7327,7 +7417,7 @@ const PREMIO_BANCO=[1,1,1,1,1,1.18,1.30,1.42,1.52];  /* por posição no elenco 
    em vez de mostrar um número que caiu do céu. */
 function detalharPedido(p,destino){
   const origem=p.timeId?G.times[p.timeId]:null;
-  const base=salario(p);
+  const base=salario(p,destino,true);
   const itens=[];
   const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
 
@@ -7359,6 +7449,8 @@ function detalharPedido(p,destino){
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
   if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(destino));
+  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p));
   /* dificuldade da carreira: só no que é cobrado de você */
   if(destino.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
@@ -7597,7 +7689,7 @@ const RENOV_PREMIO_ANO=0.07;
 function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
 /* O que ele pede para ficar, e por quê. */
 function pedidoRenovacao(p,t){
-  const base=salario(p);
+  const base=salario(p,t,true);
   const itens=[];
   const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
   let f=1;
@@ -7616,6 +7708,7 @@ function pedidoRenovacao(p,t){
   if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(t));
   if(t.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
   /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */
@@ -8021,6 +8114,9 @@ function legadoDe(t){
 /* Guardado em G.h2h com chave ordenada, para "A contra B" e "B contra A"
    caírem no mesmo registro. Sem a ordenação seriam dois históricos separados
    que nunca conversariam. */
+/* Quantos confrontos recentes cada par guarda. Eram 12: com 80 clubes isso era
+   um quarto do save depois de vinte temporadas, e a tela mostra menos que isso. */
+const H2H_ULTIMOS=6;
 function chaveH2H(a,b){return a<b?a+'|'+b:b+'|'+a;}
 function registrarConfronto(idA,idB,vencedorId,ctx){
   if(!idA||!idB||idA===idB)return null;
@@ -8030,7 +8126,7 @@ function registrarConfronto(idA,idB,vencedorId,ctx){
   r.jogos++;
   if(vencedorId===r.a)r.va++;else if(vencedorId===r.b)r.vb++;
   r.ultimos.unshift({ano:G.ano,v:vencedorId,ctx:ctx||''});
-  if(r.ultimos.length>12)r.ultimos.pop();
+  if(r.ultimos.length>H2H_ULTIMOS)r.ultimos.pop();
   return r;
 }
 function confronto(idA,idB){
@@ -8468,7 +8564,7 @@ function promoverDaBase(t,id){
   if(t.elenco.length>=9)return{ok:false,msg:'O elenco já tem nove jogadores. Libere uma vaga antes de promover.'};
   sairDaBase(t,p);
   p.timeId=t.id;t.elenco.push(p.id);
-  p.contrato=3;p.salario=salario(p);p.valor=valor(p);
+  p.contrato=3;p.salario=salario(p,t);p.valor=valor(p);
   p.moral=clamp(p.moral+0.08,0.05,1);
   noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' agora é do elenco principal, com contrato de 3 anos.'};
@@ -9114,7 +9210,7 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
 function renovarSePuder(p){
   const t=G.times[p.timeId];
   if(!t){liberar(p);return false;}
-  const novo=salario(p);
+  const novo=salario(p,t);
   const depois=folhaAnual(t)-(p.salario||0)*12+novo*12;
   const teto=receitaLivre(t)*tetoFolhaDe(t);
   if(depois>teto&&t.elenco.length>5){liberar(p);return false;}
@@ -9156,6 +9252,9 @@ function ajustarFolha(){
   return cortes;
 }
 
+/* Teto do mercado de agentes livres: o resto (os de menor over+potencial)
+   some do mundo na virada. Era 170; 120 ainda é mercado farto e pesa menos no save. */
+const LIVRES_MAX=120;
 function chanceAposentadoria(p){
   let c=0;
   for(const[idade,ch]of APOS_IDADE)if(p.idade>=idade){c=ch;break;}
@@ -9183,6 +9282,8 @@ function fimDeTemporada(){
      empréstimo voltar e de alguém se aposentar */
   if(typeof premiarTemporada==='function')premiarTemporada();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
+  /* o mercado reage ao dinheiro guardado antes das renovações da virada */
+  if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
   // aposentadorias e contratos
@@ -9232,11 +9333,15 @@ function fimDeTemporada(){
     /* Promessa nasce abaixo do piso da divisão de propósito: é projeto, não
        titular. O potencial é que a torna interessante. */
     const[piso]=FAIXAS.jogador[t.tier];
-    const alvo=clamp(Math.round(gauss(piso-10+t.estrutura.academia*2+(olh-3)*2,5)),
-                     FAIXAS.jogador[2][0]-14,piso+2);
+    /* Academia e olheiro mexem pouco, de propósito. Com academia*2 e teto de
+       potencial em 99, a academia 5 (que todo clube de Tier 1 tem depois de
+       poucas temporadas) fabricava garoto já no piso e com potencial 99: em
+       vinte temporadas, metade dos cinquenta melhores do mundo era 98. */
+    const alvo=clamp(Math.round(gauss(piso-12+t.estrutura.academia+(olh-neutro),5)),
+                     FAIXAS.jogador[2][0]-14,piso-2);
     const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
-    p.pot=clamp(over(p)+ri(10,28)+t.estrutura.academia*2,over(p)+8,99);
-    p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
+    p.pot=clamp(over(p)+ri(8,20)+t.estrutura.academia,over(p)+6,96);
+    p.salario=salario(p,t);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
       if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});}
@@ -9249,7 +9354,10 @@ function fimDeTemporada(){
      temporada, os clubes não conseguiam mais repor: apareciam times de Tier 1
      com um jogador só. A oferta agora acompanha a demanda, com um piso para o
      mercado nunca ficar sem opção nenhuma. */
-  const novos=Math.max(14,aposentados-promessas+6);
+  /* Sem folga em cima da reposição: com os regens crescendo de verdade, o
+     "+6" e o piso de 14 enchiam o mercado de garotos que ninguém contratava
+     (160 livres em vinte temporadas, e o save crescendo junto). */
+  const novos=Math.max(10,aposentados-promessas);
   for(let i=0;i<novos;i++){
     const R=pick(REGIONS);
     /* Sangue novo entra pela base, na idade da base. Antes entrava pronto,
@@ -9274,20 +9382,20 @@ function fimDeTemporada(){
      graça, que é a ordem em que isso acontece de verdade */
   mercadoTransferencias();
   mercadoIA();
-  if(G.livres.length>170){
+  if(G.livres.length>LIVRES_MAX){
     const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(over(b)+b.pot)-(over(a)+a.pot));
-    ordenados.slice(170).forEach(p=>{noticia('');
+    ordenados.slice(LIVRES_MAX).forEach(p=>{noticia('');
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[p.id];});
     G.noticias=G.noticias.filter(n=>n.txt);
-    G.livres=ordenados.slice(0,170).map(p=>p.id);
+    G.livres=ordenados.slice(0,LIVRES_MAX).map(p=>p.id);
   }
   const meuT=G.times[G.meuTime];
   if(meuT){
     while(meuT.elenco.length<5&&G.livres.length){
       const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
-        .find(p=>salario(p)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
-      contratar(alvo,meuT,2,salario(alvo));
+        .find(p=>salario(p,meuT)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
+      contratar(alvo,meuT,2,salario(alvo,meuT));
       noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});
     }
   }
@@ -12431,6 +12539,8 @@ function vFinancas(){
         <tr><td>Receita livre</td><td class="r num">${money(receitaLivre(t))}</td></tr>
         <tr><td>Teto de folha</td><td class="r num">${money(receitaLivre(t)*tetoFolhaDe(t))}</td></tr>
         <tr><td>Folga para contratar</td><td class="r num">${money(folgaSalarial(t))}/mês</td></tr>
+        ${t.tier===1?`<tr><td title="Sobe quando os clubes do Tier 1 guardam dinheiro demais e cede quando apertam">Índice salarial do Tier 1</td><td class="r num">×${indiceSalarial(1).toFixed(2)}</td></tr>`:''}
+        ${fatorRiqueza(t)>1?`<tr><td title="Com mais de três anos de receita no caixa, os jogadores pedem mais">Acréscimo de clube rico</td><td class="r num">+${Math.round((fatorRiqueza(t)-1)*100)}%</td></tr>`:''}
       </tbody></table>
     </div>
   </div></div>

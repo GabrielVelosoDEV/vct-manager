@@ -853,6 +853,8 @@ function vFinancas(){
         <tr><td>Receita livre</td><td class="r num">${money(receitaLivre(t))}</td></tr>
         <tr><td>Teto de folha</td><td class="r num">${money(receitaLivre(t)*tetoFolhaDe(t))}</td></tr>
         <tr><td>Folga para contratar</td><td class="r num">${money(folgaSalarial(t))}/mês</td></tr>
+        ${t.tier===1?`<tr><td title="Sobe quando os clubes do Tier 1 guardam dinheiro demais e cede quando apertam">Índice salarial do Tier 1</td><td class="r num">×${indiceSalarial(1).toFixed(2)}</td></tr>`:''}
+        ${fatorRiqueza(t)>1?`<tr><td title="Com mais de três anos de receita no caixa, os jogadores pedem mais">Acréscimo de clube rico</td><td class="r num">+${Math.round((fatorRiqueza(t)-1)*100)}%</td></tr>`:''}
       </tbody></table>
     </div>
   </div></div>

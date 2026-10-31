@@ -17,11 +17,30 @@ function valor(p){
   v*= .9+p.forma*.2;
   return Math.round(v/500)*500;
 }
-function salario(p){
+/* Com o clube, o salário sai na régua da divisão dele: o Tier 1 paga pelo
+   índice salarial do circuito (economia.js), que sobe quando os clubes de cima
+   acumulam dinheiro sem ter onde gastar. Sem clube, é o salário de referência. */
+function salario(p,t,explicado){
   const o=over(p);
   let s=Math.pow(Math.max(PISO_SALARIO_JOGADOR+4,o)-PISO_SALARIO_JOGADOR,2.1)*K_SALARIO_JOGADOR;
   if(p.idade<=20)s*=.72;
+  if(t&&typeof indiceSalarial==='function')s*=indiceSalarial(t.tier);
+  /* o que depende do clube e do momento: quem chama com `explicado` mostra
+     cada fator numa linha própria (detalharPedido, pedidoRenovacao) */
+  if(t&&!explicado){
+    if(typeof fatorRiqueza==='function')s*=fatorRiqueza(t);
+    s*=descontoSemClube(p);
+  }
   return Math.round(s/100)*100;
+}
+/* Quem está sem clube há meses baixa o pedido. Sem isto o veterano de 84 que
+   não renovou ficava no mercado pedindo o salário cheio e ninguém pagava: em
+   vinte temporadas, metade dos agentes livres tinha over 84 ou mais enquanto o
+   pior titular do Tier 1 tinha 75. */
+const DESCONTO_LIVRE_SEMANA=0.008, DESCONTO_LIVRE_MAX=0.4;
+function descontoSemClube(p){
+  if(!p||p.timeId||!p.semLivre)return 1;
+  return 1-Math.min(DESCONTO_LIVRE_MAX,p.semLivre*DESCONTO_LIVRE_SEMANA);
 }
 function nomeUnico(usados){
   for(let i=0;i<400;i++){

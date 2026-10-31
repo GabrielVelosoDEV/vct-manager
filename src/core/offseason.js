@@ -25,7 +25,7 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
 function renovarSePuder(p){
   const t=G.times[p.timeId];
   if(!t){liberar(p);return false;}
-  const novo=salario(p);
+  const novo=salario(p,t);
   const depois=folhaAnual(t)-(p.salario||0)*12+novo*12;
   const teto=receitaLivre(t)*tetoFolhaDe(t);
   if(depois>teto&&t.elenco.length>5){liberar(p);return false;}
@@ -67,6 +67,9 @@ function ajustarFolha(){
   return cortes;
 }
 
+/* Teto do mercado de agentes livres: o resto (os de menor over+potencial)
+   some do mundo na virada. Era 170; 120 ainda é mercado farto e pesa menos no save. */
+const LIVRES_MAX=120;
 function chanceAposentadoria(p){
   let c=0;
   for(const[idade,ch]of APOS_IDADE)if(p.idade>=idade){c=ch;break;}
@@ -94,6 +97,8 @@ function fimDeTemporada(){
      empréstimo voltar e de alguém se aposentar */
   if(typeof premiarTemporada==='function')premiarTemporada();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
+  /* o mercado reage ao dinheiro guardado antes das renovações da virada */
+  if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
   // aposentadorias e contratos
@@ -143,11 +148,15 @@ function fimDeTemporada(){
     /* Promessa nasce abaixo do piso da divisão de propósito: é projeto, não
        titular. O potencial é que a torna interessante. */
     const[piso]=FAIXAS.jogador[t.tier];
-    const alvo=clamp(Math.round(gauss(piso-10+t.estrutura.academia*2+(olh-3)*2,5)),
-                     FAIXAS.jogador[2][0]-14,piso+2);
+    /* Academia e olheiro mexem pouco, de propósito. Com academia*2 e teto de
+       potencial em 99, a academia 5 (que todo clube de Tier 1 tem depois de
+       poucas temporadas) fabricava garoto já no piso e com potencial 99: em
+       vinte temporadas, metade dos cinquenta melhores do mundo era 98. */
+    const alvo=clamp(Math.round(gauss(piso-12+t.estrutura.academia+(olh-neutro),5)),
+                     FAIXAS.jogador[2][0]-14,piso-2);
     const p=makePlayer(alvo,pick(ROLES),pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
-    p.pot=clamp(over(p)+ri(10,28)+t.estrutura.academia*2,over(p)+8,99);
-    p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
+    p.pot=clamp(over(p)+ri(8,20)+t.estrutura.academia,over(p)+6,96);
+    p.salario=salario(p,t);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
       if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});}
@@ -160,7 +169,10 @@ function fimDeTemporada(){
      temporada, os clubes não conseguiam mais repor: apareciam times de Tier 1
      com um jogador só. A oferta agora acompanha a demanda, com um piso para o
      mercado nunca ficar sem opção nenhuma. */
-  const novos=Math.max(14,aposentados-promessas+6);
+  /* Sem folga em cima da reposição: com os regens crescendo de verdade, o
+     "+6" e o piso de 14 enchiam o mercado de garotos que ninguém contratava
+     (160 livres em vinte temporadas, e o save crescendo junto). */
+  const novos=Math.max(10,aposentados-promessas);
   for(let i=0;i<novos;i++){
     const R=pick(REGIONS);
     /* Sangue novo entra pela base, na idade da base. Antes entrava pronto,
@@ -185,20 +197,20 @@ function fimDeTemporada(){
      graça, que é a ordem em que isso acontece de verdade */
   mercadoTransferencias();
   mercadoIA();
-  if(G.livres.length>170){
+  if(G.livres.length>LIVRES_MAX){
     const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(over(b)+b.pot)-(over(a)+a.pot));
-    ordenados.slice(170).forEach(p=>{noticia('');
+    ordenados.slice(LIVRES_MAX).forEach(p=>{noticia('');
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[p.id];});
     G.noticias=G.noticias.filter(n=>n.txt);
-    G.livres=ordenados.slice(0,170).map(p=>p.id);
+    G.livres=ordenados.slice(0,LIVRES_MAX).map(p=>p.id);
   }
   const meuT=G.times[G.meuTime];
   if(meuT){
     while(meuT.elenco.length<5&&G.livres.length){
       const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
-        .find(p=>salario(p)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
-      contratar(alvo,meuT,2,salario(alvo));
+        .find(p=>salario(p,meuT)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
+      contratar(alvo,meuT,2,salario(alvo,meuT));
       noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});
     }
   }

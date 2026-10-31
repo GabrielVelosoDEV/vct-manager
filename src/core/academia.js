@@ -116,7 +116,7 @@ function promoverDaBase(t,id){
   if(t.elenco.length>=9)return{ok:false,msg:'O elenco já tem nove jogadores. Libere uma vaga antes de promover.'};
   sairDaBase(t,p);
   p.timeId=t.id;t.elenco.push(p.id);
-  p.contrato=3;p.salario=salario(p);p.valor=valor(p);
+  p.contrato=3;p.salario=salario(p,t);p.valor=valor(p);
   p.moral=clamp(p.moral+0.08,0.05,1);
   noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' agora é do elenco principal, com contrato de 3 anos.'};

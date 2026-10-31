@@ -218,9 +218,18 @@ function ordenarTabela(s){
     return b.v-a.v||(b.mv-b.md)-(a.mv-a.md)||(b.rv-b.rd)-(a.rv-a.rd);
   });
 }
+/* Metade do prêmio é dos jogadores, como no circuito de verdade. Com o prêmio
+   inteiro no caixa, quem ganhava Masters e Champions terminava dez temporadas
+   com 15 milhões parados, que nem salário nem estrutura conseguiam gastar. O
+   bônus deixa o elenco um pouco mais feliz. Não sorteia nada. */
+const PARTE_DOS_JOGADORES=0.5;
 function pagar(ids,tabela){
-  ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;G.times[id].caixa+=v;
-    if(id===G.meuTime)noticia('Premiação recebida: '+money(v),{c:'clube',t:[id]});});
+  ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;
+    const t=G.times[id];if(!t)return;
+    const clube=Math.round(v*(1-PARTE_DOS_JOGADORES));
+    t.caixa+=clube;
+    (t.elenco||[]).forEach(pid=>{const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+0.02,0.05,1);});
+    if(id===G.meuTime)noticia('Premiação: '+money(v)+'. '+money(clube)+' ficam no clube e o resto vai de bônus para os jogadores.',{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.
    Num lugar só porque as três coisas acontecem sempre juntas — espalhadas por
