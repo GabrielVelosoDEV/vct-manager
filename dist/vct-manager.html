@@ -333,6 +333,11 @@ tr.me:hover{background:rgba(255,70,85,.19)}
 .feed{max-height:260px;overflow:auto;font-size:12.5px}
 .feed div{padding:5px 0;border-bottom:1px solid var(--line)}
 .feed b{font-weight:700}
+.feed .news.me{border-left:2px solid var(--red);padding-left:8px}
+.feed .news-link{display:inline;padding:0;border:0;color:inherit;text-decoration:underline dotted;cursor:pointer;font-weight:600}
+.feed .news-sep{padding:10px 0 4px;color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.manchete{padding:10px 12px;margin:6px 0 10px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.manchete.me{border-left:3px solid var(--red)}
 select,input[type=text],input[type=number],input[type=password],textarea{font-family:inherit;font-size:13px;
   padding:6px 8px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx)}
 select:hover,input:hover{border-color:var(--dim)}
@@ -3858,7 +3863,7 @@ function rotacionarMapas(motivo){
   saem.forEach(m=>{delete G.mapaDesde[m];});
   if(typeof noticia==='function')
     noticia('🗺 Rotação de mapas'+(motivo?' ('+motivo+')':'')+': entram '+entram.join(' e ')+
-            ', saem '+saem.join(' e ')+'.');
+            ', saem '+saem.join(' e ')+'.',{c:'meta',imp:2});
   /* Todo clube que estava treinando um mapa que acabou de sair precisa saber
      agora, e não descobrir seis semanas depois que treinou o vazio. */
   if(typeof limparPlano==='function')
@@ -4057,7 +4062,7 @@ function aplicarPatch(motivo){
     const buff=mudou.filter(x=>x.tipo==='buff').map(x=>x.ag);
     noticia('🩹 Patch: '+(nerf.length?nerf.join(' e ')+' levaram nerf':'')+
       (nerf.length&&buff.length?'; ':'')+
-      (buff.length?buff.join(' e ')+' levaram buff':'')+'.');
+      (buff.length?buff.join(' e ')+' levaram buff':'')+'.',{c:'meta',imp:2});
   }
   /* Comp montada em cima de um boneco nerfado continua válida — a conta é o
      jogador descobrir que ela ficou pior. Nada é desmontado por baixo. */
@@ -4187,7 +4192,7 @@ function limparPlano(t){
   if(pl.mapa&&!mapaAtivo(pl.mapa)){
     const era=pl.mapa;pl.mapa=null;
     if(t.id===G.meuTime&&typeof noticia==='function')
-      noticia('🗺 '+era+' saiu de rotação: o treino de mapa da semana ficou sem alvo.');
+      noticia('🗺 '+era+' saiu de rotação: o treino de mapa da semana ficou sem alvo.',{c:'meta',t:[G.meuTime]});
   }
   return pl;
 }
@@ -4819,7 +4824,7 @@ function autoEscalar(t){
     el=sadios.concat(machucados.slice(0,5-sadios.length));
     if(t.id===G.meuTime&&machucados.length&&typeof noticia==='function')
       noticia('🩹 Sem gente inteira: '+Math.min(machucados.length,5-sadios.length)+
-              ' jogador(es) entram em recuperação e rendem menos.');
+              ' jogador(es) entram em recuperação e rendem menos.',{c:'clube',t:[t.id]});
   }
   if(!el.length){t.titulares=[];t.igl=null;return;}
 
@@ -5032,7 +5037,7 @@ function cobrarPromessas(t){
     (t.elenco||[]).forEach(i=>{const x=G.jogadores[i];
       if(x&&x.id!==p.id)x.moral=clamp(x.moral-0.04,0.05,1);});
     if(t.id===G.meuTime&&typeof noticia==='function')
-      noticia('💬 '+p.nome+' cobrou a promessa de titularidade que não veio. O vestiário ouviu.');
+      noticia('💬 '+p.nome+' cobrou a promessa de titularidade que não veio. O vestiário ouviu.',{c:'clube',p:[p.id]});
   }
   return quebradas;
 }
@@ -6428,7 +6433,7 @@ function ordenarTabela(s){
 }
 function pagar(ids,tabela){
   ids.forEach((id,i)=>{const v=tabela[i]||0;if(!v)return;G.times[id].caixa+=v;
-    if(id===G.meuTime)noticia('Premiação recebida: '+money(v));});
+    if(id===G.meuTime)noticia('Premiação recebida: '+money(v),{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.
    Num lugar só porque as três coisas acontecem sempre juntas — espalhadas por
@@ -6439,7 +6444,7 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao){titulo(campeao,nomeTitulo(s));
+  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2);
     /* título internacional conta à parte: é ele que separa lenda de bom jogador */
     if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
       const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
@@ -6459,11 +6464,11 @@ function encerrarStage(s){
   if(r){
     r.p.carreira.mvpTorneios=(r.p.carreira.mvpTorneios||0)+1;
     noticia('⭐ '+r.p.nome+' ('+(r.time?r.time.tag:'—')+') é o melhor jogador de '+
-            nomeTitulo(s)+' — '+r.acs+' de ACS e '+r.kd+' de K/D em '+r.maps+' mapas.');
+            nomeTitulo(s)+' — '+r.acs+' de ACS e '+r.kd+' de K/D em '+r.maps+' mapas.',{c:'competicoes',p:[r.p.id],t:[r.time&&r.time.id]});
   }
   return s.mvp;
 }
-function titulo(id,nome){
+function titulo(id,nome,imp){
   const t=G.times[id];if(!t)return;
   t.titulos.push(G.ano+' · '+nome);t.prestigio=clamp(t.prestigio+2.2,20,99);
   t.titulares.forEach(pid=>G.jogadores[pid].carreira.titulos++);
@@ -6471,9 +6476,40 @@ function titulo(id,nome){
     const m=membroDe(t,c.id);if(m)m.temp.titulos++;
   });
   G.historico.push({ano:G.ano,evento:nome,campeao:t.nome});
-  noticia('🏆 '+t.nome+' é campeão de '+nome+'.');
+  noticia('🏆 '+t.nome+' é campeão de '+nome+'.',{c:'competicoes',t:[t.id],imp:imp||2});
 }
-function noticia(txt){G.noticias.unshift({b:G.bloco,ano:G.ano,txt});if(G.noticias.length>90)G.noticias.pop();}
+/* ---------- sala de imprensa ----------
+   Cada notícia tem categoria (o) e quem ela cita: jogadores (p) e clubes (t).
+   "Do seu clube" é decidido aqui, na hora, e não na tela: o jogador pode
+   trocar de clube depois, e a notícia continua sendo de quando aconteceu.
+   imp vai de 1 a 3 e escolhe a manchete da semana na Central. */
+const CAT_NOTICIA={clube:'Meu clube',mercado:'Mercado',competicoes:'Competições',meta:'Meta e mapas',carreira:'Carreira'};
+const NOTICIAS_MAX=240;
+function noticia(txt,o){
+  o=o||{};
+  const p=(o.p||[]).filter(id=>id&&G.jogadores[id]);
+  const t=(o.t||[]).filter(id=>id&&G.times[id]).filter((x,i,a)=>a.indexOf(x)===i);
+  const n={b:G.bloco,ano:G.ano,s:G.semana,txt,c:o.c||'outros'};
+  const eu=G.meuTime;
+  if(eu&&(t.includes(eu)||p.some(id=>{const j=G.jogadores[id];return j.timeId===eu||j.base===eu;})))n.meu=1;
+  if(p.length)n.p=p;
+  if(t.length)n.t=t;
+  if(o.imp)n.imp=o.imp;
+  G.noticias.unshift(n);
+  if(G.noticias.length>NOTICIAS_MAX)G.noticias.pop();
+}
+/* A manchete: a notícia mais importante das duas últimas semanas, com
+   peso extra para o que é do seu clube. */
+function manchete(){
+  let melhor=null,nota=0;
+  for(const n of G.noticias){
+    if(n.ano!==G.ano||n.s==null||n.s<(G.semana||1)-1)break;
+    if(n.c==='sistema'||!n.txt)continue;
+    const v=(n.imp||1)+(n.meu?1.5:0);
+    if(v>nota){nota=v;melhor=n;}
+  }
+  return nota>=2?melhor:null;
+}
 
 
 /* ===== src/core/calendar.js ===== */
@@ -6691,7 +6727,7 @@ function fimDeBloco(b){
       R.pontos[sobe]=R.pontos[sobe]||0;
       G.times[sobe].prestigio=clamp(G.times[sobe].prestigio+6,20,99);
       G.times[ult].prestigio=clamp(G.times[ult].prestigio-8,20,99);
-      noticia('⬆ '+G.times[sobe].nome+' subiu para a liga principal · ⬇ '+G.times[ult].nome+' foi rebaixado.');
+      noticia('⬆ '+G.times[sobe].nome+' subiu para a liga principal · ⬇ '+G.times[ult].nome+' foi rebaixado.',{c:'competicoes',t:[sobe,ult],imp:2});
     });
   }
   if(k==='champions'){
@@ -6916,13 +6952,13 @@ function desenvolver(p,t){
     :FADIGA_TREINO+((t.treino&&t.treino.mapa)?FADIGA_TREINO_MAPA:0);
   p.fadiga=clamp(p.fadiga-0.035-(t.estrutura.gh*0.004)+(t.tatica.scrim-2)*0.008
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
-  if(p.lesao>0){p.lesao--;if(!p.lesao)noticia(p.nome+' está recuperado.');}
+  if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}
   p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004,.15,1);
   /* burnout: fadiga acumulada cobra moral e abre risco de lesão */
   if(p.fadiga>0.82){
     p.moral=clamp(p.moral-0.022,.15,1);
     if(rnd()<0.02+ (p.fadiga-0.82)*0.10){p.lesao=ri(1,2);
-      if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.');}
+      if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.',{c:'clube',p:[p.id]});}
   }
   const o=over(p),gap=p.pot-o;
   /* Pico e declínio acompanham a carreira mais longa: cresce até 27, estabiliza
@@ -7142,7 +7178,7 @@ function reporElenco(t){
       if(emergencias>6)break;   /* cinto de segurança contra laço infinito */
     }
     if(emergencias&&t.id===G.meuTime)
-      noticia('⚠ Sem opção no mercado: '+emergencias+' jogador(es) promovido(s) da base às pressas.');
+      noticia('⚠ Sem opção no mercado: '+emergencias+' jogador(es) promovido(s) da base às pressas.',{c:'clube',t:[t.id]});
     autoEscalar(t);
     return emergencias;
   }finally{ delete t._repondo; }
@@ -7332,7 +7368,7 @@ function executarProposta(p,destino,taxa,sal,anos){
   const de=origem?origem.tag:'sem clube';
   contratar(p,destino,anos,sal);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+destino.nome+
-          (taxa?' por '+money(taxa):' — livre')+'.');
+          (taxa?' por '+money(taxa):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
   return true;
 }
 
@@ -7591,7 +7627,7 @@ function proporRenovacao(p,t,sal,anos){
   p.contrato=anos;p.salario=Math.round(sal);
   p.renovTent=0;delete p.renovBloq;
   p.moral=clamp(p.moral+(generoso?0.09:0.05),0.05,1);
-  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.');
+  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.',{c:'mercado',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' renovou por '+anos+' ano(s).'+(generoso?' Saiu valorizado.':'')};
 }
 
@@ -7695,14 +7731,14 @@ function gerarPropostas(){
     G.propostas.push(pr);novas++;
     if(p.timeId===G.meuTime)
       noticia('📨 '+alvo.nome+' fez uma proposta por '+p.nome+
-              (tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')));
+              (tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
   }
   /* prazos vencem */
   G.propostas=G.propostas.filter(x=>{
     x.prazo--;
     if(x.prazo>0)return true;
     const p=G.jogadores[x.jogadorId];
-    if(p&&p.timeId===G.meuTime)noticia('⌛ '+G.times[x.clubeId].nome+' retirou a proposta por '+p.nome+'.');
+    if(p&&p.timeId===G.meuTime)noticia('⌛ '+G.times[x.clubeId].nome+' retirou a proposta por '+p.nome+'.',{c:'mercado',p:[p.id]});
     return false;
   });
   return novas;
@@ -7791,7 +7827,7 @@ function executarEmprestimo(p,destino,pr){
                 over:over(p),
                 parteDono:Math.max(0,salarioOriginal-pr.salario)};
   noticia('🔁 '+p.nome+' foi emprestado ao '+destino.nome+' por uma temporada'+
-          (pr.opcaoCompra?' com opção de compra de '+money(pr.opcaoCompra):'')+'.');
+          (pr.opcaoCompra?' com opção de compra de '+money(pr.opcaoCompra):'')+'.',{c:'mercado',p:[p.id],t:[destino.id]});
   return true;
 }
 /* Fim de temporada: quem estava emprestado volta, ou é comprado. */
@@ -7814,12 +7850,12 @@ function resolverEmprestimos(){
     if(e.opcaoCompra&&atual&&atual.id!==dono.id&&rende&&cabe&&rnd()<0.6){
       atual.caixa-=e.opcaoCompra;dono.caixa+=e.opcaoCompra;
       delete p.emprestimo;p.contrato=ri(2,3);p.salario=e.salario;
-      noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.');
+      noticia('💰 '+atual.nome+' exerceu a opção de compra de '+p.nome+' por '+money(e.opcaoCompra)+'.',{c:'mercado',p:[p.id],t:[atual.id]});
       compras++;continue;
     }
     if(atual&&atual.id!==dono.id){
       contratar(p,dono,Math.max(1,e.contrato),e.salario);
-      noticia('↩ '+p.nome+' voltou ao '+dono.nome+' após o empréstimo.');
+      noticia('↩ '+p.nome+' voltou ao '+dono.nome+' após o empréstimo.',{c:'mercado',p:[p.id],t:[dono.id]});
     }
     delete p.emprestimo;voltas++;
   }
@@ -7993,7 +8029,7 @@ function aplicarClassico(vencedorId,perdedorId){
   if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
   if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
     noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
-      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'));
+      (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'),{c:'competicoes',t:[V.id,P.id],imp:2});
   return{nota,k};
 }
 function rivaisDe(id,quantos){
@@ -8196,11 +8232,11 @@ function premiarTemporada(){
   const premiados=new Set([mvp,...usados,rev,igl&&igl.id].filter(Boolean));
   premiados.forEach(id=>{const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.05,0.05,1);});
 
-  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.');
+  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
   const meus=[...premiados].filter(id=>G.jogadores[id].timeId===G.meuTime);
   if(meus.length)noticia('🏅 Prêmios de '+G.ano+' no seu clube: '+
-    meus.map(id=>G.jogadores[id].nome).join(', ')+'.');
-  if(reg.treinador&&reg.treinador.voce)noticia('🏅 Você foi eleito o treinador do ano de '+G.ano+'.');
+    meus.map(id=>G.jogadores[id].nome).join(', ')+'.',{c:'carreira',p:meus,t:[G.meuTime],imp:2});
+  if(reg.treinador&&reg.treinador.voce)noticia('🏅 Você foi eleito o treinador do ano de '+G.ano+'.',{c:'carreira',t:[G.meuTime],imp:3});
   return reg;
 }
 
@@ -8232,7 +8268,7 @@ function talvezHallDaFama(p){
     pico:p.pico||over(p),pontos:Math.round(pts*10)/10,clubes,
     carreira:resumoCarreira(p),premios:(p.premios||[]).map(x=>({ano:x.ano,rot:x.rot}))};
   (G.lendas=G.lendas||[]).push(l);
-  noticia('🏛 '+p.nome+' se aposenta e entra para o Hall da Fama.');
+  noticia('🏛 '+p.nome+' se aposenta e entra para o Hall da Fama.',{c:'carreira',imp:2});
   return l;
 }
 
@@ -8320,7 +8356,7 @@ function virarBase(usados){
     for(const p of baseDe(t)){
       if(p.idade<BASE_IDADE_SAI)continue;
       sairDaBase(t,p);G.livres.push(p.id);
-      if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.');
+      if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.',{c:'clube',p:[p.id],t:[t.id]});
     }
   }
   const t=G.meuTime&&G.times[G.meuTime];
@@ -8334,7 +8370,7 @@ function virarBase(usados){
   const n=Math.min(vagas,1+(rnd()<acad*0.15+(olh-neutro)*0.05?1:0));
   const novos=[];
   for(let i=0;i<n;i++)novos.push(revelarUm(t,usados));
-  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.');
+  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.',{c:'clube',p:novos.map(p=>p.id),t:[t.id]});
   return n;
 }
 
@@ -8371,7 +8407,7 @@ function promoverDaBase(t,id){
   p.timeId=t.id;t.elenco.push(p.id);
   p.contrato=3;p.salario=salario(p);p.valor=valor(p);
   p.moral=clamp(p.moral+0.08,0.05,1);
-  noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').');
+  noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' agora é do elenco principal, com contrato de 3 anos.'};
 }
 
@@ -8380,7 +8416,7 @@ function dispensarDaBase(t,id){
   if(!p||p.base!==t.id)return{ok:false,msg:'Esse jogador não está na sua base.'};
   sairDaBase(t,p);
   p.contrato=0;G.livres.push(p.id);
-  noticia(p.nome+' foi dispensado da base de '+t.nome+'.');
+  noticia(p.nome+' foi dispensado da base de '+t.nome+'.',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' foi dispensado e está no mercado.'};
 }
 
@@ -8856,7 +8892,7 @@ function cobrancaDoMeioDoAno(){
     confianca:m.confianca,delta};
   const demitido=m.confianca<=CONF_MIN;
   if(demitido)demitirManager(t);
-  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.');
+  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
   return{...registro,demitido,avisado:!demitido&&m.confianca<=CONF_PISO_DEMISSAO};
 }
 
@@ -8925,7 +8961,7 @@ function demitirManager(t){
   const m=G.manager;
   m.demitido=true;
   m.clubes.push({tag:t.tag,nome:t.nome,de:m.desde,ate:G.ano});
-  noticia('📉 '+m.nome+' foi demitido do '+t.nome+'.');
+  noticia('📉 '+m.nome+' foi demitido do '+t.nome+'.',{c:'clube',t:[t.id],imp:3});
 }
 /* Clubes dispostos a contratar quem acabou de ser demitido. Ninguém de topo
    chama um treinador que acabou de cair — a lista sai do prestígio para baixo,
@@ -8952,7 +8988,7 @@ function assumirClube(id){
   m.demitido=false;m.desde=G.ano;m.confianca=58;
   if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
-  noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.');
+  noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
 }
 
@@ -9092,7 +9128,7 @@ function fimDeTemporada(){
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
-      if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.');
+      if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});
       if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
@@ -9100,7 +9136,7 @@ function fimDeTemporada(){
       delete G.jogadores[id];aposentados++;continue;
     }
     if(p.contrato===0&&p.timeId){
-      if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.');liberar(p);}
+      if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
       else liberar(p);
     }
@@ -9138,7 +9174,7 @@ function fimDeTemporada(){
     p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
-      if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').');}
+      if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});}
     else{p.timeId=null;G.livres.push(p.id);}
   }
   /* Novos nomes no mercado.
@@ -9187,7 +9223,7 @@ function fimDeTemporada(){
       const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
       contratar(alvo,meuT,2,salario(alvo));
-      noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.');
+      noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});
     }
   }
   /* torcida antes das marcas: é a campanha recém-encerrada que decide quem
@@ -9215,7 +9251,7 @@ function fimDeTemporada(){
   if(typeof montarMetas==='function'&&G.manager&&!G.manager.demitido)montarMetas();
   montarCalendario();
   G.semana=1;
-  noticia('=== Início da temporada '+G.ano+' ===');
+  noticia('=== Início da temporada '+G.ano+' ===',{c:'sistema'});
 }
 
 
@@ -9621,7 +9657,7 @@ function executarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   moverStaff(m.id,destino.id,cargo);
   m.salario=sal;m.contrato=anos;
   noticia('🎓 '+m.nome+' é o novo '+cargo+' do '+destino.nome+
-          (taxa?' por '+money(taxa):' (livre)')+'.');
+          (taxa?' por '+money(taxa):' (livre)')+'.',{c:'mercado',t:[destino.id]});
 }
 /* a IA preenche vagas e troca quem está muito abaixo do prestígio do clube */
 function mercadoStaffIA(){
@@ -9690,11 +9726,11 @@ function evoluirStaff(){
     /* aposentadoria */
     const chance = m.idade>=66?1 : m.idade>=60?.35 : m.idade>=55?.12 : 0;
     if(rnd()<chance){
-      if(t&&t.id===G.meuTime)noticia('👔 '+m.nome+' se aposentou aos '+m.idade+' anos.');
+      if(t&&t.id===G.meuTime)noticia('👔 '+m.nome+' se aposentou aos '+m.idade+' anos.',{c:'clube',t:[t.id]});
       apagarStaff(id);continue;
     }
     if(!m.contrato&&t){
-      if(t.id===G.meuTime){noticia('📄 '+m.nome+' encerrou contrato e deixou a comissão.');liberarStaff(id);}
+      if(t.id===G.meuTime){noticia('📄 '+m.nome+' encerrou contrato e deixou a comissão.',{c:'clube',t:[t.id]});liberarStaff(id);}
       else if(rnd()<.80)m.contrato=ri(2,3);
       else liberarStaff(id);
     }
@@ -9718,7 +9754,7 @@ function evoluirStaff(){
       }
       moverStaff(cand.id,meu.id,c.id);
       cand.contrato=1;
-      noticia('⚠ '+c.nome+' vago: a diretoria pôs '+cand.nome+' como interino por um ano.');
+      noticia('⚠ '+c.nome+' vago: a diretoria pôs '+cand.nome+' como interino por um ano.',{c:'clube',t:[meu.id]});
     }
   }
 
@@ -10559,7 +10595,7 @@ function migrarRun(reg){
       G.bloco=alvo?G.calendario.indexOf(alvo):0;
       if(typeof noticia==='function')
         noticia('📅 O calendário virou semanas com data. A temporada foi remontada a partir de '+
-                (alvo?alvo.nome:'a pré-temporada')+'.');
+                (alvo?alvo.nome:'a pré-temporada')+'.',{c:'outros'});
     }
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();
@@ -11560,7 +11596,9 @@ function vInicio(){
     ${cardTabelaDaCasa(t,rr)}
   </div>
   <div class="card"><div class="eyebrow">Sala de imprensa</div>
-    <div class="feed">${G.noticias.slice(0,9).map(n=>`<div><span class="dim num">${n.ano}</span> ${esc(n.txt)}</div>`).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
+    ${(()=>{const m=manchete();return m?`<div class="manchete ${m.meu?'me':''}"><div class="eyebrow">Manchete da semana</div>
+      <h3 class="sub" style="margin:4px 0 0">${esc(m.txt)}</h3></div>`:'';})()}
+    <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
   </div>`;
 }
 function vElenco(){
@@ -12376,9 +12414,34 @@ function vPremios(){
     :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
       e uma carreira longa.</div>`}</div>`;
 }
+/* ---------- notícias ---------- */
+let newsAba='tudo';
+function linhaNoticia(n){
+  if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
+  /* o nome de quem a notícia cita vira link para a ficha */
+  let txt=esc(n.txt);
+  for(const id of (n.p||[]).slice(0,4)){
+    const p=P(id);if(!p)continue;
+    const nm=esc(p.nome),i=txt.indexOf(nm);
+    if(i<0)continue;
+    txt=txt.slice(0,i)+`<span class="jrow news-link" data-p="${id}">${nm}</span>`+txt.slice(i+nm.length);
+  }
+  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
+}
+function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
+function noticiasDaAba(aba){
+  if(aba==='tudo')return G.noticias;
+  if(aba==='clube')return G.noticias.filter(n=>n.meu);
+  return G.noticias.filter(n=>n.c===aba);
+}
 function vNews(){
+  const abas=[['tudo','Tudo'],...Object.entries(CAT_NOTICIA)];
+  const lista=noticiasDaAba(newsAba).filter(n=>n.txt);
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
-  <div class="card flat"><div class="feed" style="max-height:none">${G.noticias.map(n=>`<div><span class="dim num">${n.ano}</span> ${esc(n.txt)}</div>`).join('')||'<div class="dim">Sem notícias.</div>'}</div></div>`;
+  <div class="tabs">${abas.map(([k,n])=>{
+    const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
+    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${n} <span class="dim">${q}</span></button>`;}).join('')}</div>
+  <div class="card flat"><div class="feed" style="max-height:none">${lista.map(linhaNoticia).join('')||'<div class="dim">Sem notícias aqui.</div>'}</div></div>`;
 }
 
 /* ============================================================
@@ -14805,6 +14868,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-bpromo]',async el=>{
     const r=promoverDaBase(t,el.dataset.bpromo);
@@ -14841,7 +14905,7 @@ function ligarEventos(){
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);
     if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
-    t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.');render();
+    t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.',{c:'clube',t:[t.id]});render();
   });
   on('[data-prop]',el=>modalProposta(el.dataset.prop));
   on('[data-assumir]',el=>{
@@ -14853,13 +14917,13 @@ function ligarEventos(){
   on('[data-anunciar]',el=>modalAnunciar(el.dataset.anunciar));
   on('[data-desanunciar]',el=>{
     const r=retirarAnuncio(P(el.dataset.desanunciar));
-    if(r&&r.msg)noticia(r.msg);
+    if(r&&r.msg)noticia(r.msg,{c:'mercado',t:[t.id]});
     render();
   });
   on('[data-aceitar]',el=>{
     const r=aceitarProposta(el.dataset.aceitar);
     if(!r.ok){avisar(r.erro||'A proposta não pôde ser aceita.');return;}
-    noticia('🤝 '+r.msg);render();
+    noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
   on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
@@ -15381,9 +15445,9 @@ function telaNovoJogo(){
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
-            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.');
+            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
     if(souTreinador()&&eu.metas.length)
-      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.');
+      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
     salvarRun(G.runNome);
     $('#modal').innerHTML='';
     tela='inicio';hist=['inicio'];histPos=0;

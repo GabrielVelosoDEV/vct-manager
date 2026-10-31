@@ -130,7 +130,7 @@ function rotacionarMapas(motivo){
   saem.forEach(m=>{delete G.mapaDesde[m];});
   if(typeof noticia==='function')
     noticia('🗺 Rotação de mapas'+(motivo?' ('+motivo+')':'')+': entram '+entram.join(' e ')+
-            ', saem '+saem.join(' e ')+'.');
+            ', saem '+saem.join(' e ')+'.',{c:'meta',imp:2});
   /* Todo clube que estava treinando um mapa que acabou de sair precisa saber
      agora, e não descobrir seis semanas depois que treinou o vazio. */
   if(typeof limparPlano==='function')

@@ -104,7 +104,7 @@ function fimDeTemporada(){
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
-      if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.');
+      if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});
       if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
@@ -112,7 +112,7 @@ function fimDeTemporada(){
       delete G.jogadores[id];aposentados++;continue;
     }
     if(p.contrato===0&&p.timeId){
-      if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.');liberar(p);}
+      if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
       else liberar(p);
     }
@@ -150,7 +150,7 @@ function fimDeTemporada(){
     p.salario=salario(p);p.contrato=3;p.daCasa=t.id;
     G.jogadores[p.id]=p;promessas++;
     if(t.elenco.length<9){p.timeId=t.id;t.elenco.push(p.id);
-      if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').');}
+      if(t.id===G.meuTime)noticia('⭐ Promessa da base promovida: '+p.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});}
     else{p.timeId=null;G.livres.push(p.id);}
   }
   /* Novos nomes no mercado.
@@ -199,7 +199,7 @@ function fimDeTemporada(){
       const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
       contratar(alvo,meuT,2,salario(alvo));
-      noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.');
+      noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});
     }
   }
   /* torcida antes das marcas: é a campanha recém-encerrada que decide quem
@@ -227,5 +227,5 @@ function fimDeTemporada(){
   if(typeof montarMetas==='function'&&G.manager&&!G.manager.demitido)montarMetas();
   montarCalendario();
   G.semana=1;
-  noticia('=== Início da temporada '+G.ano+' ===');
+  noticia('=== Início da temporada '+G.ano+' ===',{c:'sistema'});
 }

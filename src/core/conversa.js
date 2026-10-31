@@ -146,7 +146,7 @@ function cobrarPromessas(t){
     (t.elenco||[]).forEach(i=>{const x=G.jogadores[i];
       if(x&&x.id!==p.id)x.moral=clamp(x.moral-0.04,0.05,1);});
     if(t.id===G.meuTime&&typeof noticia==='function')
-      noticia('💬 '+p.nome+' cobrou a promessa de titularidade que não veio. O vestiário ouviu.');
+      noticia('💬 '+p.nome+' cobrou a promessa de titularidade que não veio. O vestiário ouviu.',{c:'clube',p:[p.id]});
   }
   return quebradas;
 }

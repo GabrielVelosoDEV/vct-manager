@@ -109,7 +109,7 @@ function limparPlano(t){
   if(pl.mapa&&!mapaAtivo(pl.mapa)){
     const era=pl.mapa;pl.mapa=null;
     if(t.id===G.meuTime&&typeof noticia==='function')
-      noticia('🗺 '+era+' saiu de rotação: o treino de mapa da semana ficou sem alvo.');
+      noticia('🗺 '+era+' saiu de rotação: o treino de mapa da semana ficou sem alvo.',{c:'meta',t:[G.meuTime]});
   }
   return pl;
 }

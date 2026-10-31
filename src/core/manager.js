@@ -147,7 +147,7 @@ function cobrancaDoMeioDoAno(){
     confianca:m.confianca,delta};
   const demitido=m.confianca<=CONF_MIN;
   if(demitido)demitirManager(t);
-  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.');
+  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
   return{...registro,demitido,avisado:!demitido&&m.confianca<=CONF_PISO_DEMISSAO};
 }
 
@@ -216,7 +216,7 @@ function demitirManager(t){
   const m=G.manager;
   m.demitido=true;
   m.clubes.push({tag:t.tag,nome:t.nome,de:m.desde,ate:G.ano});
-  noticia('📉 '+m.nome+' foi demitido do '+t.nome+'.');
+  noticia('📉 '+m.nome+' foi demitido do '+t.nome+'.',{c:'clube',t:[t.id],imp:3});
 }
 /* Clubes dispostos a contratar quem acabou de ser demitido. Ninguém de topo
    chama um treinador que acabou de cair — a lista sai do prestígio para baixo,
@@ -243,7 +243,7 @@ function assumirClube(id){
   m.demitido=false;m.desde=G.ano;m.confianca=58;
   if(typeof iniciarBase==='function')iniciarBase(t);
   montarMetas();
-  noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.');
+  noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
 }
 

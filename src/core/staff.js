@@ -252,7 +252,7 @@ function executarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   moverStaff(m.id,destino.id,cargo);
   m.salario=sal;m.contrato=anos;
   noticia('🎓 '+m.nome+' é o novo '+cargo+' do '+destino.nome+
-          (taxa?' por '+money(taxa):' (livre)')+'.');
+          (taxa?' por '+money(taxa):' (livre)')+'.',{c:'mercado',t:[destino.id]});
 }
 /* a IA preenche vagas e troca quem está muito abaixo do prestígio do clube */
 function mercadoStaffIA(){
@@ -321,11 +321,11 @@ function evoluirStaff(){
     /* aposentadoria */
     const chance = m.idade>=66?1 : m.idade>=60?.35 : m.idade>=55?.12 : 0;
     if(rnd()<chance){
-      if(t&&t.id===G.meuTime)noticia('👔 '+m.nome+' se aposentou aos '+m.idade+' anos.');
+      if(t&&t.id===G.meuTime)noticia('👔 '+m.nome+' se aposentou aos '+m.idade+' anos.',{c:'clube',t:[t.id]});
       apagarStaff(id);continue;
     }
     if(!m.contrato&&t){
-      if(t.id===G.meuTime){noticia('📄 '+m.nome+' encerrou contrato e deixou a comissão.');liberarStaff(id);}
+      if(t.id===G.meuTime){noticia('📄 '+m.nome+' encerrou contrato e deixou a comissão.',{c:'clube',t:[t.id]});liberarStaff(id);}
       else if(rnd()<.80)m.contrato=ri(2,3);
       else liberarStaff(id);
     }
@@ -349,7 +349,7 @@ function evoluirStaff(){
       }
       moverStaff(cand.id,meu.id,c.id);
       cand.contrato=1;
-      noticia('⚠ '+c.nome+' vago: a diretoria pôs '+cand.nome+' como interino por um ano.');
+      noticia('⚠ '+c.nome+' vago: a diretoria pôs '+cand.nome+' como interino por um ano.',{c:'clube',t:[meu.id]});
     }
   }
 

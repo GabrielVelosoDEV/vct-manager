@@ -67,7 +67,7 @@ function virarBase(usados){
     for(const p of baseDe(t)){
       if(p.idade<BASE_IDADE_SAI)continue;
       sairDaBase(t,p);G.livres.push(p.id);
-      if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.');
+      if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.',{c:'clube',p:[p.id],t:[t.id]});
     }
   }
   const t=G.meuTime&&G.times[G.meuTime];
@@ -81,7 +81,7 @@ function virarBase(usados){
   const n=Math.min(vagas,1+(rnd()<acad*0.15+(olh-neutro)*0.05?1:0));
   const novos=[];
   for(let i=0;i<n;i++)novos.push(revelarUm(t,usados));
-  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.');
+  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.',{c:'clube',p:novos.map(p=>p.id),t:[t.id]});
   return n;
 }
 
@@ -118,7 +118,7 @@ function promoverDaBase(t,id){
   p.timeId=t.id;t.elenco.push(p.id);
   p.contrato=3;p.salario=salario(p);p.valor=valor(p);
   p.moral=clamp(p.moral+0.08,0.05,1);
-  noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').');
+  noticia('⭐ '+p.nome+' sobe da base para o elenco de '+t.nome+' ('+p.role+', pot. '+p.pot+').',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' agora é do elenco principal, com contrato de 3 anos.'};
 }
 
@@ -127,7 +127,7 @@ function dispensarDaBase(t,id){
   if(!p||p.base!==t.id)return{ok:false,msg:'Esse jogador não está na sua base.'};
   sairDaBase(t,p);
   p.contrato=0;G.livres.push(p.id);
-  noticia(p.nome+' foi dispensado da base de '+t.nome+'.');
+  noticia(p.nome+' foi dispensado da base de '+t.nome+'.',{c:'clube',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' foi dispensado e está no mercado.'};
 }
 

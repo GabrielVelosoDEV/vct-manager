@@ -180,7 +180,7 @@ function executarProposta(p,destino,taxa,sal,anos){
   const de=origem?origem.tag:'sem clube';
   contratar(p,destino,anos,sal);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+destino.nome+
-          (taxa?' por '+money(taxa):' — livre')+'.');
+          (taxa?' por '+money(taxa):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
   return true;
 }
 

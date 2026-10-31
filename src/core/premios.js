@@ -175,11 +175,11 @@ function premiarTemporada(){
   const premiados=new Set([mvp,...usados,rev,igl&&igl.id].filter(Boolean));
   premiados.forEach(id=>{const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.05,0.05,1);});
 
-  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.');
+  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
   const meus=[...premiados].filter(id=>G.jogadores[id].timeId===G.meuTime);
   if(meus.length)noticia('🏅 Prêmios de '+G.ano+' no seu clube: '+
-    meus.map(id=>G.jogadores[id].nome).join(', ')+'.');
-  if(reg.treinador&&reg.treinador.voce)noticia('🏅 Você foi eleito o treinador do ano de '+G.ano+'.');
+    meus.map(id=>G.jogadores[id].nome).join(', ')+'.',{c:'carreira',p:meus,t:[G.meuTime],imp:2});
+  if(reg.treinador&&reg.treinador.voce)noticia('🏅 Você foi eleito o treinador do ano de '+G.ano+'.',{c:'carreira',t:[G.meuTime],imp:3});
   return reg;
 }
 
@@ -211,7 +211,7 @@ function talvezHallDaFama(p){
     pico:p.pico||over(p),pontos:Math.round(pts*10)/10,clubes,
     carreira:resumoCarreira(p),premios:(p.premios||[]).map(x=>({ano:x.ano,rot:x.rot}))};
   (G.lendas=G.lendas||[]).push(l);
-  noticia('🏛 '+p.nome+' se aposenta e entra para o Hall da Fama.');
+  noticia('🏛 '+p.nome+' se aposenta e entra para o Hall da Fama.',{c:'carreira',imp:2});
   return l;
 }
 

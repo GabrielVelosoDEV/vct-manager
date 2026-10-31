@@ -98,6 +98,9 @@
   head coach; promover, dispensar e escolher a função que o olheiro procura;
   quem faz 20 sem subir vai para o mercado; lista de revelados pela casa. Os
   clubes da IA ficam com a versão resumida
+- **Notícias com categoria**: cada notícia é do seu clube, mercado,
+  competições, meta e mapas ou carreira; abas na tela, destaque do que é seu,
+  nome do jogador como link para a ficha e manchete da semana na Central
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

@@ -212,7 +212,7 @@ function fimDeBloco(b){
       R.pontos[sobe]=R.pontos[sobe]||0;
       G.times[sobe].prestigio=clamp(G.times[sobe].prestigio+6,20,99);
       G.times[ult].prestigio=clamp(G.times[ult].prestigio-8,20,99);
-      noticia('⬆ '+G.times[sobe].nome+' subiu para a liga principal · ⬇ '+G.times[ult].nome+' foi rebaixado.');
+      noticia('⬆ '+G.times[sobe].nome+' subiu para a liga principal · ⬇ '+G.times[ult].nome+' foi rebaixado.',{c:'competicoes',t:[sobe,ult],imp:2});
     });
   }
   if(k==='champions'){

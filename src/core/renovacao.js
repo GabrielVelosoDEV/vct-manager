@@ -120,6 +120,6 @@ function proporRenovacao(p,t,sal,anos){
   p.contrato=anos;p.salario=Math.round(sal);
   p.renovTent=0;delete p.renovBloq;
   p.moral=clamp(p.moral+(generoso?0.09:0.05),0.05,1);
-  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.');
+  noticia('📄 '+p.nome+' renovou com '+t.nome+' por '+anos+' ano(s), '+money(p.salario)+'/mês.',{c:'mercado',p:[p.id],t:[t.id]});
   return{ok:true,msg:p.nome+' renovou por '+anos+' ano(s).'+(generoso?' Saiu valorizado.':'')};
 }

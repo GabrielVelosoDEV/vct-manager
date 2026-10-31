@@ -173,6 +173,8 @@ w.eval(`window.__t={
   get crescerNaBase(){return crescerNaBase;}, get vagasDaBase(){return vagasDaBase;},
   get BASE_IDADE_SAI(){return BASE_IDADE_SAI;}, get metasDoMeio(){return metasDoMeio;},
   get custeioSemanal(){return custeioSemanal;},
+  get noticia(){return noticia;}, get manchete(){return manchete;}, get CAT_NOTICIA(){return CAT_NOTICIA;},
+  get newsAba(){return newsAba;}, set newsAba(v){newsAba=v;},
   get partidaConduzida(){return partidaConduzida;}, get AV(){return AV;}, get PP(){return PP;}, get ppPintar(){return ppPintar;},
   get ppFechar(){return ppFechar;}, get avancar(){return avancar;},
   get abrirMapa(){return abrirMapa;}, get passoRound(){return passoRound;},
@@ -4644,6 +4646,45 @@ await teste('a meta de promessa da diretoria prefere o garoto da casa',async()=>
     const m=metas.find(q=>q.tipo==='promessa');
     if(!m||m.jogador!==y.id)throw new Error('a meta não escolheu o garoto da casa');
   }finally{const [a,b]=JSON.parse(foto);t.G.jogadores[a.id]=a;t.G.jogadores[b.id]=b;}
+});
+
+await teste('toda notícia sai com categoria',async()=>{
+  /* as notícias que o mundo já gerou até aqui nos testes: nenhuma pode ficar
+     sem categoria, senão ela só aparece na aba Tudo */
+  for(let i=0;i<6;i++)t.avancar();
+  const validas=new Set([...Object.keys(t.CAT_NOTICIA),'sistema']);
+  const sem=t.G.noticias.filter(n=>n.txt&&!validas.has(n.c));
+  if(sem.length)throw new Error(sem.length+' notícia(s) sem categoria, ex.: '+sem[0].txt);
+});
+
+await teste('notícias por aba, com destaque do seu clube, link e manchete',async()=>{
+  const time=meuTimeDeTeste();
+  const outro=Object.values(t.G.times).find(x=>x.id!==time.id);
+  const meuJ=t.G.jogadores[time.titulares[0]];
+  const foto=t.G.noticias.slice();
+  try{
+    t.G.noticias=[];
+    t.noticia('Notícia de mercado de fora',{c:'mercado',t:[outro.id]});
+    t.noticia('Patch novo no ar',{c:'meta',imp:2});
+    t.noticia('✍ '+meuJ.nome+' renovou',{c:'mercado',p:[meuJ.id],t:[time.id]});
+    const [mJ,meta,fora]=t.G.noticias;
+    if(!mJ.meu||fora.meu||meta.meu)throw new Error('o destaque do seu clube saiu errado');
+    if(t.manchete()!==mJ)throw new Error('a manchete não foi a do seu clube');
+    t.tela='news';t.newsAba='tudo';w.render();
+    if($$('#view .news').length!==3)throw new Error('a aba Tudo não mostra as três');
+    clicar($('[data-newsaba="mercado"]'));
+    if($$('#view .news').length!==2)throw new Error('a aba Mercado não filtrou');
+    clicar($('[data-newsaba="clube"]'));
+    const linhas=$$('#view .news');
+    if(linhas.length!==1||!linhas[0].classList.contains('me'))throw new Error('a aba Meu clube não filtrou');
+    const link=$('#view .news-link');
+    if(!link||link.dataset.p!==meuJ.id)throw new Error('o nome do jogador não virou link');
+    clicar(link);
+    if(!$('#modal').textContent.includes(meuJ.nome))throw new Error('o link não abriu a ficha');
+    $('#modal').innerHTML='';
+    t.tela='inicio';w.render();
+    if(!/Manchete da semana/.test($('#view').textContent))throw new Error('a Central não mostra a manchete');
+  }finally{t.G.noticias=foto;t.newsAba='tudo';t.tela='inicio';w.render();}
 });
 
 const larg=Math.max(...passos.map(p=>p[1].length));

@@ -80,7 +80,7 @@ function autoEscalar(t){
     el=sadios.concat(machucados.slice(0,5-sadios.length));
     if(t.id===G.meuTime&&machucados.length&&typeof noticia==='function')
       noticia('🩹 Sem gente inteira: '+Math.min(machucados.length,5-sadios.length)+
-              ' jogador(es) entram em recuperação e rendem menos.');
+              ' jogador(es) entram em recuperação e rendem menos.',{c:'clube',t:[t.id]});
   }
   if(!el.length){t.titulares=[];t.igl=null;return;}
 
