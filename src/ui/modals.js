@@ -94,6 +94,8 @@ function modalJogador(id){
       <tr><td>Salário</td><td class="r num">${money(p.salario)}/mês</td></tr>
       <tr><td>Pedido do clube</td><td class="r num">${p.timeId?money(precoPedido(p))+' <span class="chip '+posturaDoClube(p).cls+'">'+esc(posturaDoClube(p).nome)+'</span>':'livre'}</td></tr>
       ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
+      ${p.revenda&&T(p.revenda.clubeId)?`<tr><td>Revenda</td><td class="r num">${p.revenda.pct}% para o ${esc(T(p.revenda.clubeId).nome)}</td></tr>`:''}
+      ${p.emprestimo&&T(p.emprestimo.donoId)?`<tr><td>Emprestado pelo</td><td class="r">${esc(T(p.emprestimo.donoId).nome)}${p.emprestimo.opcaoCompra?' · opção '+money(p.emprestimo.opcaoCompra):''}</td></tr>`:''}
       <tr><td>Agentes</td><td class="r"><span class="agmini">${
         p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
@@ -105,14 +107,29 @@ function modalJogador(id){
       <tr><td>MVPs</td><td class="r num">${st.mvp}</td></tr></tbody></table>
     </div></div>
   ${blocoCarreira(p)}
+  ${p.timeId===t.id&&p.pedidoSaida?`<div class="neg-aviso ${p.pedidoSaida.negado?'':'ok'}" style="margin-top:10px">
+    <b>${p.pedidoSaida.negado?'Pedido de saída negado.':p.pedidoSaida.aceito?'Está à venda, como pediu.':'Pediu para ser negociado.'}</b> ${esc(p.pedidoSaida.motivo||'')}
+    ${!p.pedidoSaida.aceito&&!p.pedidoSaida.negado?`<div class="neg-bts" style="margin-top:8px"><button class="btn sm" data-psaida="sim:${p.id}">Aceitar e pôr à venda</button>
+      <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar (a moral cai)</button></div>`:''}</div>`:''}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
     ${p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
     ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
+    ${p.timeId===t.id&&p.emprestimo&&p.emprestimo.opcaoCompra&&G.janela?`<button class="btn teal" data-opcao="${p.id}">Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:''}
     ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const bt=$('#mjTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+  /* pedido de saída e opção de compra, direto da ficha */
+  $('#modal').querySelectorAll('[data-psaida]').forEach(b=>b.onclick=()=>{
+    const [r0]=b.dataset.psaida.split(':');
+    const r=r0==='sim'?aceitarPedidoSaida(p):negarPedidoSaida(p);
+    if(!r.ok)return avisar(r.erro);
+    noticia(r.msg,{c:'mercado',p:[p.id]});render();modalJogador(p.id);
+  });
+  $('#modal').querySelectorAll('[data-opcao]').forEach(b=>b.onclick=()=>{
+    const r=exercerOpcao(p);if(!r.ok)return avisar(r.erro);render();modalJogador(p.id);
+  });
 }
 /* Carreira na ficha: totais, prêmios e a tabela ano a ano. Os totais vêm de
    p.carreira, que soma desde o primeiro mapa; a tabela é p.hist. */

@@ -71,6 +71,24 @@ function ligarEventos(){
     noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
+  /* mercado vivo */
+  on('[data-psaida]',el=>{
+    const [r0,pid]=el.dataset.psaida.split(':');const p=P(pid);
+    const r=r0==='sim'?aceitarPedidoSaida(p):negarPedidoSaida(p);
+    if(!r.ok){avisar(r.erro);return;}
+    noticia(r.msg,{c:'mercado',p:[pid]});$('#modal').innerHTML='';render();
+  });
+  on('[data-segurar]',el=>{
+    const r=segurarJogador(el.dataset.segurar);
+    if(!r.ok&&!r.msg){avisar(r.erro);return;}
+    avisar(r.msg,r.ficou?'Ele fica':'Ele vai');render();
+  });
+  on('[data-leilao]',el=>{modalLeilao(el.dataset.leilao);});
+  on('[data-opcao]',el=>{
+    const r=exercerOpcao(P(el.dataset.opcao));
+    if(!r.ok){avisar(r.erro);return;}
+    $('#modal').innerHTML='';render();
+  });
   on('[data-renov]',el=>modalRenovacao(el.dataset.renov));
   on('[data-disp]',async el=>{
     const p=P(el.dataset.disp);

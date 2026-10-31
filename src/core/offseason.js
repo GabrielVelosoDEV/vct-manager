@@ -101,6 +101,8 @@ function fimDeTemporada(){
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
+  /* quem fechou o ano no vermelho entra em crise e abre liquidação */
+  if(typeof conferirCrises==='function')conferirCrises();
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let aposentados=0;
   // aposentadorias e contratos

@@ -1512,13 +1512,17 @@ await teste('negociação com o clube: contraproposta, multa e paciência',async
 /* As trocas mexem em dois clubes e nos jogadores deles: foto e volta,
    para os testes seguintes acharem o mundo como estava. */
 function fotoDaTroca(...times){
-  const ids=new Set(times.flatMap(x=>x.elenco));
+  /* todos os jogadores, e não só os dos dois elencos: quem vende repõe na
+     hora (reporElenco), e o reposto vem dos livres ou da base */
   return{times:times.map(x=>[x,JSON.stringify(x)]),
-    jogs:[...ids].map(i=>[t.G.jogadores[i],JSON.stringify(t.G.jogadores[i])]),
+    jogs:Object.values(t.G.jogadores).map(p=>[p,JSON.stringify(p)]),
+    ids:new Set(Object.keys(t.G.jogadores)),livres:t.G.livres.slice(),
     transf:(t.G.transferencias||[]).length,noticias:(t.G.noticias||[]).length};
 }
 function voltarDaTroca(f){
   for(const [o,j] of [...f.times,...f.jogs]){for(const k of Object.keys(o))delete o[k];Object.assign(o,JSON.parse(j));}
+  for(const id of Object.keys(t.G.jogadores))if(!f.ids.has(id))delete t.G.jogadores[id];
+  t.G.livres=f.livres;
   if(t.G.transferencias)t.G.transferencias.length=f.transf;
   t.G.negociacoes=[];t.G.propostas=[];
 }
@@ -1594,6 +1598,184 @@ await teste('a IA oferece troca pelo anunciado e aceitar executa',async()=>{
   if(!r.ok)throw new Error('aceitar a troca falhou: '+r.erro);
   if(q.timeId!==eu.id||p.timeId!==pr.clubeId)throw new Error('a troca não moveu os dois');
   }finally{voltarDaTroca(foto);delete p.anuncio;}
+});
+
+/* ---------- mercado vivo ---------- */
+const meuEOutro=()=>{
+  const eu=t.G.times[t.G.meuTime];
+  const outro=Object.values(t.G.times).filter(x=>x.id!==eu.id&&x.elenco.length>=6&&x.elenco.length<9)
+    .sort((a,b)=>b.prestigio-a.prestigio)[0];
+  return{eu,outro};
+};
+await teste('mercado vivo: clube liga por quem não está à venda, e a multa paga só o jogador decide',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  try{
+    t.G.janela=true;outro.caixa=9e7;
+    const p=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>!q.preContrato&&!q.emprestimo).sort((a,b)=>t.over(a)-t.over(b))[0];
+    delete p.anuncio;
+    /* proposta comum: ganho pequeno não paga multa */
+    const pr=w.montarEspontanea(p,outro,2);
+    if(pr&&pr.tipo!=='compra')throw new Error('ganho pequeno não devia virar multa: '+pr.tipo);
+    /* multa: ganho grande, caixa cheio e ele prefere ir */
+    p.multa=50000;
+    const ficar=w.interesseEmFicar(p,eu).nota, ir=w.interessePor(p,outro).nota;
+    const pm=w.montarEspontanea(p,outro,9);
+    if(ir>=ficar+5&&(!pm||pm.tipo!=='multa'))throw new Error('não pagou a multa com tudo a favor');
+    const multa={id:'mtest',jogadorId:p.id,clubeId:outro.id,tipo:'multa',taxa:50000,salario:p.salario,anos:2,prazo:2};
+    t.G.propostas=[multa];
+    const caixa=eu.caixa;
+    const r=w.aceitarProposta('mtest');
+    if(!r.ok)throw new Error('liberar falhou: '+r.erro);
+    if(p.timeId!==outro.id)throw new Error('o jogador não foi');
+    if(Math.round(eu.caixa-caixa)!==50000)throw new Error('a multa não entrou no caixa: '+(eu.caixa-caixa));
+    const tr=t.G.transferencias[t.G.transferencias.length-1];
+    if(tr.tipo!=='multa')throw new Error('a transferência não ficou registrada como multa');
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: segurar com aumento funciona quando ficar vale mais, e a multa vence sozinha',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  try{
+    outro.caixa=9e7;eu.caixa=9e7;
+    const p=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>!q.preContrato&&!q.emprestimo)[0];
+    p.perfil='leal';p.moral=0.95;
+    t.G.propostas=[{id:'ms1',jogadorId:p.id,clubeId:outro.id,tipo:'multa',taxa:40000,salario:p.salario,anos:2,prazo:2}];
+    const sal=p.salario;
+    const ficar=w.interesseEmFicar(p,eu).nota+w.pontosDoFator(1/1.25), ir=w.interessePor(p,outro).nota;
+    const r=w.segurarJogador('ms1');
+    if(ficar>=ir){
+      if(!r.ficou||p.timeId!==eu.id)throw new Error('devia ficar: '+r.msg);
+      if(!(p.salario>sal))throw new Error('o aumento não entrou');
+    }else if(r.ficou)throw new Error('ficou sem motivo');
+    /* sem reação, o prazo vence e ele sai */
+    const q=eu.elenco.map(i=>t.G.jogadores[i]).filter(x=>x.id!==p.id&&!x.preContrato&&!x.emprestimo)[0];
+    t.G.propostas=[{id:'ms2',jogadorId:q.id,clubeId:outro.id,tipo:'multa',taxa:40000,salario:q.salario,anos:2,prazo:1}];
+    t.G.janela=false;w.mercadoVivo();
+    if(q.timeId!==outro.id)throw new Error('a multa vencida não levou o jogador');
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: pedido de saída — infeliz pede, aceitar anuncia, negar derruba a moral',async()=>{
+  const {eu}=meuEOutro();
+  const foto=fotoDaTroca(eu);
+  try{
+    const p=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>!q.preContrato&&!q.emprestimo)[0];
+    p.moral=0.2;delete p.pedidoSaida;
+    for(let i=0;i<60&&!p.pedidoSaida;i++){p.moral=0.2;w.rondaPedidosSaida();}
+    if(!p.pedidoSaida)throw new Error('infeliz por 60 semanas e não pediu para sair');
+    if(w.posturaDoClube(p).id!=='avenda')throw new Error('quem pediu para sair devia estar à venda');
+    const m=p.moral;
+    const r=w.negarPedidoSaida(p);
+    if(!r.ok||!(p.moral<m))throw new Error('negar não derrubou a moral');
+    p.pedidoSaida={motivo:'teste'};
+    eu.elenco.length>5||eu.elenco.push(...[]);
+    const r2=w.aceitarPedidoSaida(p);
+    if(eu.elenco.length>5&&(!r2.ok||!p.anuncio))throw new Error('aceitar não colocou à venda: '+r2.erro);
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: leilão sobe o preço e deixa um só',async()=>{
+  const {eu}=meuEOutro();
+  const ricos=Object.values(t.G.times).filter(x=>x.id!==eu.id&&x.elenco.length<9).slice(0,3);
+  const foto=fotoDaTroca(eu,...ricos);
+  try{
+    ricos.forEach(x=>x.caixa=9e7);
+    const p=eu.elenco.map(i=>t.G.jogadores[i]).filter(q=>!q.preContrato&&!q.emprestimo).sort((a,b)=>t.over(b)-t.over(a))[0];
+    const base=w.precoPedido(p);
+    t.G.propostas=ricos.map((c,i)=>({id:'lei'+i,jogadorId:p.id,clubeId:c.id,tipo:'compra',taxa:Math.round(base*(0.8+i*0.05)),salario:p.salario,anos:2,prazo:3}));
+    if(!w.podeLeiloar(p.id))throw new Error('três propostas e não dá para leiloar');
+    const maior=Math.max(...t.G.propostas.map(x=>x.taxa));
+    const r=w.abrirLeilao(p.id);
+    if(!r.ok)throw new Error(r.erro);
+    if(w.propostasDe(p.id).length!==1)throw new Error('sobrou mais de uma proposta');
+    if(!(r.valor>=maior))throw new Error('o leilão baixou o preço');
+    if(!r.rodadas.some(x=>x.vence))throw new Error('sem vencedor nas rodadas');
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: revenda paga quem vendeu antes, e a mesa aceita menos com revenda',async()=>{
+  const {eu,outro}=meuEOutro();
+  const terceiro=Object.values(t.G.times).find(x=>x.id!==eu.id&&x.id!==outro.id&&x.elenco.length<9);
+  const foto=fotoDaTroca(eu,outro,terceiro);
+  try{
+    terceiro.caixa=9e7;
+    const p=outro.elenco.map(i=>t.G.jogadores[i]).sort((a,b)=>t.over(a)-t.over(b))[0];
+    p.revenda={clubeId:eu.id,pct:20};
+    const c0=eu.caixa, o0=outro.caixa;
+    w.executarProposta(p,terceiro,100000,p.salario,2);
+    if(Math.round(eu.caixa-c0)!==20000)throw new Error('a revenda não pagou 20%: '+(eu.caixa-c0));
+    if(Math.round(outro.caixa-o0)!==80000)throw new Error('quem vendeu não ficou com 80%');
+    if(p.revenda)throw new Error('a revenda devia ser paga uma vez só');
+    /* mesa: uma oferta logo abaixo do mínimo passa com revenda */
+    t.G.janela=true;eu.caixa=9e7;
+    const q=outro.elenco.map(i=>t.G.jogadores[i]).find(x=>w.posturaDoClube(x).id!=='intransferivel'&&!x.emprestimo);
+    q.idade=20;
+    const preco=w.precoPedido(q);
+    const n1=w.abrirNegociacao(q).neg;
+    const r1=w.proporAoClube(n1,Math.round(preco*0.86/500)*500,0);
+    if(r1.resposta==='aceita')throw new Error('aceitou 86% sem revenda');
+    t.G.negociacoes=[];
+    const n2=w.abrirNegociacao(q).neg;
+    const r2=w.proporAoClube(n2,Math.round(preco*0.86/500)*500,20);
+    if(r2.resposta!=='aceita')throw new Error('86% com 20% de revenda de um jovem não passou: '+JSON.stringify(r2));
+    if(n2.revenda!==20)throw new Error('a revenda não ficou na negociação');
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: clube em crise vende mais barato',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  try{
+    outro.caixa=Math.max(outro.caixa,outro.patroc);
+    const p=outro.elenco.map(i=>t.G.jogadores[i]).find(x=>w.posturaDoClube(x).id==='negociavel');
+    if(!p)throw new Error('sem negociável para comparar');
+    const antes=w.precoPedido(p);
+    w.declararCrise(outro,'rebaixado');
+    if(!w.emCrise(outro))throw new Error('a crise não pegou');
+    if(w.posturaDoClube(p).id!=='avenda')throw new Error('clube em crise não pôs à venda');
+    if(!(w.precoPedido(p)<antes))throw new Error('a crise não baixou o preço');
+  }finally{voltarDaTroca(foto);delete outro.crise;}
+});
+
+await teste('mercado vivo: empréstimo pedido na mesa e opção de compra decidida por você',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  try{
+    t.G.janela=true;eu.caixa=9e7;
+    if(eu.elenco.length>=9)eu.elenco=eu.elenco.slice(0,8);
+    const ordem=outro.elenco.map(i=>t.G.jogadores[i]).sort((a,b)=>t.over(b)-t.over(a));
+    const p=ordem.slice(5).find(x=>!x.emprestimo&&!x.preContrato)||ordem[ordem.length-1];
+    if(outro.titulares.includes(p.id))outro.titulares=outro.titulares.filter(x=>x!==p.id);
+    const n=w.abrirNegociacao(p).neg;
+    const pouco=w.proporEmprestimo(n,{parte:0.5,opcao:0});
+    if(p.idade>20&&pouco.resposta==='aceita')throw new Error('aceitou pagar só metade do salário de um adulto');
+    t.G.negociacoes=[];
+    const n2=w.abrirNegociacao(p).neg;n2.pacClube=9;
+    const a=w.avaliarEmprestimoPedido(n2,{parte:1,opcao:0});
+    const r=w.proporEmprestimo(n2,{parte:1,opcao:a.precoOpcao});
+    if(a.jogadorOk&&!a.erros.length){
+      if(r.resposta!=='aceita')throw new Error('pagando tudo, com opção justa, não fechou: '+JSON.stringify(r));
+      if(p.timeId!==eu.id||!p.emprestimo||p.emprestimo.donoId!==outro.id)throw new Error('o empréstimo não registrou o dono');
+      /* fim de temporada: no seu clube a opção não é sorteada */
+      p.temp.maps=20;
+      w.resolverEmprestimos();
+      if(p.timeId!==outro.id)throw new Error('voltou? devia voltar ao dono sem você exercer');
+    }
+  }finally{voltarDaTroca(foto);}
+});
+
+await teste('mercado vivo: último dia da janela é reconhecido',async()=>{
+  const s=t.G.semana, j=t.G.janela;
+  try{
+    t.G.janela=true;t.G.semana=4;
+    if(!w.ultimoDiaDaJanela())throw new Error('semana 4 é o fim da pré-temporada');
+    t.G.semana=2;
+    if(w.ultimoDiaDaJanela())throw new Error('semana 2 não é o último dia');
+    t.G.semana=30;
+    if(!w.ultimoDiaDaJanela())throw new Error('semana 30 fecha a janela do meio do ano');
+  }finally{t.G.semana=s;t.G.janela=j;}
 });
 
 await teste('a mesa de negociação: clube, depois jogador, com a conta do pedido',async()=>{
@@ -4173,7 +4355,7 @@ await teste('o tempo muda a tática do mapa, e só dele',async()=>{
   const adv=Object.values(t.G.times).find(x=>x.id!==time.id&&(x.elenco||[]).length>=5);
   const mapa=t.G.mapasAtivos[0];
   const foto={a:JSON.stringify(time.tatica),b:JSON.stringify(adv.tatica)};
-  time.tatica.foco='default';adv.tatica.foco='retake';
+  time.tatica.foco='default';time.tatica.agres=3;adv.tatica.foco='retake';
   const M=t.abrirMapa(time,adv,mapa);
   const antes=M.fA.atk;
   const r=t.pedirTempo(M,true,'execucao');

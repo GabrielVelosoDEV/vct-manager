@@ -175,6 +175,26 @@ await ev(`$('#modal').innerHTML='';irPara('mercado');mercAba='saidas';
     for(let i=0;i<60&&!(G.propostas||[]).length;i++)gerarPropostas();})();
   render()`);
 await tira('10c-mercado-saidas');
+/* mercado vivo: multa paga, duas propostas espontâneas (leilão) e um pedido de saída */
+await ev(`(function(){const t=G.times[G.meuTime];G.semana=4;G.janela=true;
+  const ordem=t.elenco.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a));
+  const outros=Object.values(G.times).filter(x=>x.id!==t.id&&x.tier===1).slice(0,3);
+  const a=ordem[0],b=ordem[1],c=ordem[ordem.length-1];
+  G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==a.id&&x.jogadorId!==b.id);
+  G.propostas.push({id:'tm1',jogadorId:a.id,clubeId:outros[0].id,tipo:'multa',taxa:multaDe(a),salario:Math.round(a.salario*1.3),anos:3,prazo:2,espontanea:true});
+  G.propostas.push({id:'tc1',jogadorId:b.id,clubeId:outros[1].id,tipo:'compra',taxa:Math.round(precoPedido(b)*0.85/5000)*5000,salario:b.salario,anos:2,prazo:3,espontanea:true,pedido:precoPedido(b)});
+  G.propostas.push({id:'tc2',jogadorId:b.id,clubeId:outros[2].id,tipo:'compra',taxa:Math.round(precoPedido(b)*0.92/5000)*5000,salario:b.salario,anos:3,prazo:2,espontanea:true,revenda:15,pedido:precoPedido(b)});
+  c.pedidoSaida={motivo:'Está insatisfeito há semanas.'};outros.forEach(x=>x.caixa=Math.max(x.caixa,2e7));
+  window.__lei=b.id;})();render()`);
+await tira('10i-saidas-mercado-vivo');
+await ev(`modalLeilao(window.__lei)`);await pg.waitForTimeout(3800);
+await tira('10j-leilao');
+await ev(`$('#modal').innerHTML='';(function(){const eu=meu();
+  const o=Object.values(G.times).find(x=>x.id!==eu.id&&x.elenco.length>=7);
+  const ordem=o.elenco.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a));
+  const p=ordem[ordem.length-1];const r=abrirNegociacao(p,eu);if(r.ok)modalEmprestimoMesa(r.neg);})()`);
+await tira('10k-emprestimo');
+await ev(`$('#modal').innerHTML=''`);
 await ev(`mercAba='jogadores';irPara('taticas');modalStaff(Object.values(G.staff).find(m=>m.timeId===G.meuTime).id)`);
 await tira('12-ficha-comissao');
 /* fecha a ficha antes: sem isso a captura de Finanças saía com o modal da

@@ -165,12 +165,15 @@ function mesa(p,n,bloqueio,tipoBloq){
       <label class="neg-campo"><span>Sua oferta pelo passe</span>
         <input type="range" id="cTaxaR" min="0" max="${Math.round(max)}" step="5000" value="${taxa0}">
         <input type="number" id="pTaxa" value="${taxa0}" step="5000"></label>
+      ${ps.id!=='intransferivel'?`<div class="neg-campo"><span>Percentual de revenda <span class="dim">(o ${esc(origem.nome)} fica com uma parte da próxima venda e aceita menos agora${p.idade<=22?'; jovem, vale mais':''})</span></span>
+        <div class="neg-anos neg-multa">${REVENDA_OPCOES.map(v=>`<button class="${(+_mesaRasc.revenda||0)===v?'on':''}" data-revenda="${v}">${v?v+'%':'Sem'}</button>`).join('')}</div></div>`:''}
       <div id="cBarra"></div>
       <div class="neg-bts">
         <button class="btn" id="cEnviar">Enviar proposta</button>
         ${ps.id!=='intransferivel'?`<button class="btn ghost" id="cContra">Aceitar ${dinheiro(n.pedidaClube)}</button>`:''}
         <button class="btn ghost" id="cMulta" ${t.caixa<multa?'disabled':''}>Pagar a multa (${dinheiro(multa)})</button>
         ${G.janela?`<button class="btn ghost" id="cTroca" title="Ofereça jogadores seus, com ou sem dinheiro">Propor troca</button>`:''}
+        ${G.janela&&!p.emprestimo?`<button class="btn ghost" id="cEmp" title="Ele vem por uma temporada; você paga parte do salário">Pedir empréstimo</button>`:''}
         ${podePreContrato(p,t)?`<button class="btn teal" id="cPre" title="Último ano de contrato: ele chega de graça na virada">Pré-contrato (sem taxa)</button>`:''}
       </div>
       <div id="pFeed"></div>
@@ -226,15 +229,16 @@ function mesa(p,n,bloqueio,tipoBloq){
   }else if(fase==='fechada'){
     const f=n.final||{};
     direita=`<div class="neg-col neg-fechada">
-      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':'Contratado'}</div>
+      <div class="neg-carimbo">${renov?'Renovado':pre?'Pré-contrato':n.emprestimo?'Emprestado':'Contratado'}</div>
       ${pre?`<p class="dim">Chega na virada da temporada, quando o contrato atual dele acabar.</p>`:''}
       <table><tbody>
         ${f.taxa?`<tr><td>${n.viaMulta?'Multa rescisória':'Taxa de transferência'}</td><td class="r num">${dinheiro(f.taxa)}</td></tr>`:''}
         <tr><td>Salário</td><td class="r num">${dinheiro(f.sal)}/mês por ${f.anos} ano(s)</td></tr>
         ${f.luvas?`<tr><td>Luvas</td><td class="r num">${dinheiro(f.luvas)}</td></tr>`:''}
-        <tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>
+        ${n.emprestimo?`<tr><td colspan="2">Por uma temporada${p.emprestimo&&p.emprestimo.opcaoCompra?', com opção de compra de '+dinheiro(p.emprestimo.opcaoCompra):''}</td></tr>`
+          :`<tr><td>Comissão do empresário</td><td class="r num">${dinheiro(f.comissao)}</td></tr>`}
         ${f.promessa?'<tr><td colspan="2">Titularidade prometida em contrato</td></tr>':''}
-        ${pre?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
+        ${pre||n.emprestimo?'':`<tr><td>Nova multa rescisória</td><td class="r num">${dinheiro(multaDe(p))}</td></tr>`}
       </tbody></table></div>`;
   }else{
     direita=`<div class="neg-col"><div class="neg-aviso">A conversa terminou sem acordo.
@@ -270,16 +274,21 @@ function _ligarMesa(p,n){
       const taxa=parseFloat($('#pTaxa').value)||0;
       _mesaRasc.taxa=taxa;
       const preco=precoPedido(p),multa=multaDe(p);
-      $('#cBarra').innerHTML=_barraNeg(taxa/Math.max(1,preco),_ZONAS_NEG,_legClube(taxa/Math.max(1,preco),taxa>=multa,posturaDoClube(p).id==='intransferivel'));
+      const rv=+_mesaRasc.revenda||0;
+      const eq=rv?taxa*(1+rv/100*pesoRevenda(p)):taxa;
+      $('#cBarra').innerHTML=_barraNeg(eq/Math.max(1,preco),_ZONAS_NEG,_legClube(eq/Math.max(1,preco),taxa>=multa,posturaDoClube(p).id==='intransferivel'));
     };
     par('#cTaxaR','#pTaxa',viva);viva();
     $('#cEnviar').onclick=()=>{
-      const r=proporAoClube(n,parseFloat($('#pTaxa').value)||0);
+      const r=proporAoClube(n,parseFloat($('#pTaxa').value)||0,+_mesaRasc.revenda||0);
       if(!r.ok)return feed(r.erro);
       if(r.resposta==='contra')_mesaRasc.taxa=r.valor;
       depois();
     };
     const bt=$('#cTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
+    const be=$('#cEmp');if(be)be.onclick=()=>modalEmprestimoMesa(n);
+    $('#modal').querySelectorAll('[data-revenda]').forEach(b=>b.onclick=()=>{_mesaRasc.revenda=+b.dataset.revenda;
+      $('#modal').querySelectorAll('[data-revenda]').forEach(x=>x.classList.toggle('on',x===b));viva();});
     const bp=$('#cPre');if(bp)bp.onclick=()=>{const r=irParaPreContrato(n);if(!r.ok)return feed(r.erro);depois();};
     const cc=$('#cContra');if(cc)cc.onclick=()=>{const r=aceitarContraClube(n);if(!r.ok)return feed(r.erro);depois();};
     $('#cMulta').onclick=async()=>{

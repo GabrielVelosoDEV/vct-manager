@@ -668,7 +668,9 @@ function vMercado(){
       ['saidas','Saídas'+(pend?' ('+pend+')':'')],
       ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
+  const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
+    ${prazo?'<div class="merc-prazo">⏰ <b>Último dia da janela.</b> Os clubes estão correndo atrás de reforço: propostas chegam mais rápido e quem não fechar agora só fecha na próxima janela.</div>':''}
     <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
     mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
@@ -681,25 +683,64 @@ function vMercadoSaidas(t){
   const fora=typeof emprestadosDe==='function'?emprestadosDe(t):[];
   const podeSair=t.elenco.length>ELENCO_MIN;
 
+  /* propostas agrupadas por jogador: cada um vira um cartão, com o leilão
+     quando dois clubes ou mais querem o mesmo */
+  const porJog={};props.forEach(x=>(porJog[x.jogadorId]=porJog[x.jogadorId]||[]).push(x));
+  const linhaProp=x=>{const c=T(x.clubeId);const o=x.tipo==='troca'?P(x.oferecidoId):null;
+    const tipo=x.tipo==='multa'?'<span class="chip r">Multa paga</span>'
+      :x.tipo==='troca'&&o?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${o.id}">${esc(o.nome)}</b> ${ovTag(o)}`
+      :x.tipo==='compra'?'<span class="chip">Compra</span>'+(x.leilao?' <span class="chip t">leilão</span>':'')+(x.espontanea?' <span class="dim">sem anúncio</span>':'')
+      :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'');
+    return `<div class="prop-linha ${x.tipo==='multa'?'multa':''}">
+      ${escudo(c,30)}<div class="prop-clube"><b>${esc(c.nome)}</b><span class="dim">${nomeLiga(c)}</span></div>
+      <div class="prop-tipo">${tipo}</div>
+      <div class="prop-valor num"><b>${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}</b>
+        ${x.revenda?`<span class="chip t" title="Você fica com ${x.revenda}% de uma venda futura">+${x.revenda}% revenda</span>`:''}
+        ${x.tipo==='compra'&&x.pedido?`<span class="dim">pede ${money(x.pedido)}</span>`:''}</div>
+      <div class="prop-sal dim num">${money(x.salario)}/mês</div>
+      <div class="prop-prazo dim">${x.prazo} sem.</div>
+      <div class="prop-bts">${x.tipo==='multa'
+        ?`<button class="btn sm" data-segurar="${x.id}" title="Oferece ${Math.round(SEGURAR_AUMENTO*100)}% de aumento; uma tentativa só">Tentar segurar</button>
+          <button class="btn ghost sm" data-aceitar="${x.id}">Liberar</button>`
+        :`<button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
+          <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button>`}</div></div>`;};
   const cxPropostas=props.length?`
   <div class="card flat"><div class="eyebrow">Propostas na mesa</div>
-    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th>Tipo</th>
-      <th class="r">Valor</th><th class="r">Salário</th><th class="c">Prazo</th><th></th></tr></thead>
-    <tbody>${props.map(x=>{const p=P(x.jogadorId),c=T(x.clubeId);return `<tr>
-      <td><b>${esc(p.nome)}</b> <span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
-      <td>${esc(c.nome)} <span class="dim">${nomeLiga(c)}</span></td>
-      <td>${x.tipo==='troca'&&P(x.oferecidoId)?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${x.oferecidoId}">${esc(P(x.oferecidoId).nome)}</b> ${ovTag(P(x.oferecidoId))}`
-           :x.tipo==='compra'?'<span class="chip">Compra</span>'
-            :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'')}</td>
-      <td class="r num">${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}${x.tipo==='compra'&&x.pedido?`<div class="dim" style="font-size:11px">pediu ${money(x.pedido)}</div>`:''}</td>
-      <td class="r num dim">${money(x.salario)}/mês</td>
-      <td class="c num dim">${x.prazo} sem.</td>
-      <td class="r"><button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
-        <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button></td>
-    </tr>`;}).join('')}</tbody></table></div>`
+    ${Object.keys(porJog).map(pid=>{const p=P(pid),lst=porJog[pid];
+      const multa=lst.find(x=>x.tipo==='multa');
+      return `<div class="prop-card ${multa?'multa':''}">
+        <div class="prop-jog">${cartaJogador(p,{w:74})}<div><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b>
+          <div class="dim">${esc(p.role)} · ${p.idade} anos · ${p.contrato}a de contrato</div>
+          <div class="dim">Vale ${money(pedidoDeVenda(p))} · multa ${money(multaDe(p))}</div>
+          ${multa?`<div class="prop-alerta">${esc(T(multa.clubeId).nome)} pagou a multa. O clube não pode recusar: só ele decide, e ele quer ir.</div>`:''}
+          ${podeLeiloar(pid)?`<button class="btn teal sm" data-leilao="${pid}" style="margin-top:6px">Abrir leilão (${lst.filter(x=>x.tipo==='compra').length} clubes)</button>`:''}
+        </div></div>
+        <div class="prop-lista">${lst.map(linhaProp).join('')}</div></div>`;}).join('')}
+  </div>`
   :`<div class="card flat"><div class="eyebrow">Propostas na mesa</div>
       <p class="dim">Nenhuma no momento. Anuncie um jogador abaixo e os clubes que precisam
-      da função dele vão aparecer ao longo das semanas — se a janela estiver aberta.</p></div>`;
+      da função dele vão aparecer ao longo das semanas. Com a janela aberta, clubes também ligam por quem não está à venda.</p></div>`;
+
+  const pedidos=t.elenco.map(P).filter(p=>p&&p.pedidoSaida&&!p.pedidoSaida.aceito);
+  const cxPedidos=pedidos.length?`
+  <div class="card flat" style="border-left:4px solid var(--amber,#e0a030)"><div class="eyebrow">Pedidos de saída</div>
+    ${pedidos.map(p=>`<div class="prop-linha">
+      <span class="ov ${ovClass(over(p))}">${over(p)}</span>
+      <div class="prop-clube"><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b><span class="dim">${esc(p.pedidoSaida.motivo||'')}</span></div>
+      <div class="prop-bts">${p.pedidoSaida.negado?'<span class="chip r">negado</span>'
+        :`<button class="btn sm" data-psaida="sim:${p.id}">Aceitar e pôr à venda</button>
+          <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar</button>`}</div></div>`).join('')}
+    <p class="dim" style="margin-top:6px">Negar segura o jogador, mas a moral dele cai toda semana até ele desistir.</p></div>`:'';
+
+  const comigo=t.elenco.map(P).filter(p=>p&&p.emprestimo&&p.emprestimo.donoId!==t.id);
+  const cxComigo=comigo.length?`
+  <div class="card flat"><div class="eyebrow">Emprestados para você</div>
+    <table><tbody>${comigo.map(p=>`<tr>
+      <td><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b></td><td class="dim">do ${esc(nomeT(p.emprestimo.donoId))}</td>
+      <td class="r num dim">você paga ${money(p.salario)}/mês</td>
+      <td class="r">${p.emprestimo.opcaoCompra?`<button class="btn sm" data-opcao="${p.id}" ${G.janela?'':'disabled'}>Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:'<span class="dim">sem opção</span>'}</td>
+    </tr>`).join('')}</tbody></table>
+    <p class="dim" style="margin-top:6px">Voltam ao dono na virada da temporada, a menos que você exerça a opção.</p></div>`:'';
 
   const cxFora=fora.length?`
   <div class="card flat"><div class="eyebrow">Emprestados por você</div>
@@ -711,7 +752,7 @@ function vMercadoSaidas(t){
     <p class="dim" style="margin-top:6px">Voltam na virada de temporada, a menos que o clube exerça a opção.</p></div>`:'';
 
   return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode anunciar, mas proposta só chega com a janela aberta.</div>'}
-  ${cxPropostas}${cxFora}
+  ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
     ${podeSair?'':`<p class="dim">Com ${t.elenco.length} jogadores você não pode vender ninguém — o mínimo é ${ELENCO_MIN}. Emprestar também não, porque o elenco ficaria curto.</p>`}
     <table class="wide"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
