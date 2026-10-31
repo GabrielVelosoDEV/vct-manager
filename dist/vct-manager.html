@@ -2385,6 +2385,7 @@ const MIDIA={
     'marcas/kt':'png',
     'marcas/lacoste':'png',
     'marcas/latam-airlines':'png',
+    'marcas/lawson':'png',
     'marcas/lazada':'png',
     'marcas/ldlc':'png',
     'marcas/lenovo-legion':'png',
@@ -11326,7 +11327,8 @@ const Storage={
     if(this.modo==='indexeddb')itens=await this._idb(st=>st.getAll());
     else if(this.modo==='localstorage')itens=Object.values(this._lsTudo());
     else itens=Object.values(this._mem);
-    return itens.map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
+    /* o registro da base de dados mora no mesmo store, mas não é partida */
+    return itens.filter(r=>r&&r.id!==BASE_ID).map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
       .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
   },
   async gravar(reg){
@@ -11528,6 +11530,167 @@ function lerArquivoRun(file){
     fr.readAsText(file);
   });
 }
+
+
+/* ===== src/data/base.js ===== */
+/* ============================================================
+   BASE DE DADOS — o mundo de onde toda carreira nova nasce
+   ------------------------------------------------------------
+   Duas coisas diferentes, que antes eram uma só:
+
+     · a BASE: mundo inicial fixo, guardado no navegador/app.
+       Só muda pelo Banco de dados do MENU PRINCIPAL, e a mudança
+       é permanente: vale para toda carreira criada dali em diante.
+     · o SAVE: a carreira. O Banco de dados de DENTRO do jogo
+       edita só ela; a base não fica sabendo.
+
+   A base nasce dos arquivos de data/ (times, elencos, comissão...)
+   com uma semente fixa, então o mundo "original" é sempre o mesmo,
+   inclusive os reservas gerados. Ela fica guardada no mesmo
+   armazenamento das runs, num registro reservado que a lista de
+   partidas salvas não mostra.
+
+   Carreira nova = cópia da base + semente nova para a simulação.
+   O mundo é o mesmo; o que acontece nele é que muda de carreira
+   para carreira.
+
+   Quando os arquivos de data/ mudam (um elenco novo no repositório),
+   a assinatura muda. Base que você nunca editou se refaz sozinha a
+   partir dos dados novos; base editada é mantida e o Banco de dados
+   avisa, oferecendo restaurar a original.
+   ============================================================ */
+const BASE_ID='__base__';
+const BASE_SEMENTE=2027;
+/* subir este número força a base original a ser refeita (mudança na
+   geração do mundo que os arquivos de data/ não denunciam) */
+const BASE_VERSAO=1;
+
+/* impressão digital dos dados de partida: muda se qualquer arquivo de
+   data/ que alimenta o mundo mudar */
+function baseAssinatura(){
+  const fontes=[
+    typeof REGIONS!=='undefined'?REGIONS:null,
+    typeof TIMES_REAIS!=='undefined'?TIMES_REAIS:null,
+    typeof ELENCOS_REAIS!=='undefined'?ELENCOS_REAIS:null,
+    typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL:null,
+    typeof CLUBES_BASE!=='undefined'?CLUBES_BASE:null,
+    typeof HISTORIA_REAL!=='undefined'?HISTORIA_REAL:null,
+    typeof PATROCINADORES!=='undefined'?PATROCINADORES:null,
+    typeof MAP_POOL!=='undefined'?MAP_POOL:null,
+    typeof POOL_2026!=='undefined'?POOL_2026:null];
+  const txt=JSON.stringify([BASE_VERSAO,typeof RUN_VERSAO!=='undefined'?RUN_VERSAO:0,fontes]);
+  let h=5381;
+  for(let i=0;i<txt.length;i++)h=((h<<5)+h+txt.charCodeAt(i))|0;
+  return (h>>>0).toString(36)+'.'+txt.length.toString(36);
+}
+
+const Base={
+  reg:null,          /* {id, versao, semente, assinatura, editada, estado, atualizado} */
+  desatualizada:false, /* base editada, mas os arquivos de data/ mudaram depois */
+  editando:false,    /* o G global é a base (Banco de dados do menu aberto) */
+  _guardaG:null,_guardaS:1,_ultimoJson:'',_timer:null,
+
+  async iniciar(){
+    let r=null;
+    try{r=await Storage.ler(BASE_ID);}catch(e){r=null;}
+    const ass=baseAssinatura();
+    if(r&&r.estado&&r.assinatura!==ass){
+      if(!r.editada)r=null;          /* nunca editada: refaz dos dados novos */
+      else this.desatualizada=true;  /* editada: mantém e avisa */
+    }
+    if(r&&r.estado){
+      this.reg=r;
+      /* mesma migração de um save: campo novo do motor entra preenchido */
+      const guardaG=G,guardaS=_s;
+      try{G=r.estado;migrarRun(r);}finally{G=guardaG;_s=guardaS;}
+      r.id=BASE_ID;
+    }else{
+      this.gerarOriginal();
+      await this.gravar();
+    }
+    this._ultimoJson=JSON.stringify(this.reg.estado);
+    return this.reg;
+  },
+
+  /* monta a base original a partir de data/, sem mexer no G de quem chamou */
+  gerarOriginal(){
+    const guardaG=G,guardaS=_s;
+    try{
+      criarMundo(BASE_SEMENTE);montarCalendario();
+      G.meuTime=null;delete G.runId;delete G.runNome;
+      this.reg={id:BASE_ID,versao:RUN_VERSAO,semente:_s,assinatura:baseAssinatura(),
+                editada:false,estado:G,atualizado:Date.now()};
+    }finally{G=guardaG;_s=guardaS;}
+    this.desatualizada=false;
+    return this.reg;
+  },
+
+  async gravar(){
+    if(!this.reg)return false;
+    try{return !!(await Storage.gravar(this.reg));}catch(e){return false;}
+  },
+
+  /* quantos clubes / jogadores, para o menu */
+  resumo(){
+    const e=this.reg&&this.reg.estado;
+    return e?{times:Object.keys(e.times).length,jogadores:Object.keys(e.jogadores).length}:{times:0,jogadores:0};
+  },
+
+  /* ---------- edição pelo menu ----------
+     O Editor trabalha sobre o G global. Para editar a base, o G da carreira
+     sai de cena enquanto o Banco de dados do menu está aberto, e volta assim
+     que a tela é deixada. render() é quem chama as duas pontas. */
+  abrirEdicao(){
+    if(this.editando||!this.reg)return;
+    this._guardaG=G;this._guardaS=_s;
+    G=this.reg.estado;_s=this.reg.semente||BASE_SEMENTE;
+    this.editando=true;
+  },
+  fecharEdicao(){
+    if(!this.editando)return;
+    this.salvarSeMudou();
+    G=this._guardaG;_s=this._guardaS;
+    this._guardaG=null;
+    this.editando=false;
+  },
+  /* grava se o estado mudou desde a última gravação; marca como editada */
+  salvarSeMudou(){
+    if(!this.editando||!this.reg)return false;
+    this.reg.semente=_s;
+    const j=JSON.stringify(this.reg.estado);
+    if(j===this._ultimoJson)return false;
+    this._ultimoJson=j;
+    this.reg.editada=true;
+    this.gravar();
+    return true;
+  },
+  /* chamada a cada repintura do Banco de dados do menu: junta várias
+     edições seguidas numa gravação só */
+  agendarGravacao(){
+    clearTimeout(this._timer);
+    this._timer=setTimeout(()=>this.salvarSeMudou(),400);
+  },
+
+  /* volta para a base de data/, descartando as edições */
+  async restaurarOriginal(){
+    this.gerarOriginal();
+    this._ultimoJson=JSON.stringify(this.reg.estado);
+    /* com o Banco de dados do menu aberto, o Editor passa a ver a base nova */
+    if(this.editando){G=this.reg.estado;_s=this.reg.semente;}
+    await this.gravar();
+  },
+
+  /* G novo para uma carreira: cópia funda da base e semente nova */
+  novoMundo(semente){
+    if(!this.reg)this.gerarOriginal();
+    if(this.editando)this.salvarSeMudou();
+    const s=(semente>>>0)||(Math.floor(Math.random()*900000)+1000);
+    const estado=JSON.parse(JSON.stringify(this.reg.estado));
+    estado.seed=s;estado.meuTime=null;
+    G=estado;srand(s);
+    return G;
+  }
+};
 
 
 /* ===== src/data/imagens.js ===== */
@@ -11844,6 +12007,10 @@ function raizAtual(){
    ============================================================ */
 function render(){
   document.body.className='modo-'+modo+(Prefs.get('animacoes')?'':' sem-anim');
+  /* Banco de dados do MENU edita a base; qualquer outra tela usa a carreira.
+     Toda navegação passa por aqui, então é aqui que o G troca de mãos. */
+  if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
+  else Base.fecharEdicao();
   if(modo==='menu'){renderMenu();return;}
   pintarSide();pintarTop();
   const v=$('#view');
@@ -12122,8 +12289,9 @@ function guiaPassosHTML(){
    não são "onde você joga", são onde você prepara e configura.
 
    O banco de dados aparece aqui E dentro do jogo (mesma função
-   vEditor), porque montar base é pré-jogo mas corrigir um nick
-   no meio da temporada também acontece.
+   vEditor), mas com alcances diferentes: aqui ele edita a BASE
+   (permanente, vale para toda carreira nova — ver data/base.js);
+   dentro do jogo ele edita só aquele save.
    ============================================================ */
 const VERSAO_JOGO='0.4';
 
@@ -12141,16 +12309,24 @@ function renderMenu(){
     <div class="menu-topo">
       <button class="btn ghost sm" id="menuVoltar">‹ Menu</button>
       <h2 class="sec" style="margin:0">${esc(mapa[0])}</h2>
-      ${telaMenu==='banco'&&G&&preRun()?'<button class="btn" id="menuComecar">Escolher clube e começar</button>':''}
-      ${G&&G.meuTime?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
+      ${telaMenu==='banco'?'<button class="btn" id="menuComecar">Novo jogo com esta base</button>':''}
+      ${carreiraAberta()?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
     </div>
     <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`;
   $('#menuVoltar').onclick=()=>{telaMenu='menu';render();};
-  const bc=$('#menuComecar');if(bc)bc.onclick=()=>telaNovoJogo();
-  const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>entrarNoJogo();
+  const bc=$('#menuComecar');if(bc)bc.onclick=()=>novaCarreira();
+  const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>{telaMenu='menu';Base.fecharEdicao();entrarNoJogo();};
+  /* cada edição na base é gravada logo depois de repintar */
+  if(telaMenu==='banco')Base.agendarGravacao();
   const corpo=$('#menuCorpo');
   corpo.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
+}
+
+/* a carreira em memória, mesmo com a base aberta no Banco de dados do menu */
+function carreiraAberta(){
+  const g=Base.editando?Base._guardaG:G;
+  return !!(g&&g.meuTime);
 }
 
 function vMenuPrincipal(){
@@ -12161,7 +12337,8 @@ function vMenuPrincipal(){
   /* mosaico de escudos: ordem fixa dos ids, sem tocar no RNG do motor */
   /* repete a lista para o mosaico encher a área sem buracos; ordem fixa dos
      ids, sem tocar no RNG do motor */
-  const base=G?Object.values(G.times):[];
+  const mundo=(G&&G.times)?G:(Base.reg&&Base.reg.estado);
+  const base=mundo?Object.values(mundo.times):[];
   const escudos=base.length?Array.from({length:130},(_,i)=>base[i%base.length]):[];
   const item=(id,icone,rot,sub,attrs)=>
     `<button class="menu-item ${attrs&&attrs.destaque?'destaque':''}" id="${id}" ${attrs&&attrs.off?'disabled':''}>
@@ -12175,9 +12352,10 @@ function vMenuPrincipal(){
       </div>
       <div class="menu-lista">
         ${item('mnContinuar','jogar','Continuar',ondeEstou,{destaque:podeContinuar,off:!podeContinuar})}
-        ${item('mnNovo','mais','Novo jogo','gera um mundo novo')}
+        ${item('mnNovo','mais','Novo jogo','começa da base de dados')}
         ${item('mnRuns','disco','Partidas salvas',listaRuns.length+' salva(s)')}
-        ${item('mnBanco','banco','Banco de dados',G?Object.keys(G.times).length+' clubes':'')}
+        ${item('mnBanco','banco','Banco de dados',
+          Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
         ${item('mnConfig','engrenagem','Configurações')}
         ${item('mnCreditos','info','Créditos')}
       </div>
@@ -12207,7 +12385,7 @@ function ligarMenuPrincipal(){
     if(!ok){flash('Não deu para carregar essa partida.');return;}
     entrarNoJogo();
   });
-  liga('mnNovo',()=>modalNovoMundo());
+  liga('mnNovo',()=>novaCarreira());
   liga('mnRuns',()=>{telaMenu='runs';render();});
   liga('mnBanco',()=>{telaMenu='banco';render();});
   liga('mnConfig',()=>{telaMenu='config';render();});
@@ -12225,29 +12403,18 @@ function sairParaMenu(t){
   modo='menu';telaMenu=t||'menu';render();
 }
 
-/* ---------- novo mundo ---------- */
-function modalNovoMundo(){
-  const semente=Math.floor(Math.random()*900000)+1000;
-  abrir(`<div class="eyebrow">Novo jogo</div><h2 class="sec">Gerar o mundo</h2>
-    <p class="dim">A semente define os elencos gerados: a mesma semente sempre produz o mesmo mundo.
-    Depois de gerar você cai no Banco de dados para ajustar times e elencos, e só então escolhe o clube.</p>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:14px">
-      <label class="dim" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Semente</label>
-      <input type="number" id="nmSeed" value="${semente}" style="width:130px">
-      <button class="btn ghost sm" id="nmSorteia">Sortear outra</button>
-    </div>
-    ${G&&G.meuTime?'<div class="card flat" style="border-left:3px solid var(--amber);margin-top:14px">Você tem uma partida em andamento. Gerar um mundo novo não apaga o que está salvo, mas sai da partida atual — salve antes se quiser voltar.</div>':''}
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="btn" id="nmGerar">Gerar mundo</button>
-      <button class="btn ghost" data-close>Cancelar</button></div>`);
-  $('#nmSorteia').onclick=()=>{$('#nmSeed').value=Math.floor(Math.random()*900000)+1000;};
-  $('#nmGerar').onclick=()=>{
-    const s=parseInt($('#nmSeed').value)||semente;
-    iniciarPreRun(s);
-    $('#modal').innerHTML='';
-    modo='menu';telaMenu='banco';render();
-    flash('Mundo gerado com a semente '+s+'.');
-  };
+/* ---------- novo jogo ----------
+   Carreira nova sempre nasce da base de dados: cópia do mundo guardado,
+   com semente nova para o que vai acontecer nele. Não há mais etapa de
+   montar o mundo antes de escolher o clube — isso é o Banco de dados do
+   menu, e vale para todas as carreiras. */
+async function novaCarreira(semente){
+  /* a carreira em andamento é gravada antes de sair de cena */
+  Base.fecharEdicao();
+  if(G&&G.meuTime){await salvarRun(G.runNome);await atualizarRuns();}
+  iniciarPreRun(semente);
+  modo='menu';telaMenu='menu';render();
+  telaNovoJogo();
 }
 
 /* ============================================================
@@ -15492,19 +15659,18 @@ function edvIO(){
 
   <div class="card"><div class="eyebrow">Salvar os elencos no projeto</div>
     <p class="dim">Gera o <code>data/elencos.js</code> a partir desta base e baixa o arquivo.
-    Ponha ele na pasta <code>data/</code> do projeto, por cima do que está lá, e todo jogo novo
-    passa a começar com os seus ajustes — hoje eles existem só neste save.</p>
+    Serve para levar os ajustes para o código do projeto (e para outros computadores): no jogo,
+    a base de dados do menu já guarda as edições sozinha.</p>
     <p class="dim">Só entram jogadores de nome real. Reservas gerados ficam de fora de
-    propósito: eles voltam a ser sorteados a cada partida nova, e é isso que mantém
-    os elencos variados.</p>
+    propósito: eles são refeitos a partir da semente da base.</p>
     <button class="btn" id="edGerarElencos">Baixar data/elencos.js</button>
     <button class="btn ghost" id="edVerElencos">Ver antes de baixar</button>
     <div id="edElencosFeed" style="margin-top:10px"></div></div>
 
-  <div class="card"><div class="eyebrow">Zona de risco</div>
-    <p class="dim">Gerar um mundo novo apaga a base editada e recomeça dos dados de
-    <code>data/times.js</code> e <code>data/elencos.js</code>. O pacote de imagens não é afetado.</p>
-    <button class="btn ghost" id="edNovo">Começar novo jogo</button></div>`;
+  ${Base.editando?`<div class="card"><div class="eyebrow">Zona de risco</div>
+    <p class="dim">Restaurar a base original descarta todas as suas edições na base de dados e volta aos
+    arquivos de <code>data/</code>. Carreiras já salvas e o pacote de imagens não são afetados.</p>
+    <button class="btn ghost" id="edNovo">Restaurar base original</button></div>`:''}`;
 }
 
 /* ============================================================
@@ -15549,13 +15715,40 @@ function vEditor(){
                agentes:edvAgentes,
                imagens:edvImagens,io:edvIO,validar:edvValidar}[edAba]||edvTimes;
   return `<div class="eyebrow">Banco de dados</div><h2 class="sec">Editor</h2>
-  ${preRun()?'':'<div class="card" style="border-left:4px solid var(--gold)">A run já começou. Editar over e atributos agora muda a temporada em andamento — o lugar de montar a base é a pré-run.</div>'}
+  ${edAviso()}
   ${v.erros.length?`<div class="card" style="border-left:4px solid var(--red)">
     <b>${v.erros.length} erro(s) de consistência.</b> <span class="dim">A run não começa até resolver.</span>
     <button class="btn ghost sm" data-edaba="validar" style="margin-left:8px">Ver na aba Validação</button></div>`:''}
   <div class="tabs">${ED_ABAS.map(([k,n])=>
     `<button data-edaba="${k}" class="${edAba===k?'on':''}">${n}</button>`).join('')}</div>
   ${corpo()}`;
+}
+
+/* Quem está sendo editado: a base (menu principal) ou só este save. A
+   diferença é grande e precisa estar escrita no topo, não implícita. */
+function edAviso(){
+  if(Base.editando){
+    const r=Base.reg||{};
+    return `<div class="card" style="border-left:4px solid var(--teal)">
+      <div class="split"><div>
+        <b>Você está editando a base de dados.</b>
+        <span class="dim">A mudança é permanente: vale para toda carreira nova daqui para frente.
+        Carreiras que já existem não mudam.</span>
+        <div class="dim" style="margin-top:4px">Situação: <b>${r.editada?'base editada por você':'base original (arquivos de data/)'}</b>
+          · ${Base.resumo().times} clubes · ${Base.resumo().jogadores} jogadores · gravada sozinha a cada mudança.</div>
+      </div>
+      ${r.editada?'<button class="btn ghost sm" id="edRestaurar">Restaurar base original</button>':''}</div>
+      ${Base.desatualizada?`<div class="card flat" style="border-left:3px solid var(--amber);margin-top:10px">
+        Os dados originais do jogo foram atualizados depois da sua edição (elencos, times ou comissão novos).
+        Sua base editada foi mantida. Para receber as novidades, restaure a base original — isso descarta
+        as suas edições.</div>`:''}
+    </div>`;
+  }
+  return `<div class="card" style="border-left:4px solid var(--gold)">
+    <b>Você está editando só este save${G&&G.meuTime?' ('+esc(T(G.meuTime).nome)+' · '+G.ano+')':''}.</b>
+    <span class="dim">A base de dados não muda: carreiras novas continuam nascendo dela. Para uma mudança
+    permanente, use o Banco de dados do menu principal. Editar over e atributos aqui muda a temporada em andamento.</span>
+  </div>`;
 }
 
 /* ============================================================
@@ -15850,15 +16043,14 @@ function vRuns(){
   return `<div class="eyebrow">Arquivo</div><h2 class="sec">Runs</h2>
   <p class="dim">Armazenamento ativo: <b>${modoTxt}</b>. O arquivo <code>.vctrun.json</code> é o backup canônico e pode ser versionado na pasta <code>/runs</code>.</p>
 
-  <div class="card"><div class="split"><div class="eyebrow">Run atual</div>
-    <span class="chip ${G&&G.meuTime?'t':'g'}">${G&&G.meuTime?'em andamento':'pré-run'}</span></div>
+  ${G&&G.meuTime?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
+    <span class="chip t">em andamento</span></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
-      <input type="text" id="runNome" style="width:260px" placeholder="Nome da run" value="${esc(G&&G.runNome?G.runNome:'')}">
+      <input type="text" id="runNome" style="width:260px" placeholder="Nome da run" value="${esc(G.runNome||'')}">
       <button class="btn" id="runSalvar">Salvar</button>
       <button class="btn ghost" id="runBaixar">Exportar .json</button>
     </div>
-    <p class="dim" style="margin-top:8px">Semente do mundo: <b class="num">${G?G.seed:'—'}</b> · a mesma semente sempre gera os mesmos elencos.</p>
-  </div>
+  </div>`:''}
 
   <div class="card flat"><div class="eyebrow">Runs salvas</div>
     ${listaRuns.length?listaRuns.map(r=>`<div class="runrow">
@@ -15874,16 +16066,18 @@ function vRuns(){
     </div></div>
 
   <div class="card"><div class="eyebrow">Nova run</div>
-    <p class="dim">Gera um mundo novo com os clubes reais. Você pode editar times e elencos antes de escolher o clube e começar.</p>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span class="dim">Semente</span><input type="number" id="runSeed" value="${Math.floor(Math.random()*900000)+1000}" style="width:120px">
-      <button class="btn" id="runNova">Criar mundo</button></div>
+    <p class="dim">Toda carreira nova começa da base de dados. Para mudar times e elencos de todas as
+    carreiras daqui para frente, edite o Banco de dados do menu principal; para mudar só uma carreira,
+    use o Banco de dados de dentro dela.</p>
+    <button class="btn" id="runNova">Novo jogo</button>
   </div>`;
 }
-/* monta um mundo novo em pré-run. Não navega: quem chamou decide para onde
-   ir, porque o menu e o botão de dentro do jogo querem destinos diferentes. */
+/* monta o mundo de uma carreira nova, copiado da base de dados (ver
+   data/base.js), ainda sem clube. A semente só decide o que acontece daqui
+   para frente: os elencos são os da base. Não navega: quem chamou decide
+   para onde ir. */
 function iniciarPreRun(seed){
-  criarMundo(seed);montarCalendario();
+  Base.novoMundo(seed);
   G.runId=novaRunId();G.runNome='Run '+new Date().toLocaleDateString('pt-BR');
   G.meuTime=null;
   tela='inicio';hist=[];histPos=-1;
@@ -16074,7 +16268,7 @@ function ligarEventos(){
       render();flash(ok?'Imagem no pacote.':'Guardei só em memória — exporte o pacote.');
     }catch(e){flash(e.message||'Falha ao subir a imagem.');}
   };
-  if(edAba==='times'&&G.times[edTime]){
+  if(edAba==='times'&&G&&G.times[edTime]){
     ligarDropzone(v.querySelector('#edDropLogo'),v.querySelector('#edFileLogo'),
       f=>subirPara(Imgs.chaveTime(G.times[edTime].tag),f));
   }
@@ -16344,9 +16538,11 @@ function ligarEventos(){
     if(!js){flash(avisoVazio);return;}
     edSaida=js;render();
   });
-  on('#edNovo',async()=>{
-    if(!await confirmar('Isso apaga a base editada e gera um mundo novo. Continuar?','Gerar mundo novo'))return;
-    iniciarPreRun(Math.floor(Math.random()*900000)+1000);
+  on('#edNovo, #edRestaurar',async()=>{
+    if(!Base.editando)return;
+    if(!await confirmar('Restaurar a base original? Todas as suas edições na base de dados serão descartadas. Carreiras já salvas não mudam.','Restaurar'))return;
+    await Base.restaurarOriginal();
+    render();flash('Base original restaurada.');
   });
 
   /* ---------- guia da primeira temporada ---------- */
@@ -16385,11 +16581,7 @@ function ligarEventos(){
     await atualizarRuns();render();flash(ok?'Run salva.':'Falha ao salvar — exporte o .json.');
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
-  on('#runNova',async()=>{
-    const seed=parseInt(val('#runSeed'))||Math.floor(Math.random()*900000)+1000;
-    if(G&&G.meuTime&&!await confirmar('Criar um mundo novo? Salve a run atual antes se quiser mantê-la.','Criar mundo novo'))return;
-    iniciarPreRun(seed);
-  });
+  on('#runNova',()=>novaCarreira());
   on('[data-runload]',async el=>{
     const ok=await carregarRun(el.dataset.runload);
     if(!ok){flash('Não foi possível carregar essa run.');return;}
@@ -16431,8 +16623,8 @@ function telaNovoJogo(){
     $('#modal').innerHTML=`<div class="ovl"><div class="box">
       <div class="eyebrow">Não dá para começar ainda</div>
       <h2 class="sec">${val.erros.length} erro(s) na base</h2>
-      <p class="dim">O Editor deixa a base ficar inconsistente enquanto você monta, mas a temporada
-      precisa dela fechada. Resolva o que está abaixo e volte.</p>
+      <p class="dim">O Banco de dados do menu deixa a base ficar inconsistente enquanto você monta, mas a
+      temporada precisa dela fechada. Resolva o que está abaixo e volte.</p>
       <div class="card flat" style="margin-top:10px"><div class="feed">
         ${val.erros.slice(0,14).map(e=>'<div class="err">· '+esc(e)+'</div>').join('')}
         ${val.erros.length>14?'<div class="dim">… e mais '+(val.erros.length-14)+'</div>':''}
@@ -16441,7 +16633,7 @@ function telaNovoJogo(){
         <button class="btn" id="njValidar">Abrir a aba Validação</button>
         <button class="btn ghost" data-close>Fechar</button></div></div></div>`;
     $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
-    $('#njValidar').onclick=()=>{tela='editor';edAba='validar';$('#modal').innerHTML='';render();};
+    $('#njValidar').onclick=()=>{edAba='validar';$('#modal').innerHTML='';modo='menu';telaMenu='banco';render();};
     return;
   }
   const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].slice().sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
@@ -16473,8 +16665,9 @@ function telaNovoJogo(){
       <td class="r num">${money(fo)}</td><td class="r"><button class="btn sm" data-pick="${id}">Assumir</button></td></tr>`;}).join('')}
     </tbody></table></div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
-      <span class="dim">Semente do mundo</span><input type="number" id="seedIn" value="${G?G.seed:12345}" style="width:120px">
-      <button class="btn ghost" id="regen">Gerar outro mundo</button></div>
+      <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
+        Para mudar, use o Banco de dados do menu principal.</span>
+      <button class="btn ghost" data-close>Cancelar</button></div>
   </div></div>`;
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
@@ -16486,7 +16679,7 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
-  $('#regen').onclick=()=>{iniciarPreRun(parseInt($('#seedIn').value)||12345);$('#modal').innerHTML='';};
+  $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
     guardaNome();
     G.meuTime=b.dataset.pick;
@@ -16519,19 +16712,25 @@ async function boot(){
   Prefs.iniciar();
   await Imgs.iniciar();
   Rostos.iniciar();
+  await Base.iniciar();
   await atualizarRuns();
 
-  /* carrega a partida mais recente, inclusive em pré-run: o Banco de dados é
-     o fluxo principal antes de assumir um clube e não pode ser descartado no
-     reload. Mas o boot para no menu — quem decide entrar é você. */
-  const salvas=listaRuns;
+  /* carrega a carreira mais recente, para o Continuar. A base de dados não
+     precisa disso: ela mora no próprio armazenamento e é aberta pelo menu.
+     O boot para no menu — quem decide entrar é você. */
+  const salva=listaRuns.find(r=>r.clube&&r.clube!=='—');
   let carregou=false;
-  if(salvas.length)carregou=await carregarRun(salvas[0].id);
-  if(!carregou||!G)iniciarPreRun(Math.floor(Math.random()*900000)+1000);
+  if(salva)carregou=await carregarRun(salva.id);
+  if(!carregou||!G||!G.meuTime)G=null;
 
   modo='menu';telaMenu='menu';
   render();
-  window.addEventListener('beforeunload',()=>{if(G)salvarRun(G.runNome);});
+  window.addEventListener('beforeunload',()=>{
+    /* com o Banco de dados do menu aberto, o G é a base: grava ela e devolve
+       a carreira antes de gravar a carreira */
+    Base.fecharEdicao();
+    if(G&&G.meuTime)salvarRun(G.runNome);
+  });
 }
 
 /* liga os botões da topbar; chamado a cada pintarTop() */

@@ -6,8 +6,9 @@
    não são "onde você joga", são onde você prepara e configura.
 
    O banco de dados aparece aqui E dentro do jogo (mesma função
-   vEditor), porque montar base é pré-jogo mas corrigir um nick
-   no meio da temporada também acontece.
+   vEditor), mas com alcances diferentes: aqui ele edita a BASE
+   (permanente, vale para toda carreira nova — ver data/base.js);
+   dentro do jogo ele edita só aquele save.
    ============================================================ */
 const VERSAO_JOGO='0.4';
 
@@ -25,16 +26,24 @@ function renderMenu(){
     <div class="menu-topo">
       <button class="btn ghost sm" id="menuVoltar">‹ Menu</button>
       <h2 class="sec" style="margin:0">${esc(mapa[0])}</h2>
-      ${telaMenu==='banco'&&G&&preRun()?'<button class="btn" id="menuComecar">Escolher clube e começar</button>':''}
-      ${G&&G.meuTime?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
+      ${telaMenu==='banco'?'<button class="btn" id="menuComecar">Novo jogo com esta base</button>':''}
+      ${carreiraAberta()?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
     </div>
     <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`;
   $('#menuVoltar').onclick=()=>{telaMenu='menu';render();};
-  const bc=$('#menuComecar');if(bc)bc.onclick=()=>telaNovoJogo();
-  const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>entrarNoJogo();
+  const bc=$('#menuComecar');if(bc)bc.onclick=()=>novaCarreira();
+  const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>{telaMenu='menu';Base.fecharEdicao();entrarNoJogo();};
+  /* cada edição na base é gravada logo depois de repintar */
+  if(telaMenu==='banco')Base.agendarGravacao();
   const corpo=$('#menuCorpo');
   corpo.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
+}
+
+/* a carreira em memória, mesmo com a base aberta no Banco de dados do menu */
+function carreiraAberta(){
+  const g=Base.editando?Base._guardaG:G;
+  return !!(g&&g.meuTime);
 }
 
 function vMenuPrincipal(){
@@ -45,7 +54,8 @@ function vMenuPrincipal(){
   /* mosaico de escudos: ordem fixa dos ids, sem tocar no RNG do motor */
   /* repete a lista para o mosaico encher a área sem buracos; ordem fixa dos
      ids, sem tocar no RNG do motor */
-  const base=G?Object.values(G.times):[];
+  const mundo=(G&&G.times)?G:(Base.reg&&Base.reg.estado);
+  const base=mundo?Object.values(mundo.times):[];
   const escudos=base.length?Array.from({length:130},(_,i)=>base[i%base.length]):[];
   const item=(id,icone,rot,sub,attrs)=>
     `<button class="menu-item ${attrs&&attrs.destaque?'destaque':''}" id="${id}" ${attrs&&attrs.off?'disabled':''}>
@@ -59,9 +69,10 @@ function vMenuPrincipal(){
       </div>
       <div class="menu-lista">
         ${item('mnContinuar','jogar','Continuar',ondeEstou,{destaque:podeContinuar,off:!podeContinuar})}
-        ${item('mnNovo','mais','Novo jogo','gera um mundo novo')}
+        ${item('mnNovo','mais','Novo jogo','começa da base de dados')}
         ${item('mnRuns','disco','Partidas salvas',listaRuns.length+' salva(s)')}
-        ${item('mnBanco','banco','Banco de dados',G?Object.keys(G.times).length+' clubes':'')}
+        ${item('mnBanco','banco','Banco de dados',
+          Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
         ${item('mnConfig','engrenagem','Configurações')}
         ${item('mnCreditos','info','Créditos')}
       </div>
@@ -91,7 +102,7 @@ function ligarMenuPrincipal(){
     if(!ok){flash('Não deu para carregar essa partida.');return;}
     entrarNoJogo();
   });
-  liga('mnNovo',()=>modalNovoMundo());
+  liga('mnNovo',()=>novaCarreira());
   liga('mnRuns',()=>{telaMenu='runs';render();});
   liga('mnBanco',()=>{telaMenu='banco';render();});
   liga('mnConfig',()=>{telaMenu='config';render();});
@@ -109,29 +120,18 @@ function sairParaMenu(t){
   modo='menu';telaMenu=t||'menu';render();
 }
 
-/* ---------- novo mundo ---------- */
-function modalNovoMundo(){
-  const semente=Math.floor(Math.random()*900000)+1000;
-  abrir(`<div class="eyebrow">Novo jogo</div><h2 class="sec">Gerar o mundo</h2>
-    <p class="dim">A semente define os elencos gerados: a mesma semente sempre produz o mesmo mundo.
-    Depois de gerar você cai no Banco de dados para ajustar times e elencos, e só então escolhe o clube.</p>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:14px">
-      <label class="dim" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Semente</label>
-      <input type="number" id="nmSeed" value="${semente}" style="width:130px">
-      <button class="btn ghost sm" id="nmSorteia">Sortear outra</button>
-    </div>
-    ${G&&G.meuTime?'<div class="card flat" style="border-left:3px solid var(--amber);margin-top:14px">Você tem uma partida em andamento. Gerar um mundo novo não apaga o que está salvo, mas sai da partida atual — salve antes se quiser voltar.</div>':''}
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="btn" id="nmGerar">Gerar mundo</button>
-      <button class="btn ghost" data-close>Cancelar</button></div>`);
-  $('#nmSorteia').onclick=()=>{$('#nmSeed').value=Math.floor(Math.random()*900000)+1000;};
-  $('#nmGerar').onclick=()=>{
-    const s=parseInt($('#nmSeed').value)||semente;
-    iniciarPreRun(s);
-    $('#modal').innerHTML='';
-    modo='menu';telaMenu='banco';render();
-    flash('Mundo gerado com a semente '+s+'.');
-  };
+/* ---------- novo jogo ----------
+   Carreira nova sempre nasce da base de dados: cópia do mundo guardado,
+   com semente nova para o que vai acontecer nele. Não há mais etapa de
+   montar o mundo antes de escolher o clube — isso é o Banco de dados do
+   menu, e vale para todas as carreiras. */
+async function novaCarreira(semente){
+  /* a carreira em andamento é gravada antes de sair de cena */
+  Base.fecharEdicao();
+  if(G&&G.meuTime){await salvarRun(G.runNome);await atualizarRuns();}
+  iniciarPreRun(semente);
+  modo='menu';telaMenu='menu';render();
+  telaNovoJogo();
 }
 
 /* ============================================================

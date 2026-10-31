@@ -82,6 +82,10 @@ function raizAtual(){
    ============================================================ */
 function render(){
   document.body.className='modo-'+modo+(Prefs.get('animacoes')?'':' sem-anim');
+  /* Banco de dados do MENU edita a base; qualquer outra tela usa a carreira.
+     Toda navegação passa por aqui, então é aqui que o G troca de mãos. */
+  if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
+  else Base.fecharEdicao();
   if(modo==='menu'){renderMenu();return;}
   pintarSide();pintarTop();
   const v=$('#view');

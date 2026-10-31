@@ -394,3 +394,26 @@ Uma run só existe de verdade quando um clube é assumido. Antes disso `meuTime`
 `null`, o Avançar fica travado e só Editor e Runs aparecem. Isso resolve o problema
 de editar elencos com a temporada já rodando — depois do primeiro Avançar, editar
 overs vira trapaça e não estado inicial.
+
+## Base de dados separada do save
+
+Antes, "Novo jogo" gerava um mundo a partir de `data/` com uma semente e caía no
+Editor para ajustar; tudo o que se editava ali morria com aquele save. Agora são
+duas coisas:
+
+- **Base de dados** (`src/data/base.js`): o mundo de onde toda carreira nasce. É
+  gerada de `data/` com semente fixa (`BASE_SEMENTE`) e guardada no mesmo
+  armazenamento das runs, num registro reservado (`__base__`) que a lista de
+  partidas salvas não mostra. Só o Banco de dados do **menu principal** a edita, e
+  a edição é permanente: vale para toda carreira criada depois.
+- **Save**: a carreira. Carreira nova = cópia funda da base + semente nova para a
+  simulação. O Banco de dados de **dentro do jogo** edita só ela.
+
+O Editor continua trabalhando sobre o `G` global. Enquanto o Banco de dados do
+menu está aberto, `render()` põe a base no lugar do `G` e guarda a carreira; ao
+sair da tela, grava a base e devolve a carreira. Cada repintura agenda uma gravação.
+
+Quando os arquivos de `data/` mudam, a assinatura (`baseAssinatura()`) muda: base
+nunca editada se refaz sozinha; base editada é mantida e o Banco de dados avisa,
+com o botão de restaurar a original. Mudança na geração que `data/` não denuncia
+pede subir `BASE_VERSAO`.
