@@ -183,7 +183,7 @@ function semana(){
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }
-  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
+  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
@@ -268,7 +268,7 @@ function desenvolver(p,t){
   /* Marca de quão bom ele já foi. É a régua do declínio: quem caiu muito do
      próprio pico é quem pendura o mouse, independentemente da idade. */
   p.pico=Math.max(p.pico||0,over(p));
-  p.valor=valor(p);p.salarioJusto=salario(p);
+  p.valor=valor(p);p.salarioJusto=salario(p,p.timeId&&G.times[p.timeId]);
 }
 function venderPorDinheiro(t){
   if(t.elenco.length<=5)return;
@@ -301,7 +301,7 @@ function liberar(p){
        saiu no meio da semana ficava planejado até o próximo aplicarTreino, e a
        tela de Treino mostrava o nome de quem já não era do clube */
     if(typeof limparPlano==='function')limparPlano(t);}
-  p.timeId=null;p.contrato=0;G.livres.push(p.id);
+  p.timeId=null;p.contrato=0;p.semLivre=0;G.livres.push(p.id);
 }
 function contratar(p,time,anos,sal){
   let origem=null;
@@ -311,6 +311,7 @@ function contratar(p,time,anos,sal){
     origem.sinergia=clamp(origem.sinergia-10,0,100);autoEscalar(origem);
     if(typeof limparPlano==='function')limparPlano(origem);}
   G.livres=G.livres.filter(x=>x!==p.id);
+  delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o
      anúncio morre. Sem isto ele chegava ao clube novo já com a plaquinha de

@@ -18,10 +18,17 @@ unlinkSync(resolve(raiz,'.cx.tmp.cjs'));
 
 const anos=parseInt(process.argv[2]||'10',10), semente=parseInt(process.argv[3]||'20260828',10);
 m.criarMundo(semente);m.montarCalendario();const G=m.G;
-const alvo=G.ano+anos;
-while(G.ano<alvo)m.avancar();
-
 const k=v=>Math.round(v/1000)+'k';
+const alvo=G.ano+anos;
+console.log(' ano  índice  T1: caixa mediano · folha/receita');
+while(G.ano<alvo){
+  const a=G.ano;while(G.ano===a)m.avancar();
+  const ts=Object.values(G.times).filter(t=>t.tier===1);
+  const med=f=>{const v=ts.map(f).sort((x,y)=>x-y);return v[Math.floor(v.length/2)];};
+  console.log(` ${a}  ${(G.indiceSalario||1).toFixed(2)}    ${k(med(t=>t.caixa)).padStart(6)} · `+
+    Math.round(med(t=>m.folhaAnual(t)/m.receitaAnual(t))*100)+'%');
+}
+console.log('');
 const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
 const q=(a,f)=>{const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.floor(s.length*f))];};
 
@@ -44,3 +51,5 @@ for(const tier of[1,2]){
       ' (sobra '+k(m.receitaAnual(t)-m.custeioAnual(t)-m.folhaAnual(t))+')').join(', '));
   console.log('');
 }
+console.log('mais ricos:');
+Object.values(G.times).sort((a,b)=>b.caixa-a.caixa).slice(0,6).forEach(t=>console.log(`  ${t.tag.padEnd(5)} T${t.tier} caixa ${k(t.caixa)} · receita ${k(m.receitaAnual(t))} · custeio ${k(m.custeioAnual(t))} · folha ${k(m.folhaAnual(t))} · torcida ${t.torcida} · elenco ${t.elenco.length}`));

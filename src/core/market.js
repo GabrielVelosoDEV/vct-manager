@@ -24,13 +24,13 @@ function mercadoIA(){
       const alvo=G.livres.map(i=>G.jogadores[i])
         .filter(p=>p.role===falta||p.role==='Flex')
         .sort((a,b)=>over(b)-over(a))
-        .find(p=>salario(p)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
+        .find(p=>salario(p,t)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
       const esc=alvo
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p)*12<teto)
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a)-salario(b))
-            .find(p=>salario(p)*12<teto);
+        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
+        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a,t)-salario(b,t))
+            .find(p=>salario(p,t)*12<teto);
       if(!esc)break;
-      contratar(esc,t,ri(1,3),salario(esc));
+      contratar(esc,t,ri(1,3),salario(esc,t));
     }
     /* Reforço: trocar o pior titular. Antes era um dado de 30% e pronto, o que
        deixava clube rico sentado em cima de meio milhão de folga enquanto o
@@ -42,9 +42,9 @@ function mercadoIA(){
       const pior=t.titulares.map(i=>G.jogadores[i]).sort((a,b)=>over(a)-over(b))[0];
       if(!pior)continue;
       const tetoR=Math.min(t.caixa*.4,folgaSalarial(t)*12);
-      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p)*12<tetoR)
+      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
         .sort((a,b)=>over(b)-over(a))[0];
-      if(alvo)contratar(alvo,t,ri(2,3),salario(alvo));
+      if(alvo)contratar(alvo,t,ri(2,3),salario(alvo,t));
     }
     autoEscalar(t);
   }
@@ -89,15 +89,15 @@ function reporElenco(t){
       const disp=G.livres.map(i=>G.jogadores[i]).filter(Boolean)
         .sort((a,b)=>over(b)-over(a));
       const teto=folgaSalarial(t)*12;
-      const livre=disp.find(p=>salario(p)*12<=teto)
-        ||disp.slice().sort((a,b)=>salario(a)-salario(b))[0];
-      if(livre){contratar(livre,t,ri(1,2),salario(livre));continue;}
+      const livre=disp.find(p=>salario(p,t)*12<=teto)
+        ||disp.slice().sort((a,b)=>salario(a,t)-salario(b,t))[0];
+      if(livre){contratar(livre,t,ri(1,2),salario(livre,t));continue;}
       const R=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
       const falta=ROLES.find(r=>!t.elenco.some(i=>G.jogadores[i].role===r))||pick(ROLES);
       const[piso]=FAIXAS.jogador[t.tier];
       const p=makePlayer(clamp(piso-8+ri(0,6),FAIXAS.jogador[2][0]-14,piso),
                          falta,pick(R.paises),ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),usados,t.tier);
-      p.contrato=2;p.salario=salario(p);p.valor=valor(p);
+      p.contrato=2;p.salario=salario(p,t);p.valor=valor(p);
       p.timeId=t.id;G.jogadores[p.id]=p;t.elenco.push(p.id);
       emergencias++;
       if(emergencias>6)break;   /* cinto de segurança contra laço infinito */

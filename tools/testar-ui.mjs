@@ -2320,6 +2320,7 @@ await teste('Finanças desconta o custeio do resultado do ano',async()=>{
   if(!html.includes('Custeio anual'))throw new Error('a tela não mostra o custeio');
   if(!html.includes('Teto de folha'))throw new Error('a tela não mostra o teto de folha');
   const time=t.G.times[t.G.meuTime];
+  if(time.tier===1&&!html.includes('Índice salarial do Tier 1'))throw new Error('a tela não mostra o índice salarial');
   const folha=(time.elenco.reduce((a,i)=>a+t.G.jogadores[i].salario,0))*12+t.folhaAnual(time)-
               (time.elenco.reduce((a,i)=>a+t.G.jogadores[i].salario,0))*12;
   const esperado=t.receitaAnual(time)-t.folhaAnual(time)-t.custeioAnual(time);
@@ -2694,7 +2695,7 @@ await teste('nenhum clube do mundo fica abaixo do elenco mínimo',async()=>{
 });
 
 await teste('clube no elenco mínimo cobra mais caro pelo passe',async()=>{
-  const x=Object.values(t.G.times).find(y=>y.elenco.length>t.ELENCO_MIN+2);
+  const x=Object.values(t.G.times).find(y=>y.elenco.length>t.ELENCO_MIN);
   const p=t.G.jogadores[x.titulares[0]];
   const cheio=t.pedidoDeVenda2(p);
   const guardados=x.elenco.slice();
@@ -4757,6 +4758,59 @@ await teste('primeira temporada guiada: dica, primeiros passos e desligar',async
     w.render();
   }finally{const f=JSON.parse(foto);t.G.guia=f.g;t.Prefs.set('dicas',pref);t.tela='inicio';w.render();}
 });
+
+await teste('o mercado reage ao dinheiro: índice do Tier 1, clube rico e prêmio dividido',async()=>{
+  const G=t.G;
+  const t1=Object.values(G.times).filter(x=>x.tier===1&&x.id!==G.meuTime);
+  const t2=Object.values(G.times).find(x=>x.tier===2&&x.id!==G.meuTime);
+  const foto=JSON.stringify({i:G.indiceSalario,h:G.indiceHist,c:t1.map(x=>x.caixa),c2:t2.caixa,n:G.noticias.length});
+  const semente=t.semente;
+  try{
+    const p=Object.values(G.jogadores).find(x=>x.timeId&&G.times[x.timeId].tier===1&&x.idade>20);
+    const clube=G.times[p.timeId];
+    /* índice: circuito rico sobe, apertado desce, Challengers fica fora */
+    G.indiceSalario=1;
+    t1.forEach(x=>x.caixa=w.receitaAnual(x)*6);
+    w.atualizarIndiceSalarial();
+    if(!(G.indiceSalario>1))throw new Error('o índice não subiu com o Tier 1 cheio de dinheiro');
+    t1.forEach(x=>x.caixa=0);
+    const antes=G.indiceSalario;w.atualizarIndiceSalarial();
+    if(!(G.indiceSalario<antes))throw new Error('o índice não cedeu com o Tier 1 apertado');
+    G.indiceSalario=1.5;
+    if(w.indiceSalarial(2)!==1)throw new Error('o índice mexeu no Challengers');
+    clube.caixa=0;
+    const s1=w.salario(p,clube), sRef=w.salario(p);
+    if(Math.abs(s1-sRef*1.5)>200)throw new Error('o salário no Tier 1 não seguiu o índice: '+s1+' contra '+sRef);
+    /* clube rico paga mais, e a explicação aparece no pedido */
+    clube.caixa=w.receitaAnual(clube)*7;
+    if(!(w.fatorRiqueza(clube)>1.3))throw new Error('clube com sete anos de receita no caixa não paga mais');
+    if(!w.pedidoRenovacao(p,clube).itens.some(i=>/dinheiro em caixa/.test(i.rot)))throw new Error('o pedido não explica o acréscimo do clube rico');
+    clube.caixa=w.receitaAnual(clube);
+    if(w.fatorRiqueza(clube)!==1)throw new Error('caixa normal não devia mudar o salário');
+    /* metade do prêmio vai para os jogadores */
+    const c0=t2.caixa;w.pagar([t2.id],[100000]);
+    if(t2.caixa-c0!==50000)throw new Error('o clube devia ficar com metade do prêmio, ficou com '+(t2.caixa-c0));
+    if(t.semente!==semente)throw new Error('a economia consumiu o gerador');
+  }finally{const f=JSON.parse(foto);G.indiceSalario=f.i;G.indiceHist=f.h;t1.forEach((x,i)=>x.caixa=f.c[i]);t2.caixa=f.c2;G.noticias.length=Math.min(G.noticias.length,f.n);}
+});
+
+await teste('a IA não treina atributo que já está no teto',async()=>{
+  const G=t.G;
+  const ia=Object.values(G.times).find(x=>x.id!==G.meuTime&&x.elenco.length);
+  const p=G.jogadores[ia.elenco.find(id=>{const j=G.jogadores[id];return j.pot-w.over(j)>3;})||ia.elenco[0]];
+  const foto=JSON.stringify({at:p.at,fad:p.fadiga,les:p.lesao,pot:p.pot,pl:ia.treino});
+  try{
+    p.fadiga=0;p.lesao=0;
+    const w8=t.ROLE_W?t.ROLE_W[p.role]:w.ROLE_W[p.role];
+    const maior=Object.keys(w8).sort((a,b)=>w8[b]-w8[a])[0];
+    p.at[maior]=99;p.pot=Math.min(99,w.over(p)+8);
+    w.planoIA(ia);
+    const pl=ia.treino.individual[p.id];
+    if(!pl||pl.tipo!=='atributo')throw new Error('a IA não montou treino de atributo');
+    if(pl.alvo===maior)throw new Error('a IA treinou '+maior+', que já está em 99');
+  }finally{const f=JSON.parse(foto);Object.assign(p,{at:f.at,fadiga:f.fad,lesao:f.les,pot:f.pot});ia.treino=f.pl;}
+});
+
 
 const larg=Math.max(...passos.map(p=>p[1].length));
 console.log('TESTE DE INTERFACE — '+passos.length+' casos\n');

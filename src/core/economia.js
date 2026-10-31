@@ -322,6 +322,63 @@ function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */
 function receitaLivre(t){return Math.max(0,receitaAnual(t)-custeioAnual(t));}
 
+/* ---------- índice salarial do Tier 1 ----------
+   Sem isto o dinheiro parava no topo: o salário saía só do over, a estrutura
+   chegava ao nível máximo em poucas temporadas e o Tier 1 terminava vinte anos
+   com mediana de 5 milhões no caixa e folha em um quarto da receita. Ganhar
+   dinheiro deixava de significar alguma coisa.
+
+   Agora o mercado reage à riqueza, como num circuito de verdade: quando os
+   clubes de cima guardam mais do que precisam, o salário pedido no Tier 1
+   sobe; quando apertam, ele cede. Vale para contrato novo e renovação, então
+   o efeito chega aos poucos. O Challengers fica fora: lá a folha já come
+   metade da receita. Só aritmética: não sorteia nada. */
+const INDICE_SAL_MIN=1, INDICE_SAL_MAX=3;
+/* Quantos anos de receita no caixa o mercado considera normal. */
+const INDICE_SAL_ALVO=1.5;
+const INDICE_SAL_PASSO=0.05, INDICE_SAL_SOBE=0.08, INDICE_SAL_DESCE=0.05;
+function indiceSalarial(tier){
+  if(tier!==1)return 1;
+  return (typeof G!=='undefined'&&G&&G.indiceSalario)||1;
+}
+/* Clube com dinheiro sobrando paga mais pelo mesmo jogador: o empresário sabe
+   quanto tem no banco. O índice acompanha a mediana do Tier 1 e não alcança os
+   ricos de verdade (o p90 terminava vinte anos com 17 milhões); isto alcança.
+   Até três anos de receita guardados não muda nada. */
+const RIQUEZA_ANOS_LIVRES=3, RIQUEZA_POR_ANO=0.10, RIQUEZA_TETO=0.6;
+function fatorRiqueza(t){
+  if(!t)return 1;
+  const rec=receitaAnual(t);
+  if(!(rec>0))return 1;
+  const anos=(t.caixa||0)/rec;
+  return 1+clamp((anos-RIQUEZA_ANOS_LIVRES)*RIQUEZA_POR_ANO,0,RIQUEZA_TETO);
+}
+function _mediana(xs){
+  const v=xs.slice().sort((a,b)=>a-b);
+  return v.length?v[Math.floor(v.length/2)]:0;
+}
+/* Anos de receita que o Tier 1 tem guardados (mediana, sem o seu clube). */
+function folegoDoTier1(){
+  const ts=Object.values(G.times).filter(t=>t.tier===1&&t.id!==G.meuTime);
+  const rec=_mediana(ts.map(receitaAnual));
+  return rec>0?_mediana(ts.map(t=>t.caixa||0))/rec:0;
+}
+function atualizarIndiceSalarial(){
+  const antes=G.indiceSalario||1;
+  const r=folegoDoTier1();
+  const f=clamp(1+(r-INDICE_SAL_ALVO)*INDICE_SAL_PASSO,1-INDICE_SAL_DESCE,1+INDICE_SAL_SOBE);
+  const depois=Math.round(clamp(antes*f,INDICE_SAL_MIN,INDICE_SAL_MAX)*1000)/1000;
+  G.indiceSalario=depois;
+  (G.indiceHist=G.indiceHist||[]).push({ano:G.ano,i:depois});
+  if(G.indiceHist.length>40)G.indiceHist.shift();
+  const pct=Math.round((depois/antes-1)*100);
+  if(Math.abs(pct)>=2&&typeof noticia==='function')
+    noticia((pct>0?'📈 Os salários do Tier 1 subiram ':'📉 Os salários do Tier 1 caíram ')+Math.abs(pct)+
+      '% na virada: '+(pct>0?'os clubes de cima estão com dinheiro sobrando.':'os clubes de cima apertaram o cinto.'),
+      {c:'mercado',imp:1});
+  return depois;
+}
+
 /* ---------- edição no Banco de dados ----------
    Como no resto do Editor, estas funções não conhecem DOM: recebem valores,
    devolvem {ok, msg|erro}. É o que permite testá-las sem navegador. */

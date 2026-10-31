@@ -81,7 +81,7 @@ const PREMIO_BANCO=[1,1,1,1,1,1.18,1.30,1.42,1.52];  /* por posição no elenco 
    em vez de mostrar um número que caiu do céu. */
 function detalharPedido(p,destino){
   const origem=p.timeId?G.times[p.timeId]:null;
-  const base=salario(p);
+  const base=salario(p,destino,true);
   const itens=[];
   const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
 
@@ -113,6 +113,8 @@ function detalharPedido(p,destino){
   /* idade e ambição: garoto troca dinheiro por projeto, veterano não */
   if(p.idade<=21&&salto>4)f*=juntar('Jovem em ascensão: aceita menos por projeto',0.93);
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.06);
+  if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(destino));
+  if(!p.timeId&&p.semLivre>=4)f*=juntar('Sem clube há '+p.semLivre+' semanas',descontoSemClube(p));
   /* dificuldade da carreira: só no que é cobrado de você */
   if(destino.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);

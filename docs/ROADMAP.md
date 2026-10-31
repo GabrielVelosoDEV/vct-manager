@@ -112,6 +112,10 @@
   (Kickoffs, Stages, Masters Santiago, Masters Londres e Champions Xangai,
   com vice, do vlr.gg) entram na pré-história, e a carreira começa em 2027
   com os elencos de 2026
+- **Balanço de longo prazo** (`docs/BALANCO.md`): a IA deixou de treinar
+  atributo já em 99 (a geração nova empacava e o Tier 1 enfraquecia), índice
+  salarial do Tier 1, clube rico paga mais, metade do prêmio vai aos
+  jogadores, agente livre parado baixa o pedido e o save ficou menor
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 

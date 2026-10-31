@@ -29,7 +29,7 @@ const RENOV_PREMIO_ANO=0.07;
 function _semanaAbs(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
 /* O que ele pede para ficar, e por quê. */
 function pedidoRenovacao(p,t){
-  const base=salario(p);
+  const base=salario(p,t,true);
   const itens=[];
   const juntar=(rot,f)=>{if(Math.abs(f-1)>0.005)itens.push({rot,fator:f});return f;};
   let f=1;
@@ -48,6 +48,7 @@ function pedidoRenovacao(p,t){
   if(folga>4)f*=juntar('Tem mercado melhor que o clube',1+Math.min(0.20,folga*0.012));
 
   if(p.idade>=28)f*=juntar('Veterano: quer garantir o contrato',1.04);
+  if(typeof fatorRiqueza==='function')f*=juntar('O clube tem muito dinheiro em caixa',fatorRiqueza(t));
   if(t.id===G.meuTime&&dificuldade().salario!==1)
     f*=juntar('Dificuldade '+dificuldade().nome.toLowerCase(),dificuldade().salario);
   /* nunca aceita ganhar menos do que já ganha, a não ser que esteja caindo */

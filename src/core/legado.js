@@ -77,6 +77,9 @@ function legadoDe(t){
 /* Guardado em G.h2h com chave ordenada, para "A contra B" e "B contra A"
    caírem no mesmo registro. Sem a ordenação seriam dois históricos separados
    que nunca conversariam. */
+/* Quantos confrontos recentes cada par guarda. Eram 12: com 80 clubes isso era
+   um quarto do save depois de vinte temporadas, e a tela mostra menos que isso. */
+const H2H_ULTIMOS=6;
 function chaveH2H(a,b){return a<b?a+'|'+b:b+'|'+a;}
 function registrarConfronto(idA,idB,vencedorId,ctx){
   if(!idA||!idB||idA===idB)return null;
@@ -86,7 +89,7 @@ function registrarConfronto(idA,idB,vencedorId,ctx){
   r.jogos++;
   if(vencedorId===r.a)r.va++;else if(vencedorId===r.b)r.vb++;
   r.ultimos.unshift({ano:G.ano,v:vencedorId,ctx:ctx||''});
-  if(r.ultimos.length>12)r.ultimos.pop();
+  if(r.ultimos.length>H2H_ULTIMOS)r.ultimos.pop();
   return r;
 }
 function confronto(idA,idB){
