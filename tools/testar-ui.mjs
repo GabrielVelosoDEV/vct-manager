@@ -1778,6 +1778,74 @@ await teste('mercado vivo: último dia da janela é reconhecido',async()=>{
   }finally{t.G.semana=s;t.G.janela=j;}
 });
 
+/* ---------- orçamento da diretoria e central ---------- */
+await teste('verba da diretoria: trava compra no modo Treinador, venda devolve metade',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  const mgr=JSON.stringify(t.G.manager||null);
+  try{
+    t.G.manager=t.G.manager||{nome:'X',papel:'diretoria',confianca:60,metas:[],historico:[],clubes:[]};
+    t.G.manager.papel='treinador';t.G.manager.confianca=60;
+    t.G.janela=true;eu.caixa=9e6;delete eu.orcamento;
+    const o=w.orcamentoDe(eu);
+    if(!(o.verba>0))throw new Error('sem verba com 9M no caixa');
+    const disp=w.verbaDisponivel(eu);
+    if(!w.foraDaVerba(eu,disp+5000))throw new Error('não travou acima da verba');
+    if(w.foraDaVerba(eu,disp))throw new Error('travou dentro da verba');
+    /* na mesa: proposta acima da verba não sai */
+    const q=outro.elenco.map(i=>t.G.jogadores[i]).find(x=>!x.emprestimo);
+    const n=w.abrirNegociacao(q).neg;
+    const r=w.proporAoClube(n,disp+50000,0);
+    if(r.ok||!/diretoria/.test(r.erro))throw new Error('a mesa deixou passar acima da verba: '+JSON.stringify(r));
+    /* venda: metade volta */
+    const antes=w.verbaDisponivel(eu);
+    w.creditarVenda(eu,200000);
+    if(Math.round(w.verbaDisponivel(eu)-antes)!==100000)throw new Error('a venda não devolveu metade');
+    /* no modo Diretoria não trava */
+    t.G.manager.papel='diretoria';
+    if(w.foraDaVerba(eu,disp*10))throw new Error('travou no modo Diretoria');
+  }finally{voltarDaTroca(foto);t.G.manager=JSON.parse(mgr);delete eu.orcamento;}
+});
+
+await teste('pedir mais verba: confiança decide, uma vez por janela',async()=>{
+  const {eu}=meuEOutro();
+  const foto=fotoDaTroca(eu);
+  const mgr=JSON.stringify(t.G.manager||null);
+  const sem=t.G.semana;
+  try{
+    t.G.manager=t.G.manager||{nome:'X',papel:'treinador',confianca:60,metas:[],historico:[],clubes:[]};
+    t.G.manager.papel='treinador';t.G.manager.confianca=80;
+    t.G.janela=true;t.G.semana=2;eu.caixa=9e6;delete eu.orcamento;
+    const v0=w.orcamentoDe(eu).verba;
+    const r=w.pedirMaisVerba();
+    if(!r.ok||!r.aceito||!(w.orcamentoDe(eu).verba>v0))throw new Error('confiança 80 e não liberou: '+JSON.stringify(r));
+    if(w.pedirMaisVerba().ok)throw new Error('deixou pedir duas vezes na mesma janela');
+    t.G.semana=29;t.G.manager.confianca=30;
+    const r2=w.pedirMaisVerba();
+    if(!r2.ok||r2.aceito)throw new Error('confiança 30 e liberou');
+  }finally{voltarDaTroca(foto);t.G.manager=JSON.parse(mgr);t.G.semana=sem;delete eu.orcamento;}
+});
+
+await teste('central de transferências mostra verba, andamento e o mundo',async()=>{
+  const {eu,outro}=meuEOutro();
+  const foto=fotoDaTroca(eu,outro);
+  try{
+    t.G.janela=true;eu.caixa=9e6;
+    const q=outro.elenco.map(i=>t.G.jogadores[i]).find(x=>!x.emprestimo);
+    w.abrirNegociacao(q);
+    t.tela='mercado';t.mercAba='central';w.render();
+    const h=$('#view').innerHTML;
+    if(!h.includes('Central de transferências'))throw new Error('aba não abriu');
+    if(!h.includes('Verba'))throw new Error('sem a verba');
+    if(!h.includes(q.nome))throw new Error('a negociação aberta não aparece em andamento');
+    const b=$('[data-abrirneg]');
+    if(!b)throw new Error('sem botão de abrir a negociação');
+    clicar(b);
+    if(!$('#modal').innerHTML.includes(q.nome))throw new Error('abrir não levou à mesa');
+    $('#modal').innerHTML='';
+  }finally{voltarDaTroca(foto);t.mercAba='jogadores';}
+});
+
 await teste('a mesa de negociação: clube, depois jogador, com a conta do pedido',async()=>{
   const time=t.G.times[t.G.meuTime];
   const p=Object.values(t.G.jogadores).find(x=>x.timeId&&x.timeId!==t.G.meuTime

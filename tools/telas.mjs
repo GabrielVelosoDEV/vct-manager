@@ -195,6 +195,11 @@ await ev(`$('#modal').innerHTML='';(function(){const eu=meu();
   const p=ordem[ordem.length-1];const r=abrirNegociacao(p,eu);if(r.ok)modalEmprestimoMesa(r.neg);})()`);
 await tira('10k-emprestimo');
 await ev(`$('#modal').innerHTML=''`);
+/* central de transferências, no modo Treinador para a verba valer */
+await ev(`(function(){if(!G.manager)criarManager('Manager','treinador');G.manager.papel='treinador';const eu=meu();delete eu.orcamento;
+  const o=Object.values(G.times).find(x=>x.id!==eu.id&&x.elenco.length>=7);abrirNegociacao(G.jogadores[o.elenco[0]],eu);
+  irPara('mercado');mercAba='central';render();})()`);
+await tira('10l-central');
 await ev(`mercAba='jogadores';irPara('taticas');modalStaff(Object.values(G.staff).find(m=>m.timeId===G.meuTime).id)`);
 await tira('12-ficha-comissao');
 /* fecha a ficha antes: sem isso a captura de Finanças saía com o modal da

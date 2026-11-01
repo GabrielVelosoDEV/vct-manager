@@ -84,6 +84,7 @@ function avaliarTroca(eu,outro,tr){
   if(meuDepois>ELENCO_MAX)erros.push('Você ficaria com '+meuDepois+' jogadores (máximo '+ELENCO_MAX+').');
   if(deleDepois<ELENCO_MIN||deleDepois>ELENCO_MAX)erros.push('O '+outro.nome+' ficaria com '+deleDepois+' jogadores.');
   if(din>0&&eu.caixa<din)erros.push('Caixa insuficiente para pagar '+dinheiro(din)+'.');
+  if(din>0&&typeof foraDaVerba==='function'){const fv=foraDaVerba(eu,din);if(fv)erros.push(fv);}
   if(din<0&&outro.caixa<-din)erros.push('O '+outro.nome+' não tem '+dinheiro(-din)+' em caixa.');
 
   /* reações dos jogadores */
@@ -178,6 +179,7 @@ function executarTroca(n,a){
   n.fase='fechada';
   n.final={envia:n.envia.slice(),recebe:n.recebe.slice(),dinheiro:a.din};
   eu.caixa-=a.din;outro.caixa+=a.din;
+  if(typeof gastarVerba==='function'){if(a.din>0)gastarVerba(eu,a.din);else creditarVenda(eu,-a.din);}
   /* trava de reposição: enquanto a troca anda, nenhum dos dois clubes pode
      sair contratando no meio — o elenco só fecha a conta no fim */
   eu._repondo=true;outro._repondo=true;

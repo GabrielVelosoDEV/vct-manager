@@ -84,6 +84,15 @@ function ligarEventos(){
     avisar(r.msg,r.ficou?'Ele fica':'Ele vai');render();
   });
   on('[data-leilao]',el=>{modalLeilao(el.dataset.leilao);});
+  on('[data-verba]',async el=>{
+    const r=pedirMaisVerba();
+    if(!r.ok){avisar(r.erro);return;}
+    await avisar(r.msg,r.aceito?'Diretoria: sim':'Diretoria: não');render();
+  });
+  on('[data-abrirneg]',el=>{
+    const n=negociacao(el.dataset.abrirneg);if(!n)return;
+    if(n.tipo==='troca')telaTroca(n);else mesaPorId(n.id);
+  });
   on('[data-opcao]',el=>{
     const r=exercerOpcao(P(el.dataset.opcao));
     if(!r.ok){avisar(r.erro);return;}
