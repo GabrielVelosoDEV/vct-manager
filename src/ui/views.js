@@ -664,15 +664,15 @@ function vMercado(){
   const t=meu();
   const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
   const venc=t.elenco.map(P).filter(p=>p&&p.contrato<=1).length;
-  const abas=`<div class="tabs">${[['jogadores','Jogadores'],['comissao','Comissão técnica'],
+  const abas=`<div class="tabs">${[['central','Central'],['jogadores','Jogadores'],['comissao','Comissão técnica'],
       ['saidas','Saídas'+(pend?' ('+pend+')':'')],
       ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
     ${prazo?'<div class="merc-prazo">⏰ <b>Último dia da janela.</b> Os clubes estão correndo atrás de reforço: propostas chegam mais rápido e quem não fechar agora só fecha na próxima janela.</div>':''}
-    <h2 class="sec">${mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
-    mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
+    <h2 class="sec">${mercAba==='central'?'Central de transferências':mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
+    mercAba==='central'?vMercadoCentral(t):mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
 /* ---------- saídas: vender e emprestar ----------
    A tela é deliberadamente do lado de cá do balcão: você anuncia, e as

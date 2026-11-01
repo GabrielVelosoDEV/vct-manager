@@ -161,6 +161,7 @@ function mesa(p,n,bloqueio,tipoBloq){
       <div class="neg-numeros">
         <div><span class="dim">Eles pedem</span><b class="num">${dinheiro(n.pedidaClube)}</b></div>
         <div><span class="dim">Multa rescisória</span><b class="num">${dinheiro(multa)}</b></div>
+        ${verbaVale()?`<div><span class="dim">Verba da diretoria</span><b class="num">${dinheiro(verbaDisponivel(t))}</b></div>`:''}
       </div>
       <label class="neg-campo"><span>Sua oferta pelo passe</span>
         <input type="range" id="cTaxaR" min="0" max="${Math.round(max)}" step="5000" value="${taxa0}">

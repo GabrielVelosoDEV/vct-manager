@@ -298,6 +298,7 @@ function avaliarEmprestimoPedido(n,oferta){
   const jogadorOk=vontade>=TROCA_INTERESSE_OK&&!recusasDuras(p,eu,1).length;
   if(folgaSalarial(eu)<sal)erros.push('A folha não comporta '+money(sal)+'/mês.');
   if(eu.caixa<taxa)erros.push('Caixa insuficiente para a taxa de '+money(taxa)+'.');
+  const fv=typeof foraDaVerba==='function'&&foraDaVerba(eu,taxa);if(fv)erros.push(fv);
   return{parte,opcao,minParte,precoOpcao,sal,taxa,clubeOk,jogadorOk,vontade,erros,rank};
 }
 function proporEmprestimo(n,oferta){
@@ -335,6 +336,7 @@ function exercerOpcao(p){
   if(!e||p.timeId!==eu.id||!e.opcaoCompra)return{ok:false,erro:'Não há opção de compra.'};
   if(!G.janela)return{ok:false,erro:'Só com a janela aberta.'};
   if(eu.caixa<e.opcaoCompra)return{ok:false,erro:'Caixa insuficiente: a opção é '+money(e.opcaoCompra)+'.'};
+  const fv=typeof foraDaVerba==='function'&&foraDaVerba(eu,e.opcaoCompra);if(fv)return{ok:false,erro:fv};
   const dono=G.times[e.donoId];
   eu.caixa-=e.opcaoCompra;if(dono)dono.caixa+=e.opcaoCompra;
   delete p.emprestimo;p.contrato=Math.max(2,p.contrato||1);

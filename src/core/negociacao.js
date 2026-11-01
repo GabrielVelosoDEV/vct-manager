@@ -187,6 +187,8 @@ function proporAoClube(n,taxa,revenda){
   if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
   taxa=Math.max(0,_arred(taxa||0,500));
   if(dest.caixa<taxa)return{ok:false,erro:'Caixa insuficiente: você tem '+dinheiro(dest.caixa)+'.'};
+  const fv=typeof foraDaVerba==='function'&&foraDaVerba(dest,taxa);
+  if(fv)return{ok:false,erro:fv};
   const ps=posturaDoClube(p);
   const multa=multaDe(p);
   const preco=precoPedido(p);
@@ -225,6 +227,8 @@ function pagarMulta(n,jaFalou){
   if(!p||!dest||n.fase!=='clube')return{ok:false,erro:'Essa etapa já passou.'};
   const multa=multaDe(p);
   if(dest.caixa<multa)return{ok:false,erro:'A multa é '+dinheiro(multa)+' e você tem '+dinheiro(dest.caixa)+' em caixa.'};
+  const fv=typeof foraDaVerba==='function'&&foraDaVerba(dest,multa);
+  if(fv)return{ok:false,erro:fv};
   if(!jaFalou)_fala(n,'voce','Vamos pagar a multa rescisória de '+dinheiro(multa)+'.',{valor:multa});
   n.taxa=multa;n.viaMulta=true;n.fase='jogador';
   _fala(n,'clube','Multa é multa. Não podemos impedir. Agora é com ele.');
@@ -302,6 +306,7 @@ function proporAoJogador(n,oferta){
   const a=avaliarOfertaJogador(n,oferta);
   if(a.duras.length)return{ok:false,erro:a.duras.join(' ')};
   if(dest.caixa<a.custo)return{ok:false,erro:'Caixa insuficiente: '+(n.taxa?'taxa, ':'')+'luvas e comissão somam '+dinheiro(a.custo)+'.'};
+  if(n.tipo==='compra'&&typeof foraDaVerba==='function'){const fv=foraDaVerba(dest,a.custo);if(fv)return{ok:false,erro:fv};}
   _fala(n,'voce',dinheiro(oferta.sal)+'/mês por '+oferta.anos+' ano(s)'+
     (oferta.luvas?', '+dinheiro(oferta.luvas)+' de luvas':'')+(oferta.promessa?', titularidade garantida':'')+
     (oferta.multa!=='padrao'?', multa '+NIVEIS_MULTA[oferta.multa].nome.toLowerCase():'')+'.',{valor:oferta.sal});
@@ -370,6 +375,8 @@ function concluirNegociacao(n,oferta,a){
   }
   dest.caixa-=(n.taxa||0)+(oferta.luvas||0)+a.comissao;
   if(origem)origem.caixa+=(n.taxa||0);
+  /* a taxa entra na verba pelo registro da transferência; luvas e comissão aqui */
+  if(typeof gastarVerba==='function')gastarVerba(dest,(oferta.luvas||0)+a.comissao);
   const de=origem?origem.tag:'sem clube';
   _fala(n,'jogador',empolgado?'Fechado! Mal posso esperar para começar.':'Fechado. Vamos trabalhar.');
   contratar(p,dest,oferta.anos,oferta.sal);
@@ -449,6 +456,8 @@ function cumprirPreContrato(p){
 function registrarTransferencia(p,origem,dest,taxa,tipo){
   G.transferencias=G.transferencias||[];
   if(tipo!=='troca'&&tipo!=='emprestimo'&&typeof pagarRevenda==='function')pagarRevenda(p,origem,dest,taxa);
+  /* verba da diretoria: o que entra no seu clube gasta, o que sai devolve parte */
+  if(taxa>0&&typeof gastarVerba==='function'){gastarVerba(dest,taxa);if(origem)creditarVenda(origem,taxa);}
   G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
     de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
   /* só as últimas temporadas: o save não precisa carregar a história inteira */
