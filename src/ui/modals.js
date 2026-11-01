@@ -54,7 +54,10 @@ function modalJogador(id){
     <div class="bar" style="flex:1"><i class="${ovClass(Math.round(p.at[k]))}" style="width:${p.at[k]}%"></i></div>
     <b class="num" style="width:26px;text-align:right">${Math.round(p.at[k])}</b></div>`;
   const st=p.temp;
-  return abrir(`<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
+  const meuJog=p.timeId===t.id;
+  /* Antes isto era `return abrir(...)`: o return cortava a função e nenhum
+     botão da ficha (renovar, troca, pedido de saída, opção) ganhava clique. */
+  abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
     <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
     <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
     <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
@@ -116,10 +119,24 @@ function modalJogador(id){
     ${p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
     ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
     ${p.timeId===t.id&&p.emprestimo&&p.emprestimo.opcaoCompra&&G.janela?`<button class="btn teal" data-opcao="${p.id}">Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:''}
-    ${p.timeId===t.id?`<button class="btn ghost" id="mjRenovar">Renovar contrato</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const bt=$('#mjTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
+  /* barra de ações do seu jogador */
   const br=$('#mjRenovar');if(br)br.onclick=()=>modalRenovacao(p.id);
+  const ba=$('#mjAnunciar');if(ba)ba.onclick=()=>modalAnunciar(p.id);
+  const bd=$('#mjDesanunciar');if(bd)bd.onclick=()=>{
+    const r=retirarAnuncio(p);
+    if(r&&r.msg)noticia(p.nome+': '+r.msg.toLowerCase(),{c:'mercado',p:[p.id]});
+    render();modalJogador(p.id);
+  };
+  /* conversa: o atalho global só liga botões da tela, não do modal */
+  $('#modal').querySelectorAll('[data-conversa]').forEach(b=>b.onclick=()=>{
+    const [,opcao]=String(b.dataset.conversa).split(':');
+    const r=conversarCom(t,p,opcao);
+    if(!r.ok)return avisar(r.erro);
+    render();modalJogador(p.id);
+    flash(r.msg+(r.delta?' (moral '+(r.delta>0?'+':'')+r.delta+')':''));
+  });
   /* pedido de saída e opção de compra, direto da ficha */
   $('#modal').querySelectorAll('[data-psaida]').forEach(b=>b.onclick=()=>{
     const [r0]=b.dataset.psaida.split(':');
@@ -130,6 +147,27 @@ function modalJogador(id){
   $('#modal').querySelectorAll('[data-opcao]').forEach(b=>b.onclick=()=>{
     const r=exercerOpcao(p);if(!r.ok)return avisar(r.erro);render();modalJogador(p.id);
   });
+}
+/* Topo da ficha do seu jogador: contrato, anúncio e os dois caminhos de
+   mercado (renovar e pôr à venda/emprestar) num lugar só, à vista. */
+function barraDoMeuJogador(t,p){
+  const an=p.anuncio, neg=negociacaoAtivaDe(p.id);
+  const renovando=neg&&neg.tipo==='renovacao';
+  const travado=p.preContrato?'Já assinou pré-contrato e sai no fim da temporada.'
+    :p.emprestimo?'Está emprestado: quem decide o futuro dele é o '+esc((T(p.emprestimo.donoId)||{}).nome||'clube dono')+'.':'';
+  const modoAn=an?(an.modo==='venda'?'à venda':an.modo==='emprestimo'?'para empréstimo':'à venda ou empréstimo'):'';
+  return `<div class="mj-acoes">
+    <div class="mj-acoes-info">
+      <span class="eyebrow">Seu jogador</span>
+      <span>Contrato de <b class="${p.contrato<=1?'dn':''}">${p.contrato} ano(s)</b> · ${money(p.salario)}/mês</span>
+      ${an?`<span class="chip t">Anunciado ${modoAn} · ${money(an.pedido)}</span>`:''}
+      ${travado?`<span class="dim">${travado}</span>`:''}
+    </div>
+    <div class="mj-acoes-bts">
+      ${p.emprestimo?'':`<button class="btn" id="mjRenovar" ${p.preContrato?'disabled':''}>${renovando?'Voltar à renovação':'Renovar contrato'}</button>`}
+      ${travado?'':an?`<button class="btn ghost" id="mjDesanunciar">Retirar anúncio</button>`
+        :`<button class="btn ghost" id="mjAnunciar">Pôr à venda / emprestar</button>`}
+    </div></div>`;
 }
 /* Carreira na ficha: totais, prêmios e a tabela ano a ano. Os totais vêm de
    p.carreira, que soma desde o primeiro mapa; a tabela é p.hist. */
@@ -214,7 +252,8 @@ function modalAnunciar(id){
     const r=anunciarJogador(p,$('#aModo').value,$('#aOpcao').value==='1',
                             parseFloat($('#aPedido').value)||justo);
     if(!r.ok){$('#aFeed').innerHTML=`<div class="card flat" style="border-left:4px solid var(--red)">${esc(r.erro)}</div>`;return;}
-    fechar();
+    render();modalJogador(p.id);
+    flash(p.nome+' anunciado. As propostas aparecem em Mercado › Saídas'+(G.janela?'.':' quando a janela abrir.'));
   };
 }
 

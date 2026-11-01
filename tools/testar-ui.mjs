@@ -1930,6 +1930,36 @@ await teste('revisão: todas as abas do Mercado abrem, com janela aberta e fecha
   }finally{t.G.manager=JSON.parse(mgr);t.G.janela=j;t.mercAba='jogadores';}
 });
 
+await teste('ficha do seu jogador: renovar, pôr à venda, retirar e conversar funcionam pelo clique',async()=>{
+  const {eu}=meuEOutro();
+  const foto=fotoDaTroca(eu);
+  try{
+    if(eu.elenco.length<7){const extra=t.G.livres.slice(0,7-eu.elenco.length);extra.forEach(i=>w.contratar(t.G.jogadores[i],eu,1,1000));}
+    const p=eu.elenco.map(i=>t.G.jogadores[i]).find(x=>!x.emprestimo&&!x.preContrato&&!x.anuncio);
+    delete p.conversaEm;delete p.ultimaConversa;
+    w.modalJogador(p.id);
+    if(!$('#modal .mj-acoes'))throw new Error('a ficha não mostra a barra de ações no topo');
+    const bt=$('#mjRenovar');if(!bt)throw new Error('sem o botão Renovar contrato');
+    clicar(bt);
+    if(!$('#modal').textContent.toLowerCase().includes('renovação'))throw new Error('Renovar contrato não abriu a mesa');
+    w.modalJogador(p.id);
+    const ba=$('#mjAnunciar');if(!ba)throw new Error('sem o botão Pôr à venda / emprestar');
+    clicar(ba);
+    const ok=$('#aOk');if(!ok)throw new Error('pôr à venda não abriu o formulário');
+    clicar(ok);
+    if(!p.anuncio)throw new Error('anunciar pela ficha não anunciou');
+    if(!$('#mjDesanunciar'))throw new Error('depois de anunciar, a ficha não oferece Retirar anúncio');
+    clicar($('#mjDesanunciar'));
+    if(p.anuncio)throw new Error('Retirar anúncio não retirou');
+    const bc=$('#modal [data-conversa]');
+    if(bc){
+      clicar(bc);
+      if(!$('#modal .ovl'))throw new Error('a conversa fechou a ficha');
+      if($('#modal [data-conversa]'))throw new Error('o botão de conversa não fez nada (a ficha ainda deixa conversar)');
+    }
+  }finally{$('#modal').innerHTML='';voltarDaTroca(foto);}
+});
+
 await teste('revisão: pela tela, a multa paga se resolve pelos botões e o leilão vende',async()=>{
   const {eu}=meuEOutro();
   const compradores=Object.values(t.G.times).filter(x=>x.id!==eu.id&&x.elenco.length<9).slice(0,3);
