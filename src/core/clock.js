@@ -52,7 +52,8 @@ function avancar(plano){
   }else{
     G.fase='Intervalo';
   }
-  G.janela=b?!!b.janela:false;
+  /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
+  G.janela=janelaAberta(G.ano,G.semana);
   if(typeof limparNegociacoes==='function')limparNegociacoes();
 
   const resultados=[];let minhaPartida=null;

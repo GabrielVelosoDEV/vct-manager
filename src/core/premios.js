@@ -141,8 +141,9 @@ function premiarTemporada(){
     const id=cand.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
     if(id)usados.add(id);
   }
-  const flex=cand.find(i=>!usados.has(i));
-  if(flex)usados.add(flex);
+  /* o quinto é o melhor que sobrou; se faltou alguma função entre os
+     candidatos, o melhor que sobrou cobre também essa vaga */
+  for(const id of cand){if(usados.size>=5)break;usados.add(id);}
   reg.selecao=[...usados].sort(porNota).map(id=>fichaPremio(id,jog[id]));
   usados.forEach(id=>darPremio(id,'selecao',ROT_PREMIO.selecao));
 

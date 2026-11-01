@@ -21,13 +21,15 @@
    ============================================================ */
 
 /* Chance semanal, por jogador seu, de chegar proposta sem anúncio. Sobe com
-   o over: estrela recebe ligação toda janela, reserva quase nunca. */
-const ESPONTANEA_BASE=0.09;
-const ESPONTANEA_POR_OVER=0.025;    /* por ponto de over acima de 75 */
-const ESPONTANEA_MAX=0.45;
+   o over: estrela recebe ligação toda janela, reserva quase nunca. Calibrada
+   para as duas janelas de calendário, que somam cerca de 22 semanas por ano. */
+const ESPONTANEA_BASE=0.045;
+const ESPONTANEA_POR_OVER=0.012;    /* por ponto de over acima de 75 */
+const ESPONTANEA_MAX=0.25;
 /* A IA só paga multa por um salto grande no time dela, e com folga no caixa. */
 const MULTA_IA_GANHO=6;
 const MULTA_IA_CAIXA=0.6;
+const MULTA_IA_CHANCE=0.5;
 const PRAZO_MULTA=2;
 /* Aumento que você oferece para segurar quem teve a multa paga. */
 const SEGURAR_AUMENTO=0.25;
@@ -40,12 +42,13 @@ const CRISE_DESCONTO=0.80, CRISE_SEMANAS=34;
 const REVENDA_OPCOES=[0,10,20];
 function pesoRevenda(p){return p.idade<=22?0.9:0.5;}
 /* IA durante a janela: chance por semana de cada clube tentar um reforço. */
-const IA_JANELA_CHANCE=0.05, IA_PRAZO_FINAL=0.14;
+const IA_JANELA_CHANCE=0.025, IA_PRAZO_FINAL=0.14;
 
 /* ---------- último dia da janela ---------- */
 function ultimoDiaDaJanela(){
   if(!G||!G.janela)return false;
-  return TEMPORADA.some(b=>b.janela&&b.fim===G.semana);
+  const n=proximaSemana(G.ano,G.semana||1);
+  return !janelaAberta(n.ano,n.semana);
 }
 
 /* ---------- crise ---------- */
@@ -159,7 +162,8 @@ function montarEspontanea(p,alvo,ganho){
   const teto=Math.max(0,alvo.caixa*TETO_TAXA);
   /* multa: o salto precisa ser grande, o caixa precisa aguentar, e o jogador
      precisa preferir ir */
-  if(ganho>=MULTA_IA_GANHO&&alvo.caixa*MULTA_IA_CAIXA>=multa
+  /* metade das vezes o clube tenta antes negociar: multa é o último recurso */
+  if(ganho>=MULTA_IA_GANHO&&rnd()<MULTA_IA_CHANCE&&alvo.caixa*MULTA_IA_CAIXA>=multa
      &&interessePor(p,alvo).nota>=interesseEmFicar(p,eu).nota+5){
     return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'multa',taxa:multa,
            salario:Math.round(sal),anos:ri(2,4),opcaoCompra:0,prazo:PRAZO_MULTA,espontanea:true};

@@ -3288,6 +3288,24 @@ function rotuloPeriodo(ano,ini,fim){
   return ma===mb ? `${a.getUTCDate()}–${b.getUTCDate()} de ${MESES[a.getUTCMonth()].toLowerCase()}`
                  : `${a.getUTCDate()} ${ma} – ${b.getUTCDate()} ${mb}`;
 }
+/* ---------- janelas de transferência ----------
+   Duas por ano, pelo calendário e não pelos torneios: novembro a janeiro
+   (atravessa a virada da temporada) e junho a julho. A semana pertence ao
+   mês da quinta-feira dela, a mesma regra de mesDaSemana. */
+const MESES_JANELA=[10,11,0,5,6];
+function janelaAberta(ano,semana){return MESES_JANELA.includes(mesDaSemana(ano,semana));}
+/* A semana seguinte, atravessando o ano. */
+function proximaSemana(ano,semana){return semana>=SEMANAS_ANO?{ano:ano+1,semana:1}:{ano,semana:semana+1};}
+function nomeDaJanela(ano,semana){
+  const m=mesDaSemana(ano,semana);
+  return m===5||m===6?'janela de junho e julho':'janela de novembro a janeiro';
+}
+/* Próxima abertura de janela a partir de uma semana (inclusive), para a tela. */
+function proximaJanela(ano,semana){
+  let a=ano,s=semana;
+  for(let i=0;i<SEMANAS_ANO+1;i++){if(janelaAberta(a,s))return{ano:a,semana:s};({ano:a,semana:s}=proximaSemana(a,s));}
+  return null;
+}
 /* Quantas semanas faltam de um intervalo, contando a atual. */
 function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
 
@@ -4299,7 +4317,9 @@ function salario(p,t,explicado){
     if(typeof fatorRiqueza==='function')s*=fatorRiqueza(t);
     s*=descontoSemClube(p);
   }
-  return Math.round(s/100)*100;
+  /* piso de 100: garoto fraco, sem clube há meses, em clube com desconto,
+     arredondava para zero, e salário zero quebra empréstimo e folha */
+  return Math.max(100,Math.round(s/100)*100);
 }
 /* Quem está sem clube há meses baixa o pedido. Sem isto o veterano de 84 que
    não renovou ficava no mercado pedindo o salário cheio e ninguém pagava: em
@@ -7448,7 +7468,7 @@ function manchete(){
    construção — ver rodadasPorSemana(), que aperta o ritmo quando falta tempo
    em vez de deixar um torneio vazar para o mês seguinte. */
 const TEMPORADA=[
-  {nome:'Pré-temporada',          ini:1,  fim:4,  endKey:'preseason', janela:true},
+  {nome:'Pré-temporada',          ini:1,  fim:4,  endKey:'preseason'},
   {nome:'Kickoff · Grupos',       ini:5,  fim:7,  endKey:'kickGrupos',montar:'kickGrupos'},
   {nome:'Kickoff · Playoffs',     ini:8,  fim:9,  endKey:'kickoff',   montar:'kickPO'},
   {nome:'Masters I · Suíço',      ini:11, fim:12, endKey:'m1Suico',   montar:'m1Suico'},
@@ -7457,7 +7477,7 @@ const TEMPORADA=[
   {nome:'Stage 1 · Playoffs',     ini:21, fim:23, endKey:'po1',       montar:'po1'},
   {nome:'Masters II · Suíço',     ini:25, fim:26, endKey:'m2Suico',   montar:'m2Suico'},
   {nome:'Masters II · Playoffs',  ini:27, fim:28, endKey:'masters2',  montar:'m2PO'},
-  {nome:'Janela do meio do ano',  ini:29, fim:30, endKey:'window',    janela:true},
+  {nome:'Pausa do meio do ano',   ini:29, fim:30, endKey:'window'},
   {nome:'Stage 2 · Grupos',       ini:31, fim:35, endKey:'stage2',    montar:'stage2'},
   {nome:'Stage 2 · Playoffs',     ini:36, fim:38, endKey:'po2',       montar:'po2'},
   {nome:'Champions · Grupos',     ini:40, fim:42, endKey:'chGrupos',  montar:'chGrupos'},
@@ -7468,7 +7488,7 @@ const TEMPORADA=[
      conta de quem vai ao Champions. Quem sobe agora sobe para a temporada
      seguinte, que é o que Ascension significa. */
   {nome:'Ascension',              ini:47, fim:48, endKey:'ascension', montar:'ascension'},
-  {nome:'Fim de temporada',       ini:49, fim:52, endKey:'offseason', janela:true}
+  {nome:'Fim de temporada',       ini:49, fim:52, endKey:'offseason'}
 ];
 
 /* O nome da liga de Challengers da região. Mora em G.regioes[].nomeT2 porque
@@ -7720,7 +7740,8 @@ function avancar(plano){
   }else{
     G.fase='Intervalo';
   }
-  G.janela=b?!!b.janela:false;
+  /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
+  G.janela=janelaAberta(G.ano,G.semana);
   if(typeof limparNegociacoes==='function')limparNegociacoes();
 
   const resultados=[];let minhaPartida=null;
@@ -9384,13 +9405,15 @@ function executarTrocaIA(pr){
    ============================================================ */
 
 /* Chance semanal, por jogador seu, de chegar proposta sem anúncio. Sobe com
-   o over: estrela recebe ligação toda janela, reserva quase nunca. */
-const ESPONTANEA_BASE=0.09;
-const ESPONTANEA_POR_OVER=0.025;    /* por ponto de over acima de 75 */
-const ESPONTANEA_MAX=0.45;
+   o over: estrela recebe ligação toda janela, reserva quase nunca. Calibrada
+   para as duas janelas de calendário, que somam cerca de 22 semanas por ano. */
+const ESPONTANEA_BASE=0.045;
+const ESPONTANEA_POR_OVER=0.012;    /* por ponto de over acima de 75 */
+const ESPONTANEA_MAX=0.25;
 /* A IA só paga multa por um salto grande no time dela, e com folga no caixa. */
 const MULTA_IA_GANHO=6;
 const MULTA_IA_CAIXA=0.6;
+const MULTA_IA_CHANCE=0.5;
 const PRAZO_MULTA=2;
 /* Aumento que você oferece para segurar quem teve a multa paga. */
 const SEGURAR_AUMENTO=0.25;
@@ -9403,12 +9426,13 @@ const CRISE_DESCONTO=0.80, CRISE_SEMANAS=34;
 const REVENDA_OPCOES=[0,10,20];
 function pesoRevenda(p){return p.idade<=22?0.9:0.5;}
 /* IA durante a janela: chance por semana de cada clube tentar um reforço. */
-const IA_JANELA_CHANCE=0.05, IA_PRAZO_FINAL=0.14;
+const IA_JANELA_CHANCE=0.025, IA_PRAZO_FINAL=0.14;
 
 /* ---------- último dia da janela ---------- */
 function ultimoDiaDaJanela(){
   if(!G||!G.janela)return false;
-  return TEMPORADA.some(b=>b.janela&&b.fim===G.semana);
+  const n=proximaSemana(G.ano,G.semana||1);
+  return !janelaAberta(n.ano,n.semana);
 }
 
 /* ---------- crise ---------- */
@@ -9522,7 +9546,8 @@ function montarEspontanea(p,alvo,ganho){
   const teto=Math.max(0,alvo.caixa*TETO_TAXA);
   /* multa: o salto precisa ser grande, o caixa precisa aguentar, e o jogador
      precisa preferir ir */
-  if(ganho>=MULTA_IA_GANHO&&alvo.caixa*MULTA_IA_CAIXA>=multa
+  /* metade das vezes o clube tenta antes negociar: multa é o último recurso */
+  if(ganho>=MULTA_IA_GANHO&&rnd()<MULTA_IA_CHANCE&&alvo.caixa*MULTA_IA_CAIXA>=multa
      &&interessePor(p,alvo).nota>=interesseEmFicar(p,eu).nota+5){
     return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'multa',taxa:multa,
            salario:Math.round(sal),anos:ri(2,4),opcaoCompra:0,prazo:PRAZO_MULTA,espontanea:true};
@@ -10579,8 +10604,9 @@ function premiarTemporada(){
     const id=cand.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
     if(id)usados.add(id);
   }
-  const flex=cand.find(i=>!usados.has(i));
-  if(flex)usados.add(flex);
+  /* o quinto é o melhor que sobrou; se faltou alguma função entre os
+     candidatos, o melhor que sobrou cobre também essa vaga */
+  for(const id of cand){if(usados.size>=5)break;usados.add(id);}
   reg.selecao=[...usados].sort(porNota).map(id=>fichaPremio(id,jog[id]));
   usados.forEach(id=>darPremio(id,'selecao',ROT_PREMIO.selecao));
 
@@ -11283,7 +11309,7 @@ function montarMetas(){
    até ali, e uma meta de gestão que sai da situação do clube — dar minutos à
    promessa da casa, ou arrumar as contas. Pesa menos que o fim do ano, mas
    pesa, e quem já chega no limite pode cair ali mesmo. */
-const SEMANA_COBRANCA=29;         /* abre a Janela do meio do ano (calendar.js) */
+const SEMANA_COBRANCA=29;         /* Pausa do meio do ano (calendar.js), dentro da janela de junho e julho */
 const MAPAS_PROMESSA=8;
 function metasDoMeio(t,alvo){
   const de=_ligaDe(t).length;

@@ -47,5 +47,23 @@ function rotuloPeriodo(ano,ini,fim){
   return ma===mb ? `${a.getUTCDate()}–${b.getUTCDate()} de ${MESES[a.getUTCMonth()].toLowerCase()}`
                  : `${a.getUTCDate()} ${ma} – ${b.getUTCDate()} ${mb}`;
 }
+/* ---------- janelas de transferência ----------
+   Duas por ano, pelo calendário e não pelos torneios: novembro a janeiro
+   (atravessa a virada da temporada) e junho a julho. A semana pertence ao
+   mês da quinta-feira dela, a mesma regra de mesDaSemana. */
+const MESES_JANELA=[10,11,0,5,6];
+function janelaAberta(ano,semana){return MESES_JANELA.includes(mesDaSemana(ano,semana));}
+/* A semana seguinte, atravessando o ano. */
+function proximaSemana(ano,semana){return semana>=SEMANAS_ANO?{ano:ano+1,semana:1}:{ano,semana:semana+1};}
+function nomeDaJanela(ano,semana){
+  const m=mesDaSemana(ano,semana);
+  return m===5||m===6?'janela de junho e julho':'janela de novembro a janeiro';
+}
+/* Próxima abertura de janela a partir de uma semana (inclusive), para a tela. */
+function proximaJanela(ano,semana){
+  let a=ano,s=semana;
+  for(let i=0;i<SEMANAS_ANO+1;i++){if(janelaAberta(a,s))return{ano:a,semana:s};({ano:a,semana:s}=proximaSemana(a,s));}
+  return null;
+}
 /* Quantas semanas faltam de um intervalo, contando a atual. */
 function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
