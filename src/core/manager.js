@@ -91,7 +91,7 @@ function montarMetas(){
    até ali, e uma meta de gestão que sai da situação do clube — dar minutos à
    promessa da casa, ou arrumar as contas. Pesa menos que o fim do ano, mas
    pesa, e quem já chega no limite pode cair ali mesmo. */
-const SEMANA_COBRANCA=29;         /* abre a Janela do meio do ano (calendar.js) */
+const SEMANA_COBRANCA=29;         /* Pausa do meio do ano (calendar.js), dentro da janela de junho e julho */
 const MAPAS_PROMESSA=8;
 function metasDoMeio(t,alvo){
   const de=_ligaDe(t).length;

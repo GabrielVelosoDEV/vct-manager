@@ -31,7 +31,9 @@ function salario(p,t,explicado){
     if(typeof fatorRiqueza==='function')s*=fatorRiqueza(t);
     s*=descontoSemClube(p);
   }
-  return Math.round(s/100)*100;
+  /* piso de 100: garoto fraco, sem clube há meses, em clube com desconto,
+     arredondava para zero, e salário zero quebra empréstimo e folha */
+  return Math.max(100,Math.round(s/100)*100);
 }
 /* Quem está sem clube há meses baixa o pedido. Sem isto o veterano de 84 que
    não renovou ficava no mercado pedindo o salário cheio e ninguém pagava: em
