@@ -4,8 +4,7 @@ Simulador de gestão de e-sports de Valorant, no espírito dos managers de futeb
 elenco, táticas, treino, mercado de transferências, base, finanças e o circuito
 internacional completo rodando ao redor.
 
-Projeto pessoal, sem fins comerciais.
-
+Projeto pessoal, sem fins comerciais. https://gabrielvelosodev.github.io/vct-manager/
 ---
 
 ## Rodar
