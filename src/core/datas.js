@@ -67,3 +67,27 @@ function proximaJanela(ano,semana){
 }
 /* Quantas semanas faltam de um intervalo, contando a atual. */
 function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
+
+/* ---------- turnos de dois dias na janela ----------
+   Com a janela aberta a semana anda em três turnos: segunda e terça, quarta
+   e quinta, sexta a domingo. O motor continua semanal (partidas, treino,
+   folha); os turnos existem para o mercado. Ver avancarTurno() em clock.js. */
+const TURNOS_SEMANA=3;
+const TURNO_DIAS=[[0,1],[2,3],[4,6]];
+const DIAS_CURTO=['seg','ter','qua','qui','sex','sáb','dom'];
+function rotuloTurno(ano,semana,turno){
+  const seg=segundaDaSemana(ano,semana).getTime();
+  const [i,f]=TURNO_DIAS[clamp(turno||0,0,TURNOS_SEMANA-1)];
+  const a=new Date(seg+i*86400000), b=new Date(seg+f*86400000);
+  const ma=MESES_CURTO[a.getUTCMonth()], mb=MESES_CURTO[b.getUTCMonth()];
+  return `${DIAS_CURTO[i]} ${a.getUTCDate()}${ma===mb?'':' '+ma} – ${DIAS_CURTO[f]} ${b.getUTCDate()} ${mb}`;
+}
+/* Dias até a janela fechar, contando a partir do turno atual (o último dia
+   aberto é o domingo da última semana de janela). */
+function diasAteFecharJanela(ano,semana,turno){
+  if(!janelaAberta(ano,semana))return 0;
+  let a=ano,s=semana,semanas=0;
+  for(let i=0;i<SEMANAS_ANO;i++){const n=proximaSemana(a,s);if(!janelaAberta(n.ano,n.semana))break;semanas++;a=n.ano;s=n.semana;}
+  const hoje=TURNO_DIAS[clamp(turno||0,0,TURNOS_SEMANA-1)][0];
+  return semanas*7+(6-hoje)+1;
+}

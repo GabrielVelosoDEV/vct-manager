@@ -689,7 +689,20 @@ function vMercado(){
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
-    ${prazo?'<div class="merc-prazo">⏰ <b>Último dia da janela.</b> Os clubes estão correndo atrás de reforço: propostas chegam mais rápido e quem não fechar agora só fecha na próxima janela.</div>':''}
+    ${(()=>{
+      /* Reta final da janela: contagem em dias e o que ainda está em aberto.
+         Quem não fechar até o domingo da última semana só fecha na próxima. */
+      if(!janelaAberta(G.ano,G.semana||1))return '';
+      const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
+      if(d>7&&!prazo)return '';
+      const abertas=(G.negociacoes||[]).filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca');
+      const nomes=abertas.slice(0,4).map(n=>{const p=P(n.jogadorId);return p?esc(p.nome):null;}).filter(Boolean);
+      return `<div class="merc-prazo">⏰ <b>${d<=1?'Dia do fechamento.':d<=3?'Fechamento da janela em '+d+' dias.':'A janela fecha em '+d+' dias.'}</b>
+        ${prazo?' Os clubes estão correndo atrás de reforço: propostas chegam mais rápido.':''}
+        ${abertas.length?` Negociações em aberto: <b>${nomes.join(', ')}</b>${abertas.length>nomes.length?' e mais '+(abertas.length-nomes.length):''}.`:''}
+        ${pend?` ${pend} proposta${pend>1?'s':''} por jogadores seus esperando resposta.`:''}
+        Quem não fechar até lá só fecha na próxima janela.</div>`;
+    })()}
     <h2 class="sec">${mercAba==='central'?'Central de transferências':mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
     mercAba==='central'?vMercadoCentral(t):mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }

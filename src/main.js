@@ -45,7 +45,24 @@ function ligarAcoesTopo(){
    partida sua e a preferência está ligada: relatório de scouting e veto de
    mapas ANTES de a semana ser jogada. Sem isso, o veto continua automático e o
    botão faz o que sempre fez. */
+/* Turno de dois dias na janela: só o mercado anda. */
+function usarTurnos(){
+  return Prefs.get('turnosNaJanela')!==false&&typeof turnoDisponivel==='function'&&turnoDisponivel();
+}
+function aplicarTurno(r){
+  if(!r)return;
+  if(Prefs.get('autosave'))salvarRun(G.runNome);
+  if(modo==='jogo'){pintarTop();pintarSide();render();}
+  const dias=diasAteFecharJanela(G.ano,G.semana,G.turno);
+  const rot=rotuloTurno(G.ano,G.semana,G.turno);
+  if(r.novas&&r.novas.length){
+    const x=r.novas[0],p=G.jogadores[x.jogadorId],c=G.times[x.clubeId];
+    flash('📨 '+(c?c.nome:'Um clube')+' fez proposta por '+(p?p.nome:'um jogador seu')+
+          (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
+  }else if(dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
+}
 function avancarComRitual(quantas){
+  if(usarTurnos())return aplicarTurno(avancarTurno());
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(!comp)return aplicarAvanco(avancar(),quantas||1);
@@ -92,6 +109,14 @@ function aplicarAvanco(r,quantas){
 /* pula as rodadas em que seu clube não joga, até o próximo compromisso dele
    ou até a virada de bloco — o que vier primeiro */
 function avancarAteMeuJogo(){
+  /* Na janela com turnos, o avanço rápido termina a semana em curso, mas para
+     no turno em que chegar proposta por alguém seu: é a resposta que importa. */
+  if(usarTurnos()){
+    let r=null;
+    while(usarTurnos()){r=avancarTurno();if(r&&r.novas&&r.novas.length)break;}
+    aplicarTurno(r);
+    if(r&&r.novas&&r.novas.length)return;
+  }
   /* Se a próxima semana já tem jogo seu, o ritual abre AGORA: adiantar por
      cima do próprio compromisso seria pular o veto sem avisar. */
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')

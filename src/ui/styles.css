@@ -863,3 +863,4 @@ img.trofeu{object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
 .titulo-item .ev{font-size:12.5px;color:var(--tx);line-height:1.25}
 @media (max-width:600px){.tn-faixa{flex-direction:column;align-items:flex-start}.tn-cidade{font-size:28px}}
 .premio-card{display:flex;gap:14px;align-items:center}
+.top-bit.aviso strong{color:var(--amber)}

@@ -897,6 +897,7 @@ img.trofeu{object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
 .titulo-item .ev{font-size:12.5px;color:var(--tx);line-height:1.25}
 @media (max-width:600px){.tn-faixa{flex-direction:column;align-items:flex-start}.tn-cidade{font-size:28px}}
 .premio-card{display:flex;gap:14px;align-items:center}
+.top-bit.aviso strong{color:var(--amber)}
 
 </style>
 </head>
@@ -3485,6 +3486,30 @@ function proximaJanela(ano,semana){
 }
 /* Quantas semanas faltam de um intervalo, contando a atual. */
 function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
+
+/* ---------- turnos de dois dias na janela ----------
+   Com a janela aberta a semana anda em três turnos: segunda e terça, quarta
+   e quinta, sexta a domingo. O motor continua semanal (partidas, treino,
+   folha); os turnos existem para o mercado. Ver avancarTurno() em clock.js. */
+const TURNOS_SEMANA=3;
+const TURNO_DIAS=[[0,1],[2,3],[4,6]];
+const DIAS_CURTO=['seg','ter','qua','qui','sex','sáb','dom'];
+function rotuloTurno(ano,semana,turno){
+  const seg=segundaDaSemana(ano,semana).getTime();
+  const [i,f]=TURNO_DIAS[clamp(turno||0,0,TURNOS_SEMANA-1)];
+  const a=new Date(seg+i*86400000), b=new Date(seg+f*86400000);
+  const ma=MESES_CURTO[a.getUTCMonth()], mb=MESES_CURTO[b.getUTCMonth()];
+  return `${DIAS_CURTO[i]} ${a.getUTCDate()}${ma===mb?'':' '+ma} – ${DIAS_CURTO[f]} ${b.getUTCDate()} ${mb}`;
+}
+/* Dias até a janela fechar, contando a partir do turno atual (o último dia
+   aberto é o domingo da última semana de janela). */
+function diasAteFecharJanela(ano,semana,turno){
+  if(!janelaAberta(ano,semana))return 0;
+  let a=ano,s=semana,semanas=0;
+  for(let i=0;i<SEMANAS_ANO;i++){const n=proximaSemana(a,s);if(!janelaAberta(n.ano,n.semana))break;semanas++;a=n.ano;s=n.semana;}
+  const hoje=TURNO_DIAS[clamp(turno||0,0,TURNOS_SEMANA-1)][0];
+  return semanas*7+(6-hoje)+1;
+}
 
 
 /* ===== src/core/state.js ===== */
@@ -7942,6 +7967,41 @@ function compromissoDaSemana(){
 function meuJogoPreparado(b){
   return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
 }
+/* ---------- turnos de dois dias na janela ----------
+   A janela de transferências anda devagar: cada Avançar move dois dias, e a
+   semana vira três turnos (TURNOS_SEMANA em datas.js). Nos dois primeiros só
+   o mercado anda — propostas chegando, a IA contratando, ligações por gente
+   sua —, cada um com um terço da chance semanal. O terceiro fecha a semana
+   como sempre: partidas, treino, folha e o último terço do mercado.
+
+   Assim a semana tem o mesmo volume de negócios, mas você tem três momentos
+   para reagir em vez de um. Os prazos (proposta, multa, conversa fechada)
+   continuam contados em semanas, então negociar fica mais folgado, não mais
+   apertado. Num avanço sem turnos (avanço rápido, ferramentas de teste) nada
+   disso roda e o mercado faz exatamente o que fazia. */
+function turnoDisponivel(){
+  return !!(G&&G.meuTime&&!G.semanaEmCurso&&janelaAberta(G.ano,G.semana||1)
+            &&(G.turno||0)<TURNOS_SEMANA-1);
+}
+function avancarTurno(){
+  if(!turnoDisponivel())return null;
+  if(!G.turno){
+    /* primeiro turno da semana: o começo dela roda aqui, não no fechamento */
+    G.janela=janelaAberta(G.ano,G.semana);
+    if(typeof limparNegociacoes==='function')limparNegociacoes();
+  }
+  const antes=new Set((G.propostas||[]).map(x=>x.id));
+  G._noTurno=true;G._fracaoMercado=1/TURNOS_SEMANA;
+  try{
+    if(typeof gerarPropostas==='function')gerarPropostas();
+    if(typeof mercadoVivo==='function')mercadoVivo();
+  }finally{G._noTurno=false;G._fracaoMercado=1;}
+  G.turno=(G.turno||0)+1;G.turnoUsado=true;
+  const novas=(G.propostas||[]).filter(x=>!antes.has(x.id)&&G.jogadores[x.jogadorId]
+    &&G.jogadores[x.jogadorId].timeId===G.meuTime);
+  return{tipo:'turno',turno:G.turno,semana:G.semana,novas};
+}
+
 /* `plano` é o que VOCÊ decidiu antes de a semana rodar: por enquanto o veto de
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
@@ -7950,7 +8010,7 @@ function avancar(plano){
      jogo: o começo da semana (janela, negociações vencidas) já rodou. */
   const em=G.semanaEmCurso||null;
   const {b,idx}=prepararSemana();
-  if(!em){
+  if(!em&&!G.turnoUsado){
     /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
     G.janela=janelaAberta(G.ano,G.semana);
     if(typeof limparNegociacoes==='function')limparNegociacoes();
@@ -8030,7 +8090,10 @@ function avancar(plano){
    função própria porque a sua partida pode ser conduzida pela tela, e nesse
    caso esta parte só roda quando ela terminar. */
 function fecharSemana(b,resultados,minhaPartida,idx){
-  semana();
+  /* semana que andou em turnos: o fechamento é o último terço do mercado */
+  G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
+  try{semana();}finally{G._fracaoMercado=1;}
+  G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
      entrega o título e se elege o melhor jogador, não numa semana qualquer
@@ -9748,7 +9811,7 @@ function propostasEspontaneas(){
     const p=G.jogadores[pid];
     if(!p||p.anuncio||p.emprestimo||p.preContrato||p.base)continue;
     if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR)continue;
-    if(rnd()>chanceEspontanea(p))continue;
+    if(rnd()>chanceEspontanea(p)*fracaoMercado())continue;
     const cand=Object.values(G.times).filter(t=>t.id!==eu.id)
       .map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0&&!propostasDe(p.id).some(y=>y.clubeId===x.t.id))
       .sort((a,b)=>b.n-a.n);
@@ -9976,7 +10039,7 @@ function mercadoNaJanela(){
     &&!p.preContrato&&!ocupados.has(p.id)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){
-    if(t.id===G.meuTime||rnd()>chance)continue;
+    if(t.id===G.meuTime||rnd()>chance*fracaoMercado())continue;
     const r=tentarReforco(t,cand);
     if(r){feitos++;autoEscalar(t);}
   }
@@ -9984,7 +10047,20 @@ function mercadoNaJanela(){
 }
 
 /* ---------- a semana ---------- */
+/* Fração da semana que este passo do mercado representa. Com a janela andando
+   em turnos de dois dias (TURNOS_SEMANA em clock.js), cada turno e a virada
+   da semana rodam o mercado com 1/3 da chance semanal: o volume de negócios
+   da semana é o mesmo, só chega espalhado. Fora dos turnos vale 1, e o
+   mercado faz exatamente o que fazia — inclusive a mesma sequência de sorteio. */
+function fracaoMercado(){return (G&&G._fracaoMercado)||1;}
 function mercadoVivo(){
+  /* pedido de saída e prazo de multa são semanais: num turno não andam */
+  if(G._noTurno){
+    if(!G.janela)return;
+    propostasEspontaneas();
+    mercadoNaJanela();
+    return;
+  }
   rondaPedidosSaida();
   /* multa paga corre o prazo com a janela aberta ou fechada: o negócio foi
      feito dentro dela, e sem reação sua ele sai */
@@ -10336,7 +10412,7 @@ function gerarPropostas(){
     if(!candidatos.length)continue;
     /* Um por semana, e nem sempre: proposta que chega em rajada tira o peso
        de cada uma. O clube mais interessado tem mais chance de aparecer. */
-    if(rnd()>0.45)continue;
+    if(rnd()>0.45*fracaoMercado())continue;
     const alvo=candidatos[Math.min(candidatos.length-1,Math.floor(Math.pow(rnd(),1.8)*candidatos.length))].t;
     if(propostasDe(p.id).some(x=>x.clubeId===alvo.id))continue;
     const quer=p.anuncio.modo;
@@ -10357,7 +10433,9 @@ function gerarPropostas(){
               (pr.tipo==='troca'?' — troca por '+G.jogadores[pr.oferecidoId].nome+(pr.taxa?' mais '+money(pr.taxa):'')
                :tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
   }
-  /* prazos vencem */
+  /* prazos vencem — contados em semanas: num turno de dois dias da janela
+     eles não andam, só na virada da semana */
+  if(G._noTurno)return novas;
   G.propostas=G.propostas.filter(x=>{
     if(x.tipo==='multa')return true;   /* corre em mercadoVivo */
     x.prazo--;
@@ -13537,7 +13615,7 @@ const Prefs={
   padrao:{modalPartida:true,resumoRodada:true,autosave:true,animacoes:true,
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
-          prePartida:true, tempoTecnico:true, dicas:true},
+          prePartida:true, tempoTecnico:true, dicas:true, turnosNaJanela:true},
   dados:null,
   iniciar(){
     this.dados=Object.assign({},this.padrao);
@@ -14286,7 +14364,10 @@ function pintarTop(){
     <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
       ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
       G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
-      rotuloSemana(G.ano,G.semana||1)}</strong></div>
+      turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></div>
+    ${janelaAberta(G.ano,G.semana||1)?(()=>{const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
+      return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
+        d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
     <div class="top-acoes">
@@ -14301,6 +14382,10 @@ function pintarTop(){
 
 /* O que a topbar mostra numa semana sem torneio: não é "—", é a espera pelo
    próximo compromisso, que é uma informação de planejamento. */
+/* A data mostrada é do turno (dois dias) quando a janela anda em turnos. */
+function turnosNaTela(){
+  return Prefs.get('turnosNaJanela')!==false&&janelaAberta(G.ano,G.semana||1)&&!G.semanaEmCurso;
+}
 function proximaAgenda(){
   const nb=typeof proximoBloco==='function'?proximoBloco(G.semana||1):null;
   if(!nb)return 'Fim da temporada';
@@ -14654,6 +14739,10 @@ function vConfig(){
          'Ao avançar, mostra o placar round a round e o box score do seu jogo. Desligado, o resultado entra direto no histórico.')}
     ${sw('resumoRodada','Mostrar resumo das outras partidas',
          'Quando você não joga na rodada, abre um resumo do que aconteceu no circuito.')}
+    ${sw('turnosNaJanela','Janela de transferências em turnos de dois dias',
+         'Com a janela aberta, cada Avançar move dois dias em vez de uma semana: três momentos por semana '+
+         'para responder propostas e fechar negócios antes da concorrência. O volume de negócios da semana é o mesmo. '+
+         'Desligado, a janela anda de semana em semana, como antes.')}
     ${sw('autosave','Salvar automaticamente ao avançar',
          'Grava a run a cada rodada resolvida. Desligado, só salva no botão Salvar.')}
   </div>
@@ -15427,7 +15516,20 @@ function vMercado(){
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
   return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
-    ${prazo?'<div class="merc-prazo">⏰ <b>Último dia da janela.</b> Os clubes estão correndo atrás de reforço: propostas chegam mais rápido e quem não fechar agora só fecha na próxima janela.</div>':''}
+    ${(()=>{
+      /* Reta final da janela: contagem em dias e o que ainda está em aberto.
+         Quem não fechar até o domingo da última semana só fecha na próxima. */
+      if(!janelaAberta(G.ano,G.semana||1))return '';
+      const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
+      if(d>7&&!prazo)return '';
+      const abertas=(G.negociacoes||[]).filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca');
+      const nomes=abertas.slice(0,4).map(n=>{const p=P(n.jogadorId);return p?esc(p.nome):null;}).filter(Boolean);
+      return `<div class="merc-prazo">⏰ <b>${d<=1?'Dia do fechamento.':d<=3?'Fechamento da janela em '+d+' dias.':'A janela fecha em '+d+' dias.'}</b>
+        ${prazo?' Os clubes estão correndo atrás de reforço: propostas chegam mais rápido.':''}
+        ${abertas.length?` Negociações em aberto: <b>${nomes.join(', ')}</b>${abertas.length>nomes.length?' e mais '+(abertas.length-nomes.length):''}.`:''}
+        ${pend?` ${pend} proposta${pend>1?'s':''} por jogadores seus esperando resposta.`:''}
+        Quem não fechar até lá só fecha na próxima janela.</div>`;
+    })()}
     <h2 class="sec">${mercAba==='central'?'Central de transferências':mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
     mercAba==='central'?vMercadoCentral(t):mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
@@ -19746,7 +19848,24 @@ function ligarAcoesTopo(){
    partida sua e a preferência está ligada: relatório de scouting e veto de
    mapas ANTES de a semana ser jogada. Sem isso, o veto continua automático e o
    botão faz o que sempre fez. */
+/* Turno de dois dias na janela: só o mercado anda. */
+function usarTurnos(){
+  return Prefs.get('turnosNaJanela')!==false&&typeof turnoDisponivel==='function'&&turnoDisponivel();
+}
+function aplicarTurno(r){
+  if(!r)return;
+  if(Prefs.get('autosave'))salvarRun(G.runNome);
+  if(modo==='jogo'){pintarTop();pintarSide();render();}
+  const dias=diasAteFecharJanela(G.ano,G.semana,G.turno);
+  const rot=rotuloTurno(G.ano,G.semana,G.turno);
+  if(r.novas&&r.novas.length){
+    const x=r.novas[0],p=G.jogadores[x.jogadorId],c=G.times[x.clubeId];
+    flash('📨 '+(c?c.nome:'Um clube')+' fez proposta por '+(p?p.nome:'um jogador seu')+
+          (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
+  }else if(dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
+}
 function avancarComRitual(quantas){
+  if(usarTurnos())return aplicarTurno(avancarTurno());
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(!comp)return aplicarAvanco(avancar(),quantas||1);
@@ -19793,6 +19912,14 @@ function aplicarAvanco(r,quantas){
 /* pula as rodadas em que seu clube não joga, até o próximo compromisso dele
    ou até a virada de bloco — o que vier primeiro */
 function avancarAteMeuJogo(){
+  /* Na janela com turnos, o avanço rápido termina a semana em curso, mas para
+     no turno em que chegar proposta por alguém seu: é a resposta que importa. */
+  if(usarTurnos()){
+    let r=null;
+    while(usarTurnos()){r=avancarTurno();if(r&&r.novas&&r.novas.length)break;}
+    aplicarTurno(r);
+    if(r&&r.novas&&r.novas.length)return;
+  }
   /* Se a próxima semana já tem jogo seu, o ritual abre AGORA: adiantar por
      cima do próprio compromisso seria pular o veto sem avisar. */
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')

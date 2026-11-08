@@ -132,7 +132,7 @@ function propostasEspontaneas(){
     const p=G.jogadores[pid];
     if(!p||p.anuncio||p.emprestimo||p.preContrato||p.base)continue;
     if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR)continue;
-    if(rnd()>chanceEspontanea(p))continue;
+    if(rnd()>chanceEspontanea(p)*fracaoMercado())continue;
     const cand=Object.values(G.times).filter(t=>t.id!==eu.id)
       .map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0&&!propostasDe(p.id).some(y=>y.clubeId===x.t.id))
       .sort((a,b)=>b.n-a.n);
@@ -360,7 +360,7 @@ function mercadoNaJanela(){
     &&!p.preContrato&&!ocupados.has(p.id)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){
-    if(t.id===G.meuTime||rnd()>chance)continue;
+    if(t.id===G.meuTime||rnd()>chance*fracaoMercado())continue;
     const r=tentarReforco(t,cand);
     if(r){feitos++;autoEscalar(t);}
   }
@@ -368,7 +368,20 @@ function mercadoNaJanela(){
 }
 
 /* ---------- a semana ---------- */
+/* Fração da semana que este passo do mercado representa. Com a janela andando
+   em turnos de dois dias (TURNOS_SEMANA em clock.js), cada turno e a virada
+   da semana rodam o mercado com 1/3 da chance semanal: o volume de negócios
+   da semana é o mesmo, só chega espalhado. Fora dos turnos vale 1, e o
+   mercado faz exatamente o que fazia — inclusive a mesma sequência de sorteio. */
+function fracaoMercado(){return (G&&G._fracaoMercado)||1;}
 function mercadoVivo(){
+  /* pedido de saída e prazo de multa são semanais: num turno não andam */
+  if(G._noTurno){
+    if(!G.janela)return;
+    propostasEspontaneas();
+    mercadoNaJanela();
+    return;
+  }
   rondaPedidosSaida();
   /* multa paga corre o prazo com a janela aberta ou fechada: o negócio foi
      feito dentro dela, e sem reação sua ele sai */

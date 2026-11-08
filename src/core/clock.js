@@ -71,6 +71,41 @@ function compromissoDaSemana(){
 function meuJogoPreparado(b){
   return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
 }
+/* ---------- turnos de dois dias na janela ----------
+   A janela de transferências anda devagar: cada Avançar move dois dias, e a
+   semana vira três turnos (TURNOS_SEMANA em datas.js). Nos dois primeiros só
+   o mercado anda — propostas chegando, a IA contratando, ligações por gente
+   sua —, cada um com um terço da chance semanal. O terceiro fecha a semana
+   como sempre: partidas, treino, folha e o último terço do mercado.
+
+   Assim a semana tem o mesmo volume de negócios, mas você tem três momentos
+   para reagir em vez de um. Os prazos (proposta, multa, conversa fechada)
+   continuam contados em semanas, então negociar fica mais folgado, não mais
+   apertado. Num avanço sem turnos (avanço rápido, ferramentas de teste) nada
+   disso roda e o mercado faz exatamente o que fazia. */
+function turnoDisponivel(){
+  return !!(G&&G.meuTime&&!G.semanaEmCurso&&janelaAberta(G.ano,G.semana||1)
+            &&(G.turno||0)<TURNOS_SEMANA-1);
+}
+function avancarTurno(){
+  if(!turnoDisponivel())return null;
+  if(!G.turno){
+    /* primeiro turno da semana: o começo dela roda aqui, não no fechamento */
+    G.janela=janelaAberta(G.ano,G.semana);
+    if(typeof limparNegociacoes==='function')limparNegociacoes();
+  }
+  const antes=new Set((G.propostas||[]).map(x=>x.id));
+  G._noTurno=true;G._fracaoMercado=1/TURNOS_SEMANA;
+  try{
+    if(typeof gerarPropostas==='function')gerarPropostas();
+    if(typeof mercadoVivo==='function')mercadoVivo();
+  }finally{G._noTurno=false;G._fracaoMercado=1;}
+  G.turno=(G.turno||0)+1;G.turnoUsado=true;
+  const novas=(G.propostas||[]).filter(x=>!antes.has(x.id)&&G.jogadores[x.jogadorId]
+    &&G.jogadores[x.jogadorId].timeId===G.meuTime);
+  return{tipo:'turno',turno:G.turno,semana:G.semana,novas};
+}
+
 /* `plano` é o que VOCÊ decidiu antes de a semana rodar: por enquanto o veto de
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
@@ -79,7 +114,7 @@ function avancar(plano){
      jogo: o começo da semana (janela, negociações vencidas) já rodou. */
   const em=G.semanaEmCurso||null;
   const {b,idx}=prepararSemana();
-  if(!em){
+  if(!em&&!G.turnoUsado){
     /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
     G.janela=janelaAberta(G.ano,G.semana);
     if(typeof limparNegociacoes==='function')limparNegociacoes();
@@ -159,7 +194,10 @@ function avancar(plano){
    função própria porque a sua partida pode ser conduzida pela tela, e nesse
    caso esta parte só roda quando ela terminar. */
 function fecharSemana(b,resultados,minhaPartida,idx){
-  semana();
+  /* semana que andou em turnos: o fechamento é o último terço do mercado */
+  G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
+  try{semana();}finally{G._fracaoMercado=1;}
+  G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
      entrega o título e se elege o melhor jogador, não numa semana qualquer

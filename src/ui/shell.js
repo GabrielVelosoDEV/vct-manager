@@ -149,7 +149,10 @@ function pintarTop(){
     <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
       ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
       G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
-      rotuloSemana(G.ano,G.semana||1)}</strong></div>
+      turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></div>
+    ${janelaAberta(G.ano,G.semana||1)?(()=>{const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
+      return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
+        d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
     <div class="top-acoes">
@@ -164,6 +167,10 @@ function pintarTop(){
 
 /* O que a topbar mostra numa semana sem torneio: não é "—", é a espera pelo
    próximo compromisso, que é uma informação de planejamento. */
+/* A data mostrada é do turno (dois dias) quando a janela anda em turnos. */
+function turnosNaTela(){
+  return Prefs.get('turnosNaJanela')!==false&&janelaAberta(G.ano,G.semana||1)&&!G.semanaEmCurso;
+}
 function proximaAgenda(){
   const nb=typeof proximoBloco==='function'?proximoBloco(G.semana||1):null;
   if(!nb)return 'Fim da temporada';

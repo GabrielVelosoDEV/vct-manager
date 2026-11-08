@@ -82,7 +82,7 @@ function gerarPropostas(){
     if(!candidatos.length)continue;
     /* Um por semana, e nem sempre: proposta que chega em rajada tira o peso
        de cada uma. O clube mais interessado tem mais chance de aparecer. */
-    if(rnd()>0.45)continue;
+    if(rnd()>0.45*fracaoMercado())continue;
     const alvo=candidatos[Math.min(candidatos.length-1,Math.floor(Math.pow(rnd(),1.8)*candidatos.length))].t;
     if(propostasDe(p.id).some(x=>x.clubeId===alvo.id))continue;
     const quer=p.anuncio.modo;
@@ -103,7 +103,9 @@ function gerarPropostas(){
               (pr.tipo==='troca'?' — troca por '+G.jogadores[pr.oferecidoId].nome+(pr.taxa?' mais '+money(pr.taxa):'')
                :tipo==='compra'?' — '+money(pr.taxa):' — empréstimo'+(pr.opcaoCompra?' com opção de compra':'')),{c:'mercado',p:[p.id],t:[alvo.id]});
   }
-  /* prazos vencem */
+  /* prazos vencem — contados em semanas: num turno de dois dias da janela
+     eles não andam, só na virada da semana */
+  if(G._noTurno)return novas;
   G.propostas=G.propostas.filter(x=>{
     if(x.tipo==='multa')return true;   /* corre em mercadoVivo */
     x.prazo--;

@@ -133,6 +133,14 @@
   troféus na galeria do clube e nos prêmios; cidades editáveis no Banco de
   dados. Título passou a ser do evento: ninguém mais é "campeão dos playoffs".
 
+- **Janela em turnos de dois dias** (pacote 6): com a janela aberta cada
+  Avançar move dois dias (seg–ter, qua–qui, sex–dom); o mercado anda em cada
+  turno com um terço da chance semanal, então o volume da semana é o mesmo e
+  você tem três momentos para reagir. Topbar com a data do turno e a contagem
+  de dias até a janela fechar; aviso de reta final no Mercado; o avanço rápido
+  para no turno em que chega proposta por alguém seu. Desligável em
+  Configurações. Sem turnos, o mercado faz exatamente o que fazia.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters
