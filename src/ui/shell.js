@@ -146,7 +146,9 @@ function pintarTop(){
     <div class="top-titulo">${esc(nomeTela(tela))}</div>
     <div class="top-spacer"></div>
     <div class="top-bit">Temporada<strong>${G.ano}</strong></div>
-    <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}">Semana ${G.semana||1}<strong>${
+    <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
+      ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
+      G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
       rotuloSemana(G.ano,G.semana||1)}</strong></div>
     <div class="top-bit">Agenda<strong>${esc(b?b.nome:proximaAgenda())}</strong></div>
     <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>

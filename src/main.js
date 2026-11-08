@@ -70,6 +70,9 @@ function aplicarAvanco(r,quantas){
      com o que ela serviu para adiantar. */
   if(r.tipo==='semana'&&quantas===1&&!r.encerrado)
     flash('Semana de treino — '+rotuloSemana(G.ano,r.semana)+'.');
+  /* Rodada dupla: a semana parou antes do seu próximo jogo, que tem o próprio
+     relatório e o próprio veto. */
+  if(r.parcial)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
   if(r.encerrado)flash(r.encerrado+' encerrado.');
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
@@ -94,16 +97,22 @@ function avancarAteMeuJogo(){
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(comp){avancarComRitual(1);return;}
-  let n=0,r=null;
+  let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
+    /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
+       próximo Avançar abre o relatório e o veto. Antes o laço só conferia
+       antes do primeiro passo e adiantava por cima do jogo. */
+    if(n>0&&Prefs.get('prePartida')&&prePartidaDisponivel()){pausou=true;break;}
     r=avancar();n++;
+    if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;
     if(r.encerrado)break;                      /* torneio encerrou: pare e mostre */
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente)break;
   }
   aplicarAvanco(r,n);
-  if(n>1)flash(n+' semanas adiantadas.');
+  if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');
+  else if(n>1)flash(n+' semanas adiantadas.');
 }
 if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',boot);
 

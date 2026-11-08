@@ -25,6 +25,9 @@ function faixaCircuito(){
 }
 
 function proximoConfronto(){
+  /* Na primeira semana de um torneio ele ainda não estava montado, e a Central
+     dizia "começa daqui a 0 semanas" com o jogo marcado para agora. */
+  if(typeof prepararSemana==='function')prepararSemana();
   const i=blocoDaSemana(G.semana||1);
   const b=i==null?null:G.calendario[i];
   /* A rodada já vem montada pelo motor (s.rodadaAtual): ler dela vale para
@@ -61,7 +64,7 @@ function cardTabelaDaCasa(t,rr){
       <p class="dim">Sorteio ainda não realizado.</p></div>`;
     const ord=ordenarGrupo(g);
     return `<div class="card"><div class="split">
-      <div class="eyebrow">${esc(nomeLiga(t))} · ${esc(g.nome)}</div>
+      <div class="eyebrow">${esc((typeof nomeStage==='function'&&nomeStage(rr))||nomeLiga(t))} · ${esc(g.nome)}</div>
       <span class="dim">rodada ${Math.min(rr.idx+1,rr.rodadasMax)}/${rr.rodadasMax}</span></div>
       <table><tbody>${ord.map((id,i)=>{const x=g.tabela[id];
         return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
@@ -84,10 +87,15 @@ function vInicio(){
      deixou de significar tempo quando o calendário virou semanas. */
   const metade=(G.semana||1)>=25?'2':'1';
   const pre=(t.tier===1?'s':'c')+metade+'_';
-  const rr=acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
+  const px=proximoConfronto();
+  /* A tabela da casa é a do torneio em que o clube está jogando agora (o
+     Kickoff também tem grupos); só fora dele cai na do Stage da metade do ano.
+     Antes ia sempre no Stage, e o Kickoff inteiro mostrava "tabela ainda não
+     iniciada" com o clube já pontuando. */
+  const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
+  const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const ovm=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/Math.max(1,t.titulares.length));
-  const px=proximoConfronto();
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   const chateados=(typeof insatisfeitos==='function')?insatisfeitos(t):[];
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}

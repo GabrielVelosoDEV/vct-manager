@@ -119,6 +119,14 @@
 - **Clássico com consequência**: vencer o rival levanta o vestiário e a
   torcida, perder pesa, na proporção da nota de rivalidade
 
+- **Nenhum jogo seu sem veto** (pacote 1): a semana é montada antes de a tela
+  perguntar pelo seu jogo (`prepararSemana`), então o primeiro jogo de cada
+  torneio passa pelo relatório e pelo veto; semana com duas rodadas para entre
+  elas quando a segunda tem jogo seu; o avanço rápido para na véspera. Em duas
+  temporadas do SEN, 12 de 32 jogos eram simulados sem veto; agora nenhum, e o
+  `verificar.mjs` acusa se voltar. A Central mostra a tabela do torneio em
+  disputa, Kickoff incluído.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

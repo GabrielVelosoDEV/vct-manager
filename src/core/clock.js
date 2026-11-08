@@ -16,15 +16,43 @@ function rodadasPorSemana(b){
 /* Uma semana. Sempre uma semana — é o que dá ao jogo uma linha do tempo em vez
    de uma sequência de campeonatos. Semana sem jogo não é tempo perdido: o
    elenco treina, quem está lesionado se recupera e as propostas circulam. */
-/* O compromisso do seu clube nesta semana, SEM consumir sorteio: a rodada já
-   foi montada pelo relógio (s.rodadaAtual), então dá para olhar sem mexer em
-   nada. É o que permite a tela abrir o relatório e o veto ANTES de a semana
-   ser jogada. Devolve null quando não há jogo seu. */
+/* Põe a semana em pé antes de ela ser jogada: acha o bloco do calendário,
+   monta os stages dele se for a primeira semana do bloco e deixa a rodada de
+   cada stage preparada.
+
+   Era a primeira coisa que avancar() fazia, e só ele fazia. A tela pergunta
+   "tem jogo meu?" ANTES de avançar, para abrir o relatório e o veto — e na
+   primeira semana de cada torneio a resposta vinha "não", porque o torneio
+   ainda não existia. O relógio então simulava a sua partida sem veto. Em duas
+   temporadas do SEN, 7 de 32 jogos caíam aqui.
+
+   Agora quem pergunta e quem joga passam pela mesma porta. Ela é idempotente
+   (bloco montado não remonta, rodada preparada não reprepara) e, num avanço
+   sem tela, roda exatamente no mesmo ponto da sequência de sorteio de antes:
+   é a primeira coisa da semana nos dois caminhos. */
+function prepararSemana(){
+  if(!G.semana)G.semana=1;
+  const idx=blocoDaSemana(G.semana);
+  const b=idx==null?null:G.calendario[idx];
+  if(b){
+    G.bloco=idx;
+    if(b.montar&&!b._montado){montarBloco(b);b._montado=true;}
+    G.fase=b.nome;
+    for(const s of b.stages)if(!s.feito)prepararRodada(s);
+  }else{
+    G.fase='Intervalo';
+  }
+  return{b,idx};
+}
+/* O compromisso do seu clube nesta semana — ou, numa semana de rodada dupla,
+   no próximo passo dela. É o que permite a tela abrir o relatório e o veto
+   ANTES de a partida ser jogada. Devolve null quando não há jogo seu. */
 function compromissoDaSemana(){
   if(!G.meuTime)return null;
-  const i=blocoDaSemana(G.semana||1);
-  const b=i==null?null:G.calendario[i];
+  const {b}=prepararSemana();
   if(!b)return null;
+  /* semana cujo calendário já não pede rodada nenhuma: nada vai ser jogado */
+  if(!G.semanaEmCurso&&!rodadasPorSemana(b))return null;
   for(const s of b.stages){
     if(s.feito)continue;
     const rd=s.rodadaAtual||[];
@@ -38,33 +66,37 @@ function compromissoDaSemana(){
   }
   return null;
 }
+/* Tem jogo do seu clube na rodada que acabou de ser preparada? É a pergunta
+   que decide se a semana para no meio. */
+function meuJogoPreparado(b){
+  return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
+}
 /* `plano` é o que VOCÊ decidiu antes de a semana rodar: por enquanto o veto de
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
 function avancar(plano){
-  if(!G.semana)G.semana=1;
-  const idx=blocoDaSemana(G.semana);
-  const b=idx==null?null:G.calendario[idx];
-  if(b){
-    G.bloco=idx;
-    if(b.montar&&!b._montado){montarBloco(b);b._montado=true;}
-    G.fase=b.nome;
-  }else{
-    G.fase='Intervalo';
+  /* Continuação de uma semana de rodada dupla que parou antes do seu segundo
+     jogo: o começo da semana (janela, negociações vencidas) já rodou. */
+  const em=G.semanaEmCurso||null;
+  const {b,idx}=prepararSemana();
+  if(!em){
+    /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
+    G.janela=janelaAberta(G.ano,G.semana);
+    if(typeof limparNegociacoes==='function')limparNegociacoes();
   }
-  /* a janela segue o calendário (novembro a janeiro, junho e julho), não os torneios */
-  G.janela=janelaAberta(G.ano,G.semana);
-  if(typeof limparNegociacoes==='function')limparNegociacoes();
 
   const resultados=[];let minhaPartida=null;
   if(b){
-    const passos=rodadasPorSemana(b);
-    for(let k=0;k<passos;k++){
+    /* O número de rodadas da semana é decidido UMA vez, no começo dela: numa
+       continuação, o que falta do torneio já é outro número. */
+    const passos=em?em.passos:rodadasPorSemana(b);
+    for(let k=em?em.feitos:0;k<passos;k++){
       const ativos=b.stages.filter(s=>!s.feito);
       if(!ativos.length)break;
       for(const s of ativos){
-        /* montar a rodada é privilégio do relógio: é aqui que o sorteio
-           consome o gerador semeado, e em nenhum outro lugar */
+        /* montar a rodada é privilégio do relógio (aqui e em prepararSemana,
+           que roda no mesmo ponto da sequência): é onde o sorteio consome o
+           gerador semeado */
         const rd=prepararRodada(s);
         if(!rd||!rd.length){
           s.feito=true;
@@ -102,8 +134,25 @@ function avancar(plano){
         }
         stageAvancar(s);
       }
+      /* Rodada dupla: o calendário apertado põe duas rodadas na mesma semana.
+         Se a próxima tem jogo seu, a semana PARA aqui — esse jogo precisa do
+         próprio relatório e do próprio veto. Antes ele era simulado direto, e
+         a tela só mostrava o último (5 de 32 jogos do SEN em duas temporadas).
+         Vale também quando você não jogou a primeira rodada (folga na chave):
+         o ritual da semana só enxergava a rodada de abertura.
+
+         Parar entre dois passos do laço não muda a ordem do sorteio: o que
+         roda depois é exatamente o que rodaria em seguida. As outras partidas
+         da rodada já foram jogadas; a semana só fecha (treino, folha, notícias)
+         quando o último passo terminar. */
+      if(k+1<passos&&meuJogoPreparado(b)){
+        G.semanaEmCurso={passos,feitos:k+1};
+        return{tipo:'rodada',resultados,minhaPartida,parcial:true,
+               bloco:b.nome,semana:G.semana,encerrado:null};
+      }
     }
   }
+  G.semanaEmCurso=null;
   return fecharSemana(b,resultados,minhaPartida,idx);
 }
 /* A segunda metade da semana: tudo o que acontece DEPOIS das partidas. Virou

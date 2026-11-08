@@ -9,6 +9,9 @@
      · nenhum time de Tier 1 entra no Champions com pontos indefinidos
      · o Champions fecha com 16 times; todo stage do calendário termina
      · abates por mapa dentro de uma faixa plausível (temp.maps conta mapas)
+     · todo jogo do clube do jogador passa pelo relatório e pelo veto: antes
+       de cada avanço o compromisso tem de estar visível, contra o adversário
+       certo, e nunca mais de um jogo seu por avanço
    Métricas (só relatadas): finanças, over médio, tamanho do mercado.       */
 import {readFileSync,writeFileSync,unlinkSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
@@ -20,7 +23,7 @@ const ordem=[...readFileSync(resolve(raiz,'index.html'),'utf8')
   .matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1])
   .filter(p=>!p.includes('/ui/')&&!p.includes('storage')&&!p.includes('assets')&&!p.endsWith('main.js'));
 const bundle=ordem.map(p=>readFileSync(resolve(raiz,p),'utf8')).join('\n')
-  +'\nmodule.exports={criarMundo,montarCalendario,avancar,over,acharStage,REGIONS,'
+  +'\nmodule.exports={criarMundo,montarCalendario,avancar,compromissoDaSemana,over,acharStage,REGIONS,'
   +'importarElencos:typeof importarElencos!=="undefined"?importarElencos:null,'
   +'get G(){return G;},set G(v){G=v;}};';
 const tmp=resolve(raiz,'.verificar.tmp.cjs');
@@ -34,6 +37,7 @@ m.criarMundo(semente);m.montarCalendario();
 const G=m.G;G.meuTime=G.regioes.AMER.t1[0];
 
 const erros=[],avisos=[],financas=[];
+let jogosMeus=0;
 const campanha=t=>t.temporada.v-t.temporada.d;
 
 /* snapshot por região, para auditar acesso e rebaixamento */
@@ -65,7 +69,19 @@ while(G.ano<alvo&&n<4000){
     const champs=m.acharStage('champs');
     if(champs&&champs.times.length!==16)erros.push(G.ano+' · Champions com '+champs.times.length+' times (esperado 16)');
   }
-  m.avancar();n++;
+  const comp=m.compromissoDaSemana();
+  const r=m.avancar();n++;
+  /* o ritual de antes da partida: se o relógio jogou uma partida sua, a tela
+     tinha de tê-la visto antes — senão ela foi simulada sem veto */
+  const meus=(r&&r.resultados||[]).filter(x=>x.res.aId===G.meuTime||x.res.bId===G.meuTime);
+  jogosMeus+=meus.length;
+  if(meus.length>1)erros.push(G.ano+' · semana '+r.semana+': '+meus.length+' jogos do seu clube num avanço só');
+  for(const x of meus){
+    const adv=x.res.aId===G.meuTime?x.res.bId:x.res.aId;
+    if(!comp)erros.push(G.ano+' · semana '+r.semana+': jogo contra '+G.times[adv].tag+' ('+x.stage.id+') sem veto antes');
+    else if(comp.advId!==adv||comp.stage.id!==x.stage.id)
+      erros.push(G.ano+' · semana '+r.semana+': o veto foi para '+G.times[comp.advId].tag+' mas o jogo foi contra '+G.times[adv].tag);
+  }
 
   /* mudou a composição de alguma liga? audita o rebaixamento */
   const novo=tirarSnap();
@@ -142,6 +158,7 @@ console.log(anos+' temporada(s) em',Date.now()-t0,'ms |',n,'avanços | semente',
 console.log('times:',Object.keys(G.times).length,'| jogadores:',Object.keys(G.jogadores).length,
             '| Tier 1:',nT1,'| Tier 2:',nT2);
 console.log('títulos registrados:',G.historico.length);
+console.log('jogos do seu clube:',jogosMeus,'— todos com relatório e veto antes');
 if(financas.length){
   console.log('\nfinanças por temporada (clubes no vermelho / pior caixa / agentes livres):');
   financas.forEach(f=>console.log('  '+f.ano+': '+String(f.negativos).padStart(2)+' no vermelho · pior '+
