@@ -21,9 +21,7 @@ const NAV=[
   ['inicio','Central','Clube','casa'],
   ['elenco','Elenco','Clube','elenco'],
   ['vestiario','Vestiário','Clube','vestiario'],
-  ['taticas','Táticas','Clube','tatica'],
-  ['treino','Treino','Clube','base'],
-  ['comps','Comps','Clube','tatica'],
+  ['preparacao','Treinamento','Clube','tatica'],
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
@@ -91,7 +89,10 @@ function render(){
   if(modo==='menu'){renderMenu();return;}
   pintarSide();pintarTop();
   const v=$('#view');
-  const fn={inicio:vInicio,elenco:vElenco,taticas:vTaticas,treino:vTreino,comps:vComps,comp:vComp,mercado:vMercado,
+  /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
+     endereço antigo continua valendo e cai na aba certa */
+  if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
+  const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   if(typeof guiaMarcar==='function')guiaMarcar(tela);

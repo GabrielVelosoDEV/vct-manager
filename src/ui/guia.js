@@ -13,6 +13,7 @@ const GUIA_TELAS={
   elenco:'Aqui ficam os titulares e o banco. A escalação automática monta os cinco mais fortes por função; troque à mão se quiser dar minutos a alguém.',
   taticas:'Foco tático e agressividade valem para todos os jogos. Execução rende no ataque e perde na defesa; retake é o contrário.',
   treino:'Cada jogador tem um plano por semana: atributo, agente ou descanso. Treinar cansa, mas em e-sports quem decide jogo é a cabeça: veja o Vestiário.',
+  preparacao:'Táticas, comps e treino ficam aqui. O preparo de cada mapa junta tudo num número de 0 a 100 — é ele que decide o que banir e o que treinar.',
   vestiario:'Entrosamento é de cada dupla de jogadores, e a confiança sobe e desce com os resultados. Escolha uma atividade por semana para mexer nos dois.',
   comps:'A comp de cada mapa decide quem joga com qual agente. O preset Melhor monta uma comp completa com quem você tem.',
   base:'A categoria de base cresce sozinha com a academia e o head coach. Promova quando o garoto estiver pronto; aos 20 ele vai embora.',
@@ -26,6 +27,7 @@ const GUIA_PASSOS=[
   {id:'taticas',texto:'Escolha o foco tático',           tela:'taticas'},
   {id:'treino', texto:'Monte o plano de treino da semana',tela:'treino'},
   {id:'comps',  texto:'Veja as comps de cada mapa',      tela:'comps'},
+  {id:'preparacao',texto:'Confira o preparo de cada mapa', tela:'preparacao'},
   {id:'mercado',texto:'Dê uma olhada no mercado',        tela:'mercado'},
   {id:'partida',texto:'Jogue a primeira partida com relatório e veto'}
 ];

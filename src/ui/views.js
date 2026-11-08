@@ -194,7 +194,7 @@ function vTaticas(){
       <td class="c"><span class="pill">${clube>0?'+':''}${clube}</span></td>
       <td class="c"><span class="pill ${elenco>=1?'g':elenco<=-1?'r':''}">${elenco>0?'+':''}${elenco.toFixed(1)}</span></td>
       <td><div class="bar"><i style="width:${clamp(50+soma*6,4,100)}%"></i></div></td></tr>`;}).join('');
-  return `<div class="eyebrow">Preparação</div><h2 class="sec">Táticas e treino</h2>
+  return `
   <div class="grid g2">
    <div class="card"><div class="eyebrow">Estilo de jogo</div>
     <label>Agressividade <b class="num" id="lbAg">${t.tatica.agres}</b>/5</label>
@@ -310,7 +310,7 @@ function vComps(){
         (x.tipo==='nerf'?'▼ ':'▲ ')+esc(x.ag)+' '+x.de+'→'+x.para).join(' · ')||'sem mudanças'}</div></span></div>`).join('')
     ||'<div class="dim">Nenhum patch ainda nesta temporada.</div>';
 
-  return `<div class="eyebrow">Preparação</div><h2 class="sec">Comps de agente</h2>
+  return `
   <div class="card"><div class="split">
     <div><div class="eyebrow">Mapa</div>
       <div class="dim">A comp é por mapa: o que serve em ${esc(pool[0]||'')} não serve no resto.</div></div>
@@ -584,16 +584,20 @@ function vTreino(){
   const cor=v=>v>=0.75?'dn':v>=0.5?'am':'up';
 
   /* ---- mapas da rotação ---- */
+  const div=divisaoTreino(pl);
   const mapas=(G.mapasAtivos||[]).map(mp=>{
     const meuA=afinidadeElenco(t,mp);
     const advA=adv?afinidadeElenco(adv,mp):null;
-    const treinando=pl.mapa===mp;
-    return `<button class="mp-card ${treinando?'on':''}" data-treinomapa="${esc(mp)}">
+    const d=div.find(x=>x.mapa===mp);
+    return `<div class="mp-card ${d?'on':''}" style="${fundoMapa(mp,0.62)}">
+      <button class="mp-alvo" data-treinomapa="${esc(mp)}" title="${d?'Tirar do treino':'Treinar esta semana'}">
       <div class="mp-nome">${esc(mp)}</div>
       <div class="mp-val ${meuA>=3?'up':meuA<=-2?'dn':''}">${meuA>0?'+':''}${meuA.toFixed(1)}</div>
       ${adv?`<div class="mp-adv">${esc(adv.tag)} ${advA>0?'+':''}${advA.toFixed(1)}</div>`:''}
-      <div class="mp-tag">${treinando?'treinando':'treinar'}</div>
-    </button>`;
+      <div class="mp-tag">${d?'treinando · '+Math.round(d.frac*100)+'%':'treinar'}</div></button>
+      ${d?`<select class="mp-prio" data-prio="${esc(mp)}">${['alta','media','baixa'].map(p=>
+        `<option value="${p}" ${d.prio===p?'selected':''}>${PRIO_NOME[p]}</option>`).join('')}</select>`:''}
+    </div>`;
   }).join('');
 
   /* ---- quadro individual ---- */
@@ -630,7 +634,7 @@ function vTreino(){
 
   const descansando=t.elenco.filter(id=>planoDoJogador(t,P(id)).tipo==='descanso').length;
   return `<div class="eyebrow">Semana ${G.semana} · ${esc(rotuloSemana(G.ano,G.semana))}</div>
-  <h2 class="sec">Plano da semana</h2>
+
   ${px&&!px.espera?`<div class="card flat" style="border-left:4px solid var(--red)">
     <b>Tem jogo nesta semana</b> — ${px.bye?'bye':'contra '+esc(nomeT(px.adv))}. Quem treina pesado
     entra cansado, e cansaço é o que mais custa partida.</div>`
@@ -638,10 +642,12 @@ function vTreino(){
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
 
   <div class="card"><div class="split">
-    <div><div class="eyebrow">Treino de mapa</div>
-      <div class="dim">Sete mapas em rotação. O que você treina sobe; o que você abandona
-      escorrega. É esse pool que o veto vai defender.</div></div>
-    <div>${pl.mapa?`<button class="btn ghost sm" data-treinomapa="">Nenhum mapa esta semana</button>`:''}</div>
+    <div><div class="eyebrow">Treino de mapa · até ${MAPAS_TREINO_MAX} por semana</div>
+      <div class="dim">O que você treina sobe; o que você abandona escorrega. Com mais de um mapa o
+      trabalho se divide pela prioridade (alta, média, baixa = 5 : 3 : 2), e o ganho total é maior
+      que o de um só, mas não o triplo: um mapa rende 100%, dois 115%, três 130%. A porcentagem em
+      cada mapa é quanto ele recebe de uma semana dedicada só a ele.</div></div>
+    <div>${div.length?`<button class="btn ghost sm" data-treinomapa="">Nenhum mapa esta semana</button>`:''}</div>
   </div>
     <div class="mp-grid">${mapas}</div>
   </div>

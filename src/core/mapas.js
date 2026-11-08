@@ -175,12 +175,14 @@ function normalizarPool(t){
 }
 function esquecerMapas(t,pouparMapa){
   if(!t)return;
-  const taxa=pouparMapa?AFIN_ESQUECE:AFIN_ESQUECE_SEM_PLANO;
+  /* aceita um mapa ou a lista dos mapas treinados na semana */
+  const poupar=new Set(Array.isArray(pouparMapa)?pouparMapa:pouparMapa?[pouparMapa]:[]);
+  const taxa=poupar.size?AFIN_ESQUECE:AFIN_ESQUECE_SEM_PLANO;
   for(const id of (t.elenco||[])){
     const p=G.jogadores[id];
     if(!p||!p.mapas)continue;
     for(const m of MAP_POOL){
-      if(m===pouparMapa)continue;
+      if(poupar.has(m))continue;
       const v=p.mapas[m]||0;
       if(!v)continue;
       const passo=Math.min(taxa,Math.abs(v));

@@ -264,6 +264,7 @@ function semana(){
        clube usa o que VOCÊ deixou marcado na tela de Treino. */
     if(typeof planoIA==='function')planoIA(t);
     if(typeof aplicarTreinoSemanal==='function')aplicarTreinoSemanal(t);
+    if(typeof registrarPreparo==='function')registrarPreparo(t);
     /* comp e tática da semana: a IA reescolhe, o seu clube usa o que você marcou */
     if(typeof limparComps==='function')limparComps(t);
     if(typeof compIA==='function')compIA(t);
@@ -303,7 +304,7 @@ function desenvolver(p,t){
              :{tipo:'atributo',alvo:'mira'};
   const custoPlano=plano.tipo==='descanso'
     ?FADIGA_DESCANSO
-    :FADIGA_TREINO+((t.treino&&t.treino.mapa)?FADIGA_TREINO_MAPA:0);
+    :FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(mapasDoTreino(planoDe(t)).length);
   p.fadiga=clamp(p.fadiga-0.035-(t.estrutura.gh*0.004)+(t.tatica.scrim-2)*0.008
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
   if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}

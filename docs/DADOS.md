@@ -49,6 +49,9 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   staff:     {tecnico, analista, mental},        // 1..5
   estrutura: {gh, treino, academia},             // 1..5
   tatica:    {agres:1..5, foco, scrim:1..5, treino},
+  taticaMapa:{Ascent:{agres?, foco?}},   // tática por mapa, por cima da geral
+  treino:    {mapas:[{mapa, prio:'alta|media|baixa'}], mapa, individual:{}},
+  preparoHist:[{ano, s, m:{mapa: 0..100}}], // só o seu clube, últimas 40 semanas
   mapPref:   {Ascent:-8..8, ...},
   temporada: {v, d, mv, md, pts},
   titulos:   ['2026 · Champions']

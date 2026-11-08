@@ -152,6 +152,14 @@
   confiança de quem ganha contra quem perde +24 pontos, desgaste leve contra
   maratona +13 (era +34).
 
+- **Treinamento & Preparação** (pacote 8): Táticas, Treino e Comps numa tela
+  só, com quatro abas; preparo de 0 a 100 por mapa feito dos termos que o
+  motor usa (clube, elenco, comp, tática), com tendência das últimas semanas
+  e o preparo do próximo adversário quando o analista enxerga; até três mapas
+  de treino por semana com prioridade (5 : 3 : 2, ganho total 100/115/130%),
+  e a IA com a mesma regra; tática por mapa (agressividade e foco), valendo
+  desde o primeiro round e com o pedido de tempo por cima.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

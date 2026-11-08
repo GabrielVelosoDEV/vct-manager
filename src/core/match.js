@@ -236,11 +236,22 @@ function abrirMapa(A,B,mapa,ladoInicialA){
   /* O lado escolhido no veto vale mais que a moeda. O sorteio acontece mesmo
      assim, para o resto do mapa consumir o gerador na mesma ordem de sempre. */
   const ladoA=(ladoInicialA==='atk'||ladoInicialA==='def')?ladoInicialA:sorteio;
-  return{A,B,mapa,st,sa:0,sb:0,hist:[],
+  const M={A,B,mapa,st,sa:0,sb:0,hist:[],
          ecoA:2,ecoB:2,perdaA:0,perdaB:0,
          diaA,diaB,fA,fB,ladoA,r:0,fim:false,
          /* pedido de tempo: dois por mapa para cada lado, como no jogo */
          temposA:TEMPOS_POR_MAPA,temposB:TEMPOS_POR_MAPA,bonusA:0,bonusB:0};
+  /* Tática por mapa (Treinamento & Preparação): o que você marcou para este
+     mapa vale desde o primeiro round, por cima da tática geral do clube — e o
+     pedido de tempo continua mexendo por cima dela. Sem tática por mapa, nada
+     muda: as forças acima já são as finais. */
+  const tmA=A.taticaMapa&&A.taticaMapa[mapa], tmB=B.taticaMapa&&B.taticaMapa[mapa];
+  if(tmA||tmB){
+    if(tmA)M.tatA=Object.assign({},tmA);
+    if(tmB)M.tatB=Object.assign({},tmB);
+    _recalcularMapa(M);
+  }
+  return M;
 }
 const TEMPOS_POR_MAPA=2;
 /* Quanto o tempo pedido vale, e por quantos rounds. Não é um botão de vencer:

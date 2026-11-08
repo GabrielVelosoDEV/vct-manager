@@ -106,17 +106,68 @@ function limparPlano(t){
   for(const id in pl.individual)if(!dentro.has(id))delete pl.individual[id];
   /* mapa que saiu de rotação não treina nada: melhor avisar do que treinar o
      vazio em silêncio por seis semanas */
-  if(pl.mapa&&!mapaAtivo(pl.mapa)){
-    const era=pl.mapa;pl.mapa=null;
+  const fora=mapasDoTreino(pl,true).filter(x=>!mapaAtivo(x.mapa));
+  if(fora.length){
+    definirMapasTreino(t,mapasDoTreino(pl,true).filter(x=>mapaAtivo(x.mapa)));
     if(t.id===G.meuTime&&typeof noticia==='function')
-      noticia('🗺 '+era+' saiu de rotação: o treino de mapa da semana ficou sem alvo.',{c:'meta',t:[G.meuTime]});
+      noticia('🗺 '+fora.map(x=>x.mapa).join(' e ')+' saiu de rotação e deixou o treino de mapa da semana.',{c:'meta',t:[G.meuTime]});
   }
   return pl;
 }
-function definirMapaTreino(t,mapa){
-  const pl=planoDe(t);
-  pl.mapa=(mapa&&mapaAtivo(mapa))?mapa:null;
+/* ---------- até três mapas por semana ----------
+   Cada mapa do plano tem prioridade: alta, média ou baixa, e o trabalho da
+   semana se divide nessa proporção (5 : 3 : 2 — com três mapas, 50/30/20).
+   O ganho TOTAL cresce menos que o número de mapas: um mapa rende 1, dois
+   rendem 1,15 e três 1,3. Espalhar mantém o pool; concentrar faz um mapa
+   subir de verdade. O cansaço do treino de mapa acompanha o ganho total. */
+const MAPAS_TREINO_MAX=3;
+const PRIO_TREINO={alta:5,media:3,baixa:2};
+const PRIO_NOME={alta:'alta',media:'média',baixa:'baixa'};
+const GANHO_EXTRA_MAPA=0.15;
+function fatorTreinoMapas(n){return n?1+GANHO_EXTRA_MAPA*(n-1):0;}
+/* A lista de mapas do plano. Planos antigos têm só pl.mapa. */
+function mapasDoTreino(pl,todos){
+  let l=Array.isArray(pl.mapas)?pl.mapas:(pl.mapa?[{mapa:pl.mapa,prio:'alta'}]:[]);
+  l=l.filter(x=>x&&x.mapa&&PRIO_TREINO[x.prio]);
+  return todos?l:l.filter(x=>mapaAtivo(x.mapa));
+}
+function definirMapasTreino(t,lista){
+  const pl=planoDe(t),vistos=new Set(),out=[];
+  for(const x of lista||[]){
+    if(!x||!x.mapa||vistos.has(x.mapa)||!mapaAtivo(x.mapa))continue;
+    vistos.add(x.mapa);out.push({mapa:x.mapa,prio:PRIO_TREINO[x.prio]?x.prio:'media'});
+    if(out.length>=MAPAS_TREINO_MAX)break;
+  }
+  pl.mapas=out;pl.mapa=out.length?out[0].mapa:null;
   return pl;
+}
+function definirMapaTreino(t,mapa){
+  return definirMapasTreino(t,mapa?[{mapa,prio:'alta'}]:[]);
+}
+/* Clique num mapa da tela: entra (com a prioridade que falta) ou sai. */
+function alternarMapaTreino(t,mapa){
+  const l=mapasDoTreino(planoDe(t),true).slice();
+  const i=l.findIndex(x=>x.mapa===mapa);
+  if(i>=0)l.splice(i,1);
+  else{
+    if(l.length>=MAPAS_TREINO_MAX)return{ok:false,erro:'No máximo '+MAPAS_TREINO_MAX+' mapas por semana. Tire um antes.'};
+    const usadas=new Set(l.map(x=>x.prio));
+    l.push({mapa,prio:['alta','media','baixa'].find(p=>!usadas.has(p))||'baixa'});
+  }
+  definirMapasTreino(t,l);
+  return{ok:true};
+}
+function definirPrioridadeMapa(t,mapa,prio){
+  const l=mapasDoTreino(planoDe(t),true).map(x=>x.mapa===mapa?{mapa,prio}:x);
+  definirMapasTreino(t,l);
+  return{ok:true};
+}
+/* Quanto cada mapa recebe da semana: fração do ganho de um mapa só. */
+function divisaoTreino(pl){
+  const l=mapasDoTreino(pl);
+  const soma=l.reduce((s,x)=>s+PRIO_TREINO[x.prio],0)||1;
+  const total=fatorTreinoMapas(l.length);
+  return l.map(x=>({mapa:x.mapa,prio:x.prio,frac:PRIO_TREINO[x.prio]/soma*total}));
 }
 
 /* ---------- familiaridade com agente ----------
@@ -201,9 +252,13 @@ function enferrujarAgentes(p,usados){
    Sobe a afinidade dos titulares no mapa da semana. Reserva também treina,
    mas menos: quem não entra em quadra aprende o mapa pela metade. */
 function treinarMapa(t){
-  const pl=planoDe(t);
-  const mapa=pl.mapa;
-  if(!mapa||!mapaAtivo(mapa))return null;
+  const div=divisaoTreino(planoDe(t));
+  if(!div.length)return null;
+  let mexeu=0;
+  for(const d of div)mexeu=treinarUmMapa(t,d.mapa,d.frac).jogadores;
+  return{mapa:div[0].mapa,mapas:div.map(d=>d.mapa),jogadores:mexeu};
+}
+function treinarUmMapa(t,mapa,frac){
   const nivelTreino=0.7+((t.estrutura&&t.estrutura.treino)||3)*0.08
                        +(((t.staff&&t.staff.tecnico)||2)-2)*0.05;
   let mexeu=0;
@@ -215,7 +270,7 @@ function treinarMapa(t){
     const atual=p.mapas[mapa]||0;
     /* retorno decrescente: de −8 para 0 é rápido, de +6 para +8 é lento */
     const folga=(AFIN_MAX-atual)/(AFIN_MAX-AFIN_MIN);
-    const passo=MAPA_POR_SEMANA*nivelTreino*(titular?1:0.5)*(0.35+folga);
+    const passo=MAPA_POR_SEMANA*nivelTreino*(titular?1:0.5)*(0.35+folga)*(frac==null?1:frac);
     p.mapas[mapa]=clamp(atual+passo,AFIN_MIN,AFIN_MAX);
     mexeu++;
   }
@@ -230,7 +285,7 @@ function aplicarTreinoSemanal(t){
   const pl=limparPlano(t);
   const r={mapa:null,agentes:[],descansando:0,treinando:0};
   const doMapa=treinarMapa(t);
-  if(doMapa){r.mapa=doMapa.mapa;esquecerMapas(t,doMapa.mapa);}
+  if(doMapa){r.mapa=doMapa.mapa;r.mapas=doMapa.mapas;esquecerMapas(t,doMapa.mapas);}
   else esquecerMapas(t,null);
   if(typeof normalizarPool==='function')normalizarPool(t);
   for(const id of (t.elenco||[])){
@@ -257,6 +312,16 @@ const CONFORTO=3;
    tudo (leque de 4,0 pontos entre melhor e pior mapa caía para 1,0) e o veto
    perdia sentido, porque não havia mapa que ninguém quisesse jogar. Clube de
    verdade escolhe um pool e mora nele; de vez em quando tapa um buraco. */
+/* A IA usa a mesma regra de três mapas: o da rotação dela como alta, e os
+   dois seguintes da ordem de conforto como média e baixa. */
+function mapasDaSemanaIA(t){
+  const um=mapaDaSemanaIA(t);
+  if(!um)return[];
+  const ordem=(G.mapasAtivos||[]).slice().sort((a,b)=>
+    ((t.mapPref&&t.mapPref[b]||0)*2+afinidadeElenco(t,b))-((t.mapPref&&t.mapPref[a]||0)*2+afinidadeElenco(t,a)))
+    .filter(m=>m!==um);
+  return[{mapa:um,prio:'alta'},...ordem.slice(0,2).map((m,i)=>({mapa:m,prio:i?'baixa':'media'}))];
+}
 function mapaDaSemanaIA(t){
   const pool=(G.mapasAtivos||[]).slice();
   if(!pool.length)return null;
@@ -280,7 +345,7 @@ function planoIA(t){
   const pl=planoDe(t);
   const tit=(t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
   const fadigaMedia=tit.length?tit.reduce((s,p)=>s+p.fadiga,0)/tit.length:0;
-  pl.mapa=fadigaMedia>0.72?null:mapaDaSemanaIA(t);
+  definirMapasTreino(t,fadigaMedia>0.72?[]:mapasDaSemanaIA(t));
   pl.individual={};
   for(const id of (t.elenco||[])){
     const p=G.jogadores[id];
@@ -299,4 +364,48 @@ function planoIA(t){
     pl.individual[id]={tipo:'atributo',alvo};
   }
   return pl;
+}
+
+/* ---------- preparo por mapa ----------
+   Um número de 0 a 100 para "quão pronto o time está neste mapa", feito
+   SÓ dos termos que o motor de partida usa e que mudam de mapa para mapa
+   (forcaTime em match.js): identidade do clube, afinidade dos cinco, a comp
+   escalada e a tática do mapa. É o mesmo número que o veto enxerga, então a
+   tela de preparo e a pré-partida não podem discordar. Cada ponto de força
+   vale 4 pontos na escala; 50 é um mapa neutro. */
+const PREPARO_ESCALA=4;
+function taticaNoMapa(t,mapa){
+  return Object.assign({},t.tatica,(t.taticaMapa&&t.taticaMapa[mapa])||{});
+}
+function definirTaticaMapa(t,mapa,campo,valor){
+  if(!t.taticaMapa)t.taticaMapa={};
+  const tm=Object.assign({},t.taticaMapa[mapa]||{});
+  if(valor==null||valor===''||String(valor)===String(t.tatica[campo]))delete tm[campo];
+  else tm[campo]=campo==='agres'?clamp(parseInt(valor)||3,1,5):valor;
+  if(Object.keys(tm).length)t.taticaMapa[mapa]=tm;else delete t.taticaMapa[mapa];
+  return{ok:true};
+}
+function preparoDoMapa(t,mapa){
+  const clube=(t.mapPref[mapa]||0)*0.6;
+  const elenco=afinidadeElenco(t,mapa)*0.6;
+  const comp=typeof pesoComp==='function'?pesoComp(t,mapa):0;
+  const guarda=t.tatica;
+  let tatica=0;
+  try{
+    t.tatica=taticaNoMapa(t,mapa);
+    tatica=((pesoAgressividade(t,mapa,'atk')+pesoFoco(t,mapa,'atk'))
+           +(pesoAgressividade(t,mapa,'def')+pesoFoco(t,mapa,'def')))/2;
+  }finally{t.tatica=guarda;}
+  const pontos=clube+elenco+comp+tatica;
+  return{mapa,pontos,nota:Math.round(clamp(50+pontos*PREPARO_ESCALA,0,100)),
+         partes:{clube,elenco,comp,tatica},especifica:!!(t.taticaMapa&&t.taticaMapa[mapa])};
+}
+/* Foto semanal do preparo do seu clube, para o gráfico de evolução. Só do
+   seu: guardar de 80 clubes inflaria o save sem ninguém olhar. */
+function registrarPreparo(t){
+  if(!t||t.id!==G.meuTime)return;
+  const f={ano:G.ano,s:G.semana,m:{}};
+  for(const mp of G.mapasAtivos||[])f.m[mp]=preparoDoMapa(t,mp).nota;
+  (t.preparoHist=t.preparoHist||[]).push(f);
+  if(t.preparoHist.length>40)t.preparoHist.shift();
 }

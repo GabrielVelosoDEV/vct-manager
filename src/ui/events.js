@@ -59,7 +59,17 @@ function ligarEventos(){
     if(!r.ok){avisar(r.erro||'Não deu para assumir esse clube.');return;}
     flash(r.msg);irPara('inicio');
   });
-  on('[data-treinomapa]',el=>{definirMapaTreino(t,el.dataset.treinomapa||null);render();});
+  on('[data-treinomapa]',el=>{
+    const mp=el.dataset.treinomapa||null;
+    const r=mp?alternarMapaTreino(t,mp):(definirMapasTreino(t,[]),{ok:true});
+    render();if(!r.ok)flash(r.erro);
+  });
+  v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);render();});
+  on('[data-prepaba]',el=>{prepAba=el.dataset.prepaba;render();});
+  v.querySelectorAll('[data-tmagres],[data-tmfoco]').forEach(el=>el.onchange=()=>{
+    const campo=el.dataset.tmagres!==undefined?'agres':'foco';
+    definirTaticaMapa(t,el.dataset.tmagres||el.dataset.tmfoco,campo,el.value);render();
+  });
   on('[data-anunciar]',el=>modalAnunciar(el.dataset.anunciar));
   on('[data-desanunciar]',el=>{
     const r=retirarAnuncio(P(el.dataset.desanunciar));
