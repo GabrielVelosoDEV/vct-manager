@@ -265,6 +265,12 @@ São quatro tipos de arte, cada um com seu formato de normalização:
 | Arte de torneio | `arte:<id>` | `assets/torneios/<id>.png` | 256×256 |
 | Retrato de agente | `agente:<nome>` | `assets/agentes/<nome>.png` | 256×320 |
 | Retrato de comissão | `staff:<nome>` | `assets/staff/<nome>.png` | 256×320 |
+| Arte de mapa | — | `assets/mapas/<mapa>.webp` | 1280×720 |
+| Cidade-sede | — | `assets/cidades/<cidade>.webp` | 1600×600 |
+| Troféu | — | `assets/trofeus/masters-NN.png`, `champions-NN.png`, `padrao.png` | 512×512 |
+
+As três últimas pastas foram criadas antes do código que as lê; cada uma tem um
+`LEIAME.md` com a lista de nomes, e passam a aparecer no jogo com o Pacote 2.
 
 Para usar imagens de verdade há dois caminhos. O primeiro é o **Editor**: solte um
 PNG na aba Imagens e ele entra no *pacote*, um store próprio do IndexedDB, separado
