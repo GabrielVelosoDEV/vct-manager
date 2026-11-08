@@ -1,8 +1,14 @@
 /* ============================================================
    MOTOR DE PARTIDA
    ============================================================ */
+/* Condição do jogador no dia. E-sports é cabeça antes de perna: o desgaste
+   tira no máximo 8% (era 22%) e o mental — confiança e moral, ver
+   core/vestiario.js — mexe até 22% (a moral sozinha mexia 14%). As bases
+   foram acertadas para um jogador típico (desgaste 0,3, mental 0,6) render o
+   mesmo de antes: o que muda é o que pesa, não o nível do circuito. */
 function condicao(p){
-  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.22) * (0.92 + p.moral*0.14);
+  const mental=typeof mentalDe==='function'?mentalDe(p):p.moral;
+  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.08) * (0.83 + mental*0.22);
 }
 /* ---------- variância ----------
    Dois níveis, de propósito:
@@ -458,7 +464,11 @@ function fecharSerie(S,ctx){
     const sc=acsDe(agg[id])+agg[id].cl*30;
     if(sc>best){best=sc;mvp=id;}
   }
-  aplicarPos(A,B,vencedor,agg,mvp,ctx);
+  /* decisão: grande final em Bo5 ou série de mata-mata — mexe em dobro na
+     confiança de quem joga */
+  const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
+  const decisiva=bo>=5||!!(st&&(st.tipo==='de'||st.tipo==='ko'));
+  aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva);
   /* Afinidade é POR MAPA, então tem de ser aplicada mapa a mapa — a
      consolidação acima soma tudo e perderia justamente a informação que
      interessa aqui: em qual mapa cada um foi bem. */
@@ -481,7 +491,7 @@ function simPartida(aId,bId,bo,ctx){
   }
   return fecharSerie(S,ctx);
 }
-function aplicarPos(A,B,vencedor,agg,mvp,ctx){
+function aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva){
   for(const id in agg){
     const p=G.jogadores[id],s=agg[id];
     p.temp.maps+=s.maps; p.temp.k+=s.k;p.temp.d+=s.d;p.temp.a+=s.a;
@@ -494,7 +504,9 @@ function aplicarPos(A,B,vencedor,agg,mvp,ctx){
     p.fadiga=clamp(p.fadiga+0.05+ (A.tatica.scrim+B.tatica.scrim)/300,0,1);
     const ganhou=p.timeId===vencedor;
     p.moral=clamp(p.moral+(ganhou?0.035:-0.045),.15,1);
-    if(rnd()<0.006+p.fadiga*0.012){
+    /* Lesão em e-sports é rara e curta (punho, mão, coluna): era 0,6% a 1,8%
+       por série, agora 0,2% a 0,6%, e dura uma ou duas semanas. */
+    if(rnd()<0.002+p.fadiga*0.004){
       const tp=G.times[p.timeId];
       /* Fisioterapeuta bom encurta a lesão. O ponto neutro é o mesmo das
          outras fórmulas (staff.js); com o 3 antigo, TODO clube de Tier 2
@@ -502,11 +514,14 @@ function aplicarPos(A,B,vencedor,agg,mvp,ctx){
          divisão. O k caiu junto para o Tier 1 continuar cortando o mesmo. */
       const neutroF=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
       const corte=tp?Math.round(((tp.staff.fisio||neutroF)-neutroF)*0.25):0;
-      p.lesao=clamp(ri(1,3)-corte,1,6);
+      p.lesao=clamp(ri(1,2)-corte,1,4);
     }
   }
+  /* confiança e entrosamento: core/vestiario.js */
   [A,B].forEach(t=>{
-    t.sinergia=clamp(t.sinergia+0.7,0,100);
+    const ganhou=t.id===vencedor;
+    if(typeof confiancaPosSerie==='function'){confiancaPosSerie(t,ganhou,!!decisiva,agg);entrosamentoPosSerie(t,ganhou,!!decisiva);}
+    else t.sinergia=clamp(t.sinergia+0.7,0,100);
   });
   const V=G.times[vencedor],P=vencedor===A.id?B:A;
   V.temporada.v++;P.temporada.d++;

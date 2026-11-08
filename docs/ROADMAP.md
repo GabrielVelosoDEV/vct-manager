@@ -141,6 +141,17 @@
   para no turno em que chega proposta por alguém seu. Desligável em
   Configurações. Sem turnos, o mercado faz exatamente o que fazia.
 
+- **Vestiário: mental, desgaste e entrosamento** (pacote 9): confiança nova
+  por jogador (sobe ganhando e jogando acima do próprio normal, cai perdendo,
+  com sequência e decisão pesando mais, amortecida pelo preparador mental e
+  pelo IGL); desgaste passou a pesar até 8% (era 22%) e o mental até 22%;
+  lesão rara e curta; entrosamento por dupla de jogadores, com convivência,
+  scrims, jogos, função disputada, insatisfação, desigualdade salarial e
+  atividades da semana (bootcamp, ranked em duo, stream, jantar, sessão com o
+  preparador, folga); tela Clube › Vestiário. Medido em `decisoes.mjs`:
+  confiança de quem ganha contra quem perde +24 pontos, desgaste leve contra
+  maratona +13 (era +34).
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

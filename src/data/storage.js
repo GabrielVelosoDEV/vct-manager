@@ -231,6 +231,9 @@ function migrarRun(reg){
       if(typeof t.torcida!=='number'||!isFinite(t.torcida))t.torcida=torcidaInicial(t);
       if(!t.patrocinios){t.patrocinios={master:null,secundario:null,fornecedor:null};semPatroc++;}
       if(typeof atualizarComissao==='function')atualizarComissao(t);
+      /* entrosamento por dupla: nasce do número antigo do clube */
+      if(typeof semearDuplas==='function'&&!t.duplas)semearDuplas(t);
+      if(typeof t.seq!=='number')t.seq=0;
     }
 
     /* História real só pode entrar uma vez: rodar de novo duplicaria títulos e

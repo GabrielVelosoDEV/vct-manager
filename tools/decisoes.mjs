@@ -53,6 +53,7 @@ function fotoDoTime(t){
       const p=G.jogadores[id];
       return{id,at:{...p.at},role:p.role,role2:p.role2,roleAtual:p.roleAtual,
              idade:p.idade,forma:p.forma,moral:p.moral,fadiga:p.fadiga,
+             confianca:typeof p.confianca==='number'?p.confianca:0.6,
              lesao:p.lesao,mapas:{...p.mapas},pot:p.pot,
              agentes:(p.agentes||[]).slice(),agenteNivel:{...(p.agenteNivel||{})}};
     })
@@ -60,7 +61,7 @@ function fotoDoTime(t){
 }
 /* Escreve a foto de `origem` no time `t`, jogador por jogador na mesma ordem. */
 function restaurar(t,foto){
-  t.sinergia=foto.sinergia;t.prestigio=foto.prestigio;
+  t.sinergia=foto.sinergia;t.prestigio=foto.prestigio;t.seq=0;
   t.tatica=JSON.parse(JSON.stringify(foto.tatica));
   t.comps=JSON.parse(JSON.stringify(foto.comps||{}));
   t.estrutura={...foto.estrutura};t.staff={...foto.staff};t.mapPref={...foto.mapPref};
@@ -70,6 +71,9 @@ function restaurar(t,foto){
     Object.assign(p.at,f.at);
     p.role=f.role;p.role2=f.role2;p.roleAtual=f.roleAtual;p.idade=f.idade;
     p.forma=f.forma;p.moral=f.moral;p.fadiga=f.fadiga;p.lesao=0;
+    /* a série mexe na confiança e na sequência: sem restaurar, quem perde
+       entra pior na próxima repetição e os gêmeos deixam de ser gêmeos */
+    p.confianca=f.confianca;
     p.mapas={...f.mapas};p.pot=f.pot;
     p.agentes=(f.agentes||[]).slice();p.agenteNivel={...(f.agenteNivel||{})};
   });
@@ -149,6 +153,16 @@ medir('moral cheia contra moral no chão',()=>{
 medir('descansado contra exausto',()=>{
   A.titulares.forEach(i=>{G.jogadores[i].fadiga=0;});
   B.titulares.forEach(i=>{G.jogadores[i].fadiga=1;});
+});
+/* Faixas de jogo de verdade, não os extremos: é aqui que se vê o que pesa
+   mais entre a cabeça e a perna (pacote 9, core/vestiario.js). */
+medir('confiança de quem vem ganhando (0,85) contra a de quem vem perdendo (0,35)',()=>{
+  A.titulares.forEach(i=>{G.jogadores[i].confianca=0.85;});
+  B.titulares.forEach(i=>{G.jogadores[i].confianca=0.35;});
+});
+medir('desgaste de semana leve (0,2) contra fim de maratona (0,7)',()=>{
+  A.titulares.forEach(i=>{G.jogadores[i].fadiga=0.2;});
+  B.titulares.forEach(i=>{G.jogadores[i].fadiga=0.7;});
 });
 medir('na função certa contra fora de posição',()=>{
   B.titulares.forEach(i=>{const p=G.jogadores[i];

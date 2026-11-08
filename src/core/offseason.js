@@ -231,7 +231,8 @@ function fimDeTemporada(){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};
     t.patroc=receitaAnual(t);
-    t.sinergia=clamp(t.sinergia+4,0,100);
+    if(typeof entrosamentoVirada==='function'&&t.duplas)entrosamentoVirada(t);
+    else t.sinergia=clamp(t.sinergia+4,0,100);
     for(const m of MAP_POOL)t.mapPref[m]=clamp(Math.round((t.mapPref[m]||0)+gauss(0,2)),-8,8);
     autoEscalar(t);
   }

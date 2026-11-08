@@ -42,7 +42,10 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   elenco: [idJogador],        // 5 a 9
   titulares: [idJogador],     // exatamente 5
   igl: idJogador,
-  sinergia: 0..100,           // entrosamento; cai a cada troca de peça
+  sinergia: 0..100,           // entrosamento do time = média das duplas titulares (cache)
+  duplas: {'pA|pB': 0..100},  // entrosamento de cada dupla do elenco
+  seq: n,                     // sequência: +n vitórias, -n derrotas
+  atividade, atividadePar,    // atividade da semana no Vestiário (só o seu clube)
   staff:     {tecnico, analista, mental},        // 1..5
   estrutura: {gh, treino, academia},             // 1..5
   tatica:    {agres:1..5, foco, scrim:1..5, treino},
@@ -62,6 +65,7 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   contrato,                   // anos restantes; 0 após o offseason = sai
   salario, valor,             // derivados; recalculados a cada evolução
   moral, forma, fadiga,       // 0..1
+  confianca,                  // 0..1 — estado de jogo; mental = 60% confiança + 40% moral
   lesao,                      // semanas restantes
   igl: bool,
   timeId: id|null,

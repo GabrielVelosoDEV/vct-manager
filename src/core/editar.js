@@ -201,7 +201,10 @@ function edAplicarTime(tid,c){
   }
   if(c.caixa!=null)t.caixa=Math.round(parseFloat(c.caixa)||0);
   if(c.patroc!=null)t.patroc=Math.max(0,Math.round(parseFloat(c.patroc)||0));
-  if(c.sinergia!=null)t.sinergia=clamp(parseInt(c.sinergia)||t.sinergia,0,100);
+  if(c.sinergia!=null){
+    const v=clamp(parseInt(c.sinergia)||t.sinergia,0,100);
+    if(typeof definirSinergia==='function'&&Math.round(v)!==Math.round(t.sinergia))definirSinergia(t,v);else t.sinergia=v;
+  }
   if(c.staff)for(const k of ['tecnico','analista','mental'])
     if(c.staff[k]!=null)t.staff[k]=clamp(parseInt(c.staff[k])||1,1,5);
   if(c.estrutura)for(const k of ['gh','treino','academia'])

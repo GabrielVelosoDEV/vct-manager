@@ -20,6 +20,7 @@ let hist=[],histPos=-1; /* histórico das setas da topbar */
 const NAV=[
   ['inicio','Central','Clube','casa'],
   ['elenco','Elenco','Clube','elenco'],
+  ['vestiario','Vestiário','Clube','vestiario'],
   ['taticas','Táticas','Clube','tatica'],
   ['treino','Treino','Clube','base'],
   ['comps','Comps','Clube','tatica'],
@@ -49,6 +50,7 @@ const ICONES={
   banco:'<ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/>',
   engrenagem:'<circle cx="12" cy="12" r="3"/><path d="M12 3.2v2.6M12 18.2v2.6M4.6 7.6l2.3 1.3M17.1 15.1l2.3 1.3M4.6 16.4l2.3-1.3M17.1 8.9l2.3-1.3"/>',
   jogar:'<path d="M6.5 4.2 19.5 12 6.5 19.8z"/>',
+  vestiario:'<circle cx="7" cy="8.5" r="2.6"/><circle cx="17" cy="8.5" r="2.6"/><circle cx="12" cy="6" r="2.6"/><path d="M3 19c0-2.6 1.8-4.4 4-4.4M21 19c0-2.6-1.8-4.4-4-4.4M7.5 19.5c0-3 2-5.2 4.5-5.2s4.5 2.2 4.5 5.2"/>',
   disco:'<path d="M4 4h11.5L20 8.5V20H4z"/><path d="M8.5 4v5.5h7V6"/><circle cx="12" cy="15" r="2.4"/>',
   info:'<circle cx="12" cy="12" r="8.4"/><path d="M12 11.2v5.4"/><circle cx="12" cy="7.9" r="1"/>',
   saida:'<path d="M14 4.5H5v15h9"/><path d="M18.5 12H9.5"/><path d="M15.3 8.6 18.7 12l-3.4 3.4"/>',
@@ -90,7 +92,7 @@ function render(){
   pintarSide();pintarTop();
   const v=$('#view');
   const fn={inicio:vInicio,elenco:vElenco,taticas:vTaticas,treino:vTreino,comps:vComps,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
+            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();

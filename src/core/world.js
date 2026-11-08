@@ -188,5 +188,7 @@ function criarMundo(seedVal){
   semearHistoria();
   atribuirPatrocinios();
   for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+  /* entrosamento por dupla, semeado do número do clube (core/vestiario.js) */
+  if(typeof semearDuplas==='function')for(const id in G.times)semearDuplas(G.times[id]);
   return G;
 }

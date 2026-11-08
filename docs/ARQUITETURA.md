@@ -435,3 +435,25 @@ deixa o circuito idêntico com ou sem elas: resultados, caixa e títulos de
 `G.sedes[ano]`, então editar o catálogo de cidades não reescreve o passado.
 O troféu de Masters e Champions é uma variante por cidade (hash do slug), e o
 arquivo vai gravado na entrada do histórico.
+
+## Cabeça antes de perna, e entrosamento de dupla
+
+A condição do jogador tinha a proporção de um esporte físico: fadiga tirando
+até 22% e a moral mexendo 14%. Em `match.js` agora o desgaste pesa até 8% e o
+mental — 60% confiança (nova, `p.confianca`) e 40% moral — até 22%. As bases
+foram acertadas para um jogador típico render o mesmo de antes; o que muda é
+o que pesa. A confiança vive em `core/vestiario.js` e é determinística (não
+consome `rnd()`); tem piso de 0,3 para resultado sozinho, porque sem ele uma
+sequência ruim virava espiral.
+
+O entrosamento deixou de ser um número do clube e passou a ser de cada dupla
+(`t.duplas`). `t.sinergia` continua existindo, porque é o que `forcaTime` lê,
+mas virou cache: a média das dez duplas entre os titulares, recalculada em
+`autoEscalar`. Por isso os "−8 / −10 / −12" de contratar e vender saíram:
+quem chega tem duplas novas abaixo da média do time, e trocar um titular
+derruba o número sozinho. Saves antigos semeiam as duplas do número antigo
+(`semearDuplas`), e a média dos titulares fica exatamente onde estava.
+
+`tools/decisoes.mjs` restaura também confiança e sequência na foto dos gêmeos:
+sem isso quem perdia a primeira série entrava pior na seguinte e a referência
+de 50% caía para 12%.

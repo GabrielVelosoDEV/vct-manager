@@ -256,8 +256,10 @@ function semana(){
        o avanço era por rodada de torneio e o número de avanços por ano era
        aproximado. */
     t.caixa+= t.patroc/SEMANAS_ANO - (folha*12)/SEMANAS_ANO - custeio;
-    /* scrims: entrosamento sobe com a intensidade (neutro em 3) */
-    t.sinergia=clamp(t.sinergia+(t.tatica.scrim-3)*0.30,0,100);
+    /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
+       sequência de derrotas e a atividade da semana (core/vestiario.js) */
+    if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
+    else t.sinergia=clamp(t.sinergia+(t.tatica.scrim-3)*0.30,0,100);
     /* A IA escolhe o plano da semana antes de a semana ser aplicada; o seu
        clube usa o que VOCÊ deixou marcado na tela de Treino. */
     if(typeof planoIA==='function')planoIA(t);
@@ -306,6 +308,7 @@ function desenvolver(p,t){
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
   if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}
   p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004,.15,1);
+  if(typeof confiancaSemanal==='function')confiancaSemanal(t,p);
   /* burnout: fadiga acumulada cobra moral e abre risco de lesão */
   if(p.fadiga>0.82){
     p.moral=clamp(p.moral-0.022,.15,1);
@@ -391,7 +394,8 @@ function liberar(p){
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
   const t=G.times[p.timeId];
   if(t){t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);
-    t.sinergia=clamp(t.sinergia-12,0,100);autoEscalar(t);
+    if(typeof esquecerDuplas==='function')esquecerDuplas(t,p.id);else t.sinergia=clamp(t.sinergia-12,0,100);
+    autoEscalar(t);
     /* o plano de treino perde a linha dele agora, não na semana que vem: quem
        saiu no meio da semana ficava planejado até o próximo aplicarTreino, e a
        tela de Treino mostrava o nome de quem já não era do clube */
@@ -403,7 +407,8 @@ function contratar(p,time,anos,sal){
   if(p.timeId){origem=G.times[p.timeId];
     origem.elenco=origem.elenco.filter(x=>x!==p.id);
     origem.titulares=origem.titulares.filter(x=>x!==p.id);
-    origem.sinergia=clamp(origem.sinergia-10,0,100);autoEscalar(origem);
+    if(typeof esquecerDuplas==='function')esquecerDuplas(origem,p.id);else origem.sinergia=clamp(origem.sinergia-10,0,100);
+    autoEscalar(origem);
     if(typeof limparPlano==='function')limparPlano(origem);}
   G.livres=G.livres.filter(x=>x!==p.id);
   delete p.semLivre;
@@ -418,7 +423,10 @@ function contratar(p,time,anos,sal){
      acabara de contratá-lo. */
   delete p.anuncio;
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
-  time.elenco.push(p.id);time.sinergia=clamp(time.sinergia-8,0,100);autoEscalar(time);
+  time.elenco.push(p.id);
+  /* entrosamento: as duplas do recém-chegado começam abaixo da média do time */
+  if(typeof chegarAoElenco==='function')chegarAoElenco(time,p.id);else time.sinergia=clamp(time.sinergia-8,0,100);
+  autoEscalar(time);
   /* Quem vende repõe na hora. A trava mora AQUI, e não em cada tela que
      negocia, porque toda transferência do jogo passa por esta função — foi
      exatamente por não estar aqui que comprar de um clube com cinco jogadores

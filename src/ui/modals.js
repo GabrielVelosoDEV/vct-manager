@@ -81,7 +81,7 @@ function modalJogador(id){
     </div>
     <div class="card flat"><div class="eyebrow">Condição</div>
       <div class="gauges" style="justify-content:space-around;margin:4px 0 14px">
-        ${medidor('Forma',p.forma)}${medidor('Moral',p.moral)}${medidor('Descanso',1-p.fadiga)}
+        ${medidor('Forma',p.forma)}${medidor('Confiança',typeof confiancaDe==='function'?confiancaDe(p):0.6)}${medidor('Moral',p.moral)}${medidor('Descanso',1-p.fadiga)}
       </div>
       <div class="eyebrow">Mapas</div>
       <div class="mapa-tira">${mapasDe(p).map(x=>`

@@ -118,6 +118,8 @@ function autoEscalar(t){
   const cand=rs.slice().sort((a,b)=>b.at.lider-a.at.lider)[0];
   t.igl=cand?cand.id:null;
   t.elenco.forEach(id=>G.jogadores[id].igl=(id===t.igl));
+  /* o entrosamento do time é o dos cinco que jogam: mudou o cinco, muda ele */
+  if(typeof atualizarSinergia==='function'&&t.duplas)atualizarSinergia(t);
 }
 
 /* Diagnóstico para a interface e para os testes: o que a escalação atual
