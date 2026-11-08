@@ -43,6 +43,9 @@ function montarCalendario(){
   G.calendario=TEMPORADA.map(b=>Object.assign({stages:[]},b));
   G.semana=1;G.bloco=0;
   G.qual={masters1:[],masters2:[],champions:[]};
+  /* em que divisão cada clube COMEÇOU o ano: o Ascension troca a divisão antes
+     da virada, e a linha da temporada tem de dizer onde ele jogou */
+  for(const id in G.times)G.times[id].tierAno=G.times[id].tier;
   /* sedes do ano: sorteio próprio, fora do gerador do motor (core/sedes.js) */
   if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
   REGIONS.forEach(R=>{G.regioes[R.id].pontos={};G.regioes[R.id].t1.forEach(id=>G.regioes[R.id].pontos[id]=0);});

@@ -458,6 +458,7 @@ function registrarTransferencia(p,origem,dest,taxa,tipo){
   if(tipo!=='troca'&&tipo!=='emprestimo'&&typeof pagarRevenda==='function')pagarRevenda(p,origem,dest,taxa);
   /* verba da diretoria: o que entra no seu clube gasta, o que sai devolve parte */
   if(taxa>0&&typeof gastarVerba==='function'){gastarVerba(dest,taxa);if(origem)creditarVenda(origem,taxa);}
+  if(typeof conferirRecordeTransferencia==='function')conferirRecordeTransferencia(p,origem,dest,taxa);
   G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
     de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
   /* só as últimas temporadas: o save não precisa carregar a história inteira */

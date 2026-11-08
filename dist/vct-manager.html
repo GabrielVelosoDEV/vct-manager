@@ -1018,6 +1018,27 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 @media (max-width:700px){.lt-rot{width:70px}.lt-meses{margin-left:70px}.jg-linha{grid-template-columns:1fr 60px 1fr}.jg-linha .dim{display:none}}
 .sr-mapa-topo .dim{color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
 
+/* ---------- estatísticas do mundo e história do clube (pacote 4) ---------- */
+.mg-evs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:8px}
+.mg-ev{display:flex;flex-direction:column;gap:10px;min-height:110px;padding:14px;text-align:left;border:1px solid var(--line);
+  background-color:var(--panel2);color:var(--tx2);font:inherit;cursor:pointer}
+.mg-ev:hover{border-color:var(--tx2)}
+.mg-camp{display:flex;align-items:center;gap:10px;margin-top:auto}.mg-camp b{color:var(--tx);font-size:15px}
+.mg-clube{display:flex;gap:12px;align-items:center}.mg-clube b{color:var(--tx)}
+.mundo-filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.tit-ano{margin-top:14px}
+.tit-ano-n{font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;color:var(--tx);margin-bottom:6px}
+.titulo-item.meu{border-color:var(--red);background:var(--red-soft)}
+.titulo-item.abre{cursor:pointer}.titulo-item.abre:hover{border-color:var(--tx2)}
+.hc-temp{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hc-ano{font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;color:var(--tx);line-height:1}
+.hc-intl{font-size:12.5px;color:var(--tx);margin-top:3px}
+.hc-tits{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.hc-tit{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid rgba(200,148,58,.4);background:rgba(200,148,58,.1);
+  color:var(--tx);font-size:12px}
+.hc-el{font-size:11.5px;margin-top:3px}
+.hc-pre{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-bottom:1px solid var(--line)}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -7781,6 +7802,8 @@ function stageAplicar(s,res){
   if(typeof registrarConfronto==='function')
     registrarConfronto(aId,bId,vencedor,nomeStage(s)||s.id);
   if(typeof aplicarClassico==='function')aplicarClassico(vencedor,perdedor);
+  /* ranking mundial (core/estatisticas.js) */
+  if(typeof atualizarElo==='function')atualizarElo(s,res);
   if(s.tipo==='ko')s.elim.push(perdedor);
 }
 /* Depois de resolver uma rodada, já monta a próxima. É de propósito: assim a
@@ -7986,6 +8009,9 @@ function montarCalendario(){
   G.calendario=TEMPORADA.map(b=>Object.assign({stages:[]},b));
   G.semana=1;G.bloco=0;
   G.qual={masters1:[],masters2:[],champions:[]};
+  /* em que divisão cada clube COMEÇOU o ano: o Ascension troca a divisão antes
+     da virada, e a linha da temporada tem de dizer onde ele jogou */
+  for(const id in G.times)G.times[id].tierAno=G.times[id].tier;
   /* sedes do ano: sorteio próprio, fora do gerador do motor (core/sedes.js) */
   if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
   REGIONS.forEach(R=>{G.regioes[R.id].pontos={};G.regioes[R.id].t1.forEach(id=>G.regioes[R.id].pontos[id]=0);});
@@ -8371,6 +8397,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   /* semana que andou em turnos: o fechamento é o último terço do mercado */
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}
+  if(typeof fotoDoRanking==='function')fotoDoRanking();
   G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
@@ -9706,6 +9733,7 @@ function registrarTransferencia(p,origem,dest,taxa,tipo){
   if(tipo!=='troca'&&tipo!=='emprestimo'&&typeof pagarRevenda==='function')pagarRevenda(p,origem,dest,taxa);
   /* verba da diretoria: o que entra no seu clube gasta, o que sai devolve parte */
   if(taxa>0&&typeof gastarVerba==='function'){gastarVerba(dest,taxa);if(origem)creditarVenda(origem,taxa);}
+  if(typeof conferirRecordeTransferencia==='function')conferirRecordeTransferencia(p,origem,dest,taxa);
   G.transferencias.push({ano:G.ano,semana:G.semana,jogadorId:p.id,nome:p.nome,over:over(p),
     de:origem?origem.id:null,para:dest.id,taxa:taxa||0,tipo:tipo||'compra'});
   /* só as últimas temporadas: o save não precisa carregar a história inteira */
@@ -11292,6 +11320,122 @@ function podarHistorico(p){
 }
 
 
+/* ===== src/core/estatisticas.js ===== */
+/* ============================================================
+   ESTATÍSTICAS DO MUNDO — ranking, temporadas de cada clube e
+   recordes
+   ------------------------------------------------------------
+   Três registros novos, todos determinísticos (não tocam rnd):
+
+   RANKING MUNDIAL (t.elo): rating por resultado de série, como o
+   ranking da comunidade. Ganhar de quem está acima vale mais do que
+   ganhar de quem está abaixo; internacional pesa 1,5×; série
+   apertada mexe menos que atropelo. A cada quatro semanas o jogo
+   tira uma foto (G.eloHist), e é ela que mostra a evolução dos
+   últimos doze meses.
+
+   TEMPORADAS DO CLUBE (t.temporadas): na virada, cada clube guarda
+   uma linha da temporada — posição na liga, campanha, melhor
+   resultado internacional, títulos e o cinco que mais jogou. É a
+   linha do tempo da tela História.
+
+   RECORDES (G.recordes): o maior over já visto e a maior
+   transferência, que não dá para recalcular depois — quem fez o
+   recorde pode ter se aposentado e sumido do save.
+   ============================================================ */
+const ELO_K=20, ELO_INT=1.5, ELO_FOTO_SEMANAS=4, ELO_FOTOS=13;
+const TEMPORADAS_GUARDADAS=12, TEMPORADAS_GUARDADAS_MEU=40;
+
+function eloInicial(t){return Math.round(1200+(t.prestigio||50)*5);}
+function eloDe(t){if(typeof t.elo!=='number')t.elo=eloInicial(t);return t.elo;}
+function atualizarElo(s,res){
+  const A=G.times[res.aId],B=G.times[res.bId];if(!A||!B)return;
+  const ra=eloDe(A),rb=eloDe(B);
+  const esperado=1/(1+Math.pow(10,(rb-ra)/400));
+  const ganhouA=res.vencedor===A.id?1:0;
+  const margem=1+0.25*Math.max(0,Math.abs((res.wa||0)-(res.wb||0))-1);
+  const k=ELO_K*(s&&s.regiao==='INT'?ELO_INT:1)*margem;
+  const d=k*(ganhouA-esperado);
+  A.elo=Math.round((ra+d)*10)/10;B.elo=Math.round((rb-d)*10)/10;
+}
+function fotoDoRanking(){
+  if((G.semana||1)%ELO_FOTO_SEMANAS)return;
+  const v={};
+  for(const id in G.times)v[id]=Math.round(eloDe(G.times[id]));
+  (G.eloHist=G.eloHist||[]).push({ano:G.ano,s:G.semana,v});
+  if(G.eloHist.length>ELO_FOTOS)G.eloHist.shift();
+}
+function rankingMundial(){
+  return Object.values(G.times).slice().sort((a,b)=>eloDe(b)-eloDe(a));
+}
+/* posição de cada clube numa foto antiga, para a seta de subiu/desceu */
+function posicaoNaFoto(foto,id){
+  if(!foto)return null;
+  const ord=Object.keys(foto.v).sort((a,b)=>foto.v[b]-foto.v[a]);
+  const i=ord.indexOf(id);return i<0?null:i+1;
+}
+
+/* ---------- temporadas de cada clube ---------- */
+/* Melhor campanha internacional do ano, lida dos stages ainda vivos. */
+function campanhaInternacional(t){
+  const rot={masters1:'Masters',masters2:'Masters',champions:'Champions'};
+  let melhor=null;
+  for(const b of G.calendario||[])for(const s of b.stages||[]){
+    if(s.regiao!=='INT'||!(s.tipo==='de'||s.tipo==='ko'))continue;
+    const i=(s.ranking||[]).indexOf(t.id);
+    if(i<0)continue;
+    const peso=(s.torneioId==='champions'?100:50)-i;
+    const lugar=i===0?'campeão':i===1?'vice':i<=3?'top 4':i<=7?'top 8':'playoffs';
+    if(!melhor||peso>melhor.peso)melhor={peso,txt:(typeof nomeDoAno==='function'&&nomeDoAno(s.torneioId))||rot[s.torneioId]||'Internacional',lugar};
+  }
+  if(!melhor){
+    /* foi ao internacional e caiu antes dos playoffs */
+    for(const b of G.calendario||[])for(const s of b.stages||[])
+      if(s.regiao==='INT'&&(s.times||[]).includes(t.id))
+        return{txt:(typeof nomeDoAno==='function'&&nomeDoAno(s.torneioId))||'Internacional',lugar:'fase inicial'};
+  }
+  return melhor;
+}
+function posicaoNoAno(t){
+  const tier=t.tierAno||t.tier;
+  const liga=Object.values(G.times).filter(x=>x.regiao===t.regiao&&(x.tierAno||x.tier)===tier);
+  const camp=x=>{const c=x.temporada||{v:0,d:0,mv:0,md:0};return[c.v-c.d,(c.mv||0)-(c.md||0)];};
+  liga.sort((a,b)=>{const A=camp(a),B=camp(b);return B[0]-A[0]||B[1]-A[1];});
+  return{pos:liga.indexOf(t)+1,de:liga.length,tier};
+}
+function registrarTemporadaDoClube(t){
+  const pos=posicaoNoAno(t);
+  const intl=campanhaInternacional(t);
+  const tecnico=t.id===G.meuTime&&G.manager&&G.manager.nome?G.manager.nome
+    :(typeof membroDe==='function'&&membroDe(t,'tecnico')||{}).nome||null;
+  const subiu=t.tier<pos.tier,caiu=t.tier>pos.tier;
+  const linha={a:G.ano,tier:pos.tier,mov:subiu?'subiu':caiu?'caiu':null,p:pos.pos,de:pos.de,v:(t.temporada||{}).v||0,d:(t.temporada||{}).d||0,
+    i:intl?intl.txt+' · '+intl.lugar:null,
+    t:(t.titulos||[]).filter(x=>parseInt(x)===G.ano).map(x=>x.split(' · ').slice(1).join(' · ')),
+    e:(t.titulares||[]).map(id=>G.jogadores[id]&&G.jogadores[id].nome).filter(Boolean),
+    c:tecnico,elo:Math.round(eloDe(t))};
+  (t.temporadas=t.temporadas||[]).push(linha);
+  const max=t.id===G.meuTime?TEMPORADAS_GUARDADAS_MEU:TEMPORADAS_GUARDADAS;
+  if(t.temporadas.length>max)t.temporadas.splice(0,t.temporadas.length-max);
+}
+
+/* ---------- recordes ---------- */
+function recordes(){return G.recordes||(G.recordes={});}
+function conferirRecordeOver(){
+  const r=recordes();
+  for(const id in G.jogadores){
+    const p=G.jogadores[id],o=over(p);
+    if(!r.over||o>r.over.v)r.over={v:o,nome:p.nome,ano:G.ano,time:p.timeId?G.times[p.timeId].tag:'—'};
+  }
+}
+function conferirRecordeTransferencia(p,origem,dest,taxa){
+  if(!taxa)return;
+  const r=recordes();
+  if(!r.transferencia||taxa>r.transferencia.v)
+    r.transferencia={v:taxa,nome:p.nome,ano:G.ano,de:origem?origem.tag:'livre',para:dest.tag};
+}
+
+
 /* ===== src/core/cartas.js ===== */
 /* ============================================================
    CARTAS DO JOGADOR — a moldura muda com a faixa de over
@@ -12194,6 +12338,10 @@ function fimDeTemporada(){
   /* os prêmios leem os elencos como a temporada terminou: antes de o
      empréstimo voltar e de alguém se aposentar */
   if(typeof premiarTemporada==='function')premiarTemporada();
+  /* a linha da temporada de cada clube e o recorde de over: antes de
+     empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
+  if(typeof registrarTemporadaDoClube==='function')for(const id in G.times)registrarTemporadaDoClube(G.times[id]);
+  if(typeof conferirRecordeOver==='function')conferirRecordeOver();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
@@ -14858,7 +15006,7 @@ const NAV=[
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
-  ['stats','Líderes','Circuito','grafico'],
+  ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
   ['mercado','Mercado','Gestão','troca'],
@@ -14926,7 +15074,7 @@ function render(){
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
+            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
@@ -16445,24 +16593,7 @@ function vFinancas(){
     <p class="dim" style="margin-top:8px">Os valores saem do catálogo de torneios e são editáveis
     no Banco de dados › Torneios.</p></div>`;
 }
-function vStats(){
-  const jog=Object.values(G.jogadores).filter(p=>p.temp.maps>=3);
-  const rating=p=>((p.temp.k+p.temp.a*.35)/Math.max(1,p.temp.d));
-  const tabs=[['acs','ACS médio',p=>Math.round(p.temp.acs/p.temp.maps)],
-    ['kd','K/D',p=>(p.temp.k/Math.max(1,p.temp.d)).toFixed(2)],
-    ['fk','First kills',p=>p.temp.fk],['cl','Clutches',p=>p.temp.cl],['mvp','MVPs',p=>p.temp.mvp]];
-  return `<div class="eyebrow">Temporada ${G.ano}</div><h2 class="sec">Líderes</h2>
-  <div class="grid g2">${tabs.map(([k,n,f])=>{
-    const top=jog.slice().sort((a,b)=>parseFloat(f(b))-parseFloat(f(a))).slice(0,10);
-    return `<div class="card flat"><div class="eyebrow">${n}</div><table><tbody>${top.map((p,i)=>
-      `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
-      <td><b>${esc(p.nome)}</b> <span class="dim">${p.timeId?esc(tagT(p.timeId)):''}</span></td>
-      <td class="r num"><b>${f(p)}</b></td></tr>`).join('')||'<tr><td class="dim">Sem dados ainda.</td></tr>'}</tbody></table></div>`;
-  }).join('')}</div>
-  <div class="card flat"><div class="eyebrow">Galeria de títulos</div>
-    <table><thead><tr><th class="c">Ano</th><th>Competição</th><th>Campeão</th></tr></thead>
-    <tbody>${G.historico.slice().reverse().slice(0,40).map(h=>`<tr><td class="c num">${h.ano}</td><td>${esc(h.evento)}</td><td><b>${esc(h.campeao)}</b></td></tr>`).join('')||'<tr><td class="dim">Ainda sem títulos registrados.</td></tr>'}</tbody></table></div>`;
-}
+/* Líderes virou Estatísticas do mundo: ui/mundo.js */
 /* ============================================================
    PRÊMIOS E HALL DA FAMA
    ============================================================ */
@@ -16577,10 +16708,30 @@ function vHistoria(){
       <td class="c num ${saldo>0?'up':saldo<0?'dn':''}">${saldo>0?'+':''}${saldo}</td>
       <td class="c"><span class="serie">${ult}</span></td></tr>`;};
 
-  /* o mundo lembra de campeões que já não competem: é o que faz a linha do
-     tempo parecer que aconteceu, em vez de começar em 2027 do nada */
-  const pre=(G.historico||[]).filter(h=>h.pre);
-  const anos=[...new Set(pre.map(h=>h.ano))].sort((a,b)=>b-a);
+  /* Linha do tempo do clube: uma linha por temporada jogada na carreira
+     (core/estatisticas.js grava na virada) e, antes dela, os títulos reais
+     do clube na pré-história. A galeria do mundo foi para Estatísticas. */
+  const temps=(t.temporadas||[]).slice().reverse();
+  const preDoClube=(G.historico||[]).filter(h=>h.pre&&(h.campeao===t.nome||(typeof acharClubePorNome==='function'&&acharClubePorNome(h.campeao)===t)));
+  const linhaTemp=x=>`<div class="hc-temp">
+      <div class="hc-ano">${x.a}</div>
+      <div class="hc-corpo">
+        <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
+          <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
+          ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
+        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
+        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
+        <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
+      </div></div>`;
+  /* lendas do clube: quem mais vestiu a camisa, entre os que ainda estão no
+     save (o histórico por temporada de cada jogador) e o Hall da Fama */
+  const porClube=Object.values(G.jogadores).map(p=>{
+    const hs=(p.hist||[]).filter(h=>h.time===t.nome);
+    const atual=p.timeId===t.id?1:0;
+    return{p,anos:hs.length+atual,maps:hs.reduce((s,h)=>s+(h.maps||0),0)+(atual?p.temp.maps:0)};
+  }).filter(x=>x.anos>=1&&x.maps>0).sort((a,b)=>b.maps-a.maps).slice(0,8);
+  const hall=(G.lendas||[]).filter(l=>(l.clubes||[]).includes(t.nome));
+  const casa=typeof reveladosPelaCasa==='function'?reveladosPelaCasa(t).slice(0,6):[];
 
   return `<div class="eyebrow">Clube</div><h2 class="sec">História</h2>
 
@@ -16615,25 +16766,37 @@ function vHistoria(){
     </div>
   </div>
 
+
+  <div class="grid g2">
+    <div class="card"><div class="eyebrow">Linha do tempo do clube</div>
+      ${temps.length?temps.map(linhaTemp).join(''):'<div class="empty">A primeira temporada entra aqui na virada do ano.</div>'}
+      ${preDoClube.length?`<div class="eyebrow" style="margin-top:14px">Antes da carreira · títulos reais</div>
+        ${preDoClube.slice().reverse().map(h=>`<div class="hc-pre">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),16,h.evento)}
+          <span class="num dim">${h.ano}</span> ${esc(h.evento)}</div>`).join('')}`:''}
+      <button class="btn ghost sm" data-irmundo="titulos" style="margin-top:10px">Galeria de títulos do mundo ›</button>
+    </div>
+    <div>
+      <div class="card"><div class="eyebrow">Lendas do clube</div>
+        ${porClube.length?`<table><thead><tr><th>Jogador</th><th class="c">Temporadas</th><th class="r">Mapas pelo clube</th></tr></thead><tbody>
+          ${porClube.map(x=>`<tr class="jrow" data-p="${x.p.id}"><td>${retrato(x.p,22)} <b>${esc(x.p.nome)}</b>
+            ${x.p.timeId===t.id?'':' <span class="dim">'+(x.p.timeId?esc(tagT(x.p.timeId)):'livre')+'</span>'}</td>
+            <td class="c num">${x.anos}</td><td class="r num">${x.maps}</td></tr>`).join('')}</tbody></table>`
+          :'<div class="empty">Ainda ninguém com história no clube.</div>'}
+        ${hall.length?`<div class="eyebrow" style="margin-top:12px">No Hall da Fama</div>${hall.map(l=>`<div class="hc-pre">🏛 <b>${esc(l.nome)}</b>
+          <span class="dim">${l.carreira.titulos} títulos · aposentou em ${l.ano}</span></div>`).join('')}`:''}
+      </div>
+      ${casa.length?`<div class="card"><div class="eyebrow">Revelados pela casa</div>
+        ${casa.map(p=>`<div class="hc-pre jrow" data-p="${p.id}" style="cursor:pointer">${retrato(p,22)} <b>${esc(p.nome)}</b>
+          <span class="ov ${ovClass(over(p))}">${over(p)}</span> <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></div>`).join('')}</div>`:''}
+    </div>
+  </div>
+  </div>
   <div class="card"><div class="eyebrow">Confronto direto · ${conf.length} adversários</div>
     ${conf.length?`<div class="rolagem"><table class="wide"><thead><tr><th></th><th>Adversário</th>
       <th class="c">J</th><th class="c">V</th><th class="c">D</th><th class="c">Saldo</th>
       <th class="c">Últimos</th></tr></thead>
       <tbody>${conf.map(linhaConf).join('')}</tbody></table></div>`
       :'<div class="empty">Nenhuma partida disputada ainda nesta run.</div>'}
-  </div>
-
-  <div class="card"><div class="eyebrow">Antes de você · o circuito de 2021 a 2026</div>
-    <p class="dim">Resultados reais. Alguns campeões já não competem — o circuito
-    lembra deles mesmo assim.</p>
-    ${anos.map(a=>`<div class="ano-bloco"><div class="ano-rot num">${a}</div>
-      <table><tbody>${pre.filter(h=>h.ano===a).map(h=>{
-        const c=acharClubePorNome(h.campeao);
-        return `<tr>
-          <td class="dim">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),14,h.evento)} ${esc(h.evento)}</td>
-          <td>${c?escudo(c,20):''} <b>${esc(h.campeao)}</b>${c?'':' <span class="dim">(não compete mais)</span>'}</td>
-          <td class="dim r">${h.vice?'vice: '+esc(h.vice):''}</td></tr>`;}).join('')}
-      </tbody></table></div>`).join('')}
   </div>`;
 }
 
@@ -17186,6 +17349,179 @@ function ligarCompeticoes(v,on){
   on('[data-csaba]',el=>{compSelAba=el.dataset.csaba;render();});
   on('#compVoltar',()=>{compSel=null;render();});
   on('[data-serie]',el=>{const k=el.dataset.serie;if(k&&!/\|$/.test(k))modalSerie(k);});
+}
+
+
+/* ===== src/ui/mundo.js ===== */
+/* ============================================================
+   CIRCUITO › ESTATÍSTICAS DO MUNDO (era Líderes)
+   Visão geral, líderes, títulos de 2021 até hoje, recordes e o
+   ranking mundial. As contas novas moram em core/estatisticas.js.
+   ============================================================ */
+let mundoAba='geral', lidEscopo='temp', lidRegiao='todas', lidFuncao='todas', titFiltro='todos';
+
+function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
+function linhaJogadorMini(p,valor,i,extra){
+  return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
+    <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
+    ${extra||''}<td class="r num"><b>${valor}</b></td></tr>`;
+}
+
+/* ---------- visão geral ---------- */
+function mundoGeral(){
+  const evs=typeof eventosDoAno==='function'?eventosDoAno():[];
+  const intl=evs.filter(e=>e.regiao==='INT');
+  const jog=Object.values(G.jogadores).filter(p=>p.timeId&&p.temp.maps>=8);
+  const nota=p=>(p.temp.acs/p.temp.maps)*Math.min(1.6,p.temp.k/Math.max(1,p.temp.d));
+  const destaque=jog.slice().sort((a,b)=>nota(b)-nota(a))[0];
+  const rk=rankingMundial();
+  const foto=(G.eloHist||[]).length>3?G.eloHist[G.eloHist.length-4]:null;
+  const subida=foto?rk.map(t=>({t,d:eloDe(t)-(foto.v[t.id]||eloDe(t))})).sort((a,b)=>b.d-a.d)[0]:null;
+  const seq=Object.values(G.times).slice().sort((a,b)=>(b.seq||0)-(a.seq||0))[0];
+  const cards=intl.map(e=>{const c=e.campeao?G.times[e.campeao]:null;
+    return `<button class="mg-ev" data-evento="${esc(e.id)}" ${typeof sedeDe==='function'&&sedeDe(e.id)?`style="${fundoCidade(sedeDe(e.id).slug,0.55)}"`:''}>
+      <div class="eyebrow">${esc(e.nome)}</div>
+      ${c?`<div class="mg-camp">${imgTrofeu(arquivoTrofeu(e.id),40,'Troféu')}${escudo(c,32)}<b>${esc(c.nome)}</b></div>`
+        :`<div class="dim">${e.status==='andamento'?'Em disputa':'Começa em '+rotuloPeriodo(G.ano,e.ini,e.fim)}</div>`}</button>`;}).join('');
+  return `<div class="eyebrow" style="margin-top:6px">Internacionais de ${G.ano}</div>
+  <div class="mg-evs">${cards}</div>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card mg-dest">${destaque?`<div class="eyebrow">Melhor jogador da temporada</div>
+      <div style="display:flex;gap:14px;align-items:center">${typeof cartaJogador==='function'?cartaJogador(destaque,{w:110}):retrato(destaque,60)}
+      <div><b class="jrow" data-p="${destaque.id}" style="cursor:pointer;font-size:18px">${esc(destaque.nome)}</b>
+        <div class="dim">${esc(tagT(destaque.timeId))} · ${esc(destaque.role)}</div>
+        <div class="num" style="margin-top:6px">${Math.round(destaque.temp.acs/destaque.temp.maps)} ACS · ${(destaque.temp.k/Math.max(1,destaque.temp.d)).toFixed(2)} K/D</div>
+        <div class="dim">${destaque.temp.maps} mapas · ${destaque.temp.mvp} MVPs</div></div></div>`
+      :'<div class="eyebrow">Melhor jogador da temporada</div><div class="empty">Poucos mapas jogados ainda.</div>'}</div>
+    <div class="card"><div class="eyebrow">Clube em melhor fase</div>
+      ${subida&&subida.d>0?`<div class="mg-clube">${escudo(subida.t,40)}<div><b>${esc(subida.t.nome)}</b>
+        <div class="up num">+${Math.round(subida.d)} no ranking em 12 semanas</div></div></div>`:'<div class="dim">O ranking ainda está se formando.</div>'}
+      ${seq&&(seq.seq||0)>=3?`<div class="mg-clube" style="margin-top:12px">${escudo(seq,40)}<div><b>${esc(seq.nome)}</b>
+        <div class="num">${seq.seq} vitórias seguidas</div></div></div>`:''}</div>
+    <div class="card"><div class="eyebrow">Top 5 do ranking mundial</div>
+      <table><tbody>${rk.slice(0,5).map((t,i)=>`<tr class="${t.id===G.meuTime?'me':''}"><td class="num dim">${i+1}</td>
+        <td>${timeInline(t.id,20)}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td></tr>`).join('')}</tbody></table>
+      <button class="btn ghost sm" data-mundo="ranking" style="margin-top:8px">Ver o ranking inteiro</button></div>
+  </div>`;
+}
+
+/* ---------- líderes ---------- */
+function mundoLideres(){
+  const car=lidEscopo==='carreira';
+  const base=p=>car?p.carreira:p.temp;
+  const minMaps=car?40:3;
+  const jog=Object.values(G.jogadores).filter(p=>{
+    const b=base(p);if(!b||(b.maps||0)<minMaps)return false;
+    if(lidFuncao!=='todas'&&p.role!==lidFuncao)return false;
+    if(lidRegiao!=='todas'){const t=p.timeId&&G.times[p.timeId];if(!t||t.regiao!==lidRegiao)return false;}
+    return true;});
+  const tabs=[['ACS médio',p=>base(p).acs/base(p).maps,v=>Math.round(v)],
+    ['K/D',p=>base(p).k/Math.max(1,base(p).d),v=>v.toFixed(2)],
+    ['MVPs',p=>base(p).mvp||0,v=>v],
+    [car?'Mapas':'First kills',p=>car?base(p).maps:(base(p).fk||0),v=>v],
+    [car?'Títulos':'Clutches',p=>car?(base(p).titulos||0):(base(p).cl||0),v=>v]];
+  const sel=(id,val,ops)=>`<select data-lidf="${id}">${ops.map(([k,n])=>`<option value="${k}" ${val===k?'selected':''}>${n}</option>`).join('')}</select>`;
+  return `<div class="mundo-filtros">
+    ${sel('escopo',lidEscopo,[['temp','Temporada '+G.ano],['carreira','Carreira inteira']])}
+    ${sel('regiao',lidRegiao,[['todas','Todas as regiões'],...REGIONS.map(r=>[r.id,r.nome])])}
+    ${sel('funcao',lidFuncao,[['todas','Todas as funções'],...ROLES.map(r=>[r,r])])}
+    <span class="dim">${jog.length} jogadores com ${minMaps}+ mapas</span></div>
+  <div class="grid g2">${tabs.map(([rot,f,fmt])=>{
+    const top=jog.slice().sort((a,b)=>f(b)-f(a)).slice(0,10);
+    return `<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${
+      top.map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i)).join('')||'<tr><td class="dim">Sem dados.</td></tr>'}</tbody></table></div>`;}).join('')}</div>`;
+}
+
+/* ---------- títulos ---------- */
+function mundoTitulos(){
+  const h=(G.historico||[]).filter(x=>x&&x.evento);
+  const filtra=x=>titFiltro==='todos'||titFiltro==='INT'&&ehInternacional(x.evento)
+    ||titFiltro!=='INT'&&!ehInternacional(x.evento)&&(REGIONS.find(r=>r.id===titFiltro)||{}).nome
+      &&(x.evento.includes(REGIONS.find(r=>r.id===titFiltro).nome)||x.evento.includes(REGIONS.find(r=>r.id===titFiltro).nome.replace('VCT ',''))
+         ||x.evento.includes(REGIONS.find(r=>r.id===titFiltro).t2));
+  const anos=[...new Set(h.map(x=>x.ano))].sort((a,b)=>b-a);
+  const filtros=[['todos','Todos'],['INT','Internacionais'],...REGIONS.map(r=>[r.id,r.nome.replace('VCT ','')])];
+  return `<div class="tabs" style="margin-top:4px">${filtros.map(([k,n])=>`<button data-titf="${k}" class="${titFiltro===k?'on':''}">${n}</button>`).join('')}</div>
+  <p class="dim">Do primeiro Masters de 2021 até hoje: a pré-história real e a sua carreira na mesma galeria.
+  Títulos da temporada em curso abrem a página do torneio.</p>
+  ${anos.map(a=>{const l=h.filter(x=>x.ano===a&&filtra(x));if(!l.length)return '';
+    return `<div class="tit-ano"><div class="tit-ano-n">${a}${a<2027?' <span class="dim">· real</span>':''}</div>
+      <div class="titulo-lista">${l.map(x=>{const c=(x.timeId&&G.times[x.timeId])||(typeof acharClubePorNome==='function'?acharClubePorNome(x.campeao):null);
+        const ev=x.ano===G.ano&&x.torneioId?` data-evento="${esc(x.torneioId)}"`:'';
+        return `<div class="titulo-item ${c&&c.id===G.meuTime?'meu':''} ${ev?'abre':''}"${ev}>${imgTrofeu(trofeuDoTitulo(x.ano,x.evento),30,x.evento)}
+          <div><div class="ev">${esc(x.evento)}</div>
+          <div class="ano">${c?escudo(c,14)+' ':''}${esc(x.campeao)}${x.vice?' · vice '+esc(x.vice):''}</div></div></div>`;}).join('')}</div></div>`;}).join('')}`;
+}
+
+/* ---------- recordes ---------- */
+function mundoRecordes(){
+  const ts=Object.values(G.times);
+  const conta=(t,re)=>(t.titulos||[]).filter(x=>re.test(x)).length;
+  const topT=(f,n)=>ts.map(t=>({t,v:f(t)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,n||5);
+  const vivos=Object.values(G.jogadores);
+  const lendas=G.lendas||[];
+  const titJog=[...vivos.map(p=>({nome:p.nome,v:p.carreira.titulos||0,p})),...lendas.map(l=>({nome:l.nome,v:l.carreira.titulos||0,lenda:true}))]
+    .sort((a,b)=>b.v-a.v).slice(0,5);
+  const carreira=[...vivos.map(p=>({nome:p.nome,v:p.carreira.maps||0,p})),...lendas.map(l=>({nome:l.nome,v:l.carreira.maps||0,lenda:true}))]
+    .sort((a,b)=>b.v-a.v).slice(0,5);
+  const r=recordes();
+  const bloco=(rot,linhas)=>`<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${linhas||'<tr><td class="dim">—</td></tr>'}</tbody></table></div>`;
+  const lt=(l,f)=>l.map((x,i)=>`<tr class="${x.t&&x.t.id===G.meuTime?'me':''}"><td class="num dim">${i+1}</td><td>${f(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('');
+  return `<div class="grid g3">
+    <div class="kpi gold"><div class="lb">Maior over já registrado</div><div class="vl">${r.over?r.over.v:'—'}</div>
+      <div class="sb">${r.over?esc(r.over.nome)+' · '+esc(r.over.time)+' · '+r.over.ano:'conferido a cada virada de temporada'}</div></div>
+    <div class="kpi"><div class="lb">Maior transferência</div><div class="vl">${r.transferencia?money(r.transferencia.v):'—'}</div>
+      <div class="sb">${r.transferencia?esc(r.transferencia.nome)+' · '+esc(r.transferencia.de)+' → '+esc(r.transferencia.para)+' · '+r.transferencia.ano:'nenhuma ainda nesta carreira'}</div></div>
+    <div class="kpi"><div class="lb">Hall da Fama</div><div class="vl">${lendas.length}</div><div class="sb">lendas aposentadas</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:12px">
+    ${bloco('Mais títulos por clube',lt(topT(t=>(t.titulos||[]).length),x=>timeInline(x.t.id,18)))}
+    ${bloco('Mais títulos de Champions',lt(topT(t=>conta(t,/Champions/)),x=>timeInline(x.t.id,18)))}
+    ${bloco('Mais títulos de Masters',lt(topT(t=>conta(t,/Masters/)),x=>timeInline(x.t.id,18)))}
+    ${bloco('Mais títulos por jogador',lt(titJog,x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`))}
+    ${bloco('Carreira mais longa (mapas)',lt(carreira,x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`))}
+    ${bloco('Mais vices',lt(topT(t=>t.vices||0),x=>timeInline(x.t.id,18)))}
+  </div>`;
+}
+
+/* ---------- ranking mundial ---------- */
+function sparkElo(id){
+  const vals=(G.eloHist||[]).map(f=>f.v[id]).filter(v=>typeof v==='number');
+  if(vals.length<2)return '';
+  const w=90,h=22,min=Math.min(...vals),max=Math.max(...vals,min+1);
+  const d=vals.map((v,i)=>(i?'L':'M')+(i/(vals.length-1)*(w-2)+1).toFixed(1)+' '+(h-1-(v-min)/(max-min)*(h-2)).toFixed(1)).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none"
+    stroke="${vals[vals.length-1]>=vals[0]?'var(--teal)':'var(--red)'}" stroke-width="1.5"/></svg>`;
+}
+function mundoRanking(){
+  const rk=rankingMundial();
+  const foto=(G.eloHist||[])[0]||null;
+  return `<p class="dim">Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
+  atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.</p>
+  <div class="card flat"><table class="wide"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
+    <th class="c">Variação</th><th>12 meses</th></tr></thead><tbody>
+  ${rk.map((t,i)=>{const pa=posicaoNaFoto(foto,t.id),dv=pa?pa-(i+1):0;
+    return `<tr class="${t.id===G.meuTime?'me':''}"><td class="num">${i+1}</td><td>${timeInline(t.id,20)}</td>
+      <td class="dim">${esc(nomeLiga(t))}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
+      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
+  </tbody></table></div>`;
+}
+
+function vMundo(){
+  const abas=[['geral','Visão geral'],['lideres','Líderes'],['titulos','Títulos'],['recordes','Recordes'],['ranking','Ranking mundial']];
+  const corpo=mundoAba==='lideres'?mundoLideres():mundoAba==='titulos'?mundoTitulos()
+    :mundoAba==='recordes'?mundoRecordes():mundoAba==='ranking'?mundoRanking():mundoGeral();
+  return `<div class="eyebrow">Circuito</div><h2 class="sec">Estatísticas do mundo</h2>
+  <div class="tabs">${abas.map(([k,n])=>`<button data-mundo="${k}" class="${mundoAba===k?'on':''}">${n}</button>`).join('')}</div>
+  ${corpo}`;
+}
+function ligarMundo(v,on){
+  on('[data-mundo]',el=>{mundoAba=el.dataset.mundo;render();});
+  on('[data-irmundo]',el=>{mundoAba=el.dataset.irmundo;irPara('stats');});
+  on('[data-titf]',el=>{titFiltro=el.dataset.titf;render();});
+  v.querySelectorAll('[data-lidf]').forEach(el=>el.onchange=()=>{
+    const k=el.dataset.lidf;if(k==='escopo')lidEscopo=el.value;else if(k==='regiao')lidRegiao=el.value;else lidFuncao=el.value;render();});
+  v.querySelectorAll('.mg-dest .jrow').forEach(el=>el.onclick=()=>modalJogador(el.dataset.p));
 }
 
 
@@ -20295,6 +20631,7 @@ function ligarEventos(){
   const on=(sel,f)=>v.querySelectorAll(sel).forEach(el=>el.onclick=e=>{e.stopPropagation();f(el);});
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
   if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
+  if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por

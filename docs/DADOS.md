@@ -21,6 +21,8 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
 | `calendario` | `[Bloco]` | temporada montada |
 | `mapasAtivos` | `[string]` | rotação de mapas; hoje é o `MAP_POOL` inteiro |
 | (stage) `resultados[]` | `{a,b,wa,wb,v,mapa,n,rd,sem,det}` | série jogada; `det` = veto, mapas `{m,a,b,l,st}` e MVP, com `st` em texto `id:k,d,a,acs\|…` |
+| `eloHist` | `[{ano,s,v:{id:rating}}]` | foto do ranking mundial a cada 4 semanas, últimas 13 |
+| `recordes` | `{over, transferencia}` | recordes que não dá para recalcular depois |
 | `torneios` | `{id: Torneio}` | catálogo das 27 competições (uma por evento), editável |
 | `cidades` | `[Cidade]` | as cidades-sede de Masters e Champions, semeadas de `data/sedes.js`, editáveis |
 | `sedes` | `{ano: {masters1, masters2, champions}}` | sede sorteada de cada ano (slug da cidade) |
@@ -46,6 +48,9 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   sinergia: 0..100,           // entrosamento do time = média das duplas titulares (cache)
   duplas: {'pA|pB': 0..100},  // entrosamento de cada dupla do elenco
   seq: n,                     // sequência: +n vitórias, -n derrotas
+  elo,                        // rating do ranking mundial
+  tierAno,                    // divisão em que começou a temporada
+  temporadas: [{a,tier,mov,p,de,v,d,i,t,e,c,elo}], // linha de cada temporada (12; o seu clube, 40)
   atividade, atividadePar,    // atividade da semana no Vestiário (só o seu clube)
   staff:     {tecnico, analista, mental},        // 1..5
   estrutura: {gh, treino, academia},             // 1..5

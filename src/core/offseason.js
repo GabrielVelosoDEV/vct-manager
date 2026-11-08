@@ -98,6 +98,10 @@ function fimDeTemporada(){
   /* os prêmios leem os elencos como a temporada terminou: antes de o
      empréstimo voltar e de alguém se aposentar */
   if(typeof premiarTemporada==='function')premiarTemporada();
+  /* a linha da temporada de cada clube e o recorde de over: antes de
+     empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
+  if(typeof registrarTemporadaDoClube==='function')for(const id in G.times)registrarTemporadaDoClube(G.times[id]);
+  if(typeof conferirRecordeOver==='function')conferirRecordeOver();
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();

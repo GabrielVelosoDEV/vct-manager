@@ -171,6 +171,8 @@ function stageAplicar(s,res){
   if(typeof registrarConfronto==='function')
     registrarConfronto(aId,bId,vencedor,nomeStage(s)||s.id);
   if(typeof aplicarClassico==='function')aplicarClassico(vencedor,perdedor);
+  /* ranking mundial (core/estatisticas.js) */
+  if(typeof atualizarElo==='function')atualizarElo(s,res);
   if(s.tipo==='ko')s.elim.push(perdedor);
 }
 /* Depois de resolver uma rodada, já monta a próxima. É de propósito: assim a

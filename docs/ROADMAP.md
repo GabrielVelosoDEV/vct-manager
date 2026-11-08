@@ -170,6 +170,18 @@
   fica enxuta no save (≈380 KB no fim do ano) e a linha dos jogadores só
   nas séries do seu clube, internacionais e de playoffs.
 
+- **Estatísticas do mundo e História do clube** (pacote 4): Líderes virou
+  Circuito › Estatísticas, com visão geral (internacionais do ano, melhor
+  jogador da temporada, clube em melhor fase, top 5), líderes com filtro de
+  temporada/carreira, região e função, galeria de títulos de 2021 até hoje
+  que se atualiza a cada título, recordes (maior over, maior transferência,
+  mais títulos por clube e por jogador, Champions, Masters, carreira mais
+  longa, vices) e ranking mundial por rating de resultado, com variação e
+  evolução de doze meses. A História ficou só do clube: linha do tempo por
+  temporada (posição, campanha, internacional, títulos, elenco, técnico,
+  acesso e rebaixamento), títulos reais de antes da carreira, lendas,
+  Hall da Fama e revelados da casa.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

@@ -25,7 +25,7 @@ const NAV=[
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
-  ['stats','Líderes','Circuito','grafico'],
+  ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
   ['mercado','Mercado','Gestão','troca'],
@@ -93,7 +93,7 @@ function render(){
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vStats,premios:vPremios,news:vNews,
+            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela];
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();

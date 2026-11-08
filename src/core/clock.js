@@ -197,6 +197,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   /* semana que andou em turnos: o fechamento é o último terço do mercado */
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}
+  if(typeof fotoDoRanking==='function')fotoDoRanking();
   G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se

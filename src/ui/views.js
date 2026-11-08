@@ -994,24 +994,7 @@ function vFinancas(){
     <p class="dim" style="margin-top:8px">Os valores saem do catálogo de torneios e são editáveis
     no Banco de dados › Torneios.</p></div>`;
 }
-function vStats(){
-  const jog=Object.values(G.jogadores).filter(p=>p.temp.maps>=3);
-  const rating=p=>((p.temp.k+p.temp.a*.35)/Math.max(1,p.temp.d));
-  const tabs=[['acs','ACS médio',p=>Math.round(p.temp.acs/p.temp.maps)],
-    ['kd','K/D',p=>(p.temp.k/Math.max(1,p.temp.d)).toFixed(2)],
-    ['fk','First kills',p=>p.temp.fk],['cl','Clutches',p=>p.temp.cl],['mvp','MVPs',p=>p.temp.mvp]];
-  return `<div class="eyebrow">Temporada ${G.ano}</div><h2 class="sec">Líderes</h2>
-  <div class="grid g2">${tabs.map(([k,n,f])=>{
-    const top=jog.slice().sort((a,b)=>parseFloat(f(b))-parseFloat(f(a))).slice(0,10);
-    return `<div class="card flat"><div class="eyebrow">${n}</div><table><tbody>${top.map((p,i)=>
-      `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
-      <td><b>${esc(p.nome)}</b> <span class="dim">${p.timeId?esc(tagT(p.timeId)):''}</span></td>
-      <td class="r num"><b>${f(p)}</b></td></tr>`).join('')||'<tr><td class="dim">Sem dados ainda.</td></tr>'}</tbody></table></div>`;
-  }).join('')}</div>
-  <div class="card flat"><div class="eyebrow">Galeria de títulos</div>
-    <table><thead><tr><th class="c">Ano</th><th>Competição</th><th>Campeão</th></tr></thead>
-    <tbody>${G.historico.slice().reverse().slice(0,40).map(h=>`<tr><td class="c num">${h.ano}</td><td>${esc(h.evento)}</td><td><b>${esc(h.campeao)}</b></td></tr>`).join('')||'<tr><td class="dim">Ainda sem títulos registrados.</td></tr>'}</tbody></table></div>`;
-}
+/* Líderes virou Estatísticas do mundo: ui/mundo.js */
 /* ============================================================
    PRÊMIOS E HALL DA FAMA
    ============================================================ */
@@ -1126,10 +1109,30 @@ function vHistoria(){
       <td class="c num ${saldo>0?'up':saldo<0?'dn':''}">${saldo>0?'+':''}${saldo}</td>
       <td class="c"><span class="serie">${ult}</span></td></tr>`;};
 
-  /* o mundo lembra de campeões que já não competem: é o que faz a linha do
-     tempo parecer que aconteceu, em vez de começar em 2027 do nada */
-  const pre=(G.historico||[]).filter(h=>h.pre);
-  const anos=[...new Set(pre.map(h=>h.ano))].sort((a,b)=>b-a);
+  /* Linha do tempo do clube: uma linha por temporada jogada na carreira
+     (core/estatisticas.js grava na virada) e, antes dela, os títulos reais
+     do clube na pré-história. A galeria do mundo foi para Estatísticas. */
+  const temps=(t.temporadas||[]).slice().reverse();
+  const preDoClube=(G.historico||[]).filter(h=>h.pre&&(h.campeao===t.nome||(typeof acharClubePorNome==='function'&&acharClubePorNome(h.campeao)===t)));
+  const linhaTemp=x=>`<div class="hc-temp">
+      <div class="hc-ano">${x.a}</div>
+      <div class="hc-corpo">
+        <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
+          <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
+          ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
+        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
+        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
+        <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
+      </div></div>`;
+  /* lendas do clube: quem mais vestiu a camisa, entre os que ainda estão no
+     save (o histórico por temporada de cada jogador) e o Hall da Fama */
+  const porClube=Object.values(G.jogadores).map(p=>{
+    const hs=(p.hist||[]).filter(h=>h.time===t.nome);
+    const atual=p.timeId===t.id?1:0;
+    return{p,anos:hs.length+atual,maps:hs.reduce((s,h)=>s+(h.maps||0),0)+(atual?p.temp.maps:0)};
+  }).filter(x=>x.anos>=1&&x.maps>0).sort((a,b)=>b.maps-a.maps).slice(0,8);
+  const hall=(G.lendas||[]).filter(l=>(l.clubes||[]).includes(t.nome));
+  const casa=typeof reveladosPelaCasa==='function'?reveladosPelaCasa(t).slice(0,6):[];
 
   return `<div class="eyebrow">Clube</div><h2 class="sec">História</h2>
 
@@ -1164,24 +1167,36 @@ function vHistoria(){
     </div>
   </div>
 
+
+  <div class="grid g2">
+    <div class="card"><div class="eyebrow">Linha do tempo do clube</div>
+      ${temps.length?temps.map(linhaTemp).join(''):'<div class="empty">A primeira temporada entra aqui na virada do ano.</div>'}
+      ${preDoClube.length?`<div class="eyebrow" style="margin-top:14px">Antes da carreira · títulos reais</div>
+        ${preDoClube.slice().reverse().map(h=>`<div class="hc-pre">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),16,h.evento)}
+          <span class="num dim">${h.ano}</span> ${esc(h.evento)}</div>`).join('')}`:''}
+      <button class="btn ghost sm" data-irmundo="titulos" style="margin-top:10px">Galeria de títulos do mundo ›</button>
+    </div>
+    <div>
+      <div class="card"><div class="eyebrow">Lendas do clube</div>
+        ${porClube.length?`<table><thead><tr><th>Jogador</th><th class="c">Temporadas</th><th class="r">Mapas pelo clube</th></tr></thead><tbody>
+          ${porClube.map(x=>`<tr class="jrow" data-p="${x.p.id}"><td>${retrato(x.p,22)} <b>${esc(x.p.nome)}</b>
+            ${x.p.timeId===t.id?'':' <span class="dim">'+(x.p.timeId?esc(tagT(x.p.timeId)):'livre')+'</span>'}</td>
+            <td class="c num">${x.anos}</td><td class="r num">${x.maps}</td></tr>`).join('')}</tbody></table>`
+          :'<div class="empty">Ainda ninguém com história no clube.</div>'}
+        ${hall.length?`<div class="eyebrow" style="margin-top:12px">No Hall da Fama</div>${hall.map(l=>`<div class="hc-pre">🏛 <b>${esc(l.nome)}</b>
+          <span class="dim">${l.carreira.titulos} títulos · aposentou em ${l.ano}</span></div>`).join('')}`:''}
+      </div>
+      ${casa.length?`<div class="card"><div class="eyebrow">Revelados pela casa</div>
+        ${casa.map(p=>`<div class="hc-pre jrow" data-p="${p.id}" style="cursor:pointer">${retrato(p,22)} <b>${esc(p.nome)}</b>
+          <span class="ov ${ovClass(over(p))}">${over(p)}</span> <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></div>`).join('')}</div>`:''}
+    </div>
+  </div>
+  </div>
   <div class="card"><div class="eyebrow">Confronto direto · ${conf.length} adversários</div>
     ${conf.length?`<div class="rolagem"><table class="wide"><thead><tr><th></th><th>Adversário</th>
       <th class="c">J</th><th class="c">V</th><th class="c">D</th><th class="c">Saldo</th>
       <th class="c">Últimos</th></tr></thead>
       <tbody>${conf.map(linhaConf).join('')}</tbody></table></div>`
       :'<div class="empty">Nenhuma partida disputada ainda nesta run.</div>'}
-  </div>
-
-  <div class="card"><div class="eyebrow">Antes de você · o circuito de 2021 a 2026</div>
-    <p class="dim">Resultados reais. Alguns campeões já não competem — o circuito
-    lembra deles mesmo assim.</p>
-    ${anos.map(a=>`<div class="ano-bloco"><div class="ano-rot num">${a}</div>
-      <table><tbody>${pre.filter(h=>h.ano===a).map(h=>{
-        const c=acharClubePorNome(h.campeao);
-        return `<tr>
-          <td class="dim">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),14,h.evento)} ${esc(h.evento)}</td>
-          <td>${c?escudo(c,20):''} <b>${esc(h.campeao)}</b>${c?'':' <span class="dim">(não compete mais)</span>'}</td>
-          <td class="dim r">${h.vice?'vice: '+esc(h.vice):''}</td></tr>`;}).join('')}
-      </tbody></table></div>`).join('')}
   </div>`;
 }
