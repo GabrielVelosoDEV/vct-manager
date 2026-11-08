@@ -93,7 +93,14 @@ function aplicarAvanco(r,quantas){
   if(r.encerrado)flash(r.encerrado+' encerrado.');
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
-  if(G&&G.vereditoPendente){
+  /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre
+     quando ela termina (ou quando você pula). */
+  if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
+    const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
+    const reg=(G.premios||[]).find(x=>x.ano===ano);
+    const v=G.vereditoPendente;G.vereditoPendente=null;
+    abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
+  }else if(G&&G.vereditoPendente){
     const v=G.vereditoPendente;G.vereditoPendente=null;
     modalVeredito(v);
   }
@@ -133,7 +140,7 @@ function avancarAteMeuJogo(){
     if(!r||r.tipo==='fim')break;
     if(r.encerrado)break;                      /* torneio encerrou: pare e mostre */
     if(r.minhaPartida)break;                   /* seu clube jogou */
-    if(G.vereditoPendente)break;
+    if(G.vereditoPendente||G.cerimoniaPendente)break;
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

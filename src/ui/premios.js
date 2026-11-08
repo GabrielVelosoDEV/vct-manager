@@ -122,6 +122,7 @@ function vPremios(){
   const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
   return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
   ${nav}
+  ${r&&r.cer?`<div class="pr-rever"><button class="btn ghost sm" data-rever="${r.ano}">▶ Rever a cerimônia de ${r.ano}</button></div>`:''}
   ${corpo}
   <div class="card flat"><div class="eyebrow">Hall da Fama</div>
     ${lendas.length?`<div class="rolagem"><table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>

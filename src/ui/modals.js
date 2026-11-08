@@ -8,6 +8,7 @@ function abrir(html,wide){
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-prop]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalProposta(b.dataset.prop);});
   $('#modal').querySelectorAll('[data-fichastaff]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalStaff(b.dataset.fichastaff);});
+  if(typeof ligarClubes==='function')ligarClubes($('#modal'));
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
@@ -58,7 +59,7 @@ function modalJogador(id){
   /* Antes isto era `return abrir(...)`: o return cortava a função e nenhum
      botão da ficha (renovar, troca, pedido de saída, opção) ganhava clique. */
   abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
-    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
+    <div class="eyebrow">${p.timeId?linkClube(G.times[p.timeId]):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
     <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
     <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
@@ -533,7 +534,10 @@ function modalStaff(id){
       <h2 class="sec">${esc(m.nome)} ${bandeira(m.pais)}</h2>
       <div class="dim" style="font-size:12px;margin:-4px 0 6px">${m.nomeReal?esc(m.nomeReal)+' · ':''}${esc(nomePais(m.pais))}</div>
       <span class="tag">${esc(cargoNome(m.cargo))}</span>${m.funcao?` <span class="pill">${esc(m.funcao)}</span>`:''} <span class="pill">${m.idade} anos</span>
-      <span class="pill">Contrato ${m.contrato}a</span></div></div>
+      <span class="pill">Contrato ${m.contrato}a</span>
+      ${m.ex?`<div class="dim" style="margin-top:7px;font-size:12px">🎮 Ex-jogador (${esc(m.ex.role)}), aposentou em ${m.ex.ano}
+        · ${m.ex.titulos} título${m.ex.titulos===1?'':'s'}${m.ex.intl?' · '+m.ex.intl+' internacional'+(m.ex.intl===1?'':'is'):''}
+        ${G.meuTime&&(m.ex.clubes||[]).includes(G.meuTime)?' · <b class="up">jogou no seu clube: pede menos para voltar</b>':''}</div>`:''}</div></div>
     <div style="text-align:right"><div class="ov ${ovClass(o)}" style="font-size:52px">${o}</div>
       <div class="dim">Potencial <b style="color:var(--gold)">${m.pot}</b></div>
       <div class="dim num">nível ${nivelDe(m).toFixed(1)} / 5</div></div>
@@ -725,6 +729,7 @@ function modalVeredito(v){
     <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
     <h2 class="sec ver-t">${titulo}</h2>
     <p class="dim">${v.pos}º de ${v.de} na liga${v.titulos?' · '+v.titulos+' título(s)':''}.</p>
+    ${(()=>{const t=G.times[G.meuTime];return t&&t.dono?`<p class="dim">Quem assina é o presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</p>`:'';})()}
     <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
       ${v.metas.map(x=>`<div class="mgr-meta ${x.cumprida?'ok':'nao'}" style="margin-bottom:6px">
         <b>${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}</b>

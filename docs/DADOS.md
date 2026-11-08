@@ -23,7 +23,10 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
 | (stage) `resultados[]` | `{a,b,wa,wb,v,mapa,n,rd,sem,det}` | série jogada; `det` = veto, mapas `{m,a,b,l,st}` e MVP, com `st` em texto `id:k,d,a,acs\|…` |
 | `eloHist` | `[{ano,s,v:{id:rating}}]` | foto do ranking mundial a cada 4 semanas, últimas 13 |
 | `recordes` | `{over, transferencia}` | recordes que não dá para recalcular depois |
-| `premios` | `[{ano, mvp, regioes, selecao, revelacao, igl, treinador, podios}]` | prêmios de cada ano; a ficha do premiado guarda over do ano (`ov`), MVPs de mapa, a nota da régua (`n`, em desvios), os percentis de desempenho e conquistas (`pD`, `pC`), o que pesou (`conq`) e `fora` quando foi fora da curva; `podios` tem os três primeiros de MVP, revelação e cada regional (`reg_AMER`…) |
+| `donos` | `[{nome,timeId,ano}]` | ex-jogadores que compraram clube (um a cada três temporadas, no mínimo) |
+| `casters` | `[{nome,pais,ano,role}]` | ex-jogadores na cabine, últimos 8; apresentam a cerimônia |
+| `cerimoniaPendente` | ano ou `null` | a interface abre a cerimônia daquele ano antes do veredito |
+| `premios` | `[{ano, mvp, regioes, selecao, revelacao, igl, treinador, podios}]` | prêmios de cada ano; a ficha do premiado guarda over do ano (`ov`), MVPs de mapa, a nota da régua (`n`, em desvios), os percentis de desempenho e conquistas (`pD`, `pC`), o que pesou (`conq`) e `fora` quando foi fora da curva; `podios` tem os três primeiros de MVP, revelação e cada regional (`reg_AMER`…); `cer` guarda a cerimônia de encerramento daquele ano (campanha do seu clube, campeões, despedidas, Hall da Fama) |
 | `torneios` | `{id: Torneio}` | catálogo das 27 competições (uma por evento), editável |
 | `cidades` | `[Cidade]` | as cidades-sede de Masters e Champions, semeadas de `data/sedes.js`, editáveis |
 | `sedes` | `{ano: {masters1, masters2, champions}}` | sede sorteada de cada ano (slug da cidade) |
@@ -51,6 +54,7 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   seq: n,                     // sequência: +n vitórias, -n derrotas
   elo,                        // rating do ranking mundial
   tierAno,                    // divisão em que começou a temporada
+  dono: {nome,pais,desde,exId,aporte} | null, // ex-jogador que comprou o clube
   temporadas: [{a,tier,mov,p,de,v,d,i,t,e,c,elo}], // linha de cada temporada (12; o seu clube, 40)
   atividade, atividadePar,    // atividade da semana no Vestiário (só o seu clube)
   staff:     {tecnico, analista, mental},        // 1..5
@@ -346,3 +350,9 @@ Membro de comissão ganhou dois campos opcionais: `nomeReal` e `funcao`.
 `data/midia.js` é gerado por `npm run imagens` (o build roda antes de empacotar):
 `MIDIA.arquivos['players/kingg']='webp'`. `ASSETS.arq(pasta, nome)` usa a extensão do
 manifesto e cai em `ASSETS.ext` quando o arquivo não está lá.
+
+### Comissão: ex-jogadores
+
+Membro da comissão que foi jogador carrega `m.ex = {id, nome, role, clubes:[ids], titulos, intl, ano, foto}`.
+`clubes` são os clubes por onde passou: voltar para um deles custa 15% menos de salário
+(`voltaParaCasa` em core/poscarreira.js) e a IA desses clubes dá preferência a ele.

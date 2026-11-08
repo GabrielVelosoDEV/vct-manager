@@ -230,7 +230,9 @@ function salarioPedidoStaff(m,destino){
   const base=salarioStaff(m);
   const orig=m.timeId?G.times[m.timeId].prestigio:55;
   const gap=orig-destino.prestigio;
-  return Math.round(base*(1.08+Math.max(0,gap)*0.010)/100)*100;
+  /* ex-jogador que volta para um clube onde jogou pede menos */
+  const casa=typeof voltaParaCasa==='function'&&voltaParaCasa(m,destino)?DESCONTO_EX_CLUBE:1;
+  return Math.round(base*(1.08+Math.max(0,gap)*0.010)*casa/100)*100;
 }
 function avaliarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   const motivos=[];
@@ -276,7 +278,7 @@ function mercadoStaffIA(){
                           Math.max(0,folgaAno+(atual?atual.salario*12:0)));
       const cand=livres()
         .filter(m=>salarioStaff(m)*12<teto)
-        .sort((a,b)=>(overStaff(b)+(b.cargo===c.id?6:0))-(overStaff(a)+(a.cargo===c.id?6:0)))[0];
+        .sort((a,b)=>(overStaff(b)+(b.cargo===c.id?6:0)+(voltaParaCasa(b,t)?3:0))-(overStaff(a)+(a.cargo===c.id?6:0)+(voltaParaCasa(a,t)?3:0)))[0];
       if(!cand)continue;
       if(atual&&overStaff(cand)<=overStaff(atual))continue;
       moverStaff(cand.id,t.id,c.id);
@@ -358,7 +360,7 @@ function evoluirStaff(){
   for(let i=0;i<faltam;i++)criarStaffLivre({over:clamp(Math.round(gauss(60,10)),38,88)});
   if(G.staffLivres.length>90){
     const ord=G.staffLivres.map(i=>G.staff[i]).filter(Boolean)
-      .sort((a,b)=>overStaff(b)-overStaff(a));
+      .sort((a,b)=>overStaff(b)+(b.ex?8:0)-overStaff(a)-(a.ex?8:0));
     ord.slice(90).forEach(m=>{delete G.staff[m.id];});
     G.staffLivres=ord.slice(0,90).map(m=>m.id);
   }

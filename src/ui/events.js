@@ -8,6 +8,7 @@ function ligarEventos(){
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
   if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
   if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
+  if(typeof ligarClube==='function'&&t)ligarClube(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por
@@ -16,6 +17,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-bpromo]',async el=>{

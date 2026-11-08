@@ -1002,12 +1002,23 @@ function linhaNoticia(n){
   if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
   /* o nome de quem a notícia cita vira link para a ficha */
   let txt=esc(n.txt);
+  /* o clube citado vira link para a página dele; entra como marcador antes
+     dos jogadores para um nick dentro do nome do clube não quebrar o link */
+  const clubes=[];
+  for(const id of (n.t||[]).slice(0,3)){
+    const t=G.times[id];if(!t)continue;
+    const nm=esc(t.nome),i=txt.indexOf(nm);
+    if(i<0)continue;
+    clubes.push(`<span class="clube-link news-link" data-clube="${id}">${nm}</span>`);
+    txt=txt.slice(0,i)+'\u0001'+(clubes.length-1)+'\u0001'+txt.slice(i+nm.length);
+  }
   for(const id of (n.p||[]).slice(0,4)){
     const p=P(id);if(!p)continue;
     const nm=esc(p.nome),i=txt.indexOf(nm);
     if(i<0)continue;
     txt=txt.slice(0,i)+`<span class="jrow news-link" data-p="${id}">${nm}</span>`+txt.slice(i+nm.length);
   }
+  txt=txt.replace(/\u0001(\d+)\u0001/g,(_,k)=>clubes[+k]);
   return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
@@ -1059,16 +1070,7 @@ function vHistoria(){
      do clube na pré-história. A galeria do mundo foi para Estatísticas. */
   const temps=(t.temporadas||[]).slice().reverse();
   const preDoClube=(G.historico||[]).filter(h=>h.pre&&(h.campeao===t.nome||(typeof acharClubePorNome==='function'&&acharClubePorNome(h.campeao)===t)));
-  const linhaTemp=x=>`<div class="hc-temp">
-      <div class="hc-ano">${x.a}</div>
-      <div class="hc-corpo">
-        <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
-          <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
-          ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
-        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
-        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
-        <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
-      </div></div>`;
+  const linhaTemp=linhaTemporadaClube;
   /* lendas do clube: quem mais vestiu a camisa, entre os que ainda estão no
      save (o histórico por temporada de cada jogador) e o Hall da Fama */
   const porClube=Object.values(G.jogadores).map(p=>{

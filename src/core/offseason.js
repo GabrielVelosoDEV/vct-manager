@@ -97,6 +97,7 @@ function fimDeTemporada(){
      é o que faz o contrato de verdade dele voltar a valer. */
   /* os prêmios leem os elencos como a temporada terminou: antes de o
      empréstimo voltar e de alguém se aposentar */
+  G._despedidas=[];
   if(typeof premiarTemporada==='function')premiarTemporada();
   /* a linha da temporada de cada clube e o recorde de over: antes de
      empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
@@ -119,6 +120,8 @@ function fimDeTemporada(){
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});
       if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
+      /* destino depois de parar: comissão, cabine ou a compra de um clube */
+      if(typeof posCarreira==='function')posCarreira(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
@@ -244,6 +247,8 @@ function fimDeTemporada(){
      três vezes por temporada. Zerar aqui apagaria a rotação inteira e devolvia
      os doze mapas, que é o que tirava o sentido de treinar mapa. */
   if(!G.mapasAtivos||!G.mapasAtivos.length)G.mapasAtivos=poolInicial();
+  /* a cerimônia lê o calendário que está acabando: antes de virar o ano */
+  if(typeof montarCerimonia==='function')montarCerimonia();
   G.ano++;
   /* metas novas para a temporada que começa */
   if(typeof montarMetas==='function'&&G.manager&&!G.manager.demitido)montarMetas();

@@ -69,7 +69,9 @@ function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
 function preRun(){return !G||!G.meuTime;}
-function nomeTela(k){const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
+function nomeTela(k){
+  if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
+  const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
 
 /* raiz onde o conteúdo da tela atual está: os handlers de ligarEventos()
    valem nos dois shells, então precisam perguntar onde procurar. */
@@ -94,11 +96,13 @@ function render(){
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
-            editor:vEditor,config:vConfig}[tela];
+            editor:vEditor,config:vConfig}[tela]
+    ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
+  if(typeof ligarClubes==='function')ligarClubes(v);
 }
 function irPara(k,semHist){
   tela=k;

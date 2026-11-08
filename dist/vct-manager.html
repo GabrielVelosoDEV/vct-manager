@@ -1083,6 +1083,81 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 @media (max-width:1100px){.pr-hero{grid-template-columns:auto minmax(0,1fr)}.pr-lado{grid-column:1/-1}}
 @media (max-width:700px){.pr-hero{grid-template-columns:1fr}.pr-carta{justify-self:center}.pr-nums{grid-template-columns:repeat(3,1fr)}}
 
+/* ---------- página de clube ---------- */
+.esc-click,.clube-link{cursor:pointer}
+.esc-click:hover{filter:brightness(1.25) drop-shadow(0 0 4px rgba(255,70,85,.5))}
+.clube-link:hover{color:var(--red);text-decoration:underline}
+.cl-topo{display:flex;gap:18px;align-items:center;margin-bottom:16px}
+.cl-id{flex:1;min-width:0}
+.cl-kpis{display:flex;flex-wrap:wrap;gap:8px}
+.cl-kpis div{background:var(--panel);border:1px solid var(--line);padding:6px 12px;display:flex;flex-direction:column;min-width:110px}
+.cl-kpis span{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.cl-kpis b{font-size:15px}
+.cl-elenco{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}
+.cl-j{display:flex;flex-direction:column;align-items:center;gap:4px;width:140px}
+.cl-j-info{font-size:11.5px;text-align:center;display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.cl-j-bt{display:flex;gap:4px;margin-top:2px}.cl-j-bt .btn{padding:3px 7px;font-size:10px;letter-spacing:.04em}
+.cl-coms{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px}
+.cl-com{display:flex;gap:6px;align-items:center}
+.cl-h2h{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cl-h2h div{background:var(--bg2);border:1px solid var(--line);padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.cl-h2h span{font-size:11px}
+.cl-h2h b{font-size:17px}
+.cl-sala{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cl-trof{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:var(--bg2);border:1px solid var(--line);font-size:11px;text-align:center}
+.cl-trof .dim{line-height:1.2}
+.cl-mapas{display:flex;flex-direction:column;gap:6px}
+.cl-mapa{display:grid;grid-template-columns:90px 1fr 30px 110px;gap:8px;align-items:center;font-size:12.5px}
+.cl-mapa .vb{height:8px}
+@media (max-width:700px){.cl-topo{flex-wrap:wrap}.cl-h2h{grid-template-columns:repeat(2,1fr)}.cl-mapa{grid-template-columns:80px 1fr 28px}.cl-mapa>span:last-child{display:none}}
+
+/* ---------- cerimônia ---------- */
+.pr-rever{margin:-4px 0 12px}
+.cer-ovl{background:rgba(5,9,13,.92)}
+.cer{width:min(1100px,96vw);max-height:94vh;display:flex;flex-direction:column;background:
+  radial-gradient(ellipse at 50% 0%,rgba(200,148,58,.16),transparent 60%),var(--bg2);border:1px solid var(--line2)}
+.cer-topo{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.cer-pontos{display:flex;gap:6px}
+.cer-pontos i{width:22px;height:4px;background:var(--line2)}.cer-pontos i.feito{background:var(--tx2)}.cer-pontos i.on{background:var(--gold)}
+.cer-corpo{flex:1;overflow:auto;padding:26px 30px;animation:cerEntra .45s ease both}
+@keyframes cerEntra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sem-anim .cer-corpo{animation:none}
+.cer-pe{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid var(--line)}
+.cer-abre{text-align:center;padding:60px 10px}
+.cer-h1{font-size:64px;margin:10px 0 14px;color:var(--gold)}
+.cer-tit{text-align:center;margin-bottom:20px}.cer-tit h2{font-size:38px;margin-top:6px;display:flex;gap:10px;align-items:center;justify-content:center}
+.cer-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:26px}
+.cer-big b{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--tx);margin-right:10px}.cer-big span{color:var(--tx2)}
+.cer-torn{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.cer-torn div{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:6px 10px;background:var(--panel);border-left:3px solid var(--line2);font-size:13px}
+.cer-torn div.ouro{border-color:var(--gold)}.cer-torn div.prata{border-color:#B9C3CE}.cer-torn div.bronze{border-color:#B0764A}
+.cer-torn .trofeu{height:22px;width:auto}
+.cer-graf{width:100%;height:120px;margin-top:6px}
+.cer-graf .gl{fill:none;stroke:var(--teal);stroke-width:2.2}.cer-graf circle{fill:var(--teal)}
+.cer-graf .g0{stroke:var(--line2);stroke-dasharray:3 4}.cer-graf text{fill:var(--tx2);font-size:10px;font-family:'JetBrains Mono',monospace;text-anchor:middle}
+.cer-melhor,.cer-vit{display:flex;gap:14px;align-items:center;margin-top:8px}
+.cer-ints{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.cer-int{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 26px;background:var(--panel);border:1px solid var(--line);min-width:220px;animation:cerEntra .5s ease both}
+.cer-int:nth-child(2){animation-delay:.15s}.cer-int:nth-child(3){animation-delay:.3s}
+.cer-int-c{display:flex;gap:8px;align-items:center;font-size:17px}
+.cer-regs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 16px;margin-top:22px;font-size:12.5px}
+.cer-regs div{display:flex;gap:6px;align-items:center}
+.cer-premio{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.cer-p-nome{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.04em}
+.cer-premio .pr-curto{min-width:320px;text-align:left}
+.cer-in{animation:cerEntra .5s ease both}
+.pr-sel .cer-in:nth-child(2){animation-delay:.12s}.pr-sel .cer-in:nth-child(3){animation-delay:.24s}.pr-sel .cer-in:nth-child(4){animation-delay:.36s}.pr-sel .cer-in:nth-child(5){animation-delay:.48s}
+.cer-regmvp{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cer-regmvp>div{display:flex;flex-direction:column;align-items:center;gap:6px}
+.cer-mvp{display:grid;grid-template-columns:auto auto 1fr;gap:26px;align-items:center}
+.cer-mvp-info{display:flex;flex-direction:column;gap:10px}
+.cer-hall{text-align:center;margin-bottom:14px;color:var(--gold)}
+.cer-desp{display:flex;flex-direction:column;gap:6px;max-width:820px;margin:0 auto}
+.cer-desp div{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;background:var(--panel);border:1px solid var(--line)}
+.cer-desp div.me{border-color:var(--teal)}
+.cer-desp em{margin-left:auto;color:var(--gold);font-style:normal;font-size:12.5px}
+@media (max-width:800px){.cer-grid,.cer-mvp{grid-template-columns:1fr;justify-items:center}.cer-regmvp{grid-template-columns:repeat(2,1fr)}.cer-h1{font-size:44px}}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -11460,6 +11535,253 @@ function podarHistorico(p){
 }
 
 
+/* ===== src/core/poscarreira.js ===== */
+/* ============================================================
+   PÓS-CARREIRA — quem pendura o mouse não some
+   ------------------------------------------------------------
+   Antes o aposentado era apagado do save (só o Hall da Fama ficava).
+   Agora, na aposentadoria, cada jogador com carreira de verdade ganha
+   um destino conforme o perfil:
+
+     head coach  liderança alta (ou era o IGL)
+     analista    visão de jogo e utilidade altas
+     olheiro     carreira longa, qualquer função
+     caster      relevância alta (pontosDeLenda), vira voz do circuito
+     dono        lenda de verdade, uma a cada várias temporadas: compra
+                 um clube da região, de preferência do Tier 2
+
+   Os três primeiros entram no mercado de comissão como membros de
+   verdade (core/staff.js), com o nick e a foto de jogador. Quem jogou
+   no seu clube lembra dele: pede menos para voltar.
+
+   O destino é sorteado num gerador LOCAL, semeado pelo próprio
+   jogador e pelo ano, e o gerador do motor volta intacto. Assim a
+   aposentadoria não empurra a sequência de sorteios do circuito.
+   ============================================================ */
+const POS_MAPAS_MIN=150;          /* abaixo disso a carreira foi curta demais */
+const POS_LIDER=72, POS_VISAO=79;
+const DONO_PONTOS=10;             /* pontosDeLenda para comprar um clube (o Hall da Fama pede 14) */
+const DONO_INTERVALO=3;           /* temporadas mínimas entre dois donos novos */
+const CASTERS_MAX=8;
+const DESCONTO_EX_CLUBE=0.85;     /* ex-jogador seu pede 15% menos para voltar */
+
+/* gerador local: guarda o estado do motor, sorteia, devolve o estado */
+function _hashPos(txt){let h=2166136261;const s=String(txt);
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function comSorteioLocal(chave,fn){
+  const guarda=_s;srand(_hashPos(chave)||1);
+  try{return fn();}finally{_s=guarda;}
+}
+
+function regiaoDoJogador(p){
+  const R=REGIONS.find(r=>r.paises.includes(p.pais));
+  if(R)return R.id;
+  const t=p.timeId&&G.times[p.timeId];
+  return t?t.regiao:REGIONS[0].id;
+}
+/* clubes por onde passou, em ids (o histórico guarda nomes) */
+function clubesDoJogador(p){
+  const ids=new Set();
+  for(const h of p.hist||[]){
+    const t=typeof acharClubePorNome==='function'?acharClubePorNome(h.time):null;
+    if(t)ids.add(t.id);
+  }
+  if(p.timeId)ids.add(p.timeId);
+  return[...ids];
+}
+function podeTerDono(){
+  const ult=(G.donos||[]).slice(-1)[0];
+  return !ult||G.ano-ult.ano>=DONO_INTERVALO;
+}
+
+/* Qual destino, se algum. Pesos, não regras: o IGL tende a virar coach, mas
+   pode virar caster; quem não tem perfil nenhum simplesmente sai de cena. */
+function destinoDe(p){
+  const c=p.carreira||{},L=typeof pontosDeLenda==='function'?pontosDeLenda(p):0;
+  /* carreira de verdade: mapas jogados na carreira ou um pico de elite (o
+     veterano que se aposenta nas primeiras temporadas tem poucos mapas no save) */
+  if((c.maps||0)<POS_MAPAS_MIN&&(p.pico||0)<80&&L<3)return null;
+  const at=p.at||{};
+  return comSorteioLocal('pos|'+p.id+'|'+G.ano,()=>{
+    if(L>=DONO_PONTOS&&podeTerDono()&&rnd()<0.6)return 'dono';
+    const op=[];
+    const lider=at.lider||0,leitura=((at.visao||0)+(at.util||0))/2;
+    if(lider>=POS_LIDER||p.igl)op.push(['tecnico',1+Math.max(0,lider-POS_LIDER)/8]);
+    if(leitura>=POS_VISAO)op.push(['analista',1+Math.max(0,leitura-POS_VISAO)/10]);
+    if((c.maps||0)>=350||p.idade>=32)op.push(['olheiro',0.5]);
+    if(L>=3||(p.pico||0)>=88)op.push(['caster',0.6+Math.min(1,L/12)]);
+    op.push([null,4]);
+    const tot=op.reduce((s,x)=>s+x[1],0);
+    let r=rnd()*tot;
+    for(const[d,w]of op){r-=w;if(r<=0)return d;}
+    return null;
+  });
+}
+
+/* ---------- ex-jogador na comissão ---------- */
+function staffDeExJogador(p,cargo){
+  const at=p.at||{},c=p.carreira||{};
+  const base={tecnico:(at.lider||60)*0.55+(at.visao||60)*0.45,
+              analista:(at.visao||60)*0.55+(at.util||60)*0.45,
+              olheiro:(at.visao||60)*0.5+(at.consist||60)*0.5}[cargo]||60;
+  const pedigree=Math.min(12,(c.intl||0)*3+(c.titulos||0)*0.5);
+  const alvo=clamp(Math.round(46+(base-60)*0.6+pedigree),48,84);
+  const t=p.timeId&&G.times[p.timeId];
+  return comSorteioLocal('staff|'+p.id+'|'+G.ano,()=>{
+    const m=criarMembro(cargo,alvo,p.pais,p.idade,nomesStaffUsados(),t?t.tier:2);
+    m.nome=p.nome;m.genero='m';m.contrato=0;m.regiaoOrigem=regiaoDoJogador(p);
+    /* começa cedo e com teto: o ex-jogador evolui na função */
+    m.pot=Math.max(m.pot,Math.min(92,overStaff(m)+8));
+    m.ex={id:p.id,nome:p.nome,role:p.role,clubes:clubesDoJogador(p),
+      titulos:c.titulos||0,intl:c.intl||0,ano:G.ano,foto:p.foto||null};
+    m.salario=salarioStaff(m);m.valor=valorStaff(m);
+    G.staff[m.id]=m;(G.staffLivres=G.staffLivres||[]).push(m.id);
+    return m;
+  });
+}
+/* desconto de quem volta para casa: usado em salarioPedidoStaff */
+function voltaParaCasa(m,destino){return !!(m&&m.ex&&destino&&(m.ex.clubes||[]).includes(destino.id));}
+
+/* ---------- dono de clube ---------- */
+function comprarClube(p){
+  const reg=regiaoDoJogador(p);
+  const livre=t=>!t.dono&&t.regiao===reg;
+  let cands=Object.values(G.times).filter(t=>livre(t)&&t.tier===2);
+  if(!cands.length)cands=Object.values(G.times).filter(t=>livre(t)).sort((a,b)=>a.prestigio-b.prestigio).slice(0,3);
+  if(!cands.length)return null;
+  const t=comSorteioLocal('dono|'+p.id+'|'+G.ano,()=>pick(cands.sort((a,b)=>a.id<b.id?-1:1)));
+  const aporte=Math.round((typeof receitaAnual==='function'?receitaAnual(t):500000)*0.6/1000)*1000;
+  t.caixa+=aporte;
+  t.torcida=clamp((t.torcida||0)+8,typeof pisoTorcida==='function'?pisoTorcida(t):0,typeof TORCIDA_MAX!=='undefined'?TORCIDA_MAX:100);
+  t.prestigio=clamp(t.prestigio+3,20,99);
+  t.dono={nome:p.nome,pais:p.pais,desde:G.ano,exId:p.id,aporte};
+  (G.donos=G.donos||[]).push({nome:p.nome,timeId:t.id,ano:G.ano});
+  noticia('🏢 '+p.nome+' se aposenta e compra o '+t.nome+': aporte de '+money(aporte)+' e o clube vira o projeto dele.',
+    {c:'carreira',t:[t.id],imp:3});
+  return t;
+}
+
+/* ---------- caster ---------- */
+function virarCaster(p){
+  (G.casters=G.casters||[]).push({nome:p.nome,pais:p.pais,ano:G.ano,role:p.role});
+  if(G.casters.length>CASTERS_MAX)G.casters.shift();
+  noticia('🎙 '+p.nome+' pendura o mouse e vai para a cabine: agora é caster do circuito.',{c:'carreira',imp:1});
+}
+
+/* Chamada na aposentadoria, depois do Hall da Fama e antes de o jogador ser
+   apagado. Registra a despedida (a cerimônia mostra as notáveis). */
+const ROT_DESTINO={tecnico:'vira head coach',analista:'vira analista',olheiro:'vira olheiro',caster:'vira caster',dono:'compra um clube'};
+function posCarreira(p){
+  const destino=destinoDe(p);
+  let clube=null;
+  if(destino==='tecnico'||destino==='analista'||destino==='olheiro'){
+    staffDeExJogador(p,destino);
+    const meuEx=G.meuTime&&clubesDoJogador(p).includes(G.meuTime);
+    noticia('🎓 '+p.nome+' se aposenta e '+ROT_DESTINO[destino]+(meuEx?' — e lembra com carinho do seu clube':'')+'. Está no mercado de comissão.',
+      {c:'carreira',imp:meuEx?2:1});
+  }else if(destino==='caster')virarCaster(p);
+  else if(destino==='dono')clube=comprarClube(p);
+  const c=p.carreira||{},L=typeof pontosDeLenda==='function'?pontosDeLenda(p):0;
+  const t=p.timeId&&G.times[p.timeId];
+  const notavel=L>=4||(p.pico||0)>=86||(G.meuTime&&p.timeId===G.meuTime)||destino==='dono';
+  if(notavel)(G._despedidas=G._despedidas||[]).push({id:p.id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
+    tag:t?t.tag:((p.hist||[]).slice().reverse().find(h=>h.time&&h.time!=='Sem clube'&&!/^Base/.test(h.time))||{time:'sem clube'}).time,titulos:c.titulos||0,intl:c.intl||0,maps:c.maps||0,pts:Math.round(L*10)/10,
+    destino:destino||null,clube:clube?clube.nome:null,meu:!!(G.meuTime&&p.timeId===G.meuTime)});
+  return destino;
+}
+
+
+/* ===== src/core/cerimonia.js ===== */
+/* ============================================================
+   CERIMÔNIA DE ENCERRAMENTO — o que a virada do ano mostra
+   ------------------------------------------------------------
+   Montada no fim de fimDeTemporada(), depois dos prêmios, das
+   aposentadorias e do veredito, e ANTES de o calendário ser remontado
+   (é dele que sai a campanha do seu clube torneio a torneio). Fica
+   gravada no registro de prêmios do ano (G.premios[...].cer) para ser
+   revista na tela de Prêmios, e G.cerimoniaPendente avisa a interface
+   que ela abre antes do veredito.
+
+   Só leitura: nada aqui sorteia nem muda o mundo.
+   ============================================================ */
+function lugarNoTorneio(s,id){
+  const i=(s.ranking||[]).indexOf(id);
+  if(s.tipo==='de'||s.tipo==='ko'){
+    if(i===0)return{txt:'campeão',ord:0};
+    if(i===1)return{txt:'vice',ord:1};
+    if(i>=2&&i<=3)return{txt:'top 4',ord:2};
+    if(i>=4&&i<=7)return{txt:'top 8',ord:3};
+    return{txt:'playoffs',ord:4};
+  }
+  return{txt:i>=0?(i+1)+'º na fase de grupos':'fase de grupos',ord:5};
+}
+/* a campanha torneio a torneio: o último stage de cada torneio em que o
+   clube apareceu diz até onde ele foi */
+function campanhaPorTorneio(id){
+  const por={},ordem=[];
+  for(const b of G.calendario||[])for(const s of b.stages||[]){
+    if(!(s.times||[]).includes(id)&&!(s.ranking||[]).includes(id))continue;
+    const k=s.torneioId||s.id;
+    if(!por[k])ordem.push(k);
+    por[k]=s;
+  }
+  return ordem.map(k=>{const s=por[k],l=lugarNoTorneio(s,id);
+    return{ev:typeof nomeTitulo==='function'?nomeTitulo(s):s.nome,lugar:l.txt,ord:l.ord,int:s.regiao==='INT',
+      tr:l.ord===0&&s.torneioId&&typeof arquivoTrofeu==='function'?arquivoTrofeu(s.torneioId,G.ano):null};});
+}
+function maiorVitoriaDe(id){
+  let melhor=null;
+  for(const b of G.calendario||[])for(const s of b.stages||[])for(const r of s.resultados||[]){
+    if(r.v!==id)continue;
+    const eu=r.a===id,wa=eu?r.wa:r.wb,wb=eu?r.wb:r.wa;
+    const rounds=((r.det&&r.det.mp)||[]).reduce((t,m)=>t+(eu?m.a-m.b:m.b-m.a),0);
+    const adv=G.times[eu?r.b:r.a];if(!adv)continue;
+    const peso=(wa-wb)*100+rounds+(s.regiao==='INT'?60:0)+(s.tipo==='de'||s.tipo==='ko'?25:0)+(adv.elo||1200)/40;
+    if(!melhor||peso>melhor.peso)melhor={peso,advId:adv.id,adv:adv.nome,tag:adv.tag,placar:wa+'–'+wb,rounds,
+      ev:typeof nomeTitulo==='function'?nomeTitulo(s):s.nome,rd:r.rd||''};
+  }
+  if(melhor)delete melhor.peso;
+  return melhor;
+}
+function melhorDoClube(id){
+  if(typeof lerTemporada!=='function')return null;
+  const {jog}=lerTemporada();
+  let m=null;
+  for(const pid in jog){
+    const a=jog[pid],p=G.jogadores[pid];
+    if(!p||a.timeId!==id||a.maps<6)continue;
+    const n=desempenhoDoAno(a);
+    if(!m||n>m.n)m={n,id:pid,nome:p.nome,pais:p.pais,role:p.role,ov:over(p),maps:a.maps,
+      acs:Math.round(a.acs/Math.max(1,a.maps)),kd:Number((a.d?a.k/a.d:a.k).toFixed(2)),mvps:a.mvp};
+  }
+  if(m)delete m.n;
+  return m;
+}
+
+function montarCerimonia(){
+  const reg=(G.premios||[]).find(r=>r.ano===G.ano);
+  if(!reg)return null;
+  const t=G.meuTime&&G.times[G.meuTime];
+  const linha=t&&(t.temporadas||[]).slice(-1)[0];
+  const cer={ano:G.ano,
+    apres:(G.casters||[]).slice(-2).map(c=>c.nome),
+    clube:t?{id:t.id,nome:t.nome,tag:t.tag,linha:linha&&linha.a===G.ano?linha:null,
+      torneios:campanhaPorTorneio(t.id),
+      graf:(G.eloHist||[]).filter(f=>f.ano===G.ano).map(f=>({s:f.s,p:typeof posicaoNaFoto==='function'?posicaoNaFoto(f,t.id):null})),
+      melhor:melhorDoClube(t.id),vitoria:maiorVitoriaDe(t.id)}:null,
+    campeoes:(G.historico||[]).filter(h=>h&&h.ano===G.ano&&!h.pre).map(h=>({ev:h.evento,timeId:h.timeId,nome:h.campeao,
+      tag:h.timeId&&G.times[h.timeId]?G.times[h.timeId].tag:'',tr:h.trofeu||null,
+      int:/^(champions|masters)/.test(h.torneioId||'')})),
+    despedidas:(G._despedidas||[]).slice().sort((a,b)=>(b.meu?50:0)+b.pts-((a.meu?50:0)+a.pts)).slice(0,8),
+    hall:(G.lendas||[]).filter(l=>l.ano===G.ano).map(l=>({nome:l.nome,pais:l.pais,role:l.role,pontos:l.pontos})),
+    donos:(G.donos||[]).filter(d=>d.ano===G.ano)};
+  reg.cer=cer;
+  G.cerimoniaPendente=G.ano;
+  G._despedidas=[];
+  return cer;
+}
+
+
 /* ===== src/core/estatisticas.js ===== */
 /* ============================================================
    ESTATÍSTICAS DO MUNDO — ranking, temporadas de cada clube e
@@ -12477,6 +12799,7 @@ function fimDeTemporada(){
      é o que faz o contrato de verdade dele voltar a valer. */
   /* os prêmios leem os elencos como a temporada terminou: antes de o
      empréstimo voltar e de alguém se aposentar */
+  G._despedidas=[];
   if(typeof premiarTemporada==='function')premiarTemporada();
   /* a linha da temporada de cada clube e o recorde de over: antes de
      empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
@@ -12499,6 +12822,8 @@ function fimDeTemporada(){
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});
       if(typeof talvezHallDaFama==='function')talvezHallDaFama(p);
+      /* destino depois de parar: comissão, cabine ou a compra de um clube */
+      if(typeof posCarreira==='function')posCarreira(p);
       if(p.timeId){const t=G.times[p.timeId];t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);}
       G.livres=G.livres.filter(x=>x!==p.id);
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
@@ -12624,6 +12949,8 @@ function fimDeTemporada(){
      três vezes por temporada. Zerar aqui apagaria a rotação inteira e devolvia
      os doze mapas, que é o que tirava o sentido de treinar mapa. */
   if(!G.mapasAtivos||!G.mapasAtivos.length)G.mapasAtivos=poolInicial();
+  /* a cerimônia lê o calendário que está acabando: antes de virar o ano */
+  if(typeof montarCerimonia==='function')montarCerimonia();
   G.ano++;
   /* metas novas para a temporada que começa */
   if(typeof montarMetas==='function'&&G.manager&&!G.manager.demitido)montarMetas();
@@ -13227,7 +13554,9 @@ function salarioPedidoStaff(m,destino){
   const base=salarioStaff(m);
   const orig=m.timeId?G.times[m.timeId].prestigio:55;
   const gap=orig-destino.prestigio;
-  return Math.round(base*(1.08+Math.max(0,gap)*0.010)/100)*100;
+  /* ex-jogador que volta para um clube onde jogou pede menos */
+  const casa=typeof voltaParaCasa==='function'&&voltaParaCasa(m,destino)?DESCONTO_EX_CLUBE:1;
+  return Math.round(base*(1.08+Math.max(0,gap)*0.010)*casa/100)*100;
 }
 function avaliarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   const motivos=[];
@@ -13273,7 +13602,7 @@ function mercadoStaffIA(){
                           Math.max(0,folgaAno+(atual?atual.salario*12:0)));
       const cand=livres()
         .filter(m=>salarioStaff(m)*12<teto)
-        .sort((a,b)=>(overStaff(b)+(b.cargo===c.id?6:0))-(overStaff(a)+(a.cargo===c.id?6:0)))[0];
+        .sort((a,b)=>(overStaff(b)+(b.cargo===c.id?6:0)+(voltaParaCasa(b,t)?3:0))-(overStaff(a)+(a.cargo===c.id?6:0)+(voltaParaCasa(a,t)?3:0)))[0];
       if(!cand)continue;
       if(atual&&overStaff(cand)<=overStaff(atual))continue;
       moverStaff(cand.id,t.id,c.id);
@@ -13355,7 +13684,7 @@ function evoluirStaff(){
   for(let i=0;i<faltam;i++)criarStaffLivre({over:clamp(Math.round(gauss(60,10)),38,88)});
   if(G.staffLivres.length>90){
     const ord=G.staffLivres.map(i=>G.staff[i]).filter(Boolean)
-      .sort((a,b)=>overStaff(b)-overStaff(a));
+      .sort((a,b)=>overStaff(b)+(b.ex?8:0)-overStaff(a)-(a.ex?8:0));
     ord.slice(90).forEach(m=>{delete G.staff[m.id];});
     G.staffLivres=ord.slice(0,90).map(m=>m.id);
   }
@@ -14216,7 +14545,7 @@ function monogramaJogador(nome,px){
 function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
-  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" src="${ASSETS.logo(t)}"
+  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${ASSETS.logo(t)}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
 /* Cadeia de resolução do retrato, do mais específico ao mais genérico:
@@ -14342,6 +14671,10 @@ function retratoStaff(m,px){
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
+  /* ex-jogador na comissão mantém a foto de quando jogava */
+  if(m.ex){const upJ=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(m.ex.nome));
+    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.arq('players',m.ex.nome),gerado,fb);
+    return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt="" src="${cj.src}" onerror="${cj.on}">`;}
   const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
@@ -15190,7 +15523,9 @@ function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
 function preRun(){return !G||!G.meuTime;}
-function nomeTela(k){const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
+function nomeTela(k){
+  if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
+  const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
 
 /* raiz onde o conteúdo da tela atual está: os handlers de ligarEventos()
    valem nos dois shells, então precisam perguntar onde procurar. */
@@ -15215,11 +15550,13 @@ function render(){
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
-            editor:vEditor,config:vConfig}[tela];
+            editor:vEditor,config:vConfig}[tela]
+    ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
+  if(typeof ligarClubes==='function')ligarClubes(v);
 }
 function irPara(k,semHist){
   tela=k;
@@ -16741,12 +17078,23 @@ function linhaNoticia(n){
   if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
   /* o nome de quem a notícia cita vira link para a ficha */
   let txt=esc(n.txt);
+  /* o clube citado vira link para a página dele; entra como marcador antes
+     dos jogadores para um nick dentro do nome do clube não quebrar o link */
+  const clubes=[];
+  for(const id of (n.t||[]).slice(0,3)){
+    const t=G.times[id];if(!t)continue;
+    const nm=esc(t.nome),i=txt.indexOf(nm);
+    if(i<0)continue;
+    clubes.push(`<span class="clube-link news-link" data-clube="${id}">${nm}</span>`);
+    txt=txt.slice(0,i)+'\u0001'+(clubes.length-1)+'\u0001'+txt.slice(i+nm.length);
+  }
   for(const id of (n.p||[]).slice(0,4)){
     const p=P(id);if(!p)continue;
     const nm=esc(p.nome),i=txt.indexOf(nm);
     if(i<0)continue;
     txt=txt.slice(0,i)+`<span class="jrow news-link" data-p="${id}">${nm}</span>`+txt.slice(i+nm.length);
   }
+  txt=txt.replace(/\u0001(\d+)\u0001/g,(_,k)=>clubes[+k]);
   return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
@@ -16798,16 +17146,7 @@ function vHistoria(){
      do clube na pré-história. A galeria do mundo foi para Estatísticas. */
   const temps=(t.temporadas||[]).slice().reverse();
   const preDoClube=(G.historico||[]).filter(h=>h.pre&&(h.campeao===t.nome||(typeof acharClubePorNome==='function'&&acharClubePorNome(h.campeao)===t)));
-  const linhaTemp=x=>`<div class="hc-temp">
-      <div class="hc-ano">${x.a}</div>
-      <div class="hc-corpo">
-        <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
-          <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
-          ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
-        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
-        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
-        <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
-      </div></div>`;
+  const linhaTemp=linhaTemporadaClube;
   /* lendas do clube: quem mais vestiu a camisa, entre os que ainda estão no
      save (o histórico por temporada de cada jogador) e o Hall da Fama */
   const porClube=Object.values(G.jogadores).map(p=>{
@@ -17735,6 +18074,7 @@ function vPremios(){
   const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
   return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
   ${nav}
+  ${r&&r.cer?`<div class="pr-rever"><button class="btn ghost sm" data-rever="${r.ano}">▶ Rever a cerimônia de ${r.ano}</button></div>`:''}
   ${corpo}
   <div class="card flat"><div class="eyebrow">Hall da Fama</div>
     ${lendas.length?`<div class="rolagem"><table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
@@ -17750,6 +18090,359 @@ function vPremios(){
 }
 
 
+/* ===== src/ui/clube.js ===== */
+/* ============================================================
+   PÁGINA DE CLUBE — qualquer clube do mundo, a um clique
+   ------------------------------------------------------------
+   Todo escudo do jogo abre esta página (o <img> de escudo() carrega
+   data-tid) e os nomes de clube marcados com data-clube também.
+   O endereço é "clube:<id>", então Voltar e Avançar do topo funcionam
+   como em qualquer outra tela.
+
+   O que o seu clube não sabe do outro fica borrado: o preparo por
+   mapa usa o mesmo nível de leitura do relatório de scouting
+   (analista e olheiro, core/scout.js).
+   ============================================================ */
+let clubeVer=null;
+
+function irClube(id){
+  if(!G||!G.times[id])return;
+  if($('#modal').innerHTML)$('#modal').innerHTML='';
+  irPara('clube:'+id);
+}
+function linkClube(t,txt){
+  if(!t)return esc(txt||'—');
+  return `<span class="clube-link" data-clube="${t.id}">${esc(txt!=null?txt:t.nome)}</span>`;
+}
+/* Liga escudos e nomes dentro de `raiz`. Escudo dentro de um botão ou de um
+   cartão que já abre outra coisa (série, evento) fica com o clique do cartão. */
+function ligarClubes(raiz){
+  if(!raiz||typeof G==='undefined'||!G||!G.times)return;
+  raiz.querySelectorAll('[data-clube]').forEach(el=>{
+    el.onclick=e=>{e.stopPropagation();e.preventDefault();irClube(el.dataset.clube);};
+  });
+  raiz.querySelectorAll('img.logo-t[data-tid]').forEach(el=>{
+    if(el.closest('button,a,[data-serie],[data-evento],[data-clube],[data-assumir],.side-org'))return;
+    if(!G.times[el.dataset.tid])return;
+    el.classList.add('esc-click');
+    el.onclick=e=>{e.stopPropagation();irClube(el.dataset.tid);};
+  });
+}
+
+/* Uma linha da linha do tempo do clube (t.temporadas). Usada aqui e na
+   História do seu clube. */
+function linhaTemporadaClube(x){
+  return `<div class="hc-temp">
+      <div class="hc-ano">${x.a}</div>
+      <div class="hc-corpo">
+        <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
+          <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
+          ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
+        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
+        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
+        <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
+      </div></div>`;
+}
+
+/* Leitura do preparo deles por mapa, no nível do seu scouting: 5 exato,
+   4 com folga de 4 pontos, 3 de 9 e arredondado de 5 em 5, 2 só a palavra,
+   1 nada. */
+function palavraPreparo(n){
+  return n>=68?'casa deles':n>=57?'confortável':n>=45?'neutro':n>=35?'incomodados':'fogem dele';
+}
+function leituraPreparo(t,nv){
+  const pool=(G.mapasAtivos&&G.mapasAtivos.length?G.mapasAtivos:MAP_POOL).slice();
+  const lst=pool.map(m=>{
+    const real=typeof preparoDoMapa==='function'?preparoDoMapa(t,m).nota:50;
+    let v=null;
+    if(nv>=5)v=real;
+    else if(nv>=3){const amp=nv>=4?4:9;v=clamp(real+borrar(t.id+'|prep|'+m+'|'+G.ano,amp),0,100);
+      v=nv>=4?Math.round(v):Math.round(v/5)*5;}
+    /* a palavra também sai do número lido, não do real: o analista fraco
+       erra a palavra junto */
+    return{mapa:m,v,palavra:nv>=2?palavraPreparo(v!=null?v:real+borrar(t.id+'|pw|'+m,10)):null};
+  });
+  return lst.sort((a,b)=>(b.v!=null&&a.v!=null)?b.v-a.v:0);
+}
+
+function vClube(){
+  const t=G.times[clubeVer];
+  if(!t)return `<div class="card flat"><div class="empty">Clube não encontrado.</div></div>`;
+  const eu=meu(),souEu=eu&&t.id===eu.id;
+  const tec=typeof membroDe==='function'?membroDe(t,'tecnico'):null;
+  const tecNome=souEu&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido?G.manager.nome+' (você)':tec?tec.nome:'vago';
+  const mk=t.patrocinios&&typeof marca==='function'?marca(t.patrocinios.master):null;
+  const rk=typeof rankingMundial==='function'?rankingMundial():[];
+  const posMundo=rk.indexOf(t)+1;
+  const pos=typeof posicaoNoAno==='function'?posicaoNoAno(t):null;
+  const intl=typeof campanhaInternacional==='function'?campanhaInternacional(t):null;
+  const tc=t.temporada||{v:0,d:0};
+
+  /* elenco em cartas: titulares primeiro */
+  const elenco=(t.elenco||[]).map(P).filter(Boolean)
+    .sort((a,b)=>(t.titulares.includes(b.id)?1:0)-(t.titulares.includes(a.id)?1:0)||over(b)-over(a));
+  const cartas=elenco.map(p=>`<div class="cl-j">
+      ${cartaJogador(p,{w:128,clique:true})}
+      <div class="cl-j-info">${t.titulares.includes(p.id)?'<span class="chip t">titular</span>':'<span class="chip">reserva</span>'}
+        ${p.id===t.igl?'<span class="chip">IGL</span>':''}</div>
+      <div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
+      <div class="cl-j-info"><span class="num">${money(p.salario||0)}</span><span class="dim">/mês</span> · <span class="num">${money(p.valor||0)}</span></div>
+      ${souEu?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
+        <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}
+    </div>`).join('');
+
+  /* sala de troféus: tudo o que o clube já ganhou, pré-carreira junto */
+  const tits=(G.historico||[]).filter(h=>h&&(h.timeId===t.id||(!h.timeId&&h.campeao===t.nome)))
+    .slice().sort((a,b)=>b.ano-a.ano);
+  const sala=tits.length?`<div class="cl-sala">${tits.map(h=>`<div class="cl-trof" title="${esc(h.ano+' · '+h.evento)}">
+      ${imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),30,h.evento)}<span class="num">${h.ano}</span>
+      <span class="dim">${esc(h.evento.replace(/ · VCT.*$/,''))}</span></div>`).join('')}</div>`
+    :'<div class="dim">Nenhum título ainda.</div>';
+
+  /* confronto direto e rivalidade com o seu clube */
+  let confronto='';
+  if(!souEu&&eu&&typeof confrontosDe==='function'){
+    const c=confrontosDe(eu.id).find(x=>x.time.id===t.id);
+    if(c){
+      const nota=notaRivalidade(eu,c);
+      const nivel=nota>0.5?'clássico':nota>0.28?'rival':nota>0.15?'morna':'sem rivalidade';
+      confronto=`<div class="cl-h2h">
+        <div><span class="dim">Jogos</span><b class="num">${c.jogos}</b></div>
+        <div><span class="dim">Você venceu</span><b class="num up">${c.vitorias}</b></div>
+        <div><span class="dim">Eles venceram</span><b class="num dn">${c.derrotas}</b></div>
+        <div><span class="dim">Rivalidade</span><b>${nivel}</b><span class="num dim">${Math.round(nota*100)}</span></div></div>
+        <div class="serie" style="margin-top:8px">${(c.ultimos||[]).slice(0,8).map(u=>`<i class="${u.v===eu.id?'w':'l'}" title="${esc(String(u.ano)+' · '+(u.ctx||''))}"></i>`).join('')}</div>
+        ${nota>0.28&&typeof motivoRivalidade==='function'?`<div class="dim" style="margin-top:6px">${esc(motivoRivalidade(eu,c))}</div>`:''}`;
+    }else confronto='<div class="dim">Vocês nunca se enfrentaram.</div>';
+  }
+
+  /* preparo por mapa, borrado pelo seu scouting */
+  let leitura='';
+  if(!souEu&&eu){
+    const nv=typeof nivelScout==='function'?nivelScout(eu):1;
+    const lst=leituraPreparo(t,nv);
+    leitura=nv<2?'<div class="dim">Seu analista ainda não tem leitura deste clube. Comissão melhor (analista e olheiro) abre o relatório.</div>'
+      :`<div class="cl-mapas">${lst.map(x=>`<div class="cl-mapa">
+          <span>${esc(x.mapa)}</span>
+          ${x.v!=null?`<div class="vb"><i class="${x.v>=60?'g':x.v<42?'r':''}" style="width:${x.v}%"></i></div><b class="num">${x.v}</b>`
+            :'<div></div><b></b>'}
+          <span class="dim">${esc(x.palavra||'')}</span></div>`).join('')}</div>
+        <div class="dim" style="margin-top:8px;font-size:11.5px">Leitura nível ${nv} de 5${nv<5?' — com margem de erro: analista e olheiro melhores afinam o número':''}.</div>`;
+  }
+
+  const temps=(t.temporadas||[]).slice().reverse();
+  const comissao=(typeof CARGOS!=='undefined'?CARGOS:[]).map(c=>{
+    const m=membroDe(t,c.id);
+    return `<div class="cl-com"><span class="dim">${esc(c.curto)}</span><b>${m?esc(m.nome):'vago'}</b>${m&&m.ex?' <span class="chip" title="ex-jogador">ex-jogador</span>':''}</div>`;
+  }).join('');
+
+  return `<div class="cl-topo">
+    ${escudo(t,76)}
+    <div class="cl-id">
+      <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · de ${esc(t.dono.nome)}`:''}</div>
+      <h2 class="sec" style="margin:2px 0 6px">${esc(t.nome)} <span class="dim">${esc(t.tag)}</span></h2>
+      <div class="cl-kpis">
+        <div><span>Prestígio</span><b class="num">${Math.round(t.prestigio)}</b></div>
+        <div><span>Torcida</span><b class="num">${Math.round(t.torcida||0)}</b></div>
+        <div><span>Ranking mundial</span><b class="num">${posMundo?posMundo+'º':'—'}</b></div>
+        <div><span>Técnico</span><b>${esc(tecNome)}</b></div>
+        <div><span>Patrocínio máster</span><b>${mk?esc(mk.nome):'—'}</b></div>
+      </div>
+    </div>
+    ${souEu?`<button class="btn ghost sm" data-irtela="historia">História do clube</button>`:''}
+  </div>
+  <div class="card"><div class="split"><div class="eyebrow">Elenco</div>
+    <span class="dim">${elenco.length} jogadores${souEu?'':' · negociar abre a mesa; troca monta uma proposta'}</span></div>
+    <div class="cl-elenco">${cartas||'<div class="empty">Sem jogadores.</div>'}</div>
+    <div class="cl-coms">${comissao}</div></div>
+  <div class="grid g2">
+    <div>
+      <div class="card"><div class="eyebrow">Temporada ${G.ano}</div>
+        <div class="cl-h2h">
+          <div><span class="dim">Liga</span><b class="num">${pos&&pos.pos?pos.pos+'º':'—'}</b><span class="dim">de ${pos?pos.de:'—'}</span></div>
+          <div><span class="dim">Séries</span><b class="num">${tc.v}–${tc.d}</b></div>
+          <div><span class="dim">Internacional</span><b>${intl?esc(intl.lugar):'—'}</b><span class="dim">${intl?esc(intl.txt):''}</span></div>
+          <div><span class="dim">Títulos no ano</span><b class="num">${tits.filter(h=>h.ano===G.ano).length}</b></div>
+        </div></div>
+      <div class="card"><div class="eyebrow">Sala de troféus · ${tits.length}</div>${sala}</div>
+      ${temps.length?`<div class="card"><div class="eyebrow">Temporadas</div>${temps.map(linhaTemporadaClube).join('')}</div>`:''}
+    </div>
+    <div>
+      ${souEu?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
+      <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
+    </div>
+  </div>`;
+}
+
+function ligarClube(v,on){
+  if(!String(tela).startsWith('clube:'))return;
+  on('[data-ctroca]',el=>{if(typeof modalTroca==='function')modalTroca(clubeVer,el.dataset.ctroca);});
+  on('[data-irtela]',el=>irPara(el.dataset.irtela));
+}
+
+
+/* ===== src/ui/cerimonia.js ===== */
+/* ============================================================
+   CERIMÔNIA DE ENCERRAMENTO — telas que você passa uma a uma
+   (os dados vêm prontos de core/cerimonia.js, em G.premios[].cer)
+   ------------------------------------------------------------
+   Abertura → a temporada do seu clube → os campeões do ano → os
+   prêmios do menor para o maior (revelação, IGL, treinador, seleção,
+   MVPs regionais, MVP do ano) → despedidas → fim. "Pular" fecha tudo
+   de uma vez e segue para o veredito. Na tela de Prêmios dá para
+   rever a de qualquer ano.
+   ============================================================ */
+let CER=null;   /* {reg, cer, i, telas, fim} */
+
+function abrirCerimonia(reg,fim,comVeredito){
+  if(!reg||!reg.cer){if(fim)fim();return;}
+  CER={reg,cer:reg.cer,i:0,fim:fim||null,veredito:!!comVeredito};
+  CER.telas=telasDaCerimonia(reg,reg.cer);
+  pintarCerimonia();
+}
+function fimCerimonia(){
+  const f=CER&&CER.fim;CER=null;
+  $('#modal').innerHTML='';
+  if(f)f();else render();
+}
+
+function lugarCor(l){return /campeão/.test(l)?'ouro':/vice/.test(l)?'prata':/top 4/.test(l)?'bronze':'';}
+function graficoPosicao(graf){
+  const pts=(graf||[]).filter(x=>x.p);
+  if(pts.length<2)return '';
+  const W=420,H=120,max=Math.max(...pts.map(x=>x.p),10);
+  const xy=pts.map((x,k)=>[16+k*(W-32)/(pts.length-1),12+(x.p-1)/(max-1)*(H-30)]);
+  const d=xy.map(([x,y],k)=>(k?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)).join(' ');
+  return `<svg class="cer-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <line x1="16" x2="${W-16}" y1="12" y2="12" class="g0"/><text x="${W-14}" y="15" class="gt">1º</text>
+    <path d="${d}" class="gl"/>
+    ${xy.map(([x,y],k)=>`<circle cx="${x}" cy="${y}" r="3.5"/><text x="${x}" y="${y+17}" class="gv">${pts[k].p}º</text>`).join('')}
+  </svg>`;
+}
+function cartaoFicha(f,rot,trof,extra){
+  if(!f)return '';
+  return `<div class="cer-premio">
+    ${trof?imgTrofeu(trof,64,rot):''}
+    <div class="cer-p-carta">${cartaPremiado(f,170)}</div>
+    <div class="cer-p-nome">${esc(f.nome)} ${FLAG[f.pais]||''}</div>
+    <div class="dim">${esc(f.tag)} · ${f.role}${f.maps?` · ${f.maps} mapas · ${f.acs} de ACS · ${Number(f.kd).toFixed(2)} K/D`:''}</div>
+    ${extra||''}</div>`;
+}
+
+function telasDaCerimonia(reg,c){
+  const T=[];
+  /* abertura */
+  T.push({rot:'Abertura',html:`<div class="cer-abre">
+      <div class="eyebrow">VCT · ${c.ano}</div>
+      <h1 class="cer-h1">Cerimônia de encerramento</h1>
+      <p class="dim">${c.apres&&c.apres.length?'Apresentação: <b>'+c.apres.map(esc).join('</b> e <b>')+'</b>, ex-jogadores do circuito.':'A temporada '+c.ano+' acabou. Antes da diretoria falar, o circuito celebra quem fez o ano.'}</p>
+    </div>`});
+
+  /* a temporada do seu clube */
+  const cl=c.clube;
+  if(cl){
+    const t=G.times[cl.id];
+    const l=cl.linha;
+    T.push({rot:'Sua temporada',html:`<div class="cer-tit"><div class="eyebrow">A temporada do seu clube</div>
+        <h2>${t?escudo(t,34):''} ${esc(cl.nome)}</h2></div>
+      <div class="cer-grid">
+        <div>
+          ${l?`<div class="cer-big"><b>${l.p}º</b><span>de ${l.de} na ${l.tier===2?'Challengers':'liga'} · ${l.v}–${l.d} em séries${l.mov==='subiu'?' · <span class="up">subiu para o VCT</span>':l.mov==='caiu'?' · <span class="dn">rebaixado</span>':''}</span></div>`:''}
+          <div class="eyebrow" style="margin-top:12px">Torneio a torneio</div>
+          <div class="cer-torn">${(cl.torneios||[]).map(x=>`<div class="${lugarCor(x.lugar)}">
+            ${x.tr?imgTrofeu(x.tr,18,x.ev):x.int?'🌍':'·'} <span>${esc(x.ev)}</span><b>${esc(x.lugar)}</b></div>`).join('')||'<div class="dim">—</div>'}</div>
+          ${cl.graf&&cl.graf.filter(x=>x.p).length>1?`<div class="eyebrow" style="margin-top:12px">Posição no ranking mundial</div>${graficoPosicao(cl.graf)}`:''}
+        </div>
+        <div>
+          ${cl.melhor?`<div class="eyebrow">Melhor jogador do clube</div>
+            <div class="cer-melhor">${cartaPremiado(cl.melhor,130)}<div><b>${esc(cl.melhor.nome)}</b>
+              <div class="dim">${cl.melhor.role}</div><div class="num">${cl.melhor.maps} mapas · ${cl.melhor.acs} ACS · ${Number(cl.melhor.kd).toFixed(2)} K/D · ${cl.melhor.mvps} MVPs</div></div></div>`:''}
+          ${cl.vitoria?`<div class="eyebrow" style="margin-top:14px">Maior vitória</div>
+            <div class="cer-vit">${G.times[cl.vitoria.advId]?escudo(G.times[cl.vitoria.advId],30):''}
+              <div><b class="num">${esc(cl.vitoria.placar)}</b> sobre <b>${esc(cl.vitoria.adv)}</b>
+              <div class="dim">${esc(cl.vitoria.ev)}${cl.vitoria.rd?' · '+esc(cl.vitoria.rd):''}${cl.vitoria.rounds>0?' · saldo de '+cl.vitoria.rounds+' rounds':''}</div></div></div>`:''}
+        </div>
+      </div>`});
+  }
+
+  /* campeões do ano */
+  const ints=(c.campeoes||[]).filter(x=>x.int),regs=(c.campeoes||[]).filter(x=>!x.int);
+  T.push({rot:'Campeões',html:`<div class="cer-tit"><div class="eyebrow">Os campeões de ${c.ano}</div><h2>Quem levantou troféu</h2></div>
+    <div class="cer-ints">${ints.map(x=>{const t=G.times[x.timeId];return `<div class="cer-int">
+      ${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),70,x.ev)}<div class="eyebrow">${esc(x.ev)}</div>
+      <div class="cer-int-c">${t?escudo(t,30):''}<b>${esc(x.nome)}</b></div></div>`;}).join('')}</div>
+    ${regs.length?`<div class="cer-regs">${regs.map(x=>{const t=G.times[x.timeId];
+      return `<div>${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),16,x.ev)} <span class="dim">${esc(x.ev)}</span> ${t?escudo(t,16):''}<b>${esc(t?t.tag:x.nome)}</b></div>`;}).join('')}</div>`:''}`});
+
+  /* prêmios, do menor para o maior */
+  if(reg.revelacao)T.push({rot:'Revelação',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Revelação do ano</h2></div>
+    ${cartaoFicha(reg.revelacao,'Revelação do ano',arquivoTrofeuPremio('revelacao'),reg.podios&&podioCurto(reg.podios.revelacao))}`});
+  if(reg.igl)T.push({rot:'IGL',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>IGL do ano</h2></div>
+    ${cartaoFicha(reg.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}`});
+  if(reg.treinador){const tr=reg.treinador,t=G.times[tr.timeId];
+    T.push({rot:'Treinador',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Treinador do ano</h2></div>
+    <div class="cer-premio">${imgTrofeu(arquivoTrofeuPremio('treinador'),80,'Treinador do ano')}
+      <div class="cer-p-nome">${esc(tr.nome)}${tr.voce?' <span class="chip t">você</span>':''}</div>
+      <div class="dim">${t?escudo(t,18)+' ':''}${esc(t?t.nome:tr.tag)}</div></div>`});}
+  if(reg.selecao&&reg.selecao.length)T.push({rot:'Seleção',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div>
+      <h2>${imgTrofeu(arquivoTrofeuPremio('selecao'),30,'Seleção do ano')} Seleção do ano</h2></div>
+    <div class="pr-sel">${reg.selecao.map(f=>`<div class="pr-sel-j cer-in">${cartaPremiado(f,140)}<div class="pr-sel-n"><span class="dim">${esc(f.tag)}</span></div></div>`).join('')}</div>`});
+  const regioes=REGIONS.filter(R=>reg.regioes&&reg.regioes[R.id]);
+  if(regioes.length)T.push({rot:'MVPs regionais',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>MVP de cada região</h2></div>
+    <div class="cer-regmvp">${regioes.map(R=>{const f=reg.regioes[R.id];return `<div class="cer-in">
+      <div class="eyebrow">${esc(R.nome)}</div>${cartaPremiado(f,130)}<b>${esc(f.nome)}</b><span class="dim">${esc(f.tag)}</span></div>`;}).join('')}</div>`});
+  if(reg.mvp){const m=reg.mvp;
+    T.push({rot:'MVP do ano',html:`<div class="cer-tit"><div class="eyebrow">O maior prêmio · ${c.ano}</div><h2>MVP do ano</h2></div>
+    <div class="cer-mvp">
+      ${imgTrofeu(arquivoTrofeuPremio('mvp'),90,'MVP do ano')}
+      <div class="cer-mvp-carta">${(()=>{const p=P(m.id);const base=p||{id:m.id,nome:m.nome,role:m.role,timeId:m.timeId,pais:m.pais};
+        return cartaJogador(base,{w:230,o:m.ov||(p?over(p):70),anima:true});})()}</div>
+      <div class="cer-mvp-info"><div class="cer-p-nome" style="font-size:44px">${esc(m.nome)} ${FLAG[m.pais]||''}</div>
+        <div class="dim">${esc(m.tag)} · ${m.role}</div>
+        <div class="pr-nums" style="grid-template-columns:repeat(2,1fr)">${[['Mapas',m.maps],['ACS',m.acs],['K/D',Number(m.kd).toFixed(2)],['MVPs de mapa',m.mvps!=null?m.mvps:'—']]
+          .map(([k,v])=>`<div><span>${k}</span><b class="num">${v}</b></div>`).join('')}</div>
+        ${m.fora!=null?'<div class="pr-fora">★ Temporada fora da curva</div>':''}
+        ${(m.conq||[]).length?`<div class="pr-conqs">${m.conq.slice(0,3).map(x=>`<span class="pr-conq ${x.i===0?'ouro':''}">${esc(x.ev)} · ${lugarConq(x.i)}</span>`).join('')}</div>`:''}
+      </div></div>`});}
+
+  /* despedidas */
+  if((c.despedidas||[]).length||(c.hall||[]).length){
+    const dest=d=>d.destino==='dono'?'compra o '+esc(d.clube||'clube'):d.destino?esc(ROT_DESTINO[d.destino]||d.destino):'sai de cena';
+    T.push({rot:'Despedidas',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
+      ${(c.hall||[]).length?`<div class="cer-hall">🏛 Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
+      <div class="cer-desp">${(c.despedidas||[]).map(d=>`<div class="${d.meu?'me':''}">
+        <b>${esc(d.nome)}</b> ${FLAG[d.pais]||''} <span class="tag ${d.role}">${d.role}</span>
+        <span class="dim">${d.idade} anos · ${esc(d.tag)} · ${d.titulos} título${d.titulos===1?'':'s'}${d.intl?' · '+d.intl+' internacional'+(d.intl===1?'':'is'):''}</span>
+        <em>${dest(d)}</em></div>`).join('')}</div>`});
+  }
+  T.push({rot:'Fim',html:`<div class="cer-abre"><div class="eyebrow">VCT · ${c.ano}</div><h1 class="cer-h1">Até ${c.ano+1}</h1>
+    <p class="dim">${CER&&CER.veredito?'Agora a diretoria quer falar com você.':'Bom descanso — a pré-temporada começa já.'}</p></div>`});
+  return T;
+}
+
+function pintarCerimonia(){
+  if(!CER)return;
+  const T=CER.telas,i=CER.i,ult=i===T.length-1;
+  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer">
+    <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" title="${esc(x.rot)}"></i>`).join('')}</div>
+      <button class="btn ghost sm" data-cer="pular">${CER.fim?'Pular cerimônia':'Fechar'}</button></div>
+    <div class="cer-corpo" key="${i}">${T[i].html}</div>
+    <div class="cer-pe">
+      <button class="btn ghost" data-cer="voltar" ${i?'':'disabled'}>‹ Voltar</button>
+      <span class="dim">${esc(T[i].rot)} · ${i+1} de ${T.length}</span>
+      <button class="btn" data-cer="seguir">${ult?(CER.veredito?'Ver o veredito':CER.fim?'Seguir':'Fechar'):i===0?'Começar ›':'Próximo ›'}</button>
+    </div></div></div>`;
+  const md=$('#modal');
+  md.querySelectorAll('[data-cer]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const a=b.dataset.cer;
+    if(a==='pular')return fimCerimonia();
+    if(a==='voltar'){CER.i=Math.max(0,CER.i-1);return pintarCerimonia();}
+    if(CER.i>=T.length-1)return fimCerimonia();
+    CER.i++;pintarCerimonia();
+  });
+}
+
+
 /* ===== src/ui/modals.js ===== */
 /* ============================================================
    MODAIS
@@ -17761,6 +18454,7 @@ function abrir(html,wide){
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-prop]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalProposta(b.dataset.prop);});
   $('#modal').querySelectorAll('[data-fichastaff]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalStaff(b.dataset.fichastaff);});
+  if(typeof ligarClubes==='function')ligarClubes($('#modal'));
 }
 function fechar(){$('#modal').innerHTML='';render();}
 
@@ -17811,7 +18505,7 @@ function modalJogador(id){
   /* Antes isto era `return abrir(...)`: o return cortava a função e nenhum
      botão da ficha (renovar, troca, pedido de saída, opção) ganhava clique. */
   abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
-    <div class="eyebrow">${p.timeId?esc(nomeT(p.timeId)):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
+    <div class="eyebrow">${p.timeId?linkClube(G.times[p.timeId]):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
     <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
     <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
@@ -18286,7 +18980,10 @@ function modalStaff(id){
       <h2 class="sec">${esc(m.nome)} ${bandeira(m.pais)}</h2>
       <div class="dim" style="font-size:12px;margin:-4px 0 6px">${m.nomeReal?esc(m.nomeReal)+' · ':''}${esc(nomePais(m.pais))}</div>
       <span class="tag">${esc(cargoNome(m.cargo))}</span>${m.funcao?` <span class="pill">${esc(m.funcao)}</span>`:''} <span class="pill">${m.idade} anos</span>
-      <span class="pill">Contrato ${m.contrato}a</span></div></div>
+      <span class="pill">Contrato ${m.contrato}a</span>
+      ${m.ex?`<div class="dim" style="margin-top:7px;font-size:12px">🎮 Ex-jogador (${esc(m.ex.role)}), aposentou em ${m.ex.ano}
+        · ${m.ex.titulos} título${m.ex.titulos===1?'':'s'}${m.ex.intl?' · '+m.ex.intl+' internacional'+(m.ex.intl===1?'':'is'):''}
+        ${G.meuTime&&(m.ex.clubes||[]).includes(G.meuTime)?' · <b class="up">jogou no seu clube: pede menos para voltar</b>':''}</div>`:''}</div></div>
     <div style="text-align:right"><div class="ov ${ovClass(o)}" style="font-size:52px">${o}</div>
       <div class="dim">Potencial <b style="color:var(--gold)">${m.pot}</b></div>
       <div class="dim num">nível ${nivelDe(m).toFixed(1)} / 5</div></div>
@@ -18478,6 +19175,7 @@ function modalVeredito(v){
     <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
     <h2 class="sec ver-t">${titulo}</h2>
     <p class="dim">${v.pos}º de ${v.de} na liga${v.titulos?' · '+v.titulos+' título(s)':''}.</p>
+    ${(()=>{const t=G.times[G.meuTime];return t&&t.dono?`<p class="dim">Quem assina é o presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</p>`:'';})()}
     <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
       ${v.metas.map(x=>`<div class="mgr-meta ${x.cumprida?'ok':'nao'}" style="margin-bottom:6px">
         <b>${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}</b>
@@ -20857,6 +21555,7 @@ function ligarEventos(){
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
   if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
   if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
+  if(typeof ligarClube==='function'&&t)ligarClube(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por
@@ -20865,6 +21564,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
+  on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-bpromo]',async el=>{
@@ -21620,7 +22320,14 @@ function aplicarAvanco(r,quantas){
   if(r.encerrado)flash(r.encerrado+' encerrado.');
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
-  if(G&&G.vereditoPendente){
+  /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre
+     quando ela termina (ou quando você pula). */
+  if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
+    const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
+    const reg=(G.premios||[]).find(x=>x.ano===ano);
+    const v=G.vereditoPendente;G.vereditoPendente=null;
+    abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
+  }else if(G&&G.vereditoPendente){
     const v=G.vereditoPendente;G.vereditoPendente=null;
     modalVeredito(v);
   }
@@ -21660,7 +22367,7 @@ function avancarAteMeuJogo(){
     if(!r||r.tipo==='fim')break;
     if(r.encerrado)break;                      /* torneio encerrou: pare e mostre */
     if(r.minhaPartida)break;                   /* seu clube jogou */
-    if(G.vereditoPendente)break;
+    if(G.vereditoPendente||G.cerimoniaPendente)break;
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

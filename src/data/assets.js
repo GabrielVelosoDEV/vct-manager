@@ -63,7 +63,7 @@ function monogramaJogador(nome,px){
 function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
-  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" src="${ASSETS.logo(t)}"
+  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${ASSETS.logo(t)}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
 /* Cadeia de resolução do retrato, do mais específico ao mais genérico:
@@ -189,6 +189,10 @@ function retratoStaff(m,px){
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
+  /* ex-jogador na comissão mantém a foto de quando jogava */
+  if(m.ex){const upJ=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(m.ex.nome));
+    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.arq('players',m.ex.nome),gerado,fb);
+    return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt="" src="${cj.src}" onerror="${cj.on}">`;}
   const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;

@@ -196,6 +196,24 @@
   seleção desenhada em cinco cartas, pódios curtos de revelação e
   regionais, navegação entre anos.
 
+- **Página de clube, cerimônia e pós-carreira** (pacote 11): todo escudo do
+  jogo (e o nome do clube na ficha do jogador e nas notícias) abre a página
+  do clube — cabeçalho com liga, prestígio, torcida, ranking mundial,
+  técnico e máster; elenco em cartas com contrato, salário, valor e atalhos
+  para negociar e propor troca; comissão; temporada; sala de troféus; linha
+  do tempo; confronto e rivalidade com o seu clube; e o preparo por mapa
+  deles, borrado pelo nível do seu analista. Na virada do ano, antes do
+  veredito, vem a cerimônia de encerramento (sua temporada com gráfico do
+  ranking, melhor jogador e maior vitória; campeões; prêmios do menor ao
+  MVP; despedidas e Hall da Fama), que pode ser pulada e revista em Prêmios.
+  Na aposentadoria, quem teve carreira ganha um destino: head coach,
+  analista ou olheiro (entra no mercado de comissão com o nick e a foto, e
+  pede menos para voltar a um clube onde jogou), caster (apresenta a
+  cerimônia) ou, para lendas, dono de clube (compra um clube da região, de
+  preferência do Tier 2, com aporte, torcida e prestígio; no seu clube
+  passa a assinar o veredito). Sorteio local: o gerador do motor não anda.
+  Medido com `tools/poscarreira.mjs`.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters
