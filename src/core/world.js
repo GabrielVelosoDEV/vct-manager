@@ -5,7 +5,7 @@ function criarMundo(seedVal){
      meuTime:null,caixa:0,log:[],historico:[],bloco:0,fase:'',temporadaFim:false,
      mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],negociacoes:[],transferencias:[],
      meta:(typeof metaInicial==='function'?metaInicial():{}),patches:[],patchFeito:{}};
-  montarTorneios();montarAgentes();montarMarcas();
+  montarTorneios();montarAgentes();montarMarcas();montarCidades();
   const usadosT=new Set(), usadosP=new Set();
   /* Reserva de saída TODOS os nicks reais antes de gerar qualquer jogador.
      Sem isso, nomeUnico() só conhece os nicks já inseridos, e um reserva

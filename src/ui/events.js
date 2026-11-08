@@ -324,6 +324,25 @@ function ligarEventos(){
     }
     render();flash(erros.length?erros[0]:n+' torneio(s) atualizado(s).');
   });
+  /* ---------- cidades-sede ---------- */
+  on('#edSalvarCid',()=>{
+    const patch={};
+    const pega=(sel,campo,ler)=>v.querySelectorAll('['+sel+']').forEach(el=>{
+      (patch[el.getAttribute(sel)]=patch[el.getAttribute(sel)]||{})[campo]=ler(el);});
+    pega('data-cnome','nome',el=>el.value);pega('data-cpais','pais',el=>el.value);
+    pega('data-ctipo','tipo',el=>el.value);pega('data-cmaior','maior',el=>el.checked);
+    let n=0;const erros=[];
+    for(const slug in patch){const r=edAplicarCidade(slug,patch[slug]);r.ok?n++:erros.push(r.erro);}
+    render();flash(erros.length?erros[0]:n+' cidade(s) atualizada(s).');
+  });
+  on('#edAddCid',()=>{
+    const r=edAddCidade($('#edCidNome').value,$('#edCidPais').value,$('#edCidTipo').value);
+    render();flash(r.ok?r.msg:r.erro);
+  });
+  on('[data-cdel]',el=>{
+    const r=edRemoverCidade(el.dataset.cdel);
+    render();flash(r.ok?'Cidade removida.':r.erro);
+  });
   v.querySelectorAll('[data-tarte]').forEach(el=>el.addEventListener('change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveTorneio(el.dataset.tarte),f);
   }));

@@ -158,6 +158,11 @@ console.log(anos+' temporada(s) em',Date.now()-t0,'ms |',n,'avanços | semente',
 console.log('times:',Object.keys(G.times).length,'| jogadores:',Object.keys(G.jogadores).length,
             '| Tier 1:',nT1,'| Tier 2:',nT2);
 console.log('títulos registrados:',G.historico.length);
+/* título é do evento, nunca da fase; internacional leva a sede do ano */
+for(const h of G.historico.filter(h=>!h.pre)){
+  if(/Playoffs|Grupos|Suíç/.test(h.evento))erros.push(h.ano+': título com nome de fase — '+h.evento);
+  if(/^(Masters I{1,2}|Valorant Champions)$/.test(h.evento))erros.push(h.ano+': título internacional sem sede — '+h.evento);
+}
 console.log('jogos do seu clube:',jogosMeus,'— todos com relatório e veto antes');
 if(financas.length){
   console.log('\nfinanças por temporada (clubes no vermelho / pior caixa / agentes livres):');

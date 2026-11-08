@@ -146,7 +146,8 @@ O Editor é o lugar de montar a base, em seis abas:
 - **Comissão** — os cinco cargos de cada clube, com foto, atributos, contrato e
   salário. O ocupante de cada vaga sai de um select que inclui quem está livre e
   quem está empregado em outro clube.
-- **Torneios** — as 43 competições do circuito: nome, sigla curta, arte e **prêmio do
+- **Torneios** — as 27 competições do circuito (uma por evento: grupos e playoffs são o
+  mesmo torneio) e as 60 cidades-sede de Masters e Champions: nome, sigla curta, arte e **prêmio do
   campeão**. Renomear vale na hora, inclusive na temporada em andamento; mudar o prêmio
   muda o dinheiro que entra no circuito.
 - **Agentes** — a lista de agentes do jogo, com retrato e função. É da run, não do

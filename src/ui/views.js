@@ -19,7 +19,7 @@ function faixaCircuito(){
       :'em '+(b.ini-sem)+' sem.';
     return `<div class="tl-item ${est} ${grande(b)?'major':''}">
       <div class="q">${quando}</div>
-      <div class="n">${esc(b.nome)}</div>
+      <div class="n">${esc(nomeBloco(b))}</div>
       <div class="d">${rotuloPeriodo(G.ano,b.ini,b.fim)}</div></div>`;
   }).join('')+`</div>`;
 }
@@ -138,7 +138,7 @@ function vInicio(){
   </div>
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Próximo compromisso</div>
-      ${px&&px.espera?`<h3 class="sub">${esc(px.espera.nome)}</h3>
+      ${px&&px.espera?`<h3 class="sub">${esc(nomeBloco(px.espera))}</h3>
        <p class="dim">Começa em ${rotuloPeriodo(G.ano,px.espera.ini,px.espera.fim)} —
        ${px.semanas} semana${px.semanas===1?'':'s'} daqui. Até lá o elenco treina, quem está
        machucado se recupera e o mercado continua girando.</p>`
@@ -389,7 +389,7 @@ function vComp(){
       :renderStage(x)).join('')
       :'<div class="empty">Nada agendado ainda para esta região.</div>';
   }
-  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?b.nome:'')}</h2>
+  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?nomeBloco(b):'')}</h2>
   <div class="tabs">${abas.map(([k,n])=>`<button data-ca="${k}" class="${compAba===k?'on':''}">${n}</button>`).join('')}</div>${corpo}`;
 }
 function renderStage(s){
@@ -433,8 +433,19 @@ function cabecaTorneio(s){
   const b=blocoDoStage(s), tn=torneio(s.torneioId);
   const est=estadoStage(s);
   const premio=premiosDoStage(s)[0]||0;
-  return `<div class="split">
-    <div class="eyebrow">${arteTorneio(tn,22)} ${esc(nomeStage(s))}</div>
+  /* Internacional: faixa da cidade-sede atrás do cabeçalho. Fase final já
+     decidida: o troféu do evento ao lado do campeão. */
+  const sede=typeof sedeDe==='function'?sedeDe(s.torneioId):null;
+  const campeao=s.feito&&s.ranking&&s.ranking[0]&&s.tipo!=='grupos'&&s.tipo!=='swiss'?G.times[s.ranking[0]]:null;
+  const trofeu=campeao&&typeof arquivoTrofeu==='function'?arquivoTrofeu(s.torneioId):null;
+  const faixa=sede||campeao?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
+      <div>${sede?`<div class="eyebrow">Sede</div><div class="tn-cidade">${esc(sede.nome)}</div>
+        <div class="dim">${bandeira(sede.pais)} ${esc(nomePais(sede.pais))}</div>`:''}</div>
+      ${campeao?`<div class="tn-campeao">${imgTrofeu(trofeu,44,'Troféu de '+nomeTitulo(s))}
+        <div><div class="eyebrow">Campeão</div>${timeInline(campeao.id,22)}</div></div>`:''}
+    </div>`:'';
+  return `${faixa}<div class="split">
+    <div class="eyebrow">${arteDoStage(s,22)} ${esc(nomeStage(s))}</div>
     <span class="chip ${est.cls}">${esc(est.txt)}</span></div>
   <div class="tn-info">
     ${b?`<span>${rotuloPeriodo(G.ano,b.ini,b.fim)}</span>`:''}
@@ -623,7 +634,7 @@ function vTreino(){
   ${px&&!px.espera?`<div class="card flat" style="border-left:4px solid var(--red)">
     <b>Tem jogo nesta semana</b> — ${px.bye?'bye':'contra '+esc(nomeT(px.adv))}. Quem treina pesado
     entra cansado, e cansaço é o que mais custa partida.</div>`
-   :px&&px.espera?`<div class="card flat"><b>${esc(px.espera.nome)}</b> em ${px.semanas}
+   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera))}</b> em ${px.semanas}
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
 
   <div class="card"><div class="split">
@@ -986,7 +997,7 @@ function vFinancas(){
       <button class="btn ghost sm" data-disp="${p.id}">Dispensar</button></td></tr>`;}).join('')}</tbody></table></div>
   <div class="card"><div class="eyebrow">Premiações que você pode disputar</div>
     <table><thead><tr><th>Competição</th><th class="r">Campeão</th><th class="r">Vice</th></tr></thead><tbody>
-      ${['champions','masters1',(t.tier===1?'po2_':'cp2_')+t.regiao,(t.tier===1?'kickoff_':'asc_')+t.regiao]
+      ${['champions','masters1',(t.tier===1?'stage2_':'split2_')+t.regiao,(t.tier===1?'kickoff_':'asc_')+t.regiao]
         .map(id=>{const tor=torneio(id);if(!tor||!tor.premio)return '';
           const p=premiosDoStage({torneioId:id});
           return `<tr><td>${torneioInline(id,20)}</td><td class="r num">${money(p[0]||0)}</td>
@@ -1017,11 +1028,11 @@ function vStats(){
    PRÊMIOS E HALL DA FAMA
    ============================================================ */
 let premioAno=null;
-function linhaPremiado(f,rot){
+function linhaPremiado(f,rot,trofeu){
   if(!f)return '';
   const vivo=!!P(f.id);
   return `<tr class="${vivo?'jrow':''} ${f.timeId===G.meuTime?'me':''}" ${vivo?`data-p="${f.id}"`:''}>
-    ${rot?`<td class="dim">${esc(rot)}</td>`:''}
+    ${rot?`<td class="dim">${trofeu?imgTrofeu(trofeu,14,rot)+' ':''}${esc(rot)}</td>`:''}
     <td><b>${esc(f.nome)}</b> ${FLAG[f.pais]||''}${vivo?'':' <span class="chip">aposentado</span>'}</td>
     <td><span class="tag ${f.role}">${f.role}</span></td><td class="dim">${esc(f.tag)}</td>
     <td class="r num">${f.maps}</td><td class="r num">${f.acs}</td><td class="r num">${Number(f.kd).toFixed(2)}</td></tr>`;
@@ -1036,19 +1047,21 @@ function vPremios(){
   const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
       O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
   <div class="grid g2">
-    <div class="card"><div class="eyebrow">MVP de ${r.ano}</div>
+    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('mvp'),46,'MVP do ano')}<div>
+      <div class="eyebrow">MVP de ${r.ano}</div>
       <h3 style="margin:4px 0">${esc(r.mvp.nome)} ${FLAG[r.mvp.pais]||''}</h3>
-      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div>
-    <div class="card"><div class="eyebrow">Treinador do ano</div>
+      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div></div>
+    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('treinador'),46,'Treinador do ano')}<div>
+      <div class="eyebrow">Treinador do ano</div>
       ${r.treinador?`<h3 style="margin:4px 0">${esc(r.treinador.nome)}${r.treinador.voce?' <span class="chip t">você</span>':''}</h3>
-      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div>
+      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div></div>
   </div>
-  <div class="card flat"><div class="eyebrow">Seleção do ano</div>
+  <div class="card flat"><div class="eyebrow">${imgTrofeu(arquivoTrofeuPremio('selecao'),18,'Seleção do ano')} Seleção do ano</div>
     <table>${TH_PREMIO(false)}<tbody>${r.selecao.map(f=>linhaPremiado(f)).join('')}</tbody></table></div>
   <div class="card flat"><div class="eyebrow">Destaques</div>
     <table>${TH_PREMIO(true)}<tbody>
       ${REGIONS.map(R=>linhaPremiado(r.regioes[R.id],'MVP · '+R.nome)).join('')}
-      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano')}
+      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}
     </tbody></table></div>`;
   const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
   return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
@@ -1145,9 +1158,10 @@ function vHistoria(){
 
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Galeria de títulos</div>
-      ${l.titulos.length?`<div class="titulos">${l.titulos.slice().reverse().map(x=>
-        `<div class="tit-linha"><span class="num dim">${esc(x.split(' · ')[0])}</span>
-          <b>${esc(x.split(' · ').slice(1).join(' · '))}</b></div>`).join('')}</div>`
+      ${l.titulos.length?`<div class="titulo-lista">${l.titulos.slice().reverse().map(x=>{
+        const ano=parseInt(x.split(' · ')[0]),ev=x.split(' · ').slice(1).join(' · ');
+        return `<div class="titulo-item">${imgTrofeu(trofeuDoTitulo(ano,ev),30,ev)}
+          <div><div class="ano">${esc(String(ano))}</div><div class="ev">${esc(ev)}</div></div></div>`;}).join('')}</div>`
         :'<div class="empty">Nenhum título ainda. É por isso que você está aqui.</div>'}
     </div>
     <div class="card"><div class="eyebrow">Rivalidades</div>
@@ -1177,7 +1191,7 @@ function vHistoria(){
       <table><tbody>${pre.filter(h=>h.ano===a).map(h=>{
         const c=acharClubePorNome(h.campeao);
         return `<tr>
-          <td class="dim">${esc(h.evento)}</td>
+          <td class="dim">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),14,h.evento)} ${esc(h.evento)}</td>
           <td>${c?escudo(c,20):''} <b>${esc(h.campeao)}</b>${c?'':' <span class="dim">(não compete mais)</span>'}</td>
           <td class="dim r">${h.vice?'vice: '+esc(h.vice):''}</td></tr>`;}).join('')}
       </tbody></table></div>`).join('')}

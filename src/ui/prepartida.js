@@ -203,7 +203,8 @@ function ppVetoHTML(){
     const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
     const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
     const mostraAdv=nivelScout(meuT)>=3;
-    return `<button class="mp-card ${minha?'':'off'}" data-ppmapa="${esc(mp)}" ${minha?'':'disabled'}>
+    return `<button class="mp-card ${minha?'':'off'}" data-ppmapa="${esc(mp)}" ${minha?'':'disabled'}
+      style="${fundoMapa(mp,0.6)}">
       <div class="mp-nome">${esc(mp)}</div>
       <div class="mp-val ${meuA>=2?'up':meuA<=-2?'dn':''}">${meuA>0?'+':''}${meuA.toFixed(1)}</div>
       <div class="mp-adv">${esc(advT.tag)} ${mostraAdv?(advA>0?'+':'')+advA.toFixed(1):'?'}</div>
@@ -212,7 +213,7 @@ function ppVetoHTML(){
   }).join('');
   const mapasFinais=V.seq.filter(x=>x.tipo!=='ban');
   return `<div class="split">
-      <div><div class="eyebrow">Veto de mapas · ${esc(PP.comp.stage.nome||'')} · Bo${V.bo}</div>
+      <div><div class="eyebrow">Veto de mapas · ${esc(nomeStage(PP.comp.stage))} · Bo${V.bo}</div>
         <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(advT.tag)}</h2></div>
       <div style="text-align:right"><div class="eyebrow">Sequência</div>
         <b class="num">${V.i}/${V.passos.length}</b></div>
@@ -220,7 +221,7 @@ function ppVetoHTML(){
     <div style="margin:10px 0">${linhaSeq||'<span class="dim">O veto começa agora.</span>'}</div>
     ${V.fim?`<div class="card flat"><div class="eyebrow">A série vai ser assim</div>
         <table class="wide"><tbody>${mapasFinais.map((x,i)=>`<tr>
-          <td class="c num">${i+1}</td><td><b>${esc(x.m)}</b></td>
+          <td class="c num">${i+1}</td><td><span class="mp-mini" style="${fundoMapa(x.m,0.25)}"></span> <b>${esc(x.m)}</b></td>
           <td class="dim">${x.tipo==='dec'?'decider':('escolha do '+esc(x.t))}</td>
           <td class="c"><span class="pill ${afinidadeElenco(meuT,x.m)>=1?'g':afinidadeElenco(meuT,x.m)<=-1?'r':''}"
             >você ${afinidadeElenco(meuT,x.m)>0?'+':''}${afinidadeElenco(meuT,x.m).toFixed(1)}</span></td>

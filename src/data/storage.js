@@ -98,7 +98,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=10;
+const RUN_VERSAO=11;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -172,6 +172,36 @@ function migrarRun(reg){
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();
     if(!G.agentes)montarAgentes();
+    if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
+    if(!G.sedes)G.sedes={};
+    /* Torneio por evento, não por fase: os playoffs do Stage e do Split eram
+       entradas próprias do catálogo e davam título com o nome da fase
+       ("Playoffs Stage 1 · VCT Americas"). O catálogo é unificado, os stages
+       da temporada em curso passam a apontar para o evento e os títulos já
+       ganhos são renomeados. */
+    if(unificarTorneios()||!G._titulosPorEvento){
+      for(const b of G.calendario||[])for(const st of b.stages||[]){
+        st.torneioId=torneioDeStage(st.id);
+        if(st.tipo==='de'&&!st.rotulo&&/^(kick|po|cp|masters|champs)/.test(st.id))st.rotulo='Playoffs';
+        if(/^(po|cp)\d_/.test(st.id))st.nome=String(st.nome).replace(/^Playoffs (Stage|Split) /,'$1 ').replace(/^Playoffs (Challengers)/,'Split '+st.id[2]+' · $1');
+      }
+      const renomear=txt=>String(txt).replace(/Playoffs (Stage|Split) (\d) · /g,'$1 $2 · ');
+      for(const h of G.historico)if(h&&h.evento)h.evento=renomear(h.evento);
+      for(const id in G.times){const t=G.times[id];if(Array.isArray(t.titulos))t.titulos=t.titulos.map(renomear);}
+      G._titulosPorEvento=true;
+    }
+    if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
+    /* Títulos internacionais de carreira gravados antes das sedes ("2028 ·
+       Masters I") ganham a cidade daquele ano, a mesma que o sorteio dá a ele
+       agora — senão a galeria diria "Masters I" ao lado de um troféu de Osaka. */
+    if(!G._titulosComSede&&typeof nomeComSede==='function'){
+      const genericos={'Masters I':'masters1','Masters II':'masters2','Valorant Champions':'champions'};
+      const comSede=(ano,ev)=>{const k=genericos[ev];return k&&ano>=2027?(nomeComSede(k,ano)||ev):ev;};
+      for(const h of G.historico)if(h&&!h.pre&&h.evento)h.evento=comSede(h.ano,h.evento);
+      for(const id in G.times){const t=G.times[id];if(Array.isArray(t.titulos))
+        t.titulos=t.titulos.map(x=>{const i=x.indexOf(' · ');if(i<0)return x;const ano=parseInt(x);return x.slice(0,i+3)+comSede(ano,x.slice(i+3));});}
+      G._titulosComSede=true;
+    }
     if(!G.staff)migrarStaffAntigo();
     if(!G.marcas||!Object.keys(G.marcas).length)montarMarcas();
 

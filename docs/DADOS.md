@@ -20,7 +20,9 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
 | `regioes` | `{RID: Regiao}` | ligas, divisões e pontos |
 | `calendario` | `[Bloco]` | temporada montada |
 | `mapasAtivos` | `[string]` | rotação de mapas; hoje é o `MAP_POOL` inteiro |
-| `torneios` | `{id: Torneio}` | catálogo das 43 competições, editável |
+| `torneios` | `{id: Torneio}` | catálogo das 27 competições (uma por evento), editável |
+| `cidades` | `[Cidade]` | as cidades-sede de Masters e Champions, semeadas de `data/sedes.js`, editáveis |
+| `sedes` | `{ano: {masters1, masters2, champions}}` | sede sorteada de cada ano (slug da cidade) |
 | `agentes` | `{funcao: [nome]}` | lista de agentes da run, semeada de `AGENTS` |
 | `staff` | `{id: Membro}` | ~440 profissionais de comissão técnica |
 | `staffLivres` | `[id]` | comissão sem clube |

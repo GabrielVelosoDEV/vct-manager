@@ -98,7 +98,8 @@ cidades: 19 de Champions e 41 só de Masters.
 | Toronto        | `toronto.webp`        | Canadá    |
 | Varsóvia       | `varsovia.webp`       | Polônia   |
 
-As cidades da lista de Champions também podem receber Masters, com chance normal.
+As cidades da lista de Champions também podem receber Masters: com chance normal, ou
+dobrada no caso de Rio de Janeiro e Pequim, que não são a maior cidade do país.
 
 Por região: Europa 20 (com Istambul), Ásia e Oriente Médio 14, Estados Unidos 8,
 Brasil 6, China 6, restante das Américas 6.

@@ -127,6 +127,12 @@
   `verificar.mjs` acusa se voltar. A Central mostra a tabela do torneio em
   disputa, Kickoff incluído.
 
+- **Identidade do circuito** (pacote 2): Masters e Champions com sede sorteada
+  por ano entre 60 cidades e o nome dela ("Masters Osaka"); arte dos mapas no
+  veto e na transmissão; faixa da cidade e troféu do campeão no torneio;
+  troféus na galeria do clube e nos prêmios; cidades editáveis no Banco de
+  dados. Título passou a ser do evento: ninguém mais é "campeão dos playoffs".
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

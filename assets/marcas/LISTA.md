@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/marcas/` com o nome exato da lista. O nome é 
 nome da marca em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-245/246 com imagem.
+246/246 com imagem.
 
 ## Global · patamar alto
 
@@ -290,7 +290,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `rakuten.png` — Rakuten (E-commerce, nível 3)
 - [x] `softbank.png` — SoftBank (Telecom, nível 3)
 - [x] `pocari-sweat.png` — Pocari Sweat (Bebida, nível 2)
-- [ ] `lawson.png` — Lawson (Varejo, nível 2)
+- [x] `lawson.png` — Lawson (Varejo, nível 2)
 - [x] `mynavi.png` — Mynavi (Serviços, nível 2)
 
 ## PAC · Japão · patamar baixo

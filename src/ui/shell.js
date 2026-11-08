@@ -150,7 +150,7 @@ function pintarTop(){
       ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
       G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
       rotuloSemana(G.ano,G.semana||1)}</strong></div>
-    <div class="top-bit">Agenda<strong>${esc(b?b.nome:proximaAgenda())}</strong></div>
+    <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
@@ -168,7 +168,7 @@ function proximaAgenda(){
   const nb=typeof proximoBloco==='function'?proximoBloco(G.semana||1):null;
   if(!nb)return 'Fim da temporada';
   const faltam=nb.ini-(G.semana||1);
-  return nb.nome+' em '+faltam+' semana'+(faltam===1?'':'s');
+  return nomeBloco(nb)+' em '+faltam+' semana'+(faltam===1?'':'s');
 }
 
 /* ---------- avisos ---------- */

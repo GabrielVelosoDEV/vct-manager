@@ -280,7 +280,44 @@ function edvTorneios(){
     return `<div class="card flat"><div class="eyebrow">${esc(g.rot)}</div>
       <table class="wide"><thead><tr><th></th><th>Nome</th><th>Curto</th><th class="c">Divisão</th>
         <th class="r">Prêmio do campeão</th><th class="r">Campeão · vice</th><th class="r">Arte</th></tr></thead>
-      <tbody>${itens.map(linha).join('')}</tbody></table></div>`;}).join('')}`;
+      <tbody>${itens.map(linha).join('')}</tbody></table></div>`;}).join('')}
+  ${edvCidades()}`;
+}
+/* Cidades-sede: o catálogo de onde o sorteio do ano tira Masters e Champions.
+   Mudar aqui vale para os sorteios que ainda não aconteceram; as sedes já
+   sorteadas (o ano em curso e os anteriores) ficam como estão. */
+function edvCidades(){
+  if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
+  const ano=G.ano,sd=typeof sedesDoAno==='function'?sedesDoAno(ano):null;
+  const usadas=sd?Object.values(sd):[];
+  const lista=G.cidades.slice().sort((a,b)=>(a.tipo===b.tipo?0:a.tipo==='champions'?-1:1)||a.nome.localeCompare(b.nome));
+  const linha=c=>`<tr>
+    <td><span class="mp-mini" style="${fundoCidade(c.slug,0.15)}"></span></td>
+    <td><input type="text" value="${esc(c.nome)}" data-cnome="${esc(c.slug)}" style="width:170px">
+      ${usadas.includes(c.slug)?'<span class="chip g">sede em '+ano+'</span>':''}</td>
+    <td>${selectPais('data-cpais="'+esc(c.slug)+'"',c.pais)}</td>
+    <td><select data-ctipo="${esc(c.slug)}"><option value="champions" ${c.tipo==='champions'?'selected':''}>Champions e Masters</option>
+      <option value="masters" ${c.tipo==='masters'?'selected':''}>só Masters</option></select></td>
+    <td class="c"><input type="checkbox" data-cmaior="${esc(c.slug)}" ${c.maior?'checked':''}></td>
+    <td class="dim"><code>${esc(c.slug)}.webp</code></td>
+    <td class="r"><button class="btn ghost sm" data-cdel="${esc(c.slug)}">✕</button></td></tr>`;
+  return `<div class="card flat"><div class="eyebrow">Cidades-sede · ${G.cidades.length}</div>
+    <p class="dim">Todo ano o jogo sorteia a sede de Masters I, Masters II e Champions. Champions só
+    sai das cidades marcadas para ele; Masters sai de qualquer uma, com o dobro de chance para quem
+    <b>não</b> é a maior cidade do país. Nenhuma cidade repete as sedes dos dois anos anteriores.
+    ${sd?`Sedes de ${ano}: <b>${esc(nomeComSede('masters1',ano)||'—')}</b>, <b>${esc(nomeComSede('masters2',ano)||'—')}</b> e
+    <b>${esc(nomeComSede('champions',ano)||'—')}</b>.`:''}</p>
+    <p class="dim">A imagem de cada cidade vai em <code>assets/cidades/</code> com o nome da coluna Arquivo.</p>
+    <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="edSalvarCid">Aplicar alterações</button>
+      <input type="text" id="edCidNome" placeholder="Nova cidade" style="width:170px">
+      ${selectPais('id="edCidPais"','')}
+      <select id="edCidTipo"><option value="masters">só Masters</option><option value="champions">Champions e Masters</option></select>
+      <button class="btn ghost" id="edAddCid">Adicionar</button>
+    </div>
+    <div class="rolagem"><table class="wide"><thead><tr><th></th><th>Cidade</th><th>País</th><th>Recebe</th>
+      <th class="c" title="Maior cidade do país: chance normal no Masters">Maior do país</th><th>Arquivo</th><th></th></tr></thead>
+    <tbody>${lista.map(linha).join('')}</tbody></table></div></div>`;
 }
 
 /* ============================================================

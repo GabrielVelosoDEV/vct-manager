@@ -240,7 +240,7 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2);
+  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2,s.torneioId);
     /* título internacional conta à parte: é ele que separa lenda de bom jogador */
     if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
       const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
@@ -264,14 +264,18 @@ function encerrarStage(s){
   }
   return s.mvp;
 }
-function titulo(id,nome,imp){
+function titulo(id,nome,imp,torneioId){
   const t=G.times[id];if(!t)return;
   t.titulos.push(G.ano+' · '+nome);t.prestigio=clamp(t.prestigio+2.2,20,99);
   t.titulares.forEach(pid=>G.jogadores[pid].carreira.titulos++);
   if(typeof CARGOS!=='undefined')CARGOS.forEach(c=>{
     const m=membroDe(t,c.id);if(m)m.temp.titulos++;
   });
-  G.historico.push({ano:G.ano,evento:nome,campeao:t.nome});
+  /* torneioId e o arquivo do troféu ficam gravados: a sede e o troféu são
+     do ano em que o título saiu, mesmo que o catálogo de cidades mude depois */
+  G.historico.push({ano:G.ano,evento:nome,campeao:t.nome,timeId:t.id,
+    torneioId:torneioId||null,
+    trofeu:torneioId&&typeof arquivoTrofeu==='function'?arquivoTrofeu(torneioId,G.ano):null});
   noticia('🏆 '+t.nome+' é campeão de '+nome+'.',{c:'competicoes',t:[t.id],imp:imp||2});
 }
 /* ---------- sala de imprensa ----------

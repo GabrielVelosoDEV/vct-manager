@@ -43,6 +43,8 @@ function montarCalendario(){
   G.calendario=TEMPORADA.map(b=>Object.assign({stages:[]},b));
   G.semana=1;G.bloco=0;
   G.qual={masters1:[],masters2:[],champions:[]};
+  /* sedes do ano: sorteio próprio, fora do gerador do motor (core/sedes.js) */
+  if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
   REGIONS.forEach(R=>{G.regioes[R.id].pontos={};G.regioes[R.id].t1.forEach(id=>G.regioes[R.id].pontos[id]=0);});
 }
 /* O bloco que cobre uma semana, ou null se a semana está livre. */
@@ -66,7 +68,7 @@ function montarBloco(b){
   if(b.montar==='kickPO'){
     b.stages=REGIONS.map(R=>{
       const g=acharStage('kg_'+R.id);
-      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,regiao:R.id,tier:1,
+      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
         times:(g&&g.classificados||[]).slice(0,8)});
     });
   }
@@ -85,10 +87,10 @@ function montarBloco(b){
     const st=[];
     REGIONS.forEach(R=>{
       const g=acharStage('s'+n+'_'+R.id);
-      st.push(novoDE({id:'po'+n+'_'+R.id,nome:'Playoffs Stage '+n+' · '+R.nome,
+      st.push(novoDE({id:'po'+n+'_'+R.id,nome:'Stage '+n+' · '+R.nome,rotulo:'Playoffs',
         regiao:R.id,tier:1,times:(g&&g.classificados||[]).slice(0,8)}));
       const c=acharStage('c'+n+'_'+R.id);
-      st.push(novoDE({id:'cp'+n+'_'+R.id,nome:'Playoffs '+nomeT2(R),
+      st.push(novoDE({id:'cp'+n+'_'+R.id,nome:'Split '+n+' · '+nomeT2(R),rotulo:'Playoffs',
         regiao:R.id,tier:2,times:(c&&c.classificados||[]).slice(0,4)}));
     });
     b.stages=st;
@@ -105,7 +107,7 @@ function montarBloco(b){
     const key=b.montar==='m1PO'?'masters1':'masters2';
     const sw=acharStage(key+'_sw');
     const times=(sw&&sw.classificados||G.qual[key]||[]).slice(0,8);
-    b.stages=times.length>=2?[novoDE({id:key,nome:key==='masters1'?'Masters I':'Masters II',
+    b.stages=times.length>=2?[novoDE({id:key,nome:key==='masters1'?'Masters I':'Masters II',rotulo:'Playoffs',
       regiao:'INT',tier:1,times})]:[];
   }
   if(b.montar==='ascension'){
@@ -129,7 +131,7 @@ function montarBloco(b){
   if(b.montar==='chPO'){
     const g=acharStage('ch_gr');
     const times=(g&&g.classificados||[]).slice(0,8);
-    b.stages=times.length>=2?[novoDE({id:'champs',nome:'Valorant Champions '+G.ano,
+    b.stages=times.length>=2?[novoDE({id:'champs',nome:'Valorant Champions '+G.ano,rotulo:'Playoffs',
       regiao:'INT',tier:1,times})]:[];
   }
 }

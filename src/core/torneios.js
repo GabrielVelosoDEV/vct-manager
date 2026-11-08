@@ -22,20 +22,37 @@ function montarTorneios(){
   add('champions','Valorant Champions','Champions','INT',1,1000000);
   add('masters1','Masters I','Masters I','INT',1,400000);
   add('masters2','Masters II','Masters II','INT',1,400000);
+  /* Um torneio por EVENTO, nunca por fase. Grupos e playoffs do Stage 1 são o
+     mesmo torneio, como já eram os do Kickoff, do Masters e do Champions:
+     quem é campeão é campeão do Stage 1, não "dos playoffs do Stage 1". Só a
+     fase final é encerrada (fimDeBloco), então o prêmio do evento continua
+     sendo pago uma vez só, ao fim dos playoffs. */
   for(const R of REGIONS){
     add('kickoff_'+R.id,'Kickoff '+R.nome,'Kickoff',R.id,1,100000);
-    add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,0);
-    add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,0);
-    add('po1_'+R.id,'Playoffs Stage 1 · '+R.nome,'Playoffs 1',R.id,1,160000);
-    add('po2_'+R.id,'Playoffs Stage 2 · '+R.nome,'Playoffs 2',R.id,1,160000);
-    add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,0);
-    add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,0);
-    add('cp1_'+R.id,'Playoffs Split 1 · '+R.t2,'PO Split 1',R.id,2,40000);
-    add('cp2_'+R.id,'Playoffs Split 2 · '+R.t2,'PO Split 2',R.id,2,40000);
+    add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,160000);
+    add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,160000);
+    add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,40000);
+    add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,40000);
     add('asc_'+R.id,'Ascension '+R.nome,'Ascension',R.id,2,130000);
   }
   G.torneios=T;
   return T;
+}
+/* Saves e bases de antes do torneio por evento tinham uma entrada para os
+   playoffs (po1_, cp1_…) separada do Stage/Split. O prêmio que estava nela (e
+   que pode ter sido editado) passa para o evento, e a entrada sai. Idempotente. */
+function unificarTorneios(){
+  if(!G||!G.torneios)return 0;
+  let n=0;
+  const par={po1:'stage1',po2:'stage2',cp1:'split1',cp2:'split2'};
+  for(const id of Object.keys(G.torneios)){
+    const corte=id.indexOf('_');if(corte<0)continue;
+    const alvo=par[id.slice(0,corte)];if(!alvo)continue;
+    const ev=G.torneios[alvo+id.slice(corte)];
+    if(ev&&!ev.premio)ev.premio=G.torneios[id].premio||0;
+    delete G.torneios[id];n++;
+  }
+  return n;
 }
 
 /* qual curva de premiação cada torneio usa */
@@ -43,7 +60,7 @@ function categoriaTorneio(id){
   const direto={champions:'champions',masters1:'masters',masters2:'masters'}[id];
   if(direto)return direto;
   const pre=String(id).split('_')[0];
-  return {kickoff:'kickoff',po1:'po',po2:'po',cp1:'chall',cp2:'chall',asc:'ascension'}[pre]||null;
+  return {kickoff:'kickoff',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
 }
 /* tabela de premiação de um stage, já em dinheiro, a partir do catálogo */
 function premiosDoStage(s){
@@ -57,8 +74,8 @@ function premiosDoStage(s){
 }
 
 /* traduz o id do stage no calendário para a chave do catálogo */
-const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'po1',po2:'po2',
-                       c1:'split1',c2:'split2',cp1:'cp1',cp2:'cp2',asc:'asc'};
+const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
+                       c1:'split1',c2:'split2',cp1:'split1',cp2:'split2',asc:'asc'};
 function torneioDeStage(idStage){
   const direto={masters1:'masters1',masters2:'masters2',champs:'champions',
                 masters1_sw:'masters1',masters2_sw:'masters2',ch_gr:'champions'}[idStage];
@@ -70,10 +87,20 @@ function torneioDeStage(idStage){
 }
 function torneio(id){return (G&&G.torneios&&G.torneios[id])||null;}
 function nomeTorneio(id){const t=torneio(id);return t?t.nome:null;}
+/* Nome de exibição do torneio NESTA temporada: o internacional leva a cidade
+   ("Masters Osaka"), a não ser que você o tenha renomeado no Banco de dados —
+   aí vale o seu nome. */
+const NOME_PADRAO_TORNEIO={masters1:'Masters I',masters2:'Masters II',champions:'Valorant Champions'};
+function nomeDoAno(id,ano){
+  const t=torneio(id);if(!t)return null;
+  if(NOME_PADRAO_TORNEIO[id]&&t.nome===NOME_PADRAO_TORNEIO[id]&&typeof nomeComSede==='function')
+    return nomeComSede(id,ano)||t.nome;
+  return t.nome;
+}
 /* nome de exibição de um stage: catálogo primeiro, rótulo do stage como reserva */
 function nomeStage(s){
   if(!s)return '—';
-  const base=(s.torneioId&&nomeTorneio(s.torneioId))||s.nome||'—';
+  const base=(s.torneioId&&nomeDoAno(s.torneioId))||s.nome||'—';
   /* Um torneio tem mais de uma fase, e as duas apontam para a mesma entrada do
      catálogo — sem o rótulo, a fase de grupos e os playoffs do Champions
      apareciam com o mesmo nome em toda tela e em todo título. O catálogo
@@ -84,7 +111,7 @@ function nomeStage(s){
    do torneio, não da fase final dele. */
 function nomeTitulo(s){
   if(!s)return '—';
-  return (s.torneioId&&nomeTorneio(s.torneioId))||s.nome||'—';
+  return (s.torneioId&&nomeDoAno(s.torneioId))||s.nome||'—';
 }
 function edAplicarTorneio(id,c){
   const t=torneio(id);
@@ -127,4 +154,14 @@ function edRemoverAgente(role,nome){
   if(G.agentes[role].length===antes)return{ok:false,erro:'Agente não encontrado.'};
   if(!G.agentes[role].length){G.agentes[role]=[nome];return{ok:false,erro:role+' ficaria sem nenhum agente.'};}
   return{ok:true,msg:nome+' saiu de '+role+'.'};
+}
+
+/* Nome de um bloco do calendário com a sede: "Masters Osaka · Suíço" em vez
+   de "Masters I · Suíço". Os blocos são fixos (calendar.js); a cidade é do ano. */
+function nomeBloco(b){
+  if(!b)return '';
+  const k=/^Masters II\b/.test(b.nome)?'masters2':/^Masters I\b/.test(b.nome)?'masters1':/^Champions\b/.test(b.nome)?'champions':null;
+  const n=k&&typeof nomeDoAno==='function'?nomeDoAno(k):null;
+  if(!n)return b.nome;
+  return b.nome.replace(/^(Masters II|Masters I|Champions)\b/,k==='champions'&&/^Valorant /.test(n)?'Champions':n);
 }

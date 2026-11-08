@@ -841,3 +841,25 @@ tr.descansa td{opacity:.62}
 .mj-acoes-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px}
 .mj-acoes-info .eyebrow{margin:0}
 .mj-acoes-bts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- mapas, sedes e troféus (pacote 2) ---------- */
+.mp-card{min-height:92px;background-color:var(--panel)}
+.mp-card .mp-nome{font-family:'Bebas Neue',Impact,sans-serif;font-size:17px;font-weight:400;letter-spacing:.04em;
+  text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.mp-card .mp-val,.mp-card .mp-adv,.mp-card .mp-tag{text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.mp-mini{display:inline-block;width:46px;height:26px;vertical-align:middle;border:1px solid var(--line);
+  background-color:var(--panel2)}
+.av-placar{background-color:var(--panel)}
+img.trofeu{object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.tn-faixa{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:96px;
+  padding:14px 18px;margin:-4px 0 12px;border:1px solid var(--line);background-color:var(--panel2)}
+.tn-cidade{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;line-height:1;color:var(--tx);
+  letter-spacing:.02em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.tn-campeao{display:flex;align-items:center;gap:12px;padding:6px 12px;background:rgba(11,18,24,.55);
+  border:1px solid rgba(200,148,58,.35)}
+.titulo-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.titulo-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);background:var(--panel)}
+.titulo-item .ano{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)}
+.titulo-item .ev{font-size:12.5px;color:var(--tx);line-height:1.25}
+@media (max-width:600px){.tn-faixa{flex-direction:column;align-items:flex-start}.tn-cidade{font-size:28px}}
+.premio-card{display:flex;gap:14px;align-items:center}

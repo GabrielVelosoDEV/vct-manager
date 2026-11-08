@@ -363,7 +363,7 @@ decidir.
 nome e arte de competição morassem no stage, eles morreriam junto — renomear o
 Champions duraria até 31 de dezembro.
 
-Por isso existe `G.torneios`: 43 entradas com chave estável (`champions`,
+Por isso existe `G.torneios`: 27 entradas com chave estável (`champions`,
 `kickoff_AMER`, `asc_PAC`), criadas no `criarMundo` e carregadas por padrão em runs
 antigas. O stage guarda só `torneioId`, e a UI pergunta o nome ao catálogo via
 `nomeStage(s)` — o que faz um rename valer na hora, inclusive no stage em disputa.
@@ -417,3 +417,21 @@ Quando os arquivos de `data/` mudam, a assinatura (`baseAssinatura()`) muda: bas
 nunca editada se refaz sozinha; base editada é mantida e o Banco de dados avisa,
 com o botão de restaurar a original. Mudança na geração que `data/` não denuncia
 pede subir `BASE_VERSAO`.
+
+## Título é do evento, e a sede não mexe no sorteio
+
+O catálogo tinha uma entrada para os playoffs do Stage e do Split separada da
+fase de grupos, e o campeão ficava registrado como "Playoffs Stage 1 · VCT
+Americas". Agora é uma entrada por evento, como o Kickoff, o Masters e o
+Champions já eram: as fases continuam existindo (o stage tem `rotulo`
+"Grupos" ou "Playoffs"), mas título, troféu, prêmio e histórico são do evento.
+O prêmio continua pago uma vez só porque só a fase final é encerrada em
+`fimDeBloco`. Saves antigos são unificados em `migrarRun` (`unificarTorneios`).
+
+As sedes de Masters e Champions (`core/sedes.js`) saem de um gerador próprio,
+semeado por hash de `G.seed` com o ano, e não do `rnd()` do motor. É o que
+deixa o circuito idêntico com ou sem elas: resultados, caixa e títulos de
+6 temporadas conferidos byte a byte antes e depois. A sede sorteada fica em
+`G.sedes[ano]`, então editar o catálogo de cidades não reescreve o passado.
+O troféu de Masters e Champions é uma variante por cidade (hash do slug), e o
+arquivo vai gravado na entrada do histórico.

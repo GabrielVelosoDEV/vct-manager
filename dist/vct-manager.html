@@ -876,6 +876,28 @@ tr.descansa td{opacity:.62}
 .mj-acoes-info .eyebrow{margin:0}
 .mj-acoes-bts{display:flex;gap:8px;flex-wrap:wrap}
 
+/* ---------- mapas, sedes e troféus (pacote 2) ---------- */
+.mp-card{min-height:92px;background-color:var(--panel)}
+.mp-card .mp-nome{font-family:'Bebas Neue',Impact,sans-serif;font-size:17px;font-weight:400;letter-spacing:.04em;
+  text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.mp-card .mp-val,.mp-card .mp-adv,.mp-card .mp-tag{text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.mp-mini{display:inline-block;width:46px;height:26px;vertical-align:middle;border:1px solid var(--line);
+  background-color:var(--panel2)}
+.av-placar{background-color:var(--panel)}
+img.trofeu{object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.tn-faixa{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:96px;
+  padding:14px 18px;margin:-4px 0 12px;border:1px solid var(--line);background-color:var(--panel2)}
+.tn-cidade{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;line-height:1;color:var(--tx);
+  letter-spacing:.02em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.tn-campeao{display:flex;align-items:center;gap:12px;padding:6px 12px;background:rgba(11,18,24,.55);
+  border:1px solid rgba(200,148,58,.35)}
+.titulo-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.titulo-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);background:var(--panel)}
+.titulo-item .ano{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)}
+.titulo-item .ev{font-size:12.5px;color:var(--tx);line-height:1.25}
+@media (max-width:600px){.tn-faixa{flex-direction:column;align-items:flex-start}.tn-cidade{font-size:28px}}
+.premio-card{display:flex;gap:14px;align-items:center}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -2300,6 +2322,96 @@ const HISTORIA_REAL=[
 const PESO_TITULO={INT:1, AMER:0.34, EMEA:0.34, PAC:0.34, CN:0.34};
 
 
+/* ===== data/sedes.js ===== */
+/* ============================================================
+   CIDADES-SEDE de Masters e Champions
+   ------------------------------------------------------------
+   Semente do catálogo G.cidades, que é editável no Banco de dados (aba
+   Torneios). A imagem de cada uma fica em assets/cidades/<slug>.webp — a
+   lista com os nomes de arquivo está no LEIAME.md daquela pasta.
+
+   tipo   'champions' = pode receber Champions (e também Masters)
+          'masters'   = só Masters
+   maior  true quando é a maior cidade do país. No sorteio do Masters, quem
+          NÃO é a maior tem o dobro de chance: o Masters gira pelo mundo, o
+          Champions fica nas grandes capitais e metrópoles.
+   pais   sigla de duas letras, a mesma do resto do jogo; dois Masters do
+          mesmo ano nunca caem no mesmo país.
+   ============================================================ */
+const SEDES=[
+  /* Champions — grandes capitais e metrópoles (também recebem Masters; maior:false = chance dobrada lá) */
+  {nome:'Amsterdã',pais:'NL',tipo:'champions',maior:true},
+  {nome:'Bangkok',pais:'TH',tipo:'champions',maior:true},
+  {nome:'Berlim',pais:'DE',tipo:'champions',maior:true},
+  {nome:'Buenos Aires',pais:'AR',tipo:'champions',maior:true},
+  {nome:'Cidade do México',pais:'MX',tipo:'champions',maior:true},
+  {nome:'Lisboa',pais:'PT',tipo:'champions',maior:true},
+  {nome:'Londres',pais:'GB',tipo:'champions',maior:true},
+  {nome:'Madri',pais:'ES',tipo:'champions',maior:true},
+  {nome:'Nova York',pais:'US',tipo:'champions',maior:true},
+  {nome:'Paris',pais:'FR',tipo:'champions',maior:true},
+  {nome:'Pequim',pais:'CN',tipo:'champions',maior:false},
+  {nome:'Riad',pais:'SA',tipo:'champions',maior:true},
+  {nome:'Rio de Janeiro',pais:'BR',tipo:'champions',maior:false},
+  {nome:'Roma',pais:'IT',tipo:'champions',maior:true},
+  {nome:'São Paulo',pais:'BR',tipo:'champions',maior:true},
+  {nome:'Seul',pais:'KR',tipo:'champions',maior:true},
+  {nome:'Singapura',pais:'SG',tipo:'champions',maior:true},
+  {nome:'Tóquio',pais:'JP',tipo:'champions',maior:true},
+  {nome:'Xangai',pais:'CN',tipo:'champions',maior:true},
+  /* Masters — fora da maior cidade do país, chance dobrada */
+  {nome:'Atlanta',pais:'US',tipo:'masters',maior:false},
+  {nome:'Barcelona',pais:'ES',tipo:'masters',maior:false},
+  {nome:'Belo Horizonte',pais:'BR',tipo:'masters',maior:false},
+  {nome:'Brasília',pais:'BR',tipo:'masters',maior:false},
+  {nome:'Busan',pais:'KR',tipo:'masters',maior:false},
+  {nome:'Chengdu',pais:'CN',tipo:'masters',maior:false},
+  {nome:'Chicago',pais:'US',tipo:'masters',maior:false},
+  {nome:'Colônia',pais:'DE',tipo:'masters',maior:false},
+  {nome:'Curitiba',pais:'BR',tipo:'masters',maior:false},
+  {nome:'Dallas',pais:'US',tipo:'masters',maior:false},
+  {nome:'Fukuoka',pais:'JP',tipo:'masters',maior:false},
+  {nome:'Guadalajara',pais:'MX',tipo:'masters',maior:false},
+  {nome:'Guangzhou',pais:'CN',tipo:'masters',maior:false},
+  {nome:'Hamburgo',pais:'DE',tipo:'masters',maior:false},
+  {nome:'Hangzhou',pais:'CN',tipo:'masters',maior:false},
+  {nome:'Incheon',pais:'KR',tipo:'masters',maior:false},
+  {nome:'Katowice',pais:'PL',tipo:'masters',maior:false},
+  {nome:'Las Vegas',pais:'US',tipo:'masters',maior:false},
+  {nome:'Los Angeles',pais:'US',tipo:'masters',maior:false},
+  {nome:'Manchester',pais:'GB',tipo:'masters',maior:false},
+  {nome:'Miami',pais:'US',tipo:'masters',maior:false},
+  {nome:'Milão',pais:'IT',tipo:'masters',maior:false},
+  {nome:'Montreal',pais:'CA',tipo:'masters',maior:false},
+  {nome:'Munique',pais:'DE',tipo:'masters',maior:false},
+  {nome:'Osaka',pais:'JP',tipo:'masters',maior:false},
+  {nome:'Porto',pais:'PT',tipo:'masters',maior:false},
+  {nome:'Porto Alegre',pais:'BR',tipo:'masters',maior:false},
+  {nome:'Seattle',pais:'US',tipo:'masters',maior:false},
+  {nome:'Shenzhen',pais:'CN',tipo:'masters',maior:false},
+  {nome:'Taipé',pais:'TW',tipo:'masters',maior:false},
+  /* Masters — maior cidade do país, chance normal */
+  {nome:'Copenhague',pais:'DK',tipo:'masters',maior:true},
+  {nome:'Estocolmo',pais:'SE',tipo:'masters',maior:true},
+  {nome:'Ho Chi Minh',pais:'VN',tipo:'masters',maior:true},
+  {nome:'Istambul',pais:'TR',tipo:'masters',maior:true},
+  {nome:'Jacarta',pais:'ID',tipo:'masters',maior:true},
+  {nome:'Kuala Lumpur',pais:'MY',tipo:'masters',maior:true},
+  {nome:'Manila',pais:'PH',tipo:'masters',maior:true},
+  {nome:'Reykjavík',pais:'IS',tipo:'masters',maior:true},
+  {nome:'Santiago',pais:'CL',tipo:'masters',maior:true},
+  {nome:'Toronto',pais:'CA',tipo:'masters',maior:true},
+  {nome:'Varsóvia',pais:'PL',tipo:'masters',maior:true}
+];
+
+/* Sedes reais das duas temporadas antes da carreira: o sorteio de 2027 evita
+   repetir estas, como evita as dos dois anos anteriores em qualquer ano. */
+const SEDES_REAIS={
+  2025:{masters1:'bangkok', masters2:'toronto', champions:'paris'},
+  2026:{masters1:'santiago',masters2:'londres', champions:'xangai'}
+};
+
+
 /* ===== data/rostos.js ===== */
 /* Gerado por tools/rostos.py — não edite à mão.
    Fonte: SFHQ (MIT). Imagens sintéticas, não são pessoas reais. */
@@ -2447,6 +2559,19 @@ const MIDIA={
     'logos/xip':'png',
     'logos/xlg':'png',
     'logos/zeta':'png',
+    'mapas/abyss':'webp',
+    'mapas/ascent':'webp',
+    'mapas/bind':'webp',
+    'mapas/breeze':'webp',
+    'mapas/corrode':'webp',
+    'mapas/fracture':'webp',
+    'mapas/haven':'webp',
+    'mapas/icebox':'webp',
+    'mapas/lotus':'webp',
+    'mapas/pearl':'webp',
+    'mapas/split':'webp',
+    'mapas/summit':'webp',
+    'mapas/sunset':'webp',
     'marcas/abko':'png',
     'marcas/adidas':'png',
     'marcas/airasia':'png',
@@ -2562,6 +2687,7 @@ const MIDIA={
     'marcas/kt':'png',
     'marcas/lacoste':'png',
     'marcas/latam-airlines':'png',
+    'marcas/lawson':'png',
     'marcas/lazada':'png',
     'marcas/ldlc':'png',
     'marcas/lenovo-legion':'png',
@@ -3239,7 +3365,52 @@ const MIDIA={
     'torneios/stage2-amer':'png',
     'torneios/stage2-cn':'png',
     'torneios/stage2-emea':'png',
-    'torneios/stage2-pac':'png'
+    'torneios/stage2-pac':'png',
+    'trofeus/ascension-amer':'png',
+    'trofeus/ascension-cn':'png',
+    'trofeus/ascension-emea':'png',
+    'trofeus/ascension-pac':'png',
+    'trofeus/challengers-amer':'png',
+    'trofeus/challengers-cn':'png',
+    'trofeus/challengers-emea':'png',
+    'trofeus/challengers-pac':'png',
+    'trofeus/champions-01':'png',
+    'trofeus/champions-02':'png',
+    'trofeus/champions-03':'png',
+    'trofeus/champions-04':'png',
+    'trofeus/champions-05':'png',
+    'trofeus/champions-06':'png',
+    'trofeus/champions-07':'png',
+    'trofeus/champions-08':'png',
+    'trofeus/champions-09':'png',
+    'trofeus/champions-10':'png',
+    'trofeus/kickoff-amer':'png',
+    'trofeus/kickoff-cn':'png',
+    'trofeus/kickoff-emea':'png',
+    'trofeus/kickoff-pac':'png',
+    'trofeus/masters-01':'png',
+    'trofeus/masters-02':'png',
+    'trofeus/masters-03':'png',
+    'trofeus/masters-04':'png',
+    'trofeus/masters-05':'png',
+    'trofeus/masters-06':'png',
+    'trofeus/masters-07':'png',
+    'trofeus/masters-08':'png',
+    'trofeus/masters-09':'png',
+    'trofeus/masters-10':'png',
+    'trofeus/padrao':'png',
+    'trofeus/premio-igl':'png',
+    'trofeus/premio-mvp':'png',
+    'trofeus/premio-selecao':'png',
+    'trofeus/premio-treinador':'png',
+    'trofeus/stage1-amer':'png',
+    'trofeus/stage1-cn':'png',
+    'trofeus/stage1-emea':'png',
+    'trofeus/stage1-pac':'png',
+    'trofeus/stage2-amer':'png',
+    'trofeus/stage2-cn':'png',
+    'trofeus/stage2-emea':'png',
+    'trofeus/stage2-pac':'png'
   }
 };
 
@@ -4480,7 +4651,7 @@ function criarMundo(seedVal){
      meuTime:null,caixa:0,log:[],historico:[],bloco:0,fase:'',temporadaFim:false,
      mapasAtivos:poolInicial(),mapaDesde:{},janela:true,noticias:[],negociacoes:[],transferencias:[],
      meta:(typeof metaInicial==='function'?metaInicial():{}),patches:[],patchFeito:{}};
-  montarTorneios();montarAgentes();montarMarcas();
+  montarTorneios();montarAgentes();montarMarcas();montarCidades();
   const usadosT=new Set(), usadosP=new Set();
   /* Reserva de saída TODOS os nicks reais antes de gerar qualquer jogador.
      Sem isso, nomeUnico() só conhece os nicks já inseridos, e um reserva
@@ -7394,7 +7565,7 @@ function encerrarStage(s){
   s._encerrado=true;
   pagar(s.ranking,premiosDoStage(s));
   const campeao=s.ranking&&s.ranking[0];
-  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2);
+  if(campeao){titulo(campeao,nomeTitulo(s),s.regiao==='INT'?3:s.tier===2?1:2,s.torneioId);
     /* título internacional conta à parte: é ele que separa lenda de bom jogador */
     if(s.regiao==='INT'&&G.times[campeao])G.times[campeao].titulares.forEach(pid=>{
       const c=G.jogadores[pid]&&G.jogadores[pid].carreira;if(c)c.intl=(c.intl||0)+1;});}
@@ -7418,14 +7589,18 @@ function encerrarStage(s){
   }
   return s.mvp;
 }
-function titulo(id,nome,imp){
+function titulo(id,nome,imp,torneioId){
   const t=G.times[id];if(!t)return;
   t.titulos.push(G.ano+' · '+nome);t.prestigio=clamp(t.prestigio+2.2,20,99);
   t.titulares.forEach(pid=>G.jogadores[pid].carreira.titulos++);
   if(typeof CARGOS!=='undefined')CARGOS.forEach(c=>{
     const m=membroDe(t,c.id);if(m)m.temp.titulos++;
   });
-  G.historico.push({ano:G.ano,evento:nome,campeao:t.nome});
+  /* torneioId e o arquivo do troféu ficam gravados: a sede e o troféu são
+     do ano em que o título saiu, mesmo que o catálogo de cidades mude depois */
+  G.historico.push({ano:G.ano,evento:nome,campeao:t.nome,timeId:t.id,
+    torneioId:torneioId||null,
+    trofeu:torneioId&&typeof arquivoTrofeu==='function'?arquivoTrofeu(torneioId,G.ano):null});
   noticia('🏆 '+t.nome+' é campeão de '+nome+'.',{c:'competicoes',t:[t.id],imp:imp||2});
 }
 /* ---------- sala de imprensa ----------
@@ -7508,6 +7683,8 @@ function montarCalendario(){
   G.calendario=TEMPORADA.map(b=>Object.assign({stages:[]},b));
   G.semana=1;G.bloco=0;
   G.qual={masters1:[],masters2:[],champions:[]};
+  /* sedes do ano: sorteio próprio, fora do gerador do motor (core/sedes.js) */
+  if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
   REGIONS.forEach(R=>{G.regioes[R.id].pontos={};G.regioes[R.id].t1.forEach(id=>G.regioes[R.id].pontos[id]=0);});
 }
 /* O bloco que cobre uma semana, ou null se a semana está livre. */
@@ -7531,7 +7708,7 @@ function montarBloco(b){
   if(b.montar==='kickPO'){
     b.stages=REGIONS.map(R=>{
       const g=acharStage('kg_'+R.id);
-      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,regiao:R.id,tier:1,
+      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
         times:(g&&g.classificados||[]).slice(0,8)});
     });
   }
@@ -7550,10 +7727,10 @@ function montarBloco(b){
     const st=[];
     REGIONS.forEach(R=>{
       const g=acharStage('s'+n+'_'+R.id);
-      st.push(novoDE({id:'po'+n+'_'+R.id,nome:'Playoffs Stage '+n+' · '+R.nome,
+      st.push(novoDE({id:'po'+n+'_'+R.id,nome:'Stage '+n+' · '+R.nome,rotulo:'Playoffs',
         regiao:R.id,tier:1,times:(g&&g.classificados||[]).slice(0,8)}));
       const c=acharStage('c'+n+'_'+R.id);
-      st.push(novoDE({id:'cp'+n+'_'+R.id,nome:'Playoffs '+nomeT2(R),
+      st.push(novoDE({id:'cp'+n+'_'+R.id,nome:'Split '+n+' · '+nomeT2(R),rotulo:'Playoffs',
         regiao:R.id,tier:2,times:(c&&c.classificados||[]).slice(0,4)}));
     });
     b.stages=st;
@@ -7570,7 +7747,7 @@ function montarBloco(b){
     const key=b.montar==='m1PO'?'masters1':'masters2';
     const sw=acharStage(key+'_sw');
     const times=(sw&&sw.classificados||G.qual[key]||[]).slice(0,8);
-    b.stages=times.length>=2?[novoDE({id:key,nome:key==='masters1'?'Masters I':'Masters II',
+    b.stages=times.length>=2?[novoDE({id:key,nome:key==='masters1'?'Masters I':'Masters II',rotulo:'Playoffs',
       regiao:'INT',tier:1,times})]:[];
   }
   if(b.montar==='ascension'){
@@ -7594,7 +7771,7 @@ function montarBloco(b){
   if(b.montar==='chPO'){
     const g=acharStage('ch_gr');
     const times=(g&&g.classificados||[]).slice(0,8);
-    b.stages=times.length>=2?[novoDE({id:'champs',nome:'Valorant Champions '+G.ano,
+    b.stages=times.length>=2?[novoDE({id:'champs',nome:'Valorant Champions '+G.ano,rotulo:'Playoffs',
       regiao:'INT',tier:1,times})]:[];
   }
 }
@@ -11841,20 +12018,37 @@ function montarTorneios(){
   add('champions','Valorant Champions','Champions','INT',1,1000000);
   add('masters1','Masters I','Masters I','INT',1,400000);
   add('masters2','Masters II','Masters II','INT',1,400000);
+  /* Um torneio por EVENTO, nunca por fase. Grupos e playoffs do Stage 1 são o
+     mesmo torneio, como já eram os do Kickoff, do Masters e do Champions:
+     quem é campeão é campeão do Stage 1, não "dos playoffs do Stage 1". Só a
+     fase final é encerrada (fimDeBloco), então o prêmio do evento continua
+     sendo pago uma vez só, ao fim dos playoffs. */
   for(const R of REGIONS){
     add('kickoff_'+R.id,'Kickoff '+R.nome,'Kickoff',R.id,1,100000);
-    add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,0);
-    add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,0);
-    add('po1_'+R.id,'Playoffs Stage 1 · '+R.nome,'Playoffs 1',R.id,1,160000);
-    add('po2_'+R.id,'Playoffs Stage 2 · '+R.nome,'Playoffs 2',R.id,1,160000);
-    add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,0);
-    add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,0);
-    add('cp1_'+R.id,'Playoffs Split 1 · '+R.t2,'PO Split 1',R.id,2,40000);
-    add('cp2_'+R.id,'Playoffs Split 2 · '+R.t2,'PO Split 2',R.id,2,40000);
+    add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,160000);
+    add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,160000);
+    add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,40000);
+    add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,40000);
     add('asc_'+R.id,'Ascension '+R.nome,'Ascension',R.id,2,130000);
   }
   G.torneios=T;
   return T;
+}
+/* Saves e bases de antes do torneio por evento tinham uma entrada para os
+   playoffs (po1_, cp1_…) separada do Stage/Split. O prêmio que estava nela (e
+   que pode ter sido editado) passa para o evento, e a entrada sai. Idempotente. */
+function unificarTorneios(){
+  if(!G||!G.torneios)return 0;
+  let n=0;
+  const par={po1:'stage1',po2:'stage2',cp1:'split1',cp2:'split2'};
+  for(const id of Object.keys(G.torneios)){
+    const corte=id.indexOf('_');if(corte<0)continue;
+    const alvo=par[id.slice(0,corte)];if(!alvo)continue;
+    const ev=G.torneios[alvo+id.slice(corte)];
+    if(ev&&!ev.premio)ev.premio=G.torneios[id].premio||0;
+    delete G.torneios[id];n++;
+  }
+  return n;
 }
 
 /* qual curva de premiação cada torneio usa */
@@ -11862,7 +12056,7 @@ function categoriaTorneio(id){
   const direto={champions:'champions',masters1:'masters',masters2:'masters'}[id];
   if(direto)return direto;
   const pre=String(id).split('_')[0];
-  return {kickoff:'kickoff',po1:'po',po2:'po',cp1:'chall',cp2:'chall',asc:'ascension'}[pre]||null;
+  return {kickoff:'kickoff',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
 }
 /* tabela de premiação de um stage, já em dinheiro, a partir do catálogo */
 function premiosDoStage(s){
@@ -11876,8 +12070,8 @@ function premiosDoStage(s){
 }
 
 /* traduz o id do stage no calendário para a chave do catálogo */
-const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'po1',po2:'po2',
-                       c1:'split1',c2:'split2',cp1:'cp1',cp2:'cp2',asc:'asc'};
+const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
+                       c1:'split1',c2:'split2',cp1:'split1',cp2:'split2',asc:'asc'};
 function torneioDeStage(idStage){
   const direto={masters1:'masters1',masters2:'masters2',champs:'champions',
                 masters1_sw:'masters1',masters2_sw:'masters2',ch_gr:'champions'}[idStage];
@@ -11889,10 +12083,20 @@ function torneioDeStage(idStage){
 }
 function torneio(id){return (G&&G.torneios&&G.torneios[id])||null;}
 function nomeTorneio(id){const t=torneio(id);return t?t.nome:null;}
+/* Nome de exibição do torneio NESTA temporada: o internacional leva a cidade
+   ("Masters Osaka"), a não ser que você o tenha renomeado no Banco de dados —
+   aí vale o seu nome. */
+const NOME_PADRAO_TORNEIO={masters1:'Masters I',masters2:'Masters II',champions:'Valorant Champions'};
+function nomeDoAno(id,ano){
+  const t=torneio(id);if(!t)return null;
+  if(NOME_PADRAO_TORNEIO[id]&&t.nome===NOME_PADRAO_TORNEIO[id]&&typeof nomeComSede==='function')
+    return nomeComSede(id,ano)||t.nome;
+  return t.nome;
+}
 /* nome de exibição de um stage: catálogo primeiro, rótulo do stage como reserva */
 function nomeStage(s){
   if(!s)return '—';
-  const base=(s.torneioId&&nomeTorneio(s.torneioId))||s.nome||'—';
+  const base=(s.torneioId&&nomeDoAno(s.torneioId))||s.nome||'—';
   /* Um torneio tem mais de uma fase, e as duas apontam para a mesma entrada do
      catálogo — sem o rótulo, a fase de grupos e os playoffs do Champions
      apareciam com o mesmo nome em toda tela e em todo título. O catálogo
@@ -11903,7 +12107,7 @@ function nomeStage(s){
    do torneio, não da fase final dele. */
 function nomeTitulo(s){
   if(!s)return '—';
-  return (s.torneioId&&nomeTorneio(s.torneioId))||s.nome||'—';
+  return (s.torneioId&&nomeDoAno(s.torneioId))||s.nome||'—';
 }
 function edAplicarTorneio(id,c){
   const t=torneio(id);
@@ -11946,6 +12150,193 @@ function edRemoverAgente(role,nome){
   if(G.agentes[role].length===antes)return{ok:false,erro:'Agente não encontrado.'};
   if(!G.agentes[role].length){G.agentes[role]=[nome];return{ok:false,erro:role+' ficaria sem nenhum agente.'};}
   return{ok:true,msg:nome+' saiu de '+role+'.'};
+}
+
+/* Nome de um bloco do calendário com a sede: "Masters Osaka · Suíço" em vez
+   de "Masters I · Suíço". Os blocos são fixos (calendar.js); a cidade é do ano. */
+function nomeBloco(b){
+  if(!b)return '';
+  const k=/^Masters II\b/.test(b.nome)?'masters2':/^Masters I\b/.test(b.nome)?'masters1':/^Champions\b/.test(b.nome)?'champions':null;
+  const n=k&&typeof nomeDoAno==='function'?nomeDoAno(k):null;
+  if(!n)return b.nome;
+  return b.nome.replace(/^(Masters II|Masters I|Champions)\b/,k==='champions'&&/^Valorant /.test(n)?'Champions':n);
+}
+
+
+/* ===== src/core/sedes.js ===== */
+/* ============================================================
+   SEDES E TROFÉUS de Masters e Champions
+   ------------------------------------------------------------
+   Cada temporada sorteia onde acontecem Masters I, Masters II e
+   Champions, e o torneio passa a levar o nome da cidade: "Masters
+   Osaka", "Champions Paris".
+
+   O sorteio NÃO usa o gerador do motor (rnd). Ele sai de um hash da
+   semente da carreira com o ano, então:
+     · a mesma carreira tem sempre as mesmas sedes;
+     · sortear sede não desloca nenhum outro sorteio — o circuito, os
+       elencos e as partidas saem idênticos com ou sem este módulo.
+
+   Regras (data/sedes.js explica os campos):
+     · Champions só em cidade de tipo 'champions';
+     · Masters em qualquer cidade, com o dobro de chance para quem não
+       é a maior do país;
+     · nenhuma cidade repete as sedes dos dois anos anteriores;
+     · os dois Masters do ano nunca no mesmo país, e nenhum deles na
+       cidade do Champions do mesmo ano.
+
+   O resultado fica gravado em G.sedes[ano]: editar o catálogo de
+   cidades depois não reescreve o passado.
+   ============================================================ */
+const SEDE_EVENTOS=['masters1','masters2','champions'];
+const SEDE_PESO_FORA_DA_MAIOR=2;
+const SEDE_ANOS_SEM_REPETIR=2;
+
+function slugCidade(nome){
+  return String(nome).normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+}
+function montarCidades(){
+  G.cidades=SEDES.map(c=>Object.assign({slug:slugCidade(c.nome)},c));
+  return G.cidades;
+}
+function cidades(){
+  if(G&&Array.isArray(G.cidades)&&G.cidades.length)return G.cidades;
+  return SEDES.map(c=>Object.assign({slug:slugCidade(c.nome)},c));
+}
+function cidade(slug){return slug?cidades().find(c=>c.slug===slug)||null:null;}
+
+/* FNV-1a de 32 bits: estável entre navegadores e Node */
+function _hashSede(txt){
+  let h=0x811c9dc5;
+  for(let i=0;i<txt.length;i++){h^=txt.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h>>>0;
+}
+/* gerador local (mulberry32), separado do rnd() do motor */
+function _rngSede(semente){
+  let a=semente>>>0;
+  return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;
+    t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);
+    return((t^(t>>>14))>>>0)/4294967296;};
+}
+function _sortearPeso(lista,peso,r){
+  const tot=lista.reduce((s,c)=>s+peso(c),0);
+  if(!tot)return null;
+  let x=r()*tot;
+  for(const c of lista){x-=peso(c);if(x<0)return c;}
+  return lista[lista.length-1];
+}
+
+/* As sedes de um ano, sorteadas na primeira vez que alguém pergunta. */
+function sedesDoAno(ano){
+  if(!G)return null;
+  if(!G.sedes)G.sedes={};
+  if(G.sedes[ano])return G.sedes[ano];
+  if(typeof SEDES_REAIS!=='undefined'&&SEDES_REAIS[ano])return SEDES_REAIS[ano];
+  /* nada antes do histórico real: o sorteio começa em 2027 */
+  if(ano<2027)return null;
+  const recentes=new Set();
+  for(let k=1;k<=SEDE_ANOS_SEM_REPETIR;k++){
+    const s=sedesDoAno(ano-k);
+    if(s)SEDE_EVENTOS.forEach(e=>s[e]&&recentes.add(s[e]));
+  }
+  const r=_rngSede(_hashSede('sedes|'+(G.seed||1)+'|'+ano));
+  const todas=cidades().filter(c=>!recentes.has(c.slug));
+  /* catálogo pequeno demais (editado no Banco de dados): relaxa a regra de
+     não repetir em vez de deixar o torneio sem sede */
+  const base=todas.length>=4?todas:cidades();
+  const out={};
+  const ch=_sortearPeso(base.filter(c=>c.tipo==='champions'),()=>1,r)
+         ||_sortearPeso(base,()=>1,r);
+  out.champions=ch?ch.slug:null;
+  const pesoM=c=>c.maior?1:SEDE_PESO_FORA_DA_MAIOR;
+  const m1=_sortearPeso(base.filter(c=>c.slug!==out.champions),pesoM,r);
+  out.masters1=m1?m1.slug:null;
+  const m2=_sortearPeso(base.filter(c=>c.slug!==out.champions&&c.slug!==out.masters1
+           &&(!m1||c.pais!==m1.pais)),pesoM,r)
+         ||_sortearPeso(base.filter(c=>c.slug!==out.champions&&c.slug!==out.masters1),pesoM,r);
+  out.masters2=m2?m2.slug:null;
+  G.sedes[ano]=out;
+  return out;
+}
+/* A cidade de um torneio internacional (id do catálogo de torneios). */
+function sedeDe(torneioId,ano){
+  if(!SEDE_EVENTOS.includes(torneioId))return null;
+  const s=sedesDoAno(ano||G.ano);
+  return s?cidade(s[torneioId]):null;
+}
+/* Nome com a cidade: "Masters Osaka", "Champions Paris". Sem sede (catálogo
+   vazio, torneio regional), devolve null e quem chamou usa o nome de sempre. */
+function nomeComSede(torneioId,ano){
+  const c=sedeDe(torneioId,ano);
+  if(!c)return null;
+  return (torneioId==='champions'?'Champions ':'Masters ')+c.nome;
+}
+
+/* ---------- troféus ----------
+   Champions e Masters: uma variante numerada por cidade, sempre a mesma
+   para a mesma cidade (hash do nome), entre as que existirem na pasta.
+   Regionais: um por torneio e região. Prêmios da temporada: premio-<tipo>. */
+const TROFEU_VARIANTES_MAX=10;
+const TROFEU_PREFIXO={kickoff:'kickoff',stage1:'stage1',stage2:'stage2',
+                      split1:'challengers',split2:'challengers',asc:'ascension'};
+const TROFEU_REGIAO={AMER:'amer',EMEA:'emea',PAC:'pac',CN:'cn'};
+function _variantesTrofeu(tipo){
+  if(typeof MIDIA==='undefined'||!MIDIA.arquivos)return TROFEU_VARIANTES_MAX;
+  let n=0;
+  for(let i=1;i<=TROFEU_VARIANTES_MAX;i++)
+    if(MIDIA.arquivos['trofeus/'+tipo+'-'+String(i).padStart(2,'0')])n=i;else break;
+  return n||TROFEU_VARIANTES_MAX;
+}
+/* nome do arquivo (sem pasta e sem extensão) do troféu de um torneio */
+function arquivoTrofeu(torneioId,ano){
+  if(torneioId==='champions'||torneioId==='masters1'||torneioId==='masters2'){
+    const tipo=torneioId==='champions'?'champions':'masters';
+    const c=sedeDe(torneioId,ano);
+    const n=_variantesTrofeu(tipo);
+    const v=c?(_hashSede(c.slug)%n)+1:1;
+    return tipo+'-'+String(v).padStart(2,'0');
+  }
+  const corte=String(torneioId||'').indexOf('_');
+  if(corte>0){
+    const pre=TROFEU_PREFIXO[torneioId.slice(0,corte)];
+    const reg=TROFEU_REGIAO[torneioId.slice(corte+1)];
+    if(pre&&reg)return pre+'-'+reg;
+  }
+  return 'padrao';
+}
+function arquivoTrofeuPremio(tipo){return 'premio-'+String(tipo).replace('regional','mvp-regional');}
+
+/* ---------- Banco de dados ---------- */
+function edAplicarCidade(slug,c){
+  if(!G.cidades)montarCidades();
+  const x=G.cidades.find(k=>k.slug===slug);
+  if(!x)return{ok:false,erro:'Cidade não encontrada.'};
+  if(typeof c.nome==='string'&&c.nome.trim())x.nome=c.nome.trim();
+  if(typeof c.pais==='string'&&/^[A-Z]{2}$/.test(c.pais))x.pais=c.pais;
+  if(c.tipo==='champions'||c.tipo==='masters')x.tipo=c.tipo;
+  if(c.maior!=null)x.maior=!!c.maior;
+  return{ok:true};
+}
+function edAddCidade(nome,pais,tipo){
+  if(!G.cidades)montarCidades();
+  nome=String(nome||'').trim();
+  if(!nome)return{ok:false,erro:'Dê um nome à cidade.'};
+  const slug=slugCidade(nome);
+  if(G.cidades.some(c=>c.slug===slug))return{ok:false,erro:nome+' já está na lista.'};
+  if(!/^[A-Z]{2}$/.test(pais||''))return{ok:false,erro:'Escolha o país.'};
+  G.cidades.push({slug,nome,pais,tipo:tipo==='champions'?'champions':'masters',maior:false});
+  return{ok:true,msg:nome+' entrou na lista de sedes. A imagem vai em assets/cidades/'+slug+'.webp.'};
+}
+function edRemoverCidade(slug){
+  if(!G.cidades)montarCidades();
+  if(G.cidades.length<=6)return{ok:false,erro:'A lista precisa de pelo menos seis cidades.'};
+  const resto=G.cidades.filter(c=>c.slug!==slug);
+  if(resto.length===G.cidades.length)return{ok:false,erro:'Cidade não encontrada.'};
+  if(!resto.some(c=>c.tipo==='champions'))
+    return{ok:false,erro:'Sem nenhuma cidade de Champions o sorteio não fecha.'};
+  G.cidades=resto;
+  return{ok:true};
 }
 
 
@@ -12954,7 +13345,8 @@ function retratoAgente(nome,px){
 function torneioInline(id,px){
   const t=typeof torneio==='function'?torneio(id):null;
   if(!t)return '—';
-  return `<span class="linha-t">${arteTorneio(t,px||20)}<span>${esc(t.nome)}</span></span>`;
+  const nome=typeof nomeDoAno==='function'?nomeDoAno(id):t.nome;
+  return `<span class="linha-t">${arteTorneio(t,px||20)}<span>${esc(nome||t.nome)}</span></span>`;
 }
 
 /* ---------- retrato de comissão técnica ---------- */
@@ -12972,6 +13364,91 @@ function retratoStaff(m,px){
   const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
+}
+
+/* ---------- mapas, cidades-sede e troféus ----------
+   Mapa e cidade são FUNDO, não ícone: entram como background em CSS, com uma
+   camada escura por cima para o texto continuar legível (vários mapas vêm com
+   céu quase branco). Sem arquivo, o CSS simplesmente não acha a imagem e fica
+   a camada sobre o painel — nada quebra e não precisa de onerror. */
+function urlCSS(u){return "url('"+String(u).replace(/'/g,"%27")+"')";}
+ASSETS.mapa=function(nome){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('mapa:'+this.slug(nome));
+  return up||this.arq('mapas',nome);
+};
+ASSETS.cidade=function(slug){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('cidade:'+slug);
+  return up||this.arq('cidades',slug);
+};
+ASSETS.trofeu=function(arquivo){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('trofeu:'+arquivo);
+  return up||this.arq('trofeus',arquivo);
+};
+/* style="" pronto: fundo do mapa com a camada que escurece de baixo para cima */
+function fundoMapa(nome,forca){
+  const f=forca==null?0.55:forca;
+  return `background-image:linear-gradient(180deg,rgba(11,18,24,${(f*0.55).toFixed(2)}) 0%,rgba(11,18,24,${f}) 55%,rgba(11,18,24,${Math.min(0.96,f+0.3).toFixed(2)}) 100%),${urlCSS(ASSETS.mapa(nome))};background-size:cover;background-position:center`;
+}
+function fundoCidade(slug,forca){
+  const f=forca==null?0.5:forca;
+  return `background-image:linear-gradient(90deg,rgba(11,18,24,${Math.min(0.95,f+0.35).toFixed(2)}) 0%,rgba(11,18,24,${f}) 45%,rgba(11,18,24,${(f*0.4).toFixed(2)}) 100%),${urlCSS(ASSETS.cidade(slug))};background-size:cover;background-position:center`;
+}
+/* troféu genérico desenhado: taça simples na cor do torneio */
+function monogramaTrofeu(px,cor){
+  const c=cor||'#C8943A';
+  return svgURI(`<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${Math.round(px*1.5)}" viewBox="0 0 64 96">
+    <path d="M18 8h28v18c0 11-6 20-14 20s-14-9-14-20z" fill="${c}"/>
+    <path d="M18 14H8c0 10 5 16 12 17M46 14h10c0 10-5 16-12 17" fill="none" stroke="${c}" stroke-width="3"/>
+    <rect x="29" y="46" width="6" height="22" fill="${c}"/>
+    <path d="M20 68h24l4 12H16z" fill="${c}" opacity=".85"/>
+    <rect x="12" y="80" width="40" height="8" rx="2" fill="#16222E" stroke="${c}"/></svg>`);
+}
+/* <img> do troféu: `arquivo` é o nome sem pasta e sem extensão
+   (arquivoTrofeu() e arquivoTrofeuPremio() em core/sedes.js dizem qual) */
+function imgTrofeu(arquivo,px,titulo){
+  px=px||40;
+  const fb=monogramaTrofeu(px,/^champions/.test(arquivo||'')?'#E8C46A':/^masters/.test(arquivo||'')?'#B9C3CE':null);
+  return `<img class="trofeu" width="${px}" height="${Math.round(px*1.5)}" loading="lazy" alt="${esc(titulo||'')}"
+    ${titulo?`title="${esc(titulo)}"`:''} src="${arquivo?ASSETS.trofeu(arquivo):fb}" onerror="this.onerror=null;this.src='${fb}'">`;
+}
+/* O troféu de um título já ganho, pelo histórico. Títulos da pré-história e de
+   saves antigos não guardam o arquivo, então ele é deduzido do nome:
+   "Masters Toronto" → variante da cidade, "Stage 1 · VCT EMEA" → stage1-emea. */
+function trofeuDoTitulo(ano,evento){
+  const h=(G&&G.historico||[]).find(x=>x&&x.ano===ano&&x.evento===evento&&x.trofeu);
+  if(h)return h.trofeu;
+  const ev=String(evento||'');
+  const porCidade=(tipo,nome)=>{
+    const c=typeof cidades==='function'?cidades().find(k=>k.nome===nome.trim()):null;
+    const slug=c?c.slug:ASSETS.slug(nome);
+    const n=typeof _variantesTrofeu==='function'?_variantesTrofeu(tipo):10;
+    return tipo+'-'+String((_hashSede(slug)%n)+1).padStart(2,'0');
+  };
+  let m=ev.match(/^Champions (.+)$/);if(m&&!/^\d/.test(m[1]))return porCidade('champions',m[1]);
+  if(/Champions/.test(ev))return 'champions-01';
+  m=ev.match(/^Masters (.+)$/);if(m&&!/^(I|II)$/.test(m[1]))return porCidade('masters',m[1]);
+  if(/^Masters/.test(ev))return 'masters-01';
+  const reg=typeof REGIONS!=='undefined'?REGIONS.find(R=>ev.includes(R.nome)||ev.includes(R.nome.replace(/^VCT /,''))||(R.t2&&ev.includes(R.t2))):null;
+  const suf=reg&&typeof TROFEU_REGIAO!=='undefined'?TROFEU_REGIAO[reg.id]:null;
+  if(suf){
+    if(/^Kickoff/.test(ev))return 'kickoff-'+suf;
+    m=ev.match(/Stage (\d)/);if(m)return 'stage'+m[1]+'-'+suf;
+    if(/Split|Challengers/.test(ev))return 'challengers-'+suf;
+    if(/Ascension/.test(ev))return 'ascension-'+suf;
+  }
+  return 'padrao';
+}
+/* Arte de um stage: os playoffs do Stage e do Split podem ter arte própria
+   (assets/torneios/po1-amer.png…), mesmo sendo o mesmo torneio que os grupos.
+   Sem ela, vale a arte do evento. */
+function arteDoStage(s,px){
+  const tn=typeof torneio==='function'?torneio(s&&s.torneioId):null;
+  if(s&&/^(po|cp)\d_/.test(s.id)&&typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos['torneios/'+ASSETS.slug(s.id)]){
+    const fb=monogramaTorneio((tn&&tn.curto)||s.id,px||34);
+    return `<img class="logo-t" width="${px||34}" height="${px||34}" loading="lazy" alt=""
+      src="${ASSETS.arq('torneios',s.id)}" onerror="this.onerror=null;this.src='${fb}'">`;
+  }
+  return arteTorneio(tn,px);
 }
 
 
@@ -13076,7 +13553,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=10;
+const RUN_VERSAO=11;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -13150,6 +13627,36 @@ function migrarRun(reg){
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();
     if(!G.agentes)montarAgentes();
+    if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
+    if(!G.sedes)G.sedes={};
+    /* Torneio por evento, não por fase: os playoffs do Stage e do Split eram
+       entradas próprias do catálogo e davam título com o nome da fase
+       ("Playoffs Stage 1 · VCT Americas"). O catálogo é unificado, os stages
+       da temporada em curso passam a apontar para o evento e os títulos já
+       ganhos são renomeados. */
+    if(unificarTorneios()||!G._titulosPorEvento){
+      for(const b of G.calendario||[])for(const st of b.stages||[]){
+        st.torneioId=torneioDeStage(st.id);
+        if(st.tipo==='de'&&!st.rotulo&&/^(kick|po|cp|masters|champs)/.test(st.id))st.rotulo='Playoffs';
+        if(/^(po|cp)\d_/.test(st.id))st.nome=String(st.nome).replace(/^Playoffs (Stage|Split) /,'$1 ').replace(/^Playoffs (Challengers)/,'Split '+st.id[2]+' · $1');
+      }
+      const renomear=txt=>String(txt).replace(/Playoffs (Stage|Split) (\d) · /g,'$1 $2 · ');
+      for(const h of G.historico)if(h&&h.evento)h.evento=renomear(h.evento);
+      for(const id in G.times){const t=G.times[id];if(Array.isArray(t.titulos))t.titulos=t.titulos.map(renomear);}
+      G._titulosPorEvento=true;
+    }
+    if(typeof sedesDoAno==='function')sedesDoAno(G.ano);
+    /* Títulos internacionais de carreira gravados antes das sedes ("2028 ·
+       Masters I") ganham a cidade daquele ano, a mesma que o sorteio dá a ele
+       agora — senão a galeria diria "Masters I" ao lado de um troféu de Osaka. */
+    if(!G._titulosComSede&&typeof nomeComSede==='function'){
+      const genericos={'Masters I':'masters1','Masters II':'masters2','Valorant Champions':'champions'};
+      const comSede=(ano,ev)=>{const k=genericos[ev];return k&&ano>=2027?(nomeComSede(k,ano)||ev):ev;};
+      for(const h of G.historico)if(h&&!h.pre&&h.evento)h.evento=comSede(h.ano,h.evento);
+      for(const id in G.times){const t=G.times[id];if(Array.isArray(t.titulos))
+        t.titulos=t.titulos.map(x=>{const i=x.indexOf(' · ');if(i<0)return x;const ano=parseInt(x);return x.slice(0,i+3)+comSede(ano,x.slice(i+3));});}
+      G._titulosComSede=true;
+    }
     if(!G.staff)migrarStaffAntigo();
     if(!G.marcas||!Object.keys(G.marcas).length)montarMarcas();
 
@@ -13780,7 +14287,7 @@ function pintarTop(){
       ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
       G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
       rotuloSemana(G.ano,G.semana||1)}</strong></div>
-    <div class="top-bit">Agenda<strong>${esc(b?b.nome:proximaAgenda())}</strong></div>
+    <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
@@ -13798,7 +14305,7 @@ function proximaAgenda(){
   const nb=typeof proximoBloco==='function'?proximoBloco(G.semana||1):null;
   if(!nb)return 'Fim da temporada';
   const faltam=nb.ini-(G.semana||1);
-  return nb.nome+' em '+faltam+' semana'+(faltam===1?'':'s');
+  return nomeBloco(nb)+' em '+faltam+' semana'+(faltam===1?'':'s');
 }
 
 /* ---------- avisos ---------- */
@@ -14250,7 +14757,7 @@ function faixaCircuito(){
       :'em '+(b.ini-sem)+' sem.';
     return `<div class="tl-item ${est} ${grande(b)?'major':''}">
       <div class="q">${quando}</div>
-      <div class="n">${esc(b.nome)}</div>
+      <div class="n">${esc(nomeBloco(b))}</div>
       <div class="d">${rotuloPeriodo(G.ano,b.ini,b.fim)}</div></div>`;
   }).join('')+`</div>`;
 }
@@ -14369,7 +14876,7 @@ function vInicio(){
   </div>
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Próximo compromisso</div>
-      ${px&&px.espera?`<h3 class="sub">${esc(px.espera.nome)}</h3>
+      ${px&&px.espera?`<h3 class="sub">${esc(nomeBloco(px.espera))}</h3>
        <p class="dim">Começa em ${rotuloPeriodo(G.ano,px.espera.ini,px.espera.fim)} —
        ${px.semanas} semana${px.semanas===1?'':'s'} daqui. Até lá o elenco treina, quem está
        machucado se recupera e o mercado continua girando.</p>`
@@ -14620,7 +15127,7 @@ function vComp(){
       :renderStage(x)).join('')
       :'<div class="empty">Nada agendado ainda para esta região.</div>';
   }
-  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?b.nome:'')}</h2>
+  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?nomeBloco(b):'')}</h2>
   <div class="tabs">${abas.map(([k,n])=>`<button data-ca="${k}" class="${compAba===k?'on':''}">${n}</button>`).join('')}</div>${corpo}`;
 }
 function renderStage(s){
@@ -14664,8 +15171,19 @@ function cabecaTorneio(s){
   const b=blocoDoStage(s), tn=torneio(s.torneioId);
   const est=estadoStage(s);
   const premio=premiosDoStage(s)[0]||0;
-  return `<div class="split">
-    <div class="eyebrow">${arteTorneio(tn,22)} ${esc(nomeStage(s))}</div>
+  /* Internacional: faixa da cidade-sede atrás do cabeçalho. Fase final já
+     decidida: o troféu do evento ao lado do campeão. */
+  const sede=typeof sedeDe==='function'?sedeDe(s.torneioId):null;
+  const campeao=s.feito&&s.ranking&&s.ranking[0]&&s.tipo!=='grupos'&&s.tipo!=='swiss'?G.times[s.ranking[0]]:null;
+  const trofeu=campeao&&typeof arquivoTrofeu==='function'?arquivoTrofeu(s.torneioId):null;
+  const faixa=sede||campeao?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
+      <div>${sede?`<div class="eyebrow">Sede</div><div class="tn-cidade">${esc(sede.nome)}</div>
+        <div class="dim">${bandeira(sede.pais)} ${esc(nomePais(sede.pais))}</div>`:''}</div>
+      ${campeao?`<div class="tn-campeao">${imgTrofeu(trofeu,44,'Troféu de '+nomeTitulo(s))}
+        <div><div class="eyebrow">Campeão</div>${timeInline(campeao.id,22)}</div></div>`:''}
+    </div>`:'';
+  return `${faixa}<div class="split">
+    <div class="eyebrow">${arteDoStage(s,22)} ${esc(nomeStage(s))}</div>
     <span class="chip ${est.cls}">${esc(est.txt)}</span></div>
   <div class="tn-info">
     ${b?`<span>${rotuloPeriodo(G.ano,b.ini,b.fim)}</span>`:''}
@@ -14854,7 +15372,7 @@ function vTreino(){
   ${px&&!px.espera?`<div class="card flat" style="border-left:4px solid var(--red)">
     <b>Tem jogo nesta semana</b> — ${px.bye?'bye':'contra '+esc(nomeT(px.adv))}. Quem treina pesado
     entra cansado, e cansaço é o que mais custa partida.</div>`
-   :px&&px.espera?`<div class="card flat"><b>${esc(px.espera.nome)}</b> em ${px.semanas}
+   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera))}</b> em ${px.semanas}
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
 
   <div class="card"><div class="split">
@@ -15217,7 +15735,7 @@ function vFinancas(){
       <button class="btn ghost sm" data-disp="${p.id}">Dispensar</button></td></tr>`;}).join('')}</tbody></table></div>
   <div class="card"><div class="eyebrow">Premiações que você pode disputar</div>
     <table><thead><tr><th>Competição</th><th class="r">Campeão</th><th class="r">Vice</th></tr></thead><tbody>
-      ${['champions','masters1',(t.tier===1?'po2_':'cp2_')+t.regiao,(t.tier===1?'kickoff_':'asc_')+t.regiao]
+      ${['champions','masters1',(t.tier===1?'stage2_':'split2_')+t.regiao,(t.tier===1?'kickoff_':'asc_')+t.regiao]
         .map(id=>{const tor=torneio(id);if(!tor||!tor.premio)return '';
           const p=premiosDoStage({torneioId:id});
           return `<tr><td>${torneioInline(id,20)}</td><td class="r num">${money(p[0]||0)}</td>
@@ -15248,11 +15766,11 @@ function vStats(){
    PRÊMIOS E HALL DA FAMA
    ============================================================ */
 let premioAno=null;
-function linhaPremiado(f,rot){
+function linhaPremiado(f,rot,trofeu){
   if(!f)return '';
   const vivo=!!P(f.id);
   return `<tr class="${vivo?'jrow':''} ${f.timeId===G.meuTime?'me':''}" ${vivo?`data-p="${f.id}"`:''}>
-    ${rot?`<td class="dim">${esc(rot)}</td>`:''}
+    ${rot?`<td class="dim">${trofeu?imgTrofeu(trofeu,14,rot)+' ':''}${esc(rot)}</td>`:''}
     <td><b>${esc(f.nome)}</b> ${FLAG[f.pais]||''}${vivo?'':' <span class="chip">aposentado</span>'}</td>
     <td><span class="tag ${f.role}">${f.role}</span></td><td class="dim">${esc(f.tag)}</td>
     <td class="r num">${f.maps}</td><td class="r num">${f.acs}</td><td class="r num">${Number(f.kd).toFixed(2)}</td></tr>`;
@@ -15267,19 +15785,21 @@ function vPremios(){
   const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
       O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
   <div class="grid g2">
-    <div class="card"><div class="eyebrow">MVP de ${r.ano}</div>
+    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('mvp'),46,'MVP do ano')}<div>
+      <div class="eyebrow">MVP de ${r.ano}</div>
       <h3 style="margin:4px 0">${esc(r.mvp.nome)} ${FLAG[r.mvp.pais]||''}</h3>
-      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div>
-    <div class="card"><div class="eyebrow">Treinador do ano</div>
+      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div></div>
+    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('treinador'),46,'Treinador do ano')}<div>
+      <div class="eyebrow">Treinador do ano</div>
       ${r.treinador?`<h3 style="margin:4px 0">${esc(r.treinador.nome)}${r.treinador.voce?' <span class="chip t">você</span>':''}</h3>
-      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div>
+      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div></div>
   </div>
-  <div class="card flat"><div class="eyebrow">Seleção do ano</div>
+  <div class="card flat"><div class="eyebrow">${imgTrofeu(arquivoTrofeuPremio('selecao'),18,'Seleção do ano')} Seleção do ano</div>
     <table>${TH_PREMIO(false)}<tbody>${r.selecao.map(f=>linhaPremiado(f)).join('')}</tbody></table></div>
   <div class="card flat"><div class="eyebrow">Destaques</div>
     <table>${TH_PREMIO(true)}<tbody>
       ${REGIONS.map(R=>linhaPremiado(r.regioes[R.id],'MVP · '+R.nome)).join('')}
-      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano')}
+      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}
     </tbody></table></div>`;
   const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
   return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
@@ -15376,9 +15896,10 @@ function vHistoria(){
 
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Galeria de títulos</div>
-      ${l.titulos.length?`<div class="titulos">${l.titulos.slice().reverse().map(x=>
-        `<div class="tit-linha"><span class="num dim">${esc(x.split(' · ')[0])}</span>
-          <b>${esc(x.split(' · ').slice(1).join(' · '))}</b></div>`).join('')}</div>`
+      ${l.titulos.length?`<div class="titulo-lista">${l.titulos.slice().reverse().map(x=>{
+        const ano=parseInt(x.split(' · ')[0]),ev=x.split(' · ').slice(1).join(' · ');
+        return `<div class="titulo-item">${imgTrofeu(trofeuDoTitulo(ano,ev),30,ev)}
+          <div><div class="ano">${esc(String(ano))}</div><div class="ev">${esc(ev)}</div></div></div>`;}).join('')}</div>`
         :'<div class="empty">Nenhum título ainda. É por isso que você está aqui.</div>'}
     </div>
     <div class="card"><div class="eyebrow">Rivalidades</div>
@@ -15408,7 +15929,7 @@ function vHistoria(){
       <table><tbody>${pre.filter(h=>h.ano===a).map(h=>{
         const c=acharClubePorNome(h.campeao);
         return `<tr>
-          <td class="dim">${esc(h.evento)}</td>
+          <td class="dim">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),14,h.evento)} ${esc(h.evento)}</td>
           <td>${c?escudo(c,20):''} <b>${esc(h.campeao)}</b>${c?'':' <span class="dim">(não compete mais)</span>'}</td>
           <td class="dim r">${h.vice?'vice: '+esc(h.vice):''}</td></tr>`;}).join('')}
       </tbody></table></div>`).join('')}
@@ -17124,7 +17645,8 @@ function ppVetoHTML(){
     const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
     const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
     const mostraAdv=nivelScout(meuT)>=3;
-    return `<button class="mp-card ${minha?'':'off'}" data-ppmapa="${esc(mp)}" ${minha?'':'disabled'}>
+    return `<button class="mp-card ${minha?'':'off'}" data-ppmapa="${esc(mp)}" ${minha?'':'disabled'}
+      style="${fundoMapa(mp,0.6)}">
       <div class="mp-nome">${esc(mp)}</div>
       <div class="mp-val ${meuA>=2?'up':meuA<=-2?'dn':''}">${meuA>0?'+':''}${meuA.toFixed(1)}</div>
       <div class="mp-adv">${esc(advT.tag)} ${mostraAdv?(advA>0?'+':'')+advA.toFixed(1):'?'}</div>
@@ -17133,7 +17655,7 @@ function ppVetoHTML(){
   }).join('');
   const mapasFinais=V.seq.filter(x=>x.tipo!=='ban');
   return `<div class="split">
-      <div><div class="eyebrow">Veto de mapas · ${esc(PP.comp.stage.nome||'')} · Bo${V.bo}</div>
+      <div><div class="eyebrow">Veto de mapas · ${esc(nomeStage(PP.comp.stage))} · Bo${V.bo}</div>
         <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(advT.tag)}</h2></div>
       <div style="text-align:right"><div class="eyebrow">Sequência</div>
         <b class="num">${V.i}/${V.passos.length}</b></div>
@@ -17141,7 +17663,7 @@ function ppVetoHTML(){
     <div style="margin:10px 0">${linhaSeq||'<span class="dim">O veto começa agora.</span>'}</div>
     ${V.fim?`<div class="card flat"><div class="eyebrow">A série vai ser assim</div>
         <table class="wide"><tbody>${mapasFinais.map((x,i)=>`<tr>
-          <td class="c num">${i+1}</td><td><b>${esc(x.m)}</b></td>
+          <td class="c num">${i+1}</td><td><span class="mp-mini" style="${fundoMapa(x.m,0.25)}"></span> <b>${esc(x.m)}</b></td>
           <td class="dim">${x.tipo==='dec'?'decider':('escolha do '+esc(x.t))}</td>
           <td class="c"><span class="pill ${afinidadeElenco(meuT,x.m)>=1?'g':afinidadeElenco(meuT,x.m)<=-1?'r':''}"
             >você ${afinidadeElenco(meuT,x.m)>0?'+':''}${afinidadeElenco(meuT,x.m).toFixed(1)}</span></td>
@@ -17486,7 +18008,7 @@ function avPintar(fim){
   const venci=AV.res.vencedor===AV.meu.id;
 
   const cabeca=`
-    <div class="av-placar">
+    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.72)}"`:''}>
       <div class="av-lado ${meuR>delR?'up':''}">
         ${escudo(AV.meu,44)}<div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span></div>
       </div>
@@ -17860,7 +18382,44 @@ function edvTorneios(){
     return `<div class="card flat"><div class="eyebrow">${esc(g.rot)}</div>
       <table class="wide"><thead><tr><th></th><th>Nome</th><th>Curto</th><th class="c">Divisão</th>
         <th class="r">Prêmio do campeão</th><th class="r">Campeão · vice</th><th class="r">Arte</th></tr></thead>
-      <tbody>${itens.map(linha).join('')}</tbody></table></div>`;}).join('')}`;
+      <tbody>${itens.map(linha).join('')}</tbody></table></div>`;}).join('')}
+  ${edvCidades()}`;
+}
+/* Cidades-sede: o catálogo de onde o sorteio do ano tira Masters e Champions.
+   Mudar aqui vale para os sorteios que ainda não aconteceram; as sedes já
+   sorteadas (o ano em curso e os anteriores) ficam como estão. */
+function edvCidades(){
+  if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
+  const ano=G.ano,sd=typeof sedesDoAno==='function'?sedesDoAno(ano):null;
+  const usadas=sd?Object.values(sd):[];
+  const lista=G.cidades.slice().sort((a,b)=>(a.tipo===b.tipo?0:a.tipo==='champions'?-1:1)||a.nome.localeCompare(b.nome));
+  const linha=c=>`<tr>
+    <td><span class="mp-mini" style="${fundoCidade(c.slug,0.15)}"></span></td>
+    <td><input type="text" value="${esc(c.nome)}" data-cnome="${esc(c.slug)}" style="width:170px">
+      ${usadas.includes(c.slug)?'<span class="chip g">sede em '+ano+'</span>':''}</td>
+    <td>${selectPais('data-cpais="'+esc(c.slug)+'"',c.pais)}</td>
+    <td><select data-ctipo="${esc(c.slug)}"><option value="champions" ${c.tipo==='champions'?'selected':''}>Champions e Masters</option>
+      <option value="masters" ${c.tipo==='masters'?'selected':''}>só Masters</option></select></td>
+    <td class="c"><input type="checkbox" data-cmaior="${esc(c.slug)}" ${c.maior?'checked':''}></td>
+    <td class="dim"><code>${esc(c.slug)}.webp</code></td>
+    <td class="r"><button class="btn ghost sm" data-cdel="${esc(c.slug)}">✕</button></td></tr>`;
+  return `<div class="card flat"><div class="eyebrow">Cidades-sede · ${G.cidades.length}</div>
+    <p class="dim">Todo ano o jogo sorteia a sede de Masters I, Masters II e Champions. Champions só
+    sai das cidades marcadas para ele; Masters sai de qualquer uma, com o dobro de chance para quem
+    <b>não</b> é a maior cidade do país. Nenhuma cidade repete as sedes dos dois anos anteriores.
+    ${sd?`Sedes de ${ano}: <b>${esc(nomeComSede('masters1',ano)||'—')}</b>, <b>${esc(nomeComSede('masters2',ano)||'—')}</b> e
+    <b>${esc(nomeComSede('champions',ano)||'—')}</b>.`:''}</p>
+    <p class="dim">A imagem de cada cidade vai em <code>assets/cidades/</code> com o nome da coluna Arquivo.</p>
+    <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="edSalvarCid">Aplicar alterações</button>
+      <input type="text" id="edCidNome" placeholder="Nova cidade" style="width:170px">
+      ${selectPais('id="edCidPais"','')}
+      <select id="edCidTipo"><option value="masters">só Masters</option><option value="champions">Champions e Masters</option></select>
+      <button class="btn ghost" id="edAddCid">Adicionar</button>
+    </div>
+    <div class="rolagem"><table class="wide"><thead><tr><th></th><th>Cidade</th><th>País</th><th>Recebe</th>
+      <th class="c" title="Maior cidade do país: chance normal no Masters">Maior do país</th><th>Arquivo</th><th></th></tr></thead>
+    <tbody>${lista.map(linha).join('')}</tbody></table></div></div>`;
 }
 
 /* ============================================================
@@ -18800,6 +19359,25 @@ function ligarEventos(){
       r.ok?n++:erros.push(r.erro);
     }
     render();flash(erros.length?erros[0]:n+' torneio(s) atualizado(s).');
+  });
+  /* ---------- cidades-sede ---------- */
+  on('#edSalvarCid',()=>{
+    const patch={};
+    const pega=(sel,campo,ler)=>v.querySelectorAll('['+sel+']').forEach(el=>{
+      (patch[el.getAttribute(sel)]=patch[el.getAttribute(sel)]||{})[campo]=ler(el);});
+    pega('data-cnome','nome',el=>el.value);pega('data-cpais','pais',el=>el.value);
+    pega('data-ctipo','tipo',el=>el.value);pega('data-cmaior','maior',el=>el.checked);
+    let n=0;const erros=[];
+    for(const slug in patch){const r=edAplicarCidade(slug,patch[slug]);r.ok?n++:erros.push(r.erro);}
+    render();flash(erros.length?erros[0]:n+' cidade(s) atualizada(s).');
+  });
+  on('#edAddCid',()=>{
+    const r=edAddCidade($('#edCidNome').value,$('#edCidPais').value,$('#edCidTipo').value);
+    render();flash(r.ok?r.msg:r.erro);
+  });
+  on('[data-cdel]',el=>{
+    const r=edRemoverCidade(el.dataset.cdel);
+    render();flash(r.ok?'Cidade removida.':r.erro);
   });
   v.querySelectorAll('[data-tarte]').forEach(el=>el.addEventListener('change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveTorneio(el.dataset.tarte),f);

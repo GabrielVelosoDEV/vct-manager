@@ -173,7 +173,8 @@ function retratoAgente(nome,px){
 function torneioInline(id,px){
   const t=typeof torneio==='function'?torneio(id):null;
   if(!t)return '—';
-  return `<span class="linha-t">${arteTorneio(t,px||20)}<span>${esc(t.nome)}</span></span>`;
+  const nome=typeof nomeDoAno==='function'?nomeDoAno(id):t.nome;
+  return `<span class="linha-t">${arteTorneio(t,px||20)}<span>${esc(nome||t.nome)}</span></span>`;
 }
 
 /* ---------- retrato de comissão técnica ---------- */
@@ -191,4 +192,89 @@ function retratoStaff(m,px){
   const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
+}
+
+/* ---------- mapas, cidades-sede e troféus ----------
+   Mapa e cidade são FUNDO, não ícone: entram como background em CSS, com uma
+   camada escura por cima para o texto continuar legível (vários mapas vêm com
+   céu quase branco). Sem arquivo, o CSS simplesmente não acha a imagem e fica
+   a camada sobre o painel — nada quebra e não precisa de onerror. */
+function urlCSS(u){return "url('"+String(u).replace(/'/g,"%27")+"')";}
+ASSETS.mapa=function(nome){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('mapa:'+this.slug(nome));
+  return up||this.arq('mapas',nome);
+};
+ASSETS.cidade=function(slug){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('cidade:'+slug);
+  return up||this.arq('cidades',slug);
+};
+ASSETS.trofeu=function(arquivo){
+  const up=typeof Imgs!=='undefined'&&Imgs.get('trofeu:'+arquivo);
+  return up||this.arq('trofeus',arquivo);
+};
+/* style="" pronto: fundo do mapa com a camada que escurece de baixo para cima */
+function fundoMapa(nome,forca){
+  const f=forca==null?0.55:forca;
+  return `background-image:linear-gradient(180deg,rgba(11,18,24,${(f*0.55).toFixed(2)}) 0%,rgba(11,18,24,${f}) 55%,rgba(11,18,24,${Math.min(0.96,f+0.3).toFixed(2)}) 100%),${urlCSS(ASSETS.mapa(nome))};background-size:cover;background-position:center`;
+}
+function fundoCidade(slug,forca){
+  const f=forca==null?0.5:forca;
+  return `background-image:linear-gradient(90deg,rgba(11,18,24,${Math.min(0.95,f+0.35).toFixed(2)}) 0%,rgba(11,18,24,${f}) 45%,rgba(11,18,24,${(f*0.4).toFixed(2)}) 100%),${urlCSS(ASSETS.cidade(slug))};background-size:cover;background-position:center`;
+}
+/* troféu genérico desenhado: taça simples na cor do torneio */
+function monogramaTrofeu(px,cor){
+  const c=cor||'#C8943A';
+  return svgURI(`<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${Math.round(px*1.5)}" viewBox="0 0 64 96">
+    <path d="M18 8h28v18c0 11-6 20-14 20s-14-9-14-20z" fill="${c}"/>
+    <path d="M18 14H8c0 10 5 16 12 17M46 14h10c0 10-5 16-12 17" fill="none" stroke="${c}" stroke-width="3"/>
+    <rect x="29" y="46" width="6" height="22" fill="${c}"/>
+    <path d="M20 68h24l4 12H16z" fill="${c}" opacity=".85"/>
+    <rect x="12" y="80" width="40" height="8" rx="2" fill="#16222E" stroke="${c}"/></svg>`);
+}
+/* <img> do troféu: `arquivo` é o nome sem pasta e sem extensão
+   (arquivoTrofeu() e arquivoTrofeuPremio() em core/sedes.js dizem qual) */
+function imgTrofeu(arquivo,px,titulo){
+  px=px||40;
+  const fb=monogramaTrofeu(px,/^champions/.test(arquivo||'')?'#E8C46A':/^masters/.test(arquivo||'')?'#B9C3CE':null);
+  return `<img class="trofeu" width="${px}" height="${Math.round(px*1.5)}" loading="lazy" alt="${esc(titulo||'')}"
+    ${titulo?`title="${esc(titulo)}"`:''} src="${arquivo?ASSETS.trofeu(arquivo):fb}" onerror="this.onerror=null;this.src='${fb}'">`;
+}
+/* O troféu de um título já ganho, pelo histórico. Títulos da pré-história e de
+   saves antigos não guardam o arquivo, então ele é deduzido do nome:
+   "Masters Toronto" → variante da cidade, "Stage 1 · VCT EMEA" → stage1-emea. */
+function trofeuDoTitulo(ano,evento){
+  const h=(G&&G.historico||[]).find(x=>x&&x.ano===ano&&x.evento===evento&&x.trofeu);
+  if(h)return h.trofeu;
+  const ev=String(evento||'');
+  const porCidade=(tipo,nome)=>{
+    const c=typeof cidades==='function'?cidades().find(k=>k.nome===nome.trim()):null;
+    const slug=c?c.slug:ASSETS.slug(nome);
+    const n=typeof _variantesTrofeu==='function'?_variantesTrofeu(tipo):10;
+    return tipo+'-'+String((_hashSede(slug)%n)+1).padStart(2,'0');
+  };
+  let m=ev.match(/^Champions (.+)$/);if(m&&!/^\d/.test(m[1]))return porCidade('champions',m[1]);
+  if(/Champions/.test(ev))return 'champions-01';
+  m=ev.match(/^Masters (.+)$/);if(m&&!/^(I|II)$/.test(m[1]))return porCidade('masters',m[1]);
+  if(/^Masters/.test(ev))return 'masters-01';
+  const reg=typeof REGIONS!=='undefined'?REGIONS.find(R=>ev.includes(R.nome)||ev.includes(R.nome.replace(/^VCT /,''))||(R.t2&&ev.includes(R.t2))):null;
+  const suf=reg&&typeof TROFEU_REGIAO!=='undefined'?TROFEU_REGIAO[reg.id]:null;
+  if(suf){
+    if(/^Kickoff/.test(ev))return 'kickoff-'+suf;
+    m=ev.match(/Stage (\d)/);if(m)return 'stage'+m[1]+'-'+suf;
+    if(/Split|Challengers/.test(ev))return 'challengers-'+suf;
+    if(/Ascension/.test(ev))return 'ascension-'+suf;
+  }
+  return 'padrao';
+}
+/* Arte de um stage: os playoffs do Stage e do Split podem ter arte própria
+   (assets/torneios/po1-amer.png…), mesmo sendo o mesmo torneio que os grupos.
+   Sem ela, vale a arte do evento. */
+function arteDoStage(s,px){
+  const tn=typeof torneio==='function'?torneio(s&&s.torneioId):null;
+  if(s&&/^(po|cp)\d_/.test(s.id)&&typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos['torneios/'+ASSETS.slug(s.id)]){
+    const fb=monogramaTorneio((tn&&tn.curto)||s.id,px||34);
+    return `<img class="logo-t" width="${px||34}" height="${px||34}" loading="lazy" alt=""
+      src="${ASSETS.arq('torneios',s.id)}" onerror="this.onerror=null;this.src='${fb}'">`;
+  }
+  return arteTorneio(tn,px);
 }

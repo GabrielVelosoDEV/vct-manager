@@ -267,7 +267,7 @@ function avPintar(fim){
   const venci=AV.res.vencedor===AV.meu.id;
 
   const cabeca=`
-    <div class="av-placar">
+    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.72)}"`:''}>
       <div class="av-lado ${meuR>delR?'up':''}">
         ${escudo(AV.meu,44)}<div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span></div>
       </div>
