@@ -160,6 +160,16 @@
   e a IA com a mesma regra; tática por mapa (agressividade e foco), valendo
   desde o primeiro round e com o pedido de tempo por cima.
 
+- **Competições** (pacote 3): hub da temporada com linha do tempo do ano em
+  três faixas (internacional, VCT, Challengers), semana atual marcada e
+  campeão internacional na barra; torneios em disputa, a seguir e
+  encerrados, com filtros; página de cada torneio (capa com sede, troféu e
+  campeão; chave e tabelas; jogos por rodada; estatísticas do torneio e
+  mapas mais jogados; premiação por colocação); ficha de qualquer série
+  com veto, placar e lado de cada mapa e a linha dos dez jogadores. A ficha
+  fica enxuta no save (≈380 KB no fim do ano) e a linha dos jogadores só
+  nas séries do seu clube, internacionais e de playoffs.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

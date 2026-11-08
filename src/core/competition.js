@@ -146,7 +146,25 @@ function stageAplicar(s,res){
      para eleger o melhor de um campeonato — o que se quer saber é quem foi o
      melhor naquelas três semanas, não no ano. */
   acumularStats(s,res);
-  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', ')});
+  /* Ficha da série guardada enxuta, para qualquer jogo do ano poder ser
+     aberto em Competições: veto, placar e lado de início de cada mapa, e a
+     linha de cada jogador (K, D, A, ACS, first kills). Vive no stage, que é
+     remontado a cada temporada — o save carrega só o ano em curso. */
+  /* A linha de cada jogador é o que pesa no save (≈0,6 KB por série). Fica
+     nas séries que alguém volta para olhar: as do seu clube, as dos
+     internacionais e as de playoffs. Na fase de grupos regional dos outros
+     ficam veto e placar por mapa. */
+  const comBox=aId===G.meuTime||bId===G.meuTime||s.regiao==='INT'||s.tipo==='de'||s.tipo==='ko';
+  const det={
+    v:(res.veto||[]).map(x=>[x.m,x.tipo==='ban'?'b':x.tipo==='dec'?'d':'p',x.t||'']),
+    mp:(res.mapas||[]).map(m=>({m:m.mapa,a:m.sa,b:m.sb,l:m.hist&&m.hist[0]?m.hist[0].lado:null,
+      /* "id:k,d,a,acs|id:…" — texto em vez de objeto: um terço menor no save */
+      st:!comBox?null:Object.entries(m.st||{}).filter(([,x])=>x&&x.rounds>0)
+        .map(([id,x])=>id+':'+x.k+','+x.d+','+x.a+','+Math.round(typeof acsDe==='function'?acsDe(x):0)).join('|')})),
+    mvp:res.mvp||null};
+  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
+    n:s.resultados.length,rd:s.nomeRodada||(s.tipo==='rr'||s.tipo==='grupos'?'Rodada '+(s.idx+1):''),
+    sem:res.semana||G.semana,det});
   /* Confronto direto: registrado aqui, no único lugar por onde TODO resultado
      de série passa. Espalhar isso pelos pontos que chamam simSerie deixaria
      algum torneio de fora e o histórico ficaria mentindo por omissão. */

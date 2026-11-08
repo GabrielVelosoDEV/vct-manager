@@ -6,6 +6,7 @@ function ligarEventos(){
   if(!v)return;
   const on=(sel,f)=>v.querySelectorAll(sel).forEach(el=>el.onclick=e=>{e.stopPropagation();f(el);});
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
+  if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por

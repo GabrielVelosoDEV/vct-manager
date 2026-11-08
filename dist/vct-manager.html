@@ -949,6 +949,75 @@ tr.dim-row td{opacity:.7}
 .prep-card .chip{background:rgba(11,18,24,.85)}
 .prep-pe .dim{color:var(--tx2);text-shadow:0 1px 2px rgba(0,0,0,.8)}
 
+/* ---------- competições (pacote 3) ---------- */
+.lt{padding-bottom:18px}
+.lt-corpo{position:relative;margin-top:10px}
+.lt-meses{position:relative;height:16px;margin-left:110px}
+.lt-mes{position:absolute;top:0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.lt-faixa{display:flex;align-items:center;height:34px;border-top:1px solid var(--line)}
+.lt-rot{width:110px;flex:none;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.lt-trilho{position:relative;flex:1;height:100%}
+.lt-bar{position:absolute;top:5px;bottom:5px;display:flex;align-items:center;gap:4px;padding:0 6px;overflow:hidden;
+  border:1px solid var(--cor);background:color-mix(in srgb,var(--cor) 16%,transparent);color:var(--tx);font:inherit;font-size:11px;cursor:pointer;white-space:nowrap}
+.lt-bar span{overflow:hidden;text-overflow:ellipsis}
+.lt-bar.futuro{opacity:.55;border-style:dashed}
+.lt-bar.encerrado{background:color-mix(in srgb,var(--cor) 8%,transparent)}
+.lt-bar.meu{box-shadow:inset 0 -3px 0 var(--red)}
+.lt-bar:hover{background:color-mix(in srgb,var(--cor) 30%,transparent)}
+.lt-camp{flex:none;display:inline-flex}
+.lt-agora{position:absolute;top:14px;bottom:0;width:2px;background:var(--red);pointer-events:none}
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px}
+.ev-card{display:flex;flex-direction:column;gap:10px;text-align:left;padding:12px 14px;border:1px solid var(--line);
+  background-color:var(--panel);color:var(--tx2);font:inherit;cursor:pointer;min-height:96px}
+.ev-card:hover{border-color:var(--tx2)}
+.ev-card.meu{border-left:3px solid var(--red)}
+.ev-card.encerrado{opacity:.85}
+.ev-topo{display:flex;gap:10px;align-items:center}
+.ev-topo b{display:block;color:var(--tx);font-size:14px}
+.ev-topo .dim{font-size:11.5px}
+.ev-pe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto}
+.ev-camp{display:inline-flex;align-items:center;gap:5px;margin-left:auto;color:var(--tx)}
+.tp-capa{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;min-height:120px;
+  padding:18px 20px;margin:12px 0 0;border:1px solid var(--line);background-color:var(--panel2)}
+.tp-id{display:flex;gap:16px;align-items:center}
+.tp-nome{font-family:'Bebas Neue',Impact,sans-serif;font-size:40px;line-height:1;color:var(--tx);text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.jg.abre{cursor:pointer}.jg.abre:hover{border-color:var(--tx2)}
+.ch-col{justify-content:space-around}
+.ch-cols .ch-col:not(:last-child) .jg{position:relative}
+.ch-cols .ch-col:not(:last-child) .jg::after{content:'';position:absolute;right:-9px;top:50%;width:8px;border-top:1px solid var(--tx2);opacity:.5}
+.ch-cols .ch-col:not(:first-child) .jg::before{content:'';position:absolute;left:-9px;top:50%;width:8px;border-top:1px solid var(--tx2);opacity:.5}
+.ch-cols .ch-col .jg{position:relative}
+.jg-rod{margin-top:10px}
+.jg-rod-t{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.jg-linha{display:grid;grid-template-columns:1fr 80px 1fr 1.4fr;gap:10px;align-items:center;width:100%;padding:6px 10px;
+  border:1px solid var(--line);border-top:0;background:var(--bg2);color:var(--tx2);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.jg-rod .jg-linha:first-of-type{border-top:1px solid var(--line)}
+.jg-linha span:nth-child(3){text-align:right}
+.jg-linha b{text-align:center;color:var(--tx)}
+.jg-linha .w{color:var(--tx);font-weight:600}
+.jg-linha.me{background:var(--red-soft)}
+.jg-linha:hover:not(:disabled){background:var(--panel2)}
+.jg-linha .dim{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-uso{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.mp-uso-i{display:flex;flex-direction:column;justify-content:flex-end;height:70px;padding:8px;border:1px solid var(--line);background-color:var(--panel2)}
+.mp-uso-i b{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;font-weight:400;color:var(--tx)}
+.mp-uso-i span{font-size:11px;color:var(--tx2)}
+.sr-topo{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin:8px 0 12px}
+.sr-time{display:flex;gap:12px;align-items:center}.sr-time.r{justify-content:flex-end;text-align:right}
+.sr-time b{display:block;font-size:16px;color:var(--tx2)}.sr-time.w b{color:var(--tx)}
+.sr-score{font-family:'Bebas Neue',Impact,sans-serif;font-size:48px;color:var(--tx2);display:flex;gap:10px}
+.sr-score .w{color:var(--teal)}.sr-score i{font-style:normal;opacity:.5}
+.sr-veto{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+.sr-mapa{border:1px solid var(--line);margin-bottom:10px}
+.sr-mapa-topo{display:flex;gap:14px;align-items:center;padding:12px 14px;background-color:var(--panel2)}
+.sr-n{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx2)}
+.sr-m{font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;font-weight:400;color:var(--tx)}
+.sr-placar{font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;color:var(--tx2)}.sr-placar .w{color:var(--teal)}
+.sr-mapa .grid{padding:8px 12px;gap:12px}
+table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:var(--teal-soft)}
+@media (max-width:700px){.lt-rot{width:70px}.lt-meses{margin-left:70px}.jg-linha{grid-template-columns:1fr 60px 1fr}.jg-linha .dim{display:none}}
+.sr-mapa-topo .dim{color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -7687,7 +7756,25 @@ function stageAplicar(s,res){
      para eleger o melhor de um campeonato — o que se quer saber é quem foi o
      melhor naquelas três semanas, não no ano. */
   acumularStats(s,res);
-  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', ')});
+  /* Ficha da série guardada enxuta, para qualquer jogo do ano poder ser
+     aberto em Competições: veto, placar e lado de início de cada mapa, e a
+     linha de cada jogador (K, D, A, ACS, first kills). Vive no stage, que é
+     remontado a cada temporada — o save carrega só o ano em curso. */
+  /* A linha de cada jogador é o que pesa no save (≈0,6 KB por série). Fica
+     nas séries que alguém volta para olhar: as do seu clube, as dos
+     internacionais e as de playoffs. Na fase de grupos regional dos outros
+     ficam veto e placar por mapa. */
+  const comBox=aId===G.meuTime||bId===G.meuTime||s.regiao==='INT'||s.tipo==='de'||s.tipo==='ko';
+  const det={
+    v:(res.veto||[]).map(x=>[x.m,x.tipo==='ban'?'b':x.tipo==='dec'?'d':'p',x.t||'']),
+    mp:(res.mapas||[]).map(m=>({m:m.mapa,a:m.sa,b:m.sb,l:m.hist&&m.hist[0]?m.hist[0].lado:null,
+      /* "id:k,d,a,acs|id:…" — texto em vez de objeto: um terço menor no save */
+      st:!comBox?null:Object.entries(m.st||{}).filter(([,x])=>x&&x.rounds>0)
+        .map(([id,x])=>id+':'+x.k+','+x.d+','+x.a+','+Math.round(typeof acsDe==='function'?acsDe(x):0)).join('|')})),
+    mvp:res.mvp||null};
+  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
+    n:s.resultados.length,rd:s.nomeRodada||(s.tipo==='rr'||s.tipo==='grupos'?'Rodada '+(s.idx+1):''),
+    sem:res.semana||G.semana,det});
   /* Confronto direto: registrado aqui, no único lugar por onde TODO resultado
      de série passa. Espalhar isso pelos pontos que chamam simSerie deixaria
      algum torneio de fora e o histórico ficaria mentindo por omissão. */
@@ -15721,49 +15808,16 @@ function agentesParaComp(p){
     .sort((a,b)=>(forcaMeta(b.nome)+b.nivel*0.5)-(forcaMeta(a.nome)+a.nivel*0.5));
 }
 
+/* vComp mora em ui/competicoes.js (pacote 3) */
 let compAba='minha';
-function vComp(){
-  const bi=blocoDaSemana(G.semana||1);
-  const b=bi==null?null:G.calendario[bi];
-  const t=meu();
-  const abas=[['minha','Minha região'],...REGIONS.filter(r=>r.id!==t.regiao).map(r=>[r.id,r.nome.replace('VCT ','')]),['INT','Internacional'],['pts','Corrida ao Champions']];
-  let corpo='';
-  if(compAba==='pts'){
-    corpo=REGIONS.map(R=>{
-      const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
-      return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th></tr></thead>
-      <tbody>${rk.map((id,i)=>`<tr class="${id===t.id?'me':''}${i<4?'':''}"><td class="num">${i+1}</td><td>${esc(nomeT(id))} ${i<4?'<span class="chip g">Champions</span>':''}</td>
-      <td class="r num">${G.regioes[R.id].pontos[id]||0}</td></tr>`).join('')}</tbody></table></div>`;
-    }).join('');
-  }else{
-    const alvo=compAba==='minha'?t.regiao:compAba;
-    const sts=[];
-    G.calendario.forEach(bl=>bl.stages.forEach(s=>{if(s.regiao===alvo)sts.push(s);}));
-    /* Em disputa primeiro, encerrados depois e do mais recente para o mais
-       antigo. Empilhar na ordem do calendário obrigava a rolar por cima do
-       Kickoff de janeiro para chegar ao torneio de setembro que está
-       acontecendo agora. */
-    const sem=G.semana||1;
-    const ini=x=>{const bl=blocoDoStage(x);return bl?bl.ini:0;};
-    sts.sort((x,y)=>(x.feito?1:0)-(y.feito?1:0)
-      ||(x.feito?ini(y)-ini(x):ini(x)-ini(y)));
-    corpo=sts.length?sts.map(x=>x.feito&&ini(x)<sem-6
-      ?`<details class="stg-old"><summary>${esc(nomeStage(x))} <span class="dim">${
-         x.ranking&&x.ranking[0]?'· campeão '+esc(tagT(x.ranking[0])):''}</span></summary>${renderStage(x)}</details>`
-      :renderStage(x)).join('')
-      :'<div class="empty">Nada agendado ainda para esta região.</div>';
-  }
-  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?nomeBloco(b):'')}</h2>
-  <div class="tabs">${abas.map(([k,n])=>`<button data-ca="${k}" class="${compAba===k?'on':''}">${n}</button>`).join('')}</div>${corpo}`;
-}
-function renderStage(s){
+function renderStage(s,semFaixa){
   const t=meu();
   const corpo=s.tipo==='grupos'?corpoGrupos(s,t)
              :s.tipo==='de'?corpoChave(s,t)
              :s.tipo==='swiss'?corpoSwiss(s,t)
              :s.tipo==='rr'?corpoTabela(s,t)
              :corpoMataMata(s,t);
-  return `<div class="card flat">${cabecaTorneio(s)}${corpo}${rodapeMVP(s)}</div>`;
+  return `<div class="card flat">${cabecaTorneio(s,semFaixa)}${corpo}${rodapeMVP(s)}</div>`;
 }
 /* ---------- cabeçalho: o que é este torneio ----------
    Antes o stage era só uma tabela solta. Data, formato, quem disputa e quanto
@@ -15793,7 +15847,7 @@ function estadoStage(s){
   if(s.tipo==='rr')return{cls:'',txt:'Rodada '+(s.idx+1)+'/'+s.rodadas.length};
   return{cls:'',txt:'Em disputa'};
 }
-function cabecaTorneio(s){
+function cabecaTorneio(s,semFaixa){
   const b=blocoDoStage(s), tn=torneio(s.torneioId);
   const est=estadoStage(s);
   const premio=premiosDoStage(s)[0]||0;
@@ -15802,7 +15856,7 @@ function cabecaTorneio(s){
   const sede=typeof sedeDe==='function'?sedeDe(s.torneioId):null;
   const campeao=s.feito&&s.ranking&&s.ranking[0]&&s.tipo!=='grupos'&&s.tipo!=='swiss'?G.times[s.ranking[0]]:null;
   const trofeu=campeao&&typeof arquivoTrofeu==='function'?arquivoTrofeu(s.torneioId):null;
-  const faixa=sede||campeao?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
+  const faixa=!semFaixa&&(sede||campeao)?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
       <div>${sede?`<div class="eyebrow">Sede</div><div class="tn-cidade">${esc(sede.nome)}</div>
         <div class="dim">${bandeira(sede.pais)} ${esc(nomePais(sede.pais))}</div>`:''}</div>
       ${campeao?`<div class="tn-campeao">${imgTrofeu(trofeu,44,'Troféu de '+nomeTitulo(s))}
@@ -15868,9 +15922,11 @@ function sorteioBox(s){
   </details>`;
 }
 /* ---------- chaveamento de dupla eliminação ---------- */
-function cartaoJogo(j,t){
+function cartaoJogo(j,t,sid){
   const vA=j.v===j.a;
-  return `<div class="jg">
+  /* com a ficha guardada, o jogo abre a série (ui/competicoes.js) */
+  const abre=sid&&j.n!=null?` data-serie="${esc(sid)}|${j.n}" title="Abrir a ficha da série"`:'';
+  return `<div class="jg ${abre?'abre':''}"${abre}>
     <div class="jg-l ${vA?'w':''} ${j.a===t.id?'me':''}"><span>${esc(tagT(j.a))}</span><b>${j.wa}</b></div>
     <div class="jg-l ${vA?'':'w'} ${j.b===t.id?'me':''}"><span>${esc(tagT(j.b))}</span><b>${j.wb}</b></div>
   </div>`;
@@ -15882,7 +15938,7 @@ function corpoChave(s,t){
     return `<div class="ch-lin"><div class="ch-rot">${rot}</div>
       <div class="ch-cols">${cols.map(r=>`<div class="ch-col">
         <div class="ch-nome">${esc(r.nome)}</div>
-        ${r.jogos.map(j=>cartaoJogo(j,t)).join('')||'<div class="dim">bye</div>'}
+        ${r.jogos.map(j=>cartaoJogo(j,t,s.id)).join('')||'<div class="dim">bye</div>'}
       </div>`).join('')}</div></div>`;
   };
   /* o que está para acontecer agora, para o chaveamento não parecer parado */
@@ -16839,6 +16895,297 @@ function vPreparacao(){
   const corpo=prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas()+vTaticasPorMapa():prepAba==='comps'?vComps():vPreparo();
   return `<div class="eyebrow">Clube</div><h2 class="sec">Treinamento & Preparação</h2>${abas}
     <div class="prep-corpo">${corpo}</div>`;
+}
+
+
+/* ===== src/ui/competicoes.js ===== */
+/* ============================================================
+   CIRCUITO › COMPETIÇÕES — hub da temporada, página de torneio
+   e ficha da série
+   ------------------------------------------------------------
+   Um torneio aqui é o EVENTO (torneioId), não a fase: grupos e
+   playoffs do Stage 1 são uma página só, com as fases dentro.
+   Torneio que ainda não começou vem do calendário (o bloco ainda
+   não foi montado), para a linha do tempo mostrar o ano inteiro.
+   ============================================================ */
+let compFiltro='todos', compSel=null, compSelAba='chave';
+
+/* torneios que cada bloco do calendário abre, antes de ser montado */
+function torneiosDoBloco(b){
+  const R=REGIONS.map(r=>r.id);
+  switch(b.montar){
+    case 'kickGrupos':case 'kickPO':return R.map(r=>'kickoff_'+r);
+    case 'm1Suico':case 'm1PO':return['masters1'];
+    case 'm2Suico':case 'm2PO':return['masters2'];
+    case 'stage1':case 'po1':return[...R.map(r=>'stage1_'+r),...R.map(r=>'split1_'+r)];
+    case 'stage2':case 'po2':return[...R.map(r=>'stage2_'+r),...R.map(r=>'split2_'+r)];
+    case 'chGrupos':case 'chPO':return['champions'];
+    case 'ascension':return R.map(r=>'asc_'+r);
+    default:return[];
+  }
+}
+/* Os eventos da temporada, montados ou não, na ordem do calendário. */
+function eventosDoAno(){
+  const ev={},ordem=[];
+  const sem=G.semana||1;
+  (G.calendario||[]).forEach(b=>{
+    for(const id of torneiosDoBloco(b)){
+      if(!ev[id]){ev[id]={id,tor:torneio(id),stages:[],blocos:[],ini:b.ini,fim:b.fim};ordem.push(id);}
+      const e=ev[id];e.blocos.push(b);e.ini=Math.min(e.ini,b.ini);e.fim=Math.max(e.fim,b.fim);
+    }
+    for(const s of b.stages||[]){
+      const id=s.torneioId;if(!id)continue;
+      if(!ev[id]){ev[id]={id,tor:torneio(id),stages:[],blocos:[b],ini:b.ini,fim:b.fim};ordem.push(id);}
+      if(!ev[id].stages.includes(s))ev[id].stages.push(s);
+    }
+  });
+  return ordem.map(id=>{
+    const e=ev[id],t=e.tor||{};
+    e.regiao=t.escopo||(e.stages[0]&&e.stages[0].regiao)||'INT';
+    e.tier=t.tier||(e.stages[0]&&e.stages[0].tier)||1;
+    const final=e.stages.filter(s=>s.tipo==='de'||s.tipo==='ko').slice(-1)[0]||e.stages.slice(-1)[0]||null;
+    e.final=final;
+    const acabou=!!(final&&final.feito&&(final.tipo==='de'||final.tipo==='ko'||e.id.startsWith('asc_')));
+    e.status=acabou?'encerrado':e.stages.length||sem>=e.ini?'andamento':'futuro';
+    e.campeao=acabou&&final.ranking&&final.ranking[0]||null;
+    e.times=new Set(e.stages.flatMap(s=>s.times||[]));
+    e.nome=nomeDoAno(id)||(t.nome||id);
+    return e;
+  });
+}
+function eventoDoMeuClube(e){
+  const eu=G.meuTime;
+  if(e.times.has(eu))return true;
+  const t=meu();
+  return e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
+}
+function corDoEvento(e){
+  if(e.id==='champions')return '#E8C46A';
+  if(e.id.startsWith('masters'))return '#B9C3CE';
+  if(e.tier===2)return '#4C8DFF';
+  return 'var(--red)';
+}
+
+/* ---------- hub ---------- */
+function linhaDoTempo(evs){
+  const sem=G.semana||1,W=SEMANAS_ANO;
+  const pos=s=>((s-1)/W*100).toFixed(2)+'%';
+  const meses=MESES_CURTO.map((m,i)=>{
+    const s=Math.max(1,Math.round(i*W/12)+1);
+    return `<span class="lt-mes" style="left:${pos(s)}">${m}</span>`;}).join('');
+  /* uma faixa por tipo: internacional, Tier 1 regional, Challengers — os blocos
+     de uma faixa não se sobrepõem, e assim os quatro regionais viram uma barra */
+  const faixas=[['INT','Internacional',e=>e.regiao==='INT'],['T1','VCT',e=>e.regiao!=='INT'&&e.tier===1],['T2','Challengers',e=>e.regiao!=='INT'&&e.tier===2]];
+  const linhas=faixas.map(([k,rot,f])=>{
+    const doTipo=evs.filter(f);
+    const porBloco=new Map();
+    for(const e of doTipo){const k2=e.ini+'-'+e.fim+'-'+(e.regiao==='INT'?e.id:String(e.tor&&e.tor.curto||e.id));
+      if(!porBloco.has(k2))porBloco.set(k2,[]);porBloco.get(k2).push(e);}
+    const barras=[...porBloco.values()].map(l=>{
+      const e=l[0],larg=((e.fim-e.ini+1)/W*100).toFixed(2)+'%';
+      const meu=l.find(eventoDoMeuClube);
+      const alvo=meu||l[0];
+      const camp=e.regiao==='INT'&&e.campeao?G.times[e.campeao]:null;
+      const sd=e.regiao==='INT'&&typeof sedeDe==='function'?sedeDe(e.id):null;
+      const rot=e.regiao==='INT'?(sd?sd.nome:e.nome):(e.tor&&e.tor.curto)||e.nome;
+      return `<button class="lt-bar ${e.status} ${meu?'meu':''}" style="left:${pos(e.ini)};width:${larg};--cor:${corDoEvento(e)}"
+          data-evento="${esc(alvo.id)}" title="${esc(rot)} · ${rotuloPeriodo(G.ano,e.ini,e.fim)}">
+        <span>${esc(rot)}</span>${camp?`<i class="lt-camp">${escudo(camp,18)}</i>`:''}</button>`;}).join('');
+    return `<div class="lt-faixa"><div class="lt-rot">${rot}</div><div class="lt-trilho">${barras}</div></div>`;
+  }).join('');
+  return `<div class="card lt"><div class="split"><div class="eyebrow">Temporada ${G.ano}</div>
+      <span class="dim">${rotuloSemana(G.ano,sem)}</span></div>
+    <div class="lt-corpo"><div class="lt-meses">${meses}</div>${linhas}
+      <div class="lt-agora" style="left:calc(110px + (100% - 110px) * ${((sem-0.5)/W).toFixed(4)})"></div></div></div>`;
+}
+function cartaoEvento(e){
+  const camp=e.campeao?G.times[e.campeao]:null;
+  const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
+  const meuJoga=e.times.has(G.meuTime);
+  const est=e.status==='encerrado'?'Encerrado':e.status==='andamento'?'Em disputa':'Em '+Math.max(0,e.ini-(G.semana||1))+' sem.';
+  return `<button class="ev-card ${e.status} ${meuJoga?'meu':''}" data-evento="${esc(e.id)}"
+      ${sede?`style="${fundoCidade(sede.slug,0.6)}"`:''}>
+    <div class="ev-topo">${e.tor?arteTorneio(e.tor,30):''}<div><b>${esc(e.nome)}</b>
+      <span class="dim">${rotuloPeriodo(G.ano,e.ini,e.fim)}</span></div></div>
+    <div class="ev-pe"><span class="chip ${e.status==='andamento'?'t':''}">${esc(est)}</span>
+      ${meuJoga?'<span class="chip r">seu clube</span>':''}
+      ${camp?`<span class="ev-camp">${imgTrofeu(arquivoTrofeu(e.id),16,'Troféu')} ${escudo(camp,18)} <b>${esc(camp.tag)}</b></span>`:''}</div>
+  </button>`;
+}
+function corridaAoChampions(){
+  const t=meu();
+  return REGIONS.map(R=>{
+    const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
+    return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th></tr></thead>
+    <tbody>${rk.map((id,i)=>`<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)} ${i<4?'<span class="chip g">Champions</span>':''}</td>
+    <td class="r num">${G.regioes[R.id].pontos[id]||0}</td></tr>`).join('')}</tbody></table></div>`;
+  }).join('');
+}
+function vComp(){
+  if(compSel)return paginaTorneio(compSel);
+  const t=meu();
+  const evs=eventosDoAno();
+  const filtros=[['todos','Todos'],['meu','Onde meu clube está'],['INT','Internacional'],
+    ...REGIONS.map(r=>[r.id,r.nome.replace('VCT ','')]),['pts','Corrida ao Champions']];
+  const passa=e=>compFiltro==='todos'||compFiltro==='meu'&&eventoDoMeuClube(e)
+    ||compFiltro==='INT'&&e.regiao==='INT'||e.regiao===compFiltro;
+  const vis=evs.filter(passa);
+  const grupo=(st,rot)=>{const l=vis.filter(e=>e.status===st);
+    if(st==='encerrado')l.reverse();
+    return l.length?`<div class="eyebrow" style="margin-top:14px">${rot} · ${l.length}</div><div class="ev-grid">${l.map(cartaoEvento).join('')}</div>`:'';};
+  const corpo=compFiltro==='pts'?corridaAoChampions()
+    :(grupo('andamento','Em disputa')+grupo('futuro','A seguir')+grupo('encerrado','Encerrados'))
+     ||'<div class="empty">Nenhum torneio com esse filtro nesta temporada.</div>';
+  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">Competições</h2>
+  ${linhaDoTempo(evs)}
+  <div class="tabs">${filtros.map(([k,n])=>`<button data-cfiltro="${k}" class="${compFiltro===k?'on':''}">${n}</button>`).join('')}</div>
+  ${corpo}`;
+}
+
+/* ---------- página do torneio ---------- */
+function statsDoEvento(e){
+  const tot={};
+  for(const s of e.stages)for(const id in s.stats||{}){
+    const x=s.stats[id],o=tot[id]||(tot[id]={maps:0,k:0,d:0,a:0,acs:0,fk:0,cl:0,mvp:0,timeId:x.timeId});
+    o.maps+=x.maps;o.k+=x.k;o.d+=x.d;o.a+=x.a;o.acs+=x.acs;o.fk+=x.fk;o.cl+=x.cl;o.mvp+=x.mvp;
+  }
+  return tot;
+}
+function paginaTorneio(id){
+  const e=eventosDoAno().find(x=>x.id===id);
+  if(!e){compSel=null;return vComp();}
+  const t=meu();
+  const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
+  const camp=e.campeao?G.times[e.campeao]:null;
+  const premios=e.final?premiosDoStage(e.final):[];
+  const total=premios.reduce((s,v)=>s+v,0);
+  const fases=e.stages.map(s=>s.rotulo||nomeStage(s)).join(' → ')||'começa em '+rotuloPeriodo(G.ano,e.ini,e.fim);
+  const capa=`<div class="tp-capa" ${sede?`style="${fundoCidade(sede.slug,0.45)}"`:''}>
+    <div class="tp-id">${e.tor?arteTorneio(e.tor,64):''}<div>
+      <div class="eyebrow">${e.regiao==='INT'?'Internacional':esc(nomeLiga({regiao:e.regiao,tier:e.tier})||e.regiao)}</div>
+      <div class="tp-nome">${esc(e.nome)}</div>
+      <div class="dim">${sede?bandeira(sede.pais)+' '+esc(sede.nome)+' · ':''}${rotuloPeriodo(G.ano,e.ini,e.fim)}</div></div></div>
+    ${camp?`<div class="tn-campeao">${imgTrofeu(arquivoTrofeu(e.id),56,'Troféu de '+e.nome)}
+      <div><div class="eyebrow">Campeão</div>${timeInline(camp.id,24)}</div></div>`:''}
+  </div>
+  <div class="tn-info" style="margin:10px 0 4px">
+    <span>${esc(fases)}</span>
+    ${total?`<span class="gold">${money(total)} em prêmios · ${money(premios[0])} ao campeão</span>`:''}
+    <span>${e.times.size||'—'} equipes</span>
+    ${e.times.has(t.id)?'<span class="chip r">seu clube joga</span>':''}
+  </div>`;
+  const abas=[['chave','Chave e tabela'],['jogos','Jogos'],['stats','Estatísticas'],['premios','Premiação']];
+  let corpo='';
+  if(!e.stages.length)corpo=`<div class="empty">O torneio ainda não começou. Começa em ${rotuloPeriodo(G.ano,e.ini,e.fim)}.</div>`;
+  else if(compSelAba==='jogos')corpo=jogosDoEvento(e);
+  else if(compSelAba==='stats')corpo=estatisticasDoEvento(e);
+  else if(compSelAba==='premios')corpo=premiacaoDoEvento(e,premios);
+  else corpo=e.stages.slice().reverse().map(s=>renderStage(s,true)).join('');
+  return `<button class="btn ghost sm" id="compVoltar">‹ Todas as competições</button>
+  ${capa}
+  <div class="tabs">${abas.map(([k,n])=>`<button data-csaba="${k}" class="${compSelAba===k?'on':''}">${n}</button>`).join('')}</div>
+  ${corpo}`;
+}
+function jogosDoEvento(e){
+  const t=meu();
+  return e.stages.slice().reverse().map(s=>{
+    const rs=(s.resultados||[]).slice();
+    if(!rs.length)return '';
+    const porRodada=new Map();
+    for(const r of rs){const k=r.rd||'';if(!porRodada.has(k))porRodada.set(k,[]);porRodada.get(k).push(r);}
+    return `<div class="card flat"><div class="eyebrow">${esc(nomeStage(s))} · ${rs.length} série${rs.length===1?'':'s'}</div>
+      ${[...porRodada].reverse().map(([rd,l])=>`<div class="jg-rod">${rd?`<div class="jg-rod-t">${esc(rd)}</div>`:''}
+        ${l.map(r=>{const vA=r.v===r.a;return `<button class="jg-linha ${r.a===t.id||r.b===t.id?'me':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
+          <span class="${vA?'w':''}">${escudo(G.times[r.a],18)} ${esc(tagT(r.a))}</span>
+          <b class="num">${r.wa} – ${r.wb}</b>
+          <span class="${vA?'':'w'}">${esc(tagT(r.b))} ${escudo(G.times[r.b],18)}</span>
+          <span class="dim">${esc(r.mapa||'')}</span></button>`;}).join('')}</div>`).join('')}
+    </div>`;}).join('')||'<div class="empty">Nenhum jogo disputado ainda.</div>';
+}
+function estatisticasDoEvento(e){
+  const st=statsDoEvento(e);
+  const lista=Object.entries(st).filter(([id,x])=>x.maps>=Math.min(3,Math.max(1,...Object.values(st).map(y=>y.maps)))&&G.jogadores[id]);
+  const tab=(rot,f,fmt)=>{
+    const top=lista.slice().sort((a,b)=>f(b[1])-f(a[1])).slice(0,8);
+    return `<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${top.map(([id,x],i)=>{const p=G.jogadores[id];
+      return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${id}"><td class="num dim">${i+1}</td>
+        <td><b>${esc(p.nome)}</b> <span class="dim">${esc(tagT(x.timeId||p.timeId))}</span></td>
+        <td class="r num"><b>${fmt(x)}</b></td></tr>`;}).join('')||'<tr><td class="dim">Sem dados ainda.</td></tr>'}</tbody></table></div>`;};
+  const mapas={};
+  for(const s of e.stages)for(const r of s.resultados||[])for(const mp of (r.det&&r.det.mp)||[])mapas[mp.m]=(mapas[mp.m]||0)+1;
+  const mapasOrd=Object.entries(mapas).sort((a,b)=>b[1]-a[1]);
+  return `${e.final?rodapeMVP(e.final):''}
+  <div class="grid g2">
+    ${tab('ACS médio',x=>x.acs/Math.max(1,x.maps),x=>Math.round(x.acs/Math.max(1,x.maps)))}
+    ${tab('K/D',x=>x.k/Math.max(1,x.d),x=>(x.k/Math.max(1,x.d)).toFixed(2))}
+    ${tab('First kills',x=>x.fk,x=>x.fk)}
+    ${tab('Clutches',x=>x.cl,x=>x.cl)}
+  </div>
+  ${mapasOrd.length?`<div class="card flat"><div class="eyebrow">Mapas mais jogados</div><div class="mp-uso">${mapasOrd.map(([m,n])=>
+    `<div class="mp-uso-i" style="${fundoMapa(m,0.55)}"><b>${esc(m)}</b><span>${n} mapa${n===1?'':'s'}</span></div>`).join('')}</div></div>`:''}`;
+}
+function premiacaoDoEvento(e,premios){
+  const t=meu();
+  const f=e.final;
+  if(!f||!premios.length)return '<div class="empty">Este torneio não paga premiação: é fase classificatória.</div>';
+  const rk=f.feito&&f.ranking&&f.ranking.length?f.ranking:null;
+  return `<div class="card flat"><div class="eyebrow">Premiação · ${money(premios.reduce((s,v)=>s+v,0))} no total</div>
+    <table class="wide"><thead><tr><th>Colocação</th><th>Equipe</th><th class="r">Prêmio</th></tr></thead><tbody>
+    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}º</td>
+      <td>${id?timeInline(id,20):'<span class="dim">a definir</span>'}</td><td class="r num">${money(v)}</td></tr>`;}).join('')}
+    </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
+}
+
+/* ---------- ficha da série ---------- */
+function modalSerie(chave){
+  const [sid,n]=String(chave).split('|');
+  const s=acharStage(sid);
+  const r=s&&(s.resultados||[])[+n];
+  if(!r)return;
+  const A=G.times[r.a],B=G.times[r.b],d=r.det||{};
+  const vA=r.v===r.a;
+  const linhasDe=(stStr)=>String(stStr||'').split('|').filter(Boolean).map(x=>{
+    const [id,nums]=x.split(':');const [k,de,a,acs]=nums.split(',').map(Number);return{id,k,d:de,a,acs};});
+  const veto=(d.v||[]).map(([m,tp,tag])=>`<span class="chip ${tp==='b'?'r':tp==='d'?'':'g'}">${tp==='b'?'✕':tp==='d'?'★':'✓'} ${esc(m)}
+    <span class="dim">${tp==='d'?'decider':esc(tag)}</span></span>`).join(' ');
+  const mapas=(d.mp||[]).map((mp,i)=>{
+    const ls=linhasDe(mp.st);
+    const meio=Math.ceil(ls.length/2);
+    const tabela=(lista,time)=>`<table class="box"><thead><tr><th>${escudo(time,16)} ${esc(time?time.tag:'—')}</th>
+      <th class="r">K</th><th class="r">D</th><th class="r">A</th><th class="r">ACS</th></tr></thead><tbody>
+      ${lista.sort((x,y)=>y.acs-x.acs).map(l=>{const p=G.jogadores[l.id];
+        return `<tr class="${p?'jrow':''} ${l.id===d.mvp?'mvp':''}" ${p?`data-p="${l.id}"`:''}><td>${esc(p?p.nome:'—')}${l.id===d.mvp&&i===0?' <span class="chip g">MVP da série</span>':''}</td>
+        <td class="r num">${l.k}</td><td class="r num">${l.d}</td><td class="r num">${l.a}</td><td class="r num"><b>${l.acs}</b></td></tr>`;}).join('')}</tbody></table>`;
+    const ladoA=mp.l==='atk'?'atacando':mp.l==='def'?'defendendo':'';
+    return `<div class="sr-mapa">
+      <div class="sr-mapa-topo" style="${fundoMapa(mp.m,0.55)}">
+        <span class="sr-n">Mapa ${i+1}</span><b class="sr-m">${esc(mp.m)}</b>
+        <span class="sr-placar"><b class="${mp.a>mp.b?'w':''}">${mp.a}</b> – <b class="${mp.b>mp.a?'w':''}">${mp.b}</b></span>
+        ${ladoA?`<span class="dim">${esc(A?A.tag:'')} começou ${ladoA}</span>`:''}</div>
+      ${ls.length?`<div class="grid g2">${tabela(ls.slice(0,meio),A)}${tabela(ls.slice(meio),B)}</div>`
+        :'<div class="dim" style="padding:8px 0">Linha dos jogadores guardada só nas séries de playoffs, internacionais e do seu clube.</div>'}
+    </div>`;}).join('')||`<div class="dim">${esc(r.mapa||'')}</div>`;
+  abrir(`<div class="sr">
+    <div class="eyebrow">${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}</div>
+    <div class="sr-topo">
+      <div class="sr-time ${vA?'w':''}">${escudo(A,48)}<div><b>${esc(A?A.nome:'—')}</b><span class="dim">${esc(A?A.tag:'')}</span></div></div>
+      <div class="sr-score"><span class="${vA?'w':''}">${r.wa}</span><i>–</i><span class="${vA?'':'w'}">${r.wb}</span></div>
+      <div class="sr-time r ${vA?'':'w'}"><div><b>${esc(B?B.nome:'—')}</b><span class="dim">${esc(B?B.tag:'')}</span></div>${escudo(B,48)}</div>
+    </div>
+    ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
+    ${mapas}
+    <div class="split" style="margin-top:12px"><span></span><button class="btn ghost" id="srFechar">Fechar</button></div>
+  </div>`,true);
+  const f=document.querySelector('#srFechar');if(f)f.onclick=()=>fechar();
+  document.querySelectorAll('#modal .jrow').forEach(x=>x.onclick=()=>modalJogador(x.dataset.p));
+}
+
+function ligarCompeticoes(v,on){
+  on('[data-cfiltro]',el=>{compFiltro=el.dataset.cfiltro;render();});
+  on('[data-evento]',el=>{compSel=el.dataset.evento;compSelAba='chave';if(tela!=='comp')irPara('comp');else render();window.scrollTo(0,0);});
+  on('[data-csaba]',el=>{compSelAba=el.dataset.csaba;render();});
+  on('#compVoltar',()=>{compSel=null;render();});
+  on('[data-serie]',el=>{const k=el.dataset.serie;if(k&&!/\|$/.test(k))modalSerie(k);});
 }
 
 
@@ -19947,6 +20294,7 @@ function ligarEventos(){
   if(!v)return;
   const on=(sel,f)=>v.querySelectorAll(sel).forEach(el=>el.onclick=e=>{e.stopPropagation();f(el);});
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
+  if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por

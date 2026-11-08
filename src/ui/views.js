@@ -357,49 +357,16 @@ function agentesParaComp(p){
     .sort((a,b)=>(forcaMeta(b.nome)+b.nivel*0.5)-(forcaMeta(a.nome)+a.nivel*0.5));
 }
 
+/* vComp mora em ui/competicoes.js (pacote 3) */
 let compAba='minha';
-function vComp(){
-  const bi=blocoDaSemana(G.semana||1);
-  const b=bi==null?null:G.calendario[bi];
-  const t=meu();
-  const abas=[['minha','Minha região'],...REGIONS.filter(r=>r.id!==t.regiao).map(r=>[r.id,r.nome.replace('VCT ','')]),['INT','Internacional'],['pts','Corrida ao Champions']];
-  let corpo='';
-  if(compAba==='pts'){
-    corpo=REGIONS.map(R=>{
-      const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
-      return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th></tr></thead>
-      <tbody>${rk.map((id,i)=>`<tr class="${id===t.id?'me':''}${i<4?'':''}"><td class="num">${i+1}</td><td>${esc(nomeT(id))} ${i<4?'<span class="chip g">Champions</span>':''}</td>
-      <td class="r num">${G.regioes[R.id].pontos[id]||0}</td></tr>`).join('')}</tbody></table></div>`;
-    }).join('');
-  }else{
-    const alvo=compAba==='minha'?t.regiao:compAba;
-    const sts=[];
-    G.calendario.forEach(bl=>bl.stages.forEach(s=>{if(s.regiao===alvo)sts.push(s);}));
-    /* Em disputa primeiro, encerrados depois e do mais recente para o mais
-       antigo. Empilhar na ordem do calendário obrigava a rolar por cima do
-       Kickoff de janeiro para chegar ao torneio de setembro que está
-       acontecendo agora. */
-    const sem=G.semana||1;
-    const ini=x=>{const bl=blocoDoStage(x);return bl?bl.ini:0;};
-    sts.sort((x,y)=>(x.feito?1:0)-(y.feito?1:0)
-      ||(x.feito?ini(y)-ini(x):ini(x)-ini(y)));
-    corpo=sts.length?sts.map(x=>x.feito&&ini(x)<sem-6
-      ?`<details class="stg-old"><summary>${esc(nomeStage(x))} <span class="dim">${
-         x.ranking&&x.ranking[0]?'· campeão '+esc(tagT(x.ranking[0])):''}</span></summary>${renderStage(x)}</details>`
-      :renderStage(x)).join('')
-      :'<div class="empty">Nada agendado ainda para esta região.</div>';
-  }
-  return `<div class="eyebrow">Circuito ${G.ano}</div><h2 class="sec">${esc(b?nomeBloco(b):'')}</h2>
-  <div class="tabs">${abas.map(([k,n])=>`<button data-ca="${k}" class="${compAba===k?'on':''}">${n}</button>`).join('')}</div>${corpo}`;
-}
-function renderStage(s){
+function renderStage(s,semFaixa){
   const t=meu();
   const corpo=s.tipo==='grupos'?corpoGrupos(s,t)
              :s.tipo==='de'?corpoChave(s,t)
              :s.tipo==='swiss'?corpoSwiss(s,t)
              :s.tipo==='rr'?corpoTabela(s,t)
              :corpoMataMata(s,t);
-  return `<div class="card flat">${cabecaTorneio(s)}${corpo}${rodapeMVP(s)}</div>`;
+  return `<div class="card flat">${cabecaTorneio(s,semFaixa)}${corpo}${rodapeMVP(s)}</div>`;
 }
 /* ---------- cabeçalho: o que é este torneio ----------
    Antes o stage era só uma tabela solta. Data, formato, quem disputa e quanto
@@ -429,7 +396,7 @@ function estadoStage(s){
   if(s.tipo==='rr')return{cls:'',txt:'Rodada '+(s.idx+1)+'/'+s.rodadas.length};
   return{cls:'',txt:'Em disputa'};
 }
-function cabecaTorneio(s){
+function cabecaTorneio(s,semFaixa){
   const b=blocoDoStage(s), tn=torneio(s.torneioId);
   const est=estadoStage(s);
   const premio=premiosDoStage(s)[0]||0;
@@ -438,7 +405,7 @@ function cabecaTorneio(s){
   const sede=typeof sedeDe==='function'?sedeDe(s.torneioId):null;
   const campeao=s.feito&&s.ranking&&s.ranking[0]&&s.tipo!=='grupos'&&s.tipo!=='swiss'?G.times[s.ranking[0]]:null;
   const trofeu=campeao&&typeof arquivoTrofeu==='function'?arquivoTrofeu(s.torneioId):null;
-  const faixa=sede||campeao?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
+  const faixa=!semFaixa&&(sede||campeao)?`<div class="tn-faixa"${sede?` style="${fundoCidade(sede.slug,0.45)}"`:''}>
       <div>${sede?`<div class="eyebrow">Sede</div><div class="tn-cidade">${esc(sede.nome)}</div>
         <div class="dim">${bandeira(sede.pais)} ${esc(nomePais(sede.pais))}</div>`:''}</div>
       ${campeao?`<div class="tn-campeao">${imgTrofeu(trofeu,44,'Troféu de '+nomeTitulo(s))}
@@ -504,9 +471,11 @@ function sorteioBox(s){
   </details>`;
 }
 /* ---------- chaveamento de dupla eliminação ---------- */
-function cartaoJogo(j,t){
+function cartaoJogo(j,t,sid){
   const vA=j.v===j.a;
-  return `<div class="jg">
+  /* com a ficha guardada, o jogo abre a série (ui/competicoes.js) */
+  const abre=sid&&j.n!=null?` data-serie="${esc(sid)}|${j.n}" title="Abrir a ficha da série"`:'';
+  return `<div class="jg ${abre?'abre':''}"${abre}>
     <div class="jg-l ${vA?'w':''} ${j.a===t.id?'me':''}"><span>${esc(tagT(j.a))}</span><b>${j.wa}</b></div>
     <div class="jg-l ${vA?'':'w'} ${j.b===t.id?'me':''}"><span>${esc(tagT(j.b))}</span><b>${j.wb}</b></div>
   </div>`;
@@ -518,7 +487,7 @@ function corpoChave(s,t){
     return `<div class="ch-lin"><div class="ch-rot">${rot}</div>
       <div class="ch-cols">${cols.map(r=>`<div class="ch-col">
         <div class="ch-nome">${esc(r.nome)}</div>
-        ${r.jogos.map(j=>cartaoJogo(j,t)).join('')||'<div class="dim">bye</div>'}
+        ${r.jogos.map(j=>cartaoJogo(j,t,s.id)).join('')||'<div class="dim">bye</div>'}
       </div>`).join('')}</div></div>`;
   };
   /* o que está para acontecer agora, para o chaveamento não parecer parado */
