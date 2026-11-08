@@ -26,6 +26,35 @@ const LENDA_CORTE=14;
 /* Quanto a comparação é contra a própria função (o resto é contra todos). */
 const PREMIO_PESO_FUNCAO=0.7;
 
+/* ---------- a régua: desempenho e conquistas ----------
+   A nota de cada prêmio tem duas metades explícitas, cada uma medida em
+   desvios em relação aos candidatos do ano (assim as duas falam a mesma
+   língua): DESEMPENHO, o que o jogador fez (rendimento contra a função,
+   K/D, MVPs de mapa, volume em palco grande), e CONQUISTAS, o que o time
+   dele ganhou com ele em campo (títulos, finais e campanha internacional,
+   Champions acima de Masters, Masters acima de liga).
+   A fatia de conquistas muda por prêmio: o MVP do ano é de quem ganhou;
+   a seleção e o MVP regional pesam menos o troféu; a revelação é só sobre
+   o jogador. Medido com tools/premios.mjs em 20 temporadas. */
+const PREMIO_CONQUISTAS={mvp:0.4,selecao:0.3,regional:0.25,revelacao:0};
+/* Fora da curva: quem não chegou a nenhuma final internacional só leva o
+   MVP do ano se o desempenho dele passar o do segundo melhor por esta
+   margem, em desvios dos candidatos. */
+const PREMIO_FORA_MARGEM=0.55;
+/* Pontos por colocação no mata-mata: campeão, vice, top 4, top 8. */
+const CONQ_LUGAR={champions:[10,6,3.5,1.8],masters:[6,3.6,2,1],liga:[2.4,1.3,0.6,0],acesso:[0.6,0.3,0,0]};
+/* Estar no internacional já é campanha, mesmo caindo na fase de grupos. */
+const CONQ_GRUPO={champions:0.6,masters:0.4};
+
+function classeConquista(s){
+  if(s.regiao==='INT')return s.torneioId==='champions'||/^ch/.test(s.id)?'champions':'masters';
+  return s.tier===2?'acesso':'liga';
+}
+function pontosDeLugar(cl,i){
+  const f=i===0?0:i===1?1:i>=2&&i<=3?2:i>=4&&i<=7?3:-1;
+  return f<0?0:CONQ_LUGAR[cl][f];
+}
+
 function pesoDoStagePremio(s){
   if(s.tier===2)return 0.4;
   if(s.regiao==='INT')return /^ch/.test(s.id)?1.8:1.4;
@@ -64,6 +93,11 @@ function lerTemporada(){
       }
     }
     const pos=id=>{const i=rk.indexOf(id);return i<0?0.35:1-i/n;};
+    /* conquistas: cada um leva a parte do time na proporção dos mapas que
+       jogou — o reserva que entrou num mapa não é campeão do mesmo jeito */
+    const cl=classeConquista(s),mata=s.tipo==='de'||s.tipo==='ko';
+    const maxTime={};
+    for(const id in s.stats){const e=s.stats[id];if(e.maps&&e.timeId)maxTime[e.timeId]=Math.max(maxTime[e.timeId]||0,e.maps);}
     for(const id in s.stats){
       const e=s.stats[id],p=G.jogadores[id];if(!e.maps||!p)continue;
       const f=fn[funcaoPremio(p)];
@@ -73,17 +107,33 @@ function lerTemporada(){
       const q=PREMIO_PESO_FUNCAO;
       const acsFn=q*f.acs/Math.max(1,f.maps)+(1-q)*T.acs/Math.max(1,T.maps);
       const kdFn=q*f.k/Math.max(1,f.d)+(1-q)*T.k/Math.max(1,T.d);
-      const a=jog[id]||(jog[id]={maps:0,k:0,d:0,acs:0,mvp:0,rel:0,krel:0,wd:0,wm:0,camp:0,timeId:null});
+      const a=jog[id]||(jog[id]={maps:0,k:0,d:0,acs:0,mvp:0,rel:0,krel:0,wd:0,wm:0,camp:0,timeId:null,
+        conq:0,finalInt:false,lista:[]});
       a.maps+=e.maps;a.k+=e.k;a.d+=e.d;a.acs+=e.acs;a.mvp+=e.mvp;
       a.rel+=w*e.acs/Math.max(1,acsFn);a.krel+=w*e.k/Math.max(0.1,kdFn);a.wd+=w*e.d;
       a.wm+=w*e.maps;a.camp+=w*e.maps*pos(e.timeId);
       a.timeId=e.timeId||a.timeId;
+      const fr=Math.min(1,e.maps/Math.max(1,maxTime[e.timeId]||e.maps));
+      if(mata){
+        const i=rk.indexOf(e.timeId),pts=i<0?0:pontosDeLugar(cl,i)*fr;
+        if(pts>0){a.conq+=pts;
+          if(pts>=1)a.lista.push({ev:typeof nomeTitulo==='function'?nomeTitulo(s):s.nome,i,cl,pts:Math.round(pts*10)/10});}
+        if(s.regiao==='INT'&&i>=0&&i<=1&&fr>=0.5)a.finalInt=true;
+      }else if(CONQ_GRUPO[cl])a.conq+=CONQ_GRUPO[cl]*fr;
     }
   }
   return{jog,times};
 }
 
-/* Nota do ano de um jogador. Mesmo desenho da nota de MVP de torneio
+/* Metade DESEMPENHO: a nota do ano sem a campanha. */
+function desempenhoDoAno(a){
+  const rel=a.rel/Math.max(1,a.wm);
+  const kd=a.krel/Math.max(1,a.wd);
+  return (rel-1)*1.9+(Math.min(2.2,kd)-1)*0.55+(a.mvp/a.maps)*0.95+0.35*Math.min(1,a.wm/60);
+}
+/* Nota do ano antiga (desempenho + um pouco de campanha). Ficou para o IGL
+   do ano, que já soma a campanha do time por fora, e para a medição de
+   antes e depois em tools/premios.mjs. Mesmo desenho da nota de MVP de torneio
    (notaMVP em formatos.js), com ACS e K/D relativos à função, mais um termo de palco: quem jogou muito mapa
    em torneio grande ganha até 0,35. */
 function notaDoAno(a){
@@ -95,13 +145,19 @@ function notaDoAno(a){
 
 /* Foto do premiado, como a do MVP de torneio: ele pode se aposentar e
    ser apagado, o prêmio não. */
-function fichaPremio(id,a){
+function fichaPremio(id,a,r){
   const p=G.jogadores[id];if(!p)return null;
   const t=a&&a.timeId&&G.times[a.timeId];
-  return{id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
+  const f={id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
     timeId:t?t.id:null,tag:t?t.tag:'—',
     maps:a?a.maps:0,acs:a?Math.round(a.acs/Math.max(1,a.maps)):0,
-    kd:a?Number((a.d?a.k/a.d:a.k).toFixed(2)):0};
+    kd:a?Number((a.d?a.k/a.d:a.k).toFixed(2)):0,
+    ov:over(p),mvps:a?a.mvp:0};
+  /* a régua de quem levou: nota final, as duas metades em percentil entre os
+     candidatos e o que o time conquistou com ele (é isso que a tela mostra) */
+  if(r){f.n=Math.round(r.n*100)/100;f.pD=r.pD;f.pC=r.pC;
+    if(r.conq)f.conq=r.conq;}
+  return f;
 }
 
 function darPremio(id,tipo,rot){
@@ -114,42 +170,82 @@ const ROT_PREMIO={mvp:'MVP do ano',regional:'MVP regional',selecao:'Seleção do
 
 /* Elege tudo de uma vez e grava em G.premios. Chamada no começo da virada,
    antes de aposentadoria, contrato e empréstimo mexerem nos elencos. */
+/* Régua dos candidatos do ano: desempenho e conquistas em desvios, medidos
+   contra quem tem mapas para concorrer, e aplicados a todo mundo (a
+   revelação concorre com menos mapas). */
+function reguaDoAno(jog,cand){
+  const D={},C={};
+  for(const id in jog)if(jog[id].maps){D[id]=desempenhoDoAno(jog[id]);C[id]=jog[id].conq||0;}
+  const norm=v=>{const xs=cand.map(id=>v[id]);const m=xs.reduce((s,x)=>s+x,0)/xs.length;
+    const sd=Math.sqrt(xs.reduce((s,x)=>s+(x-m)*(x-m),0)/xs.length)||1;
+    const z={};for(const id in v)z[id]=(v[id]-m)/sd;return z;};
+  const zD=norm(D),zC=norm(C);
+  const pct=v=>{const xs=cand.map(id=>v[id]).sort((a,b)=>a-b);
+    return id=>{let k=0;while(k<xs.length&&xs[k]<v[id])k++;return Math.round(k/xs.length*100);};};
+  const pD=pct(D),pC=pct(C);
+  return{zD,zC,
+    nota:(id,tipo)=>{const w=PREMIO_CONQUISTAS[tipo]||0;return (1-w)*zD[id]+w*zC[id];},
+    ficha:(id,tipo,comConq)=>({n:(1-(PREMIO_CONQUISTAS[tipo]||0))*zD[id]+(PREMIO_CONQUISTAS[tipo]||0)*zC[id],
+      pD:pD(id),pC:pC(id),conq:comConq?jog[id].lista.slice().sort((a,b)=>b.pts-a.pts).slice(0,5):null})};
+}
+
+/* Elege tudo de uma vez e grava em G.premios. Chamada no começo da virada,
+   antes de aposentadoria, contrato e empréstimo mexerem nos elencos. */
 function premiarTemporada(){
   const {jog,times}=lerTemporada();
   const cand=Object.keys(jog).filter(id=>G.jogadores[id]&&jog[id].maps>=PREMIO_MIN_MAPAS);
   if(!cand.length)return null;
   const nota={};
   for(const id in jog)if(jog[id].maps)nota[id]=notaDoAno(jog[id]);
-  const porNota=(a,b)=>nota[b]-nota[a];
-  cand.sort(porNota);
+  const R=reguaDoAno(jog,cand);
+  const ordem=tipo=>(a,b)=>R.nota(b,tipo)-R.nota(a,tipo);
+  const fichaDe=(id,tipo,comConq)=>fichaPremio(id,jog[id],R.ficha(id,tipo,comConq));
+  /* pódio: os três primeiros, com a nota de cada um */
+  const podio=(ids,tipo)=>ids.slice(0,3).map(id=>fichaDe(id,tipo));
 
-  const reg={ano:G.ano,mvp:null,regioes:{},selecao:[],revelacao:null,igl:null,treinador:null};
-  const mvp=cand[0];
-  reg.mvp=fichaPremio(mvp,jog[mvp]);darPremio(mvp,'mvp',ROT_PREMIO.mvp);
+  const reg={ano:G.ano,mvp:null,regioes:{},selecao:[],revelacao:null,igl:null,treinador:null,podios:{}};
 
-  for(const R of REGIONS){
-    const id=cand.find(i=>{const t=G.times[jog[i].timeId];return t&&t.regiao===R.id&&t.tier===1;});
-    if(!id)continue;
-    reg.regioes[R.id]=fichaPremio(id,jog[id]);
-    darPremio(id,'regional',ROT_PREMIO.regional+' · '+R.nome);
+  /* MVP: o melhor da régua entre quem chegou a uma final internacional; o
+     fora da curva fura a fila só com um desempenho muito acima do segundo */
+  const porMvp=cand.slice().sort(ordem('mvp'));
+  const finalistas=porMvp.filter(id=>jog[id].finalInt);
+  const porD=cand.slice().sort((a,b)=>R.zD[b]-R.zD[a]);
+  const topo=porD[0],gap=porD.length>1?R.zD[topo]-R.zD[porD[1]]:0;
+  const fora=!jog[topo].finalInt&&gap>=PREMIO_FORA_MARGEM;
+  const mvp=fora?topo:(finalistas[0]||porMvp[0]);
+  reg.mvp=fichaDe(mvp,'mvp',true);
+  if(fora)reg.mvp.fora=Math.round(gap*100)/100;
+  reg.podios.mvp=[reg.mvp,...podio(porMvp.filter(id=>id!==mvp),'mvp').slice(0,2)];
+  darPremio(mvp,'mvp',ROT_PREMIO.mvp);
+
+  const porReg=cand.slice().sort(ordem('regional'));
+  for(const Rg of REGIONS){
+    const ids=porReg.filter(i=>{const t=G.times[jog[i].timeId];return t&&t.regiao===Rg.id&&t.tier===1;});
+    if(!ids.length)continue;
+    reg.regioes[Rg.id]=fichaDe(ids[0],'regional',true);
+    reg.podios['reg_'+Rg.id]=podio(ids,'regional');
+    darPremio(ids[0],'regional',ROT_PREMIO.regional+' · '+Rg.nome);
   }
 
   /* um por função e o quinto é o melhor que sobrou, como as seleções de
      verdade fazem com o flex */
+  const porSel=cand.slice().sort(ordem('selecao'));
   const usados=new Set();
   for(const role of ROLES.filter(r=>r!=='Flex')){
-    const id=cand.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
+    const id=porSel.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
     if(id)usados.add(id);
   }
   /* o quinto é o melhor que sobrou; se faltou alguma função entre os
      candidatos, o melhor que sobrou cobre também essa vaga */
-  for(const id of cand){if(usados.size>=5)break;usados.add(id);}
-  reg.selecao=[...usados].sort(porNota).map(id=>fichaPremio(id,jog[id]));
+  for(const id of porSel){if(usados.size>=5)break;usados.add(id);}
+  reg.selecao=[...usados].sort(ordem('selecao')).map(id=>fichaDe(id,'selecao'));
   usados.forEach(id=>darPremio(id,'selecao',ROT_PREMIO.selecao));
 
-  const rev=Object.keys(jog).filter(id=>{const p=G.jogadores[id];
-    return p&&p.idade<=IDADE_REVELACAO&&jog[id].maps>=PREMIO_MIN_MAPAS_REVELACAO;}).sort(porNota)[0];
-  if(rev){reg.revelacao=fichaPremio(rev,jog[rev]);darPremio(rev,'revelacao',ROT_PREMIO.revelacao);}
+  const revs=Object.keys(jog).filter(id=>{const p=G.jogadores[id];
+    return p&&p.idade<=IDADE_REVELACAO&&jog[id].maps>=PREMIO_MIN_MAPAS_REVELACAO;}).sort(ordem('revelacao'));
+  const rev=revs[0];
+  if(rev){reg.revelacao=fichaDe(rev,'revelacao');reg.podios.revelacao=podio(revs,'revelacao');
+    darPremio(rev,'revelacao',ROT_PREMIO.revelacao);}
 
   /* IGL e treinador são prêmio de campanha: o desempenho individual pesa
      pouco no IGL e nada no treinador */
@@ -178,7 +274,7 @@ function premiarTemporada(){
   const premiados=new Set([mvp,...usados,rev,igl&&igl.id].filter(Boolean));
   premiados.forEach(id=>{const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.05,0.05,1);});
 
-  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
+  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+(reg.mvp.fora?', numa temporada fora da curva':'')+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
   const meus=[...premiados].filter(id=>G.jogadores[id].timeId===G.meuTime);
   if(meus.length)noticia('🏅 Prêmios de '+G.ano+' no seu clube: '+
     meus.map(id=>G.jogadores[id].nome).join(', ')+'.',{c:'carreira',p:meus,t:[G.meuTime],imp:2});

@@ -1039,6 +1039,50 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 .hc-el{font-size:11.5px;margin-top:3px}
 .hc-pre{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-bottom:1px solid var(--line)}
 
+/* ---------- prêmios ---------- */
+.pr-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.pr-anos{display:flex;gap:6px;overflow-x:auto;flex:0 1 auto;padding-bottom:2px}
+.pr-anos button{display:flex;flex-direction:column;align-items:flex-start;padding:6px 12px;border:1px solid var(--line);background:var(--panel);
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--tx2);white-space:nowrap}
+.pr-anos button span{font-family:'Inter',sans-serif;font-size:11px;color:var(--dim)}
+.pr-anos button.on{border-color:var(--gold);color:var(--tx);background:var(--panel2)}
+.pr-hero{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(260px,320px);gap:22px;align-items:start;
+  background:linear-gradient(120deg,rgba(200,148,58,.12),transparent 55%),var(--panel)}
+.pr-titulo{display:flex;gap:12px;align-items:center}
+.pr-nome{font-size:40px;margin:2px 0 4px}
+.pr-link{cursor:pointer}.pr-link:hover{color:var(--red)}
+.pr-fora{display:inline-block;margin-top:10px;padding:4px 10px;border:1px solid var(--gold);color:var(--gold);font-size:12px;letter-spacing:.04em}
+.pr-nums{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px}
+.pr-nums div{background:var(--bg2);border:1px solid var(--line);padding:8px 10px}
+.pr-nums span{display:block;font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.pr-nums b{font-size:19px;color:var(--tx)}
+.pr-regua{margin-top:12px;display:flex;flex-direction:column;gap:6px;max-width:440px}
+.pr-bar{display:grid;grid-template-columns:96px 1fr 30px;gap:8px;align-items:center;font-size:12px;color:var(--tx2)}
+.pr-bar .vb{height:8px}
+.pr-conqs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pr-conq{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1px solid var(--line2);font-size:12px;color:var(--tx2)}
+.pr-conq.ouro{border-color:var(--gold);color:var(--tx)}
+.pr-conq .trofeu{height:20px;width:auto}
+.pr-podio{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:6px;margin-top:10px}
+.pr-deg{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pr-quem{text-align:center;font-size:12.5px;line-height:1.3;overflow:hidden}
+.pr-quem>span:first-child{font-weight:600;color:var(--tx)}
+.pr-n{font-size:12px;margin-top:2px}.pr-n .dn{color:var(--red)}
+.pr-bloco{display:flex;align-items:flex-start;justify-content:center;padding-top:6px;background:var(--panel2);border-top:3px solid var(--line2)}
+.pr-bloco span{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--tx2)}
+.pr-deg.d1 .pr-bloco{height:96px;border-color:var(--gold)}.pr-deg.d1 .pr-bloco span{color:var(--gold)}
+.pr-deg.d2 .pr-bloco{height:68px;border-color:#B9C3CE}
+.pr-deg.d3 .pr-bloco{height:48px;border-color:#B0764A}
+.pr-deg.me .pr-quem>span:first-child{color:var(--teal)}
+.pr-sel{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-around;margin-top:12px}
+.pr-sel-j{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pr-sel-n{font-size:12px}
+.pr-mini-top{display:flex;gap:12px;align-items:center}
+.pr-mini-nome{font-size:22px;margin:3px 0}
+.pr-curto{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+@media (max-width:1100px){.pr-hero{grid-template-columns:auto minmax(0,1fr)}.pr-lado{grid-column:1/-1}}
+@media (max-width:700px){.pr-hero{grid-template-columns:1fr}.pr-carta{justify-self:center}.pr-nums{grid-template-columns:repeat(3,1fr)}}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -11114,6 +11158,35 @@ const LENDA_CORTE=14;
 /* Quanto a comparação é contra a própria função (o resto é contra todos). */
 const PREMIO_PESO_FUNCAO=0.7;
 
+/* ---------- a régua: desempenho e conquistas ----------
+   A nota de cada prêmio tem duas metades explícitas, cada uma medida em
+   desvios em relação aos candidatos do ano (assim as duas falam a mesma
+   língua): DESEMPENHO, o que o jogador fez (rendimento contra a função,
+   K/D, MVPs de mapa, volume em palco grande), e CONQUISTAS, o que o time
+   dele ganhou com ele em campo (títulos, finais e campanha internacional,
+   Champions acima de Masters, Masters acima de liga).
+   A fatia de conquistas muda por prêmio: o MVP do ano é de quem ganhou;
+   a seleção e o MVP regional pesam menos o troféu; a revelação é só sobre
+   o jogador. Medido com tools/premios.mjs em 20 temporadas. */
+const PREMIO_CONQUISTAS={mvp:0.4,selecao:0.3,regional:0.25,revelacao:0};
+/* Fora da curva: quem não chegou a nenhuma final internacional só leva o
+   MVP do ano se o desempenho dele passar o do segundo melhor por esta
+   margem, em desvios dos candidatos. */
+const PREMIO_FORA_MARGEM=0.55;
+/* Pontos por colocação no mata-mata: campeão, vice, top 4, top 8. */
+const CONQ_LUGAR={champions:[10,6,3.5,1.8],masters:[6,3.6,2,1],liga:[2.4,1.3,0.6,0],acesso:[0.6,0.3,0,0]};
+/* Estar no internacional já é campanha, mesmo caindo na fase de grupos. */
+const CONQ_GRUPO={champions:0.6,masters:0.4};
+
+function classeConquista(s){
+  if(s.regiao==='INT')return s.torneioId==='champions'||/^ch/.test(s.id)?'champions':'masters';
+  return s.tier===2?'acesso':'liga';
+}
+function pontosDeLugar(cl,i){
+  const f=i===0?0:i===1?1:i>=2&&i<=3?2:i>=4&&i<=7?3:-1;
+  return f<0?0:CONQ_LUGAR[cl][f];
+}
+
 function pesoDoStagePremio(s){
   if(s.tier===2)return 0.4;
   if(s.regiao==='INT')return /^ch/.test(s.id)?1.8:1.4;
@@ -11152,6 +11225,11 @@ function lerTemporada(){
       }
     }
     const pos=id=>{const i=rk.indexOf(id);return i<0?0.35:1-i/n;};
+    /* conquistas: cada um leva a parte do time na proporção dos mapas que
+       jogou — o reserva que entrou num mapa não é campeão do mesmo jeito */
+    const cl=classeConquista(s),mata=s.tipo==='de'||s.tipo==='ko';
+    const maxTime={};
+    for(const id in s.stats){const e=s.stats[id];if(e.maps&&e.timeId)maxTime[e.timeId]=Math.max(maxTime[e.timeId]||0,e.maps);}
     for(const id in s.stats){
       const e=s.stats[id],p=G.jogadores[id];if(!e.maps||!p)continue;
       const f=fn[funcaoPremio(p)];
@@ -11161,17 +11239,33 @@ function lerTemporada(){
       const q=PREMIO_PESO_FUNCAO;
       const acsFn=q*f.acs/Math.max(1,f.maps)+(1-q)*T.acs/Math.max(1,T.maps);
       const kdFn=q*f.k/Math.max(1,f.d)+(1-q)*T.k/Math.max(1,T.d);
-      const a=jog[id]||(jog[id]={maps:0,k:0,d:0,acs:0,mvp:0,rel:0,krel:0,wd:0,wm:0,camp:0,timeId:null});
+      const a=jog[id]||(jog[id]={maps:0,k:0,d:0,acs:0,mvp:0,rel:0,krel:0,wd:0,wm:0,camp:0,timeId:null,
+        conq:0,finalInt:false,lista:[]});
       a.maps+=e.maps;a.k+=e.k;a.d+=e.d;a.acs+=e.acs;a.mvp+=e.mvp;
       a.rel+=w*e.acs/Math.max(1,acsFn);a.krel+=w*e.k/Math.max(0.1,kdFn);a.wd+=w*e.d;
       a.wm+=w*e.maps;a.camp+=w*e.maps*pos(e.timeId);
       a.timeId=e.timeId||a.timeId;
+      const fr=Math.min(1,e.maps/Math.max(1,maxTime[e.timeId]||e.maps));
+      if(mata){
+        const i=rk.indexOf(e.timeId),pts=i<0?0:pontosDeLugar(cl,i)*fr;
+        if(pts>0){a.conq+=pts;
+          if(pts>=1)a.lista.push({ev:typeof nomeTitulo==='function'?nomeTitulo(s):s.nome,i,cl,pts:Math.round(pts*10)/10});}
+        if(s.regiao==='INT'&&i>=0&&i<=1&&fr>=0.5)a.finalInt=true;
+      }else if(CONQ_GRUPO[cl])a.conq+=CONQ_GRUPO[cl]*fr;
     }
   }
   return{jog,times};
 }
 
-/* Nota do ano de um jogador. Mesmo desenho da nota de MVP de torneio
+/* Metade DESEMPENHO: a nota do ano sem a campanha. */
+function desempenhoDoAno(a){
+  const rel=a.rel/Math.max(1,a.wm);
+  const kd=a.krel/Math.max(1,a.wd);
+  return (rel-1)*1.9+(Math.min(2.2,kd)-1)*0.55+(a.mvp/a.maps)*0.95+0.35*Math.min(1,a.wm/60);
+}
+/* Nota do ano antiga (desempenho + um pouco de campanha). Ficou para o IGL
+   do ano, que já soma a campanha do time por fora, e para a medição de
+   antes e depois em tools/premios.mjs. Mesmo desenho da nota de MVP de torneio
    (notaMVP em formatos.js), com ACS e K/D relativos à função, mais um termo de palco: quem jogou muito mapa
    em torneio grande ganha até 0,35. */
 function notaDoAno(a){
@@ -11183,13 +11277,19 @@ function notaDoAno(a){
 
 /* Foto do premiado, como a do MVP de torneio: ele pode se aposentar e
    ser apagado, o prêmio não. */
-function fichaPremio(id,a){
+function fichaPremio(id,a,r){
   const p=G.jogadores[id];if(!p)return null;
   const t=a&&a.timeId&&G.times[a.timeId];
-  return{id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
+  const f={id,nome:p.nome,pais:p.pais,role:p.role,idade:p.idade,
     timeId:t?t.id:null,tag:t?t.tag:'—',
     maps:a?a.maps:0,acs:a?Math.round(a.acs/Math.max(1,a.maps)):0,
-    kd:a?Number((a.d?a.k/a.d:a.k).toFixed(2)):0};
+    kd:a?Number((a.d?a.k/a.d:a.k).toFixed(2)):0,
+    ov:over(p),mvps:a?a.mvp:0};
+  /* a régua de quem levou: nota final, as duas metades em percentil entre os
+     candidatos e o que o time conquistou com ele (é isso que a tela mostra) */
+  if(r){f.n=Math.round(r.n*100)/100;f.pD=r.pD;f.pC=r.pC;
+    if(r.conq)f.conq=r.conq;}
+  return f;
 }
 
 function darPremio(id,tipo,rot){
@@ -11202,42 +11302,82 @@ const ROT_PREMIO={mvp:'MVP do ano',regional:'MVP regional',selecao:'Seleção do
 
 /* Elege tudo de uma vez e grava em G.premios. Chamada no começo da virada,
    antes de aposentadoria, contrato e empréstimo mexerem nos elencos. */
+/* Régua dos candidatos do ano: desempenho e conquistas em desvios, medidos
+   contra quem tem mapas para concorrer, e aplicados a todo mundo (a
+   revelação concorre com menos mapas). */
+function reguaDoAno(jog,cand){
+  const D={},C={};
+  for(const id in jog)if(jog[id].maps){D[id]=desempenhoDoAno(jog[id]);C[id]=jog[id].conq||0;}
+  const norm=v=>{const xs=cand.map(id=>v[id]);const m=xs.reduce((s,x)=>s+x,0)/xs.length;
+    const sd=Math.sqrt(xs.reduce((s,x)=>s+(x-m)*(x-m),0)/xs.length)||1;
+    const z={};for(const id in v)z[id]=(v[id]-m)/sd;return z;};
+  const zD=norm(D),zC=norm(C);
+  const pct=v=>{const xs=cand.map(id=>v[id]).sort((a,b)=>a-b);
+    return id=>{let k=0;while(k<xs.length&&xs[k]<v[id])k++;return Math.round(k/xs.length*100);};};
+  const pD=pct(D),pC=pct(C);
+  return{zD,zC,
+    nota:(id,tipo)=>{const w=PREMIO_CONQUISTAS[tipo]||0;return (1-w)*zD[id]+w*zC[id];},
+    ficha:(id,tipo,comConq)=>({n:(1-(PREMIO_CONQUISTAS[tipo]||0))*zD[id]+(PREMIO_CONQUISTAS[tipo]||0)*zC[id],
+      pD:pD(id),pC:pC(id),conq:comConq?jog[id].lista.slice().sort((a,b)=>b.pts-a.pts).slice(0,5):null})};
+}
+
+/* Elege tudo de uma vez e grava em G.premios. Chamada no começo da virada,
+   antes de aposentadoria, contrato e empréstimo mexerem nos elencos. */
 function premiarTemporada(){
   const {jog,times}=lerTemporada();
   const cand=Object.keys(jog).filter(id=>G.jogadores[id]&&jog[id].maps>=PREMIO_MIN_MAPAS);
   if(!cand.length)return null;
   const nota={};
   for(const id in jog)if(jog[id].maps)nota[id]=notaDoAno(jog[id]);
-  const porNota=(a,b)=>nota[b]-nota[a];
-  cand.sort(porNota);
+  const R=reguaDoAno(jog,cand);
+  const ordem=tipo=>(a,b)=>R.nota(b,tipo)-R.nota(a,tipo);
+  const fichaDe=(id,tipo,comConq)=>fichaPremio(id,jog[id],R.ficha(id,tipo,comConq));
+  /* pódio: os três primeiros, com a nota de cada um */
+  const podio=(ids,tipo)=>ids.slice(0,3).map(id=>fichaDe(id,tipo));
 
-  const reg={ano:G.ano,mvp:null,regioes:{},selecao:[],revelacao:null,igl:null,treinador:null};
-  const mvp=cand[0];
-  reg.mvp=fichaPremio(mvp,jog[mvp]);darPremio(mvp,'mvp',ROT_PREMIO.mvp);
+  const reg={ano:G.ano,mvp:null,regioes:{},selecao:[],revelacao:null,igl:null,treinador:null,podios:{}};
 
-  for(const R of REGIONS){
-    const id=cand.find(i=>{const t=G.times[jog[i].timeId];return t&&t.regiao===R.id&&t.tier===1;});
-    if(!id)continue;
-    reg.regioes[R.id]=fichaPremio(id,jog[id]);
-    darPremio(id,'regional',ROT_PREMIO.regional+' · '+R.nome);
+  /* MVP: o melhor da régua entre quem chegou a uma final internacional; o
+     fora da curva fura a fila só com um desempenho muito acima do segundo */
+  const porMvp=cand.slice().sort(ordem('mvp'));
+  const finalistas=porMvp.filter(id=>jog[id].finalInt);
+  const porD=cand.slice().sort((a,b)=>R.zD[b]-R.zD[a]);
+  const topo=porD[0],gap=porD.length>1?R.zD[topo]-R.zD[porD[1]]:0;
+  const fora=!jog[topo].finalInt&&gap>=PREMIO_FORA_MARGEM;
+  const mvp=fora?topo:(finalistas[0]||porMvp[0]);
+  reg.mvp=fichaDe(mvp,'mvp',true);
+  if(fora)reg.mvp.fora=Math.round(gap*100)/100;
+  reg.podios.mvp=[reg.mvp,...podio(porMvp.filter(id=>id!==mvp),'mvp').slice(0,2)];
+  darPremio(mvp,'mvp',ROT_PREMIO.mvp);
+
+  const porReg=cand.slice().sort(ordem('regional'));
+  for(const Rg of REGIONS){
+    const ids=porReg.filter(i=>{const t=G.times[jog[i].timeId];return t&&t.regiao===Rg.id&&t.tier===1;});
+    if(!ids.length)continue;
+    reg.regioes[Rg.id]=fichaDe(ids[0],'regional',true);
+    reg.podios['reg_'+Rg.id]=podio(ids,'regional');
+    darPremio(ids[0],'regional',ROT_PREMIO.regional+' · '+Rg.nome);
   }
 
   /* um por função e o quinto é o melhor que sobrou, como as seleções de
      verdade fazem com o flex */
+  const porSel=cand.slice().sort(ordem('selecao'));
   const usados=new Set();
   for(const role of ROLES.filter(r=>r!=='Flex')){
-    const id=cand.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
+    const id=porSel.find(i=>!usados.has(i)&&G.jogadores[i].role===role);
     if(id)usados.add(id);
   }
   /* o quinto é o melhor que sobrou; se faltou alguma função entre os
      candidatos, o melhor que sobrou cobre também essa vaga */
-  for(const id of cand){if(usados.size>=5)break;usados.add(id);}
-  reg.selecao=[...usados].sort(porNota).map(id=>fichaPremio(id,jog[id]));
+  for(const id of porSel){if(usados.size>=5)break;usados.add(id);}
+  reg.selecao=[...usados].sort(ordem('selecao')).map(id=>fichaDe(id,'selecao'));
   usados.forEach(id=>darPremio(id,'selecao',ROT_PREMIO.selecao));
 
-  const rev=Object.keys(jog).filter(id=>{const p=G.jogadores[id];
-    return p&&p.idade<=IDADE_REVELACAO&&jog[id].maps>=PREMIO_MIN_MAPAS_REVELACAO;}).sort(porNota)[0];
-  if(rev){reg.revelacao=fichaPremio(rev,jog[rev]);darPremio(rev,'revelacao',ROT_PREMIO.revelacao);}
+  const revs=Object.keys(jog).filter(id=>{const p=G.jogadores[id];
+    return p&&p.idade<=IDADE_REVELACAO&&jog[id].maps>=PREMIO_MIN_MAPAS_REVELACAO;}).sort(ordem('revelacao'));
+  const rev=revs[0];
+  if(rev){reg.revelacao=fichaDe(rev,'revelacao');reg.podios.revelacao=podio(revs,'revelacao');
+    darPremio(rev,'revelacao',ROT_PREMIO.revelacao);}
 
   /* IGL e treinador são prêmio de campanha: o desempenho individual pesa
      pouco no IGL e nada no treinador */
@@ -11266,7 +11406,7 @@ function premiarTemporada(){
   const premiados=new Set([mvp,...usados,rev,igl&&igl.id].filter(Boolean));
   premiados.forEach(id=>{const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.05,0.05,1);});
 
-  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
+  noticia('🏅 '+reg.mvp.nome+' ('+reg.mvp.tag+') é o MVP de '+G.ano+(reg.mvp.fora?', numa temporada fora da curva':'')+'.',{c:'carreira',p:[reg.mvp.id],t:[reg.mvp.timeId],imp:3});
   const meus=[...premiados].filter(id=>G.jogadores[id].timeId===G.meuTime);
   if(meus.length)noticia('🏅 Prêmios de '+G.ano+' no seu clube: '+
     meus.map(id=>G.jogadores[id].nome).join(', ')+'.',{c:'carreira',p:meus,t:[G.meuTime],imp:2});
@@ -16594,62 +16734,7 @@ function vFinancas(){
     no Banco de dados › Torneios.</p></div>`;
 }
 /* Líderes virou Estatísticas do mundo: ui/mundo.js */
-/* ============================================================
-   PRÊMIOS E HALL DA FAMA
-   ============================================================ */
-let premioAno=null;
-function linhaPremiado(f,rot,trofeu){
-  if(!f)return '';
-  const vivo=!!P(f.id);
-  return `<tr class="${vivo?'jrow':''} ${f.timeId===G.meuTime?'me':''}" ${vivo?`data-p="${f.id}"`:''}>
-    ${rot?`<td class="dim">${trofeu?imgTrofeu(trofeu,14,rot)+' ':''}${esc(rot)}</td>`:''}
-    <td><b>${esc(f.nome)}</b> ${FLAG[f.pais]||''}${vivo?'':' <span class="chip">aposentado</span>'}</td>
-    <td><span class="tag ${f.role}">${f.role}</span></td><td class="dim">${esc(f.tag)}</td>
-    <td class="r num">${f.maps}</td><td class="r num">${f.acs}</td><td class="r num">${Number(f.kd).toFixed(2)}</td></tr>`;
-}
-const TH_PREMIO=(rot)=>`<thead><tr>${rot?'<th></th>':''}<th>Jogador</th><th>Função</th><th>Clube</th>
-  <th class="r">Mapas</th><th class="r">ACS</th><th class="r">K/D</th></tr></thead>`;
-function vPremios(){
-  const lista=G.premios||[];
-  const anos=lista.map(r=>r.ano);
-  if(premioAno==null||!anos.includes(premioAno))premioAno=anos[anos.length-1];
-  const r=lista.find(x=>x.ano===premioAno);
-  const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
-      O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
-  <div class="grid g2">
-    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('mvp'),46,'MVP do ano')}<div>
-      <div class="eyebrow">MVP de ${r.ano}</div>
-      <h3 style="margin:4px 0">${esc(r.mvp.nome)} ${FLAG[r.mvp.pais]||''}</h3>
-      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div></div>
-    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('treinador'),46,'Treinador do ano')}<div>
-      <div class="eyebrow">Treinador do ano</div>
-      ${r.treinador?`<h3 style="margin:4px 0">${esc(r.treinador.nome)}${r.treinador.voce?' <span class="chip t">você</span>':''}</h3>
-      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div></div>
-  </div>
-  <div class="card flat"><div class="eyebrow">${imgTrofeu(arquivoTrofeuPremio('selecao'),18,'Seleção do ano')} Seleção do ano</div>
-    <table>${TH_PREMIO(false)}<tbody>${r.selecao.map(f=>linhaPremiado(f)).join('')}</tbody></table></div>
-  <div class="card flat"><div class="eyebrow">Destaques</div>
-    <table>${TH_PREMIO(true)}<tbody>
-      ${REGIONS.map(R=>linhaPremiado(r.regioes[R.id],'MVP · '+R.nome)).join('')}
-      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}
-    </tbody></table></div>`;
-  const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
-  return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
-  ${anos.length>1?`<div class="tabs">${anos.slice().reverse().map(a=>
-    `<button data-pano="${a}" class="${a===premioAno?'on':''}">${a}</button>`).join('')}</div>`:''}
-  ${corpo}
-  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
-    ${lendas.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
-      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
-    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
-      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
-      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
-      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
-      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
-      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table>`
-    :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
-      e uma carreira longa.</div>`}</div>`;
-}
+/* Prêmios e Hall da Fama: ui/premios.js */
 /* ---------- notícias ---------- */
 let newsAba='tudo';
 function linhaNoticia(n){
@@ -17522,6 +17607,146 @@ function ligarMundo(v,on){
   v.querySelectorAll('[data-lidf]').forEach(el=>el.onchange=()=>{
     const k=el.dataset.lidf;if(k==='escopo')lidEscopo=el.value;else if(k==='regiao')lidRegiao=el.value;else lidFuncao=el.value;render();});
   v.querySelectorAll('.mg-dest .jrow').forEach(el=>el.onclick=()=>modalJogador(el.dataset.p));
+}
+
+
+/* ===== src/ui/premios.js ===== */
+/* ============================================================
+   CIRCUITO › PRÊMIOS — o MVP em destaque, pódios e a seleção
+   (a régua mora em core/premios.js)
+   ------------------------------------------------------------
+   A nota exibida é a da régua do prêmio (desempenho e conquistas em
+   desvios dos candidatos), passada para uma escala de 0 a 100 em que
+   60 é a média dos candidatos e cada desvio vale 10 pontos. É ela que
+   mostra a distância entre o primeiro e o segundo do pódio.
+   Saves de antes da régua nova não têm nota nem pódio: a tela mostra
+   o que existe.
+   ============================================================ */
+let premioAno=null;
+
+function notaPremio(n){return n==null?null:Math.max(0,Math.min(99.9,60+10*n));}
+function txtNota(n){const v=notaPremio(n);return v==null?'—':v.toFixed(1).replace('.',',');}
+function lugarConq(i){return i===0?'campeão':i===1?'vice':i<=3?'top 4':'top 8';}
+
+/* carta do premiado congelada no ano: o over é o daquela temporada, e quem
+   se aposentou continua com carta (só não abre a ficha) */
+function cartaPremiado(f,w){
+  if(!f)return '';
+  const p=P(f.id);
+  const base=p||{id:f.id,nome:f.nome,role:f.role,timeId:f.timeId,pais:f.pais};
+  return cartaJogador(base,{w,o:f.ov||(p?over(p):70),clique:!!p});
+}
+function nomePremiado(f){
+  if(!f)return '—';
+  const vivo=!!P(f.id);
+  return `<span class="${vivo?'jrow pr-link':''}" ${vivo?`data-p="${f.id}"`:''}>${esc(f.nome)}</span> ${FLAG[f.pais]||''}`;
+}
+function barraRegua(rot,v,cls){
+  if(v==null)return '';
+  return `<div class="pr-bar"><span>${rot}</span><div class="vb"><i class="${cls||''}" style="width:${v}%"></i></div>
+    <b class="num">${v}</b></div>`;
+}
+
+/* pódio 2-1-3; a diferença para o primeiro aparece em cada degrau */
+function podioPremio(lista){
+  if(!lista||lista.length<2)return '';
+  const n1=notaPremio(lista[0].n);
+  const deg=(f,k)=>{
+    if(!f)return `<div class="pr-deg d${k+1} vazio"></div>`;
+    const n=notaPremio(f.n);
+    return `<div class="pr-deg d${k+1} ${f.timeId===G.meuTime?'me':''}">
+      <div class="pr-quem">${nomePremiado(f)}<div class="dim">${esc(f.tag)} · ${f.role}</div>
+        <div class="num pr-n">${txtNota(f.n)}${k&&n!=null&&n1!=null?` <span class="dn">−${(n1-n).toFixed(1).replace('.',',')}</span>`:''}</div></div>
+      <div class="pr-bloco"><span>${k+1}</span></div></div>`;};
+  return `<div class="pr-podio">${deg(lista[1],1)}${deg(lista[0],0)}${deg(lista[2],2)}</div>`;
+}
+/* lista compacta para os pódios menores (revelação, regionais) */
+function podioCurto(lista){
+  if(!lista||lista.length<2)return '';
+  const n1=notaPremio(lista[0].n);
+  return `<div class="pr-curto">${lista.slice(1).map((f,k)=>{const n=notaPremio(f.n);
+    return `<div><span class="dim">${k+2}º</span> ${nomePremiado(f)} <span class="dim">${esc(f.tag)}</span>
+      <span class="num dim">${txtNota(f.n)}${n!=null&&n1!=null?' · −'+(n1-n).toFixed(1).replace('.',','):''}</span></div>`;}).join('')}</div>`;
+}
+
+function heroMvp(r){
+  const m=r.mvp,t=m.timeId&&G.times[m.timeId];
+  const nums=[['Mapas',m.maps],['ACS',m.acs],['K/D',Number(m.kd).toFixed(2)],['MVPs de mapa',m.mvps!=null?m.mvps:'—'],['Nota',txtNota(m.n)]];
+  const conq=(m.conq||[]).map(c=>`<span class="pr-conq ${c.i===0?'ouro':''}">${c.i===0?imgTrofeu(trofeuDoTitulo(r.ano,c.ev),16,c.ev)+' ':''}${esc(c.ev)} · ${lugarConq(c.i)}</span>`).join('');
+  return `<div class="card pr-hero">
+    <div class="pr-carta">${cartaPremiado(m,200)}</div>
+    <div class="pr-info">
+      <div class="pr-titulo">${imgTrofeu(arquivoTrofeuPremio('mvp'),54,'MVP do ano')}
+        <div><div class="eyebrow">MVP de ${r.ano}</div>
+        <h2 class="pr-nome">${nomePremiado(m)}</h2>
+        <div class="dim">${t?escudo(t,16)+' ':''}${esc(t?t.nome:m.tag)} · ${m.role}${m.idade?' · '+m.idade+' anos':''}</div></div></div>
+      ${m.fora!=null?`<div class="pr-fora" title="Sem final internacional: levou porque o desempenho passou o do segundo melhor por ${String(m.fora).replace('.',',')} desvio(s)">★ Temporada fora da curva</div>`:''}
+      <div class="pr-nums">${nums.map(([k,v])=>`<div><span>${k}</span><b class="num">${v}</b></div>`).join('')}</div>
+      ${m.pD!=null?`<div class="pr-regua">${barraRegua('Desempenho',m.pD,'g')}${barraRegua('Conquistas',m.pC,'')}
+        <div class="dim" style="font-size:11.5px">Percentil entre os candidatos do ano. A nota soma 60% desempenho e 40% conquistas.</div></div>`:''}
+      ${conq?`<div class="eyebrow" style="margin-top:12px">O que pesou na escolha</div><div class="pr-conqs">${conq}</div>`:''}
+    </div>
+    ${r.podios&&r.podios.mvp?`<div class="pr-lado"><div class="eyebrow">Mais votados</div>${podioPremio(r.podios.mvp)}</div>`:''}
+  </div>`;
+}
+
+function selecaoDoAno(r){
+  return `<div class="card"><div class="split"><div class="eyebrow">${imgTrofeu(arquivoTrofeuPremio('selecao'),18,'Seleção do ano')} Seleção do ano</div>
+      <span class="dim">70% desempenho · 30% conquistas, um por função e o melhor que sobrou</span></div>
+    <div class="pr-sel">${r.selecao.map(f=>`<div class="pr-sel-j">${cartaPremiado(f,138)}
+      <div class="pr-sel-n"><span class="dim">${esc(f.tag)}</span>${f.n!=null?` <span class="num">${txtNota(f.n)}</span>`:''}</div></div>`).join('')}</div>
+  </div>`;
+}
+
+function cartaoPremio(trof,rot,f,extra){
+  return `<div class="card pr-mini">
+    <div class="pr-mini-top">${imgTrofeu(trof,32,rot)}<div><div class="eyebrow">${esc(rot)}</div>
+      ${f?`<h3 class="pr-mini-nome">${f.nome!=null&&f.role?nomePremiado(f):esc(f.nome)}</h3>
+      <div class="dim">${esc(f.tag)}${f.maps?` · ${f.maps} mapas · ${f.acs} de ACS · ${Number(f.kd).toFixed(2)} de K/D`:''}</div>`:'<div class="dim">—</div>'}</div></div>
+    ${extra||''}</div>`;
+}
+
+function vPremios(){
+  const lista=G.premios||[];
+  const anos=lista.map(r=>r.ano);
+  if(premioAno==null||!anos.includes(premioAno))premioAno=anos[anos.length-1];
+  const r=lista.find(x=>x.ano===premioAno);
+  const i=anos.indexOf(premioAno);
+  const nav=anos.length?`<div class="pr-nav">
+      <button class="btn ghost sm" ${i>0?`data-pano="${anos[i-1]}"`:'disabled'}>‹ ${i>0?anos[i-1]:''}</button>
+      <div class="pr-anos">${anos.slice().reverse().map(a=>`<button data-pano="${a}" class="${a===premioAno?'on':''}">${a}
+        ${(lista.find(x=>x.ano===a)||{}).mvp?`<span>${esc(lista.find(x=>x.ano===a).mvp.nome)}</span>`:''}</button>`).join('')}</div>
+      <button class="btn ghost sm" ${i<anos.length-1?`data-pano="${anos[i+1]}"`:'disabled'}>${i<anos.length-1?anos[i+1]:''} ›</button></div>`:'';
+
+  const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
+      O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
+  ${heroMvp(r)}
+  ${selecaoDoAno(r)}
+  <div class="grid g3">
+    ${cartaoPremio(arquivoTrofeuPremio('treinador'),'Treinador do ano',r.treinador&&{nome:r.treinador.nome+(r.treinador.voce?' (você)':''),tag:r.treinador.tag})}
+    ${cartaoPremio(arquivoTrofeuPremio('igl'),'IGL do ano',r.igl)}
+    ${cartaoPremio(arquivoTrofeuPremio('revelacao'),'Revelação do ano',r.revelacao,
+      r.podios&&podioCurto(r.podios.revelacao))}
+  </div>
+  <div class="eyebrow" style="margin:6px 0 8px">MVP regional</div>
+  <div class="grid g4">${REGIONS.map(R=>cartaoPremio(arquivoTrofeuPremio('regional'),R.nome,r.regioes[R.id],
+      r.podios&&podioCurto(r.podios['reg_'+R.id]))).join('')}</div>`;
+
+  const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
+  return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
+  ${nav}
+  ${corpo}
+  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
+    ${lendas.length?`<div class="rolagem"><table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
+      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
+    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
+      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
+      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
+      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
+      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
+      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table></div>`
+    :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
+      e uma carreira longa.</div>`}</div>`;
 }
 
 

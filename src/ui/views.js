@@ -995,62 +995,7 @@ function vFinancas(){
     no Banco de dados › Torneios.</p></div>`;
 }
 /* Líderes virou Estatísticas do mundo: ui/mundo.js */
-/* ============================================================
-   PRÊMIOS E HALL DA FAMA
-   ============================================================ */
-let premioAno=null;
-function linhaPremiado(f,rot,trofeu){
-  if(!f)return '';
-  const vivo=!!P(f.id);
-  return `<tr class="${vivo?'jrow':''} ${f.timeId===G.meuTime?'me':''}" ${vivo?`data-p="${f.id}"`:''}>
-    ${rot?`<td class="dim">${trofeu?imgTrofeu(trofeu,14,rot)+' ':''}${esc(rot)}</td>`:''}
-    <td><b>${esc(f.nome)}</b> ${FLAG[f.pais]||''}${vivo?'':' <span class="chip">aposentado</span>'}</td>
-    <td><span class="tag ${f.role}">${f.role}</span></td><td class="dim">${esc(f.tag)}</td>
-    <td class="r num">${f.maps}</td><td class="r num">${f.acs}</td><td class="r num">${Number(f.kd).toFixed(2)}</td></tr>`;
-}
-const TH_PREMIO=(rot)=>`<thead><tr>${rot?'<th></th>':''}<th>Jogador</th><th>Função</th><th>Clube</th>
-  <th class="r">Mapas</th><th class="r">ACS</th><th class="r">K/D</th></tr></thead>`;
-function vPremios(){
-  const lista=G.premios||[];
-  const anos=lista.map(r=>r.ano);
-  if(premioAno==null||!anos.includes(premioAno))premioAno=anos[anos.length-1];
-  const r=lista.find(x=>x.ano===premioAno);
-  const corpo=!r?`<div class="card flat"><div class="empty">Os prêmios saem na virada da temporada.
-      O primeiro vai ser entregue no fim de ${G.ano}.</div></div>`:`
-  <div class="grid g2">
-    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('mvp'),46,'MVP do ano')}<div>
-      <div class="eyebrow">MVP de ${r.ano}</div>
-      <h3 style="margin:4px 0">${esc(r.mvp.nome)} ${FLAG[r.mvp.pais]||''}</h3>
-      <div class="dim">${esc(r.mvp.tag)} · ${r.mvp.role} · ${r.mvp.maps} mapas · ${r.mvp.acs} de ACS · ${Number(r.mvp.kd).toFixed(2)} de K/D</div></div></div>
-    <div class="card premio-card">${imgTrofeu(arquivoTrofeuPremio('treinador'),46,'Treinador do ano')}<div>
-      <div class="eyebrow">Treinador do ano</div>
-      ${r.treinador?`<h3 style="margin:4px 0">${esc(r.treinador.nome)}${r.treinador.voce?' <span class="chip t">você</span>':''}</h3>
-      <div class="dim">${esc(r.treinador.tag)}</div>`:'<div class="dim">—</div>'}</div></div>
-  </div>
-  <div class="card flat"><div class="eyebrow">${imgTrofeu(arquivoTrofeuPremio('selecao'),18,'Seleção do ano')} Seleção do ano</div>
-    <table>${TH_PREMIO(false)}<tbody>${r.selecao.map(f=>linhaPremiado(f)).join('')}</tbody></table></div>
-  <div class="card flat"><div class="eyebrow">Destaques</div>
-    <table>${TH_PREMIO(true)}<tbody>
-      ${REGIONS.map(R=>linhaPremiado(r.regioes[R.id],'MVP · '+R.nome)).join('')}
-      ${linhaPremiado(r.revelacao,'Revelação')}${linhaPremiado(r.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}
-    </tbody></table></div>`;
-  const lendas=(G.lendas||[]).slice().sort((a,b)=>b.pontos-a.pontos);
-  return `<div class="eyebrow">Circuito</div><h2 class="sec">Prêmios</h2>
-  ${anos.length>1?`<div class="tabs">${anos.slice().reverse().map(a=>
-    `<button data-pano="${a}" class="${a===premioAno?'on':''}">${a}</button>`).join('')}</div>`:''}
-  ${corpo}
-  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
-    ${lendas.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
-      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
-    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
-      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
-      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
-      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
-      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
-      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table>`
-    :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
-      e uma carreira longa.</div>`}</div>`;
-}
+/* Prêmios e Hall da Fama: ui/premios.js */
 /* ---------- notícias ---------- */
 let newsAba='tudo';
 function linhaNoticia(n){

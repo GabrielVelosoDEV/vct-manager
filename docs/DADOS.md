@@ -23,6 +23,7 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
 | (stage) `resultados[]` | `{a,b,wa,wb,v,mapa,n,rd,sem,det}` | série jogada; `det` = veto, mapas `{m,a,b,l,st}` e MVP, com `st` em texto `id:k,d,a,acs\|…` |
 | `eloHist` | `[{ano,s,v:{id:rating}}]` | foto do ranking mundial a cada 4 semanas, últimas 13 |
 | `recordes` | `{over, transferencia}` | recordes que não dá para recalcular depois |
+| `premios` | `[{ano, mvp, regioes, selecao, revelacao, igl, treinador, podios}]` | prêmios de cada ano; a ficha do premiado guarda over do ano (`ov`), MVPs de mapa, a nota da régua (`n`, em desvios), os percentis de desempenho e conquistas (`pD`, `pC`), o que pesou (`conq`) e `fora` quando foi fora da curva; `podios` tem os três primeiros de MVP, revelação e cada regional (`reg_AMER`…) |
 | `torneios` | `{id: Torneio}` | catálogo das 27 competições (uma por evento), editável |
 | `cidades` | `[Cidade]` | as cidades-sede de Masters e Champions, semeadas de `data/sedes.js`, editáveis |
 | `sedes` | `{ano: {masters1, masters2, champions}}` | sede sorteada de cada ano (slug da cidade) |

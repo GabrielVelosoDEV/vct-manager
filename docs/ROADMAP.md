@@ -182,6 +182,20 @@
   acesso e rebaixamento), títulos reais de antes da carreira, lendas,
   Hall da Fama e revelados da casa.
 
+- **Prêmios com nova régua** (pacote 5): a nota de cada prêmio soma duas
+  metades medidas em desvios dos candidatos — desempenho (rendimento contra
+  a função, K/D, MVPs de mapa, volume) e conquistas (títulos, finais e
+  campanha internacional, Champions acima de Masters acima de liga, na
+  proporção dos mapas jogados). MVP do ano 60/40 e só para quem chegou a
+  uma final internacional, a não ser numa temporada fora da curva
+  (desempenho 0,55 desvio acima do segundo melhor); seleção 70/30, MVP
+  regional 75/25, revelação só desempenho. Medido em 50 temporadas com
+  `tools/premios.mjs`: MVP de campeão internacional foi de 28% para 86%,
+  fora da curva em 6% dos anos. Tela nova: MVP em carta grande com números,
+  percentis e o que pesou, pódio dos mais votados com a diferença de nota,
+  seleção desenhada em cinco cartas, pódios curtos de revelação e
+  regionais, navegação entre anos.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters
