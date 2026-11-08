@@ -22,6 +22,10 @@ Recomendado 1280×720 (16:9), sem texto escrito na imagem — o jogo escreve o n
 | Summit   | `summit.webp`    |
 | Sunset   | `sunset.webp`    |
 
+Os 13 estão enviados. Breeze (720×360), Abyss, Corrode e Summit (cerca de 915×515)
+vieram menores que os outros (1391×782): funcionam, mas ficam menos nítidos nas telas
+grandes — se achar versões maiores, é só substituir mantendo o nome.
+
 Mapa novo no jogo (`MAP_POOL` em `data/mundo.js`) = arquivo novo aqui com o mesmo nome.
 
 Sem arquivo, o jogo desenha um fundo com o nome do mapa — nada quebra.
