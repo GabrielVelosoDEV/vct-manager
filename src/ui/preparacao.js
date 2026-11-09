@@ -56,11 +56,11 @@ function vPreparo(){
     </div>`;
   }).join('');
   const melhor=preps[0],pior=preps[preps.length-1];
-  return `<div class="dim" style="max-width:860px;margin-bottom:12px">O preparo junta o que pesa na partida e muda de
+  return `${explica(`O preparo junta o que pesa na partida e muda de
     mapa para mapa: a identidade do clube, a afinidade dos cinco titulares, a comp escalada e a tática. 50 é um mapa
     neutro; cada ponto de força na partida vale 4 aqui. É o mesmo número que o veto enxerga.
     ${adv?(verAdv?` Ao lado, o preparo do <b>${esc(adv.tag)}</b>, seu próximo adversário, pelo seu analista.`
-      :` Com analista e olheiro melhores você também veria o preparo do <b>${esc(adv.tag)}</b>.`):''}</div>
+      :` Com analista e olheiro melhores você também veria o preparo do <b>${esc(adv.tag)}</b>.`):''}`,'Como o preparo é calculado')}
   <div class="grid g4" style="margin-bottom:14px">
     <div class="kpi teal"><div class="lb">Mapa mais forte</div><div class="vl">${esc(melhor?melhor.mapa:'—')}</div>
       <div class="sb">preparo ${melhor?melhor.nota:'—'}</div></div>

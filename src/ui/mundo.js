@@ -141,8 +141,8 @@ function sparkElo(id){
 function mundoRanking(){
   const rk=rankingMundial();
   const foto=(G.eloHist||[])[0]||null;
-  return `<p class="dim">Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
-  atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.</p>
+  return `${explica(`Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
+  atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.`,'Como o ranking é calculado')}
   <div class="card flat"><table class="wide"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
     <th class="c">Variação</th><th>12 meses</th></tr></thead><tbody>
   ${rk.map((t,i)=>{const pa=posicaoNaFoto(foto,t.id),dv=pa?pa-(i+1):0;

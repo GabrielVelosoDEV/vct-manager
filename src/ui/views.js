@@ -134,7 +134,7 @@ function vInicio(){
     <div class="kpi"><div class="lb">Over do time</div><div class="vl">${ovm}</div><div class="sb">5 titulares</div></div>
     <div class="kpi teal"><div class="lb">Entrosamento</div><div class="vl">${Math.round(t.sinergia)}</div><div class="sb">quanto mais tempo juntos, melhor</div></div>
     <div class="kpi"><div class="lb">Prestígio</div><div class="vl">${Math.round(t.prestigio)}</div><div class="sb">${t.tier===1?'Liga principal':'Challengers'}</div></div>
-    <div class="kpi red"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div><div class="sb">Folha ${money(t.elenco.reduce((s,i)=>s+P(i).salario,0))}/mês</div></div>
+    <div class="kpi ${t.caixa<0?"red":"gold"}"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div><div class="sb">Folha ${money(t.elenco.reduce((s,i)=>s+P(i).salario,0))}/mês</div></div>
   </div>
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Próximo compromisso</div>
@@ -154,7 +154,7 @@ function vInicio(){
   </div>
   <div class="card"><div class="eyebrow">Sala de imprensa</div>
     ${(()=>{const m=manchete();return m?`<div class="manchete ${m.meu?'me':''}"><div class="eyebrow">Manchete da semana</div>
-      <h3 class="sub" style="margin:4px 0 0">${esc(m.txt)}</h3></div>`:'';})()}
+      <h3 class="sub" style="margin:4px 0 0">${typeof iconizar==='function'?iconizar(esc(m.txt)):esc(m.txt)}</h3></div>`:'';})()}
     <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
   </div>`;
 }
@@ -972,9 +972,9 @@ function blocoRadar(t){
     </div>`;};
   return `<div class="card"><div class="split"><div class="eyebrow">Radar das rankeds · ${esc(nomeLiga(t).replace(/^VCT /,''))}</div>
       <span class="dim">olheiro nível ${nv.toFixed(1)} de 5 · ${ativas.length} de ${RADAR_MAX} contas</span></div>
-    <p class="dim" style="margin:4px 0 10px">O olheiro varre a ladder toda semana. Cada conta começa borrada e fica mais nítida a cada
+    ${explica(`O olheiro varre a ladder toda semana. Cada conta começa borrada e fica mais nítida a cada
     semana de observação — olheiro melhor lê mais rápido e erra menos o potencial. O teste dura uma semana e mostra tudo.
-    Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.</p>
+    Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.`,'Como o radar funciona')}
     ${ativas.length?`<div class="rd-lista">${ativas.map(linha).join('')}</div>`:'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
     ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
   </div>`;
@@ -1144,6 +1144,7 @@ function linhaNoticia(n){
     txt=txt.slice(0,i)+`<span class="jrow news-link" data-p="${id}">${nm}</span>`+txt.slice(i+nm.length);
   }
   txt=txt.replace(/\u0001(\d+)\u0001/g,(_,k)=>clubes[+k]);
+  if(typeof iconizar==='function')txt=iconizar(txt);
   return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}

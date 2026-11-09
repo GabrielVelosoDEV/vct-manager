@@ -1169,3 +1169,127 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 .el-res-l span{font-size:11px}
 .el-ctl{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 @media (max-width:800px){.el-res-l{grid-template-columns:1fr 1fr}}
+
+/* ============================================================
+   V1 — FUNDAÇÃO VISUAL
+   Profundidade (três superfícies, sombra, brilho na borda de cima),
+   contraste do texto secundário, cor com função, cor por região e por
+   circuito, ícones e componentes únicos. Fica no fim do arquivo de
+   propósito: sobrepõe as regras antigas sem precisar caçá-las.
+   ============================================================ */
+:root{
+  --dim:#8193A3;                         /* era #6E8090: abaixo do contraste confortável */
+  --surf0:#0B1218; --surf1:#15212C; --surf2:#1B2936; --surf3:#223343;
+  --brilho:rgba(255,255,255,.055);
+  --sombra-1:0 1px 0 var(--brilho) inset,0 10px 26px -16px rgba(0,0,0,.85),0 2px 6px -3px rgba(0,0,0,.5);
+  --sombra-2:0 1px 0 rgba(255,255,255,.08) inset,0 22px 44px -22px rgba(0,0,0,.9),0 4px 12px -4px rgba(0,0,0,.55);
+  --info:#4C8DFF; --ouro:#E2B45A; --ok:var(--teal); --aviso:var(--amber);
+  /* regiões e circuitos: faixas, chips, cabeçalhos */
+  --r-AMER:#FF7A45; --r-EMEA:#C6F432; --r-PAC:#2FD3E0; --r-CN:#FF4D6D; --r-INT:#B48CFF;
+  --c-kickoff:#FF9F43; --c-stage:#4C8DFF; --c-masters:#9B6BFF; --c-champions:#E2B45A; --c-challengers:#18E5B4; --c-ascension:#5EE0FF;
+  --fs-xs:11px; --fs-s:12px; --fs-m:13px; --fs-b:14px; --fs-l:16px; --fs-xl:20px; --fs-2xl:28px; --fs-3xl:40px;
+  --raio:2px;
+}
+main{background:transparent}
+body.modo-jogo{background:
+  radial-gradient(1100px 520px at 78% -8%,rgba(255,70,85,.07),transparent 62%),
+  radial-gradient(900px 600px at 10% 110%,rgba(24,229,180,.035),transparent 60%),var(--bg);background-attachment:fixed}
+
+/* superfícies: o corte do canto virou um triângulo desenhado, e não um
+   clip-path — clip-path corta a sombra junto */
+.card,.kpi{position:relative;clip-path:none;border-color:rgba(255,255,255,.06);
+  background:linear-gradient(180deg,rgba(255,255,255,.03) 0,rgba(255,255,255,0) 140px),var(--surf1);
+  box-shadow:var(--sombra-1)}
+.card:not(.flat)::after,.kpi::after{content:'';position:absolute;right:-1px;bottom:-1px;width:var(--cut);height:var(--cut);
+  background:linear-gradient(135deg,transparent calc(50% - .6px),rgba(255,255,255,.07) 50%,var(--cut-bg,var(--bg)) calc(50% + .6px));pointer-events:none}
+.card .card,.ovl .card{--cut-bg:var(--surf1)}
+.card.flat{background:linear-gradient(180deg,rgba(255,255,255,.022) 0,rgba(255,255,255,0) 120px),var(--surf1)}
+.card.destaque{background:linear-gradient(180deg,rgba(255,255,255,.05) 0,rgba(255,255,255,0) 160px),var(--surf2);box-shadow:var(--sombra-2)}
+.ovl .box{box-shadow:var(--sombra-2),0 0 0 1px rgba(255,255,255,.04)}
+
+/* KPI: a cor do número tinge o topo do cartão */
+.kpi{border-top-width:2px}
+.kpi.red{background:linear-gradient(180deg,rgba(255,70,85,.10) 0,rgba(255,70,85,0) 70%),var(--surf1)}
+.kpi.teal{background:linear-gradient(180deg,rgba(24,229,180,.09) 0,rgba(24,229,180,0) 70%),var(--surf1)}
+.kpi.gold{background:linear-gradient(180deg,rgba(226,180,90,.10) 0,rgba(226,180,90,0) 70%),var(--surf1)}
+.kpi .lb{font-size:10.5px;color:var(--tx2);opacity:.8}
+.kpi .vl{font-size:36px;text-shadow:0 2px 14px rgba(0,0,0,.35)}
+.kpi .sb{font-size:var(--fs-xs);color:var(--dim)}
+
+/* tipografia */
+.eyebrow{font-size:var(--fs-xs);letter-spacing:.18em;color:#B6C4D0;font-weight:600}
+h2.sec{font-size:34px;letter-spacing:.05em;text-shadow:0 2px 18px rgba(0,0,0,.4)}
+.dim{color:var(--dim)}
+
+/* tabelas: cabeçalho mais legível, linha com respiro, número tabular */
+table{font-size:var(--fs-m)}
+th{font-size:10.5px;color:#93A5B4;padding:8px 10px;letter-spacing:.12em}
+td{padding:9px 10px;border-bottom-color:rgba(255,255,255,.045)}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:nth-child(even){background:rgba(255,255,255,.012)}
+tbody tr:nth-child(even):hover{background:rgba(255,255,255,.035)}
+td.num,td .num,td.r{font-variant-numeric:tabular-nums}
+
+/* botões: um estilo por função */
+.btn{background:linear-gradient(180deg,#FF5866,var(--red));box-shadow:0 6px 16px -8px rgba(255,70,85,.7);transition:filter .15s,transform .1s,box-shadow .15s}
+.btn:hover:not(:disabled){background:linear-gradient(180deg,#FF6774,var(--red-d));box-shadow:0 8px 20px -8px rgba(255,70,85,.85)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.ghost{background:rgba(255,255,255,.02);box-shadow:none;border-color:rgba(255,255,255,.12);color:#C2CFDA}
+.btn.ghost:hover:not(:disabled){background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.24);box-shadow:none}
+.btn.sec{background:var(--surf3);color:var(--tx);box-shadow:none;clip-path:none;border:1px solid rgba(255,255,255,.08)}
+.btn.sec:hover:not(:disabled){background:#2A3E50}
+.btn.icone{padding:5px;width:28px;height:28px;display:inline-grid;place-items:center;clip-path:none}
+.btn.icone svg{width:15px;height:15px}
+.btn.teal{background:linear-gradient(180deg,#3BF0C4,var(--teal));box-shadow:0 6px 16px -8px rgba(24,229,180,.6)}
+
+/* chips e etiquetas */
+.chip{border-radius:var(--raio)}
+.pill,.tag,.badge{border-radius:var(--raio)}
+.chip.reg,.reg-chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:2px 7px;border:1px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent)}
+.reg-AMER{color:var(--r-AMER)}.reg-EMEA{color:var(--r-EMEA)}.reg-PAC{color:var(--r-PAC)}.reg-CN{color:var(--r-CN)}.reg-INT{color:var(--r-INT)}
+
+/* abas: base para o indicador deslizante do V2 */
+.tabs{position:relative;border-bottom-color:rgba(255,255,255,.07)}
+.tabs button{font-size:11.5px;color:#8C9EAD;transition:color .15s}
+.tabs button.on{color:var(--tx)}
+
+/* ícones dentro de texto */
+.ic{display:inline-flex;width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.25em;flex:none}
+.ic svg{width:100%;height:100%}
+.ic.ouro{color:var(--ouro)}.ic.red{color:var(--red)}.ic.teal{color:var(--teal)}.ic.ambar{color:var(--amber)}.ic.azul{color:var(--info)}
+
+/* "Como funciona" */
+.explica{margin:-4px 0 14px;font-size:var(--fs-m);color:var(--tx2)}
+.explica summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;list-style:none;color:#9FB0BF;
+  font-size:var(--fs-s);padding:4px 10px 4px 8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}
+.explica summary::-webkit-details-marker{display:none}
+.explica summary svg{width:15px;height:15px;color:var(--info)}
+.explica summary:hover{color:var(--tx);border-color:rgba(255,255,255,.18)}
+.explica[open] summary{color:var(--tx)}
+.explica>div{margin-top:8px;padding:10px 14px;border-left:2px solid var(--info);background:rgba(76,141,255,.05);max-width:900px;line-height:1.55}
+
+/* estado vazio */
+.empty,.vazio{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 20px;
+  text-align:center;color:#8C9EAD;border:1px dashed rgba(255,255,255,.1);background:rgba(255,255,255,.012)}
+.empty::before{content:'';width:26px;height:26px;opacity:.55;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.4'/%3E%3Cpath d='M12 11.2v5.4'/%3E%3Ccircle cx='12' cy='7.9' r='1'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.4'/%3E%3Cpath d='M12 11.2v5.4'/%3E%3Ccircle cx='12' cy='7.9' r='1'/%3E%3C/svg%3E") center/contain no-repeat}
+.vazio .ic{width:26px;height:26px;opacity:.6;margin:0}
+
+/* barras e trilhas: cantos e brilho */
+.bar,.vb{border-radius:1px}
+.bar>i,.vb>i{background-image:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.18))}
+
+/* barra lateral e topo com profundidade */
+#side{background:linear-gradient(180deg,#0F1923,#0C141B);box-shadow:1px 0 0 rgba(255,255,255,.03),8px 0 24px -16px rgba(0,0,0,.8)}
+#side a{transition:background .15s,color .15s,border-color .15s}
+#side a.on{background:linear-gradient(90deg,rgba(255,70,85,.14),rgba(255,70,85,0) 85%)}
+#top{background:linear-gradient(180deg,rgba(15,25,35,.96),rgba(11,18,24,.92));backdrop-filter:blur(6px);box-shadow:0 8px 22px -18px rgba(0,0,0,.9)}
+
+/* aviso flutuante */
+.toast{box-shadow:var(--sombra-2);background:var(--surf2)}
+
+/* rolagem fina dentro de cartões */
+.feed::-webkit-scrollbar,.rolagem::-webkit-scrollbar{width:8px;height:8px}

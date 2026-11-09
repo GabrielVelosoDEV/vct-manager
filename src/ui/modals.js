@@ -2,7 +2,7 @@
    MODAIS
    ============================================================ */
 function abrir(html,wide){
-  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${html}</div></div>`;
+  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${typeof iconizarHtml==='function'?iconizarHtml(html):html}</div></div>`;
   const ovl=$('#modal .ovl');
   ovl.onclick=e=>{if(e.target===ovl)fechar();};
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);

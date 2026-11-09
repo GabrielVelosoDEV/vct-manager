@@ -99,7 +99,8 @@ function render(){
             editor:vEditor,config:vConfig}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
-  v.innerHTML=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
+  const html=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
+  v.innerHTML=typeof iconizarHtml==='function'?iconizarHtml(html):html;
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
@@ -189,7 +190,7 @@ function proximaAgenda(){
 function flash(msg){
   const c=$('#toast');if(!c)return;
   const d=document.createElement('div');
-  d.className='toast';d.textContent=msg;
+  d.className='toast';d.innerHTML=typeof iconizar==='function'?iconizar(esc(String(msg))):esc(String(msg));
   c.appendChild(d);
   setTimeout(()=>d.remove(),2400);
 }

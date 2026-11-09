@@ -1,0 +1,87 @@
+/* ============================================================
+   VISUAL — peças de interface reaproveitadas (pacote V1)
+   ------------------------------------------------------------
+   · ícones novos no conjunto de shell.js (ICONES/ico);
+   · iconizar(): troca os emojis das notícias e avisos pelos ícones
+     do jogo, para a interface não misturar dois estilos;
+   · explica(): texto explicativo longo vira "Como funciona" que
+     abre e fecha, em vez de um parágrafo cinza no topo da tela;
+   · vazio(): estado vazio com ícone e, quando faz sentido, ação.
+   ============================================================ */
+Object.assign(ICONES,{
+  estrela:'<path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
+  medalha:'<circle cx="12" cy="15" r="5"/><path d="m8.5 3 3.5 7 3.5-7"/><path d="m11 14.5 1-1v4"/>',
+  alerta:'<path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.4"/><circle cx="12" cy="17.2" r=".9"/>',
+  contrato:'<path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14.5 3.5V8H19"/><path d="M9 12.5h7M9 16h5"/>',
+  maleta:'<path d="M4 8h16v11H4z"/><path d="M9 8V5.5h6V8"/><path d="M4 13h16"/>',
+  broto:'<path d="M12 21v-8"/><path d="M12 13c0-4 3-6.5 7-6.5 0 4-3 6.5-7 6.5z"/><path d="M12 15c0-3.2-2.4-5.2-5.6-5.2 0 3.2 2.4 5.2 5.6 5.2z"/>',
+  aperto:'<path d="M3 11.5 7.5 7l4 2.5 3-2.5L21 11.5"/><path d="M7.5 7v6.5l4 4 5.5-5"/><path d="M11.5 17.5 9 15"/>',
+  coluna:'<path d="M3.5 8 12 3.5 20.5 8z"/><path d="M5.5 8v10M10 8v10M14 8v10M18.5 8v10"/><path d="M3.5 20.5h17"/>',
+  queda:'<path d="M3 6.5 9.5 13l4-4 7.5 7.5"/><path d="M21 11.5V16.5h-5"/>',
+  alta:'<path d="M3 17.5 9.5 11l4 4 7.5-7.5"/><path d="M21 12.5V7.5h-5"/>',
+  lesao:'<rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01M10.5 13.5h.01M13.5 10.5h.01"/>',
+  clube:'<path d="M12 3l7.5 3v6c0 4.5-3.2 7.8-7.5 9-4.3-1.2-7.5-4.5-7.5-9V6z"/>',
+  diploma:'<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8V11"/><path d="M21.5 9v5"/>',
+  caneta:'<path d="M4 20l1-4.5L16 4.5l3.5 3.5L8.5 19z"/><path d="M14 7l3 3"/>',
+  olho:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  mapa:'<path d="M3.5 6.5 9 4l6 2.5L20.5 4v13.5L15 20l-6-2.5-5.5 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
+  gravata:'<path d="M9.5 3.5h5l-1 3 2 9.5L12 20l-3.5-4 2-9.5z"/>',
+  bandeira:'<path d="M5 21V4"/><path d="M5 4.5h12l-2.5 4 2.5 4H5"/>',
+  mundo:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.6 2.4 3.8 5.2 3.8 8.5S14.6 18.1 12 20.5c-2.6-2.4-3.8-5.2-3.8-8.5S9.4 5.9 12 3.5z"/>',
+  sobe:'<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>',
+  desce:'<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>',
+  microfone:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/>',
+  predio:'<path d="M4 21V5.5L12 3v18"/><path d="M12 9h8v12"/><path d="M7 8h2M7 11.5h2M7 15h2M15 13h2M15 16.5h2"/><path d="M2.5 21h19"/>',
+  pecas:'<path d="M5 5h5.5v2a2 2 0 1 0 3 0V5H19v5.5h-2a2 2 0 1 0 0 3h2V19h-5.5v-2a2 2 0 1 0-3 0v2H5z"/>',
+  frasco:'<path d="M9.5 3.5h5"/><path d="M10.5 3.5v6L5 18.5A1.6 1.6 0 0 0 6.4 21h11.2a1.6 1.6 0 0 0 1.4-2.5l-5.5-9v-6"/><path d="M7.5 15h9"/>',
+  radar:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 18 6"/>',
+  balao:'<path d="M4 5h16v11H9l-5 4z"/>',
+  dinheiro2:'<rect x="3" y="6.5" width="18" height="11"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5v5M17.5 9.5v5"/>',
+  cadeado:'<rect x="5" y="10.5" width="14" height="10"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  ciclo:'<path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.5 3.5v3.4h-3.4M6.5 20.5v-3.4h3.4"/>',
+  fogo:'<path d="M12 21c-4 0-6.5-2.7-6.5-6.2 0-3.6 2.8-5.3 3.6-9.3 2.4 1.6 3.4 3.7 3.4 5.6 1-1 1.6-2.2 1.6-3.6 2.6 1.9 4.4 4.6 4.4 7.3 0 3.5-2.5 6.2-6.5 6.2z"/>',
+  alvo:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+  escudo2:'<path d="M12 3l7.5 3v6c0 4.5-3.2 7.8-7.5 9-4.3-1.2-7.5-4.5-7.5-9V6z"/><path d="M9 12l2.3 2.3L15.6 10"/>',
+  martelo:'<path d="M13 5.5 18.5 11"/><path d="M11.5 7 16.5 2"/><path d="M15 14.5 20 9.5"/><path d="M13.5 9 4 18.5 5.5 20 15 10.5"/>',
+  telefone:'<path d="M5 4h4l1.5 4.5-2.5 1.5a11 11 0 0 0 6 6l1.5-2.5L20 15v4a1.5 1.5 0 0 1-1.6 1.5C10.6 20 4 13.4 3.5 5.6A1.5 1.5 0 0 1 5 4z"/>',
+  envelope:'<rect x="3" y="5.5" width="18" height="13"/><path d="m3 6.5 9 6.5 9-6.5"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  controle:'<path d="M6.5 8h11a3.5 3.5 0 0 1 3.4 4.3l-1.2 4.8a2.3 2.3 0 0 1-4 .8L14 16h-4l-1.7 1.9a2.3 2.3 0 0 1-4-.8l-1.2-4.8A3.5 3.5 0 0 1 6.5 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="16" cy="12" r=".8"/>'
+});
+
+/* emoji → ícone. A cor acompanha o sentido (ouro para conquista, vermelho
+   para problema, teal para algo bom) — é a mesma régua da paleta. */
+const EMOJI_ICONE={
+  '🏆':['trofeu','ouro'],'🏅':['medalha','ouro'],'★':['estrela','ouro'],'⭐':['estrela','ouro'],
+  '⚠':['alerta','ambar'],'🤝':['aperto','teal'],'🏛':['coluna','ouro'],'📉':['queda','red'],'📈':['alta','teal'],
+  '📄':['contrato',''],'🩹':['lesao','red'],'🏢':['predio','ouro'],'🎓':['diploma','azul'],'✍':['caneta','teal'],
+  '💼':['maleta','ouro'],'👀':['olho',''],'🗺':['mapa','azul'],'👔':['gravata',''],'💰':['dinheiro2','teal'],
+  '🏳':['bandeira',''],'🌍':['mundo','azul'],'⬆':['sobe','teal'],'⬇':['desce','red'],'🎙':['microfone','azul'],
+  '👋':['saida',''],'🧩':['pecas',''],'🧪':['frasco','azul'],'📡':['radar','teal'],'🌱':['broto','teal'],
+  '💬':['balao',''],'🔄':['ciclo',''],'🔁':['ciclo',''],'↻':['ciclo',''],'🏷':['maleta',''],'✋':['alerta','red'],
+  '💥':['fogo','red'],'📞':['telefone',''],'🛡':['escudo2','teal'],'🔨':['martelo',''],'🧾':['contrato',''],
+  '🔒':['cadeado',''],'🔥':['fogo','red'],'📨':['envelope',''],'🎯':['alvo',''],'🎮':['controle','azul'],
+  '✓':['check','teal'],'✕':['x','red']
+};
+const _RE_EMOJI=new RegExp('('+Object.keys(EMOJI_ICONE).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','g');
+function icone(nome,cls){return `<i class="ic ${cls||''}">${ico(nome)}</i>`;}
+/* texto já escapado → mesmo texto com os emojis trocados por ícone */
+function iconizar(html){
+  return String(html).replace(_RE_EMOJI,(m,e)=>{const x=EMOJI_ICONE[e];return x?icone(x[0],x[1]):m;})
+    .replace(/[😶🙂]️?\s?/g,'');
+}
+
+/* HTML pronto: troca só nos trechos de texto, nunca dentro de uma tag (um
+   title="🏆 …" com SVG dentro quebraria o atributo) */
+function iconizarHtml(html){
+  return String(html).split(/(<[^>]*>)/).map(p=>p.charAt(0)==='<'?p:iconizar(p)).join('');
+}
+/* "Como funciona": a explicação existe, mas não ocupa o topo da tela */
+function explica(html,rot){
+  return `<details class="explica"><summary>${ico('info')}<span>${esc(rot||'Como funciona')}</span></summary><div>${html}</div></details>`;
+}
+/* estado vazio com ícone e, se houver, um botão */
+function vazio(txt,iconeNome,acao){
+  return `<div class="vazio">${icone(iconeNome||'info')}<div>${txt}</div>${acao||''}</div>`;
+}

@@ -86,9 +86,9 @@ function vVestiario(){
         <td class="r num"><b>${Math.round(m*100)}</b></td><td class="dim">${esc(nota)}</td></tr>`;}).join('');
 
   return `<div class="eyebrow">Clube</div><h2 class="sec">Vestiário</h2>
-  <p class="dim" style="max-width:820px">Em e-sports a cabeça decide mais que o cansaço. O <b>mental</b> de cada jogador
+  ${explica(`Em e-sports a cabeça decide mais que o cansaço. O <b>mental</b> de cada jogador
   é a confiança (sobe ganhando e jogando acima do próprio normal, cai perdendo — e cada derrota seguida pesa mais)
-  somada à moral. O <b>entrosamento</b> é de cada dupla: o do time é a média das dez duplas entre os titulares.</p>
+  somada à moral. O <b>entrosamento</b> é de cada dupla: o do time é a média das dez duplas entre os titulares.`)}
   <div class="grid g4" style="margin-bottom:16px">
     <div class="kpi ${t.sinergia>=60?'teal':t.sinergia<35?'red':''}"><div class="lb">Entrosamento</div>
       <div class="vl">${Math.round(t.sinergia)}</div>
