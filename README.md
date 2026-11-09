@@ -24,6 +24,13 @@ no final do `index.html`.
 **Modo distribuição** — `node tools/build.mjs` gera `dist/vct-manager.html`,
 um arquivo único autocontido. A pasta `assets/` precisa ficar ao lado dele.
 
+**App de PC (Windows)** — a pasta `desktop/` empacota o mesmo jogo num app com
+Electron: janela própria, atalho na área de trabalho e partidas salvas no usuário.
+O instalador é gerado pelo GitHub Actions (`.github/workflows/app-pc.yml`) a cada
+mudança em `desktop/` e a cada tag `v*`, que também cria um rascunho de Release com
+o `.exe`. Para gerar na sua máquina: `cd desktop && npm install && npm run instalador`
+(o `.exe` sai em `desktop/release/`); `npm run iniciar` abre o app sem instalar.
+
 **Verificação** — três ferramentas, uma para cada camada:
 
 ```

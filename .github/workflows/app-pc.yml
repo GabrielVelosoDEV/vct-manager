@@ -1,0 +1,57 @@
+# Gera o instalador do app de PC (Windows) com Electron.
+# Roda a cada mudança em desktop/ (para testar o empacotamento) e a cada tag v*
+# (ex.: v1.0.0), que além de gerar o instalador cria um rascunho de Release com
+# ele anexado. O rascunho só aparece para você até ser publicado.
+name: App de PC
+
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/app-pc.yml']
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar o Electron
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Gerar o instalador
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run instalador
+
+      - name: Guardar o instalador
+        uses: actions/upload-artifact@v4
+        with:
+          name: VCT-Manager-Windows
+          path: desktop/release/*.exe
+          if-no-files-found: error
+
+      - name: Rascunho de Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: VCT Manager ${{ github.ref_name }}
+          files: desktop/release/*.exe
+          body: |
+            Instalador do VCT Manager para Windows (64 bits).
+
+            Baixe o `VCT-Manager-Setup-*.exe` e abra. Como o instalador não tem
+            assinatura digital, o Windows pode mostrar "O Windows protegeu o
+            computador": clique em **Mais informações** e depois **Executar assim
+            mesmo**. As partidas salvas ficam no seu usuário e continuam ao atualizar.

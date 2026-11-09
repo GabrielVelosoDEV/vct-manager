@@ -1,0 +1,45 @@
+{
+  "name": "vct-manager",
+  "productName": "VCT Manager",
+  "version": "1.0.0",
+  "description": "Simulador de gestão de e-sports de Valorant",
+  "author": "GabrielVelosoDEV",
+  "homepage": "https://gabrielvelosodev.github.io/vct-manager/",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "preparar": "node preparar.mjs",
+    "iniciar": "node preparar.mjs && electron .",
+    "instalador": "node preparar.mjs && electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "dev.gabrielveloso.vctmanager",
+    "productName": "VCT Manager",
+    "copyright": "Projeto de fã, sem vínculo com a Riot Games",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["main.js", "web/**/*", "!web/**/LISTA.md", "!web/**/LEIAME.md"],
+    "asar": true,
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "VCT Manager",
+      "uninstallDisplayName": "VCT Manager",
+      "artifactName": "VCT-Manager-Setup-${version}.${ext}",
+      "installerLanguages": ["pt_BR"],
+      "language": "1046",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}
