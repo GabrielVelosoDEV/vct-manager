@@ -1521,3 +1521,116 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .sr-mapa{box-shadow:var(--sombra-1);border-color:rgba(255,255,255,.07)}
 .sr-mapa-topo{min-height:74px;background-size:cover;background-position:center}
 .sr-placar{font-size:34px}
+
+/* ============================================================
+   V5 — CENTRAL
+   ============================================================ */
+/* faixa do circuito: cada torneio na cor do circuito dele */
+.tl-item{border-top:2px solid var(--cor,var(--line2))}
+.tl-item .q{display:flex;align-items:center;gap:5px;color:var(--cor,var(--dim))}
+.tl-item .q svg{width:12px;height:12px;flex:none}
+.tl-item.major{border-color:var(--line);border-top-color:var(--cor)}
+.tl-item.major .q{color:var(--cor)}
+.tl-item.on{border-color:var(--cor,var(--red));background:linear-gradient(180deg,color-mix(in srgb,var(--cor,var(--red)) 20%,transparent),var(--bg2) 85%);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--cor,var(--red)) 35%,transparent),0 6px 18px -8px var(--cor,var(--red))}
+.tl-item.on .q{color:var(--cor,var(--red))}
+
+/* topo do clube */
+.cx-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:center;
+  padding:22px 24px;margin-bottom:16px;border:1px solid rgba(var(--clube-rgb),.35);
+  background:
+    radial-gradient(120% 140% at 0% 0%,rgba(var(--clube-rgb),.30) 0%,rgba(var(--clube-rgb),.10) 38%,transparent 65%),
+    linear-gradient(100deg,var(--surf2,var(--panel)) 0%,var(--surf1,var(--bg2)) 100%);
+  box-shadow:var(--sombra-2,0 10px 30px rgba(0,0,0,.35)),inset 0 1px 0 rgba(255,255,255,.04)}
+.cx-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--clube)}
+.cx-marca{position:absolute;right:-40px;top:50%;transform:translateY(-50%) rotate(-8deg);opacity:.07;pointer-events:none;filter:saturate(.4)}
+.cx-marca img{width:260px;height:260px}
+.cx-id{display:flex;align-items:center;gap:20px;min-width:0;position:relative}
+.cx-escudo{flex:none;width:120px;height:120px;display:grid;place-items:center;
+  background:radial-gradient(circle,rgba(var(--clube-rgb),.28) 0%,transparent 70%)}
+.cx-escudo img{width:104px;height:104px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55))}
+.cx-tit{min-width:0}
+.cx-tit .eyebrow{color:var(--clube)}
+.cx-nome{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:54px;line-height:.95;letter-spacing:.02em;margin:4px 0 10px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cx-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cx-chip,.cx-pos{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);padding:4px 10px;
+  background:rgba(11,18,24,.45);border:1px solid var(--line)}
+.cx-pos{border-color:rgba(var(--clube-rgb),.55);color:var(--tx)}
+.cx-pos b{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;color:var(--clube)}
+.cx-kpis{display:grid;grid-template-columns:repeat(2,minmax(128px,1fr));gap:8px;position:relative}
+.cx-kpis .kpi{background:rgba(11,18,24,.55);backdrop-filter:blur(4px);padding:10px 13px}
+.cx-kpis .kpi .vl{font-size:30px}
+@media (max-width:1180px){.cx-hero{grid-template-columns:1fr}.cx-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.cx-linha{margin-bottom:16px;align-items:stretch}
+.cx-linha>.card{margin-bottom:0}
+
+/* cartão de confronto */
+.cx-prox{position:relative;overflow:hidden;background-color:var(--panel)}
+.vs-linha{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:14px 0 16px}
+.vs-lado{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;min-width:0;position:relative}
+.vs-escudo{width:104px;height:104px;display:grid;place-items:center;
+  background:radial-gradient(circle,color-mix(in srgb,var(--clube) 30%,transparent) 0%,transparent 68%)}
+.vs-escudo img{width:84px;height:84px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6));transition:transform .25s}
+.vs-lado:hover .vs-escudo img{transform:scale(1.06)}
+.vs-nome{font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vs-info{font-size:11px;color:var(--dim)}
+.vs-rot{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--clube);border-bottom:2px solid var(--clube);padding-bottom:1px}
+.vs-meio{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:96px}
+.vs-vs{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:1;letter-spacing:.04em;
+  background:linear-gradient(180deg,#fff 0%,var(--red) 120%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 22px rgba(255,70,85,.25)}
+.vs-quando{font-size:11px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.vs-sede{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.vs-sede svg{width:12px;height:12px}
+.vs-h2h{font-size:10.5px;color:var(--dim)}
+.vs-mapas{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+.cx-mapas{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cx-mapa{display:inline-flex;align-items:baseline;gap:6px;padding:6px 10px;min-width:84px;font-size:12px;
+  border:1px solid var(--line2);box-shadow:var(--sombra-1,none)}
+.cx-mapa b{font-weight:600}
+.cx-mapa i{font-style:normal;font-size:11px;color:var(--teal);font-variant-numeric:tabular-nums;margin-left:auto}
+.vs-acoes{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+.cx-espera .cx-conta{display:flex;align-items:baseline;gap:8px;margin:12px 0 2px}
+.cx-espera .cx-conta .num{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:.9;color:var(--tx)}
+.cx-espera .cx-conta span:last-child{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* chave compacta */
+.cx-chave .bk-palco{margin-top:10px}
+
+/* vestiário em retratos */
+.vr-fila{display:flex;flex-wrap:wrap;gap:6px 4px;margin-top:12px}
+.vr-fila.res{padding-top:10px;border-top:1px dashed var(--line)}
+.vr{all:unset;box-sizing:border-box;cursor:pointer;width:84px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 2px;text-align:center;transition:background .2s,transform .2s;position:relative}
+.vr-fila.res .vr{width:66px}
+.vr:hover{background:rgba(255,255,255,.04);transform:translateY(-2px)}
+.vr b{font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vr-fila.res .vr b{font-size:10.5px;color:var(--tx2)}
+.vr-sub{font-size:9.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.vr-fila.res .vr-sub{display:none}
+.vr-anel{display:grid;place-items:center;padding:3px;border-radius:50%;
+  background:conic-gradient(var(--cor) calc(var(--m)*1%),rgba(255,255,255,.10) 0)}
+.vr-anel img{border-radius:50%;background:var(--bg2);border:2px solid var(--panel);object-fit:cover}
+.vr.alerta::after{content:"";position:absolute;top:6px;right:12px;width:9px;height:9px;border-radius:50%;
+  background:var(--amber);box-shadow:0 0 0 2px var(--panel),0 0 10px var(--amber)}
+.vr-fila.res .vr.alerta::after{right:8px}
+.vr-conversa{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.vr-conversa .slot .n .dim{font-size:11px;margin-left:4px}
+
+/* manchete ilustrada */
+.cx-manchete{display:flex;align-items:center;gap:14px;margin:10px 0 12px;padding:12px 14px;position:relative;overflow:hidden;
+  border:1px solid var(--line);
+  background:linear-gradient(100deg,rgba(var(--clube-rgb,255,70,85),.16) 0%,rgba(255,255,255,.02) 60%)}
+.cx-manchete.me{border-left:3px solid var(--clube,var(--red))}
+.cx-manchete .sub{margin:4px 0 0;font-size:17px;line-height:1.3}
+.cxm-img{flex:none;display:grid;place-items:center}
+.cxm-img.foto img{width:84px;height:84px;object-fit:cover;clip-path:polygon(0 0,100% 0,100% 82%,82% 100%,0 100%);
+  border-bottom:3px solid var(--clube,var(--red))}
+.cxm-img.escudo img{width:72px;height:72px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+
+/* editor: cor do clube */
+.ed-cor{display:flex;align-items:center;gap:10px}
+.ed-cor input[type=color]{width:52px;height:30px;padding:0;border:1px solid var(--line2);background:none;cursor:pointer}
+.cx-prox p.dim{text-shadow:0 1px 3px rgba(0,0,0,.6)}

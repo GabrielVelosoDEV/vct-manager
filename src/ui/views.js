@@ -5,6 +5,15 @@
 /* faixa do circuito: o calendário inteiro numa linha, com o bloco atual
    destacado e os torneios grandes em ouro. Serve para responder de relance
    "onde estou na temporada e o que vem". */
+function circuitoDoBloco(b){
+  const n=String(b.nome||'');
+  if(/Champions/.test(n))return{cor:'var(--c-champions)',ic:'trofeu'};
+  if(/Masters/.test(n))return{cor:'var(--c-masters)',ic:'estrela'};
+  if(/Kickoff/.test(n))return{cor:'var(--c-kickoff)',ic:'bandeira'};
+  if(/Ascension/.test(n))return{cor:'var(--c-ascension)',ic:'sobe'};
+  if(/Stage|Split/.test(n))return{cor:meu()&&meu().tier===2?'var(--c-challengers)':'var(--c-stage)',ic:'jogar'};
+  return{cor:'var(--dim)',ic:'ciclo'};
+}
 function faixaCircuito(){
   const grande=b=>/Champions|Masters/.test(b.nome);
   const sem=G.semana||1;
@@ -17,8 +26,9 @@ function faixaCircuito(){
     const quando=passou?'encerrado'
       :agora?'semana '+(sem-b.ini+1)+' de '+(b.fim-b.ini+1)
       :'em '+(b.ini-sem)+' sem.';
-    return `<div class="tl-item ${est} ${grande(b)?'major':''}">
-      <div class="q">${quando}</div>
+    const cc=circuitoDoBloco(b);
+    return `<div class="tl-item ${est} ${grande(b)?'major':''}" style="--cor:${cc.cor}">
+      <div class="q">${ico(cc.ic)}${quando}</div>
       <div class="n">${esc(nomeBloco(b))}</div>
       <div class="d">${rotuloPeriodo(G.ano,b.ini,b.fim)}</div></div>`;
   }).join('')+`</div>`;
@@ -57,7 +67,7 @@ function proximoConfronto(){
    lugar nenhum: o clube em 5º da lista podia estar em 2º no grupo dele. */
 function cardTabelaDaCasa(t,rr){
   if(!rr)return `<div class="card"><div class="eyebrow">${esc(nomeLiga(t))}</div>
-    <p class="dim">Tabela ainda não iniciada.</p></div>`;
+    ${typeof vazio==='function'?vazio('<b>Tabela ainda não iniciada.</b> Ela aparece aqui quando a liga do clube começar.','grafico'):'<p class="dim">Tabela ainda não iniciada.</p>'}</div>`;
   if(rr.tipo==='grupos'){
     const g=(rr.grupos||[]).find(x=>x.times.includes(t.id))||(rr.grupos||[])[0];
     if(!g)return `<div class="card"><div class="eyebrow">${esc(nomeLiga(t))}</div>
@@ -80,84 +90,7 @@ function cardTabelaDaCasa(t,rr){
       <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')
       ||'<tr><td class="dim">Tabela ainda não iniciada.</td></tr>'}</tbody></table></div>`;
 }
-function vInicio(){
-  const t=meu();const R=G.regioes[t.regiao];
-  /* os stages de Challengers usam prefixo c1_/c2_, não s1_/s2_ */
-  /* Qual metade da temporada estamos vivendo. Ia por índice de bloco, que
-     deixou de significar tempo quando o calendário virou semanas. */
-  const metade=(G.semana||1)>=25?'2':'1';
-  const pre=(t.tier===1?'s':'c')+metade+'_';
-  const px=proximoConfronto();
-  /* A tabela da casa é a do torneio em que o clube está jogando agora (o
-     Kickoff também tem grupos); só fora dele cai na do Stage da metade do ano.
-     Antes ia sempre no Stage, e o Kickoff inteiro mostrava "tabela ainda não
-     iniciada" com o clube já pontuando. */
-  const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
-  const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-          ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
-  const ovm=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/Math.max(1,t.titulares.length));
-  const sit=typeof situacaoManager==='function'?situacaoManager():null;
-  const chateados=(typeof insatisfeitos==='function')?insatisfeitos(t):[];
-  return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
-  <div class="eyebrow">Central de comando</div>
-  ${chateados.length?`<div class="card flat" style="border-left:4px solid var(--amber)">
-    <div class="split"><div class="eyebrow">Vestiário</div>
-      <span class="dim">${chateados.length} jogador${chateados.length===1?'':'es'} para conversar</span></div>
-    ${chateados.slice(0,4).map(({p,motivo})=>`<div class="slot jrow" data-p="${p.id}">
-      <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
-        <div class="dim" style="font-size:11px">${esc(motivo.texto)}</div></span>
-      <span class="num ${p.moral>=.6?'up':p.moral>=.45?'am':'dn'}">${Math.round(p.moral*100)}%</span>
-      ${p.promessa?'<span class="chip r">promessa em aberto</span>'
-        :(typeof podeConversar==='function'&&podeConversar(p))?'<span class="chip">pode conversar</span>'
-        :'<span class="chip dim">conversou há pouco</span>'}
-    </div>`).join('')}
-  </div>`:''}
-  ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
-    <div class="split">
-      <div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}</div>
-        <div style="margin-top:4px">${esc(sit.texto)}</div></div>
-      ${sit.livre?'':`<div class="mgr-conf">${medidor('<span class="dim">confiança</span>',sit.confianca/100,54)}</div>`}
-    </div>
-    ${sit.demitido?`<div class="mgr-ofertas">
-      <div class="eyebrow">Clubes interessados</div>
-      ${(sit.ofertas||[]).map(x=>`<button class="btn ghost sm" data-assumir="${x.id}">
-        ${escudo(x,18)} ${esc(x.nome)} <span class="dim">${esc(nomeLiga(x))} · prestígio ${Math.round(x.prestigio)}</span>
-      </button>`).join('')}</div>`:''}
-    ${sit.livre||!sit.metas.length?'':`<div class="mgr-metas">${sit.metas.map(m=>{
-      const est=m.cumprida===true?'ok':m.cumprida===false?'nao':'';
-      return `<div class="mgr-meta ${est}">${m.peso?'<b>Meta</b>':m.momento==='meio'?'<b>Meio do ano</b>':'<span class="dim">Bônus</span>'}
-        <span>${esc(m.texto)}</span></div>`;}).join('')}</div>`}
-  </div>`:''}
-  <div class="hero-t">${escudo(t,64)}<div><h2 class="sec" style="margin:0">${esc(t.nome)}</h2>
-  <span class="dim">${esc(nomeLiga(t))} · temporada ${G.ano}</span></div></div>
-  <div class="grid g4" style="margin-bottom:16px">
-    <div class="kpi"><div class="lb">Over do time</div><div class="vl">${ovm}</div><div class="sb">5 titulares</div></div>
-    <div class="kpi teal"><div class="lb">Entrosamento</div><div class="vl">${Math.round(t.sinergia)}</div><div class="sb">quanto mais tempo juntos, melhor</div></div>
-    <div class="kpi"><div class="lb">Prestígio</div><div class="vl">${Math.round(t.prestigio)}</div><div class="sb">${t.tier===1?'Liga principal':'Challengers'}</div></div>
-    <div class="kpi ${t.caixa<0?"red":"gold"}"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div><div class="sb">Folha ${money(t.elenco.reduce((s,i)=>s+P(i).salario,0))}/mês</div></div>
-  </div>
-  <div class="grid g2">
-    <div class="card"><div class="eyebrow">Próximo compromisso</div>
-      ${px&&px.espera?`<h3 class="sub">${esc(nomeBloco(px.espera))}</h3>
-       <p class="dim">Começa em ${rotuloPeriodo(G.ano,px.espera.ini,px.espera.fim)} —
-       ${px.semanas} semana${px.semanas===1?'':'s'} daqui. Até lá o elenco treina, quem está
-       machucado se recupera e o mercado continua girando.</p>`
-      :px?(px.bye?`<h3 class="sub">Bye</h3><p class="dim">${esc(px.stage.nome)} — avança direto para a próxima fase.</p>`:
-      `<div class="hero-t" style="margin-bottom:6px">${escudo(T(px.adv),44)}<h3 class="sub" style="margin:0">${esc(nomeT(px.adv))}</h3></div>
-       <p class="dim">${esc(nomeStage(px.stage))} · MD${px.stage.bo}</p>
-       <div style="margin-top:10px"><span class="pill">Over ${Math.round(T(px.adv).titulares.reduce((s,i)=>s+over(P(i)),0)/5)}</span>
-       <span class="pill">Prestígio ${Math.round(T(px.adv).prestigio)}</span>
-       <span class="pill">${T(px.adv).temporada.v}V-${T(px.adv).temporada.d}D</span></div>`)
-      :`<h3 class="sub">Sem jogo nesta fase</h3><p class="dim">Use o tempo para treino e mercado.</p>`}
-    </div>
-    ${cardTabelaDaCasa(t,rr)}
-  </div>
-  <div class="card"><div class="eyebrow">Sala de imprensa</div>
-    ${(()=>{const m=manchete();return m?`<div class="manchete ${m.meu?'me':''}"><div class="eyebrow">Manchete da semana</div>
-      <h3 class="sub" style="margin:4px 0 0">${typeof iconizar==='function'?iconizar(esc(m.txt)):esc(m.txt)}</h3></div>`:'';})()}
-    <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
-  </div>`;
-}
+/* vInicio (a Central) mora em ui/central.js */
 /* ---------- elenco ----------
    Cada jogador com o que decide a semana: forma, desgaste, mental (core/
    vestiario.js), entrosamento médio com os titulares, mapas jogados,

@@ -66,6 +66,26 @@ function escudo(t,px){
   return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${ASSETS.logo(t)}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
+/* Cor do clube (pacote V5). Vem do próprio escudo (tools/cores.py → data/
+   cores.js, que prioriza a cor de destaque: escudo preto e vermelho fica
+   vermelho); escudo sem cor fica prata. O Banco de dados pode trocar à mão
+   (t.cor). Escudo enviado pelo Editor não tem cor calculada: fica prata até
+   alguém escolher. */
+const COR_CLUBE_PADRAO='#D6DCE2';
+function corDoEscudo(t){
+  if(!t)return COR_CLUBE_PADRAO;
+  const k=String(t.tag||'').toUpperCase();
+  return (typeof CORES_CLUBES!=='undefined'&&CORES_CLUBES[k])||COR_CLUBE_PADRAO;
+}
+function corDoClube(t){
+  if(!t)return COR_CLUBE_PADRAO.toLowerCase();
+  return String(t.cor||corDoEscudo(t)).toLowerCase();
+}
+/* #rrggbb → "r,g,b" para usar dentro de rgba() no CSS */
+function rgbDe(hex){
+  const h=String(hex||COR_CLUBE_PADRAO).replace('#','');
+  return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)||0).join(',');
+}
 /* Cadeia de resolução do retrato, do mais específico ao mais genérico:
      1. foto que você subiu no pacote      (definitiva)
      2. caminho manual no campo foto        (definitiva)

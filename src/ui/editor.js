@@ -86,6 +86,8 @@ function edvTimes(){
       <div class="campos">
         <label>Nome<input type="text" id="edNome" value="${esc(t.nome)}"></label>
         <label>Tag<input type="text" id="edTag" value="${esc(t.tag)}" maxlength="5"></label>
+        <label>Cor do clube<span class="ed-cor"><input type="color" id="edCor" value="${corDoClube(t)}">
+          <span class="dim" style="font-size:11px">${t.cor?'escolhida à mão':'tirada do escudo'}</span></span></label>
         <label>Região<select id="edRegiao">${REGIONS.map(r=>
           `<option value="${r.id}" ${t.regiao===r.id?'selected':''}>${esc(r.nome)}</option>`).join('')}</select></label>
         <label>Divisão<select id="edTier">

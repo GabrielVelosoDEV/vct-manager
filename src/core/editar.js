@@ -212,6 +212,9 @@ function edAplicarTime(tid,c){
   if(c.mapPref)for(const m in c.mapPref)
     if(MAP_POOL.includes(m))t.mapPref[m]=clamp(parseInt(c.mapPref[m])||0,-8,8);
   if(c.logo!=null)t.logo=String(c.logo).trim()||undefined;
+  /* cor do clube: vazia (ou igual à tirada do escudo) volta para a do escudo */
+  if(c.cor!=null){const k=String(c.cor).trim();
+    t.cor=/^#[0-9a-f]{6}$/i.test(k)&&k.toUpperCase()!==corDoEscudo(t).toUpperCase()?k.toUpperCase():undefined;}
   const trocou=(c.regiao&&c.regiao!==t.regiao)||(c.tier&&+c.tier!==t.tier);
   if(trocou)edMudarLiga(tid,c.regiao||t.regiao,+(c.tier||t.tier));
   return{ok:true,tagTrocada:tagAntes!==t.tag?{de:tagAntes,para:t.tag}:null};

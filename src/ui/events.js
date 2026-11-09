@@ -16,6 +16,8 @@ function ligarEventos(){
   const val=(sel,padrao)=>{const el=v.querySelector(sel);return el?el.value:(padrao===undefined?'':padrao);};
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
+  on('[data-ir]',el=>irPara(el.dataset.ir));
+  on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
@@ -182,7 +184,7 @@ function ligarEventos(){
       prestigio:val('#edPrest',t2.prestigio), sinergia:val('#edSin',t2.sinergia),
       pais:val('#edPaisClube',undefined),
       caixa:val('#edCaixa',t2.caixa), patroc:val('#edPatroc',t2.patroc),
-      logo:val('#edLogo',t2.logo||''), staff, estrutura, mapPref
+      logo:val('#edLogo',t2.logo||''), cor:val('#edCor',undefined), staff, estrutura, mapPref
     });
     if(!r.ok){avisar(r.erro);return;}
     if(r.tagTrocada){
