@@ -105,7 +105,7 @@ function cartaoEvento(e){
   return `<button class="ev-card ${e.status} ${meuJoga?'meu':''}" data-evento="${esc(e.id)}"
       ${sede?`style="${fundoCidade(sede.slug,0.6)}"`:''}>
     <div class="ev-topo">${e.tor?arteTorneio(e.tor,30):''}<div><b>${esc(e.nome)}</b>
-      <span class="dim">${rotuloPeriodo(G.ano,e.ini,e.fim)}</span></div></div>
+      <span class="dim">${rotuloPeriodo(G.ano,e.ini,e.fim)}${sede?' · '+esc(sede.nome):''}</span></div></div>
     <div class="ev-pe"><span class="chip ${e.status==='andamento'?'t':''}">${esc(est)}</span>
       ${meuJoga?'<span class="chip r">seu clube</span>':''}
       ${camp?`<span class="ev-camp">${imgTrofeu(arquivoTrofeu(e.id),16,'Troféu')} ${escudo(camp,18)} <b>${esc(camp.tag)}</b></span>`:''}</div>

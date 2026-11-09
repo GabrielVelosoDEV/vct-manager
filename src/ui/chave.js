@@ -192,8 +192,8 @@ function chaveDesenhada(s,opc){
     topoGf=`<div class="bk-gf-topo" style="left:${p.x}px;top:${Math.max(0,p.y-118)}px;width:${BK.w}px">
       ${imgTrofeu(arq,46,'Troféu')}<div class="bk-col">Grande final</div></div>`;
   }
-  const sede=typeof sedeDe==='function'&&s.regiao==='INT'?sedeDe(s.torneioId):null;
-  const fundo=sede&&typeof fundoCidade==='function'?` style="${fundoCidade(sede.slug,0.86)}"`:'';
+  const sede=typeof sedeDe==='function'?sedeDe(s.torneioId):null;
+  const fundo=sede&&typeof fundoCidade==='function'?` style="${fundoCidade(sede.slug,0.9)}"`:'';
   return `<div class="bk-palco bkr-${esc(s.regiao||'INT')}"${fundo}>
     <div class="bk-rolagem"><div class="bk" style="width:${W}px;height:${H}px">
       <svg class="bk-linhas" width="${W}" height="${H}">${linhas.join('')}</svg>

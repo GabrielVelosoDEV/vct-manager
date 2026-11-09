@@ -21,10 +21,30 @@
 
    O resultado fica gravado em G.sedes[ano]: editar o catálogo de
    cidades depois não reescreve o passado.
+
+   TORNEIOS REGIONAIS também têm sede (Kickoff, Stage 1 e 2, Splits do
+   Challengers, Ascension): acontecem numa cidade de verdade, só não
+   levam o nome dela. Regras:
+     · cidade da própria região;
+     · cada cidade recebe UM torneio por ano — quem é sede de Masters ou
+       Champions no ano não recebe torneio menor;
+     · o Stage 2 (o que dá vaga no Champions) prefere a maior cidade
+       do país; o Challengers prefere as outras;
+     · região sem cidade livre (a China tem seis, e às vezes uma delas é
+       sede internacional) pega emprestada a vizinha (Pacific).
    ============================================================ */
 const SEDE_EVENTOS=['masters1','masters2','champions'];
 const SEDE_PESO_FORA_DA_MAIOR=2;
 const SEDE_ANOS_SEM_REPETIR=2;
+const SEDE_REGIONAIS=['stage2','kickoff','stage1','split1','split2','asc'];
+const SEDE_REGIOES=['AMER','EMEA','PAC','CN'];
+/* país → região do circuito, para as cidades do catálogo */
+const REGIAO_DA_CIDADE={BR:'AMER',US:'AMER',CA:'AMER',MX:'AMER',AR:'AMER',CL:'AMER',CO:'AMER',PE:'AMER',
+  NL:'EMEA',DE:'EMEA',PT:'EMEA',GB:'EMEA',ES:'EMEA',FR:'EMEA',SA:'EMEA',IT:'EMEA',PL:'EMEA',DK:'EMEA',SE:'EMEA',
+  TR:'EMEA',IS:'EMEA',FI:'EMEA',UA:'EMEA',AE:'EMEA',
+  TH:'PAC',KR:'PAC',SG:'PAC',JP:'PAC',TW:'PAC',VN:'PAC',ID:'PAC',MY:'PAC',PH:'PAC',IN:'PAC',AU:'PAC',
+  CN:'CN',HK:'CN'};
+const SEDE_VIZINHA={CN:'PAC',PAC:'CN',AMER:'AMER',EMEA:'EMEA'};
 
 function slugCidade(nome){
   return String(nome).normalize('NFD').replace(/[̀-ͯ]/g,'')
@@ -65,7 +85,7 @@ function _sortearPeso(lista,peso,r){
 function sedesDoAno(ano){
   if(!G)return null;
   if(!G.sedes)G.sedes={};
-  if(G.sedes[ano])return G.sedes[ano];
+  if(G.sedes[ano]){if(ano>=2027)sedesRegionais(ano,G.sedes[ano]);return G.sedes[ano];}
   if(typeof SEDES_REAIS!=='undefined'&&SEDES_REAIS[ano])return SEDES_REAIS[ano];
   /* nada antes do histórico real: o sorteio começa em 2027 */
   if(ano<2027)return null;
@@ -90,18 +110,44 @@ function sedesDoAno(ano){
            &&(!m1||c.pais!==m1.pais)),pesoM,r)
          ||_sortearPeso(base.filter(c=>c.slug!==out.champions&&c.slug!==out.masters1),pesoM,r);
   out.masters2=m2?m2.slug:null;
+  sedesRegionais(ano,out);
   G.sedes[ano]=out;
+  return out;
+}
+/* Completa o ano com as sedes regionais (também em saves de antes desta
+   regra, sem mexer nas internacionais já sorteadas). */
+function sedesRegionais(ano,out){
+  if(out['stage2_AMER']!==undefined)return out;
+  const r=_rngSede(_hashSede('sedesreg|'+(G.seed||1)+'|'+ano));
+  const usadas=new Set(SEDE_EVENTOS.map(e=>out[e]).filter(Boolean));
+  const ant=G.sedes&&G.sedes[ano-1]||{};
+  const daRegiao=R=>cidades().filter(c=>REGIAO_DA_CIDADE[c.pais]===R&&!usadas.has(c.slug));
+  for(const ev of SEDE_REGIONAIS)for(const R of SEDE_REGIOES){
+    const id=ev+'_'+R;
+    let pool=daRegiao(R);
+    if(!pool.length)pool=daRegiao(SEDE_VIZINHA[R]);
+    if(!pool.length)pool=cidades().filter(c=>!usadas.has(c.slug));
+    if(!pool.length){out[id]=null;continue;}
+    /* não repete a mesma cidade do mesmo torneio do ano anterior, se der */
+    const semRepetir=pool.filter(c=>c.slug!==ant[id]);
+    if(semRepetir.length)pool=semRepetir;
+    const peso=ev==='stage2'?(c=>c.maior?3:1):(ev==='split1'||ev==='split2'||ev==='asc')?(c=>c.maior?1:2):(()=>1);
+    const c=_sortearPeso(pool,peso,r);
+    out[id]=c?c.slug:null;
+    if(c)usadas.add(c.slug);
+  }
   return out;
 }
 /* A cidade de um torneio internacional (id do catálogo de torneios). */
 function sedeDe(torneioId,ano){
-  if(!SEDE_EVENTOS.includes(torneioId))return null;
+  if(!torneioId)return null;
   const s=sedesDoAno(ano||G.ano);
-  return s?cidade(s[torneioId]):null;
+  return s&&s[torneioId]?cidade(s[torneioId]):null;
 }
 /* Nome com a cidade: "Masters Osaka", "Champions Paris". Sem sede (catálogo
    vazio, torneio regional), devolve null e quem chamou usa o nome de sempre. */
 function nomeComSede(torneioId,ano){
+  if(!SEDE_EVENTOS.includes(torneioId))return null;   /* regional não leva o nome da cidade */
   const c=sedeDe(torneioId,ano);
   if(!c)return null;
   return (torneioId==='champions'?'Champions ':'Masters ')+c.nome;

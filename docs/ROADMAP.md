@@ -243,6 +243,13 @@
   você chama para uma semana de teste e decide; rivais levam contas boas e
   conta esquecida some. Gerador local: o radar não mexe no motor.
 
+- **Sede em todos os torneios**: Kickoff, Stage 1 e 2, Splits do
+  Challengers e Ascension também acontecem numa cidade (sem levar o nome
+  dela): cidade da própria região, uma cidade por torneio no ano, quem é
+  sede de Masters ou Champions não recebe torneio menor, o Stage 2 prefere
+  a maior cidade do país e o Challengers as outras; a China pega emprestada
+  uma cidade do Pacific quando uma das seis dela é sede internacional.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters
