@@ -547,6 +547,11 @@ function cartaoJogo(j,t,sid){
   </div>`;
 }
 function corpoChave(s,t){
+  /* chave desenhada (ui/chave.js): esqueleto completo, linhas e troféu */
+  if(typeof chaveDesenhada==='function'&&(s.times||[]).length>=2){
+    const d=chaveDesenhada(s);
+    if(d)return d+`<p class="dim" style="margin-top:8px">Dupla eliminação: perder uma vez manda para a chave inferior, perder duas elimina. Clique num jogo para abrir a série.</p>`;
+  }
   const linha=(fase,rot)=>{
     const cols=(s.chave||[]).filter(r=>r.fase===fase);
     if(!cols.length)return '';
@@ -577,12 +582,13 @@ function corpoChave(s,t){
 /* ---------- fase suíça ---------- */
 function corpoSwiss(s,t){
   const ord=s.feito&&s.ranking.length?s.ranking:ordenarSwiss(s);
-  return `<table><thead><tr><th>#</th><th>Equipe</th><th class="r">Campanha</th><th class="r">Mapas</th></tr></thead>
+  const desenho=typeof suicoDesenhado==='function'?suicoDesenhado(s):'';
+  return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Campanha</th><th class="r">Mapas</th></tr></thead>
     <tbody>${ord.map((id,i)=>{const su=s.suico[id],x=s.tabela[id];
       return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
       <td class="r num">${su.v}-${su.d}</td><td class="r num dim">${x.mv}-${x.md}</td></tr>`;}).join('')}
     </tbody></table>
-    <p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
+    </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
 }
 /* ---------- pontos corridos (formato antigo, ainda usado por saves velhos) ---------- */
 function corpoTabela(s,t){
