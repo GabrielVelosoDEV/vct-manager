@@ -369,7 +369,13 @@ function passoRound(M){
   /* O round guarda o suficiente para ser NARRADO depois, não só contado.
      Sem placar, economia e nome de quem abriu, a tela ao vivo vira uma
      barra de progresso — e o que prende é saber o que aconteceu. */
-  const linha={v:venceA,lado:ladoA,r,sa:M.sa,sb:M.sb,pistol,
+  /* Como o round acabou, tirado do que o próprio round registra: todo o time
+     perdedor morto é eliminação; sobrou gente do perdedor, foi o spike que
+     decidiu — explodiu (ataque venceu) ou foi desarmado / o tempo acabou
+     (defesa venceu). Conta fixa, sem sorteio: não mexe no gerador. */
+  const ladoV=venceA?ladoA:(ladoA==='atk'?'def':'atk');
+  const como=mortosL===5?'elim':ladoV==='atk'?'spike':((r*7+M.sa*3+M.sb)%10<7?'defuse':'tempo');
+  const linha={v:venceA,lado:ladoA,r,sa:M.sa,sb:M.sb,pistol,como,
                ecoA:ecoAntesA,ecoB:ecoAntesB,
                sobrou:5-mortosW,           /* quantos do vencedor sobreviveram */
                fk:abertura?abertura.de:null, fd:abertura?abertura.em:null,

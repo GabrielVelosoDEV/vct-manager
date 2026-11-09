@@ -266,36 +266,67 @@ function avPintar(fim){
   const mapasDel=AV.mapasFeitos.filter(x=>x.dele>x.meu).length;
   const venci=AV.res.vencedor===AV.meu.id;
 
+  /* série em slots: um por mapa, na cor de quem venceu */
+  const nomesMapas=AV.conduzida?AV.S.veto.mapas:AV.res.mapas.map(m=>m.mapa);
+  const slots=nomesMapas.map((nm,i)=>{
+    const f=AV.mapasFeitos[i];
+    const cls=f?(f.meu>f.dele?'meu':'dele'):(i===AV.mapasFeitos.length&&!fim?'agora':'');
+    return `<span class="av-slot ${cls}" title="${esc(nm)}${f?' · '+f.meu+'–'+f.dele:''}"><i></i>${esc(nm)}</span>`;
+  }).join('');
+  const meuLado=parcial&&parcial.lado&&!fim&&!noIntervalo?parcial.lado:null;
+  const chipLado=(l)=>l?`<span class="av-ladoch ${l}">${l==='atk'?icone('spike')+' ataque':icone('escudo2')+' defesa'}</span>`:'';
   const cabeca=`
-    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.72)}"`:''}>
-      <div class="av-lado ${meuR>delR?'up':''}">
-        ${escudo(AV.meu,44)}<div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span></div>
+    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.7)}"`:''}>
+      <div class="av-lado ${meuR>delR?'up':''}" style="--clube:${corDoClube(AV.meu)}">
+        <span class="av-esc">${escudo(AV.meu,64)}</span><div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span>
+        ${chipLado(meuLado)}</div>
       </div>
       <div class="av-numeros">
-        <div class="av-rounds"><span class="${meuR>delR?'up':''}">${meuR}</span>
-          <i>·</i><span class="${delR>meuR?'dn':''}">${delR}</span></div>
-        <div class="av-mapas">mapas ${mapasMeu} — ${mapasDel}</div>
+        <div class="av-mapanome">${fim?'Série encerrada':esc(mapa.mapa||'—')}</div>
+        ${fim?`<div class="av-rounds"><span class="${mapasMeu>mapasDel?'up':''}">${mapasMeu}</span>
+          <i>:</i><span class="${mapasDel>mapasMeu?'dn':''}">${mapasDel}</span></div>`
+        :`<div class="av-rounds"><span class="${meuR>delR?'up':''}">${meuR}</span>
+          <i>:</i><span class="${delR>meuR?'dn':''}">${delR}</span></div>`}
+        <div class="av-slots">${slots}</div>
       </div>
-      <div class="av-lado r ${delR>meuR?'dn':''}">
-        <div class="r"><b>${esc(AV.adv.tag)}</b><span class="dim">${esc(AV.adv.nome)}</span></div>${escudo(AV.adv,44)}
+      <div class="av-lado r ${delR>meuR?'dn':''}" style="--clube:${corDoClube(AV.adv)}">
+        <div class="r"><b>${esc(AV.adv.tag)}</b><span class="dim">${esc(AV.adv.nome)}</span>
+        ${chipLado(meuLado?(meuLado==='atk'?'def':'atk'):null)}</div><span class="av-esc">${escudo(AV.adv,64)}</span>
       </div>
     </div>`;
 
   const trilha=(()=>{
-    if(fim)return '<div class="av-trilha"></div>';
+    if(fim)return '';
     if(AV.conduzida){
       const h=(AV.S.M&&AV.S.M.hist)||(ultimoFeito&&ultimoFeito.hist)||[];
-      return `<div class="av-trilha">${h.map((x,i)=>{
-        const meuW=AV.souA?x.v:!x.v;
-        const lado=AV.souA?x.lado:(x.lado==='atk'?'def':'atk');
-        return `<i class="${meuW?'w':'l'} ${lado}"${i===h.length-1?' data-agora':''}></i>`;
-      }).join('')}</div>`;
+      return trilhaRounds(h,AV.souA,{agora:true});
     }
-    const narr=avNarracaoAtual();
-    const ate=AV.roundIdx;
-    return `<div class="av-trilha">${narr.slice(0,ate).map((x,i)=>
-      `<i class="${x.meu?'w':'l'} ${x.lado}"${i===ate-1?' data-agora':''}></i>`).join('')}</div>`;
+    const mp=avMapaAtual();
+    return trilhaRounds(mp?(mp.hist||[]).slice(0,AV.roundIdx):[],AV.souA,{agora:true});
   })();
+
+  /* destaque rápido: pistol, clutch, match point, sequência, fim de mapa.
+     Só anima quando o round é novo — pausar e voltar não repete o efeito. */
+  const novo=AV.linhas[0];
+  let destaque='';
+  if(!fim&&novo&&!novo.tempo){
+    const rot=/MAPA SEU|mapa deles/.test(novo.texto)?(novo.meu?'Mapa seu':'Mapa deles')
+      :novo.clutch?'Clutch':/match point/.test(novo.texto)?(novo.meu&&!/contra/.test(novo.texto)?'Match point':'Match point contra')
+      :novo.pistol?'Pistol':novo.streak>=4?novo.streak+' seguidos':'';
+    if(rot){
+      const anima=AV._destVisto!==AV.linhas.length;
+      AV._destVisto=AV.linhas.length;
+      destaque=`<div class="av-destaque ${novo.meu?'bom':'ruim'} ${anima?'anima':''}">${esc(rot)}</div>`;
+    }
+  }
+  const linhaFeed=(x,i)=>{
+    const p=i===0&&x.fk?G.jogadores[x.fk]:null;
+    return `<div class="av-linha ${x.tempo?'tempo':(x.meu?'bom':'ruim')}${i===0?' novo':''}">
+      ${p?`<span class="av-quem">${retrato(p,34)}</span>`:''}
+      <span class="av-como">${x.tempo?icone('relogio'):iconeRound(x.como)}</span>
+      <span class="num dim">${x.placar?x.placar.meu+'–'+x.placar.dele:'·'}</span> <span class="av-txt">${esc(x.texto)}</span></div>`;
+  };
+  const mapaMini=m=>`<span class="av-mp" style="${fundoMapa(m.mapa,0.3)}">${esc(m.mapa)}</span>`;
 
   const corpo=fim?`
     <div class="av-fim ${venci?'bom':'ruim'}">
@@ -303,24 +334,21 @@ function avPintar(fim){
       <div class="dim">${esc(AV.meu.nome)} ${mapasMeu} — ${mapasDel} ${esc(AV.adv.nome)}</div>
     </div>
     <div class="card flat"><div class="eyebrow">Como foi</div>
-      ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">
-        <span class="num dim">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
+      ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
+        <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
     </div>`
    :`
     <div class="av-mapa"><span class="eyebrow">Mapa ${Math.min(AV.mapaIdx+1,totalMapas)} de ${totalMapas}</span>
-      <b>${esc(mapa.mapa)}</b>
-      ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`
-        :parcial?`<span class="chip ${parcial.lado==='atk'?'':'g'}">${parcial.lado==='atk'?'ataque':'defesa'}</span>`:''}
+      ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`:''}
+      <span class="av-leg">${['elim','spike','defuse','tempo'].map(c=>`<span>${iconeRound(c)}${COMO_ROUND[c][1]}</span>`).join('')}</span>
     </div>
     ${trilha}
+    ${destaque}
     ${noIntervalo&&AV.mapasFeitos.length?`<div class="av-feed">
-      ${AV.mapasFeitos.slice().reverse().map(m=>`<div class="av-linha ${m.fecho.tom}">
-        <span class="num dim">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
+      ${AV.mapasFeitos.slice().reverse().map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
+        <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
     </div>`:''}
-    <div class="av-feed">${AV.linhas.slice(0,9).map((x,i)=>
-      `<div class="av-linha ${x.tempo?'tempo':(x.meu?'bom':'ruim')}${i===0?' novo':''}">
-        <span class="num dim">${x.placar?x.placar.meu+'–'+x.placar.dele:'·'}</span> ${esc(x.texto)}</div>`).join('')}
-    </div>`;
+    <div class="av-feed">${AV.linhas.slice(0,9).map(linhaFeed).join('')}</div>`;
 
   const controles=fim?`
     <button class="btn" id="avFicha">Ver a ficha completa</button>
@@ -331,7 +359,7 @@ function avPintar(fim){
       ?`<span class="av-tempo">${TEMPO_OPCOES.map(o=>`<button class="btn ghost sm" data-tempo="${o.id}"
           title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}
         <button class="btn ghost sm" id="avTempoCancela">Voltar</button></span>`
-      :`<button class="btn" id="avTempo">⏱ Pedir tempo
+      :`<button class="btn" id="avTempo">${icone('relogio')} Pedir tempo
       <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`):''}
     <span class="av-vels">${AV_VEL.map(([v,rot,mult])=>
       `<button class="${Math.abs(AV.vel-mult)<0.01?'on':''}" data-vel="${mult}">${rot}</button>`).join('')}</span>

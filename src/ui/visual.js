@@ -47,6 +47,10 @@ Object.assign(ICONES,{
   envelope:'<rect x="3" y="5.5" width="18" height="13"/><path d="m3 6.5 9 6.5 9-6.5"/>',
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  spike:'<path d="M12 2.5 15 9h-6z"/><path d="M8.5 9h7l-1 9.5h-5z"/><path d="M10.5 18.5 12 21.5l1.5-3"/>',
+  desarme:'<path d="M14.5 4.5a4.5 4.5 0 0 0-5.6 5.6L3.5 15.5l2 2 .9-.9 1.3 1.3 1.6-1.6-1.3-1.3 2.6-2.6a4.5 4.5 0 0 0 5.6-5.6l-2.6 2.6-2.3-.6-.6-2.3z"/>',
+  relogio:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4.5l3 1.8"/><path d="M9.5 2.5h5"/>',
+  caveira:'<path d="M12 3.5c-4.4 0-7.5 3-7.5 7 0 2.4 1.1 4 2.7 4.9V19h9.6v-3.6c1.6-.9 2.7-2.5 2.7-4.9 0-4-3.1-7-7.5-7z"/><circle cx="9.2" cy="11" r="1.6"/><circle cx="14.8" cy="11" r="1.6"/><path d="M10.5 19v-2M13.5 19v-2"/>',
   controle:'<path d="M6.5 8h11a3.5 3.5 0 0 1 3.4 4.3l-1.2 4.8a2.3 2.3 0 0 1-4 .8L14 16h-4l-1.7 1.9a2.3 2.3 0 0 1-4-.8l-1.2-4.8A3.5 3.5 0 0 1 6.5 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="16" cy="12" r=".8"/>'
 });
 
@@ -232,4 +236,49 @@ function ligarOrdenacao(raiz){
       };
     });
   });
+}
+
+/* ============================================================
+   V7 — DIA DE JOGO: peças reaproveitadas
+   ============================================================ */
+/* ícone do jeito que o round acabou (h.como, gravado pelo motor) */
+const COMO_ROUND={elim:['caveira','eliminação'],spike:['spike','spike explodiu'],
+  defuse:['desarme','spike desarmado'],tempo:['relogio','tempo esgotado']};
+function iconeRound(como){return ico((COMO_ROUND[como]||COMO_ROUND.elim)[0]);}
+/* Trilha de rounds: um bloco por round com o ícone de como acabou. Quadrado
+   = você atacando, cantos redondos = defendendo; meio do mapa marcado. */
+function trilhaRounds(hist,souA,opc){
+  opc=opc||{};
+  return `<div class="rt${opc.grande?' g':''}">${(hist||[]).map((h,i)=>{
+    const meuW=souA?h.v:!h.v;
+    const lado=souA?h.lado:(h.lado==='atk'?'def':'atk');
+    const c=COMO_ROUND[h.como]||COMO_ROUND.elim;
+    return (i===12?'<span class="rt-meio"></span>':'')+(i>=24&&(i-24)%2===0?'<span class="rt-meio ot"></span>':'')+
+      `<i class="${meuW?'w':'l'} ${lado}${h.pistol?' pistol':''}${i===hist.length-1&&opc.agora?' agora':''}"
+        title="Round ${i+1} · ${meuW?'seu':'deles'} · ${c[1]}${h.pistol?' · pistol':''}">${ico(c[0])}</i>`;
+  }).join('')}</div>`;
+}
+/* Barra espelhada do comparativo: você para a esquerda, eles para a direita.
+   b=null → o relatório não enxerga; estimado → faixa listrada (palavra). */
+function barraEspelho(rot,a,b,opc){
+  opc=opc||{};
+  const mn=opc.min||0,mx=opc.max||100,esc01=v=>clamp((v-mn)/(mx-mn),0,1);
+  const pa=esc01(a),pb=b==null?0:esc01(b);
+  const fa=opc.fa?opc.fa(a):Math.round(a), fb=b==null?'?':opc.fb?opc.fb(b):Math.round(b);
+  const melhor=b==null?'':a>b+(opc.empate||1)?'a':b>a+(opc.empate||1)?'b':'';
+  return `<div class="be ${melhor?'m-'+melhor:''}">
+    <span class="be-v a num">${fa}</span>
+    <span class="be-t a"><u style="--p:${(pa*100).toFixed(1)}%"></u></span>
+    <span class="be-rot">${rot}</span>
+    <span class="be-t b ${opc.estimado?'est':''} ${b==null?'nada':''}"><u style="--p:${(pb*100).toFixed(1)}%"></u></span>
+    <span class="be-v b num">${fb}</span></div>`;
+}
+/* Os dois clubes frente a frente, com a cor de cada um. */
+function frenteAFrente(A,B,meio,opc){
+  opc=opc||{};const px=opc.px||72;
+  const lado=(t,cls)=>`<div class="ff-lado ${cls}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    <div class="ff-escudo">${escudo(t,px)}</div>
+    <div class="ff-nome"><b>${esc(t.nome)}</b><span>${esc(t.tag)}${opc.info?' · '+opc.info(t):''}</span></div></div>`;
+  return `<div class="ff${opc.compacto?' compacto':''}" style="--ca:${corDoClube(A)};--cb:${corDoClube(B)}">
+    ${lado(A,'a')}<div class="ff-meio">${meio||'<b class="ff-vs">VS</b>'}</div>${lado(B,'b')}</div>`;
 }

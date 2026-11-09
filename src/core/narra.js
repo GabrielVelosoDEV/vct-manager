@@ -80,6 +80,10 @@ function narrarRound(h,ctx){
       placarNome+' converte'],sem));
   }
 
+  /* como acabou, quando não foi eliminação (o registro guarda) */
+  if(h.como==='spike')partes.push('spike explodiu');
+  else if(h.como==='defuse')partes.push('spike desarmado');
+  else if(h.como==='tempo')partes.push('no tempo');
   const ecoPerdedor=vencedorMeu?(ctx.souA?h.ecoB:h.ecoA):(ctx.souA?h.ecoA:h.ecoB);
   if(!h.pistol&&ecoPerdedor===0)partes.push('em eco');
   if(!h.pistol&&ctx.streak>=4)partes.push(ctx.streak+' seguidos');
@@ -95,7 +99,9 @@ function narrarRound(h,ctx){
   else if(dele>=12)partes.push('match point contra');
 
   return{texto:partes.join(' · '),meu:vencedorMeu,lado,
-         placar:{meu,dele},peso:pesoDoRound(h,ctx)};
+         placar:{meu,dele},peso:pesoDoRound(h,ctx),
+         /* para a tela: quem abriu o round, como acabou, se foi pistol/clutch */
+         fk:h.fk||null,como:h.como||'elim',pistol:!!h.pistol,clutch:h.clutch||null,streak:ctx.streak||0};
 }
 
 /* Percorre o mapa inteiro e devolve a sequência já narrada, com o contexto

@@ -261,40 +261,67 @@ function modalAnunciar(id){
 }
 
 let aba=0;
+/* Resumo da SUA partida (pacote V7): placar de transmissão com os dois
+   escudos, MVP com a carta, os mapas como abas com a imagem e o placar, a
+   trilha de rounds com o jeito que cada um acabou e o box score com retrato. */
 function modalPartida(res){
-  const eu=res.aId===G.meuTime?res.aId:res.bId, adv=res.aId===G.meuTime?res.bId:res.aId;
   const meuLadoA=res.aId===G.meuTime;
+  const eu=meuLadoA?res.aId:res.bId, adv=meuLadoA?res.bId:res.aId;
+  const A=T(eu),B=T(adv);
   const wEu=meuLadoA?res.wa:res.wb, wAd=meuLadoA?res.wb:res.wa;
   const venceu=res.vencedor===G.meuTime;
-  const mp=res.mapas[Math.min(aba,res.mapas.length-1)];
-  const hist=mp.hist.map((h,i)=>{
-    const meuWin=meuLadoA?h.v:!h.v;
-    const meuLado=meuLadoA?h.lado:(h.lado==='atk'?'def':'atk');
-    return (i===12?'<span class="half"></span>':'')+`<i class="${meuWin?'w':'l'} ${meuLado}"></i>`;
-  }).join('');
-  const linhas=ids=>ids.map(id=>{const p=P(id),s=mp.st[id]||{k:0,d:0,a:0,fk:0,cl:0,rounds:0};
-    return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${p.igl?'<span class="pill">IGL</span>':''}${id===res.mvp?' <span class="chip g">MVP</span>':''}</td>
-    <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${acsDe(s)}</td>
-    <td class="c num">${s.k}</td><td class="c num">${s.d}</td><td class="c num">${s.a}</td>
-    <td class="c num ${s.k-s.d>0?'up':s.k-s.d<0?'dn':''}">${s.k-s.d>0?'+':''}${s.k-s.d}</td>
-    <td class="c num">${s.fk}</td><td class="c num">${s.cl}</td></tr>`;}).join('');
-  abrir(`<div class="eyebrow">${esc(res.ctx.nome||'Partida')} · MD${res.bo}</div>
-  <div class="scoreline">${escudo(T(eu),34)}<span class="${venceu?'win':'lose'}">${esc(nomeT(eu))}</span>
-    <span class="s">${wEu} — ${wAd}</span><span>${esc(nomeT(adv))}</span>${escudo(T(adv),34)}</div>
-  <div class="veto">${res.veto.map(s=>`<span class="${s.tipo==='ban'?'ban':s.tipo==='pick'?'pk':'dec'}">${s.tipo==='ban'?'ban':s.tipo==='pick'?'pick '+s.t:'decider'} · ${s.m}</span>`).join('')}</div>
-  <div class="tabs">${res.mapas.map((m,i)=>{const e=meuLadoA?m.sa:m.sb,a=meuLadoA?m.sb:m.sa;
-    return `<button data-ab="${i}" class="${i===Math.min(aba,res.mapas.length-1)?'on':''}">${m.mapa} ${e}-${a}</button>`;}).join('')}</div>
-  <div class="card flat"><div class="eyebrow">Histórico de rounds · quadrado = ataque, círculo = defesa</div>
-    <div class="rh">${hist}</div>
-    <div class="split"><span class="dim">Placar final em ${mp.mapa}</span>
-      <b class="num" style="font-size:18px">${meuLadoA?mp.sa:mp.sb} - ${meuLadoA?mp.sb:mp.sa}</b></div></div>
-  <div class="card flat"><div class="eyebrow">${esc(nomeT(eu))}</div>
-    <table><thead><tr><th>Jogador</th><th>Função</th><th class="c">ACS</th><th class="c">K</th><th class="c">D</th><th class="c">A</th>
-    <th class="c">+/-</th><th class="c">FK</th><th class="c">CL</th></tr></thead><tbody>${linhas(T(eu).titulares)}</tbody></table></div>
-  <div class="card flat"><div class="eyebrow">${esc(nomeT(adv))}</div>
-    <table><thead><tr><th>Jogador</th><th>Função</th><th class="c">ACS</th><th class="c">K</th><th class="c">D</th><th class="c">A</th>
-    <th class="c">+/-</th><th class="c">FK</th><th class="c">CL</th></tr></thead><tbody>${linhas(T(adv).titulares)}</tbody></table></div>
-  <div style="display:flex;justify-content:flex-end"><button class="btn" data-close>Continuar</button></div>`,true);
+  const ia=Math.min(aba,res.mapas.length-1);
+  const mp=res.mapas[ia];
+  /* MVP com a soma da série */
+  let mvpBox='';
+  const pm=res.mvp&&G.jogadores[res.mvp];
+  if(pm){
+    let k=0,d=0,a=0,acs=0,n=0;
+    for(const m of res.mapas){const st=m.st&&m.st[res.mvp];if(!st)continue;k+=st.k;d+=st.d;a+=st.a;acs+=acsDe(st);n++;}
+    mvpBox=`<div class="sr-mvp">${cartaJogador(pm,{w:92,clique:true})}<div>
+      <div class="eyebrow gold">MVP da série</div><b class="sr-mvp-n">${esc(pm.nome)}</b>
+      <div class="dim">${esc(tagT(pm.timeId))} · ${esc(pm.role)}</div>
+      ${n?`<div class="sr-mvp-st"><span><b class="num">${k}/${d}/${a}</b>K/D/A</span><span><b class="num">${Math.round(acs/n)}</b>ACS</span><span><b class="num">${(k/Math.max(1,d)).toFixed(2)}</b>K/D</span></div>`:''}
+    </div></div>`;
+  }
+  const linhas=ids=>ids.map(id=>{const p=P(id);if(!p)return '';const s=mp.st[id]||{k:0,d:0,a:0,fk:0,cl:0,rounds:0};
+    return `<tr class="jrow ${id===res.mvp?'mvp':''}" data-p="${p.id}"><td><span class="linha-t">${retrato(p,24)}<span><b>${esc(p.nome)}</b></span></span>
+      ${p.igl?'<span class="pill">IGL</span>':''}${id===res.mvp?' <span class="chip g">MVP</span>':''}</td>
+    <td><span class="tag ${p.role}">${p.role}</span></td><td class="r num"><b>${acsDe(s)}</b></td>
+    <td class="r num">${s.k}</td><td class="r num">${s.d}</td><td class="r num">${s.a}</td>
+    <td class="r num ${s.k-s.d>0?'up':s.k-s.d<0?'dn':''}">${s.k-s.d>0?'+':''}${s.k-s.d}</td>
+    <td class="r num">${s.fk}</td><td class="r num">${s.cl}</td></tr>`;}).join('');
+  /* quem esteve em quadra neste mapa: os titulares de hoje podem ter mudado */
+  const emQuadra=time=>{const ids=Object.keys(mp.st||{}).filter(id=>{const p=P(id);return p&&p.timeId===time.id;});
+    return ids.length?ids.sort((x,y)=>acsDe(mp.st[y])-acsDe(mp.st[x])):time.titulares;};
+  const tabela=time=>`<table class="box"><thead><tr><th>${escudo(time,16)} ${esc(time.tag)}</th><th>Função</th><th class="r">ACS</th>
+    <th class="r">K</th><th class="r">D</th><th class="r">A</th><th class="r">+/-</th><th class="r">FK</th><th class="r">CL</th></tr></thead>
+    <tbody>${linhas(emQuadra(time))}</tbody></table>`;
+  const veto=(res.veto||[]).map(x=>`<span class="chip ${x.tipo==='ban'?'r':x.tipo==='dec'?'':'g'}">${x.tipo==='ban'?'✕':x.tipo==='dec'?'★':'✓'} ${esc(x.m)}
+    <span class="dim">${x.tipo==='dec'?'decider':esc(x.t)}</span></span>`).join(' ');
+  const abas=res.mapas.map((m,i)=>{const e=meuLadoA?m.sa:m.sb,a=meuLadoA?m.sb:m.sa;
+    return `<button data-ab="${i}" class="sr-aba ${i===ia?'on':''} ${e>a?'w':'l'}" style="${fundoMapa(m.mapa,i===ia?0.45:0.7)}">
+      <span>Mapa ${i+1}</span><b>${esc(m.mapa)}</b><i class="num">${e}–${a}</i></button>`;}).join('');
+  abrir(`<div class="sr sr-minha ${venceu?'venceu':'perdeu'}">
+    <div class="sr-cabeca">
+      <div class="eyebrow">${esc((res.ctx&&res.ctx.nome)||'Partida')} · MD${res.bo}</div>
+      <div class="sr-faixa">${venceu?'Vitória':'Derrota'}</div>
+      <div class="sr-topo">
+        <div class="sr-time ${venceu?'w':'l'}" style="--clube:${corDoClube(A)}">${escudo(A,72)}<div><b>${esc(A.nome)}</b><span class="dim">${esc(A.tag)}</span></div></div>
+        <div class="sr-score"><span class="${venceu?'w':''}">${wEu}</span><i>:</i><span class="${venceu?'':'w'}">${wAd}</span></div>
+        <div class="sr-time r ${venceu?'l':'w'}" style="--clube:${corDoClube(B)}"><div><b>${esc(B.nome)}</b><span class="dim">${esc(B.tag)}</span></div>${escudo(B,72)}</div>
+      </div>
+    </div>
+    ${mvpBox}
+    ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
+    <div class="sr-abas">${abas}</div>
+    <div class="card flat"><div class="split"><div class="eyebrow">Rounds em ${esc(mp.mapa)}</div>
+      <span class="av-leg">${['elim','spike','defuse','tempo'].map(c=>`<span>${iconeRound(c)}${COMO_ROUND[c][1]}</span>`).join('')}</span></div>
+      ${trilhaRounds(mp.hist,meuLadoA,{grande:true})}
+      <div class="dim" style="font-size:11px">Verde é round seu; quadrado = você atacando, cantos redondos = defendendo.</div></div>
+    <div class="grid g2">${tabela(A)}${tabela(B)}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" data-close>Continuar</button></div>
+  </div>`,true);
   $('#modal').querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{aba=+b.dataset.ab;modalPartida(res);});
   $('#modal').querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
 }
@@ -718,7 +745,7 @@ function modalEditarStaff(id){
    ============================================================ */
 function modalVeredito(v){
   if(!v)return;
-  const m=G.manager;
+  const t=G.times[G.meuTime];
   const principal=v.metas.find(x=>/^Terminar|^Brigar/.test(x.texto))||v.metas[0];
   const bateu=principal&&principal.cumprida;
   const tom=v.demitido?'ruim':bateu?'bom':v.avisado?'ruim':'neutro';
@@ -726,36 +753,50 @@ function modalVeredito(v){
     :v.meio?(v.delta>=0?'A diretoria aprova o primeiro semestre':v.avisado?'Último aviso':'A diretoria cobra')
     :bateu?'Temporada aprovada'
     :v.avisado?'Último aviso':'Temporada abaixo do esperado';
-
-  abrir(`<div class="ver ${v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom}">
-    <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
-    <h2 class="sec ver-t">${titulo}</h2>
-    <p class="dim">${v.pos}º de ${v.de} na liga${v.titulos?' · '+v.titulos+' título(s)':''}.</p>
-    ${(()=>{const t=G.times[G.meuTime];return t&&t.dono?`<p class="dim">Quem assina é o presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</p>`:'';})()}
-    <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
-      ${v.metas.map(x=>`<div class="mgr-meta ${x.cumprida?'ok':'nao'}" style="margin-bottom:6px">
-        <b>${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}</b>
-        <span>${esc(x.texto)} — <span class="dim">${esc(x.resultado||'')}</span></span></div>`).join('')}
+  const tomFinal=v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom;
+  /* medidor de confiança: enche do valor de antes até o de agora */
+  const R=50,C=2*Math.PI*R,para=clamp(v.confianca,0,100),de=clamp(v.confianca-v.delta,0,100);
+  const corConf=para>=60?'var(--teal)':para>=35?'var(--amber)':'var(--red)';
+  const anel=`<div class="ver-conf"><svg viewBox="0 0 120 120" class="ver-anel">
+      <circle cx="60" cy="60" r="${R}" class="f"/>
+      <circle cx="60" cy="60" r="${R}" class="v" style="stroke:${corConf};--de:${(C*de/100).toFixed(1)};--para:${(C*para/100).toFixed(1)};--c:${C.toFixed(1)}"/>
+    </svg><div class="ver-conf-n"><b class="num" data-conta>${para}</b><span class="${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta}</span></div>
+    <div class="eyebrow">Confiança</div></div>`;
+  const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
+  const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
+  abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
+    <div class="ver-topo">
+      <div class="ver-esc">${t?escudo(t,84):''}</div>
+      <div class="ver-tit">
+        <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
+        <h2 class="sec ver-t">${titulo}</h2>
+        <div class="ver-chips"><span class="cx-pos"><b>${v.pos}º</b> de ${v.de} na liga</span>
+          ${v.titulos?`<span class="cx-chip">${icone('trofeu','ouro')} ${v.titulos} título${v.titulos>1?'s':''}</span>`:''}</div>
+      </div>
+      ${anel}
     </div>
-    <div class="split" style="margin-top:12px">
-      <span class="dim">Confiança da diretoria</span>
-      <span class="num ${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta} → ${v.confianca}</span>
+    ${t&&t.dono?`<div class="ver-dono">${dono?retrato(dono,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
+      <div>O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</div></div></div>`:''}
+    <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
+      ${v.metas.map(x=>`<div class="ver-meta ${x.cumprida===null?'n':x.cumprida?'ok':'no'}">${icMeta(x)}
+        <div><b>${esc(x.texto)}</b><div class="dim">${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}${x.resultado?' — '+esc(x.resultado):''}</div></div></div>`).join('')}
     </div>
     ${v.demitido?`
       <div class="card" style="margin-top:14px"><div class="eyebrow">Sua carreira continua</div>
         <p class="dim">Clubes dispostos a te contratar agora. Nenhum de topo chama quem
         acabou de cair — é assim que a carreira ganha forma.</p>
-        <table><tbody>${ofertasDeEmprego().map(t=>`<tr>
-          <td>${escudo(t,24)}</td>
-          <td><b>${esc(t.nome)}</b> <span class="dim">${esc(nomeLiga(t))}</span></td>
-          <td class="c num dim">prest. ${Math.round(t.prestigio)}</td>
-          <td class="r"><button class="btn sm" data-assumir="${t.id}">Assumir</button></td>
+        <table><tbody>${ofertasDeEmprego().map(x=>`<tr>
+          <td>${escudo(x,24)}</td>
+          <td><b>${esc(x.nome)}</b> <span class="dim">${esc(nomeLiga(x))}</span></td>
+          <td class="c num dim">prest. ${Math.round(x.prestigio)}</td>
+          <td class="r"><button class="btn sm" data-assumir="${x.id}">Assumir</button></td>
         </tr>`).join('')}</tbody></table>
         <p class="dim" style="margin-top:8px">Ou feche esta janela e encerre a carreira por aqui.</p>
       </div>`:''}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
       <button class="btn ghost" data-close>${v.demitido?'Encerrar a carreira':'Seguir em frente'}</button>
     </div></div>`,true);
+  if(typeof contarNumeros==='function'&&typeof animacaoLigada==='function'&&animacaoLigada())contarNumeros($('#modal'));
 
   $('#modal').querySelectorAll('[data-assumir]').forEach(b=>b.onclick=()=>{
     const r=assumirClube(b.dataset.assumir);

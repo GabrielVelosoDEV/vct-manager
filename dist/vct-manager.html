@@ -1669,6 +1669,251 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .ed-cor input[type=color]{width:52px;height:30px;padding:0;border:1px solid var(--line2);background:none;cursor:pointer}
 .cx-prox p.dim{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
+/* ============================================================
+   V7 — DIA DE JOGO
+   ============================================================ */
+/* frente a frente */
+.ff{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin:-6px -6px 14px;padding:16px 18px;
+  background:
+    radial-gradient(70% 140% at 0% 50%,color-mix(in srgb,var(--ca) 22%,transparent),transparent 60%),
+    radial-gradient(70% 140% at 100% 50%,color-mix(in srgb,var(--cb) 22%,transparent),transparent 60%),
+    linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.ff.compacto{padding:10px 16px}
+.ff-lado{display:flex;align-items:center;gap:14px;min-width:0}
+.ff-lado.b{flex-direction:row-reverse;text-align:right}
+.ff-escudo img{filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.ff-nome{min-width:0}
+.ff-nome b{display:block;font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:30px;line-height:1;letter-spacing:.03em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ff.compacto .ff-nome b{font-size:24px}
+.ff-nome span{font-size:11.5px;color:var(--tx2);letter-spacing:.06em}
+.ff-lado.a .ff-nome span{border-left:3px solid var(--clube);padding-left:6px}
+.ff-lado.b .ff-nome span{border-right:3px solid var(--clube);padding-right:6px}
+.ff-meio{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.ff-vs{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:40px;line-height:.95;letter-spacing:.04em;
+  background:linear-gradient(90deg,var(--ca),#fff 50%,var(--cb));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ff.compacto .ff-vs{font-size:30px}
+.ff-sub{font-size:11px;color:var(--tx2)}
+.rel-niv{display:flex;gap:4px;margin:2px 0}
+.rel-niv i{width:16px;height:5px;background:rgba(255,255,255,.12)}
+.rel-niv i.on{background:var(--gold);box-shadow:0 0 8px rgba(226,180,90,.5)}
+
+/* relatório */
+.rel-resumo{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;margin-bottom:12px;
+  border-left:3px solid var(--azul,#4C8DFF);background:rgba(76,141,255,.07)}
+.rel-resumo p{margin:0;color:var(--tx2)}
+.rel-resumo .ic{color:var(--azul,#4C8DFF);flex:none;margin-top:2px}
+.be-lista{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.be{display:grid;grid-template-columns:76px 1fr 104px 1fr 76px;align-items:center;gap:8px}
+.be-v{font-size:13px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.be-v.b{text-align:right}
+.be-rot{text-align:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.be-t{height:8px;background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+.be-t u{position:absolute;top:0;bottom:0;width:var(--p);text-decoration:none;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.be-t.a u{right:0;background:linear-gradient(270deg,var(--ca),color-mix(in srgb,var(--ca) 45%,transparent))}
+.be-t.b u{left:0;background:linear-gradient(90deg,var(--cb),color-mix(in srgb,var(--cb) 45%,transparent))}
+.be-t.b.est u{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--cb) 70%,transparent) 0 5px,transparent 5px 9px)}
+.be-t.nada{background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 3px,transparent 3px 7px)}
+.be.m-a .be-v.a,.be.m-b .be-v.b{color:var(--tx);font-weight:700}
+.be.m-a .be-rot{background:linear-gradient(90deg,color-mix(in srgb,var(--ca) 25%,transparent),transparent)}
+.be.m-b .be-rot{background:linear-gradient(270deg,color-mix(in srgb,var(--cb) 25%,transparent),transparent)}
+.rel-chave{display:flex;gap:12px;align-items:center;margin:8px 0 10px;padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.rel-chave img{border-radius:2px}
+.rel-chave b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:24px;letter-spacing:.03em}
+.rel-linha{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.rel-linha .eyebrow{min-width:104px;margin:0}
+.rel-ult{display:inline-grid;place-items:center;width:28px;height:28px;border-bottom:3px solid var(--red);background:rgba(255,255,255,.04)}
+.rel-ult.v{border-bottom-color:var(--teal)}
+.rel-mp{font-size:12px;font-weight:600;padding:5px 10px;border:1px solid var(--line2);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.rel-mp.ban{border-color:rgba(255,70,85,.6)}.rel-mp.pick{border-color:rgba(24,229,180,.6)}
+.rel-mapas{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px;margin-top:10px}
+.rel-mapa{padding:10px 12px;min-height:118px;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:4px;
+  box-shadow:var(--sombra-1);background-color:var(--panel2)}
+.rel-mn{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em;text-shadow:0 2px 6px rgba(0,0,0,.8)}
+.rel-pal{font-size:12px;color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.rel-comp{display:flex;gap:3px;margin-top:auto;align-items:flex-end;flex-wrap:wrap}
+.rel-comp>span{position:relative;display:inline-block}
+.rel-comp img{width:30px;height:30px;object-fit:cover;object-position:top;border:1px solid rgba(255,255,255,.18);background:rgba(11,18,24,.6)}
+.rel-comp i{position:absolute;right:-2px;bottom:-4px;font-style:normal;font-size:9px;padding:0 3px;background:rgba(11,18,24,.9);color:var(--tx2)}
+
+/* veto */
+.vt-trilha{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.vt-p{display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--line);background:rgba(255,255,255,.02);
+  font-size:11px;color:var(--dim);opacity:.65;transition:opacity .2s,border-color .2s}
+.vt-p img{width:18px;height:18px}
+.vt-r{letter-spacing:.1em;text-transform:uppercase;font-size:9.5px}
+.vt-p b{color:var(--tx);font-weight:600}
+.vt-p.feito{opacity:1;border-color:color-mix(in srgb,var(--clube,var(--gold)) 45%,transparent)}
+.vt-p.feito.ban b{text-decoration:line-through;text-decoration-color:var(--red);color:var(--tx2)}
+.vt-p.agora{opacity:1;border-color:var(--clube,var(--gold));box-shadow:0 0 0 1px var(--clube,var(--gold)),0 0 14px -4px var(--clube,var(--gold));
+  animation:vtPulsa 1.4s ease-in-out infinite}
+@keyframes vtPulsa{50%{box-shadow:0 0 0 1px var(--clube,var(--gold)),0 0 20px -2px var(--clube,var(--gold))}}
+.vt-p.lado{padding:5px 6px}
+.vt-dec{color:var(--gold)}
+.vt-aviso{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:10px 14px;margin-bottom:10px;
+  border-left:3px solid var(--line2);background:rgba(255,255,255,.03)}
+.vt-aviso b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em}
+.vt-aviso.ban{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,70,85,.12),transparent 70%)}
+.vt-aviso.pick{border-left-color:var(--teal);background:linear-gradient(90deg,rgba(24,229,180,.10),transparent 70%)}
+.vt-aviso.fim{border-left-color:var(--gold)}.vt-aviso .ic{color:var(--gold)}
+.vt-ladocard{background-size:cover;background-position:center}
+.vt-ladocard .btn .ic{margin-right:4px}
+.vt-mesa{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.vt-card{all:unset;box-sizing:border-box;position:relative;display:flex;flex-direction:column;gap:4px;min-height:132px;padding:10px 12px;
+  border:1px solid rgba(255,255,255,.1);box-shadow:var(--sombra-1);overflow:hidden;background-color:var(--panel2);
+  transition:transform .18s,box-shadow .18s,border-color .18s,filter .25s}
+.vt-nome{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.04em;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.9)}
+.vt-vals{display:flex;flex-direction:column;gap:1px;font-size:11.5px;color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9);margin-top:auto}
+.vt-vals .up{color:var(--teal)}.vt-vals .dn{color:var(--red)}
+.vt-card.livre{cursor:default}
+.vt-card.pode{cursor:pointer}
+.vt-card.pode:hover{transform:translateY(-3px);box-shadow:var(--sombra-2)}
+.vt-card.pode.ban:hover{border-color:var(--red);box-shadow:var(--sombra-2),0 0 0 1px var(--red)}
+.vt-card.pode.pick:hover{border-color:var(--teal);box-shadow:var(--sombra-2),0 0 0 1px var(--teal)}
+.vt-acao{position:absolute;right:8px;top:8px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:3px 7px;
+  background:rgba(11,18,24,.75);color:var(--tx2);opacity:0;transition:opacity .15s}
+.vt-card.pode:hover .vt-acao{opacity:1}
+.vt-card.pode.ban .vt-acao{color:var(--red)}.vt-card.pode.pick .vt-acao{color:var(--teal)}
+.vt-card.livre:disabled{opacity:.92}
+.vt-selo{display:flex;align-items:center;gap:6px;margin-top:auto;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--tx);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.vt-selo img{width:22px;height:22px}
+.vt-card.ban{filter:grayscale(1) brightness(.75)}
+.vt-card.ban .vt-nome{color:var(--tx2);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px}
+.vt-x{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(45deg,transparent calc(50% - 1.5px),rgba(255,70,85,.8) calc(50% - 1.5px),rgba(255,70,85,.8) calc(50% + 1.5px),transparent calc(50% + 1.5px)),
+             linear-gradient(-45deg,transparent calc(50% - 1.5px),rgba(255,70,85,.8) calc(50% - 1.5px),rgba(255,70,85,.8) calc(50% + 1.5px),transparent calc(50% + 1.5px))}
+.vt-card.pick,.vt-card.dec{border-color:var(--dono);box-shadow:var(--sombra-2),0 0 0 1px var(--dono),inset 0 -40px 50px -30px color-mix(in srgb,var(--dono) 45%,transparent)}
+.vt-n{position:absolute;right:10px;top:10px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.06em;
+  padding:1px 7px;background:var(--dono);color:#0B1218}
+.vt-card.dec .vt-n{background:var(--gold)}
+.vt-lado{font-size:11px;color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.vt-card.novo.ban{animation:vtBan .5s var(--atraso,0s) cubic-bezier(.3,.7,.3,1) both}
+.vt-card.novo.ban .vt-x{animation:vtRisca .45s calc(var(--atraso,0s) + .1s) ease-out both}
+.vt-card.novo.pick,.vt-card.novo.dec{animation:vtPick .6s var(--atraso,0s) cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes vtBan{from{filter:none;transform:scale(1.04)}to{filter:grayscale(1) brightness(.75);transform:none}}
+@keyframes vtRisca{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes vtPick{0%{transform:scale(.94);box-shadow:0 0 0 0 var(--dono)}60%{transform:scale(1.04);box-shadow:0 0 0 2px var(--dono),0 0 30px 4px var(--dono)}100%{transform:none}}
+.sem-anim .vt-card.novo,.sem-anim .vt-card.novo .vt-x,.sem-anim .vt-p.agora{animation:none!important}
+.pp-ag{display:flex;align-items:center;gap:8px}
+.pp-ag img{width:28px;height:28px;object-fit:cover;object-position:top;border:1px solid var(--line2)}
+.pp-cmapa{padding:0;overflow:hidden}
+.pp-cmapa>*:not(.pp-cmapa-topo){margin-left:14px;margin-right:14px}
+.pp-cmapa>table{width:calc(100% - 28px)}
+.pp-cmapa-topo{padding:12px 14px;margin-bottom:6px;background-size:cover;background-position:center}
+.pp-cmapa-topo .eyebrow{color:var(--tx);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+
+/* ao vivo */
+.aovivo{min-width:min(760px,88vw)}
+.av-placar{margin:-6px -6px 14px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08);background-size:cover;background-position:center}
+.av-esc{display:grid;place-items:center;width:76px;height:76px;flex:none;
+  background:radial-gradient(circle,color-mix(in srgb,var(--clube) 35%,transparent),transparent 70%)}
+.av-esc img{width:64px;height:64px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.7))}
+.av-lado b{font-size:30px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.av-lado .dim{color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.av-ladoch{display:inline-flex!important;align-items:center;gap:4px;margin-top:5px;padding:2px 7px;font-size:9.5px!important;
+  letter-spacing:.12em;text-transform:uppercase;background:rgba(11,18,24,.7);border:1px solid var(--line2);color:var(--tx2)}
+.av-ladoch.atk{color:#FF8A95;border-color:rgba(255,70,85,.5)}.av-ladoch.def{color:#7FE9CF;border-color:rgba(24,229,180,.5)}
+.av-ladoch .ic svg{width:11px;height:11px}
+.av-mapanome{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.14em;color:var(--tx);text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.av-rounds{font-size:68px;text-shadow:0 4px 20px rgba(0,0,0,.6)}
+.av-slots{display:flex;gap:4px;justify-content:center;margin-top:6px}
+.av-slot{display:flex;align-items:center;gap:4px;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2);
+  padding:2px 6px;background:rgba(11,18,24,.7);border:1px solid var(--line)}
+.av-slot i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18)}
+.av-slot.meu i{background:var(--teal);box-shadow:0 0 6px var(--teal)}
+.av-slot.dele i{background:var(--red)}
+.av-slot.agora{color:var(--tx);border-color:var(--line2)}
+.av-slot.agora i{background:var(--tx);animation:vtPiscaPonto 1s ease-in-out infinite}
+@keyframes vtPiscaPonto{50%{opacity:.3}}
+.av-mapa{align-items:center;flex-wrap:wrap}
+.av-leg{display:flex;gap:10px;margin-left:auto;font-size:10.5px;color:var(--dim)}
+.av-leg span{display:inline-flex;align-items:center;gap:4px}
+.av-leg svg{width:12px;height:12px}
+/* trilha de rounds com o ícone de como acabou */
+.rt{display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin:4px 0 12px}
+.rt i{width:20px;height:22px;display:grid;place-items:center;color:rgba(11,18,24,.85);border-radius:6px}
+.rt i.atk{border-radius:1px}
+.rt i svg{width:13px;height:13px;stroke-width:2}
+.rt i.w{background:var(--teal)}
+.rt i.l{background:rgba(255,70,85,.55);color:rgba(255,255,255,.85)}
+.rt i.pistol{box-shadow:inset 0 -3px 0 rgba(226,180,90,.95)}
+.rt i.agora{outline:2px solid var(--tx);outline-offset:1px;animation:rtEntra .3s ease-out}
+@keyframes rtEntra{from{transform:scale(.4);opacity:0}}
+.rt-meio{width:2px;height:22px;background:var(--line2);margin:0 4px}
+.rt-meio.ot{background:var(--gold)}
+.rt.g i{width:24px;height:28px}.rt.g i svg{width:15px;height:15px}.rt.g .rt-meio{height:28px}
+.sem-anim .rt i.agora{animation:none}
+/* destaque do round */
+.av-destaque{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.12em;text-align:center;padding:4px 0;margin-bottom:8px;
+  text-transform:uppercase;background:linear-gradient(90deg,transparent,rgba(24,229,180,.18),transparent);color:var(--teal)}
+.av-destaque.ruim{background:linear-gradient(90deg,transparent,rgba(255,70,85,.18),transparent);color:var(--red)}
+.av-destaque.anima{animation:avDestaque .7s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes avDestaque{0%{transform:scale(.6);opacity:0;letter-spacing:.5em}60%{transform:scale(1.08);opacity:1}100%{transform:none;letter-spacing:.12em}}
+.sem-anim .av-destaque.anima{animation:none}
+.av-linha{display:flex;align-items:center;gap:8px}
+.av-linha .num{margin-right:0}
+.av-quem img{width:34px;height:34px;object-fit:cover;border-radius:50%;border:2px solid var(--line2)}
+.av-linha.bom .av-quem img{border-color:var(--teal)}.av-linha.ruim .av-quem img{border-color:var(--red)}
+.av-como{display:inline-grid;place-items:center;width:18px;color:var(--dim)}
+.av-como svg{width:14px;height:14px}
+.av-linha.bom .av-como{color:var(--teal)}.av-linha.ruim .av-como{color:var(--red)}
+.av-linha.novo{font-size:14px;padding:9px 12px}
+.av-mp{display:inline-flex;align-items:center;min-width:92px;padding:4px 8px;font-size:11px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.9);border:1px solid var(--line2)}
+.av-fim-t{font-size:56px}
+.av-fim.bom{background:radial-gradient(60% 100% at 50% 0,rgba(24,229,180,.15),transparent 70%)}
+.av-fim.ruim{background:radial-gradient(60% 100% at 50% 0,rgba(255,70,85,.14),transparent 70%)}
+#avTempo .ic{margin-right:4px}
+
+/* resumo da sua partida */
+.sr-minha .sr-cabeca{--cor:var(--teal)}
+.sr-minha.perdeu .sr-cabeca{--cor:var(--red)}
+.sr-faixa{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--cor)}
+.sr-time img.logo-t{width:72px;height:72px}
+.sr-abas{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.sr-aba{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:150px;display:grid;grid-template-columns:1fr auto;align-items:end;
+  padding:10px 12px;min-height:64px;border:1px solid rgba(255,255,255,.08);background-size:cover;background-position:center;
+  border-bottom:3px solid var(--red);opacity:.75;transition:opacity .15s,transform .15s}
+.sr-aba.w{border-bottom-color:var(--teal)}
+.sr-aba span{grid-column:1/-1;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tx2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.sr-aba b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:24px;letter-spacing:.04em;line-height:1;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+.sr-aba i{font-style:normal;font-family:'Bebas Neue',sans-serif;font-size:24px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+.sr-aba:hover{opacity:1;transform:translateY(-2px)}
+.sr-aba.on{opacity:1;box-shadow:var(--sombra-2),0 0 0 1px rgba(255,255,255,.25)}
+
+/* veredito */
+.ver{min-width:min(640px,88vw)}
+.ver-topo{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin:-6px -6px 14px;padding:18px;
+  background:radial-gradient(80% 140% at 0% 0%,rgba(var(--clube-rgb,255,70,85),.22),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.03),transparent);
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.ver-esc img{filter:drop-shadow(0 8px 18px rgba(0,0,0,.6))}
+.ver-t{font-size:34px;margin:4px 0 8px}
+.ver-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ver-chips .cx-pos b{color:var(--clube,var(--tx))}
+.ver-conf{position:relative;width:120px;text-align:center}
+.ver-anel{width:120px;height:120px;transform:rotate(-90deg)}
+.ver-anel circle{fill:none;stroke-width:10}
+.ver-anel .f{stroke:rgba(255,255,255,.08)}
+.ver-anel .v{stroke-linecap:butt;stroke-dasharray:var(--para) var(--c);animation:verEnche 1.3s .25s cubic-bezier(.2,.8,.2,1) both}
+@keyframes verEnche{from{stroke-dasharray:var(--de) var(--c)}}
+.sem-anim .ver-anel .v{animation:none}
+.ver-conf-n{position:absolute;left:0;right:0;top:34px;display:flex;flex-direction:column;align-items:center;line-height:1}
+.ver-conf-n b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:40px}
+.ver-conf-n span{font-size:12px;font-weight:700}
+.ver-conf .eyebrow{margin-top:4px}
+.ver-dono{display:flex;gap:12px;align-items:center;padding:10px 14px;margin-bottom:12px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.ver-dono img{border-radius:50%}
+.ver-meta{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.ver-meta:first-of-type{border-top:0}
+.ver-ic{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700}
+.ver-ic svg{width:15px;height:15px;stroke-width:2.4}
+.ver-ic.ok{background:rgba(24,229,180,.15);color:var(--teal);box-shadow:inset 0 0 0 1px rgba(24,229,180,.5)}
+.ver-ic.no{background:rgba(255,70,85,.15);color:var(--red);box-shadow:inset 0 0 0 1px rgba(255,70,85,.5)}
+.ver-ic.n{background:rgba(255,255,255,.06);color:var(--dim)}
+.ver-meta .dim{font-size:12px;margin-top:2px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -7972,7 +8217,13 @@ function passoRound(M){
   /* O round guarda o suficiente para ser NARRADO depois, não só contado.
      Sem placar, economia e nome de quem abriu, a tela ao vivo vira uma
      barra de progresso — e o que prende é saber o que aconteceu. */
-  const linha={v:venceA,lado:ladoA,r,sa:M.sa,sb:M.sb,pistol,
+  /* Como o round acabou, tirado do que o próprio round registra: todo o time
+     perdedor morto é eliminação; sobrou gente do perdedor, foi o spike que
+     decidiu — explodiu (ataque venceu) ou foi desarmado / o tempo acabou
+     (defesa venceu). Conta fixa, sem sorteio: não mexe no gerador. */
+  const ladoV=venceA?ladoA:(ladoA==='atk'?'def':'atk');
+  const como=mortosL===5?'elim':ladoV==='atk'?'spike':((r*7+M.sa*3+M.sb)%10<7?'defuse':'tempo');
+  const linha={v:venceA,lado:ladoA,r,sa:M.sa,sb:M.sb,pistol,como,
                ecoA:ecoAntesA,ecoB:ecoAntesB,
                sobrou:5-mortosW,           /* quantos do vencedor sobreviveram */
                fk:abertura?abertura.de:null, fd:abertura?abertura.em:null,
@@ -13536,6 +13787,10 @@ function narrarRound(h,ctx){
       placarNome+' converte'],sem));
   }
 
+  /* como acabou, quando não foi eliminação (o registro guarda) */
+  if(h.como==='spike')partes.push('spike explodiu');
+  else if(h.como==='defuse')partes.push('spike desarmado');
+  else if(h.como==='tempo')partes.push('no tempo');
   const ecoPerdedor=vencedorMeu?(ctx.souA?h.ecoB:h.ecoA):(ctx.souA?h.ecoA:h.ecoB);
   if(!h.pistol&&ecoPerdedor===0)partes.push('em eco');
   if(!h.pistol&&ctx.streak>=4)partes.push(ctx.streak+' seguidos');
@@ -13551,7 +13806,9 @@ function narrarRound(h,ctx){
   else if(dele>=12)partes.push('match point contra');
 
   return{texto:partes.join(' · '),meu:vencedorMeu,lado,
-         placar:{meu,dele},peso:pesoDoRound(h,ctx)};
+         placar:{meu,dele},peso:pesoDoRound(h,ctx),
+         /* para a tela: quem abriu o round, como acabou, se foi pistol/clutch */
+         fk:h.fk||null,como:h.como||'elim',pistol:!!h.pistol,clutch:h.clutch||null,streak:ctx.streak||0};
 }
 
 /* Percorre o mapa inteiro e devolve a sequência já narrada, com o contexto
@@ -17079,6 +17336,10 @@ Object.assign(ICONES,{
   envelope:'<rect x="3" y="5.5" width="18" height="13"/><path d="m3 6.5 9 6.5 9-6.5"/>',
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  spike:'<path d="M12 2.5 15 9h-6z"/><path d="M8.5 9h7l-1 9.5h-5z"/><path d="M10.5 18.5 12 21.5l1.5-3"/>',
+  desarme:'<path d="M14.5 4.5a4.5 4.5 0 0 0-5.6 5.6L3.5 15.5l2 2 .9-.9 1.3 1.3 1.6-1.6-1.3-1.3 2.6-2.6a4.5 4.5 0 0 0 5.6-5.6l-2.6 2.6-2.3-.6-.6-2.3z"/>',
+  relogio:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4.5l3 1.8"/><path d="M9.5 2.5h5"/>',
+  caveira:'<path d="M12 3.5c-4.4 0-7.5 3-7.5 7 0 2.4 1.1 4 2.7 4.9V19h9.6v-3.6c1.6-.9 2.7-2.5 2.7-4.9 0-4-3.1-7-7.5-7z"/><circle cx="9.2" cy="11" r="1.6"/><circle cx="14.8" cy="11" r="1.6"/><path d="M10.5 19v-2M13.5 19v-2"/>',
   controle:'<path d="M6.5 8h11a3.5 3.5 0 0 1 3.4 4.3l-1.2 4.8a2.3 2.3 0 0 1-4 .8L14 16h-4l-1.7 1.9a2.3 2.3 0 0 1-4-.8l-1.2-4.8A3.5 3.5 0 0 1 6.5 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="16" cy="12" r=".8"/>'
 });
 
@@ -17264,6 +17525,51 @@ function ligarOrdenacao(raiz){
       };
     });
   });
+}
+
+/* ============================================================
+   V7 — DIA DE JOGO: peças reaproveitadas
+   ============================================================ */
+/* ícone do jeito que o round acabou (h.como, gravado pelo motor) */
+const COMO_ROUND={elim:['caveira','eliminação'],spike:['spike','spike explodiu'],
+  defuse:['desarme','spike desarmado'],tempo:['relogio','tempo esgotado']};
+function iconeRound(como){return ico((COMO_ROUND[como]||COMO_ROUND.elim)[0]);}
+/* Trilha de rounds: um bloco por round com o ícone de como acabou. Quadrado
+   = você atacando, cantos redondos = defendendo; meio do mapa marcado. */
+function trilhaRounds(hist,souA,opc){
+  opc=opc||{};
+  return `<div class="rt${opc.grande?' g':''}">${(hist||[]).map((h,i)=>{
+    const meuW=souA?h.v:!h.v;
+    const lado=souA?h.lado:(h.lado==='atk'?'def':'atk');
+    const c=COMO_ROUND[h.como]||COMO_ROUND.elim;
+    return (i===12?'<span class="rt-meio"></span>':'')+(i>=24&&(i-24)%2===0?'<span class="rt-meio ot"></span>':'')+
+      `<i class="${meuW?'w':'l'} ${lado}${h.pistol?' pistol':''}${i===hist.length-1&&opc.agora?' agora':''}"
+        title="Round ${i+1} · ${meuW?'seu':'deles'} · ${c[1]}${h.pistol?' · pistol':''}">${ico(c[0])}</i>`;
+  }).join('')}</div>`;
+}
+/* Barra espelhada do comparativo: você para a esquerda, eles para a direita.
+   b=null → o relatório não enxerga; estimado → faixa listrada (palavra). */
+function barraEspelho(rot,a,b,opc){
+  opc=opc||{};
+  const mn=opc.min||0,mx=opc.max||100,esc01=v=>clamp((v-mn)/(mx-mn),0,1);
+  const pa=esc01(a),pb=b==null?0:esc01(b);
+  const fa=opc.fa?opc.fa(a):Math.round(a), fb=b==null?'?':opc.fb?opc.fb(b):Math.round(b);
+  const melhor=b==null?'':a>b+(opc.empate||1)?'a':b>a+(opc.empate||1)?'b':'';
+  return `<div class="be ${melhor?'m-'+melhor:''}">
+    <span class="be-v a num">${fa}</span>
+    <span class="be-t a"><u style="--p:${(pa*100).toFixed(1)}%"></u></span>
+    <span class="be-rot">${rot}</span>
+    <span class="be-t b ${opc.estimado?'est':''} ${b==null?'nada':''}"><u style="--p:${(pb*100).toFixed(1)}%"></u></span>
+    <span class="be-v b num">${fb}</span></div>`;
+}
+/* Os dois clubes frente a frente, com a cor de cada um. */
+function frenteAFrente(A,B,meio,opc){
+  opc=opc||{};const px=opc.px||72;
+  const lado=(t,cls)=>`<div class="ff-lado ${cls}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    <div class="ff-escudo">${escudo(t,px)}</div>
+    <div class="ff-nome"><b>${esc(t.nome)}</b><span>${esc(t.tag)}${opc.info?' · '+opc.info(t):''}</span></div></div>`;
+  return `<div class="ff${opc.compacto?' compacto':''}" style="--ca:${corDoClube(A)};--cb:${corDoClube(B)}">
+    ${lado(A,'a')}<div class="ff-meio">${meio||'<b class="ff-vs">VS</b>'}</div>${lado(B,'b')}</div>`;
 }
 
 
@@ -20833,40 +21139,67 @@ function modalAnunciar(id){
 }
 
 let aba=0;
+/* Resumo da SUA partida (pacote V7): placar de transmissão com os dois
+   escudos, MVP com a carta, os mapas como abas com a imagem e o placar, a
+   trilha de rounds com o jeito que cada um acabou e o box score com retrato. */
 function modalPartida(res){
-  const eu=res.aId===G.meuTime?res.aId:res.bId, adv=res.aId===G.meuTime?res.bId:res.aId;
   const meuLadoA=res.aId===G.meuTime;
+  const eu=meuLadoA?res.aId:res.bId, adv=meuLadoA?res.bId:res.aId;
+  const A=T(eu),B=T(adv);
   const wEu=meuLadoA?res.wa:res.wb, wAd=meuLadoA?res.wb:res.wa;
   const venceu=res.vencedor===G.meuTime;
-  const mp=res.mapas[Math.min(aba,res.mapas.length-1)];
-  const hist=mp.hist.map((h,i)=>{
-    const meuWin=meuLadoA?h.v:!h.v;
-    const meuLado=meuLadoA?h.lado:(h.lado==='atk'?'def':'atk');
-    return (i===12?'<span class="half"></span>':'')+`<i class="${meuWin?'w':'l'} ${meuLado}"></i>`;
-  }).join('');
-  const linhas=ids=>ids.map(id=>{const p=P(id),s=mp.st[id]||{k:0,d:0,a:0,fk:0,cl:0,rounds:0};
-    return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${p.igl?'<span class="pill">IGL</span>':''}${id===res.mvp?' <span class="chip g">MVP</span>':''}</td>
-    <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${acsDe(s)}</td>
-    <td class="c num">${s.k}</td><td class="c num">${s.d}</td><td class="c num">${s.a}</td>
-    <td class="c num ${s.k-s.d>0?'up':s.k-s.d<0?'dn':''}">${s.k-s.d>0?'+':''}${s.k-s.d}</td>
-    <td class="c num">${s.fk}</td><td class="c num">${s.cl}</td></tr>`;}).join('');
-  abrir(`<div class="eyebrow">${esc(res.ctx.nome||'Partida')} · MD${res.bo}</div>
-  <div class="scoreline">${escudo(T(eu),34)}<span class="${venceu?'win':'lose'}">${esc(nomeT(eu))}</span>
-    <span class="s">${wEu} — ${wAd}</span><span>${esc(nomeT(adv))}</span>${escudo(T(adv),34)}</div>
-  <div class="veto">${res.veto.map(s=>`<span class="${s.tipo==='ban'?'ban':s.tipo==='pick'?'pk':'dec'}">${s.tipo==='ban'?'ban':s.tipo==='pick'?'pick '+s.t:'decider'} · ${s.m}</span>`).join('')}</div>
-  <div class="tabs">${res.mapas.map((m,i)=>{const e=meuLadoA?m.sa:m.sb,a=meuLadoA?m.sb:m.sa;
-    return `<button data-ab="${i}" class="${i===Math.min(aba,res.mapas.length-1)?'on':''}">${m.mapa} ${e}-${a}</button>`;}).join('')}</div>
-  <div class="card flat"><div class="eyebrow">Histórico de rounds · quadrado = ataque, círculo = defesa</div>
-    <div class="rh">${hist}</div>
-    <div class="split"><span class="dim">Placar final em ${mp.mapa}</span>
-      <b class="num" style="font-size:18px">${meuLadoA?mp.sa:mp.sb} - ${meuLadoA?mp.sb:mp.sa}</b></div></div>
-  <div class="card flat"><div class="eyebrow">${esc(nomeT(eu))}</div>
-    <table><thead><tr><th>Jogador</th><th>Função</th><th class="c">ACS</th><th class="c">K</th><th class="c">D</th><th class="c">A</th>
-    <th class="c">+/-</th><th class="c">FK</th><th class="c">CL</th></tr></thead><tbody>${linhas(T(eu).titulares)}</tbody></table></div>
-  <div class="card flat"><div class="eyebrow">${esc(nomeT(adv))}</div>
-    <table><thead><tr><th>Jogador</th><th>Função</th><th class="c">ACS</th><th class="c">K</th><th class="c">D</th><th class="c">A</th>
-    <th class="c">+/-</th><th class="c">FK</th><th class="c">CL</th></tr></thead><tbody>${linhas(T(adv).titulares)}</tbody></table></div>
-  <div style="display:flex;justify-content:flex-end"><button class="btn" data-close>Continuar</button></div>`,true);
+  const ia=Math.min(aba,res.mapas.length-1);
+  const mp=res.mapas[ia];
+  /* MVP com a soma da série */
+  let mvpBox='';
+  const pm=res.mvp&&G.jogadores[res.mvp];
+  if(pm){
+    let k=0,d=0,a=0,acs=0,n=0;
+    for(const m of res.mapas){const st=m.st&&m.st[res.mvp];if(!st)continue;k+=st.k;d+=st.d;a+=st.a;acs+=acsDe(st);n++;}
+    mvpBox=`<div class="sr-mvp">${cartaJogador(pm,{w:92,clique:true})}<div>
+      <div class="eyebrow gold">MVP da série</div><b class="sr-mvp-n">${esc(pm.nome)}</b>
+      <div class="dim">${esc(tagT(pm.timeId))} · ${esc(pm.role)}</div>
+      ${n?`<div class="sr-mvp-st"><span><b class="num">${k}/${d}/${a}</b>K/D/A</span><span><b class="num">${Math.round(acs/n)}</b>ACS</span><span><b class="num">${(k/Math.max(1,d)).toFixed(2)}</b>K/D</span></div>`:''}
+    </div></div>`;
+  }
+  const linhas=ids=>ids.map(id=>{const p=P(id);if(!p)return '';const s=mp.st[id]||{k:0,d:0,a:0,fk:0,cl:0,rounds:0};
+    return `<tr class="jrow ${id===res.mvp?'mvp':''}" data-p="${p.id}"><td><span class="linha-t">${retrato(p,24)}<span><b>${esc(p.nome)}</b></span></span>
+      ${p.igl?'<span class="pill">IGL</span>':''}${id===res.mvp?' <span class="chip g">MVP</span>':''}</td>
+    <td><span class="tag ${p.role}">${p.role}</span></td><td class="r num"><b>${acsDe(s)}</b></td>
+    <td class="r num">${s.k}</td><td class="r num">${s.d}</td><td class="r num">${s.a}</td>
+    <td class="r num ${s.k-s.d>0?'up':s.k-s.d<0?'dn':''}">${s.k-s.d>0?'+':''}${s.k-s.d}</td>
+    <td class="r num">${s.fk}</td><td class="r num">${s.cl}</td></tr>`;}).join('');
+  /* quem esteve em quadra neste mapa: os titulares de hoje podem ter mudado */
+  const emQuadra=time=>{const ids=Object.keys(mp.st||{}).filter(id=>{const p=P(id);return p&&p.timeId===time.id;});
+    return ids.length?ids.sort((x,y)=>acsDe(mp.st[y])-acsDe(mp.st[x])):time.titulares;};
+  const tabela=time=>`<table class="box"><thead><tr><th>${escudo(time,16)} ${esc(time.tag)}</th><th>Função</th><th class="r">ACS</th>
+    <th class="r">K</th><th class="r">D</th><th class="r">A</th><th class="r">+/-</th><th class="r">FK</th><th class="r">CL</th></tr></thead>
+    <tbody>${linhas(emQuadra(time))}</tbody></table>`;
+  const veto=(res.veto||[]).map(x=>`<span class="chip ${x.tipo==='ban'?'r':x.tipo==='dec'?'':'g'}">${x.tipo==='ban'?'✕':x.tipo==='dec'?'★':'✓'} ${esc(x.m)}
+    <span class="dim">${x.tipo==='dec'?'decider':esc(x.t)}</span></span>`).join(' ');
+  const abas=res.mapas.map((m,i)=>{const e=meuLadoA?m.sa:m.sb,a=meuLadoA?m.sb:m.sa;
+    return `<button data-ab="${i}" class="sr-aba ${i===ia?'on':''} ${e>a?'w':'l'}" style="${fundoMapa(m.mapa,i===ia?0.45:0.7)}">
+      <span>Mapa ${i+1}</span><b>${esc(m.mapa)}</b><i class="num">${e}–${a}</i></button>`;}).join('');
+  abrir(`<div class="sr sr-minha ${venceu?'venceu':'perdeu'}">
+    <div class="sr-cabeca">
+      <div class="eyebrow">${esc((res.ctx&&res.ctx.nome)||'Partida')} · MD${res.bo}</div>
+      <div class="sr-faixa">${venceu?'Vitória':'Derrota'}</div>
+      <div class="sr-topo">
+        <div class="sr-time ${venceu?'w':'l'}" style="--clube:${corDoClube(A)}">${escudo(A,72)}<div><b>${esc(A.nome)}</b><span class="dim">${esc(A.tag)}</span></div></div>
+        <div class="sr-score"><span class="${venceu?'w':''}">${wEu}</span><i>:</i><span class="${venceu?'':'w'}">${wAd}</span></div>
+        <div class="sr-time r ${venceu?'l':'w'}" style="--clube:${corDoClube(B)}"><div><b>${esc(B.nome)}</b><span class="dim">${esc(B.tag)}</span></div>${escudo(B,72)}</div>
+      </div>
+    </div>
+    ${mvpBox}
+    ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
+    <div class="sr-abas">${abas}</div>
+    <div class="card flat"><div class="split"><div class="eyebrow">Rounds em ${esc(mp.mapa)}</div>
+      <span class="av-leg">${['elim','spike','defuse','tempo'].map(c=>`<span>${iconeRound(c)}${COMO_ROUND[c][1]}</span>`).join('')}</span></div>
+      ${trilhaRounds(mp.hist,meuLadoA,{grande:true})}
+      <div class="dim" style="font-size:11px">Verde é round seu; quadrado = você atacando, cantos redondos = defendendo.</div></div>
+    <div class="grid g2">${tabela(A)}${tabela(B)}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" data-close>Continuar</button></div>
+  </div>`,true);
   $('#modal').querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{aba=+b.dataset.ab;modalPartida(res);});
   $('#modal').querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
 }
@@ -21290,7 +21623,7 @@ function modalEditarStaff(id){
    ============================================================ */
 function modalVeredito(v){
   if(!v)return;
-  const m=G.manager;
+  const t=G.times[G.meuTime];
   const principal=v.metas.find(x=>/^Terminar|^Brigar/.test(x.texto))||v.metas[0];
   const bateu=principal&&principal.cumprida;
   const tom=v.demitido?'ruim':bateu?'bom':v.avisado?'ruim':'neutro';
@@ -21298,36 +21631,50 @@ function modalVeredito(v){
     :v.meio?(v.delta>=0?'A diretoria aprova o primeiro semestre':v.avisado?'Último aviso':'A diretoria cobra')
     :bateu?'Temporada aprovada'
     :v.avisado?'Último aviso':'Temporada abaixo do esperado';
-
-  abrir(`<div class="ver ${v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom}">
-    <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
-    <h2 class="sec ver-t">${titulo}</h2>
-    <p class="dim">${v.pos}º de ${v.de} na liga${v.titulos?' · '+v.titulos+' título(s)':''}.</p>
-    ${(()=>{const t=G.times[G.meuTime];return t&&t.dono?`<p class="dim">Quem assina é o presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</p>`:'';})()}
-    <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
-      ${v.metas.map(x=>`<div class="mgr-meta ${x.cumprida?'ok':'nao'}" style="margin-bottom:6px">
-        <b>${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}</b>
-        <span>${esc(x.texto)} — <span class="dim">${esc(x.resultado||'')}</span></span></div>`).join('')}
+  const tomFinal=v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom;
+  /* medidor de confiança: enche do valor de antes até o de agora */
+  const R=50,C=2*Math.PI*R,para=clamp(v.confianca,0,100),de=clamp(v.confianca-v.delta,0,100);
+  const corConf=para>=60?'var(--teal)':para>=35?'var(--amber)':'var(--red)';
+  const anel=`<div class="ver-conf"><svg viewBox="0 0 120 120" class="ver-anel">
+      <circle cx="60" cy="60" r="${R}" class="f"/>
+      <circle cx="60" cy="60" r="${R}" class="v" style="stroke:${corConf};--de:${(C*de/100).toFixed(1)};--para:${(C*para/100).toFixed(1)};--c:${C.toFixed(1)}"/>
+    </svg><div class="ver-conf-n"><b class="num" data-conta>${para}</b><span class="${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta}</span></div>
+    <div class="eyebrow">Confiança</div></div>`;
+  const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
+  const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
+  abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
+    <div class="ver-topo">
+      <div class="ver-esc">${t?escudo(t,84):''}</div>
+      <div class="ver-tit">
+        <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
+        <h2 class="sec ver-t">${titulo}</h2>
+        <div class="ver-chips"><span class="cx-pos"><b>${v.pos}º</b> de ${v.de} na liga</span>
+          ${v.titulos?`<span class="cx-chip">${icone('trofeu','ouro')} ${v.titulos} título${v.titulos>1?'s':''}</span>`:''}</div>
+      </div>
+      ${anel}
     </div>
-    <div class="split" style="margin-top:12px">
-      <span class="dim">Confiança da diretoria</span>
-      <span class="num ${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta} → ${v.confianca}</span>
+    ${t&&t.dono?`<div class="ver-dono">${dono?retrato(dono,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
+      <div>O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</div></div></div>`:''}
+    <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
+      ${v.metas.map(x=>`<div class="ver-meta ${x.cumprida===null?'n':x.cumprida?'ok':'no'}">${icMeta(x)}
+        <div><b>${esc(x.texto)}</b><div class="dim">${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}${x.resultado?' — '+esc(x.resultado):''}</div></div></div>`).join('')}
     </div>
     ${v.demitido?`
       <div class="card" style="margin-top:14px"><div class="eyebrow">Sua carreira continua</div>
         <p class="dim">Clubes dispostos a te contratar agora. Nenhum de topo chama quem
         acabou de cair — é assim que a carreira ganha forma.</p>
-        <table><tbody>${ofertasDeEmprego().map(t=>`<tr>
-          <td>${escudo(t,24)}</td>
-          <td><b>${esc(t.nome)}</b> <span class="dim">${esc(nomeLiga(t))}</span></td>
-          <td class="c num dim">prest. ${Math.round(t.prestigio)}</td>
-          <td class="r"><button class="btn sm" data-assumir="${t.id}">Assumir</button></td>
+        <table><tbody>${ofertasDeEmprego().map(x=>`<tr>
+          <td>${escudo(x,24)}</td>
+          <td><b>${esc(x.nome)}</b> <span class="dim">${esc(nomeLiga(x))}</span></td>
+          <td class="c num dim">prest. ${Math.round(x.prestigio)}</td>
+          <td class="r"><button class="btn sm" data-assumir="${x.id}">Assumir</button></td>
         </tr>`).join('')}</tbody></table>
         <p class="dim" style="margin-top:8px">Ou feche esta janela e encerre a carreira por aqui.</p>
       </div>`:''}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
       <button class="btn ghost" data-close>${v.demitido?'Encerrar a carreira':'Seguir em frente'}</button>
     </div></div>`,true);
+  if(typeof contarNumeros==='function'&&typeof animacaoLigada==='function'&&animacaoLigada())contarNumeros($('#modal'));
 
   $('#modal').querySelectorAll('[data-assumir]').forEach(b=>b.onclick=()=>{
     const r=assumirClube(b.dataset.assumir);
@@ -22174,12 +22521,12 @@ function ppLadoHTML(minha){
   const atk=forcaTime(PP.meu,x.m,'atk'), def=forcaTime(PP.meu,x.m,'def');
   const vies=(typeof MAPA_ATK!=='undefined'&&MAPA_ATK[x.m])||50;
   const melhor=atk>def?'atk':'def';
-  return `<div class="card"><div class="eyebrow">${minha?'Sua vez de escolher o LADO':'Vez do '+esc(PP.adv.tag)+' escolher o lado'} · ${esc(x.m)}</div>
+  return `<div class="card vt-ladocard" style="${fundoMapa(x.m,0.78)}"><div class="eyebrow">${minha?'Sua vez de escolher o LADO':'Vez do '+esc(PP.adv.tag)+' escolher o lado'} · ${esc(x.m)}</div>
     <div class="dim" style="margin-bottom:8px">${esc(x.m)}: o ataque ganha ${vies}% dos rounds no circuito.
       Seu time é mais forte ${ppNomeLado(melhor)} aqui (ataque ${atk.toFixed(1)} · defesa ${def.toFixed(1)}).</div>
     ${minha?`<div style="display:flex;gap:8px">
-      <button class="btn ${melhor==='atk'?'':'ghost'}" data-pplado="atk">Começar atacando</button>
-      <button class="btn ${melhor==='def'?'':'ghost'}" data-pplado="def">Começar defendendo</button></div>`
+      <button class="btn ${melhor==='atk'?'':'ghost'}" data-pplado="atk">${icone('spike')} Começar atacando</button>
+      <button class="btn ${melhor==='def'?'':'ghost'}" data-pplado="def">${icone('escudo2')} Começar defendendo</button></div>`
       :'<div class="dim">Eles estão decidindo.</div>'}
   </div>`;
 }
@@ -22213,115 +22560,162 @@ function ppPintar(){
   const lc=M.querySelector('#ppOk');if(lc)lc.onclick=ppConfirmar;
   const lv=M.querySelector('#ppVoltar');if(lv)lv.onclick=()=>{PP.etapa='relatorio';ppPintar();};
 }
+/* ---------- relatório (pacote V7) ----------
+   Os dois lados frente a frente: escudos grandes, comparativo em barras
+   espelhadas e os mapas como cartas com a imagem e a comp provável em
+   retratos. O que o relatório não enxerga aparece como "?" ou como faixa
+   listrada (estimativa pela palavra), nunca como número inventado. */
+const PP_FORMA_EST={'em alta':85,'regular':69,'oscilando':52,'em baixa':38};
+const PP_DESCANSO_EST={'pernas pesadas':20,'rodados':38,'inteiros':60,'descansados':80};
+function ppMedia(t,campo){
+  const tit=(t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  return tit.length?tit.reduce((s,p)=>s+(p[campo]||0),0)/tit.length:0;
+}
+function ppAprov(c){return c&&(c.v+c.d)?Math.round(c.v/(c.v+c.d)*100):null;}
+function ppJogadorPorNome(t,nome){
+  return (t.elenco||[]).map(i=>G.jogadores[i]).find(p=>p&&p.nome===nome)||null;
+}
 function ppRelatorioHTML(){
   const r=relatorioScout(PP.meu,PP.adv,PP.comp.bo);
-  const estrelas=n=>'●'.repeat(n)+'○'.repeat(SCOUT_MAX-n);
-  const mapas=r.mapas.map(m=>`<tr>
-    <td>${esc(m.mapa)}</td>
-    <td class="c">${m.valor===null?'<span class="dim">—</span>'
-      :`<span class="pill ${m.valor>=1.5?'g':m.valor<=-1.5?'r':''}">${m.valor>0?'+':''}${m.valor.toFixed(1)}</span>`}</td>
-    <td class="dim">${m.palavra?esc(m.palavra):'sem leitura'}</td>
-    <td class="dim" style="font-size:11px">${m.comp
-      ?m.comp.map(c=>esc(c.ag)+(c.nivel!==null?' <span class="num">'+c.nivel+'</span>':'')).join(' · ')
-      :'<span class="dim">comp desconhecida</span>'}</td></tr>`).join('');
-  return `<div class="split">
-      <div><div class="eyebrow">Relatório de scouting</div>
-        <h2 class="sec" style="margin:0">${esc(PP.adv.nome)}</h2></div>
-      <div style="text-align:right">
-        <div class="eyebrow">Nível do relatório</div>
-        <b class="num">${estrelas(r.nivel)}</b>
-        <div class="dim" style="font-size:11px">analista ${(PP.meu.staff.analista||1).toFixed(1)} · olheiro ${(PP.meu.staff.olheiro||1).toFixed(1)}</div></div>
-    </div>
-    <p class="dim" style="margin:10px 0 14px">${esc(resumoScout(r))}</p>
-
+  const meuT=PP.meu,advT=PP.adv,nv=r.nivel;
+  const estrelas=`<span class="rel-niv">${Array.from({length:SCOUT_MAX},(_,i)=>`<i class="${i<nv?'on':''}"></i>`).join('')}</span>`;
+  /* comparativo */
+  const fM=Math.round(ppMedia(meuT,'forma')*100), dM=Math.round(100-ppMedia(meuT,'fadiga')*100);
+  const fA=r.forma.valor!=null?r.forma.valor:PP_FORMA_EST[r.forma.palavra];
+  const dA=r.fadiga.valor!=null?100-r.fadiga.valor:r.fadiga.palavra?PP_DESCANSO_EST[r.fadiga.palavra]:null;
+  const apM=ppAprov(meuT.temporada), apA=ppAprov(r.campanha);
+  const tpM=meuT.temporada||{v:0,d:0};
+  const barras=[
+    barraEspelho('Força',overTitulares(meuT),overTitulares(advT),{min:55,max:95}),
+    barraEspelho('Forma',fM,fA,{estimado:r.forma.valor==null,fb:()=>r.forma.valor!=null?r.forma.valor:r.forma.palavra}),
+    barraEspelho('Descanso',dM,dA,{estimado:r.fadiga.valor==null&&dA!=null,fb:()=>r.fadiga.valor!=null?100-r.fadiga.valor:r.fadiga.palavra}),
+    barraEspelho('Entrosamento',meuT.sinergia,r.sinergia),
+    apM==null&&apA==null?'':barraEspelho('Campanha',apM||0,apA==null?0:apA,
+      {fa:()=>tpM.v+'–'+tpM.d,fb:()=>r.campanha.v+'–'+r.campanha.d})
+  ].join('');
+  /* gente */
+  const pc=r.chave?ppJogadorPorNome(advT,r.chave.nome):null;
+  const gente=`${r.chave?`<div class="rel-chave">${pc?retrato(pc,64):''}<div>
+        <div class="eyebrow">Jogador-chave</div><b>${esc(r.chave.nome)}</b>
+        <div class="dim">${esc(r.chave.role)} · over <b class="num">${r.chave.over}</b>${r.chave.acs?' · ACS '+r.chave.acs:''}</div></div></div>`
+      :'<div class="dim">Sem leitura do elenco — precisa de analista melhor.</div>'}
+    ${r.lesionados?`<div class="rel-linha"><span class="eyebrow">Lesionados</span>${r.lesionados.length
+      ?r.lesionados.map(l=>`<span class="chip r">${icone('lesao')} ${esc(l.nome)} · ${l.semanas} sem.</span>`).join('')
+      :'<span class="chip g">nenhum</span>'}</div>`:''}
+    ${r.h2h&&r.h2h.jogos?`<div class="rel-linha"><span class="eyebrow">Você contra eles</span>
+      <b class="num">${r.h2h.vitorias||0}–${r.h2h.derrotas||0}</b><span class="dim">em ${r.h2h.jogos} séries</span></div>`:''}
+    ${r.ultimos&&r.ultimos.length?`<div class="rel-linha"><span class="eyebrow">Últimas deles</span>
+      ${r.ultimos.map(u=>`<span class="rel-ult ${u.venceu?'v':'d'}" title="${u.venceu?'venceu':'perdeu'} do ${esc(nomeT(u.rival))}">${escudo(T(u.rival),20)}</span>`).join('')}</div>`:''}
+    ${r.vetoProvavel?`<div class="rel-linha"><span class="eyebrow">Devem banir</span>${r.vetoProvavel.bans.map(m=>`<span class="rel-mp ban" style="${fundoMapa(m,0.5)}">${esc(m)}</span>`).join('')}</div>
+      <div class="rel-linha"><span class="eyebrow">Devem escolher</span>${r.vetoProvavel.picks.map(m=>`<span class="rel-mp pick" style="${fundoMapa(m,0.5)}">${esc(m)}</span>`).join('')}</div>`
+      :'<div class="dim" style="margin-top:8px;font-size:12px">Prever o veto deles exige relatório nível 5.</div>'}`;
+  /* mapas */
+  const mapas=r.mapas.map(m=>`<div class="rel-mapa" style="${fundoMapa(m.mapa,0.66)}">
+      <div class="split"><b class="rel-mn">${esc(m.mapa)}</b>${m.valor===null?'<span class="dim">—</span>'
+        :`<span class="pill ${m.valor>=1.5?'g':m.valor<=-1.5?'r':''}">${m.valor>0?'+':''}${m.valor.toFixed(1)}</span>`}</div>
+      <div class="rel-pal">${m.palavra?esc(m.palavra):'sem leitura'}</div>
+      <div class="rel-comp">${m.comp?m.comp.map(c=>`<span title="${esc(c.nome)} · ${esc(c.ag)}">${retratoAgente(c.ag,30)}${c.nivel!==null?`<i class="num">${c.nivel}</i>`:''}</span>`).join('')
+        :'<span class="dim">comp desconhecida</span>'}</div></div>`).join('');
+  const meio=`<span class="eyebrow">Relatório de scouting</span><b class="ff-vs">VS</b>
+    <span class="ff-sub">${esc(nomeStage(PP.comp.stage))} · MD${PP.comp.bo}</span>${estrelas}
+    <span class="ff-sub dim">analista ${(meuT.staff.analista||1).toFixed(1)} · olheiro ${(meuT.staff.olheiro||1).toFixed(1)}</span>`;
+  return `<div class="dj" ${ppCores()}>
+    ${frenteAFrente(meuT,advT,meio,{info:t=>'over '+overTitulares(t)})}
+    <div class="rel-resumo">${icone('olho')}<p>${esc(resumoScout(r))}</p></div>
     <div class="grid g2">
-      <div class="card flat"><div class="eyebrow">Campanha</div>
-        <div class="split"><span>Temporada</span><b class="num">${r.campanha.v}V ${r.campanha.d}D</b></div>
-        ${r.h2h&&r.h2h.jogos?`<div class="split"><span>Contra você</span>
-          <b class="num">${r.h2h.derrotas||0}–${r.h2h.vitorias||0}</b>
-          <span class="dim">em ${r.h2h.jogos}</span></div>`:''}
-        <div class="split"><span>Forma</span><b>${esc(r.forma.palavra)}${r.forma.valor!==null?' <span class="num">'+r.forma.valor+'%</span>':''}</b></div>
-        ${r.fadiga.palavra?`<div class="split"><span>Pernas</span><b>${esc(r.fadiga.palavra)}${r.fadiga.valor!==null?' <span class="num">'+r.fadiga.valor+'%</span>':''}</b></div>`:''}
-        ${r.sinergia!==null?`<div class="split"><span>Entrosamento</span><b class="num">${Math.round(r.sinergia)}</b></div>`:''}
-        ${r.tatica?`<div class="split"><span>Estilo</span><b>agres ${r.tatica.agres} · ${esc(r.tatica.foco)}</b></div>`:''}
-      </div>
-      <div class="card flat"><div class="eyebrow">Gente</div>
-        ${r.chave?`<div class="split"><span>Jogador-chave</span>
-          <b>${esc(r.chave.nome)} <span class="dim">${esc(r.chave.role)}</span>
-          <span class="num">${r.chave.over}</span>${r.chave.acs?' <span class="dim">ACS '+r.chave.acs+'</span>':''}</b></div>`
-          :'<div class="dim">Sem leitura de elenco — precisa de analista melhor.</div>'}
-        ${r.lesionados?(r.lesionados.length
-          ?r.lesionados.map(l=>`<div class="split"><span>${esc(l.nome)}</span><b class="dn">${l.semanas} sem. fora</b></div>`).join('')
-          :'<div class="split"><span>Lesionados</span><b>nenhum</b></div>'):''}
-        ${r.vetoProvavel?`<div class="eyebrow" style="margin-top:10px">Veto provável</div>
-          <div class="split"><span>Devem banir</span><b>${r.vetoProvavel.bans.map(esc).join(', ')}</b></div>
-          <div class="split"><span>Devem escolher</span><b>${r.vetoProvavel.picks.map(esc).join(', ')}</b></div>`
-          :'<div class="dim" style="margin-top:10px">Prever o veto deles exige relatório nível 5.</div>'}
-      </div>
+      <div class="card flat"><div class="eyebrow">Frente a frente</div><div class="be-lista">${barras}</div>
+        ${nv<4?'<p class="dim" style="font-size:11px;margin:8px 0 0">Faixa listrada = estimativa do analista; com relatório melhor vira número.</p>':''}</div>
+      <div class="card flat"><div class="eyebrow">Gente</div>${gente}</div>
     </div>
-
     <div class="card flat"><div class="eyebrow">Mapas deles${r.nivelComp<r.nivel?' · comps parcialmente escondidas (eles fogem do meta)':''}</div>
-      <table class="wide"><thead><tr><th>Mapa</th><th class="c">Leitura</th><th>Como eles jogam</th><th>Comp provável</th></tr></thead>
-      <tbody>${mapas}</tbody></table>
-      ${r.nivel<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
+      <div class="rel-mapas">${mapas}</div>
+      ${nv<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
     </div>
-
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppPular">Deixar a comissão vetar</button>
       <button class="btn" id="ppVeto">Ir para o veto de mapas ›</button>
-    </div>`;
+    </div></div>`;
+}
+
+/* ---------- veto (pacote V7) ----------
+   Todos os mapas do pool ficam na mesa: o ban escurece e risca a carta com
+   o escudo de quem baniu; o pick acende na cor de quem escolheu. O que acabou
+   de acontecer (o seu clique e a resposta deles) entra com animação curta.
+   No topo, a sequência inteira como trilha. */
+function ppCores(){return `style="--ca:${corDoClube(PP.meu)};--cb:${corDoClube(PP.adv)}"`;}
+function ppDonoDoPasso(p){return p.tipo==='dec'?null:(p.lado===PP.V.euSouLado?PP.meu:PP.adv);}
+function ppTrilhaVeto(){
+  const V=PP.V;let k=0;
+  return `<div class="vt-trilha">${V.passos.map((p,i)=>{
+    const dono=ppDonoDoPasso(p),feito=i<V.i,agora=i===V.i&&!V.fim;
+    let txt='',cls=p.tipo;
+    if(p.tipo==='lado'){
+      const x=V.seq[k-1];
+      if(feito&&x&&x.lado0){const l0=p.lado===0?x.lado0:(x.lado0==='atk'?'def':'atk');txt=l0==='atk'?'ataque':'defesa';}
+    }else{const x=V.seq[k++];if(feito&&x)txt=x.m;}
+    const rot={ban:'Ban',pick:'Pick',dec:'Decider',lado:'Lado'}[p.tipo];
+    return `<div class="vt-p ${cls} ${feito?'feito':''} ${agora?'agora':''}" ${dono?`style="--clube:${corDoClube(dono)}"`:''}>
+      ${dono?escudo(dono,18):'<span class="vt-dec">★</span>'}<span class="vt-r">${rot}</span>${txt?`<b>${esc(txt)}</b>`:''}</div>`;
+  }).join('')}</div>`;
+}
+function ppMesaVeto(minha,passo){
+  const V=PP.V,meuT=PP.meu,advT=PP.adv;
+  const visto=PP.vistoSeq||0;
+  const mostraAdv=nivelScout(meuT)>=3;
+  const ordem=V.seq.filter(x=>x.tipo!=='ban');
+  const html=V.pool.map(mp=>{
+    const i=V.seq.findIndex(x=>x.m===mp),e=i>=0?V.seq[i]:null;
+    const novo=e&&i>=visto?' novo':'';
+    const atraso=e&&i>=visto?`;--atraso:${((i-visto)*0.32).toFixed(2)}s`:'';
+    const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
+    const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
+    const vals=`<div class="vt-vals"><span class="${meuA>=2?'up':meuA<=-2?'dn':''}">você ${meuA>0?'+':''}${meuA.toFixed(1)}</span>
+      <span>${esc(advT.tag)} ${mostraAdv?(advA>0?'+':'')+advA.toFixed(1):'?'}</span></div>`;
+    if(e){
+      const dono=e.tipo==='dec'?null:(e.meu?meuT:advT);
+      const n=ordem.indexOf(e)+1;
+      const corD=dono?corDoClube(dono):'var(--gold)';
+      return `<div class="vt-card ${e.tipo}${novo}" style="${fundoMapa(mp,e.tipo==='ban'?0.6:0.45)};--dono:${corD}${atraso}">
+        <div class="vt-nome">${esc(mp)}</div>
+        ${e.tipo==='ban'?`<div class="vt-x"></div><div class="vt-selo">${dono?escudo(dono,22):''}<span>ban ${esc(e.t)}</span></div>`
+          :`<div class="vt-selo">${dono?escudo(dono,22):'★'}<span>${e.tipo==='dec'?'decider':'pick '+esc(e.t)}</span></div>
+            <div class="vt-n">Mapa ${n}</div>
+            ${e.lado0?`<div class="vt-lado">você começa ${ppNomeLado(ppMeuLado(e))}</div>`:''}`}
+      </div>`;
+    }
+    const pode=minha&&passo&&(passo.tipo==='ban'||passo.tipo==='pick');
+    return `<button class="vt-card livre ${pode?'pode '+passo.tipo:''}" data-ppmapa="${esc(mp)}" ${pode?'':'disabled'}
+      style="${fundoMapa(mp,0.45)}"><div class="vt-nome">${esc(mp)}</div>${vals}
+      ${pode?`<div class="vt-acao">${passo.tipo==='ban'?'banir':'escolher'}</div>`:''}</button>`;
+  }).join('');
+  PP.vistoSeq=V.seq.length;
+  return `<div class="vt-mesa">${html}</div>`;
 }
 function ppVetoHTML(){
   const V=PP.V;
   const passo=vetoPasso(V);
   const minha=vetoMinhaVez(V);
-  const restam=vetoRestantes(V);
   const meuT=PP.meu, advT=PP.adv;
-  const linhaSeq=V.seq.map(x=>`<span class="chip ${x.tipo==='ban'?'r':x.tipo==='dec'?'':'g'}">
-      ${x.tipo==='ban'?'✕':x.tipo==='dec'?'★':'✓'} ${esc(x.m)}
-      <span class="dim">${esc(x.t)}${x.lado0?' · '+esc(meuT.tag)+' '+ppNomeLado(ppMeuLado(x)):''}</span></span>`).join(' ');
-  const cartoes=restam.map(mp=>{
-    const meuA=afinidadeElenco(meuT,mp)+(meuT.mapPref[mp]||0)*0.5;
-    const advA=afinidadeElenco(advT,mp)+(advT.mapPref[mp]||0)*0.5;
-    const mostraAdv=nivelScout(meuT)>=3;
-    return `<button class="mp-card ${minha?'':'off'}" data-ppmapa="${esc(mp)}" ${minha?'':'disabled'}
-      style="${fundoMapa(mp,0.6)}">
-      <div class="mp-nome">${esc(mp)}</div>
-      <div class="mp-val ${meuA>=2?'up':meuA<=-2?'dn':''}">${meuA>0?'+':''}${meuA.toFixed(1)}</div>
-      <div class="mp-adv">${esc(advT.tag)} ${mostraAdv?(advA>0?'+':'')+advA.toFixed(1):'?'}</div>
-      <div class="mp-tag">${minha?(passo.tipo==='ban'?'banir':'escolher'):'aguardando'}</div>
-    </button>`;
-  }).join('');
-  const mapasFinais=V.seq.filter(x=>x.tipo!=='ban');
-  return `<div class="split">
-      <div><div class="eyebrow">Veto de mapas · ${esc(nomeStage(PP.comp.stage))} · Bo${V.bo}</div>
-        <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(advT.tag)}</h2></div>
-      <div style="text-align:right"><div class="eyebrow">Sequência</div>
-        <b class="num">${V.i}/${V.passos.length}</b></div>
-    </div>
-    <div style="margin:10px 0">${linhaSeq||'<span class="dim">O veto começa agora.</span>'}</div>
-    ${V.fim?`<div class="card flat"><div class="eyebrow">A série vai ser assim</div>
-        <table class="wide"><tbody>${mapasFinais.map((x,i)=>`<tr>
-          <td class="c num">${i+1}</td><td><span class="mp-mini" style="${fundoMapa(x.m,0.25)}"></span> <b>${esc(x.m)}</b></td>
-          <td class="dim">${x.tipo==='dec'?'decider':('escolha do '+esc(x.t))}</td>
-          <td class="c"><span class="pill ${afinidadeElenco(meuT,x.m)>=1?'g':afinidadeElenco(meuT,x.m)<=-1?'r':''}"
-            >você ${afinidadeElenco(meuT,x.m)>0?'+':''}${afinidadeElenco(meuT,x.m).toFixed(1)}</span></td>
-          <td class="dim">${x.lado0?'você começa '+ppNomeLado(ppMeuLado(x))+' <span style="font-size:11px">(escolha do '+esc(x.ladoPor||'')+')</span>':''}</td>
-          </tr>`).join('')}</tbody></table></div>`
-      :passo.tipo==='lado'?ppLadoHTML(minha)
-      :`<div class="card"><div class="eyebrow">${minha
-          ?(passo.tipo==='ban'?'Sua vez de BANIR':'Sua vez de ESCOLHER o mapa')
-          :'Vez do '+esc(advT.tag)}</div>
-        <div class="dim" style="margin-bottom:8px">${minha
-          ?(passo.tipo==='ban'?'Tire da mesa o mapa em que eles são mais fortes que você.'
-                              :'Escolha o mapa em que a diferença está do seu lado.')
-          :'Eles estão decidindo.'}</div>
-        <div class="mp-grid">${cartoes}</div></div>`}
+  const meio=`<span class="eyebrow">Veto de mapas</span><b class="ff-vs">VS</b>
+    <span class="ff-sub">${esc(nomeStage(PP.comp.stage))} · MD${V.bo}</span>
+    <span class="ff-sub num">${Math.min(V.i,V.passos.length)}/${V.passos.length}</span>`;
+  const aviso=V.fim?`<div class="vt-aviso fim">${icone('check')}<b>Veto encerrado.</b> <span class="dim">Monte as comps ou vá direto para a partida.</span></div>`
+    :passo.tipo==='lado'?ppLadoHTML(minha)
+    :`<div class="vt-aviso ${minha?(passo.tipo==='ban'?'ban':'pick'):''}">${minha
+        ?`<b>${passo.tipo==='ban'?'Sua vez de banir':'Sua vez de escolher o mapa'}</b>
+          <span class="dim">${passo.tipo==='ban'?'Tire da mesa o mapa em que eles são mais fortes que você.'
+                                               :'Escolha o mapa em que a diferença está do seu lado.'}</span>`
+        :`<b>Vez do ${esc(advT.tag)}</b> <span class="dim">Eles estão decidindo.</span>`}</div>`;
+  return `<div class="dj" ${ppCores()}>
+    ${frenteAFrente(meuT,advT,meio,{px:56,compacto:true})}
+    ${ppTrilhaVeto()}
+    ${aviso}
+    ${ppMesaVeto(minha,passo)}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppVoltar">‹ Relatório</button>
       ${V.fim?'<span><button class="btn ghost" id="ppComps">Montar as comps ›</button> <button class="btn" id="ppOk">Jogar a partida ›</button></span>'
              :'<button class="btn ghost" id="ppPular">Deixar a comissão terminar</button>'}
-    </div>`;
+    </div></div>`;
 }
 
 /* ---------- comps da série ----------
@@ -22343,16 +22737,16 @@ function ppCompsHTML(){
     if(!(funs['Iniciador']||0))buracos.push('sem iniciador');
     const linhas=compEscalada(meuT,mp).map(({p,ag,nivel})=>`<tr>
       <td><b>${esc(p.nome)}</b> <span class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</span></td>
-      <td><select data-ppag="${esc(mp)}|${p.id}">
+      <td class="pp-ag">${retratoAgente(ag,28)}<select data-ppag="${esc(mp)}|${p.id}">
         ${agentesParaComp(p).map(a=>`<option value="${esc(a.nome)}" ${a.nome===ag?'selected':''}
           >${esc(a.nome)} · ${a.nivel}/${a.teto} · meta ${forcaMeta(a.nome)}</option>`).join('')}
       </select></td>
       <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
     </tr>`).join('');
-    return `<div class="card flat"><div class="split">
+    return `<div class="card flat pp-cmapa"><div class="pp-cmapa-topo" style="${fundoMapa(mp,0.6)}"><div class="split">
         <div class="eyebrow">Mapa ${i+1} · ${esc(mp)}${x.lado0?' · você começa '+ppNomeLado(ppMeuLado(x)):''}</div>
         <span class="dim">força da comp <b class="num ${peso>=1.5?'up':peso<=0?'dn':''}">${peso>0?'+':''}${peso.toFixed(2)}</b></span>
-      </div>
+      </div></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${PRESETS_COMP.map(pr=>
         `<button class="btn ghost sm" data-pppreset="${esc(mp)}|${pr.id}" title="${esc(pr.dica)}">${esc(pr.rot)}</button>`).join('')}</div>
       <table class="wide"><thead><tr><th>Jogador</th><th>Agente</th><th class="c">Sabe</th></tr></thead>
@@ -22363,17 +22757,14 @@ function ppCompsHTML(){
         :'comp desconhecida (o relatório precisa de nível 4)'}</div>
     </div>`;
   }).join('');
-  return `<div class="split">
-      <div><div class="eyebrow">Comps da série · Bo${V.bo}</div>
-        <h2 class="sec" style="margin:0">${esc(meuT.tag)} <span class="dim">contra</span> ${esc(PP.adv.tag)}</h2></div>
-    </div>
+  return `<div class="dj" ${ppCores()}>${frenteAFrente(meuT,PP.adv,`<span class="eyebrow">Comps da série</span><b class="ff-vs">VS</b><span class="ff-sub">MD${V.bo}</span>`,{px:48,compacto:true})}
     <div class="split" style="margin:8px 0"><p class="dim" style="margin:0">Quem pega o quê em cada mapa. O que você muda aqui fica gravado na comp do mapa, a mesma da tela Comps.</p>
       <button class="btn ghost sm" data-pppreset="*|melhor">Melhor agora nos ${jogados.length} mapas</button></div>
     ${blocos}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppVoltarVeto">‹ Veto</button>
       <button class="btn" id="ppOk">Jogar a partida ›</button>
-    </div>`;
+    </div></div>`;
 }
 
 
@@ -22646,36 +23037,67 @@ function avPintar(fim){
   const mapasDel=AV.mapasFeitos.filter(x=>x.dele>x.meu).length;
   const venci=AV.res.vencedor===AV.meu.id;
 
+  /* série em slots: um por mapa, na cor de quem venceu */
+  const nomesMapas=AV.conduzida?AV.S.veto.mapas:AV.res.mapas.map(m=>m.mapa);
+  const slots=nomesMapas.map((nm,i)=>{
+    const f=AV.mapasFeitos[i];
+    const cls=f?(f.meu>f.dele?'meu':'dele'):(i===AV.mapasFeitos.length&&!fim?'agora':'');
+    return `<span class="av-slot ${cls}" title="${esc(nm)}${f?' · '+f.meu+'–'+f.dele:''}"><i></i>${esc(nm)}</span>`;
+  }).join('');
+  const meuLado=parcial&&parcial.lado&&!fim&&!noIntervalo?parcial.lado:null;
+  const chipLado=(l)=>l?`<span class="av-ladoch ${l}">${l==='atk'?icone('spike')+' ataque':icone('escudo2')+' defesa'}</span>`:'';
   const cabeca=`
-    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.72)}"`:''}>
-      <div class="av-lado ${meuR>delR?'up':''}">
-        ${escudo(AV.meu,44)}<div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span></div>
+    <div class="av-placar"${mapa&&mapa.mapa&&mapa.mapa!=='—'?` style="${fundoMapa(mapa.mapa,0.7)}"`:''}>
+      <div class="av-lado ${meuR>delR?'up':''}" style="--clube:${corDoClube(AV.meu)}">
+        <span class="av-esc">${escudo(AV.meu,64)}</span><div><b>${esc(AV.meu.tag)}</b><span class="dim">${esc(AV.meu.nome)}</span>
+        ${chipLado(meuLado)}</div>
       </div>
       <div class="av-numeros">
-        <div class="av-rounds"><span class="${meuR>delR?'up':''}">${meuR}</span>
-          <i>·</i><span class="${delR>meuR?'dn':''}">${delR}</span></div>
-        <div class="av-mapas">mapas ${mapasMeu} — ${mapasDel}</div>
+        <div class="av-mapanome">${fim?'Série encerrada':esc(mapa.mapa||'—')}</div>
+        ${fim?`<div class="av-rounds"><span class="${mapasMeu>mapasDel?'up':''}">${mapasMeu}</span>
+          <i>:</i><span class="${mapasDel>mapasMeu?'dn':''}">${mapasDel}</span></div>`
+        :`<div class="av-rounds"><span class="${meuR>delR?'up':''}">${meuR}</span>
+          <i>:</i><span class="${delR>meuR?'dn':''}">${delR}</span></div>`}
+        <div class="av-slots">${slots}</div>
       </div>
-      <div class="av-lado r ${delR>meuR?'dn':''}">
-        <div class="r"><b>${esc(AV.adv.tag)}</b><span class="dim">${esc(AV.adv.nome)}</span></div>${escudo(AV.adv,44)}
+      <div class="av-lado r ${delR>meuR?'dn':''}" style="--clube:${corDoClube(AV.adv)}">
+        <div class="r"><b>${esc(AV.adv.tag)}</b><span class="dim">${esc(AV.adv.nome)}</span>
+        ${chipLado(meuLado?(meuLado==='atk'?'def':'atk'):null)}</div><span class="av-esc">${escudo(AV.adv,64)}</span>
       </div>
     </div>`;
 
   const trilha=(()=>{
-    if(fim)return '<div class="av-trilha"></div>';
+    if(fim)return '';
     if(AV.conduzida){
       const h=(AV.S.M&&AV.S.M.hist)||(ultimoFeito&&ultimoFeito.hist)||[];
-      return `<div class="av-trilha">${h.map((x,i)=>{
-        const meuW=AV.souA?x.v:!x.v;
-        const lado=AV.souA?x.lado:(x.lado==='atk'?'def':'atk');
-        return `<i class="${meuW?'w':'l'} ${lado}"${i===h.length-1?' data-agora':''}></i>`;
-      }).join('')}</div>`;
+      return trilhaRounds(h,AV.souA,{agora:true});
     }
-    const narr=avNarracaoAtual();
-    const ate=AV.roundIdx;
-    return `<div class="av-trilha">${narr.slice(0,ate).map((x,i)=>
-      `<i class="${x.meu?'w':'l'} ${x.lado}"${i===ate-1?' data-agora':''}></i>`).join('')}</div>`;
+    const mp=avMapaAtual();
+    return trilhaRounds(mp?(mp.hist||[]).slice(0,AV.roundIdx):[],AV.souA,{agora:true});
   })();
+
+  /* destaque rápido: pistol, clutch, match point, sequência, fim de mapa.
+     Só anima quando o round é novo — pausar e voltar não repete o efeito. */
+  const novo=AV.linhas[0];
+  let destaque='';
+  if(!fim&&novo&&!novo.tempo){
+    const rot=/MAPA SEU|mapa deles/.test(novo.texto)?(novo.meu?'Mapa seu':'Mapa deles')
+      :novo.clutch?'Clutch':/match point/.test(novo.texto)?(novo.meu&&!/contra/.test(novo.texto)?'Match point':'Match point contra')
+      :novo.pistol?'Pistol':novo.streak>=4?novo.streak+' seguidos':'';
+    if(rot){
+      const anima=AV._destVisto!==AV.linhas.length;
+      AV._destVisto=AV.linhas.length;
+      destaque=`<div class="av-destaque ${novo.meu?'bom':'ruim'} ${anima?'anima':''}">${esc(rot)}</div>`;
+    }
+  }
+  const linhaFeed=(x,i)=>{
+    const p=i===0&&x.fk?G.jogadores[x.fk]:null;
+    return `<div class="av-linha ${x.tempo?'tempo':(x.meu?'bom':'ruim')}${i===0?' novo':''}">
+      ${p?`<span class="av-quem">${retrato(p,34)}</span>`:''}
+      <span class="av-como">${x.tempo?icone('relogio'):iconeRound(x.como)}</span>
+      <span class="num dim">${x.placar?x.placar.meu+'–'+x.placar.dele:'·'}</span> <span class="av-txt">${esc(x.texto)}</span></div>`;
+  };
+  const mapaMini=m=>`<span class="av-mp" style="${fundoMapa(m.mapa,0.3)}">${esc(m.mapa)}</span>`;
 
   const corpo=fim?`
     <div class="av-fim ${venci?'bom':'ruim'}">
@@ -22683,24 +23105,21 @@ function avPintar(fim){
       <div class="dim">${esc(AV.meu.nome)} ${mapasMeu} — ${mapasDel} ${esc(AV.adv.nome)}</div>
     </div>
     <div class="card flat"><div class="eyebrow">Como foi</div>
-      ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">
-        <span class="num dim">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
+      ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
+        <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
     </div>`
    :`
     <div class="av-mapa"><span class="eyebrow">Mapa ${Math.min(AV.mapaIdx+1,totalMapas)} de ${totalMapas}</span>
-      <b>${esc(mapa.mapa)}</b>
-      ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`
-        :parcial?`<span class="chip ${parcial.lado==='atk'?'':'g'}">${parcial.lado==='atk'?'ataque':'defesa'}</span>`:''}
+      ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`:''}
+      <span class="av-leg">${['elim','spike','defuse','tempo'].map(c=>`<span>${iconeRound(c)}${COMO_ROUND[c][1]}</span>`).join('')}</span>
     </div>
     ${trilha}
+    ${destaque}
     ${noIntervalo&&AV.mapasFeitos.length?`<div class="av-feed">
-      ${AV.mapasFeitos.slice().reverse().map(m=>`<div class="av-linha ${m.fecho.tom}">
-        <span class="num dim">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
+      ${AV.mapasFeitos.slice().reverse().map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
+        <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
     </div>`:''}
-    <div class="av-feed">${AV.linhas.slice(0,9).map((x,i)=>
-      `<div class="av-linha ${x.tempo?'tempo':(x.meu?'bom':'ruim')}${i===0?' novo':''}">
-        <span class="num dim">${x.placar?x.placar.meu+'–'+x.placar.dele:'·'}</span> ${esc(x.texto)}</div>`).join('')}
-    </div>`;
+    <div class="av-feed">${AV.linhas.slice(0,9).map(linhaFeed).join('')}</div>`;
 
   const controles=fim?`
     <button class="btn" id="avFicha">Ver a ficha completa</button>
@@ -22711,7 +23130,7 @@ function avPintar(fim){
       ?`<span class="av-tempo">${TEMPO_OPCOES.map(o=>`<button class="btn ghost sm" data-tempo="${o.id}"
           title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}
         <button class="btn ghost sm" id="avTempoCancela">Voltar</button></span>`
-      :`<button class="btn" id="avTempo">⏱ Pedir tempo
+      :`<button class="btn" id="avTempo">${icone('relogio')} Pedir tempo
       <span class="chip">${AV.S.M?(AV.souA?AV.S.M.temposA:AV.S.M.temposB):0}</span></button>`):''}
     <span class="av-vels">${AV_VEL.map(([v,rot,mult])=>
       `<button class="${Math.abs(AV.vel-mult)<0.01?'on':''}" data-vel="${mult}">${rot}</button>`).join('')}</span>
