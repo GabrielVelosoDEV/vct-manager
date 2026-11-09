@@ -1914,6 +1914,116 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .ver-ic.n{background:rgba(255,255,255,.06);color:var(--dim)}
 .ver-meta .dim{font-size:12px;margin-top:2px}
 
+/* ============================================================
+   V8 — ELENCO, FICHA DO JOGADOR E PÁGINA DE CLUBE
+   ============================================================ */
+/* palco da escalação */
+.esc-palco{position:relative;overflow:hidden;padding:16px 18px 18px;margin-bottom:10px;border:1px solid rgba(var(--clube-rgb),.35);
+  background:
+    radial-gradient(90% 120% at 50% 110%,rgba(var(--clube-rgb),.26),transparent 60%),
+    linear-gradient(180deg,var(--surf2,var(--panel)),var(--surf1,var(--bg2)));
+  box-shadow:var(--sombra-2),inset 0 1px 0 rgba(255,255,255,.04)}
+.esc-palco::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--clube)}
+.esc-marca{position:absolute;right:-60px;top:-40px;opacity:.06;pointer-events:none;transform:rotate(-10deg);filter:saturate(.4)}
+.esc-marca img{width:300px;height:300px}
+.esc-cab{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;position:relative}
+.esc-resumo{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--tx2)}
+.esc-resumo b{font-size:16px;color:var(--tx)}
+.esc-tits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;position:relative}
+.esc-col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.esc-slot{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:1px dashed transparent;
+  transition:border-color .15s,background .15s,transform .15s}
+.esc-carta{position:relative;transition:transform .2s,opacity .2s,filter .2s}
+.esc-carta[draggable=true]{cursor:grab}
+.esc-carta[draggable=true]:active{cursor:grabbing}
+.esc-carta img{-webkit-user-drag:none;user-select:none}
+.esc-carta.arrastando{opacity:.35;transform:scale(.95)}
+.esc-arrastando [data-alvo]{border-color:rgba(255,255,255,.12)}
+[data-alvo].alvo{border-color:var(--clube,var(--teal))!important;background:rgba(var(--clube-rgb,24,229,180),.12);transform:translateY(-3px)}
+.esc-carta.entrou{animation:escEntra .55s cubic-bezier(.2,.9,.3,1.25)}
+@keyframes escEntra{0%{transform:scale(.85);filter:brightness(1.6)}100%{transform:none;filter:none}}
+.sem-anim .esc-carta.entrou{animation:none}
+.esc-igl{position:absolute;top:6px;right:-6px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.08em;padding:1px 7px;
+  background:var(--gold);color:#14100A;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.esc-lesao{position:absolute;left:-4px;bottom:28%;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 6px;
+  background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.esc-lesao svg{width:11px;height:11px}
+.esc-fun{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:36px}
+.esc-fora{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+.esc-ind{width:100%;max-width:160px;display:flex;flex-direction:column;gap:4px}
+.esc-mb{display:grid;grid-template-columns:54px 1fr 22px;align-items:center;gap:6px;font-size:10px;color:var(--dim)}
+.esc-mb u{height:5px;background:rgba(255,255,255,.08);text-decoration:none;position:relative;overflow:hidden}
+.esc-mb u i{position:absolute;inset:0 auto 0 0;background:var(--tx2);transition:width .5s}
+.esc-mb u i.g{background:var(--teal)}.esc-mb u i.r{background:var(--red)}.esc-mb u i.a{background:var(--amber)}
+.esc-mb b{font-size:10.5px;color:var(--tx2);text-align:right}
+.esc-bt{padding:3px 8px!important;font-size:10px!important;opacity:0;transition:opacity .15s}
+.esc-slot:hover .esc-bt{opacity:1}
+.esc-banco{padding:12px 16px;margin-bottom:16px;border:1px solid var(--line);background:var(--surf1,var(--panel))}
+.esc-banco-l{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.esc-col.b{width:122px}
+.esc-banco-j{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border:1px dashed transparent;font-size:11px;
+  transition:border-color .15s,background .15s,transform .15s}
+.el-div td{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);background:rgba(255,255,255,.02);padding:6px 10px}
+@media (max-width:1200px){.esc-tits{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* ficha do jogador */
+.mj-topo{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;
+  margin:-6px -6px 14px;padding:18px 20px;border-bottom:1px solid rgba(var(--clube-rgb),.4);
+  background:radial-gradient(90% 140% at 0% 0%,rgba(var(--clube-rgb),.28),transparent 62%),linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
+.mj-topo::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--clube)}
+.mj-marca{position:absolute;right:120px;top:50%;transform:translateY(-50%) rotate(-8deg);opacity:.07;pointer-events:none;filter:saturate(.4)}
+.mj-marca img{width:300px;height:300px}
+.mj-carta{position:relative;filter:drop-shadow(0 10px 22px rgba(0,0,0,.55))}
+.mj-id{position:relative;min-width:0}
+.mj-id .eyebrow{display:flex;align-items:center;gap:6px}
+.mj-nome{font-size:40px;margin:4px 0 6px}
+.mj-ov{position:relative;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.mj-ov .ov{font-size:64px}
+.mj-evo{margin-top:6px;overflow:visible}
+.mj-evo circle{fill:var(--panel);stroke:var(--clube,var(--teal));stroke-width:1.6}
+.mj-evo circle.agora{fill:var(--clube,var(--teal))}
+.mj-evo .t{font-size:9px;fill:var(--dim);font-family:'JetBrains Mono',monospace}
+.mj-attr{height:7px;background:rgba(255,255,255,.07);position:relative;overflow:hidden}
+.mj-attr i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,hsl(calc(var(--h)*1deg) 70% 38%),hsl(calc(var(--h)*1deg) 80% 56%));
+  box-shadow:0 0 8px hsla(calc(var(--h)*1deg),80%,56%,.35);animation:barEnche .7s cubic-bezier(.2,.8,.2,1) both}
+.mj-mapas{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin:6px 0 4px}
+.mj-mapa{display:flex;flex-direction:column;justify-content:flex-end;min-height:52px;padding:6px 8px;border:1px solid rgba(255,255,255,.08);
+  border-bottom:3px solid var(--line2);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.mj-mapa span{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.05em;line-height:1}
+.mj-mapa b{font-size:11px;color:var(--tx2)}
+.mj-mapa.bom{border-bottom-color:var(--teal)}.mj-mapa.bom b{color:var(--teal)}
+.mj-mapa.ruim{border-bottom-color:var(--red)}.mj-mapa.ruim b{color:#FF8A95}
+.mj-agentes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
+.mj-ag{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--tx2)}
+.mj-ag img{width:56px;height:64px;object-fit:cover;object-position:top;border:1px solid var(--line2);background:var(--bg2)}
+.mj-ag.pri img{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 14px rgba(226,180,90,.25)}
+
+/* página de clube */
+.cl-faixa{position:relative;overflow:hidden;padding:20px 22px;border:1px solid rgba(var(--clube-rgb),.35);
+  background:radial-gradient(100% 160% at 0% 0%,rgba(var(--clube-rgb),.30),rgba(var(--clube-rgb),.08) 40%,transparent 70%),
+    linear-gradient(100deg,var(--surf2,var(--panel)),var(--surf1,var(--bg2)));box-shadow:var(--sombra-2)}
+.cl-faixa::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--clube)}
+.cl-marca{position:absolute;right:-60px;top:50%;transform:translateY(-50%) rotate(-8deg);opacity:.07;pointer-events:none;filter:saturate(.4)}
+.cl-marca img{width:340px;height:340px}
+.cl-escudo{flex:none;width:130px;height:130px;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle,rgba(var(--clube-rgb),.3),transparent 68%)}
+.cl-escudo img{width:112px;height:112px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55))}
+.cl-id{position:relative;flex:1;min-width:0}
+.cl-id .eyebrow{color:var(--clube)}
+.cl-nome{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:52px;line-height:.95;letter-spacing:.02em;margin:4px 0 10px}
+.cl-nome span{font-size:24px;color:var(--tx2);letter-spacing:.08em}
+.cl-faixa .cl-kpis{position:relative}
+.cl-mini-trof{display:flex;gap:4px;margin-top:10px}
+.cl-mini-trof .trofeu{filter:drop-shadow(0 0 6px rgba(226,180,90,.45))}
+.cl-faixa>.btn{position:relative;align-self:flex-start}
+.cl-elenco-card .esc-palco{margin-top:10px}
+.cl-elenco-card .esc-col .cl-j-info{font-size:11px}
+.cl-sala.prateleira{gap:0;padding:14px 10px 0;background:linear-gradient(180deg,transparent 0,transparent calc(100% - 14px),#3A2C1C calc(100% - 14px),#2A1F14 100%);
+  border-bottom:2px solid #4A3824}
+.cl-sala.prateleira .cl-trof{background:radial-gradient(60% 50% at 50% 35%,rgba(226,180,90,.18),transparent 70%);border:0;padding-bottom:20px}
+.cl-sala.prateleira .cl-trof .trofeu{height:54px;width:auto;filter:drop-shadow(0 0 10px rgba(226,180,90,.45));transition:transform .2s,filter .2s}
+.cl-sala.prateleira .cl-trof:hover .trofeu{transform:translateY(-3px) scale(1.06);filter:drop-shadow(0 0 16px rgba(226,180,90,.7))}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -7318,6 +7428,31 @@ function autoEscalar(t){
   t.elenco.forEach(id=>G.jogadores[id].igl=(id===t.igl));
   /* o entrosamento do time é o dos cinco que jogam: mudou o cinco, muda ele */
   if(typeof atualizarSinergia==='function'&&t.duplas)atualizarSinergia(t);
+}
+
+/* Troca manual: `sai` vai para o banco e `entra` assume o lugar dele (ou, se
+   os dois forem titulares, só trocam de posição na fila). As funções dos
+   cinco são redistribuídas, o IGL segue em quadra e o entrosamento é
+   recalculado (ou, sem duplas, cai 5 como nas trocas pelos botões). */
+function trocarTitular(t,sai,entra){
+  if(!t||sai===entra)return{ok:false};
+  const tit=t.titulares.slice();
+  const iS=tit.indexOf(sai),iE=tit.indexOf(entra);
+  if(iS<0&&iE<0)return{ok:false,erro:'Nenhum dos dois está entre os titulares.'};
+  if(iS>=0&&iE>=0){tit[iS]=entra;tit[iE]=sai;t.titulares=tit;return{ok:true,so:'ordem'};}
+  const fora=iS>=0?entra:sai, dentro=iS>=0?sai:entra;
+  if(!t.elenco.includes(fora))return{ok:false,erro:'Jogador fora do elenco.'};
+  tit[tit.indexOf(dentro)]=fora;
+  t.titulares=tit;
+  const rs=tit.map(i=>G.jogadores[i]).filter(Boolean);
+  if(rs.length===5){const d=distribuirFuncoes(rs);rs.forEach((p,i)=>{p.roleAtual=d.atrib[i];});}
+  const pd=G.jogadores[dentro];if(pd)pd.roleAtual=pd.role;
+  if(!tit.includes(t.igl))t.igl=tit[0];
+  t.elenco.forEach(id=>{const p=G.jogadores[id];if(p)p.igl=(id===t.igl);});
+  if(typeof atualizarSinergia==='function'&&t.duplas)atualizarSinergia(t);
+  else t.sinergia=clamp(t.sinergia-5,0,100);
+  const pf=G.jogadores[fora];
+  return{ok:true,entrou:pf,saiu:pd,lesionado:!!(pf&&pf.lesao)};
 }
 
 /* Diagnóstico para a interface e para os testes: o que a escalação atual
@@ -18035,30 +18170,14 @@ function vElenco(){
   const TH=`<thead><tr><th></th><th>Jogador</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
     <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
     <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
-  /* cartas: filtro por função e ordem */
-  const ord={over:(a,b)=>over(b)-over(a),idade:(a,b)=>a.idade-b.idade,contrato:(a,b)=>a.contrato-b.contrato,
-    funcao:(a,b)=>ROLES.indexOf(a.role)-ROLES.indexOf(b.role)||over(b)-over(a)}[elencoOrd];
-  const cartas=[...tit,...res].filter(p=>!elencoFiltro||p.role===elencoFiltro).sort(ord);
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
-  <div class="card"><div class="split"><div><div class="eyebrow">Titulares</div>
-    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div>
-    <button class="btn ghost sm" id="autoEsc">Escalação automática</button></div>
-    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}</tbody></table></div>
-  </div>
-  <div class="card"><div class="eyebrow">Reservas</div>
-    ${res.length?`<div class="rolagem"><table class="wide el-tab">${TH}<tbody>${res.map(p=>linhaElenco(t,p,false,maxSal)).join('')}</tbody></table></div>`
-      :'<div class="empty">Sem reservas.</div>'}
-  </div>
+  ${escalacaoHTML(t,{editavel:true,botoes:'<button class="btn ghost sm" id="autoEsc">Escalação automática</button>'})}
   ${resumoElenco(t)}
-  <div class="card flat"><div class="split"><div class="eyebrow">Cartas do elenco</div>
-    <div class="el-ctl">
-      <span class="dim">Função</span>${[['','Todas'],...ROLES.map(r=>[r,r])].map(([k,n])=>`<button class="btn sm ${elencoFiltro===k?'':'ghost'}" data-efil="${k}">${n}</button>`).join('')}
-      <span class="dim" style="margin-left:8px">Ordem</span>${[['over','Over'],['idade','Idade'],['contrato','Contrato'],['funcao','Função']].map(([k,n])=>`<button class="btn sm ${elencoOrd===k?'':'ghost'}" data-eord="${k}">${n}</button>`).join('')}
-    </div></div>
-    <div class="cartas-grade">${cartas.map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
-      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot} · ${p.idade}a · <span class="${p.contrato<=1?'dn':''}">${p.contrato}a</span></span></div>`).join('')
-      ||'<div class="empty">Ninguém nessa função.</div>'}</div>
-    <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
+  <div class="card"><div class="split"><div><div class="eyebrow">A semana do elenco</div>
+    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div></div>
+    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}
+      ${res.length?`<tr class="el-div"><td colspan="11">Banco</td></tr>`+res.map(p=>linhaElenco(t,p,false,maxSal)).join(''):''}</tbody></table></div>
+  </div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
     <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
@@ -19359,6 +19478,120 @@ function vInicio(){
 }
 
 
+/* ===== src/ui/escalacao.js ===== */
+/* ============================================================
+   ESCALAÇÃO EM CARTAS (pacote V8)
+   ------------------------------------------------------------
+   Os cinco titulares em cartas lado a lado num palco na cor do
+   clube, com a função em que cada um vai jogar, o IGL e os três
+   indicadores da semana (forma, desgaste e mental). O banco fica
+   embaixo, em cartas menores.
+
+   No seu clube dá para arrastar: carta do banco solta em cima de
+   um titular troca os dois; titular sobre titular troca a ordem.
+   A troca passa por trocarTitular() (core/lineup.js), a mesma dos
+   botões, então funções e entrosamento seguem a mesma regra.
+   ============================================================ */
+
+function miniBarra(rot,v,cls){
+  const pct=Math.round(clamp(v,0,1)*100);
+  return `<div class="esc-mb" title="${esc(rot)} ${pct}"><span>${esc(rot)}</span><u><i class="${cls||''}" style="width:${pct}%"></i></u><b class="num">${pct}</b></div>`;
+}
+
+function slotTitular(t,p,editavel){
+  const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
+  const fun=p.roleAtual||p.role;
+  const fora=fun!==p.role&&p.role!=='Flex';
+  return `<div class="esc-slot" ${editavel?`data-alvo="${p.id}"`:''}>
+    <div class="esc-carta" ${editavel?`draggable="true" data-arrasta="${p.id}"`:''}>${cartaJogador(p,{w:150,clique:true})}
+      ${p.id===t.igl?'<span class="esc-igl" title="Capitão (IGL)">IGL</span>':''}
+      ${p.lesao?`<span class="esc-lesao" title="Lesionado">${icone('lesao')} ${p.lesao} sem.</span>`:''}</div>
+    <div class="esc-fun"><span class="tag ${fun}">${esc(fun)}</span>${fora?`<span class="esc-fora" title="Joga fora da função de origem (${esc(p.role)})">fora de posição</span>`:''}</div>
+    ${editavel?`<div class="esc-ind">
+      ${miniBarra('Forma',p.forma,p.forma>=0.7?'g':p.forma<0.4?'r':'')}
+      ${miniBarra('Desgaste',p.fadiga,p.fadiga>0.7?'r':p.fadiga>0.5?'a':'')}
+      ${miniBarra('Mental',men,men>=0.7?'g':men<0.4?'r':'')}
+    </div>`:''}
+    ${editavel&&p.id!==t.igl?`<button class="btn ghost sm esc-bt" data-igl="${p.id}">Fazer IGL</button>`:''}
+  </div>`;
+}
+function cartaBanco(t,p,editavel){
+  return `<div class="esc-banco-j" ${editavel?`data-alvo="${p.id}"`:''}>
+    <div class="esc-carta" ${editavel?`draggable="true" data-arrasta="${p.id}"`:''}>${cartaJogador(p,{w:104,clique:true})}
+      ${p.lesao?`<span class="esc-lesao">${icone('lesao')} ${p.lesao}</span>`:''}</div>
+    <span class="dim">${esc(p.role)} · ${p.idade}a</span>
+  </div>`;
+}
+/* t: clube; opc.editavel liga o arrastar; opc.extra(p) acrescenta HTML
+   embaixo de cada carta (botões de negociação na página de outro clube) */
+function escalacaoHTML(t,opc){
+  opc=opc||{};
+  const ed=!!opc.editavel;
+  const tit=t.titulares.map(P).filter(Boolean);
+  const res=t.elenco.filter(i=>!t.titulares.includes(i)).map(P).filter(Boolean).sort((a,b)=>over(b)-over(a));
+  const cor=corDoClube(t);
+  const ovm=tit.length?Math.round(tit.reduce((s,p)=>s+over(p),0)/tit.length):0;
+  const extra=p=>opc.extra?opc.extra(p):'';
+  return `<div class="esc-palco" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+      <div class="esc-marca" aria-hidden="true">${escudo(t,300)}</div>
+      <div class="esc-cab"><div><div class="eyebrow">Titulares</div>
+        <span class="dim">${ed?'Arraste uma carta do banco sobre um titular para trocar os dois.':'Os cinco que jogam hoje.'}</span></div>
+        <div class="esc-resumo"><span>over médio <b class="num">${ovm}</b></span><span>entrosamento <b class="num">${Math.round(t.sinergia)}</b></span>
+        ${opc.botoes||''}</div></div>
+      <div class="esc-tits">${tit.map(p=>`<div class="esc-col">${slotTitular(t,p,ed)}${extra(p)}</div>`).join('')}</div>
+    </div>
+    <div class="esc-banco ${ed?'editavel':''}"><div class="eyebrow">Banco · ${res.length}</div>
+      <div class="esc-banco-l">${res.map(p=>`<div class="esc-col b">${cartaBanco(t,p,ed)}${extra(p)}</div>`).join('')
+        ||'<span class="dim">Sem reservas.</span>'}</div></div>`;
+}
+
+/* arrastar e soltar */
+let _arrastando=null;
+function ligarEscalacao(raiz,t){
+  raiz.querySelectorAll('[data-arrasta]').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      _arrastando=el.dataset.arrasta;
+      e.dataTransfer.effectAllowed='move';
+      try{e.dataTransfer.setData('text/plain',_arrastando);}catch(_){}
+      requestAnimationFrame(()=>el.classList.add('arrastando'));
+      raiz.classList.add('esc-arrastando');
+    });
+    el.addEventListener('dragend',()=>{
+      el.classList.remove('arrastando');raiz.classList.remove('esc-arrastando');
+      raiz.querySelectorAll('.alvo').forEach(x=>x.classList.remove('alvo'));
+      _arrastando=null;
+    });
+  });
+  raiz.querySelectorAll('[data-alvo]').forEach(el=>{
+    el.addEventListener('dragover',e=>{
+      if(!_arrastando||_arrastando===el.dataset.alvo)return;
+      /* banco sobre banco não faz nada */
+      if(!t.titulares.includes(_arrastando)&&!t.titulares.includes(el.dataset.alvo))return;
+      e.preventDefault();e.dataTransfer.dropEffect='move';el.classList.add('alvo');
+    });
+    el.addEventListener('dragleave',()=>el.classList.remove('alvo'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();el.classList.remove('alvo');
+      const de=_arrastando||e.dataTransfer.getData('text/plain'),para=el.dataset.alvo;
+      _arrastando=null;
+      if(!de||de===para)return;
+      const titDe=t.titulares.includes(de);
+      const r=trocarTitular(t,titDe?de:para,titDe?para:de);
+      if(!r||!r.ok){if(r&&r.erro)flash(r.erro);return;}
+      _trocaRecente=[de,para];
+      render();
+      if(r.entrou&&r.saiu)flash(r.entrou.nome+' entra no lugar de '+r.saiu.nome+'.'+(r.lesionado?' Ele está lesionado e rende menos.':''));
+    });
+  });
+  /* a carta que acabou de entrar aparece com um destaque curto */
+  if(_trocaRecente){
+    _trocaRecente.forEach(id=>{const c=raiz.querySelector(`[data-arrasta="${id}"]`);if(c)c.classList.add('entrou');});
+    _trocaRecente=null;
+  }
+}
+let _trocaRecente=null;
+
+
 /* ===== src/ui/vestiario.js ===== */
 /* ============================================================
    CLUBE › VESTIÁRIO — entrosamento por dupla e a cabeça do elenco
@@ -20610,23 +20843,18 @@ function vClube(){
   const intl=typeof campanhaInternacional==='function'?campanhaInternacional(t):null;
   const tc=t.temporada||{v:0,d:0};
 
-  /* elenco em cartas: titulares primeiro */
-  const elenco=(t.elenco||[]).map(P).filter(Boolean)
-    .sort((a,b)=>(t.titulares.includes(b.id)?1:0)-(t.titulares.includes(a.id)?1:0)||over(b)-over(a));
-  const cartas=elenco.map(p=>`<div class="cl-j">
-      ${cartaJogador(p,{w:128,clique:true})}
-      <div class="cl-j-info">${t.titulares.includes(p.id)?'<span class="chip t">titular</span>':'<span class="chip">reserva</span>'}
-        ${p.id===t.igl?'<span class="chip">IGL</span>':''}</div>
-      <div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
+  /* elenco em escalação: os cinco no palco, o banco embaixo */
+  const elenco=(t.elenco||[]).map(P).filter(Boolean);
+  const infoJ=p=>`<div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
       <div class="cl-j-info"><span class="num">${money(p.salario||0)}</span><span class="dim">/mês</span> · <span class="num">${money(p.valor||0)}</span></div>
       ${souEu?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
-        <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}
-    </div>`).join('');
+        <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}`;
+  const cartas=elenco.length?escalacaoHTML(t,{extra:infoJ}):'';
 
   /* sala de troféus: tudo o que o clube já ganhou, pré-carreira junto */
   const tits=(G.historico||[]).filter(h=>h&&(h.timeId===t.id||(!h.timeId&&h.campeao===t.nome)))
     .slice().sort((a,b)=>b.ano-a.ano);
-  const sala=tits.length?`<div class="cl-sala">${tits.map(h=>`<div class="cl-trof" title="${esc(h.ano+' · '+h.evento)}">
+  const sala=tits.length?`<div class="cl-sala prateleira">${tits.map(h=>`<div class="cl-trof" title="${esc(h.ano+' · '+h.evento)}">
       ${imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),30,h.evento)}<span class="num">${h.ano}</span>
       <span class="dim">${esc(h.evento.replace(/ · VCT.*$/,''))}</span></div>`).join('')}</div>`
     :'<div class="dim">Nenhum título ainda.</div>';
@@ -20668,24 +20896,28 @@ function vClube(){
     return `<div class="cl-com"><span class="dim">${esc(c.curto)}</span><b>${m?esc(m.nome):'vago'}</b>${m&&m.ex?' <span class="chip" title="ex-jogador">ex-jogador</span>':''}</div>`;
   }).join('');
 
-  return `<div class="cl-topo">
-    ${escudo(t,76)}
+  const cor=corDoClube(t);
+  return `<div class="cl-topo cl-faixa" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    <div class="cl-marca" aria-hidden="true">${escudo(t,340)}</div>
+    <div class="cl-escudo">${escudo(t,112)}</div>
     <div class="cl-id">
       <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · de ${esc(t.dono.nome)}`:''}</div>
-      <h2 class="sec" style="margin:2px 0 6px">${esc(t.nome)} <span class="dim">${esc(t.tag)}</span></h2>
+      <h1 class="cl-nome">${esc(t.nome)} <span>${esc(t.tag)}</span></h1>
       <div class="cl-kpis">
         <div><span>Prestígio</span><b class="num">${Math.round(t.prestigio)}</b></div>
         <div><span>Torcida</span><b class="num">${Math.round(t.torcida||0)}</b></div>
         <div><span>Ranking mundial</span><b class="num">${posMundo?posMundo+'º':'—'}</b></div>
+        <div><span>Títulos</span><b class="num">${tits.length}</b></div>
         <div><span>Técnico</span><b>${esc(tecNome)}</b></div>
         <div><span>Patrocínio máster</span><b>${mk?esc(mk.nome):'—'}</b></div>
       </div>
+      ${tits.length?`<div class="cl-mini-trof">${tits.slice(0,8).map(h=>imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),20,h.ano+' · '+h.evento)).join('')}</div>`:''}
     </div>
     ${souEu?`<button class="btn ghost sm" data-irtela="historia">História do clube</button>`:''}
   </div>
-  <div class="card"><div class="split"><div class="eyebrow">Elenco</div>
+  <div class="card cl-elenco-card"><div class="split"><div class="eyebrow">Elenco</div>
     <span class="dim">${elenco.length} jogadores${souEu?'':' · negociar abre a mesa; troca monta uma proposta'}</span></div>
-    <div class="cl-elenco">${cartas||'<div class="empty">Sem jogadores.</div>'}</div>
+    ${cartas||'<div class="empty">Sem jogadores.</div>'}
     <div class="cl-coms">${comissao}</div></div>
   <div class="grid g2">
     <div>
@@ -20964,43 +21196,53 @@ function modalJogador(id){
   const t=meu();
   const barra=(k)=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
     <span style="width:118px;font-size:11.5px">${ATTRS.find(a=>a[0]===k)[1]}</span>
-    <div class="bar" style="flex:1"><i class="${ovClass(Math.round(p.at[k]))}" style="width:${p.at[k]}%"></i></div>
+    <div class="mj-attr" style="flex:1"><i style="width:${p.at[k]}%;--h:${Math.round(clamp((p.at[k]-40)/55,0,1)*150)}"></i></div>
     <b class="num" style="width:26px;text-align:right">${Math.round(p.at[k])}</b></div>`;
   const st=p.temp;
   const meuJog=p.timeId===t.id;
   /* Antes isto era `return abrir(...)`: o return cortava a função e nenhum
      botão da ficha (renovar, troca, pedido de saída, opção) ganhava clique. */
-  abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
-    <div class="eyebrow">${p.timeId?linkClube(G.times[p.timeId]):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
-    <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
-    <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
+  const clubeJ=p.timeId?G.times[p.timeId]:p.base?G.times[p.base]:null;
+  const corJ=clubeJ?corDoClube(clubeJ):'#8A96A3';
+  /* evolução do over: temporadas passadas + agora */
+  const evo=(p.hist||[]).filter(h=>h&&h.over!=null).map(h=>({ano:h.ano,ov:h.over})).concat([{ano:G.ano,ov:over(p),agora:true}]).slice(-8);
+  abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="mj-topo" style="--clube:${corJ};--clube-rgb:${rgbDe(corJ)}">
+    ${clubeJ?`<div class="mj-marca" aria-hidden="true">${escudo(clubeJ,300)}</div>`:''}
+    <div class="mj-carta">${cartaJogador(p,{w:170})}</div>
+    <div class="mj-id">
+    <div class="eyebrow">${clubeJ&&p.timeId?escudo(clubeJ,18)+' '+linkClube(clubeJ):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
+    <h2 class="sec mj-nome">${esc(p.nome)} ${bandeira(p.pais)}</h2>
+    <div class="dim" style="font-size:12px;margin:-4px 0 8px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
       `<span class="tag ${p.role2}" style="opacity:.55" title="função secundária: perde ${
         custoDeFuncao(p,p.role2)} de over">2ª ${p.role2}</span>`:''} <span class="pill">${p.idade} anos</span>
     <span class="pill">Contrato ${p.contrato}a</span> ${p.igl?'<span class="pill">IGL</span>':''}
     <span class="pill" title="${esc(PERFIS[perfilDe(p)].desc)}">Perfil ${esc(PERFIS[perfilDe(p)].nome)}</span>
-    <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
+    <div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap">
       <span class="badge ${p.lesao?'no':'ok'}">${p.lesao?'lesionado · '+p.lesao+' sem.':'apto'}</span>
       <span class="badge ${p.moral>=.7?'ok':p.moral>=.45?'at':'no'}">${p.moral>=.7?'motivado':p.moral>=.45?'neutro':'insatisfeito'}</span>
       <span class="badge ${p.fadiga<=.4?'ok':p.fadiga<=.75?'at':'no'}">${p.fadiga<=.4?'descansado':p.fadiga<=.75?'desgastado':'exausto'}</span>
-    </div></div></div>
-    <div style="text-align:right"><div class="ov ${ovClass(over(p))}" style="font-size:52px">${over(p)}</div>
-    <div class="dim">Potencial <b style="color:var(--gold)">${p.pot}</b></div></div></div>
+    </div></div>
+    <div class="mj-ov"><div class="ov ${ovClass(over(p))}">${over(p)}</div>
+      <div class="dim">Potencial <b style="color:var(--gold)">${p.pot}</b></div>
+      ${evo.length>1?linhaEvolucao(evo):''}</div>
+  </div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card flat"><div class="eyebrow">Atributos</div>${ATTRS.map(a=>barra(a[0])).join('')}
       <div class="eyebrow" style="margin-top:14px">Perfil</div>
       ${radar([['Mira',p.at.mira],['Util.',p.at.util],['Visão',p.at.visao],
                ['Clutch',p.at.clutch],['Cons.',p.at.consist]],210)}
+      <div class="eyebrow" style="margin-top:10px">Agentes</div>
+      <div class="mj-agentes">${p.agentes.map((a,i)=>`<div class="mj-ag ${i===0?'pri':''}">${retratoAgente(a,56)}<span>${esc(a)}</span></div>`).join('')}</div>
     </div>
     <div class="card flat"><div class="eyebrow">Condição</div>
       <div class="gauges" style="justify-content:space-around;margin:4px 0 14px">
         ${medidor('Forma',p.forma)}${medidor('Confiança',typeof confiancaDe==='function'?confiancaDe(p):0.6)}${medidor('Moral',p.moral)}${medidor('Descanso',1-p.fadiga)}
       </div>
       <div class="eyebrow">Mapas</div>
-      <div class="mapa-tira">${mapasDe(p).map(x=>`
-        <div class="mapa-item ${x.v>=2?'bom':x.v<=-2?'ruim':''}" title="${esc(x.mapa)}: ${x.v>0?'+':''}${x.v.toFixed(1)}">
-          <span>${esc(x.mapa)}</span>
-          <div class="bar"><i style="width:${clamp(50+x.v*6,4,100)}%"></i></div>
+      <div class="mj-mapas">${mapasDe(p).map(x=>`
+        <div class="mj-mapa ${x.v>=2?'bom':x.v<=-2?'ruim':''}" style="${fundoMapa(x.mapa,0.55)}" title="${esc(x.mapa)}: ${x.v>0?'+':''}${x.v.toFixed(1)}">
+          <span>${esc(x.mapa)}</span><b class="num">${x.v>0?'+':''}${x.v.toFixed(1)}</b>
         </div>`).join('')}</div>
       <p class="dim" style="font-size:11px;margin:6px 0 12px">Afinidade individual: sobe nos mapas
       em que ele rende acima do próprio normal e cai nos outros.</p>
@@ -21012,8 +21254,6 @@ function modalJogador(id){
       ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
       ${p.revenda&&T(p.revenda.clubeId)?`<tr><td>Revenda</td><td class="r num">${p.revenda.pct}% para o ${esc(T(p.revenda.clubeId).nome)}</td></tr>`:''}
       ${p.emprestimo&&T(p.emprestimo.donoId)?`<tr><td>Emprestado pelo</td><td class="r">${esc(T(p.emprestimo.donoId).nome)}${p.emprestimo.opcaoCompra?' · opção '+money(p.emprestimo.opcaoCompra):''}</td></tr>`:''}
-      <tr><td>Agentes</td><td class="r"><span class="agmini">${
-        p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
       <div class="eyebrow" style="margin-top:12px">Temporada ${G.ano}</div>
       <table><tbody><tr><td>Mapas</td><td class="r num">${st.maps}</td></tr>
@@ -21060,6 +21300,18 @@ function modalJogador(id){
   $('#modal').querySelectorAll('[data-opcao]').forEach(b=>b.onclick=()=>{
     const r=exercerOpcao(p);if(!r.ok)return avisar(r.erro);render();modalJogador(p.id);
   });
+}
+/* Linha de evolução do over, uma bolinha por temporada (a última é agora). */
+function linhaEvolucao(evo){
+  const W=168,H=54,pad=8;
+  const ovs=evo.map(e=>e.ov),mn=Math.min(...ovs)-2,mx=Math.max(...ovs)+2;
+  const x=i=>pad+i*(W-2*pad)/Math.max(1,evo.length-1),y=v=>H-pad-(v-mn)/Math.max(1,mx-mn)*(H-2*pad-10);
+  const pts=evo.map((e,i)=>x(i).toFixed(1)+','+y(e.ov).toFixed(1)).join(' ');
+  return `<svg class="mj-evo" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <polyline points="${pts}" fill="none" stroke="var(--clube,var(--teal))" stroke-width="2"/>
+    ${evo.map((e,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(e.ov).toFixed(1)}" r="${e.agora?3.6:2.4}" class="${e.agora?'agora':''}"><title>${e.ano}: ${e.ov}</title></circle>`).join('')}
+    <text x="${x(0)}" y="${H-1}" class="t">${evo[0].ano}</text><text x="${x(evo.length-1)}" y="${H-1}" class="t" text-anchor="end">${evo[evo.length-1].ano}</text>
+  </svg>`;
 }
 /* Topo da ficha do seu jogador: contrato, anúncio e os dois caminhos de
    mercado (renovar e pôr à venda/emprestar) num lugar só, à vista. */
@@ -24170,24 +24422,16 @@ function ligarEventos(){
   });
   on('#autoEsc',()=>{autoEscalar(t);render();});
   on('[data-banco]',el=>{
-    if(t.titulares.length<=5&&t.elenco.length>5){
-      const sub=t.elenco.find(i=>!t.titulares.includes(i)&&!P(i).lesao);
-      if(!sub)return;
-      t.titulares=t.titulares.map(i=>i===el.dataset.banco?sub:i);
-      t.sinergia=clamp(t.sinergia-5,0,100);
-    }
-    t.elenco.forEach(i=>P(i).igl=(i===t.igl));
-    if(!t.titulares.includes(t.igl))t.igl=t.titulares[0];
-    render();
+    const sub=t.elenco.find(i=>!t.titulares.includes(i)&&!P(i).lesao);
+    if(!sub)return;
+    trocarTitular(t,el.dataset.banco,sub);render();
   });
   on('[data-tit]',el=>{
     const sai=t.titulares.map(P).sort((a,b)=>over(a)-over(b))[0];
-    t.titulares=t.titulares.map(i=>i===sai.id?el.dataset.tit:i);
-    t.sinergia=clamp(t.sinergia-5,0,100);
-    if(!t.titulares.includes(t.igl))t.igl=t.titulares[0];
-    t.elenco.forEach(i=>P(i).igl=(i===t.igl));render();
+    trocarTitular(t,sai.id,el.dataset.tit);render();
   });
   on('[data-igl]',el=>{t.igl=el.dataset.igl;t.elenco.forEach(i=>P(i).igl=(i===t.igl));render();});
+  if(tela==='elenco'&&typeof ligarEscalacao==='function')ligarEscalacao(v,t);
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
     const c=custoUpgrade(t[grp][k]);

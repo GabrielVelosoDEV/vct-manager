@@ -154,30 +154,14 @@ function vElenco(){
   const TH=`<thead><tr><th></th><th>Jogador</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
     <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
     <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
-  /* cartas: filtro por função e ordem */
-  const ord={over:(a,b)=>over(b)-over(a),idade:(a,b)=>a.idade-b.idade,contrato:(a,b)=>a.contrato-b.contrato,
-    funcao:(a,b)=>ROLES.indexOf(a.role)-ROLES.indexOf(b.role)||over(b)-over(a)}[elencoOrd];
-  const cartas=[...tit,...res].filter(p=>!elencoFiltro||p.role===elencoFiltro).sort(ord);
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
-  <div class="card"><div class="split"><div><div class="eyebrow">Titulares</div>
-    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div>
-    <button class="btn ghost sm" id="autoEsc">Escalação automática</button></div>
-    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}</tbody></table></div>
-  </div>
-  <div class="card"><div class="eyebrow">Reservas</div>
-    ${res.length?`<div class="rolagem"><table class="wide el-tab">${TH}<tbody>${res.map(p=>linhaElenco(t,p,false,maxSal)).join('')}</tbody></table></div>`
-      :'<div class="empty">Sem reservas.</div>'}
-  </div>
+  ${escalacaoHTML(t,{editavel:true,botoes:'<button class="btn ghost sm" id="autoEsc">Escalação automática</button>'})}
   ${resumoElenco(t)}
-  <div class="card flat"><div class="split"><div class="eyebrow">Cartas do elenco</div>
-    <div class="el-ctl">
-      <span class="dim">Função</span>${[['','Todas'],...ROLES.map(r=>[r,r])].map(([k,n])=>`<button class="btn sm ${elencoFiltro===k?'':'ghost'}" data-efil="${k}">${n}</button>`).join('')}
-      <span class="dim" style="margin-left:8px">Ordem</span>${[['over','Over'],['idade','Idade'],['contrato','Contrato'],['funcao','Função']].map(([k,n])=>`<button class="btn sm ${elencoOrd===k?'':'ghost'}" data-eord="${k}">${n}</button>`).join('')}
-    </div></div>
-    <div class="cartas-grade">${cartas.map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
-      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot} · ${p.idade}a · <span class="${p.contrato<=1?'dn':''}">${p.contrato}a</span></span></div>`).join('')
-      ||'<div class="empty">Ninguém nessa função.</div>'}</div>
-    <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
+  <div class="card"><div class="split"><div><div class="eyebrow">A semana do elenco</div>
+    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div></div>
+    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}
+      ${res.length?`<tr class="el-div"><td colspan="11">Banco</td></tr>`+res.map(p=>linhaElenco(t,p,false,maxSal)).join(''):''}</tbody></table></div>
+  </div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
     <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;

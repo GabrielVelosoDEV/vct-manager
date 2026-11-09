@@ -122,6 +122,31 @@ function autoEscalar(t){
   if(typeof atualizarSinergia==='function'&&t.duplas)atualizarSinergia(t);
 }
 
+/* Troca manual: `sai` vai para o banco e `entra` assume o lugar dele (ou, se
+   os dois forem titulares, só trocam de posição na fila). As funções dos
+   cinco são redistribuídas, o IGL segue em quadra e o entrosamento é
+   recalculado (ou, sem duplas, cai 5 como nas trocas pelos botões). */
+function trocarTitular(t,sai,entra){
+  if(!t||sai===entra)return{ok:false};
+  const tit=t.titulares.slice();
+  const iS=tit.indexOf(sai),iE=tit.indexOf(entra);
+  if(iS<0&&iE<0)return{ok:false,erro:'Nenhum dos dois está entre os titulares.'};
+  if(iS>=0&&iE>=0){tit[iS]=entra;tit[iE]=sai;t.titulares=tit;return{ok:true,so:'ordem'};}
+  const fora=iS>=0?entra:sai, dentro=iS>=0?sai:entra;
+  if(!t.elenco.includes(fora))return{ok:false,erro:'Jogador fora do elenco.'};
+  tit[tit.indexOf(dentro)]=fora;
+  t.titulares=tit;
+  const rs=tit.map(i=>G.jogadores[i]).filter(Boolean);
+  if(rs.length===5){const d=distribuirFuncoes(rs);rs.forEach((p,i)=>{p.roleAtual=d.atrib[i];});}
+  const pd=G.jogadores[dentro];if(pd)pd.roleAtual=pd.role;
+  if(!tit.includes(t.igl))t.igl=tit[0];
+  t.elenco.forEach(id=>{const p=G.jogadores[id];if(p)p.igl=(id===t.igl);});
+  if(typeof atualizarSinergia==='function'&&t.duplas)atualizarSinergia(t);
+  else t.sinergia=clamp(t.sinergia-5,0,100);
+  const pf=G.jogadores[fora];
+  return{ok:true,entrou:pf,saiu:pd,lesionado:!!(pf&&pf.lesao)};
+}
+
 /* Diagnóstico para a interface e para os testes: o que a escalação atual
    cobre e o que deixou de fora. */
 function coberturaFuncoes(t){

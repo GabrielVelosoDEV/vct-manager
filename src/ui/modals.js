@@ -86,43 +86,53 @@ function modalJogador(id){
   const t=meu();
   const barra=(k)=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
     <span style="width:118px;font-size:11.5px">${ATTRS.find(a=>a[0]===k)[1]}</span>
-    <div class="bar" style="flex:1"><i class="${ovClass(Math.round(p.at[k]))}" style="width:${p.at[k]}%"></i></div>
+    <div class="mj-attr" style="flex:1"><i style="width:${p.at[k]}%;--h:${Math.round(clamp((p.at[k]-40)/55,0,1)*150)}"></i></div>
     <b class="num" style="width:26px;text-align:right">${Math.round(p.at[k])}</b></div>`;
   const st=p.temp;
   const meuJog=p.timeId===t.id;
   /* Antes isto era `return abrir(...)`: o return cortava a função e nenhum
      botão da ficha (renovar, troca, pedido de saída, opção) ganhava clique. */
-  abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="split"><div class="linha-t" style="align-items:flex-start;gap:16px">${cartaJogador(p,{w:150})}<div>
-    <div class="eyebrow">${p.timeId?linkClube(G.times[p.timeId]):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
-    <h2 class="sec">${esc(p.nome)} ${bandeira(p.pais)}</h2>
-    <div class="dim" style="font-size:12px;margin:-4px 0 6px">${esc(nomePais(p.pais))}</div>
+  const clubeJ=p.timeId?G.times[p.timeId]:p.base?G.times[p.base]:null;
+  const corJ=clubeJ?corDoClube(clubeJ):'#8A96A3';
+  /* evolução do over: temporadas passadas + agora */
+  const evo=(p.hist||[]).filter(h=>h&&h.over!=null).map(h=>({ano:h.ano,ov:h.over})).concat([{ano:G.ano,ov:over(p),agora:true}]).slice(-8);
+  abrir(`${meuJog?barraDoMeuJogador(t,p):''}<div class="mj-topo" style="--clube:${corJ};--clube-rgb:${rgbDe(corJ)}">
+    ${clubeJ?`<div class="mj-marca" aria-hidden="true">${escudo(clubeJ,300)}</div>`:''}
+    <div class="mj-carta">${cartaJogador(p,{w:170})}</div>
+    <div class="mj-id">
+    <div class="eyebrow">${clubeJ&&p.timeId?escudo(clubeJ,18)+' '+linkClube(clubeJ):p.base?'Base · '+esc(nomeT(p.base)):'Agente livre'}</div>
+    <h2 class="sec mj-nome">${esc(p.nome)} ${bandeira(p.pais)}</h2>
+    <div class="dim" style="font-size:12px;margin:-4px 0 8px">${esc(nomePais(p.pais))}</div>
     <span class="tag ${p.role}">${p.role}</span>${p.role2?
       `<span class="tag ${p.role2}" style="opacity:.55" title="função secundária: perde ${
         custoDeFuncao(p,p.role2)} de over">2ª ${p.role2}</span>`:''} <span class="pill">${p.idade} anos</span>
     <span class="pill">Contrato ${p.contrato}a</span> ${p.igl?'<span class="pill">IGL</span>':''}
     <span class="pill" title="${esc(PERFIS[perfilDe(p)].desc)}">Perfil ${esc(PERFIS[perfilDe(p)].nome)}</span>
-    <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
+    <div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap">
       <span class="badge ${p.lesao?'no':'ok'}">${p.lesao?'lesionado · '+p.lesao+' sem.':'apto'}</span>
       <span class="badge ${p.moral>=.7?'ok':p.moral>=.45?'at':'no'}">${p.moral>=.7?'motivado':p.moral>=.45?'neutro':'insatisfeito'}</span>
       <span class="badge ${p.fadiga<=.4?'ok':p.fadiga<=.75?'at':'no'}">${p.fadiga<=.4?'descansado':p.fadiga<=.75?'desgastado':'exausto'}</span>
-    </div></div></div>
-    <div style="text-align:right"><div class="ov ${ovClass(over(p))}" style="font-size:52px">${over(p)}</div>
-    <div class="dim">Potencial <b style="color:var(--gold)">${p.pot}</b></div></div></div>
+    </div></div>
+    <div class="mj-ov"><div class="ov ${ovClass(over(p))}">${over(p)}</div>
+      <div class="dim">Potencial <b style="color:var(--gold)">${p.pot}</b></div>
+      ${evo.length>1?linhaEvolucao(evo):''}</div>
+  </div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card flat"><div class="eyebrow">Atributos</div>${ATTRS.map(a=>barra(a[0])).join('')}
       <div class="eyebrow" style="margin-top:14px">Perfil</div>
       ${radar([['Mira',p.at.mira],['Util.',p.at.util],['Visão',p.at.visao],
                ['Clutch',p.at.clutch],['Cons.',p.at.consist]],210)}
+      <div class="eyebrow" style="margin-top:10px">Agentes</div>
+      <div class="mj-agentes">${p.agentes.map((a,i)=>`<div class="mj-ag ${i===0?'pri':''}">${retratoAgente(a,56)}<span>${esc(a)}</span></div>`).join('')}</div>
     </div>
     <div class="card flat"><div class="eyebrow">Condição</div>
       <div class="gauges" style="justify-content:space-around;margin:4px 0 14px">
         ${medidor('Forma',p.forma)}${medidor('Confiança',typeof confiancaDe==='function'?confiancaDe(p):0.6)}${medidor('Moral',p.moral)}${medidor('Descanso',1-p.fadiga)}
       </div>
       <div class="eyebrow">Mapas</div>
-      <div class="mapa-tira">${mapasDe(p).map(x=>`
-        <div class="mapa-item ${x.v>=2?'bom':x.v<=-2?'ruim':''}" title="${esc(x.mapa)}: ${x.v>0?'+':''}${x.v.toFixed(1)}">
-          <span>${esc(x.mapa)}</span>
-          <div class="bar"><i style="width:${clamp(50+x.v*6,4,100)}%"></i></div>
+      <div class="mj-mapas">${mapasDe(p).map(x=>`
+        <div class="mj-mapa ${x.v>=2?'bom':x.v<=-2?'ruim':''}" style="${fundoMapa(x.mapa,0.55)}" title="${esc(x.mapa)}: ${x.v>0?'+':''}${x.v.toFixed(1)}">
+          <span>${esc(x.mapa)}</span><b class="num">${x.v>0?'+':''}${x.v.toFixed(1)}</b>
         </div>`).join('')}</div>
       <p class="dim" style="font-size:11px;margin:6px 0 12px">Afinidade individual: sobe nos mapas
       em que ele rende acima do próprio normal e cai nos outros.</p>
@@ -134,8 +144,6 @@ function modalJogador(id){
       ${p.timeId?`<tr><td>Multa rescisória</td><td class="r num">${money(multaDe(p))}</td></tr>`:''}
       ${p.revenda&&T(p.revenda.clubeId)?`<tr><td>Revenda</td><td class="r num">${p.revenda.pct}% para o ${esc(T(p.revenda.clubeId).nome)}</td></tr>`:''}
       ${p.emprestimo&&T(p.emprestimo.donoId)?`<tr><td>Emprestado pelo</td><td class="r">${esc(T(p.emprestimo.donoId).nome)}${p.emprestimo.opcaoCompra?' · opção '+money(p.emprestimo.opcaoCompra):''}</td></tr>`:''}
-      <tr><td>Agentes</td><td class="r"><span class="agmini">${
-        p.agentes.map(a=>`<span title="${esc(a)}">${retratoAgente(a,26)}</span>`).join('')}</span></td></tr>
       </tbody></table>
       <div class="eyebrow" style="margin-top:12px">Temporada ${G.ano}</div>
       <table><tbody><tr><td>Mapas</td><td class="r num">${st.maps}</td></tr>
@@ -182,6 +190,18 @@ function modalJogador(id){
   $('#modal').querySelectorAll('[data-opcao]').forEach(b=>b.onclick=()=>{
     const r=exercerOpcao(p);if(!r.ok)return avisar(r.erro);render();modalJogador(p.id);
   });
+}
+/* Linha de evolução do over, uma bolinha por temporada (a última é agora). */
+function linhaEvolucao(evo){
+  const W=168,H=54,pad=8;
+  const ovs=evo.map(e=>e.ov),mn=Math.min(...ovs)-2,mx=Math.max(...ovs)+2;
+  const x=i=>pad+i*(W-2*pad)/Math.max(1,evo.length-1),y=v=>H-pad-(v-mn)/Math.max(1,mx-mn)*(H-2*pad-10);
+  const pts=evo.map((e,i)=>x(i).toFixed(1)+','+y(e.ov).toFixed(1)).join(' ');
+  return `<svg class="mj-evo" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <polyline points="${pts}" fill="none" stroke="var(--clube,var(--teal))" stroke-width="2"/>
+    ${evo.map((e,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(e.ov).toFixed(1)}" r="${e.agora?3.6:2.4}" class="${e.agora?'agora':''}"><title>${e.ano}: ${e.ov}</title></circle>`).join('')}
+    <text x="${x(0)}" y="${H-1}" class="t">${evo[0].ano}</text><text x="${x(evo.length-1)}" y="${H-1}" class="t" text-anchor="end">${evo[evo.length-1].ano}</text>
+  </svg>`;
 }
 /* Topo da ficha do seu jogador: contrato, anúncio e os dois caminhos de
    mercado (renovar e pôr à venda/emprestar) num lugar só, à vista. */

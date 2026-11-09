@@ -85,23 +85,18 @@ function vClube(){
   const intl=typeof campanhaInternacional==='function'?campanhaInternacional(t):null;
   const tc=t.temporada||{v:0,d:0};
 
-  /* elenco em cartas: titulares primeiro */
-  const elenco=(t.elenco||[]).map(P).filter(Boolean)
-    .sort((a,b)=>(t.titulares.includes(b.id)?1:0)-(t.titulares.includes(a.id)?1:0)||over(b)-over(a));
-  const cartas=elenco.map(p=>`<div class="cl-j">
-      ${cartaJogador(p,{w:128,clique:true})}
-      <div class="cl-j-info">${t.titulares.includes(p.id)?'<span class="chip t">titular</span>':'<span class="chip">reserva</span>'}
-        ${p.id===t.igl?'<span class="chip">IGL</span>':''}</div>
-      <div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
+  /* elenco em escalação: os cinco no palco, o banco embaixo */
+  const elenco=(t.elenco||[]).map(P).filter(Boolean);
+  const infoJ=p=>`<div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
       <div class="cl-j-info"><span class="num">${money(p.salario||0)}</span><span class="dim">/mês</span> · <span class="num">${money(p.valor||0)}</span></div>
       ${souEu?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
-        <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}
-    </div>`).join('');
+        <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}`;
+  const cartas=elenco.length?escalacaoHTML(t,{extra:infoJ}):'';
 
   /* sala de troféus: tudo o que o clube já ganhou, pré-carreira junto */
   const tits=(G.historico||[]).filter(h=>h&&(h.timeId===t.id||(!h.timeId&&h.campeao===t.nome)))
     .slice().sort((a,b)=>b.ano-a.ano);
-  const sala=tits.length?`<div class="cl-sala">${tits.map(h=>`<div class="cl-trof" title="${esc(h.ano+' · '+h.evento)}">
+  const sala=tits.length?`<div class="cl-sala prateleira">${tits.map(h=>`<div class="cl-trof" title="${esc(h.ano+' · '+h.evento)}">
       ${imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),30,h.evento)}<span class="num">${h.ano}</span>
       <span class="dim">${esc(h.evento.replace(/ · VCT.*$/,''))}</span></div>`).join('')}</div>`
     :'<div class="dim">Nenhum título ainda.</div>';
@@ -143,24 +138,28 @@ function vClube(){
     return `<div class="cl-com"><span class="dim">${esc(c.curto)}</span><b>${m?esc(m.nome):'vago'}</b>${m&&m.ex?' <span class="chip" title="ex-jogador">ex-jogador</span>':''}</div>`;
   }).join('');
 
-  return `<div class="cl-topo">
-    ${escudo(t,76)}
+  const cor=corDoClube(t);
+  return `<div class="cl-topo cl-faixa" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    <div class="cl-marca" aria-hidden="true">${escudo(t,340)}</div>
+    <div class="cl-escudo">${escudo(t,112)}</div>
     <div class="cl-id">
       <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · de ${esc(t.dono.nome)}`:''}</div>
-      <h2 class="sec" style="margin:2px 0 6px">${esc(t.nome)} <span class="dim">${esc(t.tag)}</span></h2>
+      <h1 class="cl-nome">${esc(t.nome)} <span>${esc(t.tag)}</span></h1>
       <div class="cl-kpis">
         <div><span>Prestígio</span><b class="num">${Math.round(t.prestigio)}</b></div>
         <div><span>Torcida</span><b class="num">${Math.round(t.torcida||0)}</b></div>
         <div><span>Ranking mundial</span><b class="num">${posMundo?posMundo+'º':'—'}</b></div>
+        <div><span>Títulos</span><b class="num">${tits.length}</b></div>
         <div><span>Técnico</span><b>${esc(tecNome)}</b></div>
         <div><span>Patrocínio máster</span><b>${mk?esc(mk.nome):'—'}</b></div>
       </div>
+      ${tits.length?`<div class="cl-mini-trof">${tits.slice(0,8).map(h=>imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),20,h.ano+' · '+h.evento)).join('')}</div>`:''}
     </div>
     ${souEu?`<button class="btn ghost sm" data-irtela="historia">História do clube</button>`:''}
   </div>
-  <div class="card"><div class="split"><div class="eyebrow">Elenco</div>
+  <div class="card cl-elenco-card"><div class="split"><div class="eyebrow">Elenco</div>
     <span class="dim">${elenco.length} jogadores${souEu?'':' · negociar abre a mesa; troca monta uma proposta'}</span></div>
-    <div class="cl-elenco">${cartas||'<div class="empty">Sem jogadores.</div>'}</div>
+    ${cartas||'<div class="empty">Sem jogadores.</div>'}
     <div class="cl-coms">${comissao}</div></div>
   <div class="grid g2">
     <div>
