@@ -114,11 +114,22 @@ function cenaEstrutura(k,n,cor){
   return `<svg class="dp-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc((deptoDe(k)||{}).nome||k)}, nível ${n}">${fundo}${c}</svg>`;
 }
 /* foto opcional em assets/estrutura/; sem ela, a ilustração */
+/* Foto de assets/estrutura: a versão do nível quando existe (-basico até o
+   nível 2, -elite no 5), senão a principal. As fotos são neutras de
+   propósito: o escudo entra na placa vazia do centro do terço superior e a
+   cor do clube tinge a cena por cima — a mesma foto serve para os 80. */
+function fotoDepto(k,n){
+  const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  const v=n<=2?k+'-basico':n>=5?k+'-elite':null;
+  return v&&M['estrutura/'+v]?v:M['estrutura/'+k]?k:null;
+}
 function arteDepto(t,k,n){
-  const tem=typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos['estrutura/'+k];
-  const svg=cenaEstrutura(k,n,corDoClube(t));
-  if(!tem)return svg;
-  return `${svg}<img class="dp-foto" src="${ASSETS.arq('estrutura',k)}" alt="" loading="lazy" onerror="this.remove()">`;
+  const cor=corDoClube(t);
+  const svg=cenaEstrutura(k,n,cor);
+  const arq=fotoDepto(k,n);
+  if(!arq)return svg;
+  return `${svg}<span class="dp-fotocx" style="--clube:${cor}"><img class="dp-foto" src="${ASSETS.arq('estrutura',arq)}" alt="" loading="lazy" onerror="this.parentNode.remove()">
+    <i class="dp-tinta"></i><span class="dp-placa">${escudo(t,64)}</span></span>`;
 }
 
 /* ---------- efeitos, com a mesma conta do motor ---------- */

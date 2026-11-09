@@ -2908,3 +2908,9 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-col{margin-bottom:16px;border-color:rgba(255,70,85,.35);background:radial-gradient(90% 160% at 0% 50%,rgba(255,70,85,.14),transparent 60%),var(--surf1,var(--panel))}
 .mg-card-col .mg-card-arte svg{animation:none}
 .col-card:has(.col-reacao) .col-n{visibility:hidden}
+/* foto da estrutura: tinta da cor do clube e o escudo na placa vazia */
+.dp-fotocx{position:absolute;inset:0;display:block}
+.dp-fotocx .dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dp-tinta{position:absolute;inset:0;background:var(--clube);mix-blend-mode:soft-light;opacity:.4;pointer-events:none}
+.dp-placa{position:absolute;left:50%;top:22%;width:18%;aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center}
+.dp-placa img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}

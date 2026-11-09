@@ -99,7 +99,9 @@ for(const R of ctx.REGIONS||[])for(const [pre,ev] of [['po1','Stage 1'],['po2','
   const s=slug(pre+'_'+R.id);
   base.torneios.set(s,ev+' · '+R.nome+' — fase de playoffs (opcional)');grupo.torneios.set(s,R.id);
 }
-for(const d of ctx.DEPTOS||[]){base.estrutura.set(d.id,d.nome);grupo.estrutura.set(d.id,'');}
+for(const d of ctx.DEPTOS||[]){base.estrutura.set(d.id,d.nome);grupo.estrutura.set(d.id,'');
+  base.estrutura.set(d.id+'-basico',d.nome+' · nível 1–2 (opcional)');grupo.estrutura.set(d.id+'-basico','Versões por nível (opcionais)');
+  base.estrutura.set(d.id+'-elite',d.nome+' · nível 5 (opcional)');grupo.estrutura.set(d.id+'-elite','Versões por nível (opcionais)');}
 for(const m of ctx.MAP_POOL||[]){base.mapas.set(slug(m),m);grupo.mapas.set(slug(m),'');}
 for(const c of ctx.SEDES||[]){
   base.cidades.set(slug(c.nome),c.nome+' ('+c.pais+')');

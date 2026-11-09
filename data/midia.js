@@ -1025,6 +1025,8 @@ const MIDIA={
     'trofeus/stage2-amer':'png',
     'trofeus/stage2-cn':'png',
     'trofeus/stage2-emea':'png',
-    'trofeus/stage2-pac':'png'
+    'trofeus/stage2-pac':'png',
+    'ui/favicon':'png',
+    'ui/logo':'png'
   }
 };

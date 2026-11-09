@@ -2942,6 +2942,12 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-col{margin-bottom:16px;border-color:rgba(255,70,85,.35);background:radial-gradient(90% 160% at 0% 50%,rgba(255,70,85,.14),transparent 60%),var(--surf1,var(--panel))}
 .mg-card-col .mg-card-arte svg{animation:none}
 .col-card:has(.col-reacao) .col-n{visibility:hidden}
+/* foto da estrutura: tinta da cor do clube e o escudo na placa vazia */
+.dp-fotocx{position:absolute;inset:0;display:block}
+.dp-fotocx .dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dp-tinta{position:absolute;inset:0;background:var(--clube);mix-blend-mode:soft-light;opacity:.4;pointer-events:none}
+.dp-placa{position:absolute;left:50%;top:22%;width:18%;aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center}
+.dp-placa img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
 
 </style>
 </head>
@@ -5596,7 +5602,9 @@ const MIDIA={
     'trofeus/stage2-amer':'png',
     'trofeus/stage2-cn':'png',
     'trofeus/stage2-emea':'png',
-    'trofeus/stage2-pac':'png'
+    'trofeus/stage2-pac':'png',
+    'ui/favicon':'png',
+    'ui/logo':'png'
   }
 };
 
@@ -21936,11 +21944,22 @@ function cenaEstrutura(k,n,cor){
   return `<svg class="dp-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc((deptoDe(k)||{}).nome||k)}, nível ${n}">${fundo}${c}</svg>`;
 }
 /* foto opcional em assets/estrutura/; sem ela, a ilustração */
+/* Foto de assets/estrutura: a versão do nível quando existe (-basico até o
+   nível 2, -elite no 5), senão a principal. As fotos são neutras de
+   propósito: o escudo entra na placa vazia do centro do terço superior e a
+   cor do clube tinge a cena por cima — a mesma foto serve para os 80. */
+function fotoDepto(k,n){
+  const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  const v=n<=2?k+'-basico':n>=5?k+'-elite':null;
+  return v&&M['estrutura/'+v]?v:M['estrutura/'+k]?k:null;
+}
 function arteDepto(t,k,n){
-  const tem=typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos['estrutura/'+k];
-  const svg=cenaEstrutura(k,n,corDoClube(t));
-  if(!tem)return svg;
-  return `${svg}<img class="dp-foto" src="${ASSETS.arq('estrutura',k)}" alt="" loading="lazy" onerror="this.remove()">`;
+  const cor=corDoClube(t);
+  const svg=cenaEstrutura(k,n,cor);
+  const arq=fotoDepto(k,n);
+  if(!arq)return svg;
+  return `${svg}<span class="dp-fotocx" style="--clube:${cor}"><img class="dp-foto" src="${ASSETS.arq('estrutura',arq)}" alt="" loading="lazy" onerror="this.parentNode.remove()">
+    <i class="dp-tinta"></i><span class="dp-placa">${escudo(t,64)}</span></span>`;
 }
 
 /* ---------- efeitos, com a mesma conta do motor ---------- */
