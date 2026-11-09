@@ -248,6 +248,9 @@ function pagar(ids,tabela){
     const t=G.times[id];if(!t)return;
     const clube=Math.round(v*(1-PARTE_DOS_JOGADORES));
     t.caixa+=clube;
+    /* soma do ano, para a tela de Finanças separar a premiação */
+    if(!t.premiosAno||t.premiosAno.ano!==G.ano)t.premiosAno={ano:G.ano,v:0};
+    t.premiosAno.v+=clube;
     (t.elenco||[]).forEach(pid=>{const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+0.02,0.05,1);});
     if(id===G.meuTime)noticia('Premiação: '+money(v)+'. '+money(clube)+' ficam no clube e o resto vai de bônus para os jogadores.',{c:'clube',t:[id]});});
 }

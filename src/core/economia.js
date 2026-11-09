@@ -551,3 +551,16 @@ function edPatrocinioTrocar(timeId,vagaId,marcaId){
   t.patroc=receitaCaixa(t);
   return{ok:true,msg:mk.nome+' agora é '+vaga.nome.toLowerCase()+' do '+t.tag+'.'};
 }
+
+/* Caixa do seu clube semana a semana (gráfico de Finanças). Só leitura do
+   que já aconteceu: não sorteia e não mexe em dinheiro. Guarda dois anos. */
+const CAIXA_HIST_MAX=SEMANAS_ANO*2;
+function registrarCaixaSemana(){
+  const t=G.meuTime&&G.times[G.meuTime];
+  if(!t)return;
+  const h=G.caixaHist||(G.caixaHist=[]);
+  const ult=h[h.length-1];
+  const reg={a:G.ano,s:G.semana,c:Math.round(t.caixa),id:t.id};
+  if(ult&&ult.a===reg.a&&ult.s===reg.s)h[h.length-1]=reg;else h.push(reg);
+  if(h.length>CAIXA_HIST_MAX)h.splice(0,h.length-CAIXA_HIST_MAX);
+}

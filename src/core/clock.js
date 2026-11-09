@@ -216,6 +216,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
     const v=cobrancaDoMeioDoAno();
     if(v)G.vereditoPendente=v;
   }
+  if(typeof registrarCaixaSemana==='function')registrarCaixaSemana();
   const anoAntes=G.ano;
   G.semana++;
   if(G.semana>SEMANAS_ANO){

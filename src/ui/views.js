@@ -754,8 +754,8 @@ function vMercadoSaidas(t){
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
-      <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</td>
-      <td class="dim">${esc(p.role)}</td>
+      <td><span class="merc-j">${retrato(p,28)}<span><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</span></span></td>
+      <td><span class="tag ${p.role}">${esc(p.role)}</span></td>
       <td class="c num">${p.idade}</td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
       <td class="c num dim">${p.pot}</td>
@@ -783,20 +783,20 @@ function vMercadoStaff(t){
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
   </div>
-  <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
+  <div class="card flat"><table class="wide tb ordenavel merc-tab"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
     <th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th>
     <th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(m=>`<tr>
       <td>${retratoStaff(m,26)}</td>
       <td><b>${esc(m.nome)}</b> ${bandeira(m.pais)}</td>
       <td><span class="tag">${esc((CARGOS.find(c=>c.id===m.cargo)||{curto:m.cargo}).curto)}</span></td>
-      <td class="dim">${m.timeId?esc(tagT(m.timeId)):'<span class="chip t">Livre</span>'}</td>
+      <td>${m.timeId?`<span class="linha-t">${escudo(T(m.timeId),18)}<span class="dim">${esc(tagT(m.timeId))}</span></span>`:'<span class="chip t">Livre</span>'}</td>
       <td class="c num">${m.idade}</td>
       <td class="c"><span class="ov ${ovClass(overStaff(m))}">${overStaff(m)}</span></td>
       <td class="c num dim">${m.pot}</td>
       <td class="r num">${m.timeId?money(pedidoStaff(m)):'—'}</td>
       <td class="r num">${money(salarioPedidoStaff(m,t))}</td>
-      <td class="r"><button class="btn sm" data-propstaff="${m.id}" ${G.janela?'':'disabled'}>Propor</button></td>
+      <td class="r">${G.janela?`<button class="btn-ic" data-propstaff="${m.id}" title="Propor contrato">${ico('contrato')}<span>Propor</span></button>`:''}</td>
     </tr>`).join('')}</tbody></table></div>`;
 }
 /* ---------- contratos ----------
@@ -830,13 +830,13 @@ function vMercadoContratos(t){
   <div class="card flat"><div class="eyebrow">Último ano em outros clubes</div>
     <p class="dim" style="margin-bottom:8px">${aberto?'Pré-contrato liberado: negocie direto com o jogador, sem taxa. Ele chega na virada.'
       :'O pré-contrato abre na semana '+SEMANA_PRECONTRATO+'. Até lá, só comprando do clube.'}</p>
-    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
+    <table class="wide tb ordenavel merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
       <th class="c">Interesse</th><th>Situação</th><th></th></tr></thead>
-    <tbody>${outros.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
-      <td class="dim">${esc(nomeT(p.timeId))}</td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
+    <tbody>${outros.map(p=>`<tr class="merc-tr"><td class="jrow" data-p="${p.id}"><span class="merc-j">${retrato(p,28)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
+      <td><span class="linha-t">${escudo(T(p.timeId),18)}<span class="dim">${esc(nomeT(p.timeId))}</span></span></td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
       <td class="c">${interesseMini(p,t)}</td>
       <td>${p.preContrato&&T(p.preContrato.clubeId)?'<span class="chip r">acertado com '+esc(T(p.preContrato.clubeId).tag)+'</span>':'<span class="dim">livre para conversar</span>'}</td>
-      <td class="r"><button class="btn sm" data-prop="${p.id}" ${p.preContrato?'disabled':''}>${aberto?'Pré-contrato':'Negociar'}</button></td></tr>`).join('')}
+      <td class="r">${p.preContrato?'':`<button class="btn-ic" data-prop="${p.id}" title="${aberto?'Pré-contrato':'Negociar'}">${ico(aberto?'contrato':'aperto')}<span>${aberto?'Pré-contrato':'Negociar'}</span></button>`}</td></tr>`).join('')}
     </tbody></table></div>`;
 }
 /* termômetro de bolso para a lista do mercado */
@@ -861,16 +861,17 @@ function vMercadoJogadores(t){
     <select id="fReg"><option value="">Todas as regiões</option>${REGIONS.map(r=>`<option value="${r.id}" ${mFiltro.reg===r.id?'selected':''}>${r.nome}</option>`).join('')}</select>
     <select id="fOrd">${[['over','Ordenar por over'],['pot','Ordenar por potencial'],['valor','Ordenar por preço']].map(([k,n])=>`<option value="${k}" ${mFiltro.ordem===k?'selected':''}>${n}</option>`).join('')}</select>
     <span class="dim">${lista.length} resultados</span></div></div>
-  <div class="card flat"><table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
+  <div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
     <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
-    <tbody>${lista.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
-      <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
+    <tbody>${lista.map(p=>{const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id);
+      return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</span></span></td>
+      <td>${c?`<span class="linha-t">${escudo(c,20)}<span class="dim">${esc(c.nome)}</span></span>`:'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
       <td class="c">${interesseMini(p,t)}</td>
       <td class="r num">${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?' <span class="chip r" title="Só pela multa">multa</span>':''}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
-      <td class="r"><button class="btn sm" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Mesa':'Negociar'}</button></td></tr>`).join('')}
+      <td class="r"><button class="btn-ic ${mesa?'on':''}" data-prop="${p.id}" title="${mesa?'Voltar à mesa':'Negociar'}">${ico(mesa?'balao':'aperto')}<span>${mesa?'Mesa':'Negociar'}</span></button></td></tr>`;}).join('')}
     </tbody></table></div>`;
 }
 /* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
@@ -949,6 +950,14 @@ function vBase(){
       <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
       <td class="r num">${p.timeId?money(pedidoDeVenda(p)):'livre'}</td></tr>`).join('')}</tbody></table></div>`;
 }
+/* anel de progresso de uma meta de patrocínio */
+function anelMeta(v,estado){
+  const r=12,c=2*Math.PI*r,p=clamp(v,0,1);
+  const cor=estado==='ok'?'var(--teal)':estado==='perdida'?'var(--red)':'var(--gold)';
+  return `<svg class="pt-anel" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="${r}" class="f"/>
+    <circle cx="16" cy="16" r="${r}" class="v" style="stroke:${cor};stroke-dasharray:${(c*p).toFixed(1)} ${c.toFixed(1)}"/>
+    ${estado==='ok'?`<path d="M11 16.5l3.2 3 6-6.5" fill="none" stroke="${cor}" stroke-width="2"/>`:`<text x="16" y="19.5" text-anchor="middle">${Math.round(p*100)}</text>`}</svg>`;
+}
 /* Patrocinadores com o contrato: fixo, metas com barra de progresso e o
    valor de cada uma, e a receita do ano em três cenários (core/patrocinio.js). */
 function blocoPatrocinios(t){
@@ -964,11 +973,11 @@ function blocoPatrocinios(t){
       if(a.estado==='perdida'&&m.pago==null)avisos.push(mk.nome+': a meta "'+m.txt.toLowerCase()+'" não tem mais como ser cumprida.');
       return `<div class="pt-m ${a.estado}">
         <span class="pt-m-t">${esc(m.txt)}</span>
-        <div class="vb"><i class="${a.estado==='ok'?'g':a.estado==='perdida'?'r':''}" style="width:${Math.round((a.estado==='ok'?1:a.prog||0)*100)}%"></i></div>
+        ${anelMeta(a.estado==='ok'?1:a.prog||0,a.estado)}
         <span class="dim pt-m-s">${esc(a.estado==='ok'?'cumprida':a.estado==='perdida'?'perdida':a.txt)}</span>
         <b class="num ${a.estado==='ok'?'up':a.estado==='perdida'?'dim':''}">${money(m.valor)}</b></div>`;}).join(''):'';
     return `<div class="pt-c">
-      <div class="pt-c-topo">${logoMarca(mk,84)}<div><b>${esc(vaga.nome)} · ${esc(mk.nome)}</b>
+      <div class="pt-c-topo">${logoMarca(mk,110)}<div><b>${esc(vaga.nome)} · ${esc(mk.nome)}</b>
         <div class="dim">${esc(mk.setor)} · ${esc(areaMarca(mk))} · nível ${mk.nivel}</div></div>
         <div class="pt-c-val">${c?`<span class="num">${money(c.fixo)}</span><span class="dim">fixo/ano${c.adiant?' + '+money(c.adiant)+' de bônus adiantado':''}</span>
           <span class="dim">${c.ate>G.ano?'contrato até '+c.ate:'último ano'}${c.saida?' · sai por cláusula':''}</span>`
@@ -988,6 +997,55 @@ function blocoPatrocinios(t){
     divisão reabre a negociação. Vaga aberta ou contrato no fim é preenchida na virada: clube mais atraente
     escolhe primeiro.</p></div>`;
 }
+/* Gráfico do caixa na temporada (pacote V10): o que já aconteceu, semana a
+   semana (G.caixaHist), e a projeção até a virada pelo ritmo de hoje —
+   receita fixa menos folha e custeio, sem premiação nem negócio. */
+function graficoCaixa(t){
+  const W=760,H=210,pl=56,pr=14,pt=14,pb=26;
+  const pts=(G.caixaHist||[]).filter(x=>x.a===G.ano&&(!x.id||x.id===t.id)).map(x=>({s:x.s,c:x.c}));
+  const agora={s:Math.min(SEMANAS_ANO,G.semana||1),c:Math.round(t.caixa)};
+  if(!pts.length||pts[pts.length-1].s<agora.s)pts.push(agora);
+  const folha=t.elenco.reduce((a,i)=>a+P(i).salario,0)+folhaStaff(t)+(typeof custoEmprestimosDe==='function'?custoEmprestimosDe(t):0);
+  const ritmo=t.patroc/SEMANAS_ANO-(folha*12)/SEMANAS_ANO-custeioSemanal(t);
+  const proj=[];for(let s=agora.s;s<=SEMANAS_ANO;s++)proj.push({s,c:Math.round(agora.c+ritmo*(s-agora.s))});
+  const todos=pts.concat(proj).map(x=>x.c);
+  let mn=Math.min(0,...todos),mx=Math.max(...todos);
+  const folga=(mx-mn)*0.08||100000;mn-=mn<0?folga:0;mx+=folga;
+  const X=s=>pl+(s-1)/(SEMANAS_ANO-1)*(W-pl-pr),Y=c=>pt+(mx-c)/(mx-mn)*(H-pt-pb);
+  const linha=l=>l.map((x,i)=>(i?'L':'M')+X(x.s).toFixed(1)+' '+Y(x.c).toFixed(1)).join(' ');
+  const area=pts.length>1?linha(pts)+` L${X(pts[pts.length-1].s).toFixed(1)} ${Y(Math.max(mn,0)).toFixed(1)} L${X(pts[0].s).toFixed(1)} ${Y(Math.max(mn,0)).toFixed(1)} Z`:'';
+  const ticks=[mn<0?mn:0,(mn+mx)/2,mx].map(v=>Math.round(v/50000)*50000);
+  const fim=proj[proj.length-1];
+  /* blocos do calendário em faixa no rodapé, com a cor do circuito */
+  const faixas=(G.calendario||[]).filter(b=>b.stages&&b.montar).map(b=>{const cc=typeof circuitoDoBloco==='function'?circuitoDoBloco(b):{cor:'var(--line2)'};
+    return `<rect x="${X(b.ini).toFixed(1)}" y="${H-pb+6}" width="${Math.max(2,X(b.fim)-X(b.ini)).toFixed(1)}" height="4" fill="${cc.cor}" opacity=".7"><title>${esc(nomeBloco(b))}</title></rect>`;}).join('');
+  return `<svg class="fin-graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Caixa na temporada">
+    <defs><linearGradient id="finG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--gold)" stop-opacity=".35"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></linearGradient></defs>
+    ${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="g${v===0?' zero':''}"/>
+      <text x="${pl-6}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end" class="t">${money(v)}</text>`).join('')}
+    ${[1,13,26,39,SEMANAS_ANO].map(s=>`<text x="${X(s).toFixed(1)}" y="${H-pb+20}" text-anchor="middle" class="t">S${s}</text>`).join('')}
+    ${faixas}
+    ${area?`<path d="${area}" fill="url(#finG)"/>`:''}
+    <path d="${linha(pts)}" class="real"/>
+    <path d="${linha(proj)}" class="proj ${fim.c<0?'neg':''}"/>
+    <circle cx="${X(agora.s).toFixed(1)}" cy="${Y(agora.c).toFixed(1)}" r="4.5" class="hoje"/>
+    <text x="${X(fim.s).toFixed(1)}" y="${(Y(fim.c)-8).toFixed(1)}" text-anchor="end" class="t fimt ${fim.c<0?'neg':''}">${money(fim.c)} na virada</text>
+  </svg>`;
+}
+/* Receita e despesa do ano em barras empilhadas, com legenda e valor. */
+function barrasFinanceiras(t){
+  const mov=typeof movimentosDoClube==='function'?movimentosDoClube(t,G.ano):{receita:0,gasto:0};
+  const premios=t.premiosAno&&t.premiosAno.ano===G.ano?t.premiosAno.v:0;
+  const salJ=t.elenco.reduce((a,i)=>a+P(i).salario,0)*12, salS=folhaStaff(t)*12;
+  const rec=[['Patrocínio',receitaPatrocinio(t),'#E2B45A'],['Liga',aporteLiga(t),'#4C8DFF'],['Premiações',premios,'#18E5B4'],['Vendas',mov.receita||0,'#9B6BFF']];
+  const des=[['Salários do elenco',salJ,'#FF4655'],['Comissão',salS,'#FF8A72'],['Custeio',custeioAnual(t),'#FF9F43'],['Compras',mov.gasto||0,'#C66BFF']];
+  const tot=Math.max(rec.reduce((a,x)=>a+x[1],0),des.reduce((a,x)=>a+x[1],0),1);
+  const barra=(rot,l)=>{const soma=l.reduce((a,x)=>a+x[1],0);
+    return `<div class="fin-bl"><div class="split"><span class="eyebrow">${rot}</span><b class="num">${money(soma)}</b></div>
+      <div class="fin-barra">${l.filter(x=>x[1]>0).map(x=>`<i style="width:${(x[1]/tot*100).toFixed(2)}%;background:${x[2]}" title="${esc(x[0])}: ${money(x[1])}"></i>`).join('')}</div>
+      <div class="fin-leg">${l.map(x=>`<span><i style="background:${x[2]}"></i>${esc(x[0])} <b class="num">${money(x[1])}</b></span>`).join('')}</div></div>`;};
+  return barra('Entradas do ano',rec)+barra('Saídas do ano',des);
+}
 function vFinancas(){
   const t=meu();
   const folha=t.elenco.reduce((s,i)=>s+P(i).salario,0)+folhaStaff(t);
@@ -1000,6 +1058,13 @@ function vFinancas(){
     <div class="kpi red"><div class="lb">Folha mensal</div><div class="vl">${money(folha)}</div><div class="sb">elenco + comissão · ${money(folha*12)}/ano</div></div>
     <div class="kpi teal"><div class="lb">Resultado anual</div><div class="vl">${money(rec-folha*12-custeioAnual(t))}</div>
       <div class="sb">já com ${money(custeioAnual(t))} de custeio · sem premiações</div></div>
+  </div>
+  <div class="grid g2 fin-topo">
+    <div class="card"><div class="split"><div class="eyebrow">Caixa em ${G.ano}</div>
+      <span class="fin-leg-g"><span><i class="real"></i>até hoje</span><span><i class="proj"></i>projeção pelo ritmo de hoje</span></span></div>
+      ${graficoCaixa(t)}
+      <p class="dim" style="font-size:11.5px;margin:4px 0 0">A projeção não conta premiação nem negócio: é o que sobra se nada mudar.</p></div>
+    <div class="card">${barrasFinanceiras(t)}</div>
   </div>
   <div class="card flat"><div class="split">
     <div><div class="eyebrow">Orçamento</div>

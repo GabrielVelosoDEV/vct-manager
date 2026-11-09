@@ -47,6 +47,7 @@ Object.assign(ICONES,{
   envelope:'<rect x="3" y="5.5" width="18" height="13"/><path d="m3 6.5 9 6.5 9-6.5"/>',
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  seta:'<path d="M4 12h15"/><path d="M13 6l6 6-6 6"/>',
   spike:'<path d="M12 2.5 15 9h-6z"/><path d="M8.5 9h7l-1 9.5h-5z"/><path d="M10.5 18.5 12 21.5l1.5-3"/>',
   desarme:'<path d="M14.5 4.5a4.5 4.5 0 0 0-5.6 5.6L3.5 15.5l2 2 .9-.9 1.3 1.3 1.6-1.6-1.3-1.3 2.6-2.6a4.5 4.5 0 0 0 5.6-5.6l-2.6 2.6-2.3-.6-.6-2.3z"/>',
   relogio:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4.5l3 1.8"/><path d="M9.5 2.5h5"/>',

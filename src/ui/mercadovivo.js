@@ -161,19 +161,21 @@ function vMercadoCentral(t){
 
   const top=maioresTransferencias(G.ano,8);
   const cxTop=`<div class="card flat"><div class="eyebrow">Maiores negócios de ${G.ano}</div>
-    ${top.length?`<table class="wide"><tbody>${top.map(x=>{const de=T(x.de),pa=T(x.para);return `<tr>
-      <td><b class="jrow" data-p="${x.jogadorId}">${esc(x.nome)}</b> <span class="ov ${ovClass(x.over)}">${x.over}</span></td>
-      <td class="dim">${de?esc(de.tag):'—'} → ${pa?esc(pa.tag):'—'}</td>
-      <td>${x.tipo==='multa'?'<span class="chip r">multa</span>':''}</td>
-      <td class="r num"><b>${money(x.taxa)}</b></td></tr>`;}).join('')}</tbody></table>`
+    ${top.length?`<div class="neg-cards">${top.map((x,i)=>{const de=T(x.de),pa=T(x.para),p=P(x.jogadorId);return `<div class="neg-card ${i===0?'top':''} ${x.tipo==='multa'?'multa':''}" ${p?`data-p="${p.id}"`:''}>
+      <span class="neg-foto">${p?retrato(p,i===0?64:44):''}</span>
+      <div class="neg-info"><b class="${p?'jrow':''}" ${p?`data-p="${p.id}"`:''}>${esc(x.nome)}</b> <span class="ov ${ovClass(x.over)}">${x.over}</span>
+        <div class="neg-rota">${de?escudo(de,i===0?30:22):'<span class="dim">—</span>'}<span class="neg-seta">${ico('seta')}</span>${pa?escudo(pa,i===0?30:22):'<span class="dim">—</span>'}
+          ${x.tipo==='multa'?'<span class="chip r">multa</span>':''}</div></div>
+      <b class="neg-v num">${money(x.taxa)}</b></div>`;}).join('')}</div>`
       :'<p class="dim">Nenhuma transferência com taxa ainda nesta temporada.</p>'}</div>`;
 
   const crise=clubesEmCrise().filter(c=>c.id!==t.id);
   const cxCrise=crise.length?`<div class="card flat"><div class="eyebrow">Liquidação</div>
     <p class="dim" style="margin:2px 0 8px">Clubes em crise vendem com desconto e quase tudo está à venda.</p>
-    <div class="central-crise">${crise.map(c=>{const melhor=c.elenco.map(P).filter(Boolean).sort((a,b)=>over(b)-over(a)).slice(0,3);
-      return `<div class="central-crise-c">${escudo(c,32)}<div><b>${esc(c.nome)}</b><div class="dim">${esc(c.crise.motivo)}</div>
-        <div style="margin-top:4px">${melhor.map(p=>`<span class="jrow chip" data-p="${p.id}">${esc(p.nome)} ${over(p)}</span>`).join(' ')}</div></div></div>`;}).join('')}</div></div>`:'';
+    <div class="central-crise">${crise.map(c=>{const melhor=c.elenco.map(P).filter(Boolean).sort((a,b)=>over(b)-over(a)).slice(0,4);
+      return `<div class="crise-c" style="--clube:${corDoClube(c)};--clube-rgb:${rgbDe(corDoClube(c))}">
+        <div class="crise-topo">${escudo(c,44)}<div><b>${esc(c.nome)}</b><div class="dim">${esc(c.crise.motivo)}</div></div><span class="chip r">em crise</span></div>
+        <div class="crise-cartas">${melhor.map(p=>`<div class="crise-j">${cartaJogador(p,{w:84,clique:true})}<span class="num dim">${money(precoPedido(p))}</span></div>`).join('')}</div></div>`;}).join('')}</div></div>`:'';
 
   return `${kpis}${diretoria}${cxAlertas}${cxAtivas}<div class="grid g2">${cxMov}${cxTop}</div>${cxCrise}`;
 }

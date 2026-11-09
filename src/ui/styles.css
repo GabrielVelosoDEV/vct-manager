@@ -2098,3 +2098,71 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .hc-tit .trofeu{vertical-align:middle}
 .hc-lendas{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:8px}
 .hc-lenda{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:11px}
+
+/* ============================================================
+   V10 — MERCADO E FINANÇAS
+   ============================================================ */
+/* botão de ícone que só aparece no hover da linha */
+.btn-ic{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid var(--line2);color:var(--tx2);
+  font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.02);
+  opacity:0;transform:translateX(4px);transition:opacity .15s,transform .15s,background .15s,color .15s,border-color .15s}
+.btn-ic svg{width:15px;height:15px}
+.btn-ic span{white-space:nowrap}
+tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
+.btn-ic:hover{background:var(--red);border-color:var(--red);color:#fff}
+.btn-ic.on{border-color:var(--teal);color:var(--teal)}
+.merc-tab tbody tr{transition:background .12s}
+.merc-tab tbody tr:hover{background:rgba(255,255,255,.035)}
+.merc-j{display:inline-flex;align-items:center;gap:8px}
+.merc-j img{width:30px;height:30px;object-fit:cover;border:1px solid var(--line)}
+/* maiores negócios */
+.neg-cards{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.neg-card{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:8px 12px 8px 8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);transition:background .15s}
+.neg-card:hover{background:rgba(255,255,255,.05)}
+.neg-card.top{padding:12px 14px 12px 10px;border-color:rgba(226,180,90,.35);background:linear-gradient(90deg,rgba(226,180,90,.12),transparent 70%)}
+.neg-card.multa{border-left:3px solid var(--red)}
+.neg-foto img{object-fit:cover;border:1px solid var(--line2)}
+.neg-info b{font-size:14px}
+.neg-card.top .neg-info b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:24px;letter-spacing:.03em}
+.neg-rota{display:flex;align-items:center;gap:8px;margin-top:4px}
+.neg-seta{color:var(--gold);display:inline-flex}.neg-seta svg{width:16px;height:16px;stroke-width:2.2}
+.neg-v{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--tx)}
+.neg-card.top .neg-v{font-size:32px;color:var(--gold)}
+/* liquidação */
+.crise-c{border:1px solid rgba(255,70,85,.3);padding:12px;background:radial-gradient(90% 120% at 0% 0%,rgba(var(--clube-rgb),.16),transparent 60%),var(--surf1,var(--panel))}
+.crise-topo{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.crise-topo .dim{font-size:11.5px}
+.crise-cartas{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.crise-j{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px}
+/* finanças */
+.fin-topo{margin-bottom:16px}.fin-topo>.card{margin-bottom:0}
+.fin-graf{width:100%;height:auto;display:block;margin-top:6px}
+.fin-graf .g{stroke:rgba(255,255,255,.07);stroke-width:1}
+.fin-graf .g.zero{stroke:rgba(255,70,85,.45);stroke-dasharray:4 3}
+.fin-graf .t{font-size:10px;fill:var(--dim);font-family:'JetBrains Mono',monospace}
+.fin-graf .real{fill:none;stroke:var(--gold);stroke-width:2.4;vector-effect:non-scaling-stroke}
+.fin-graf .proj{fill:none;stroke:var(--teal);stroke-width:2;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+.fin-graf .proj.neg{stroke:var(--red)}
+.fin-graf .hoje{fill:var(--gold);stroke:var(--bg);stroke-width:2}
+.fin-graf .fimt{fill:var(--teal);font-size:11px}.fin-graf .fimt.neg{fill:var(--red)}
+.fin-leg-g{display:flex;gap:12px;font-size:11px;color:var(--dim)}
+.fin-leg-g span{display:inline-flex;align-items:center;gap:5px}
+.fin-leg-g i{width:16px;height:0;border-top:2.4px solid var(--gold)}
+.fin-leg-g i.proj{border-top:2px dashed var(--teal)}
+.fin-bl{margin-bottom:16px}.fin-bl:last-child{margin-bottom:0}
+.fin-bl .split b{font-family:'Bebas Neue',sans-serif;font-size:24px}
+.fin-barra{display:flex;height:16px;margin:6px 0 8px;background:rgba(255,255,255,.05);overflow:hidden}
+.fin-barra i{display:block;height:100%;transition:width .6s cubic-bezier(.2,.8,.2,1);border-right:1px solid rgba(11,18,24,.6)}
+.fin-leg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px;font-size:11.5px;color:var(--tx2)}
+.fin-leg span{display:flex;align-items:center;gap:6px}
+.fin-leg i{width:9px;height:9px;flex:none}
+.fin-leg b{margin-left:auto;color:var(--tx)}
+/* patrocínio: metas em anel */
+.pt-m{grid-template-columns:minmax(0,1.4fr) 32px 120px 70px}
+.pt-anel{transform:rotate(-90deg);overflow:visible}
+.pt-anel circle{fill:none;stroke-width:3.5}
+.pt-anel .f{stroke:rgba(255,255,255,.1)}
+.pt-anel text,.pt-anel path{transform:rotate(90deg);transform-origin:16px 16px}
+.pt-anel text{font-size:8.5px;fill:var(--tx2);font-family:'JetBrains Mono',monospace}
+.pt-c-topo .logo-m,.pt-c-topo img{filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
