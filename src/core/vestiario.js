@@ -216,7 +216,7 @@ function entrosamentoSemanal(t){
   const no=new Set(t.elenco||[]);
   for(const k of Object.keys(t.duplas)){const [a,b]=k.split('|');if(!no.has(a)||!no.has(b))delete t.duplas[k];}
   for(const f of fatoresDaSemana(t))for(const [a,b] of f.pares)mexerDupla(t,a,b,f.delta);
-  if(t.id===G.meuTime)aplicarAtividade(t);
+  if(t.id===G.meuTime){aplicarAtividade(t);if(typeof aplicarMiniIGL==='function')aplicarMiniIGL(t);}
   atualizarSinergia(t);
   /* histórico curto para a tela mostrar a tendência */
   (t.sinHist=t.sinHist||[]).push(Math.round(t.sinergia));

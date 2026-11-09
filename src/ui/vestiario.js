@@ -128,6 +128,7 @@ function vVestiario(){
           <button class="btn ghost sm" id="vestParOk">Marcar dupla</button>
           ${piorDupla?`<span class="dim">sugestão: a dupla mais fraca</span>`:''}</div>
         ${typeof faixaRitmo==='function'?faixaRitmo(t):''}
+        ${typeof faixaBlocos==='function'?faixaBlocos(t):''}
       </div>
     </div>
   </div>

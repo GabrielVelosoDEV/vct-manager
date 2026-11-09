@@ -66,6 +66,27 @@ function registrarRitmo(t,res){
   return{sessao:t.miniAtividade,bateu:registrarRecordeMini('ritmo-'+t.atividade,res.pts||0,res.nota)};
 }
 
+/* ---------- Blocos do IGL ----------
+   Montar as jogadas: o IGL organiza, o time encaixa. A nota mexe no
+   entrosamento entre o IGL e cada titular naquela semana: de −0,4 (sessão
+   ruim) a +2,0 por dupla (perfeita). Para comparar: o jantar dá +1 em cada
+   dupla de titulares e a ranked em duo +3 numa dupla só. */
+const IGL_MIN=-0.4, IGL_MAX=2.0;
+function deltaIGL(nota){return IGL_MIN+clamp(nota,0,1)*(IGL_MAX-IGL_MIN);}
+function iglDisponivel(t){return !!t&&t.id===G.meuTime&&!!t.igl&&(t.elenco||[]).includes(t.igl)&&!t.miniIGL;}
+function registrarIGL(t,res){
+  if(!iglDisponivel(t))return null;
+  t.miniIGL={igl:t.igl,nota:clamp(res.nota,0,1),pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniIGL,bateu:registrarRecordeMini('igl',res.pts||0,res.nota)};
+}
+/* chamado por entrosamentoSemanal(), depois da atividade da semana */
+function aplicarMiniIGL(t){
+  const m=t&&t.id===G.meuTime?t.miniIGL:null;
+  if(!m||m.comissao||m.nota==null||!(t.elenco||[]).includes(m.igl))return;
+  const d=deltaIGL(m.nota);
+  for(const id of (t.titulares||[]))if(id!==m.igl&&G.jogadores[id])mexerDupla(t,m.igl,id,d);
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
@@ -73,6 +94,7 @@ function encerrarMiniSemana(t){
   if(!t||t.id!==G.meuTime)return;
   if(t.miniTreino){t.miniTreinoUltimo=t.miniTreino;delete t.miniTreino;}
   if(t.miniAtividade){t.miniAtividadeUltimo=t.miniAtividade;delete t.miniAtividade;}
+  if(t.miniIGL){t.miniIGLUltimo=t.miniIGL;delete t.miniIGL;}
 }
 
 /* ---------- medalhas e recordes ---------- */

@@ -2848,3 +2848,6 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-faixa-ic{display:grid;place-items:center;width:30px;height:30px;color:#B48CFF;background:rgba(155,107,255,.14);flex:none}
 .mg-faixa-t{flex:1;min-width:0}
 .mg-faixa b.up{color:var(--teal)}.mg-faixa b.dn{color:var(--red)}
+.mg-faixa.igl{background:linear-gradient(90deg,rgba(24,229,180,.10),transparent 70%);border-color:rgba(24,229,180,.3);margin-top:8px}
+.mg-faixa.igl .mg-faixa-ic{color:var(--teal);background:rgba(24,229,180,.12)}
+.mg-teclas{flex-wrap:wrap}

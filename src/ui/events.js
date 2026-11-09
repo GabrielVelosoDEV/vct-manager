@@ -19,6 +19,7 @@ function ligarEventos(){
   on('[data-ir]',el=>irPara(el.dataset.ir));
   on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-ritmo]',()=>{if(typeof abrirRitmo==='function')abrirRitmo();});
+  on('[data-blocos]',()=>{if(typeof abrirBlocos==='function')abrirBlocos();});
   on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
