@@ -238,10 +238,12 @@ function vTaticas(){
       <b class="dn">vago</b><span class="dim">a vaga vale nível 1 · contrate no Mercado</span></div></div>`).join('');
   const extra=(t.equipeExtra||[]).map(x=>`<div class="stf-c">${retratoStaff(x,58)}<div class="stf-i"><span class="eyebrow">${esc(x.funcao||'Equipe')}</span>
       <b>${esc(x.nome)} ${x.pais?bandeira(x.pais):''}</b>${x.nomeReal?`<span class="dim">${esc(x.nomeReal)}</span>`:''}</div></div>`).join('');
-  const estrutura=[['gh','Gaming house','predio'],['treino','Centro de treino','controle'],['academia','Academia de base','broto']].map(([k,n,ic])=>
-    `<div class="est-c"><span class="est-ic">${icone(ic)}</span><div><b>${n}</b>
-      <div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=t.estrutura[k]?'on':''}"></i>`).join('')}<span class="num">nível ${t.estrutura[k]}</span></div></div>
-      <button class="btn ghost sm" data-up="estrutura.${k}" ${t.estrutura[k]>=5?'disabled':''}>${t.estrutura[k]>=5?'máximo':'Melhorar · '+money(custoUpgrade(t.estrutura[k]))}</button></div>`).join('');
+  /* a estrutura saiu daqui e ganhou aba própria (ui/estrutura.js); fica o
+     resumo do que mexe no treino, com o atalho */
+  const estrutura=['treino','equip','analise'].map(k=>{const d=deptoDe(k),n=nivelEst(t,k);
+    return `<div class="est-c"><span class="est-ic">${icone(d.ic)}</span><div><b>${esc(d.nome)}</b>
+      <div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}<span class="num">nível ${n}</span></div></div>
+      <span class="dim num">${(()=>{const e=efeitosDepto(k,n)[0];return Math.abs(e.v)<1e-9?'padrão':e.f(e.v);})()}</span></div>`;}).join('');
   return `
   <div class="grid g2">
    <div class="card"><div class="eyebrow">Estilo de jogo</div>
@@ -259,7 +261,8 @@ function vTaticas(){
     <div class="tat-blocos">${BLOCOS_TREINO.map(b=>`<button class="tat-bloco ${t.tatica.treino===b.id?'on':''}" data-blocotreino="${b.id}">
       <i>${ico(b.ic)}</i><b>${b.nome}</b><span>${b.at}</span></button>`).join('')}</div>
     <p class="dim" style="margin-top:8px;font-size:12px">O treino direciona onde os jogadores evoluem rumo ao potencial. Jovens ganham muito mais que veteranos. O plano de cada um fica em <b>Plano da semana</b>.</p>
-    <div class="eyebrow" style="margin-top:16px">Estrutura</div>
+    <div class="split" style="margin-top:16px"><div class="eyebrow">Estrutura que acelera o treino</div>
+      <button class="btn ghost sm" data-ir="estrutura">Abrir Estrutura</button></div>
     <div class="est-l">${estrutura}</div>
    </div>
   </div>

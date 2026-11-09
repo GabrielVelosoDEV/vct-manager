@@ -259,7 +259,8 @@ function treinarMapa(t){
   return{mapa:div[0].mapa,mapas:div.map(d=>d.mapa),jogadores:mexeu};
 }
 function treinarUmMapa(t,mapa,frac){
-  const nivelTreino=0.7+((t.estrutura&&t.estrutura.treino)||3)*0.08
+  /* CT e sala de análise (core/estrutura.js) e o head coach */
+  const nivelTreino=fatorTreinoMapaEst(t)
                        +(((t.staff&&t.staff.tecnico)||2)-2)*0.05;
   let mexeu=0;
   for(const id of (t.elenco||[])){

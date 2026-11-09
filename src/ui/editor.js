@@ -109,8 +109,8 @@ function edvTimes(){
       <div class="campos">
         ${[['tecnico','Head coach'],['analista','Analista'],['mental','Preparador mental']].map(([k,n])=>
           `<label>${n}<input type="number" data-edstaff="${k}" value="${Math.round((t.staff[k]||1)*10)/10}" min="1" max="5" step="0.1"></label>`).join('')}
-        ${[['gh','Gaming house'],['treino','Centro de treino'],['academia','Academia de base']].map(([k,n])=>
-          `<label>${n}<input type="number" data-edest="${k}" value="${t.estrutura[k]}" min="1" max="5"></label>`).join('')}
+        ${DEPTOS.map(d=>
+          `<label>${esc(d.nome)}<input type="number" data-edest="${d.id}" value="${nivelEst(t,d.id)}" min="1" max="5"></label>`).join('')}
       </div>
       <div class="eyebrow" style="margin-top:14px">Escudo</div>
       <div style="display:flex;gap:12px;align-items:flex-start;margin-top:6px">

@@ -22,6 +22,7 @@ const NAV=[
   ['elenco','Elenco','Clube','elenco'],
   ['vestiario','Vestiário','Clube','vestiario'],
   ['preparacao','Treinamento','Clube','tatica'],
+  ['estrutura','Estrutura','Clube','estrutura'],
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
@@ -37,6 +38,7 @@ const NAV=[
 /* ---------- ícones (SVG inline: sem fonte externa, funciona offline) ---------- */
 const ICONES={
   casa:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  estrutura:'<path d="M4 21V5.5L12 3v18"/><path d="M12 9h8v12"/><path d="M7 8h2M7 11.5h2M7 15h2M15 13h2M15 16.5h2"/><path d="M2.5 21h19"/>',
   elenco:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M16 5.6a3 3 0 0 1 0 5.6"/><path d="M18.5 20c0-2.5-.9-4.3-2.5-5.3"/>',
   tatica:'<path d="M4 5h16v14H4z"/><path d="M4 12h16"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="16" cy="15.5" r="1.3"/>',
   base:'<path d="M12 3l7.5 4v6c0 4.3-3.2 7.4-7.5 8.4C7.7 20.4 4.5 17.3 4.5 13V7z"/><path d="M9 12l2.3 2.3L15.6 10"/>',
@@ -95,7 +97,7 @@ function render(){
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
+            base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
@@ -106,6 +108,7 @@ function render(){
   if(typeof ligarClubes==='function')ligarClubes(v);
   if(typeof animarTela==='function')animarTela(v,tela);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
+  if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
 }
 function irPara(k,semHist){
   tela=k;

@@ -210,7 +210,7 @@ function edAplicarTime(tid,c){
        aplicar qualquer mudança do time */
     if(c.staff[k]!=null){const v=parseFloat(String(c.staff[k]).replace(',','.'));
       if(Math.abs(v-(t.staff[k]||0))>=0.05)t.staff[k]=clamp(Math.round((v||1)*10)/10,1,5);}
-  if(c.estrutura)for(const k of ['gh','treino','academia'])
+  if(c.estrutura)for(const k of (typeof DEPTOS!=='undefined'?DEPTOS.map(d=>d.id):['gh','treino','academia']))
     if(c.estrutura[k]!=null)t.estrutura[k]=clamp(parseInt(c.estrutura[k])||1,1,5);
   if(c.mapPref)for(const m in c.mapPref)
     if(MAP_POOL.includes(m))t.mapPref[m]=clamp(parseInt(c.mapPref[m])||0,-8,8);

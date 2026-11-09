@@ -30,9 +30,11 @@ function forcaTime(t,mapa,lado){
   const rs=t.titulares.map(id=>G.jogadores[id]).filter(Boolean);
   if(!rs.length)return 40;
   let mira=0,util=0,visao=0,base=0;
+  /* equipamentos e sala de análise: pouco, mas em todo round */
+  const fe=typeof fatorJogoEst==='function'?fatorJogoEst(t):1;
   rs.forEach(p=>{
     /* entrar machucado custa: é o preço da escalação de emergência */
-    const c=condicao(p)*(p.lesao?PENA_LESAO:1);
+    const c=condicao(p)*(p.lesao?PENA_LESAO:1)*fe;
     /* over NA FUNÇÃO EM QUE ELE VAI JOGAR. Sem isso a função secundária seria
        almoço grátis: o clube cobriria qualquer buraco sem pagar nada, e a
        escalação ótima viraria "os cinco de maior over, sempre". */

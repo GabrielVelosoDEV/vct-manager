@@ -53,6 +53,7 @@ function ligarEventos(){
   if(tela==='elenco'&&typeof ligarEscalacao==='function')ligarEscalacao(v,t);
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
+    if(grp==='estrutura'&&typeof acaoMelhorar==='function'){acaoMelhorar(k);return;}
     const c=custoUpgrade(t[grp][k]);
     if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
     t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.',{c:'clube',t:[t.id]});render();

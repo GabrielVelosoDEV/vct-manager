@@ -37,16 +37,17 @@ const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'')
 
 /* Ordem de preferência quando o mesmo nome existe em dois formatos. */
 const FORMATOS=['webp','png','jpg','jpeg','svg'];
-const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus'];
+const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura'];
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);
-for(const f of ['data/mundo.js','data/patrocinadores.js','data/times.js','data/elencos.js','data/comissao.js','data/sedes.js','src/core/torneios.js']){
+for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/elencos.js','data/comissao.js','data/sedes.js','src/core/torneios.js']){
   const p=resolve(raiz,f);
   if(existsSync(p))vm.runInContext(readFileSync(p,'utf8')+
     ';this.TIMES_REAIS=typeof TIMES_REAIS!=="undefined"?TIMES_REAIS:this.TIMES_REAIS;'+
     'this.ELENCOS_REAIS=typeof ELENCOS_REAIS!=="undefined"?ELENCOS_REAIS:this.ELENCOS_REAIS;'+
     'this.COMISSAO_REAL=typeof COMISSAO_REAL!=="undefined"?COMISSAO_REAL:this.COMISSAO_REAL;'+
+    'this.DEPTOS=typeof DEPTOS!=="undefined"?DEPTOS:this.DEPTOS;'+
     'this.AGENTS=typeof AGENTS!=="undefined"?AGENTS:this.AGENTS;'+
     'this.MAP_POOL=typeof MAP_POOL!=="undefined"?MAP_POOL:this.MAP_POOL;'+
     'this.SEDES=typeof SEDES!=="undefined"?SEDES:this.SEDES;'+
@@ -59,7 +60,7 @@ for(const f of ['data/mundo.js','data/patrocinadores.js','data/times.js','data/e
     'this.montarTorneios=typeof montarTorneios!=="undefined"?montarTorneios:this.montarTorneios;',ctx);
 }
 /* Cada mapa: slug → rótulo. `grupo` separa a LISTA.md por clube/região. */
-const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus'];
+const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura'];
 const base=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 const grupo=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 for(const r in ctx.TIMES_REAIS||{})for(const d of ['t1','t2'])
@@ -98,6 +99,7 @@ for(const R of ctx.REGIONS||[])for(const [pre,ev] of [['po1','Stage 1'],['po2','
   const s=slug(pre+'_'+R.id);
   base.torneios.set(s,ev+' · '+R.nome+' — fase de playoffs (opcional)');grupo.torneios.set(s,R.id);
 }
+for(const d of ctx.DEPTOS||[]){base.estrutura.set(d.id,d.nome);grupo.estrutura.set(d.id,'');}
 for(const m of ctx.MAP_POOL||[]){base.mapas.set(slug(m),m);grupo.mapas.set(slug(m),'');}
 for(const c of ctx.SEDES||[]){
   base.cidades.set(slug(c.nome),c.nome+' ('+c.pais+')');
@@ -152,8 +154,8 @@ const MIDIA={
 writeFileSync(resolve(raiz,'data/midia.js'),saida);
 
 /* ---------- relatório ---------- */
-const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus'};
-const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu'};
+const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus',estrutura:'Estrutura do clube'};
+const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu',estrutura:'id do departamento'};
 let semDono=0;
 console.log(`data/midia.js gravado — ${chaves.length} imagem(ns).\n`);
 /* LISTA.md em cada pasta: o nome exato de cada arquivo que o jogo procura,

@@ -222,6 +222,8 @@ function fimDeTemporada(){
   ajustarFolha();
   /* Obra depois: o dinheiro que virou estrutura não está mais disponível para
      folha, e a obra só passa se a operação a sustentar. */
+  /* o equipamento envelhece antes: a IA decide a obra já sabendo o que caiu */
+  if(typeof envelhecerEstrutura==='function')envelhecerEstrutura();
   if(typeof investimentoIA==='function')investimentoIA();
   /* transferências entre clubes ANTES do preenchimento por agente livre: quem
      tem dinheiro tenta o reforço bom primeiro e só depois sobra o mercado de

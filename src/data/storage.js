@@ -234,6 +234,8 @@ function migrarRun(reg){
       /* entrosamento por dupla: nasce do número antigo do clube */
       if(typeof semearDuplas==='function'&&!t.duplas)semearDuplas(t);
       if(typeof t.seq!=='number')t.seq=0;
+      /* departamentos novos da estrutura (core/estrutura.js) */
+      if(typeof garantirEstrutura==='function')garantirEstrutura(t);
     }
 
     /* História real só pode entrar uma vez: rodar de novo duplicaria títulos e

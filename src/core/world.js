@@ -56,7 +56,7 @@ function criarMundo(seedVal){
           caixa: caixaInicialDe(tier,prest), patroc: 0,
           elenco:[], titulares:[], igl:null, sinergia:ri(35,70),
           staff:{tecnico:clamp(Math.round(prest/18),1,5),analista:clamp(Math.round(prest/20),1,5),mental:clamp(Math.round(prest/22),1,5)},
-          estrutura:{gh:clamp(Math.round(prest/20),1,5),treino:clamp(Math.round(prest/20),1,5),academia:clamp(Math.round(prest/22),1,5)},
+          estrutura:estruturaInicial(prest), estruturaIdade:{equip:0},
           tatica:{agres:3,foco:'default',scrim:3,treino:'mira'},
           torcida:0, patrocinios:{master:null,secundario:null,fornecedor:null},
           legado:0, vices:0,

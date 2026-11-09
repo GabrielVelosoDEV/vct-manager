@@ -333,11 +333,14 @@ function reservaMinima(t){
    sem ter feito nada de errado. */
 function investirEstrutura(t){
   if(!t||!t.estrutura)return null;
-  const areas=Object.keys(t.estrutura).filter(k=>t.estrutura[k]<ESTRUTURA_MAX);
+  /* a área mais atrasada; no empate, a ordem dos departamentos (o CT
+     primeiro, porque é o que mais mexe na evolução) */
+  const ordem=typeof DEPTOS!=='undefined'?DEPTOS.map(d=>d.id):Object.keys(t.estrutura);
+  const areas=ordem.filter(k=>typeof t.estrutura[k]==='number'&&t.estrutura[k]<ESTRUTURA_MAX);
   if(!areas.length)return null;
-  areas.sort((a,b)=>t.estrutura[a]-t.estrutura[b]);
+  areas.sort((a,b)=>t.estrutura[a]-t.estrutura[b]||ordem.indexOf(a)-ordem.indexOf(b));
   const alvo=areas[0];
-  const custo=custoUpgrade(t.estrutura[alvo]);
+  const custo=typeof custoObra==='function'?custoObra(alvo,t.estrutura[alvo]):custoUpgrade(t.estrutura[alvo]);
   if(!custo||t.caixa-custo<reservaMinima(t))return null;
   /* simula a conta anual com a obra de pé */
   const antes=t.estrutura[alvo];
@@ -358,8 +361,14 @@ function investimentoIA(){
   let obras=0;
   for(const id in G.times){
     if(id===G.meuTime)continue;
-    const r=investirEstrutura(G.times[id]);
-    if(r)obras++;
+    /* Até duas obras por temporada: com sete departamentos, uma só deixava
+       o clube rico vinte anos sem terminar o CT. A segunda passa pelas
+       mesmas travas de caixa e de operação. */
+    for(let i=0;i<2;i++){
+      const r=investirEstrutura(G.times[id]);
+      if(!r)break;
+      obras++;
+    }
   }
   return obras;
 }
@@ -386,7 +395,10 @@ function custeioSemanal(t){
   const e=t.estrutura||{gh:1,treino:1,academia:1};
   const scrim=(t.tatica&&t.tatica.scrim)||3;
   const base=(typeof custoDaBase==='function')?custoDaBase(t):0;
-  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6)+base;
+  /* cada departamento cobra pelo nível (core/estrutura.js); a soma dos pesos
+     é a mesma das três áreas antigas a 400 cada */
+  const est=typeof custeioEstruturaBase==='function'?custeioEstruturaBase(t):(e.gh+e.treino+e.academia)*400;
+  return (est+scrim*600)*(t.tier===1?2:0.6)+base;
 }
 function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */

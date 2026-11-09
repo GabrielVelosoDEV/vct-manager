@@ -785,7 +785,9 @@ await teste('Táticas mostra a comissão em vez de botão de upgrade',async()=>{
   if(!txt.includes('Comissão técnica'))throw new Error('sem o bloco da comissão');
   if($('[data-up="staff.tecnico"]'))throw new Error('botão antigo de melhorar staff ainda existe');
   if(!$('[data-fichastaff]'))throw new Error('sem atalho para a ficha');
-  if(!$('[data-up="estrutura.gh"]'))throw new Error('upgrade de estrutura sumiu junto');
+  if(!$('[data-ir="estrutura"]'))throw new Error('sem o atalho para a aba Estrutura');
+  t.tela='estrutura';w.render();
+  if($$('[data-estup]').length<6)throw new Error('aba Estrutura sem os departamentos');
 });
 
 await teste('Mercado tem aba de comissão com a sua e a dos outros',async()=>{
@@ -3513,7 +3515,7 @@ await teste('a obra sai quando o clube pode pagar, e cobra o preço da tabela',a
     const r=t.investirEstrutura(x);
     if(!r)throw new Error('clube com caixa e folga não conseguiu construir nada');
     if(x.caixa!==50000000-r.custo)throw new Error('a obra não cobrou o preço da tabela');
-    if(r.custo!==t.custoUpgrade(r.nivel-1))throw new Error('preço fora da tabela de custoUpgrade');
+    if(r.custo!==t.custoObra(r.area,r.nivel-1))throw new Error('preço fora da tabela de custoObra (custoUpgrade × peso do departamento)');
   }finally{x.caixa=caixa;x.estrutura=JSON.parse(antes);
     x.elenco.forEach((i,k)=>{t.G.jogadores[i].salario=salarios[k];});}
 });

@@ -9,6 +9,9 @@
    · vazio(): estado vazio com ícone e, quando faz sentido, ação.
    ============================================================ */
 Object.assign(ICONES,{
+  monitor:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M7 12l3-3 2 2 4-4"/>',
+  coracao:'<path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/><path d="M6 12h3l1.5-2.5 2 4.5 1.5-2h4"/>',
+  mente:'<path d="M9 21v-3.2A7 7 0 0 1 5 11.5 7 7 0 0 1 12 4.5a6.8 6.8 0 0 1 6.9 6.3l1.6 3h-1.7V17a1.6 1.6 0 0 1-1.6 1.6H15V21"/><path d="M10 10.5a2 2 0 1 1 3 1.7V14"/>',
   estrela:'<path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
   medalha:'<circle cx="12" cy="15" r="5"/><path d="m8.5 3 3.5 7 3.5-7"/><path d="m11 14.5 1-1v4"/>',
   alerta:'<path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.4"/><circle cx="12" cy="17.2" r=".9"/>',

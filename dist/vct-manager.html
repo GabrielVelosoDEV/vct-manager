@@ -2463,6 +2463,90 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .mgr-foto img{object-fit:cover;border:1px solid var(--line2)}
 .stf-c.voce{border-color:var(--teal);background:linear-gradient(90deg,rgba(24,229,180,.08),transparent 70%)}
 
+/* ============================================================
+   ESTRUTURA — aba dos departamentos (ui/estrutura.js)
+   ============================================================ */
+.dp-hero{align-items:end}
+.dp-hero .cx-tit{position:relative;max-width:640px}
+.dp-lead{color:var(--tx2);font-size:13px;line-height:1.55;max-width:560px}
+.dp-lead b{color:var(--tx)}
+.dp-hero .kpi .vl small{font-size:15px;color:var(--dim);margin-left:2px}
+.dp-hero .kpi.red .vl{color:var(--red)}
+.dp-grp{margin:18px 0 6px}
+.dp-grp>.split{margin-bottom:10px}
+.dp-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.dp-c{display:flex;flex-direction:column;background:var(--surf1,var(--panel));border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.dp-c:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.14);box-shadow:0 12px 26px rgba(0,0,0,.35)}
+.dp-c.max{border-color:rgba(200,148,58,.35)}
+.dp-cena{position:relative;display:block;width:100%;aspect-ratio:320/150;overflow:hidden;border-bottom:1px solid var(--line);cursor:zoom-in}
+.dp-svg{display:block;width:100%;height:100%}
+.dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dp-nvb{position:absolute;left:10px;top:10px;font-size:10px;letter-spacing:.14em;color:var(--tx2);padding:3px 8px;
+  background:rgba(11,18,24,.75);border:1px solid var(--line2);backdrop-filter:blur(3px)}
+.dp-nvb b{font-family:'Bebas Neue',sans-serif;font-size:17px;font-weight:400;color:var(--tx);margin-left:3px;letter-spacing:.02em}
+.dp-c.max .dp-nvb{border-color:var(--gold)}.dp-c.max .dp-nvb b{color:var(--gold)}
+.dp-corpo{display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px;flex:1}
+.dp-tit{display:flex;gap:10px;align-items:center}
+.dp-tit b{font-size:14.5px}
+.dp-tit .est-nv{margin-top:3px}
+.dp-ic{flex:none;display:grid;place-items:center;width:34px;height:34px;background:rgba(226,180,90,.1);color:var(--gold)}
+.dp-ic .ic svg{width:18px;height:18px}
+.dp-ef{list-style:none;display:flex;flex-direction:column;gap:4px}
+.dp-ef li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--tx2);padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.06)}
+.dp-ef li:last-child{border-bottom:none}
+.dp-ef b{font-weight:600;white-space:nowrap}
+.dp-ef b.up,.dp-tab td.up,.dp-jv.up{color:var(--teal)}
+.dp-ef b.dn,.dp-tab td.dn,.dp-jv.dn{color:var(--red)}
+.dp-ef b.neu,.dp-tab td.neu,.dp-jv.neu{color:var(--dim)}
+.dp-prox{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:11.5px;color:var(--dim);padding:7px 9px;
+  background:rgba(24,229,180,.04);border:1px dashed rgba(24,229,180,.22)}
+.dp-prox .eyebrow{color:var(--teal);margin-right:2px}
+.dp-prox b{color:var(--tx2)}
+.dp-prox span+span::before{content:"·";margin-right:8px;color:var(--line2)}
+.dp-prox .eyebrow+span::before{content:none}
+.dp-prox.max{background:rgba(200,148,58,.06);border-color:rgba(200,148,58,.3);color:var(--gold)}
+.dp-idade{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--tx2);padding:6px 9px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
+.dp-idade>span{flex:1}
+.dp-idade.alerta{border-color:rgba(232,163,61,.45);color:var(--amber)}
+.dp-idade .ic svg{width:14px;height:14px}
+.dp-pe{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+.dp-pe .dim{font-size:11.5px}
+.dp-bts{display:flex;gap:6px}
+.dp-baixo{margin-top:18px}
+.dp-js{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.dp-j{display:grid;grid-template-columns:30px minmax(0,1fr) 110px 128px;gap:10px;align-items:center;padding:5px 6px;cursor:pointer}
+.dp-j:hover{background:rgba(255,255,255,.03)}
+.dp-j img{width:30px;height:30px;object-fit:cover}
+.dp-jn{min-width:0;display:flex;flex-direction:column}
+.dp-jn b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-jn .dim{font-size:11px}
+.dp-jb u{position:relative;display:block;height:6px;background:rgba(255,255,255,.06)}
+.dp-jb u::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line2)}
+.dp-jb i{position:absolute;top:0;bottom:0}
+.dp-jb i.up{background:var(--teal)}.dp-jb i.dn{background:var(--red)}
+.dp-jv{font-size:11.5px;text-align:right}
+.dp-nota{font-size:11.5px;margin-top:10px}
+.dp-liga{display:flex;flex-direction:column;gap:4px;margin:8px 0 12px}
+.dp-lr{display:grid;grid-template-columns:auto minmax(0,1fr) 120px 34px;gap:10px;align-items:center;padding:5px 6px}
+.dp-lr.eu{background:rgba(var(--clube-rgb,255,70,85),.10);outline:1px solid rgba(255,255,255,.08)}
+.dp-lr u{display:block;height:6px;background:rgba(255,255,255,.06)}
+.dp-lr u i{display:block;height:100%;background:var(--gold)}
+.dp-lr.eu u i{background:var(--teal)}
+.dp-lr b{text-align:right;font-size:12px}
+.dp-modal .dp-mcena{aspect-ratio:320/150;max-width:448px;overflow:hidden;position:relative;margin:-4px auto 14px;border:1px solid var(--line)}
+.dp-modal .dp-mcena .dp-svg{height:100%}
+.dp-tab{margin-top:14px}
+.dp-tab th{font-size:10.5px;white-space:normal;vertical-align:bottom}
+.dp-tab tr.eu td{background:rgba(24,229,180,.07)}
+.dp-tab .est-nv span{display:none}
+.dp-mpe{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+@media (max-width:760px){.dp-j{grid-template-columns:30px minmax(0,1fr) 110px}.dp-jb{display:none}}
+
+.dp-linha .dp-ligac{grid-column:span 2;margin:0}
+@media (max-width:1100px){.dp-linha .dp-ligac{grid-column:auto}}
+.dp-js{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));column-gap:24px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -6002,11 +6086,14 @@ function reservaMinima(t){
    sem ter feito nada de errado. */
 function investirEstrutura(t){
   if(!t||!t.estrutura)return null;
-  const areas=Object.keys(t.estrutura).filter(k=>t.estrutura[k]<ESTRUTURA_MAX);
+  /* a área mais atrasada; no empate, a ordem dos departamentos (o CT
+     primeiro, porque é o que mais mexe na evolução) */
+  const ordem=typeof DEPTOS!=='undefined'?DEPTOS.map(d=>d.id):Object.keys(t.estrutura);
+  const areas=ordem.filter(k=>typeof t.estrutura[k]==='number'&&t.estrutura[k]<ESTRUTURA_MAX);
   if(!areas.length)return null;
-  areas.sort((a,b)=>t.estrutura[a]-t.estrutura[b]);
+  areas.sort((a,b)=>t.estrutura[a]-t.estrutura[b]||ordem.indexOf(a)-ordem.indexOf(b));
   const alvo=areas[0];
-  const custo=custoUpgrade(t.estrutura[alvo]);
+  const custo=typeof custoObra==='function'?custoObra(alvo,t.estrutura[alvo]):custoUpgrade(t.estrutura[alvo]);
   if(!custo||t.caixa-custo<reservaMinima(t))return null;
   /* simula a conta anual com a obra de pé */
   const antes=t.estrutura[alvo];
@@ -6027,8 +6114,14 @@ function investimentoIA(){
   let obras=0;
   for(const id in G.times){
     if(id===G.meuTime)continue;
-    const r=investirEstrutura(G.times[id]);
-    if(r)obras++;
+    /* Até duas obras por temporada: com sete departamentos, uma só deixava
+       o clube rico vinte anos sem terminar o CT. A segunda passa pelas
+       mesmas travas de caixa e de operação. */
+    for(let i=0;i<2;i++){
+      const r=investirEstrutura(G.times[id]);
+      if(!r)break;
+      obras++;
+    }
   }
   return obras;
 }
@@ -6055,7 +6148,10 @@ function custeioSemanal(t){
   const e=t.estrutura||{gh:1,treino:1,academia:1};
   const scrim=(t.tatica&&t.tatica.scrim)||3;
   const base=(typeof custoDaBase==='function')?custoDaBase(t):0;
-  return ((e.gh+e.treino+e.academia)*400+scrim*600)*(t.tier===1?2:0.6)+base;
+  /* cada departamento cobra pelo nível (core/estrutura.js); a soma dos pesos
+     é a mesma das três áreas antigas a 400 cada */
+  const est=typeof custeioEstruturaBase==='function'?custeioEstruturaBase(t):(e.gh+e.treino+e.academia)*400;
+  return (est+scrim*600)*(t.tier===1?2:0.6)+base;
 }
 function custeioAnual(t){return custeioSemanal(t)*SEMANAS_ANO;}
 /* O que sobra da receita depois do custeio: é daqui que sai a folha. */
@@ -6232,6 +6328,214 @@ function registrarCaixaSemana(){
   const reg={a:G.ano,s:G.semana,c:Math.round(t.caixa),id:t.id};
   if(ult&&ult.a===reg.a&&ult.s===reg.s)h[h.length-1]=reg;else h.push(reg);
   if(h.length>CAIXA_HIST_MAX)h.splice(0,h.length-CAIXA_HIST_MAX);
+}
+
+
+/* ===== src/core/estrutura.js ===== */
+/* ============================================================
+   ESTRUTURA DO CLUBE — os departamentos
+   ------------------------------------------------------------
+   Eram três números soltos (gaming house, centro de treino, academia) e um
+   botão de melhorar no canto da tela de Treinamento. Agora são sete
+   departamentos, cada um com um papel claro, e o peso principal deles é na
+   EVOLUÇÃO: é aqui que o clube transforma dinheiro em jogador melhor.
+
+     treino    Centro de treinamento (CT) — multiplica toda evolução e o
+               treino de mapa. É o departamento mais caro.
+     equip     Equipamentos e servidores — evolução da mecânica (mira,
+               reflexo, movimentação) e um pouco de rendimento em jogo.
+               Envelhece: sem renovação, perde um nível a cada 3 temporadas.
+     analise   Sala de análise — evolução tática (visão, utilidade), treino
+               de mapa mais rápido e um pouco de preparo para o jogo.
+     saude     Centro de performance (fisiologia, nutrição, sono) — desgaste,
+               risco de lesão por esgotamento e o declínio da idade.
+     mente     Psicologia e bem-estar — moral da semana, evolução do lado
+               mental (clutch, consistência) e o tombo do esgotamento.
+     gh        Gaming house — recuperação de desgaste e um pouco de moral.
+     academia  Academia de base — quantidade e qualidade dos garotos.
+
+   Todo efeito é centrado no nível 3: um clube com tudo em 3 joga e evolui
+   exatamente como antes desta mudança. Abaixo disso perde, acima ganha.
+
+   Nada aqui sorteia: é só aritmética sobre o nível, para a semente da
+   carreira continuar a mesma.
+   ============================================================ */
+const EST_NEUTRO=3;
+/* custo: multiplicador sobre CUSTO_UPGRADE (economia.js).
+   custeio: quanto cada nível cobra por semana, antes do fator do tier. A
+   soma dos sete é 1200, a mesma de antes com três áreas a 400: um clube com
+   a mesma média de nível paga o mesmo para manter a estrutura de pé. */
+const DEPTOS=[
+  {id:'treino',nome:'Centro de treinamento',curto:'CT',grupo:'evolucao',ic:'controle',custo:1.15,custeio:240,
+   desc:'Salas de treino, campo de scrim e a rotina do dia. Multiplica toda a evolução do elenco e o ganho do treino de mapa.'},
+  {id:'equip',nome:'Equipamentos',curto:'Equipamentos',grupo:'evolucao',ic:'monitor',custo:0.55,custeio:150,
+   desc:'Computadores, monitores de alta taxa, periféricos e servidor próprio de treino. Acelera a mecânica e dá um pouco de rendimento em jogo.'},
+  {id:'analise',nome:'Sala de análise',curto:'Análise',grupo:'evolucao',ic:'grafico',custo:0.7,custeio:130,
+   desc:'Vídeo, dados e o banco de demos dos adversários. Acelera a leitura de jogo e a utilidade, e o treino de mapa rende mais.'},
+  {id:'saude',nome:'Centro de performance',curto:'Performance',grupo:'condicao',ic:'coracao',custo:0.8,custeio:140,
+   desc:'Fisiologia, nutrição, sono e fisioterapia. Recupera o desgaste, corta lesão por esgotamento e segura o declínio dos veteranos.'},
+  {id:'mente',nome:'Psicologia e bem-estar',curto:'Bem-estar',grupo:'condicao',ic:'mente',custo:0.6,custeio:120,
+   desc:'Espaço de descanso, acompanhamento e rotina fora do jogo. Moral da semana, evolução do lado mental e menos tombo no esgotamento.'},
+  {id:'gh',nome:'Gaming house',curto:'Gaming house',grupo:'condicao',ic:'predio',custo:1.0,custeio:220,
+   desc:'Onde o elenco mora e convive. Recupera o desgaste da semana e ajuda um pouco na moral.'},
+  {id:'academia',nome:'Academia de base',curto:'Academia',grupo:'base',ic:'broto',custo:0.9,custeio:200,
+   desc:'Peneira, alojamento e treino dos garotos. Mais vagas na base, mais revelações por ano e potencial maior.'}
+];
+const GRUPOS_EST={evolucao:'Evolução',condicao:'Condição física e mental',base:'Base'};
+/* A quais atributos cada departamento acelera a evolução. */
+const EST_ATRIBUTOS={equip:['mira','reflexo','mov'],analise:['visao','util'],mente:['clutch','consist']};
+const EST_POR_ATRIBUTO=0.07;          /* ±14% de evolução do atributo nos extremos */
+const EQUIP_VIDA=3;                   /* temporadas até o equipamento ficar defasado */
+const RENOVAR_FRAC=0.5;               /* renovar custa metade da obra do nível atual */
+
+function deptoDe(k){return DEPTOS.find(d=>d.id===k)||null;}
+function nivelEst(t,k){
+  const v=t&&t.estrutura&&t.estrutura[k];
+  return typeof v==='number'&&isFinite(v)?v:EST_NEUTRO;
+}
+/* Níveis do clube recém-criado, pelo prestígio. As três áreas antigas
+   continuam com a régua de antes para o mundo inicial não mudar. */
+function estruturaInicial(prest){
+  const n=d=>clamp(Math.round(prest/d),1,5);
+  return{gh:n(20),treino:n(20),academia:n(22),equip:n(20),analise:n(21),saude:n(22),mente:n(24)};
+}
+/* Saves de antes dos departamentos: completa o que falta pelo prestígio. */
+function garantirEstrutura(t){
+  if(!t)return;
+  if(!t.estrutura)t.estrutura={};
+  const ini=estruturaInicial(t.prestigio||50);
+  for(const d of DEPTOS)
+    if(typeof t.estrutura[d.id]!=='number'||!isFinite(t.estrutura[d.id]))t.estrutura[d.id]=ini[d.id];
+  if(!t.estruturaIdade)t.estruturaIdade={equip:0};
+}
+
+/* ---------- custo ---------- */
+function custoObra(k,nv){
+  const d=deptoDe(k);
+  const c=(typeof custoUpgrade==='function'?custoUpgrade(nv):0)*(d?d.custo:1);
+  return Math.round(c/1000)*1000;
+}
+function custeioEstruturaBase(t){
+  let s=0;
+  for(const d of DEPTOS)s+=nivelEst(t,d.id)*d.custeio;
+  return s;
+}
+/* custeio anual de UM nível do departamento, já com o fator do tier */
+function custeioNivelAnual(t,k){
+  const d=deptoDe(k);
+  return d?d.custeio*(t&&t.tier===1?2:0.6)*(typeof SEMANAS_ANO!=='undefined'?SEMANAS_ANO:52):0;
+}
+function custoRenovacao(t){
+  const n=nivelEst(t,'equip');
+  return Math.round(custoObra('equip',Math.max(1,n-1))*RENOVAR_FRAC/1000)*1000;
+}
+
+/* ---------- efeitos (todos recebem o nível, para a tela poder mostrar
+   a tabela de 1 a 5 com a mesma conta que o jogo usa) ---------- */
+/* CT: o termo que já existia em clock.js, 0,45 + nível × 0,09 */
+function efCT(n){return 0.45+n*0.09;}
+function efCTRel(n){return efCT(n)/efCT(EST_NEUTRO);}
+/* treino de mapa: CT (o termo antigo de treino.js) × sala de análise */
+function efMapaCT(n){return 0.7+n*0.08;}
+function efMapaAnalise(n){return 1+(n-EST_NEUTRO)*0.06;}
+/* atributos acelerados por equipamentos, análise e bem-estar */
+function efAtributo(n){return 1+(n-EST_NEUTRO)*EST_POR_ATRIBUTO;}
+/* desgaste recuperado por semana (somado ao que já se recupera) */
+function efRecupGH(n){return n*0.004;}
+function efRecupSaude(n){return (n-EST_NEUTRO)*0.003;}
+/* risco de lesão por esgotamento: multiplicador */
+function efLesaoSaude(n){return Math.max(0.3,1-(n-EST_NEUTRO)*0.15);}
+/* declínio da idade: multiplicador */
+function efDeclinioSaude(n){return 1-(n-EST_NEUTRO)*0.08;}
+/* moral por semana */
+function efMoralGH(n){return (n-EST_NEUTRO)*0.0004;}
+function efMoralMente(n){return (n-EST_NEUTRO)*0.0008;}
+/* tombo de moral no esgotamento: multiplicador */
+function efBurnoutMente(n){return 1-(n-EST_NEUTRO)*0.12;}
+/* rendimento em jogo: multiplica a condição de cada titular */
+function efJogoEquip(n){return (n-EST_NEUTRO)*0.004;}
+function efJogoAnalise(n){return (n-EST_NEUTRO)*0.003;}
+
+/* ---------- o que o resto do jogo consulta ---------- */
+function fatorEvolucaoAtributo(t,k){
+  for(const dep in EST_ATRIBUTOS)if(EST_ATRIBUTOS[dep].includes(k))return efAtributo(nivelEst(t,dep));
+  return 1;
+}
+function fatorDeclinioEst(t){return efDeclinioSaude(nivelEst(t,'saude'));}
+function recuperacaoEst(t){return efRecupGH(nivelEst(t,'gh'))+efRecupSaude(nivelEst(t,'saude'));}
+function moralEst(t){return efMoralGH(nivelEst(t,'gh'))+efMoralMente(nivelEst(t,'mente'));}
+function fatorLesaoEst(t){return efLesaoSaude(nivelEst(t,'saude'));}
+function fatorBurnoutEst(t){return efBurnoutMente(nivelEst(t,'mente'));}
+function fatorTreinoMapaEst(t){return efMapaCT(nivelEst(t,'treino'))*efMapaAnalise(nivelEst(t,'analise'));}
+function fatorJogoEst(t){return 1+efJogoEquip(nivelEst(t,'equip'))+efJogoAnalise(nivelEst(t,'analise'));}
+
+/* Quanto a estrutura deste clube mexe na evolução de um jogador, comparada
+   com a estrutura padrão (tudo em 3). Vale para quem ainda cresce; para o
+   veterano em declínio o número que importa é o do centro de performance. */
+function impactoEvolucao(t,p,alvos){
+  const lista=alvos&&alvos.length?alvos:['mira','util','visao','clutch'];
+  const m=lista.reduce((s,k)=>s+fatorEvolucaoAtributo(t,k),0)/lista.length;
+  return efCTRel(nivelEst(t,'treino'))*m;
+}
+/* Índice de 1 a 5 para comparar clubes: média ponderada pelo custo, para o
+   CT pesar mais que a sala de bem-estar. */
+function indiceEstrutura(t){
+  let s=0,w=0;
+  for(const d of DEPTOS){s+=nivelEst(t,d.id)*d.custo;w+=d.custo;}
+  return w?s/w:EST_NEUTRO;
+}
+
+/* ---------- obra e renovação ---------- */
+function podeMelhorar(t,k){
+  const d=deptoDe(k);
+  if(!d)return{ok:false,erro:'Departamento desconhecido.'};
+  const n=nivelEst(t,k);
+  if(n>=ESTRUTURA_MAX)return{ok:false,erro:'Nível máximo.'};
+  const custo=custoObra(k,n);
+  if(t.caixa<custo)return{ok:false,erro:'Caixa insuficiente: '+money(custo)+' necessários.',custo};
+  return{ok:true,custo};
+}
+function melhorarEstrutura(t,k){
+  const r=podeMelhorar(t,k);
+  if(!r.ok)return r;
+  t.caixa-=r.custo;
+  t.estrutura[k]=nivelEst(t,k)+1;
+  if(k==='equip'){garantirEstrutura(t);t.estruturaIdade.equip=0;}
+  if(typeof registrarGasto==='function')registrarGasto(t,'estrutura',r.custo);
+  return{ok:true,custo:r.custo,nivel:t.estrutura[k],depto:deptoDe(k)};
+}
+function renovarEquipamento(t){
+  garantirEstrutura(t);
+  const c=custoRenovacao(t);
+  if(!t.estruturaIdade.equip)return{ok:false,erro:'O equipamento acabou de ser trocado.'};
+  if(t.caixa<c)return{ok:false,erro:'Caixa insuficiente: '+money(c)+' necessários.'};
+  t.caixa-=c;t.estruturaIdade.equip=0;
+  if(typeof registrarGasto==='function')registrarGasto(t,'estrutura',c);
+  return{ok:true,custo:c};
+}
+/* Virada de temporada: o equipamento envelhece. Quem não renova perde um
+   nível ao completar EQUIP_VIDA temporadas — o PC de ponta de três anos
+   atrás é o PC comum de hoje. A IA renova quando o caixa deixa. */
+function envelhecerEstrutura(){
+  for(const id in G.times){
+    const t=G.times[id];
+    garantirEstrutura(t);
+    const idade=++t.estruturaIdade.equip;
+    const n=nivelEst(t,'equip');
+    if(id!==G.meuTime&&idade>=EQUIP_VIDA-1&&n>1&&t.caixa-custoRenovacao(t)>=reservaMinima(t)){
+      t.caixa-=custoRenovacao(t);t.estruturaIdade.equip=0;continue;
+    }
+    if(idade>=EQUIP_VIDA){
+      t.estruturaIdade.equip=0;
+      if(n>1){
+        t.estrutura.equip=n-1;
+        if(id===G.meuTime&&typeof noticia==='function')
+          noticia('Os equipamentos do clube ficaram defasados e caíram para o nível '+(n-1)+'. Renove na aba Estrutura para não perder outro.',{c:'clube',t:[t.id]});
+      }
+    }else if(id===G.meuTime&&idade===EQUIP_VIDA-1&&n>1&&typeof noticia==='function'){
+      noticia('Os equipamentos completam '+idade+' temporadas: sem renovação, caem um nível na próxima virada.',{c:'clube',t:[t.id]});
+    }
+  }
 }
 
 
@@ -6493,7 +6797,7 @@ function criarMundo(seedVal){
           caixa: caixaInicialDe(tier,prest), patroc: 0,
           elenco:[], titulares:[], igl:null, sinergia:ri(35,70),
           staff:{tecnico:clamp(Math.round(prest/18),1,5),analista:clamp(Math.round(prest/20),1,5),mental:clamp(Math.round(prest/22),1,5)},
-          estrutura:{gh:clamp(Math.round(prest/20),1,5),treino:clamp(Math.round(prest/20),1,5),academia:clamp(Math.round(prest/22),1,5)},
+          estrutura:estruturaInicial(prest), estruturaIdade:{equip:0},
           tatica:{agres:3,foco:'default',scrim:3,treino:'mira'},
           torcida:0, patrocinios:{master:null,secundario:null,fornecedor:null},
           legado:0, vices:0,
@@ -7245,7 +7549,8 @@ function treinarMapa(t){
   return{mapa:div[0].mapa,mapas:div.map(d=>d.mapa),jogadores:mexeu};
 }
 function treinarUmMapa(t,mapa,frac){
-  const nivelTreino=0.7+((t.estrutura&&t.estrutura.treino)||3)*0.08
+  /* CT e sala de análise (core/estrutura.js) e o head coach */
+  const nivelTreino=fatorTreinoMapaEst(t)
                        +(((t.staff&&t.staff.tecnico)||2)-2)*0.05;
   let mexeu=0;
   for(const id of (t.elenco||[])){
@@ -8465,9 +8770,11 @@ function forcaTime(t,mapa,lado){
   const rs=t.titulares.map(id=>G.jogadores[id]).filter(Boolean);
   if(!rs.length)return 40;
   let mira=0,util=0,visao=0,base=0;
+  /* equipamentos e sala de análise: pouco, mas em todo round */
+  const fe=typeof fatorJogoEst==='function'?fatorJogoEst(t):1;
   rs.forEach(p=>{
     /* entrar machucado custa: é o preço da escalação de emergência */
-    const c=condicao(p)*(p.lesao?PENA_LESAO:1);
+    const c=condicao(p)*(p.lesao?PENA_LESAO:1)*fe;
     /* over NA FUNÇÃO EM QUE ELE VAI JOGAR. Sem isso a função secundária seria
        almoço grátis: o clube cobriria qualquer buraco sem pagar nada, e a
        escalação ótima viraria "os cinco de maior over, sempre". */
@@ -10169,15 +10476,16 @@ function desenvolver(p,t){
   const custoPlano=plano.tipo==='descanso'
     ?FADIGA_DESCANSO
     :FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(mapasDoTreino(planoDe(t)).length);
-  p.fadiga=clamp(p.fadiga-0.035-(t.estrutura.gh*0.004)+(t.tatica.scrim-2)*0.008
+  p.fadiga=clamp(p.fadiga-0.035-recuperacaoEst(t)+(t.tatica.scrim-2)*0.008
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
   if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}
-  p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004,.15,1);
+  p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004+moralEst(t),.15,1);
   if(typeof confiancaSemanal==='function')confiancaSemanal(t,p);
   /* burnout: fadiga acumulada cobra moral e abre risco de lesão */
   if(p.fadiga>0.82){
-    p.moral=clamp(p.moral-0.022,.15,1);
-    if(rnd()<0.02+ (p.fadiga-0.82)*0.10){p.lesao=ri(1,2);
+    p.moral=clamp(p.moral-0.022*fatorBurnoutEst(t),.15,1);
+    /* o centro de performance corta o risco; o sorteio é o mesmo de antes */
+    if(rnd()<(0.02+ (p.fadiga-0.82)*0.10)*fatorLesaoEst(t)){p.lesao=ri(1,2);
       if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.',{c:'clube',p:[p.id]});}
   }
   const o=over(p),gap=p.pot-o;
@@ -10192,8 +10500,9 @@ function desenvolver(p,t){
   /* Cobrança dá trabalho: quem levou bronca na conversa treina com mais foco
      por algumas semanas. É o que faz a opção que CUSTA moral valer a pena. */
   const bronca=(typeof estaCobrado==='function'&&estaCobrado(p))?1.25:1;
-  const mult=(0.45+t.estrutura.treino*0.09+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
-  let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29);
+  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
+  /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
+  let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
   if(Math.abs(g)<0.0004)return;
   /* Para onde a evolução vai. Antes era um foco de TIME; agora é o plano do
      jogador. Quem descansa não evolui, e quem está aprendendo agente põe o
@@ -10216,7 +10525,9 @@ function desenvolver(p,t){
      30 com over acima da média da liga, e os garotos não achavam vaga. */
   const decl=['reflexo','mira','mov'];
   const lista = g>0?alvos:decl;
-  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra:1.6),25,99);});
+  /* equipamentos, sala de análise e bem-estar aceleram cada um o seu grupo
+     de atributos (core/estrutura.js) */
+  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra*fatorEvolucaoAtributo(t,k):1.6),25,99);});
   if(g<0)for(const[k]of ATTRS)
     if(!decl.includes(k)&&k!=='lider')p.at[k]=clamp(p.at[k]+g*0.55,25,99);
   /* O empurrãozinho aleatório só existe para quem TREINOU. Sem esta guarda o
@@ -15157,6 +15468,8 @@ function fimDeTemporada(){
   ajustarFolha();
   /* Obra depois: o dinheiro que virou estrutura não está mais disponível para
      folha, e a obra só passa se a operação a sustentar. */
+  /* o equipamento envelhece antes: a IA decide a obra já sabendo o que caiu */
+  if(typeof envelhecerEstrutura==='function')envelhecerEstrutura();
   if(typeof investimentoIA==='function')investimentoIA();
   /* transferências entre clubes ANTES do preenchimento por agente livre: quem
      tem dinheiro tenta o reforço bom primeiro e só depois sobra o mercado de
@@ -16666,7 +16979,7 @@ function edAplicarTime(tid,c){
        aplicar qualquer mudança do time */
     if(c.staff[k]!=null){const v=parseFloat(String(c.staff[k]).replace(',','.'));
       if(Math.abs(v-(t.staff[k]||0))>=0.05)t.staff[k]=clamp(Math.round((v||1)*10)/10,1,5);}
-  if(c.estrutura)for(const k of ['gh','treino','academia'])
+  if(c.estrutura)for(const k of (typeof DEPTOS!=='undefined'?DEPTOS.map(d=>d.id):['gh','treino','academia']))
     if(c.estrutura[k]!=null)t.estrutura[k]=clamp(parseInt(c.estrutura[k])||1,1,5);
   if(c.mapPref)for(const m in c.mapPref)
     if(MAP_POOL.includes(m))t.mapPref[m]=clamp(parseInt(c.mapPref[m])||0,-8,8);
@@ -17336,6 +17649,8 @@ function migrarRun(reg){
       /* entrosamento por dupla: nasce do número antigo do clube */
       if(typeof semearDuplas==='function'&&!t.duplas)semearDuplas(t);
       if(typeof t.seq!=='number')t.seq=0;
+      /* departamentos novos da estrutura (core/estrutura.js) */
+      if(typeof garantirEstrutura==='function')garantirEstrutura(t);
     }
 
     /* História real só pode entrar uma vez: rodar de novo duplicaria títulos e
@@ -17809,6 +18124,7 @@ const NAV=[
   ['elenco','Elenco','Clube','elenco'],
   ['vestiario','Vestiário','Clube','vestiario'],
   ['preparacao','Treinamento','Clube','tatica'],
+  ['estrutura','Estrutura','Clube','estrutura'],
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
@@ -17824,6 +18140,7 @@ const NAV=[
 /* ---------- ícones (SVG inline: sem fonte externa, funciona offline) ---------- */
 const ICONES={
   casa:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  estrutura:'<path d="M4 21V5.5L12 3v18"/><path d="M12 9h8v12"/><path d="M7 8h2M7 11.5h2M7 15h2M15 13h2M15 16.5h2"/><path d="M2.5 21h19"/>',
   elenco:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M16 5.6a3 3 0 0 1 0 5.6"/><path d="M18.5 20c0-2.5-.9-4.3-2.5-5.3"/>',
   tatica:'<path d="M4 5h16v14H4z"/><path d="M4 12h16"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="16" cy="15.5" r="1.3"/>',
   base:'<path d="M12 3l7.5 4v6c0 4.3-3.2 7.4-7.5 8.4C7.7 20.4 4.5 17.3 4.5 13V7z"/><path d="M9 12l2.3 2.3L15.6 10"/>',
@@ -17882,7 +18199,7 @@ function render(){
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
-            base:vBase,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
+            base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
@@ -17893,6 +18210,7 @@ function render(){
   if(typeof ligarClubes==='function')ligarClubes(v);
   if(typeof animarTela==='function')animarTela(v,tela);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
+  if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
 }
 function irPara(k,semHist){
   tela=k;
@@ -18117,6 +18435,9 @@ function lerJSON(file){
    · vazio(): estado vazio com ícone e, quando faz sentido, ação.
    ============================================================ */
 Object.assign(ICONES,{
+  monitor:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M7 12l3-3 2 2 4-4"/>',
+  coracao:'<path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z"/><path d="M6 12h3l1.5-2.5 2 4.5 1.5-2h4"/>',
+  mente:'<path d="M9 21v-3.2A7 7 0 0 1 5 11.5 7 7 0 0 1 12 4.5a6.8 6.8 0 0 1 6.9 6.3l1.6 3h-1.7V17a1.6 1.6 0 0 1-1.6 1.6H15V21"/><path d="M10 10.5a2 2 0 1 1 3 1.7V14"/>',
   estrela:'<path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>',
   medalha:'<circle cx="12" cy="15" r="5"/><path d="m8.5 3 3.5 7 3.5-7"/><path d="m11 14.5 1-1v4"/>',
   alerta:'<path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.4"/><circle cx="12" cy="17.2" r=".9"/>',
@@ -18940,10 +19261,12 @@ function vTaticas(){
       <b class="dn">vago</b><span class="dim">a vaga vale nível 1 · contrate no Mercado</span></div></div>`).join('');
   const extra=(t.equipeExtra||[]).map(x=>`<div class="stf-c">${retratoStaff(x,58)}<div class="stf-i"><span class="eyebrow">${esc(x.funcao||'Equipe')}</span>
       <b>${esc(x.nome)} ${x.pais?bandeira(x.pais):''}</b>${x.nomeReal?`<span class="dim">${esc(x.nomeReal)}</span>`:''}</div></div>`).join('');
-  const estrutura=[['gh','Gaming house','predio'],['treino','Centro de treino','controle'],['academia','Academia de base','broto']].map(([k,n,ic])=>
-    `<div class="est-c"><span class="est-ic">${icone(ic)}</span><div><b>${n}</b>
-      <div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=t.estrutura[k]?'on':''}"></i>`).join('')}<span class="num">nível ${t.estrutura[k]}</span></div></div>
-      <button class="btn ghost sm" data-up="estrutura.${k}" ${t.estrutura[k]>=5?'disabled':''}>${t.estrutura[k]>=5?'máximo':'Melhorar · '+money(custoUpgrade(t.estrutura[k]))}</button></div>`).join('');
+  /* a estrutura saiu daqui e ganhou aba própria (ui/estrutura.js); fica o
+     resumo do que mexe no treino, com o atalho */
+  const estrutura=['treino','equip','analise'].map(k=>{const d=deptoDe(k),n=nivelEst(t,k);
+    return `<div class="est-c"><span class="est-ic">${icone(d.ic)}</span><div><b>${esc(d.nome)}</b>
+      <div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}<span class="num">nível ${n}</span></div></div>
+      <span class="dim num">${(()=>{const e=efeitosDepto(k,n)[0];return Math.abs(e.v)<1e-9?'padrão':e.f(e.v);})()}</span></div>`;}).join('');
   return `
   <div class="grid g2">
    <div class="card"><div class="eyebrow">Estilo de jogo</div>
@@ -18961,7 +19284,8 @@ function vTaticas(){
     <div class="tat-blocos">${BLOCOS_TREINO.map(b=>`<button class="tat-bloco ${t.tatica.treino===b.id?'on':''}" data-blocotreino="${b.id}">
       <i>${ico(b.ic)}</i><b>${b.nome}</b><span>${b.at}</span></button>`).join('')}</div>
     <p class="dim" style="margin-top:8px;font-size:12px">O treino direciona onde os jogadores evoluem rumo ao potencial. Jovens ganham muito mais que veteranos. O plano de cada um fica em <b>Plano da semana</b>.</p>
-    <div class="eyebrow" style="margin-top:16px">Estrutura</div>
+    <div class="split" style="margin-top:16px"><div class="eyebrow">Estrutura que acelera o treino</div>
+      <button class="btn ghost sm" data-ir="estrutura">Abrir Estrutura</button></div>
     <div class="est-l">${estrutura}</div>
    </div>
   </div>
@@ -20454,6 +20778,346 @@ function ligarEscalacao(raiz,t){
   }
 }
 let _trocaRecente=null;
+
+
+/* ===== src/ui/estrutura.js ===== */
+/* ============================================================
+   ESTRUTURA — a aba dos departamentos do clube
+   ------------------------------------------------------------
+   Saiu do canto da tela de Treinamento e virou tela própria: cada
+   departamento com a sua ilustração (que cresce com o nível), o que ele
+   faz hoje, o que o próximo nível acrescenta, quanto custa construir e
+   manter. Embaixo, quem do elenco mais sente a estrutura e onde o clube
+   está entre os da liga.
+
+   As ilustrações são desenhadas aqui (SVG, sem arquivo externo). Uma foto
+   de verdade pode substituir: assets/estrutura/<departamento>.webp — a
+   LISTA.md da pasta tem os nomes. O número que cada efeito mostra sai da
+   mesma função que o motor usa (core/estrutura.js).
+   ============================================================ */
+
+/* ---------- ilustrações ---------- */
+let _cenaSeq=0;
+function _janelas(pos,n,cor,id){
+  return pos.map(([x,y,w,h],i)=>i<n
+    ?`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${cor}" opacity=".9"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${id}l)" opacity=".6"/>`
+    :`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#0B1218" stroke="#2E4250" stroke-width=".6"/>`).join('');
+}
+function cenaEstrutura(k,n,cor){
+  cor=cor||'#FF4655';
+  const id='ce'+(++_cenaSeq);
+  const fundo=`<defs>
+      <linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222E"/><stop offset="1" stop-color="#0B1218"/></linearGradient>
+      <radialGradient id="${id}g" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="${cor}" stop-opacity="${(0.10+n*0.05).toFixed(2)}"/><stop offset="1" stop-color="${cor}" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${id}l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    </defs>
+    <rect width="320" height="150" fill="url(#${id}b)"/><rect width="320" height="150" fill="url(#${id}g)"/>
+    <path d="M0 132h320" stroke="#2E4250"/><path d="M0 132h320v18H0z" fill="#0B1218" opacity=".7"/>`;
+  const L='#2E4250',P='#1C2A38',E='#22323F';
+  let c='';
+  if(k==='gh'){
+    const pos=[[92,74,22,16],[126,74,22,16],[172,74,22,16],[206,74,22,16],[92,102,22,16]];
+    c=`<path d="M64 66 160 26l96 40" fill="${E}" stroke="${L}"/><rect x="74" y="64" width="172" height="68" fill="${P}" stroke="${L}"/>
+      ${_janelas(pos,n,cor,id)}<rect x="150" y="98" width="22" height="34" fill="#0B1218" stroke="${L}"/><circle cx="167" cy="116" r="1.4" fill="${cor}"/>
+      <rect x="206" y="102" width="22" height="16" fill="${n>=2?cor:'#0B1218'}" opacity="${n>=2?.55:1}" stroke="${L}" stroke-width=".6"/>
+      ${n>=3?`<path d="M44 132v-26a10 10 0 0 1 20 0v26" fill="#14301f" opacity=".9"/><path d="M262 132v-18a8 8 0 0 1 16 0v18" fill="#14301f" opacity=".9"/>`:''}
+      ${n>=4?`<path d="M222 47v-14M216 36h12" stroke="${L}" stroke-width="2"/><circle cx="222" cy="31" r="2.5" fill="${cor}"/>`:''}
+      ${n>=5?`<path d="M100 56V30" stroke="${L}" stroke-width="1.5"/><path d="M100 30h26l-6 7 6 7h-26z" fill="${cor}"/>`:''}`;
+  }else if(k==='treino'){
+    const andares=Math.min(3,1+Math.ceil(n/2));
+    let pr='';
+    for(let a=0;a<andares;a++){
+      const y=110-a*24;
+      pr+=`<rect x="58" y="${y}" width="204" height="22" fill="${P}" stroke="${L}"/>`;
+      for(let j=0;j<8;j++)pr+=`<rect x="${66+j*24}" y="${y+5}" width="16" height="11" fill="${(a*8+j)<n*5?cor:'#0B1218'}" opacity="${(a*8+j)<n*5?.7:1}"/>`;
+    }
+    const topo=110-(andares-1)*24;
+    c=`${pr}<rect x="58" y="${topo-6}" width="204" height="6" fill="${cor}"/>
+      <rect x="140" y="114" width="40" height="18" fill="#0B1218" stroke="${L}"/>
+      ${n>=4?`<rect x="118" y="${topo-34}" width="84" height="24" fill="#0B1218" stroke="${cor}"/><path d="M126 ${topo-16}l12-8 10 5 12-9 12 6 14-4" fill="none" stroke="${cor}" stroke-width="1.6"/>`:''}
+      ${n>=5?`<rect x="20" y="96" width="30" height="36" fill="${P}" stroke="${L}"/><rect x="270" y="96" width="30" height="36" fill="${P}" stroke="${L}"/>
+        <rect x="26" y="102" width="18" height="8" fill="${cor}" opacity=".7"/><rect x="276" y="102" width="18" height="8" fill="${cor}" opacity=".7"/>`:''}`;
+  }else if(k==='equip'){
+    const q=clamp(n,1,5),w=Math.min(64,250/q-8),ini=160-(q*(w+8)-8)/2;
+    let mon='';
+    for(let i=0;i<q;i++){
+      const x=ini+i*(w+8);
+      mon+=`<rect x="${x}" y="58" width="${w}" height="${w*0.6}" rx="2" fill="#0B1218" stroke="${L}"/>
+        <rect x="${x+3}" y="61" width="${w-6}" height="${w*0.6-6}" fill="${cor}" opacity="${(0.25+n*0.1).toFixed(2)}"/>
+        <path d="M${x+5} ${58+w*0.6-8}l${w*0.25} -${w*0.18} ${w*0.2} ${w*0.1} ${w*0.3} -${w*0.2}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>
+        <path d="M${x+w/2} ${58+w*0.6}v10M${x+w/2-8} ${68+w*0.6}h16" stroke="${L}" stroke-width="2"/>`;
+    }
+    c=`<rect x="30" y="104" width="260" height="6" fill="${E}" stroke="${L}"/><path d="M44 110v22M276 110v22" stroke="${L}" stroke-width="3"/>
+      ${mon}<rect x="120" y="96" width="62" height="7" rx="1.5" fill="${P}" stroke="${L}"/><rect x="194" y="96" width="10" height="7" rx="3.5" fill="${P}" stroke="${L}"/>
+      ${n>=4?`<path d="M30 112h260" stroke="${cor}" stroke-width="2" opacity=".8"/>`:''}
+      ${n>=5?`<rect x="292" y="62" width="22" height="70" fill="${P}" stroke="${L}"/>${[0,1,2,3,4].map(i=>`<rect x="296" y="${68+i*12}" width="14" height="6" fill="#0B1218"/><circle cx="307" cy="${71+i*12}" r="1.3" fill="${i%2?cor:'#18E5B4'}"/>`).join('')}`:''}`;
+  }else if(k==='analise'){
+    const barras=n+1;
+    let bs='';
+    for(let i=0;i<barras;i++){const h=12+((i*37+n*11)%30);bs+=`<rect x="${206+i*14}" y="${112-h}" width="9" height="${h}" fill="${i===barras-1?cor:'#4C8DFF'}" opacity=".85"/>`;}
+    c=`<rect x="34" y="34" width="156" height="90" fill="#0B1218" stroke="${L}"/>
+      <path d="M48 52h38v22H66v26H48zM98 48h30v18h22v40h-30V84H98z" fill="${P}" stroke="${L}"/>
+      <path d="M60 94q30-30 70-38" fill="none" stroke="${cor}" stroke-width="2" stroke-dasharray="4 3"/><path d="m128 52 6 4-7 3z" fill="${cor}"/>
+      <circle cx="64" cy="62" r="3" fill="#18E5B4"/><circle cx="140" cy="96" r="3" fill="${cor}"/>
+      ${n>=3?`<circle cx="112" cy="70" r="10" fill="${cor}" opacity=".18"/><circle cx="80" cy="84" r="7" fill="${cor}" opacity=".14"/>`:''}
+      <rect x="198" y="34" width="${n>=2?96:0}" height="90" fill="#0B1218" stroke="${n>=2?L:'none'}"/>${n>=2?bs:''}
+      <path d="M34 124h60l6 8h24l6-8h60" fill="none" stroke="${L}"/>
+      ${n>=5?`<path d="M206 48h80" stroke="#18E5B4" stroke-width="1.4"/><path d="M206 48l14-6 12 4 14-8 12 3 14-5 14 4" fill="none" stroke="#18E5B4" stroke-width="1.2" transform="translate(0 8)"/>`:''}`;
+  }else if(k==='saude'){
+    c=`<path d="M20 60h70l8-18 12 40 10-30 6 8h174" fill="none" stroke="${cor}" stroke-width="2.2" opacity=".85"/>
+      <g transform="translate(70 104)"><rect x="-4" y="-3" width="44" height="6" fill="${L}"/><rect x="-14" y="-12" width="10" height="24" rx="2" fill="${P}" stroke="${L}"/><rect x="40" y="-12" width="10" height="24" rx="2" fill="${P}" stroke="${L}"/></g>
+      <rect x="150" y="98" width="14" height="34" rx="4" fill="#4C8DFF" opacity=".6"/><rect x="153" y="92" width="8" height="7" fill="${L}"/>
+      ${n>=2?`<rect x="186" y="118" width="38" height="14" rx="2" fill="${P}" stroke="${L}"/><path d="M190 118v-30h6" stroke="${L}" stroke-width="2" fill="none"/>`:''}
+      ${n>=3?`<g transform="translate(250 106)"><circle r="14" fill="none" stroke="${L}" stroke-width="2"/><circle cx="34" r="14" fill="none" stroke="${L}" stroke-width="2"/><path d="M0 0l14-18h12l8 18M14-18l-4-8" stroke="${cor}" stroke-width="2" fill="none"/></g>`:''}
+      ${n>=4?`<rect x="20" y="86" width="26" height="46" fill="${P}" stroke="${L}"/><path d="M33 96v14M26 103h14" stroke="#18E5B4" stroke-width="3"/>`:''}
+      ${n>=5?`<path d="M110 132c0-12 6-18 14-18s14 6 14 18" fill="#18E5B4" opacity=".25"/><path d="M118 122h12M124 116v12" stroke="#18E5B4" stroke-width="2"/>`:''}`;
+  }else if(k==='mente'){
+    let ondas='';
+    for(let i=1;i<=n;i++)ondas+=`<path d="M${150+i*9} ${78-i*7}a${i*9} ${i*9} 0 0 1 0 ${i*14+20}" fill="none" stroke="${cor}" stroke-opacity="${(0.9-i*0.13).toFixed(2)}" stroke-width="1.6"/>`;
+    let folhas='';
+    for(let i=0;i<Math.min(5,n+1);i++)folhas+=`<path d="M60 ${126-i*9}c${i%2?-14:14} -4 ${i%2?-18:18} -12 ${i%2?-16:16} -16c${i%2?6:-6} 6 ${i%2?8:-8} 12 ${i%2?16:-16} 16" fill="#18E5B4" opacity=".55"/>`;
+    c=`<path d="M128 124v-14c-10-4-16-14-16-26 0-18 14-32 32-32s30 12 30 28l8 14h-8v10c0 6-4 8-10 8h-6v12" fill="${P}" stroke="${L}" stroke-width="1.4"/>
+      <circle cx="146" cy="78" r="9" fill="${cor}" opacity="${(0.2+n*0.12).toFixed(2)}"/>${ondas}
+      <rect x="52" y="122" width="16" height="10" fill="${E}" stroke="${L}"/><path d="M60 122v-46" stroke="#14301f" stroke-width="2"/>${folhas}
+      ${n>=3?`<path d="M232 132v-22h56v22M236 110v-12h48v12" fill="${P}" stroke="${L}"/><rect x="240" y="104" width="40" height="8" fill="${cor}" opacity=".35"/>`:''}
+      ${n>=5?`<circle cx="292" cy="40" r="10" fill="#E8A33D" opacity=".5"/>`:''}`;
+  }else if(k==='academia'){
+    let pl='';
+    for(let i=0;i<n;i++){
+      const x=70+i*44,h=16+i*9;
+      pl+=`<path d="M${x} 132v-${h}" stroke="#18E5B4" stroke-width="2.4"/>
+        <path d="M${x} ${132-h+6}c0-${8+i*2} 8-${14+i*2} 18-${14+i*2} 0 ${8+i*2}-8 ${14+i*2}-18 ${14+i*2}z" fill="#18E5B4" opacity=".7"/>
+        <path d="M${x} ${132-h+12}c0-${6+i*2}-7-${11+i*2}-15-${11+i*2} 0 ${6+i*2} 7 ${11+i*2} 15 ${11+i*2}z" fill="#18E5B4" opacity=".5"/>`;
+    }
+    c=`<path d="M40 132h240" stroke="#14301f" stroke-width="5"/>${pl}
+      ${n>=3?`<rect x="24" y="58" width="24" height="74" fill="${P}" stroke="${L}"/><rect x="28" y="64" width="16" height="8" fill="${cor}" opacity=".6"/>`:''}
+      ${n>=5?`<g transform="translate(286 92)"><path d="M-10 0h20v10c0 8-4 12-10 12s-10-4-10-12z" fill="#E8C46A"/><rect x="-3" y="22" width="6" height="8" fill="#E8C46A"/><rect x="-9" y="30" width="18" height="6" fill="#C8943A"/></g>`:''}`;
+  }
+  return `<svg class="dp-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc((deptoDe(k)||{}).nome||k)}, nível ${n}">${fundo}${c}</svg>`;
+}
+/* foto opcional em assets/estrutura/; sem ela, a ilustração */
+function arteDepto(t,k,n){
+  const tem=typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos['estrutura/'+k];
+  const svg=cenaEstrutura(k,n,corDoClube(t));
+  if(!tem)return svg;
+  return `${svg}<img class="dp-foto" src="${ASSETS.arq('estrutura',k)}" alt="" loading="lazy" onerror="this.remove()">`;
+}
+
+/* ---------- efeitos, com a mesma conta do motor ---------- */
+const _pct=v=>(v>0?'+':v<0?'−':'')+Math.abs(Math.round(v*100))+'%';
+const _pts=v=>(v>0?'+':v<0?'−':'')+Math.abs(v*100).toFixed(1).replace('.',',')+' pt';
+/* bom: +1 quando subir é bom, −1 quando descer é bom */
+function efeitosDepto(k,n){
+  const N=EST_NEUTRO;
+  switch(k){
+    case 'treino':return[
+      {rot:'Evolução de todo o elenco',v:efCTRel(n)-1,f:_pct,bom:1},
+      {rot:'Ganho do treino de mapa',v:efMapaCT(n)/efMapaCT(N)-1,f:_pct,bom:1}];
+    case 'equip':return[
+      {rot:'Evolução de mira, reflexo e movimentação',v:efAtributo(n)-1,f:_pct,bom:1},
+      {rot:'Rendimento em jogo',v:efJogoEquip(n),f:v=>(v>0?'+':v<0?'−':'')+Math.abs(v*100).toFixed(1).replace('.',',')+'%',bom:1}];
+    case 'analise':return[
+      {rot:'Evolução de visão e utilidade',v:efAtributo(n)-1,f:_pct,bom:1},
+      {rot:'Ganho do treino de mapa',v:efMapaAnalise(n)-1,f:_pct,bom:1},
+      {rot:'Rendimento em jogo',v:efJogoAnalise(n),f:v=>(v>0?'+':v<0?'−':'')+Math.abs(v*100).toFixed(1).replace('.',',')+'%',bom:1}];
+    case 'saude':return[
+      {rot:'Desgaste recuperado por semana',v:efRecupSaude(n),f:_pts,bom:1},
+      {rot:'Risco de lesão por esgotamento',v:efLesaoSaude(n)-1,f:_pct,bom:-1},
+      {rot:'Declínio dos veteranos',v:efDeclinioSaude(n)-1,f:_pct,bom:-1}];
+    case 'mente':return[
+      {rot:'Moral ao longo da temporada',v:efMoralMente(n)*SEMANAS_ANO,f:_pts,bom:1},
+      {rot:'Evolução de clutch e consistência',v:efAtributo(n)-1,f:_pct,bom:1},
+      {rot:'Tombo de moral no esgotamento',v:efBurnoutMente(n)-1,f:_pct,bom:-1}];
+    case 'gh':return[
+      {rot:'Desgaste recuperado por semana',v:efRecupGH(n)-efRecupGH(N),f:_pts,bom:1},
+      {rot:'Moral ao longo da temporada',v:efMoralGH(n)*SEMANAS_ANO,f:_pts,bom:1}];
+    case 'academia':return[
+      {rot:'Vagas na categoria de base',v:2+Math.floor((n-1)/2),f:v=>String(v),abs:1},
+      {rot:'Potencial dos garotos revelados',v:n,f:v=>'+'+v,abs:1}];
+  }
+  return [];
+}
+function _fmtEf(e){return Math.abs(e.v)<1e-9&&!e.abs?'padrão':e.f(e.v);}
+function _efClasse(e){
+  if(e.abs)return '';
+  const s=e.v*e.bom;
+  return Math.abs(e.v)<1e-9?'neu':s>0?'up':'dn';
+}
+function listaEfeitos(k,n){
+  return `<ul class="dp-ef">${efeitosDepto(k,n).map(e=>`<li><span>${esc(e.rot)}</span><b class="num ${_efClasse(e)}">${Math.abs(e.v)<1e-9&&!e.abs?'padrão':e.f(e.v)}</b></li>`).join('')}</ul>`;
+}
+function _pips(n){return `<div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}<span class="num">nível ${n}</span></div>`;}
+
+/* ---------- impacto no elenco ---------- */
+function alvosDoPlano(t,p){
+  const pl=typeof planoDoJogador==='function'?planoDoJogador(t,p):null;
+  if(!pl)return{alvos:['mira','util','visao','clutch'],rot:'equilibrado'};
+  if(pl.tipo==='descanso')return{alvos:[],rot:'descanso'};
+  if(pl.tipo==='agente')return{alvos:[],rot:'aprendendo agente'};
+  if(pl.alvo&&ATTRS.some(a=>a[0]===pl.alvo))return{alvos:[pl.alvo],rot:(ATTRS.find(a=>a[0]===pl.alvo)||[,pl.alvo])[1]};
+  return{alvos:['mira','util','visao','clutch'],rot:'equilibrado'};
+}
+function blocoImpacto(t){
+  const js=t.elenco.map(P).filter(Boolean).sort((a,b)=>a.idade-b.idade);
+  if(!js.length)return vazio('Elenco vazio.','elenco');
+  const linhas=js.map(p=>{
+    const {alvos,rot}=alvosDoPlano(t,p);
+    const veterano=p.idade>30;
+    let v,txt,cls;
+    if(veterano){v=fatorDeclinioEst(t)-1;txt='declínio '+_pct(v);cls=v<0?'up':v>0?'dn':'neu';}
+    else if(!alvos.length){v=0;txt='não evolui esta semana';cls='neu';}
+    else{v=impactoEvolucao(t,p,alvos)-1;txt='evolução '+_pct(v);cls=v>0?'up':v<0?'dn':'neu';}
+    const larg=Math.min(50,Math.abs(v)*100*1.4);
+    const bom=veterano?v<0:v>0;
+    return `<div class="dp-j jrow" data-p="${p.id}">${retrato(p,30)}
+      <div class="dp-jn"><b>${esc(p.nome)}</b><span class="dim">${p.idade} anos · ${esc(rot)}${veterano?' · veterano':''}</span></div>
+      <div class="dp-jb"><u><i class="${bom?'up':'dn'}" style="${bom?'left:50%':'right:50%'};width:${larg}%"></i></u></div>
+      <b class="num dp-jv ${cls}">${txt}</b></div>`;
+  }).join('');
+  return `<div class="dp-js">${linhas}</div>`;
+}
+
+/* ---------- comparação com a liga ---------- */
+function rivaisDeEstrutura(t){
+  return Object.values(G.times).filter(x=>x.tier===t.tier&&x.regiao===t.regiao)
+    .map(x=>({t:x,i:indiceEstrutura(x)})).sort((a,b)=>b.i-a.i);
+}
+function blocoLiga(t,lista){
+  const pos=lista.findIndex(x=>x.t.id===t.id);
+  const mostra=lista.slice(0,10);
+  if(pos>=10)mostra.push(lista[pos]);
+  return `<div class="dp-liga">${mostra.map(x=>{
+    const i=lista.indexOf(x);
+    return `<div class="dp-lr ${x.t.id===t.id?'eu':''}">${selo(i+1)}${celClube(x.t.id,20)}
+      <u><i style="width:${(x.i/5*100).toFixed(0)}%"></i></u><b class="num">${x.i.toFixed(1).replace('.',',')}</b></div>`;}).join('')}</div>`;
+}
+
+/* ---------- cartão do departamento ---------- */
+function cartaoDepto(t,d){
+  const n=nivelEst(t,d.id);
+  const max=n>=ESTRUTURA_MAX;
+  const custo=max?0:custoObra(d.id,n);
+  const pode=!max&&t.caixa>=custo;
+  const anual=custeioNivelAnual(t,d.id);
+  const prox=max?'':efeitosDepto(d.id,n+1).map((e,i)=>{
+    const a=efeitosDepto(d.id,n)[i];
+    if(e.abs)return e.v!==a.v?`<span>${esc(e.rot.toLowerCase())} <b class="num">${_fmtEf(e)}</b></span>`:'';
+    return `<span>${esc(e.rot.toLowerCase())} <b class="num">${_fmtEf(e)}</b></span>`;
+  }).filter(Boolean).join('');
+  let idade='';
+  if(d.id==='equip'&&t.estruturaIdade){
+    const ida=t.estruturaIdade.equip||0,falta=EQUIP_VIDA-ida;
+    idade=`<div class="dp-idade ${falta<=1&&n>1?'alerta':''}">${icone('relogio')}
+      <span>${ida?`trocado há ${ida} temporada${ida>1?'s':''}`:'trocado nesta temporada'}${n>1?` · ${falta<=1?'cai um nível na próxima virada':'fica defasado em '+falta+' temporadas'}`:''}</span>
+      ${ida&&n>1?`<button class="btn ghost sm" data-estrenova="1" ${t.caixa<custoRenovacao(t)?'disabled':''}>Renovar · ${money(custoRenovacao(t))}</button>`:''}</div>`;
+  }
+  return `<article class="dp-c ${max?'max':''}" data-depto="${d.id}">
+    <button class="dp-cena" data-estver="${d.id}" title="Ver todos os níveis">${arteDepto(t,d.id,n)}<span class="dp-nvb">NV <b>${n}</b></span></button>
+    <div class="dp-corpo">
+      <div class="dp-tit"><span class="dp-ic">${icone(d.ic)}</span><div><b>${esc(d.nome)}</b>${_pips(n)}</div></div>
+      ${listaEfeitos(d.id,n)}
+      ${max?'<div class="dp-prox max">Departamento no nível máximo.</div>':`<div class="dp-prox"><span class="eyebrow">nível ${n+1}</span>${prox}</div>`}
+      ${idade}
+      <div class="dp-pe"><span class="dim">manutenção ${money(anual*n)}/ano</span>
+        <div class="dp-bts"><button class="btn ghost sm" data-estver="${d.id}">Níveis</button>
+        ${max?'<button class="btn sm" disabled>Máximo</button>'
+          :`<button class="btn sm" data-estup="${d.id}" ${pode?'':'disabled title="caixa insuficiente"'}>Melhorar · ${money(custo)}</button>`}</div></div>
+    </div></article>`;
+}
+
+/* ---------- a tela ---------- */
+function vEstrutura(){
+  const t=meu();
+  garantirEstrutura(t);
+  const cor=corDoClube(t);
+  const idx=indiceEstrutura(t);
+  const liga=rivaisDeEstrutura(t);
+  const pos=liga.findIndex(x=>x.t.id===t.id)+1;
+  const fat=t.tier===1?2:0.6;
+  const manut=custeioEstruturaBase(t)*fat*SEMANAS_ANO;
+  const livre=t.caixa-reservaMinima(t);
+  const jovens=t.elenco.map(P).filter(p=>p&&p.idade<=30);
+  const media=jovens.length?jovens.reduce((s,p)=>s+impactoEvolucao(t,p,alvosDoPlano(t,p).alvos)-1,0)/jovens.length:0;
+  const grupos=Object.keys(GRUPOS_EST).filter(g=>g!=='base').map(g=>{
+    const ds=DEPTOS.filter(d=>d.grupo===g);
+    return `<div class="dp-grp"><div class="split"><div class="eyebrow">${esc(GRUPOS_EST[g])}</div>
+      <span class="dim">${ds.length} departamento${ds.length>1?'s':''}</span></div>
+      <div class="dp-grade">${ds.map(d=>cartaoDepto(t,d)).join('')}</div></div>`;
+  }).join('');
+  return `<section class="cx-hero dp-hero" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    <div class="cx-marca" aria-hidden="true">${escudo(t,260)}</div>
+    <div class="cx-tit">
+      <div class="eyebrow">Clube · ${esc(t.nome)}</div>
+      <h1 class="cx-nome">Estrutura</h1>
+      <p class="dp-lead">Sete departamentos. O que mais pesa é a <b>evolução</b>: o CT multiplica todo ganho, e equipamentos,
+        análise e bem-estar aceleram cada um o seu grupo de atributos. O resto cuida do desgaste, da moral e da base.</p>
+    </div>
+    <div class="cx-kpis">
+      <div class="kpi gold"><div class="lb">Índice de estrutura</div><div class="vl">${idx.toFixed(1).replace('.',',')}<small>/5</small></div><div class="sb">${pos}º de ${liga.length} na liga</div></div>
+      <div class="kpi ${media>0?'teal':media<0?'red':''}"><div class="lb">Evolução do elenco</div><div class="vl">${_pct(media)}</div><div class="sb">vs. estrutura padrão</div></div>
+      <div class="kpi"><div class="lb">Manutenção</div><div class="vl">${money(manut)}</div><div class="sb">por temporada</div></div>
+      <div class="kpi ${livre<0?'red':''}"><div class="lb">Caixa para obras</div><div class="vl">${money(Math.max(0,livre))}</div><div class="sb">acima da reserva</div></div>
+    </div>
+  </section>
+  ${grupos}
+  <div class="dp-grp"><div class="split"><div class="eyebrow">${esc(GRUPOS_EST.base)} e comparação</div></div>
+    <div class="dp-grade dp-linha">${DEPTOS.filter(d=>d.grupo==='base').map(d=>cartaoDepto(t,d)).join('')}
+    <div class="card dp-ligac"><div class="split"><div class="eyebrow">Estrutura na liga</div><span class="dim">${esc(nomeLiga(t))}</span></div>
+      ${blocoLiga(t,liga)}
+      ${explica(`<p>Todo efeito é medido contra o <b>nível 3</b>, o padrão: um clube com tudo em 3 joga e evolui como sempre jogou.
+        Abaixo disso perde, acima ganha.</p>
+        <p>Obra é instantânea e sai do caixa. Cada nível também cobra manutenção todo ano, que entra no custeio das Finanças.</p>
+        <p>Os <b>equipamentos envelhecem</b>: sem renovação, caem um nível a cada ${EQUIP_VIDA} temporadas. Renovar custa metade
+        de uma obra do nível atual e zera o relógio.</p>
+        <p>Os outros clubes também constroem, até duas obras por temporada, sempre deixando a reserva de uma folha inteira no caixa.</p>`,
+        'Como a estrutura funciona')}</div></div></div>
+  <div class="card dp-baixo"><div class="split"><div class="eyebrow">Quem sente a estrutura</div><span class="dim">por jogador, vs. tudo no nível 3</span></div>
+    ${blocoImpacto(t)}
+    <p class="dim dp-nota">Para quem ainda cresce, é a evolução com o plano da semana dele (CT × departamento do atributo).
+      Para quem passou dos 30, é quanto o centro de performance freia o declínio.</p></div>
+  </div>`;
+}
+
+/* ---------- detalhe: todos os níveis ---------- */
+function modalDepto(k){
+  const t=meu(),d=deptoDe(k);if(!d)return;
+  const n=nivelEst(t,k);
+  const linhas=[1,2,3,4,5].map(i=>`<tr class="${i===n?'eu':''}"><td>${_pips(i)}</td>
+    ${efeitosDepto(k,i).map(e=>`<td class="num ${_efClasse(e)}">${Math.abs(e.v)<1e-9&&!e.abs?'padrão':e.f(e.v)}</td>`).join('')}
+    <td class="num">${i<5?money(custoObra(k,i)):'—'}</td><td class="num">${money(custeioNivelAnual(t,k)*i)}</td></tr>`).join('');
+  abrir(`<div class="dp-modal">
+    <div class="dp-mcena">${arteDepto(t,k,n)}</div>
+    <div class="eyebrow">${esc(GRUPOS_EST[d.grupo])}</div><h2 class="sec">${esc(d.nome)}</h2>
+    <p class="dim">${esc(d.desc)}</p>
+    <table class="tb dp-tab"><thead><tr><th>Nível</th>${efeitosDepto(k,1).map(e=>`<th>${esc(e.rot)}</th>`).join('')}<th>Obra p/ o próximo</th><th>Manutenção/ano</th></tr></thead>
+      <tbody>${linhas}</tbody></table>
+    <div class="dp-mpe">${n<ESTRUTURA_MAX?`<button class="btn" data-estup="${k}" ${t.caixa>=custoObra(k,n)?'':'disabled'}>Melhorar para o nível ${n+1} · ${money(custoObra(k,n))}</button>`:'<span class="dim">Nível máximo.</span>'}
+      <button class="btn ghost" data-fechar>Fechar</button></div>
+  </div>`,true);
+  const box=$('#modal');
+  if(box){
+    box.querySelectorAll('[data-estup]').forEach(b=>b.onclick=()=>{$('#modal').innerHTML='';acaoMelhorar(b.dataset.estup);});
+    box.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=()=>fechar());
+  }
+}
+function acaoMelhorar(k){
+  const t=meu();
+  const r=melhorarEstrutura(t,k);
+  if(!r.ok){flash(r.erro);return;}
+  noticia(r.depto.nome+' do clube chegou ao nível '+r.nivel+'.',{c:'clube',t:[t.id]});
+  flash(r.depto.nome+': nível '+r.nivel+' · '+money(r.custo));
+  render();
+}
+function ligarEstrutura(v){
+  v.querySelectorAll('[data-estup]').forEach(b=>b.onclick=e=>{e.stopPropagation();acaoMelhorar(b.dataset.estup);});
+  v.querySelectorAll('[data-estver]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalDepto(b.dataset.estver);});
+  v.querySelectorAll('[data-estrenova]').forEach(b=>b.onclick=()=>{
+    const t=meu(),r=renovarEquipamento(t);
+    if(!r.ok){flash(r.erro);return;}
+    noticia('Equipamentos renovados: o clube trocou computadores e periféricos.',{c:'clube',t:[t.id]});
+    flash('Equipamentos renovados · '+money(r.custo));render();
+  });
+}
 
 
 /* ===== src/ui/vestiario.js ===== */
@@ -24610,8 +25274,8 @@ function edvTimes(){
       <div class="campos">
         ${[['tecnico','Head coach'],['analista','Analista'],['mental','Preparador mental']].map(([k,n])=>
           `<label>${n}<input type="number" data-edstaff="${k}" value="${Math.round((t.staff[k]||1)*10)/10}" min="1" max="5" step="0.1"></label>`).join('')}
-        ${[['gh','Gaming house'],['treino','Centro de treino'],['academia','Academia de base']].map(([k,n])=>
-          `<label>${n}<input type="number" data-edest="${k}" value="${t.estrutura[k]}" min="1" max="5"></label>`).join('')}
+        ${DEPTOS.map(d=>
+          `<label>${esc(d.nome)}<input type="number" data-edest="${d.id}" value="${nivelEst(t,d.id)}" min="1" max="5"></label>`).join('')}
       </div>
       <div class="eyebrow" style="margin-top:14px">Escudo</div>
       <div style="display:flex;gap:12px;align-items:flex-start;margin-top:6px">
@@ -25490,6 +26154,7 @@ function ligarEventos(){
   if(tela==='elenco'&&typeof ligarEscalacao==='function')ligarEscalacao(v,t);
   on('[data-up]',el=>{
     const[grp,k]=el.dataset.up.split('.');
+    if(grp==='estrutura'&&typeof acaoMelhorar==='function'){acaoMelhorar(k);return;}
     const c=custoUpgrade(t[grp][k]);
     if(t.caixa<c){avisar('Caixa insuficiente: '+money(c)+' necessários.');return;}
     t.caixa-=c;t[grp][k]++;noticia('Estrutura melhorada: '+k+' nível '+t[grp][k]+'.',{c:'clube',t:[t.id]});render();

@@ -309,15 +309,16 @@ function desenvolver(p,t){
   const custoPlano=plano.tipo==='descanso'
     ?FADIGA_DESCANSO
     :FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(mapasDoTreino(planoDe(t)).length);
-  p.fadiga=clamp(p.fadiga-0.035-(t.estrutura.gh*0.004)+(t.tatica.scrim-2)*0.008
+  p.fadiga=clamp(p.fadiga-0.035-recuperacaoEst(t)+(t.tatica.scrim-2)*0.008
                  -((t.staff.fisio||neutro)-neutro)*0.0027+custoPlano,0,1);
   if(p.lesao>0){p.lesao--;if(!p.lesao&&t.id===G.meuTime)noticia(p.nome+' está recuperado.',{c:'clube',p:[p.id]});}
-  p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004,.15,1);
+  p.moral=clamp(p.moral+((t.staff.mental||neutro)-neutro)*0.0009+0.004+moralEst(t),.15,1);
   if(typeof confiancaSemanal==='function')confiancaSemanal(t,p);
   /* burnout: fadiga acumulada cobra moral e abre risco de lesão */
   if(p.fadiga>0.82){
-    p.moral=clamp(p.moral-0.022,.15,1);
-    if(rnd()<0.02+ (p.fadiga-0.82)*0.10){p.lesao=ri(1,2);
+    p.moral=clamp(p.moral-0.022*fatorBurnoutEst(t),.15,1);
+    /* o centro de performance corta o risco; o sorteio é o mesmo de antes */
+    if(rnd()<(0.02+ (p.fadiga-0.82)*0.10)*fatorLesaoEst(t)){p.lesao=ri(1,2);
       if(t.id===G.meuTime)noticia('🩹 '+p.nome+' quebrou por desgaste — '+p.lesao+' semana(s) fora.',{c:'clube',p:[p.id]});}
   }
   const o=over(p),gap=p.pot-o;
@@ -332,8 +333,9 @@ function desenvolver(p,t){
   /* Cobrança dá trabalho: quem levou bronca na conversa treina com mais foco
      por algumas semanas. É o que faz a opção que CUSTA moral valer a pena. */
   const bronca=(typeof estaCobrado==='function'&&estaCobrado(p))?1.25:1;
-  const mult=(0.45+t.estrutura.treino*0.09+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
-  let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29);
+  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
+  /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
+  let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
   if(Math.abs(g)<0.0004)return;
   /* Para onde a evolução vai. Antes era um foco de TIME; agora é o plano do
      jogador. Quem descansa não evolui, e quem está aprendendo agente põe o
@@ -356,7 +358,9 @@ function desenvolver(p,t){
      30 com over acima da média da liga, e os garotos não achavam vaga. */
   const decl=['reflexo','mira','mov'];
   const lista = g>0?alvos:decl;
-  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra:1.6),25,99);});
+  /* equipamentos, sala de análise e bem-estar aceleram cada um o seu grupo
+     de atributos (core/estrutura.js) */
+  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra*fatorEvolucaoAtributo(t,k):1.6),25,99);});
   if(g<0)for(const[k]of ATTRS)
     if(!decl.includes(k)&&k!=='lider')p.at[k]=clamp(p.at[k]+g*0.55,25,99);
   /* O empurrãozinho aleatório só existe para quem TREINOU. Sem esta guarda o
