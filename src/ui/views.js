@@ -1235,8 +1235,10 @@ const ICONE_CAT={clube:'clube',mercado:'aperto',competicoes:'trofeu',meta:'mapa'
 function cartaoNoticia(n){
   const img=typeof imagemDaNoticia==='function'?imagemDaNoticia(n,52):null;
   const cor=img&&img.cor?img.cor:null;
+  /* sem jogador nem clube com imagem: a foto do assunto (assets/cenas/news-*) */
+  const cena=!img&&typeof cenaDaNoticia==='function'?cenaDaNoticia(n):null;
   return `<div class="nw ${n.meu?'me':''} ${n.imp>=2?'imp':''}" ${cor?`style="--clube:${cor};--clube-rgb:${rgbDe(cor)}"`:''}>
-    <span class="nw-img ${img?img.cls:'vazio'}">${img?img.html:icone(ICONE_CAT[n.c]||'jornal')}</span>
+    <span class="nw-img ${img?img.cls:cena?'cena com-cena':'vazio'}">${img?img.html:cena?cenaFoto('cenas',cena,timeDaNoticia(n),{foco:40}):icone(ICONE_CAT[n.c]||'jornal')}</span>
     <div class="nw-txt"><span class="nw-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(CAT_NOTICIA[n.c]||'Circuito')}</span>
       <div class="nw-corpo">${textoNoticia(n)}</div></div>
   </div>`;
@@ -1257,7 +1259,9 @@ function vNews(){
     const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
     return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${k==='tudo'?'':icone(ICONE_CAT[k]||'jornal')}${n} <span class="num">${q}</span></button>`;}).join('')}</div>
   ${m&&newsAba==='tudo'&&typeof imagemDaNoticia==='function'?(()=>{const img=imagemDaNoticia(m,120);
-    return `<div class="nw-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+    const cena=typeof cenaDaNoticia==='function'?cenaDaNoticia(m):null;
+    return `<div class="nw-manchete ${m.meu?'me':''} ${cena?'com-cena':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${cena?cenaFoto('cenas',cena,timeDaNoticia(m),{cls:'nw-fundo cn-direita',foco:'placa'}):''}
       ${img?`<div class="nwm-img ${img.cls}">${img.html}</div>`:''}
       <div><div class="eyebrow">Manchete da semana</div><h3>${iconizar(esc(m.txt))}</h3>
         <span class="dim">${m.s?rotuloSemana(m.ano,m.s)+' · ':''}${esc(CAT_NOTICIA[m.c]||'Circuito')}</span></div></div>`;})():''}

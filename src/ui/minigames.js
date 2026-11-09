@@ -55,7 +55,7 @@ function pintarMiniAbertura(){
   const d=MG.def;
   const modo=(d.modos||[]).find(m=>m.id===MG.modo);
   abrir(`<div class="mg mg-${d.id}" data-ficha="mg-${d.id}">
-    <div class="mg-cab">
+    <div class="mg-cab ${d.fundo?'com-cena':''}">${d.fundo?d.fundo():''}
       <div class="mg-arte" aria-hidden="true">${d.arte?d.arte():''}</div>
       <div class="mg-cab-t"><div class="eyebrow">${esc(d.eyebrow||'Minigame')}</div>
         <h2 class="mg-tit">${esc(d.titulo)}</h2><p>${d.desc}</p></div>

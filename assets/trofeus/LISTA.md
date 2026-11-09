@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/trofeus/` com o nome exato da lista. O nome é
 nome do troféu em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-45/47 com imagem.
+47/47 com imagem.
 
 ## Champions
 
@@ -64,5 +64,5 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `premio-treinador.png` — Treinador do ano
 - [x] `premio-igl.png` — IGL do ano
 - [x] `premio-selecao.png` — Seleção do ano
-- [ ] `premio-revelacao.png` — Revelação do ano (opcional)
-- [ ] `premio-mvp-regional.png` — MVP regional (opcional)
+- [x] `premio-revelacao.webp` — Revelação do ano (opcional)
+- [x] `premio-mvp-regional.webp` — MVP regional (opcional)

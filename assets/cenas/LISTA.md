@@ -6,28 +6,28 @@ Salve cada imagem aqui em `assets/cenas/` com o nome exato da lista. O nome é o
 id da cena em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-0/15 com imagem.
+14/15 com imagem.
 
 ## Vestiário — atividades da semana
 
 - [ ] `ativ-bootcamp.png` — Bootcamp
-- [ ] `ativ-ranked.png` — Ranked em duo
-- [ ] `ativ-stream.png` — Stream juntos
-- [ ] `ativ-jantar.png` — Jantar do time
-- [ ] `ativ-sessao.png` — Sessão mental
-- [ ] `ativ-folga.png` — Folga coletiva
+- [x] `ativ-ranked.webp` — Ranked em duo
+- [x] `ativ-stream.webp` — Stream juntos
+- [x] `ativ-jantar.webp` — Jantar do time
+- [x] `ativ-sessao.webp` — Sessão mental
+- [x] `ativ-folga.webp` — Folga coletiva
 
 ## Notícias — por categoria
 
-- [ ] `news-mercado.png` — Mercado e transferências
-- [ ] `news-lesao.png` — Lesão e desgaste
-- [ ] `news-contrato.png` — Renovação e contrato
-- [ ] `news-base.png` — Base e revelações
-- [ ] `news-torneio.png` — Torneios e resultados
-- [ ] `news-diretoria.png` — Diretoria e finanças
+- [x] `news-mercado.webp` — Mercado e transferências
+- [x] `news-lesao.webp` — Lesão e desgaste
+- [x] `news-contrato.webp` — Renovação e contrato
+- [x] `news-base.webp` — Base e revelações
+- [x] `news-torneio.webp` — Torneios e resultados
+- [x] `news-diretoria.webp` — Diretoria e finanças
 
 ## Momentos
 
-- [ ] `palco-premios.png` — Cerimônia de fim de temporada
-- [ ] `sala-negociacao.png` — Negociação de compra, venda e renovação
-- [ ] `sala-diretoria.png` — Veredito da diretoria e metas
+- [x] `palco-premios.webp` — Cerimônia de fim de temporada
+- [x] `sala-negociacao.webp` — Negociação de compra, venda e renovação
+- [x] `sala-diretoria.webp` — Veredito da diretoria e metas

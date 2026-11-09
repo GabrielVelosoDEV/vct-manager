@@ -129,7 +129,10 @@ function partituraFolga(J){
 }
 
 /* ---------- o motor ---------- */
+/* foto da atividade por trás do jogo, apagada (ui/cenas.js) */
+let _ritmoCena=null;
 function jogarRitmo(ctx,J,fim){
+  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],meu()):null;
   const cx=ctx.cx,cv=ctx.cv,spb=60/J.bpm,total=J.compassos*4*spb;
   const notas=J.partitura(J).map(n=>Object.assign(n,{t:n.b*spb,res:null})).sort((a,b)=>a.t-b.t);
   const reais=notas.filter(n=>!n.eco);
@@ -250,6 +253,8 @@ function jogarRitmo(ctx,J,fim){
 const CORES_TRILHA=['#FF4655','#E2B45A','#18E5B4','#4C8DFF'];
 function fundoGradiente(cx,a,b,pulso,corPulso){
   const g=cx.createLinearGradient(0,0,0,MG_H);g.addColorStop(0,a);g.addColorStop(1,b);cx.fillStyle=g;cx.fillRect(0,0,MG_W,MG_H);
+  if(_ritmoCena){_ritmoCena.desenhar(cx,MG_W,MG_H,0.3);
+    const v=cx.createLinearGradient(0,0,0,MG_H);v.addColorStop(0,'rgba(11,18,24,.15)');v.addColorStop(1,'rgba(11,18,24,.7)');cx.fillStyle=v;cx.fillRect(0,0,MG_W,MG_H);}
   if(corPulso){const r=cx.createRadialGradient(MG_W/2,MG_H*0.55,10,MG_W/2,MG_H*0.55,MG_W*0.6);
     r.addColorStop(0,corPulso.replace('A',(0.10+pulso*0.14).toFixed(2)));r.addColorStop(1,corPulso.replace('A','0'));cx.fillStyle=r;cx.fillRect(0,0,MG_W,MG_H);}
 }
@@ -458,6 +463,7 @@ function abrirRitmo(){
     id:'ritmo-'+id,titulo:J.nome,eyebrow:'Vestiário · '+a.nome,
     desc:J.desc,
     controles:J.teclasTxt,
+    fundo:()=>typeof cenaFoto==='function'?cenaFoto('cenas',CENA_ATIVIDADE[id],t,{cls:'cn-direita',foco:'placa',ansioso:true}):'',
     arte:()=>`<svg viewBox="0 0 200 120">${[0,1,2,3,4,5,6].map(i=>`<rect x="${70+i*18}" y="${60-[20,34,48,30,42,24,36][i]}" width="10" height="${[20,34,48,30,42,24,36][i]*2}" rx="3" fill="${['#FF4655','#E2B45A','#18E5B4','#4C8DFF'][i%4]}" opacity=".7"/>`).join('')}</svg>`,
     vale:()=>ritmoDisponivel(t),
     efeitoTxt:()=>`A atividade <b>${esc(a.nome)}</b> rende de <b class="dn">${Math.round(ATIV_MIN*100)}%</b> a <b class="up">${Math.round(ATIV_MAX*100)}%</b> nesta semana, conforme a sua nota.`,

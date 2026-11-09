@@ -144,6 +144,8 @@ function pintarCerimonia(){
   const sede=typeof sedeDe==='function'?sedeDe('champions',CER.cer.ano):null;
   const meuT=G.meuTime&&G.times[G.meuTime];
   const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
+    :f==='palco'&&typeof temCena==='function'&&temCena('cenas','palco-premios')
+      ?`background-image:radial-gradient(60% 55% at 50% 30%,rgba(226,180,90,.22),transparent 70%),linear-gradient(180deg,rgba(11,18,24,.55),rgba(11,18,24,.88) 70%),${urlCSS(ASSETS.arq('cenas','palco-premios'))};background-size:cover;background-position:center 30%`
     :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
   pintarModal(`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
     <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>

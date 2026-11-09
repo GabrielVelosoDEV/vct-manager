@@ -2456,7 +2456,6 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .dp-c.max{border-color:rgba(200,148,58,.35)}
 .dp-cena{position:relative;display:block;width:100%;aspect-ratio:320/150;overflow:hidden;border-bottom:1px solid var(--line);cursor:zoom-in}
 .dp-svg{display:block;width:100%;height:100%}
-.dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .dp-nvb{position:absolute;left:10px;top:10px;font-size:10px;letter-spacing:.14em;color:var(--tx2);padding:3px 8px;
   background:rgba(11,18,24,.75);border:1px solid var(--line2);backdrop-filter:blur(3px)}
 .dp-nvb b{font-family:'Bebas Neue',sans-serif;font-size:17px;font-weight:400;color:var(--tx);margin-left:3px;letter-spacing:.02em}
@@ -2909,8 +2908,47 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-col .mg-card-arte svg{animation:none}
 .col-card:has(.col-reacao) .col-n{visibility:hidden}
 /* foto da estrutura: tinta da cor do clube e o escudo na placa vazia */
-.dp-fotocx{position:absolute;inset:0;display:block}
-.dp-fotocx .dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.dp-tinta{position:absolute;inset:0;background:var(--clube);mix-blend-mode:soft-light;opacity:.4;pointer-events:none}
-.dp-placa{position:absolute;left:50%;top:22%;width:18%;aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center}
-.dp-placa img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+/* ---------- cenas com foto (ui/cenas.js) ---------- */
+.cn{position:absolute;inset:0;overflow:hidden;container-type:size;display:block;pointer-events:none}
+.cn-palco{position:absolute;left:50%;top:var(--foco,50%);display:block;
+  width:max(100cqw,calc(100cqh * var(--ar)));height:max(100cqh,calc(100cqw / var(--ar)));transform:translate(-50%,calc(-1 * var(--foco,50%)))}
+.cn-img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cn-placa{position:absolute;display:block;container-type:size;overflow:hidden;border-radius:1px}
+.cn-tinta{position:absolute;inset:1px;mix-blend-mode:multiply;
+  background:linear-gradient(115deg,#252c33 0 58%,var(--clube) 58% 66%,#1b2127 66% 100%)}
+.cn-marca{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;gap:6cqw;padding-left:14cqw}
+.cn-marca img{height:66cqh;width:auto;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+.cn-marca b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:34cqh;letter-spacing:.04em;line-height:1;color:rgba(240,244,248,.92);
+  text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.dp-fotocena .cn-img{transition:filter .4s}
+.dp-nv1 .cn-img{filter:brightness(.62) saturate(.45) contrast(.95)}
+.dp-nv2 .cn-img{filter:brightness(.76) saturate(.65)}
+.dp-nv3 .cn-img{filter:brightness(.88) saturate(.85)}
+.dp-nv5 .cn-img{filter:brightness(1.06) saturate(1.12) contrast(1.04)}
+/* vestiário: foto da atividade no topo do cartão */
+.vest-at{position:relative;overflow:hidden}
+.vat-foto{position:relative;display:block;height:84px;margin:-10px -12px 2px;background:linear-gradient(135deg,#17222c,#0e151c);border-bottom:1px solid var(--line)}
+.vat-foto.com-cena::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,24,0) 45%,rgba(11,18,24,.55));pointer-events:none}
+.vat-foto.vazio{display:grid;place-items:center;color:var(--dim)}
+.vat-foto.vazio i{display:grid;opacity:.5}.vat-foto.vazio svg{width:28px;height:28px}
+.vat-foto .cn-img{transition:transform .5s ease,filter .3s}
+.vest-at:not(.off):hover .vat-foto .cn-img{transform:scale(1.04)}
+.vest-at.off .vat-foto .cn-img{filter:grayscale(.8)}
+.vest-at.on .vat-foto{border-bottom-color:var(--teal)}
+.mg-cab.com-cena{min-height:150px}
+.mg-cab.com-cena .cn::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(11,18,24,.5))}
+.mg-cab.com-cena .mg-arte{display:none}
+/* notícias: foto do assunto */
+.nw-img.cena{position:relative;overflow:hidden;border:1px solid var(--line2)}
+.nw-manchete.com-cena>:not(.cn),.cx-manchete.com-cena>:not(.cn){position:relative;z-index:1}
+.nw-fundo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,18,24,.75),rgba(11,18,24,.35) 60%,rgba(11,18,24,.2))}
+.nw-manchete.com-cena{min-height:150px}
+.cx-manchete.com-cena{min-height:96px}
+/* negociação e veredito: a sala por trás */
+.neg-palco{position:relative;overflow:hidden}
+.neg-palco:has(>.cn)>:not(.cn),.ver-topo:has(>.cn)>:not(.cn){position:relative;z-index:1}
+.neg-fundo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(11,18,24,.55),rgba(11,18,24,.86) 75%)}
+.ver-topo{position:relative;overflow:hidden}
+.ver-topo:has(>.cn){min-height:170px}
+.ver-fundo::after{content:"";position:absolute;inset:0;background:rgba(11,18,24,.35)}
+.cn.cn-direita{left:auto;width:60%;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 38%);mask-image:linear-gradient(90deg,transparent 0%,#000 38%)}

@@ -124,12 +124,13 @@ function fotoDepto(k,n){
   return v&&M['estrutura/'+v]?v:M['estrutura/'+k]?k:null;
 }
 function arteDepto(t,k,n){
-  const cor=corDoClube(t);
-  const svg=cenaEstrutura(k,n,cor);
+  const svg=cenaEstrutura(k,n,corDoClube(t));
   const arq=fotoDepto(k,n);
   if(!arq)return svg;
-  return `${svg}<span class="dp-fotocx" style="--clube:${cor}"><img class="dp-foto" src="${ASSETS.arq('estrutura',arq)}" alt="" loading="lazy" onerror="this.parentNode.remove()">
-    <i class="dp-tinta"></i><span class="dp-placa">${escudo(t,64)}</span></span>`;
+  /* sem versão própria do nível, a foto principal escurece e perde cor nos
+     níveis baixos e ganha brilho no alto: a evolução continua visível */
+  const varia=arq===k?` dp-nv${n}`:'';
+  return svg+cenaFoto('estrutura',arq,t,{cls:'dp-fotocena'+varia,foco:40});
 }
 
 /* ---------- efeitos, com a mesma conta do motor ---------- */

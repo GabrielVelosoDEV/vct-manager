@@ -6,15 +6,15 @@ Salve cada imagem aqui em `assets/estrutura/` com o nome exato da lista. O nome 
 id do departamento em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-0/21 com imagem.
+7/21 com imagem.
 
-- [ ] `treino.png` — Centro de treinamento
-- [ ] `equip.png` — Equipamentos
-- [ ] `analise.png` — Sala de análise
-- [ ] `saude.png` — Centro de performance
-- [ ] `mente.png` — Psicologia e bem-estar
-- [ ] `gh.png` — Gaming house
-- [ ] `academia.png` — Academia de base
+- [x] `treino.webp` — Centro de treinamento
+- [x] `equip.webp` — Equipamentos
+- [x] `analise.webp` — Sala de análise
+- [x] `saude.webp` — Centro de performance
+- [x] `mente.webp` — Psicologia e bem-estar
+- [x] `gh.webp` — Gaming house
+- [x] `academia.webp` — Academia de base
 
 ## Versões por nível (opcionais)
 

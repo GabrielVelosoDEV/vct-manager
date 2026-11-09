@@ -206,10 +206,12 @@ function imagemDaNoticia(n,px){
 function cardImprensa(){
   const m=manchete();
   const img=m?imagemDaNoticia(m):null;
+  const cena=m&&typeof cenaDaNoticia==='function'?cenaDaNoticia(m):null;
   const tit=m?(typeof iconizar==='function'?iconizar(esc(m.txt)):esc(m.txt)):'';
   return `<div class="card cx-imprensa"><div class="split"><div class="eyebrow">Sala de imprensa</div>
       <button class="btn ghost sm" data-ir="news">Todas ›</button></div>
-    ${m?`<div class="cx-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+    ${m?`<div class="cx-manchete ${m.meu?'me':''} ${cena?'com-cena':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${cena?cenaFoto('cenas',cena,timeDaNoticia(m),{cls:'nw-fundo cn-direita',foco:'placa'}):''}
       ${img?`<div class="cxm-img ${img.cls}">${img.html}</div>`:''}
       <div><div class="eyebrow">Manchete da semana</div><h3 class="sub">${tit}</h3></div></div>`:''}
     <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&n!==m).slice(0,7).map(linhaNoticia).join('')

@@ -15,6 +15,10 @@
 /* o que você estava montando, para o redesenho não apagar */
 let _mesaRasc={};
 
+/* a sala de reunião do clube atrás da mesa (assets/cenas/sala-negociacao) */
+function fundoNegociacao(){
+  return typeof cenaFoto==='function'?cenaFoto('cenas','sala-negociacao',meu(),{cls:'neg-fundo',foco:95,ansioso:true}):'';
+}
 function modalProposta(id){return modalNegociacao(id);}
 function modalNegociacao(id){
   const p=P(id),t=meu();
@@ -115,7 +119,7 @@ function mesa(p,n,bloqueio,tipoBloq){
   const lado=(time,rot,extra)=>`<div class="neg-lado">
     ${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
     <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
-  const palco=renov?`<div class="neg-palco">
+  const palco=renov?`<div class="neg-palco">${fundoNegociacao()}
     <div class="neg-lado"><div class="neg-contrato"><span class="eyebrow">Contrato atual</span>
       <b class="num">${dinheiro(fechada&&n.final?n.final.sal:p.salario)}/mês</b>
       <span class="dim">${fechada?'renovado':p.contrato<=1?'vence no fim desta temporada':'mais '+p.contrato+' ano(s)'}</span>
@@ -124,7 +128,7 @@ function mesa(p,n,bloqueio,tipoBloq){
       <div class="neg-perfil" title="${esc(pf.desc)}">Perfil: <b>${esc(pf.nome)}</b></div></div>
     <div class="neg-seta${fase==='fechada'?' ok':''}"><span></span></div>
     ${lado(t,'Renova com',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
-  </div>`:`<div class="neg-palco">
+  </div>`:`<div class="neg-palco">${fundoNegociacao()}
     ${lado(origem,'Sai de',fechada?'':origem?`<div><span class="chip ${ps.cls}">${esc(ps.nome)}</span></div>
       <div class="dim neg-sub">Multa ${dinheiro(multa)}</div>`:'<div class="dim neg-sub">Sem taxa de transferência</div>')}
     <div class="neg-centro">${cartaJogador(p,{w:150})}
@@ -369,7 +373,7 @@ function modalNegociarVenda(id,prFeito,resultado){
   const rev0=_vendaRasc.id===pr.id?(+_vendaRasc.rev||0):0;
   const max=Math.round(Math.max(multa,valorMerc,pr.taxa)*(emp?0.3:1.35)/5000)*5000+5000;
   const lado=(time,rot,extra)=>`<div class="neg-lado">${escudo(time,64)}<div class="eyebrow">${rot}</div><b>${esc(time.nome)}</b>${extra||''}</div>`;
-  const palco=`<div class="neg-palco">
+  const palco=`<div class="neg-palco">${fundoNegociacao()}
     ${lado(t,'Você vende',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
     <div class="neg-centro">${cartaJogador(p,{w:150})}<div class="neg-perfil">${esc(p.role)} · ${p.idade} anos · contrato ${p.contrato}a</div></div>
     <div class="neg-seta${vendido?' ok':''}"><span></span></div>

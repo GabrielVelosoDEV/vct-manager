@@ -26,6 +26,14 @@ function momentoTxt(t){
   return{v:'—',sb:'nenhuma série ainda',cls:''};
 }
 
+/* faixa de foto no topo do cartão da atividade (assets/cenas/ativ-*.webp);
+   sem a foto, um degradê com o ícone, para os cartões ficarem do mesmo tamanho */
+function fotoAtividade(t,id){
+  const nome=typeof CENA_ATIVIDADE!=='undefined'?CENA_ATIVIDADE[id]:null;
+  const foto=nome&&typeof cenaFoto==='function'?cenaFoto('cenas',nome,t,{foco:28}):'';
+  return foto?`<span class="vat-foto com-cena">${foto}</span>`
+    :`<span class="vat-foto vazio"><i>${ico(ICONE_ATIV[id]||'ciclo')}</i></span>`;
+}
 function vVestiario(){
   const t=meu();
   if(!t.duplas&&typeof semearDuplas==='function')semearDuplas(t);
@@ -76,6 +84,7 @@ function vVestiario(){
       e.torcida?'torcida +':'',e.custo?money(e.custo):''].filter(Boolean);
     return `<button class="vest-at ${atual===a.id?'on':''} ${d.ok?'':'off'}" data-ativ="${a.id}" ${d.ok?'':'disabled'}
         title="${esc(d.ok?a.desc:d.erro)}">
+      ${fotoAtividade(t,a.id)}
       <span class="vat-topo"><i class="vat-ic">${ico(ICONE_ATIV[a.id]||'ciclo')}</i><b>${esc(a.nome)}</b>${atual===a.id?'<span class="vat-on">esta semana</span>':''}</span>
       <span class="vat-desc">${esc(a.desc)}</span>
       ${efs.length?`<span class="vat-chips">${efs.map(x=>`<em class="${/desgaste \+|\$/.test(x)&&!/desgaste -/.test(x)?'custo':''}">${esc(x)}</em>`).join('')}</span>`:''}

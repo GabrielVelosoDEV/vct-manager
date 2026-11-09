@@ -875,7 +875,7 @@ function modalVeredito(v){
   const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
   const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
   abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
-    <div class="ver-topo">
+    <div class="ver-topo">${t&&typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ver-fundo cn-direita',foco:'placa',ansioso:true}):''}
       <div class="ver-esc">${t?escudo(t,84):''}</div>
       <div class="ver-tit">
         <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
