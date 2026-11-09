@@ -195,11 +195,11 @@ function cardVestiario(t){
 }
 
 /* ---------- 5b. sala de imprensa ---------- */
-function imagemDaNoticia(n){
+function imagemDaNoticia(n,px){
   const p=n.p&&n.p.length?G.jogadores[n.p[0]]:null;
-  if(p)return{html:retrato(p,92),cor:p.timeId&&G.times[p.timeId]?corDoClube(G.times[p.timeId]):null,cls:'foto'};
+  if(p)return{html:retrato(p,px||92),cor:p.timeId&&G.times[p.timeId]?corDoClube(G.times[p.timeId]):null,cls:'foto'};
   const t=n.t&&n.t.length?G.times[n.t[0]]:null;
-  if(t)return{html:escudo(t,80),cor:corDoClube(t),cls:'escudo'};
+  if(t)return{html:escudo(t,px?Math.round(px*0.86):80),cor:corDoClube(t),cls:'escudo'};
   return null;
 }
 function cardImprensa(){

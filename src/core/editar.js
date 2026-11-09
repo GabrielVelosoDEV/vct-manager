@@ -206,7 +206,10 @@ function edAplicarTime(tid,c){
     if(typeof definirSinergia==='function'&&Math.round(v)!==Math.round(t.sinergia))definirSinergia(t,v);else t.sinergia=v;
   }
   if(c.staff)for(const k of ['tecnico','analista','mental'])
-    if(c.staff[k]!=null)t.staff[k]=clamp(parseInt(c.staff[k])||1,1,5);
+    /* nível com uma casa decimal: antes o parseInt truncava 3,5 em 3 ao
+       aplicar qualquer mudança do time */
+    if(c.staff[k]!=null){const v=parseFloat(String(c.staff[k]).replace(',','.'));
+      if(Math.abs(v-(t.staff[k]||0))>=0.05)t.staff[k]=clamp(Math.round((v||1)*10)/10,1,5);}
   if(c.estrutura)for(const k of ['gh','treino','academia'])
     if(c.estrutura[k]!=null)t.estrutura[k]=clamp(parseInt(c.estrutura[k])||1,1,5);
   if(c.mapPref)for(const m in c.mapPref)

@@ -1188,6 +1188,10 @@ ${blocoPatrocinios(t)}
 let newsAba='tudo';
 function linhaNoticia(n){
   if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
+  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${textoNoticia(n)}</span></div>`;
+}
+/* o texto da notícia com os nomes de clube e de jogador virando link */
+function textoNoticia(n){
   /* o nome de quem a notícia cita vira link para a ficha */
   let txt=esc(n.txt);
   /* o clube citado vira link para a página dele; entra como marcador antes
@@ -1208,7 +1212,7 @@ function linhaNoticia(n){
   }
   txt=txt.replace(/\u0001(\d+)\u0001/g,(_,k)=>clubes[+k]);
   if(typeof iconizar==='function')txt=iconizar(txt);
-  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
+  return txt;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
 function noticiasDaAba(aba){
@@ -1216,14 +1220,45 @@ function noticiasDaAba(aba){
   if(aba==='clube')return G.noticias.filter(n=>n.meu);
   return G.noticias.filter(n=>n.c===aba);
 }
+/* Notícias (pacote V12): cartões agrupados por semana, cada um com a
+   imagem de quem a notícia cita e o ícone da categoria; a manchete grande no
+   topo; filtros fixos e "carregar mais" no lugar da página interminável. */
+let newsLimite=40;
+const ICONE_CAT={clube:'clube',mercado:'aperto',competicoes:'trofeu',meta:'mapa',carreira:'gravata',outros:'jornal'};
+function cartaoNoticia(n){
+  const img=typeof imagemDaNoticia==='function'?imagemDaNoticia(n,52):null;
+  const cor=img&&img.cor?img.cor:null;
+  return `<div class="nw ${n.meu?'me':''} ${n.imp>=2?'imp':''}" ${cor?`style="--clube:${cor};--clube-rgb:${rgbDe(cor)}"`:''}>
+    <span class="nw-img ${img?img.cls:'vazio'}">${img?img.html:icone(ICONE_CAT[n.c]||'jornal')}</span>
+    <div class="nw-txt"><span class="nw-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(CAT_NOTICIA[n.c]||'Circuito')}</span>
+      <div class="nw-corpo">${textoNoticia(n)}</div></div>
+  </div>`;
+}
 function vNews(){
   const abas=[['tudo','Tudo'],...Object.entries(CAT_NOTICIA)];
-  const lista=noticiasDaAba(newsAba).filter(n=>n.txt);
+  const todas=noticiasDaAba(newsAba).filter(n=>n.txt&&n.c!=='sistema');
+  const lista=todas.slice(0,newsLimite);
+  const m=typeof manchete==='function'?manchete():null;
+  const grupos=[];
+  for(const n of lista){
+    const k=n.ano+'|'+(n.s||0);
+    if(!grupos.length||grupos[grupos.length-1].k!==k)grupos.push({k,ano:n.ano,s:n.s,itens:[]});
+    grupos[grupos.length-1].itens.push(n);
+  }
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
-  <div class="tabs">${abas.map(([k,n])=>{
+  <div class="nw-filtros">${abas.map(([k,n])=>{
     const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
-    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${n} <span class="dim">${q}</span></button>`;}).join('')}</div>
-  <div class="card flat"><div class="feed" style="max-height:none">${lista.map(linhaNoticia).join('')||'<div class="dim">Sem notícias aqui.</div>'}</div></div>`;
+    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${k==='tudo'?'':icone(ICONE_CAT[k]||'jornal')}${n} <span class="num">${q}</span></button>`;}).join('')}</div>
+  ${m&&newsAba==='tudo'&&typeof imagemDaNoticia==='function'?(()=>{const img=imagemDaNoticia(m,120);
+    return `<div class="nw-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${img?`<div class="nwm-img ${img.cls}">${img.html}</div>`:''}
+      <div><div class="eyebrow">Manchete da semana</div><h3>${iconizar(esc(m.txt))}</h3>
+        <span class="dim">${m.s?rotuloSemana(m.ano,m.s)+' · ':''}${esc(CAT_NOTICIA[m.c]||'Circuito')}</span></div></div>`;})():''}
+  ${grupos.length?grupos.map(g=>`<div class="nw-sem"><div class="nw-sem-t"><b>${g.s?'Semana '+g.s:g.ano}</b>
+      <span class="dim">${g.s?esc(rotuloSemana(g.ano,g.s))+' · '+g.ano:''}</span><u></u></div>
+    <div class="nw-l">${g.itens.map(cartaoNoticia).join('')}</div></div>`).join('')
+    :vazio('<b>Sem notícias aqui.</b> Elas chegam a cada semana que você avança.','jornal')}
+  ${todas.length>newsLimite?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite} restantes)</span></button></div>`:''}`;
 }
 
 /* ============================================================

@@ -1,7 +1,7 @@
 /* ============================================================
    NOVO JOGO
    ============================================================ */
-let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal';
+let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
 function telaNovoJogo(){
   const val=edValidar();
   if(!val.ok){
@@ -24,7 +24,14 @@ function telaNovoJogo(){
     return;
   }
   const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].slice().sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
-  $('#modal').innerHTML=`<div class="ovl"><div class="box wide">
+  /* clube em destaque na prévia: o escolhido, se ainda estiver na lista, ou o primeiro */
+  const sel=times.includes(escSel)?escSel:times[0];
+  const selT=sel?T(sel):null;
+  /* repintura da mesma tela (trocar região, escolher clube): sem a animação
+     de abertura e no mesmo ponto da rolagem */
+  const antes=$('#modal .ovl.nj-ovl');
+  const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
+  $('#modal').innerHTML=`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
     <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
     <div class="nj-quem">
       <label class="dim">Seu nome
@@ -44,13 +51,20 @@ function telaNovoJogo(){
     <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
     <div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2) — modo difícil']].map(([k,n])=>`<button data-tr="${k}" class="${escTier===k?'on':''}">${n}</button>`).join('')}</div>
-    <div class="card flat"><table><thead><tr><th>Equipe</th><th class="c">Prestígio</th><th class="c">Over</th><th class="r">Caixa</th><th class="r">Folha</th><th></th></tr></thead>
-    <tbody>${times.map(id=>{const t=T(id);const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
-      const fo=t.elenco.reduce((s,i)=>s+P(i).salario,0);
-      return `<tr><td><span class="linha-t">${escudo(t,24)}<b>${esc(t.nome)}</b> <span class="dim">${t.tag}</span></span></td><td class="c num">${Math.round(t.prestigio)}</td>
-      <td class="c"><span class="ov ${ovClass(ov)}">${ov}</span></td><td class="r num">${money(t.caixa)}</td>
-      <td class="r num">${money(fo)}</td><td class="r"><button class="btn sm" data-pick="${id}">Assumir</button></td></tr>`;}).join('')}
-    </tbody></table></div>
+    <div class="nj-escolha">
+      <div class="nj-grade">${times.map(id=>{const t=T(id);const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+        return `<button class="nj-clube ${id===sel?'on':''}" data-njsel="${id}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+          ${escudo(t,56)}<b>${esc(t.nome)}</b><span class="nj-mini"><span>prest. <b class="num">${Math.round(t.prestigio)}</b></span><span>over <b class="num">${ov}</b></span></span></button>`;}).join('')}</div>
+      ${selT?(()=>{const t=selT;const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+        const fo=t.elenco.reduce((s,i)=>s+P(i).salario,0);
+        return `<div class="nj-prev" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+          <div class="nj-prev-topo">${escudo(t,84)}<div><div class="eyebrow">${esc(nomeLiga(t))}</div><h3>${esc(t.nome)}</h3>
+            <div class="nj-prev-k"><span>Prestígio <b class="num">${Math.round(t.prestigio)}</b></span><span>Over <b class="num">${ov}</b></span>
+              <span>Caixa <b class="num">${money(t.caixa)}</b></span><span>Folha <b class="num">${money(fo)}/mês</b></span></div></div></div>
+          <div class="nj-prev-cartas">${t.titulares.map(P).filter(Boolean).map(p=>cartaJogador(p,{w:66})).join('')}</div>
+          <button class="btn nj-assumir" data-pick="${t.id}">Assumir o ${esc(t.nome)} ›</button></div>`;})()
+        :'<div class="nj-prev vazio">'+vazio('<b>Escolha um clube</b> na grade para ver o elenco.','clube')+'</div>'}
+    </div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>
@@ -58,6 +72,7 @@ function telaNovoJogo(){
   </div></div>`;
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
+  if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}
   const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;};
   const inNome=$('#njNome');
   if(inNome)inNome.oninput=guardaNome;
@@ -65,6 +80,7 @@ function telaNovoJogo(){
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-njsel]').forEach(b=>b.onclick=()=>{guardaNome();escSel=b.dataset.njsel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{

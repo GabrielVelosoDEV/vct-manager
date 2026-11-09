@@ -2309,3 +2309,97 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .base-bt{display:flex;gap:4px}
 .base-c.vaga{justify-content:center;border-style:dashed;min-height:150px;color:var(--dim)}
 .base-c.vaga svg{width:28px;height:28px;color:var(--teal)}
+
+/* ============================================================
+   V12 — NOTÍCIAS, CERIMÔNIA, MENUS E TELAS DE SISTEMA
+   ============================================================ */
+/* notícias */
+.nw-filtros{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 10px;margin-bottom:10px;
+  background:linear-gradient(180deg,var(--bg) 80%,transparent)}
+.nw-filtros button{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;color:var(--tx2);border:1px solid var(--line);
+  background:var(--surf1,var(--panel));transition:background .15s,color .15s,border-color .15s}
+.nw-filtros button .ic svg{width:14px;height:14px}
+.nw-filtros button .num{font-size:10.5px;color:var(--dim)}
+.nw-filtros button:hover{color:var(--tx);border-color:var(--tx2)}
+.nw-filtros button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.nw-filtros button.on .num{color:var(--bg);opacity:.7}
+.nw-manchete{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:18px 20px;margin-bottom:16px;position:relative;overflow:hidden;
+  border:1px solid rgba(var(--clube-rgb,255,70,85),.35);box-shadow:var(--sombra-2);
+  background:radial-gradient(90% 140% at 0% 50%,rgba(var(--clube-rgb,255,70,85),.22),transparent 60%),var(--surf2,var(--panel))}
+.nw-manchete.me{border-left:4px solid var(--clube,var(--red))}
+.nw-manchete h3{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:30px;line-height:1.1;letter-spacing:.02em;margin:4px 0 6px}
+.nwm-img.foto img{width:120px;height:120px;object-fit:cover;clip-path:polygon(0 0,100% 0,100% 84%,84% 100%,0 100%);border-bottom:3px solid var(--clube,var(--red))}
+.nwm-img.escudo img{filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+.nw-sem{margin-bottom:14px}
+.nw-sem-t{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.nw-sem-t b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em}
+.nw-sem-t u{flex:1;height:1px;background:var(--line);text-decoration:none;align-self:center}
+.nw-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:8px}
+.nw{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);
+  background:var(--surf1,var(--panel));border-left:3px solid rgba(var(--clube-rgb,120,130,140),.6);transition:transform .15s,background .15s}
+.nw:hover{transform:translateY(-1px);background:var(--surf2,var(--panel2))}
+.nw.me{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,70,85,.07),transparent 60%),var(--surf1,var(--panel))}
+.nw.imp .nw-corpo{font-weight:600}
+.nw-img{display:grid;place-items:center;width:52px;height:52px;flex:none}
+.nw-img.foto img{width:52px;height:52px;object-fit:cover;border:1px solid var(--line2)}
+.nw-img.escudo img{width:44px;height:44px;object-fit:contain}
+.nw-img.vazio{background:rgba(255,255,255,.04);color:var(--dim)}
+.nw-img.vazio svg{width:22px;height:22px}
+.nw-cat{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.nw-cat svg{width:12px;height:12px}
+.nw-corpo{font-size:13px;line-height:1.4;margin-top:2px}
+.nw-mais{display:flex;justify-content:center;margin:6px 0 16px}
+/* cerimônia: fundo por momento e trilha maior */
+.cer{background-size:cover;background-position:center;transition:background .4s}
+.cer.cer-f-palco{background:radial-gradient(60% 55% at 50% 30%,rgba(226,180,90,.30),transparent 70%),
+  radial-gradient(30% 90% at 15% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(30% 90% at 85% 0%,rgba(255,255,255,.07),transparent 70%),#0B1218}
+.cer.cer-f-clube{background:radial-gradient(90% 120% at 0% 0%,rgba(var(--clube-rgb),.30),transparent 60%),var(--bg2)}
+.cer.cer-f-despedida{background:radial-gradient(70% 70% at 50% 0%,rgba(180,190,200,.14),transparent 70%),#0E151C}
+.cer-pontos{gap:4px;align-items:center}
+.cer-pontos i{position:relative;width:34px;height:8px;border-radius:4px;cursor:pointer;transition:background .2s,width .2s}
+.cer-pontos i.on{width:56px;box-shadow:0 0 10px rgba(226,180,90,.6)}
+.cer-pontos i span{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);opacity:0;pointer-events:none;transition:opacity .15s}
+.cer-pontos i:hover span,.cer-pontos i.on span{opacity:1}
+.cer-pontos i.on span{color:var(--gold)}
+.cer-topo{padding-bottom:22px}
+.cer-f-cidade .cer-corpo,.cer-f-cidade .cer-topo,.cer-f-cidade .cer-pe{background:transparent}
+.cer-f-cidade .cer-abre .dim,.cer-f-cidade .eyebrow{text-shadow:0 1px 4px rgba(0,0,0,.9)}
+/* nova carreira: grade de escudos e prévia */
+.nj-escolha{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,1fr);gap:14px;margin:10px 0 14px;align-items:start}
+.nj-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+.nj-clube{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px 10px;text-align:center;
+  border:1px solid var(--line);background:radial-gradient(80% 60% at 50% 25%,rgba(var(--clube-rgb),.16),transparent 70%),var(--surf1,var(--panel));
+  border-bottom:3px solid rgba(var(--clube-rgb),.6);transition:transform .15s,box-shadow .15s,border-color .15s}
+.nj-clube:hover{transform:translateY(-3px);box-shadow:var(--sombra-2)}
+.nj-clube.on{border-color:var(--clube);box-shadow:var(--sombra-2),0 0 0 1px var(--clube)}
+.nj-clube img{filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .2s}
+.nj-clube:hover img{transform:scale(1.08)}
+.nj-clube>b{font-size:12.5px;line-height:1.2}
+.nj-mini{display:flex;gap:8px;font-size:10.5px;color:var(--dim)}
+.nj-mini b{color:var(--tx2)}
+.nj-prev{position:sticky;top:0;padding:16px;border:1px solid rgba(var(--clube-rgb,120,130,140),.4);
+  background:radial-gradient(100% 70% at 0% 0%,rgba(var(--clube-rgb,120,130,140),.24),transparent 60%),var(--surf2,var(--panel));box-shadow:var(--sombra-2)}
+.nj-prev.vazio{border-style:dashed}
+.nj-prev-topo{display:flex;gap:14px;align-items:center}
+.nj-prev-topo img{filter:drop-shadow(0 6px 16px rgba(0,0,0,.55))}
+.nj-prev-topo h3{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:34px;line-height:1;margin:2px 0 6px}
+.nj-prev-k{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--dim)}
+.nj-prev-k b{color:var(--tx)}
+.nj-prev-cartas{display:flex;justify-content:space-between;gap:4px;margin:14px 0}
+.nj-assumir{width:100%;justify-content:center}
+.sem-entrada,.sem-entrada .box{animation:none!important}
+@media (max-width:1100px){.nj-escolha{grid-template-columns:1fr}.nj-prev{position:static}}
+/* configurações: seções recolhíveis */
+.cfg-sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 0 8px}
+.cfg-sec>summary::-webkit-details-marker{display:none}
+.cfg-sec>summary .eyebrow{display:inline-flex;align-items:center;gap:6px;margin:0}
+.cfg-sec>summary .eyebrow svg{width:15px;height:15px}
+.cfg-sec>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg);
+  transition:transform .2s;margin-left:8px}
+.cfg-sec[open]>summary::after{transform:rotate(-135deg)}
+.cfg-sec>summary .dim{margin-left:auto;font-size:11.5px}
+.cfg-sec.risco{border-color:rgba(255,70,85,.3)}
+/* banco de dados: formulário em duas colunas alinhadas */
+.campos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;align-items:start}
+.campos label input,.campos label select{width:100%;box-sizing:border-box;min-height:34px}

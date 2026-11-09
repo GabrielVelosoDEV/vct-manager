@@ -2344,6 +2344,100 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .base-c.vaga{justify-content:center;border-style:dashed;min-height:150px;color:var(--dim)}
 .base-c.vaga svg{width:28px;height:28px;color:var(--teal)}
 
+/* ============================================================
+   V12 — NOTÍCIAS, CERIMÔNIA, MENUS E TELAS DE SISTEMA
+   ============================================================ */
+/* notícias */
+.nw-filtros{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 10px;margin-bottom:10px;
+  background:linear-gradient(180deg,var(--bg) 80%,transparent)}
+.nw-filtros button{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;color:var(--tx2);border:1px solid var(--line);
+  background:var(--surf1,var(--panel));transition:background .15s,color .15s,border-color .15s}
+.nw-filtros button .ic svg{width:14px;height:14px}
+.nw-filtros button .num{font-size:10.5px;color:var(--dim)}
+.nw-filtros button:hover{color:var(--tx);border-color:var(--tx2)}
+.nw-filtros button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.nw-filtros button.on .num{color:var(--bg);opacity:.7}
+.nw-manchete{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:18px 20px;margin-bottom:16px;position:relative;overflow:hidden;
+  border:1px solid rgba(var(--clube-rgb,255,70,85),.35);box-shadow:var(--sombra-2);
+  background:radial-gradient(90% 140% at 0% 50%,rgba(var(--clube-rgb,255,70,85),.22),transparent 60%),var(--surf2,var(--panel))}
+.nw-manchete.me{border-left:4px solid var(--clube,var(--red))}
+.nw-manchete h3{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:30px;line-height:1.1;letter-spacing:.02em;margin:4px 0 6px}
+.nwm-img.foto img{width:120px;height:120px;object-fit:cover;clip-path:polygon(0 0,100% 0,100% 84%,84% 100%,0 100%);border-bottom:3px solid var(--clube,var(--red))}
+.nwm-img.escudo img{filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+.nw-sem{margin-bottom:14px}
+.nw-sem-t{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.nw-sem-t b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em}
+.nw-sem-t u{flex:1;height:1px;background:var(--line);text-decoration:none;align-self:center}
+.nw-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:8px}
+.nw{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);
+  background:var(--surf1,var(--panel));border-left:3px solid rgba(var(--clube-rgb,120,130,140),.6);transition:transform .15s,background .15s}
+.nw:hover{transform:translateY(-1px);background:var(--surf2,var(--panel2))}
+.nw.me{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,70,85,.07),transparent 60%),var(--surf1,var(--panel))}
+.nw.imp .nw-corpo{font-weight:600}
+.nw-img{display:grid;place-items:center;width:52px;height:52px;flex:none}
+.nw-img.foto img{width:52px;height:52px;object-fit:cover;border:1px solid var(--line2)}
+.nw-img.escudo img{width:44px;height:44px;object-fit:contain}
+.nw-img.vazio{background:rgba(255,255,255,.04);color:var(--dim)}
+.nw-img.vazio svg{width:22px;height:22px}
+.nw-cat{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.nw-cat svg{width:12px;height:12px}
+.nw-corpo{font-size:13px;line-height:1.4;margin-top:2px}
+.nw-mais{display:flex;justify-content:center;margin:6px 0 16px}
+/* cerimônia: fundo por momento e trilha maior */
+.cer{background-size:cover;background-position:center;transition:background .4s}
+.cer.cer-f-palco{background:radial-gradient(60% 55% at 50% 30%,rgba(226,180,90,.30),transparent 70%),
+  radial-gradient(30% 90% at 15% 0%,rgba(255,255,255,.07),transparent 70%),radial-gradient(30% 90% at 85% 0%,rgba(255,255,255,.07),transparent 70%),#0B1218}
+.cer.cer-f-clube{background:radial-gradient(90% 120% at 0% 0%,rgba(var(--clube-rgb),.30),transparent 60%),var(--bg2)}
+.cer.cer-f-despedida{background:radial-gradient(70% 70% at 50% 0%,rgba(180,190,200,.14),transparent 70%),#0E151C}
+.cer-pontos{gap:4px;align-items:center}
+.cer-pontos i{position:relative;width:34px;height:8px;border-radius:4px;cursor:pointer;transition:background .2s,width .2s}
+.cer-pontos i.on{width:56px;box-shadow:0 0 10px rgba(226,180,90,.6)}
+.cer-pontos i span{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);opacity:0;pointer-events:none;transition:opacity .15s}
+.cer-pontos i:hover span,.cer-pontos i.on span{opacity:1}
+.cer-pontos i.on span{color:var(--gold)}
+.cer-topo{padding-bottom:22px}
+.cer-f-cidade .cer-corpo,.cer-f-cidade .cer-topo,.cer-f-cidade .cer-pe{background:transparent}
+.cer-f-cidade .cer-abre .dim,.cer-f-cidade .eyebrow{text-shadow:0 1px 4px rgba(0,0,0,.9)}
+/* nova carreira: grade de escudos e prévia */
+.nj-escolha{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,1fr);gap:14px;margin:10px 0 14px;align-items:start}
+.nj-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+.nj-clube{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px 10px;text-align:center;
+  border:1px solid var(--line);background:radial-gradient(80% 60% at 50% 25%,rgba(var(--clube-rgb),.16),transparent 70%),var(--surf1,var(--panel));
+  border-bottom:3px solid rgba(var(--clube-rgb),.6);transition:transform .15s,box-shadow .15s,border-color .15s}
+.nj-clube:hover{transform:translateY(-3px);box-shadow:var(--sombra-2)}
+.nj-clube.on{border-color:var(--clube);box-shadow:var(--sombra-2),0 0 0 1px var(--clube)}
+.nj-clube img{filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .2s}
+.nj-clube:hover img{transform:scale(1.08)}
+.nj-clube>b{font-size:12.5px;line-height:1.2}
+.nj-mini{display:flex;gap:8px;font-size:10.5px;color:var(--dim)}
+.nj-mini b{color:var(--tx2)}
+.nj-prev{position:sticky;top:0;padding:16px;border:1px solid rgba(var(--clube-rgb,120,130,140),.4);
+  background:radial-gradient(100% 70% at 0% 0%,rgba(var(--clube-rgb,120,130,140),.24),transparent 60%),var(--surf2,var(--panel));box-shadow:var(--sombra-2)}
+.nj-prev.vazio{border-style:dashed}
+.nj-prev-topo{display:flex;gap:14px;align-items:center}
+.nj-prev-topo img{filter:drop-shadow(0 6px 16px rgba(0,0,0,.55))}
+.nj-prev-topo h3{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:34px;line-height:1;margin:2px 0 6px}
+.nj-prev-k{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--dim)}
+.nj-prev-k b{color:var(--tx)}
+.nj-prev-cartas{display:flex;justify-content:space-between;gap:4px;margin:14px 0}
+.nj-assumir{width:100%;justify-content:center}
+.sem-entrada,.sem-entrada .box{animation:none!important}
+@media (max-width:1100px){.nj-escolha{grid-template-columns:1fr}.nj-prev{position:static}}
+/* configurações: seções recolhíveis */
+.cfg-sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 0 8px}
+.cfg-sec>summary::-webkit-details-marker{display:none}
+.cfg-sec>summary .eyebrow{display:inline-flex;align-items:center;gap:6px;margin:0}
+.cfg-sec>summary .eyebrow svg{width:15px;height:15px}
+.cfg-sec>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg);
+  transition:transform .2s;margin-left:8px}
+.cfg-sec[open]>summary::after{transform:rotate(-135deg)}
+.cfg-sec>summary .dim{margin-left:auto;font-size:11.5px}
+.cfg-sec.risco{border-color:rgba(255,70,85,.3)}
+/* banco de dados: formulário em duas colunas alinhadas */
+.campos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;align-items:start}
+.campos label input,.campos label select{width:100%;box-sizing:border-box;min-height:34px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -16318,7 +16412,10 @@ function edAplicarTime(tid,c){
     if(typeof definirSinergia==='function'&&Math.round(v)!==Math.round(t.sinergia))definirSinergia(t,v);else t.sinergia=v;
   }
   if(c.staff)for(const k of ['tecnico','analista','mental'])
-    if(c.staff[k]!=null)t.staff[k]=clamp(parseInt(c.staff[k])||1,1,5);
+    /* nível com uma casa decimal: antes o parseInt truncava 3,5 em 3 ao
+       aplicar qualquer mudança do time */
+    if(c.staff[k]!=null){const v=parseFloat(String(c.staff[k]).replace(',','.'));
+      if(Math.abs(v-(t.staff[k]||0))>=0.05)t.staff[k]=clamp(Math.round((v||1)*10)/10,1,5);}
   if(c.estrutura)for(const k of ['gh','treino','academia'])
     if(c.estrutura[k]!=null)t.estrutura[k]=clamp(parseInt(c.estrutura[k])||1,1,5);
   if(c.mapPref)for(const m in c.mapPref)
@@ -18251,7 +18348,7 @@ function vConfig(){
     <div class="ctl"><button class="sw ${Prefs.get(k)?'on':''}" data-pref="${k}"
       role="switch" aria-checked="${!!Prefs.get(k)}" aria-label="${esc(rot)}"></button></div></div>`;
   return `
-  <div class="card"><div class="eyebrow">Partida</div>
+  <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('jogar')} Partida</span><span class="dim">relatório, veto, ao vivo, salvamento</span></summary>
     ${sw('prePartida','Relatório e veto antes da partida',
          'Nas suas partidas, abre o relatório de scouting do adversário e passa o veto de mapas '+
          'para você. O nível de detalhe do relatório vem do seu analista e do seu olheiro. '+
@@ -18272,9 +18369,9 @@ function vConfig(){
          'Desligado, a janela anda de semana em semana, como antes.')}
     ${sw('autosave','Salvar automaticamente ao avançar',
          'Grava a run a cada rodada resolvida. Desligado, só salva no botão Salvar.')}
-  </div>
+  </details>
 
-  <div class="card"><div class="eyebrow">Interface</div>
+  <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('olho')} Interface</span><span class="dim">dicas, animação, rostos, tema</span></summary>
     ${sw('dicas','Dicas da primeira temporada',
          'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
          'só durante a primeira temporada da carreira.')}
@@ -18293,9 +18390,9 @@ function vConfig(){
       <div class="ctl"><span class="chip">escuro</span></div></div>
     <div class="opt"><div class="txt"><b>Idioma</b><span>Português do Brasil. Sem outros idiomas por enquanto.</span></div>
       <div class="ctl"><span class="chip">pt-BR</span></div></div>
-  </div>
+  </details>
 
-  <div class="card flat"><div class="eyebrow">Armazenamento</div>
+  <details class="card flat cfg-sec"><summary><span class="eyebrow">${icone('disco')} Armazenamento</span><span class="dim">${esc(Storage.modo)} · save v${RUN_VERSAO}</span></summary>
     <table><tbody>
       <tr><td>Camada ativa</td><td class="r"><b>${esc(Storage.modo)}</b></td></tr>
       <tr><td>Versão do save</td><td class="r num">${RUN_VERSAO}</td></tr>
@@ -18305,15 +18402,15 @@ function vConfig(){
     </tbody></table>
     <p class="dim" style="margin-top:8px">O formato canônico de backup é o arquivo <code>.vctrun.json</code>,
     em Partidas salvas. Nenhuma camada do navegador é confiável em todo contexto.</p>
-  </div>
+  </details>
 
-  <div class="card"><div class="eyebrow">Zona de risco</div>
+  <details class="card cfg-sec risco"><summary><span class="eyebrow">${icone('alerta','red')} Zona de risco</span><span class="dim">ações sem desfazer</span></summary>
     <p class="dim">Estas ações não têm desfazer.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
       <button class="btn ghost" id="cfgApagarRuns">Apagar todas as partidas salvas</button>
       <button class="btn ghost" id="cfgLimparImgs">Limpar o pacote de imagens</button>
     </div>
-  </div>`;
+  </details>`;
 }
 
 /* ============================================================
@@ -19542,6 +19639,10 @@ ${blocoPatrocinios(t)}
 let newsAba='tudo';
 function linhaNoticia(n){
   if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
+  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${textoNoticia(n)}</span></div>`;
+}
+/* o texto da notícia com os nomes de clube e de jogador virando link */
+function textoNoticia(n){
   /* o nome de quem a notícia cita vira link para a ficha */
   let txt=esc(n.txt);
   /* o clube citado vira link para a página dele; entra como marcador antes
@@ -19562,7 +19663,7 @@ function linhaNoticia(n){
   }
   txt=txt.replace(/\u0001(\d+)\u0001/g,(_,k)=>clubes[+k]);
   if(typeof iconizar==='function')txt=iconizar(txt);
-  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${txt}</span></div>`;
+  return txt;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
 function noticiasDaAba(aba){
@@ -19570,14 +19671,45 @@ function noticiasDaAba(aba){
   if(aba==='clube')return G.noticias.filter(n=>n.meu);
   return G.noticias.filter(n=>n.c===aba);
 }
+/* Notícias (pacote V12): cartões agrupados por semana, cada um com a
+   imagem de quem a notícia cita e o ícone da categoria; a manchete grande no
+   topo; filtros fixos e "carregar mais" no lugar da página interminável. */
+let newsLimite=40;
+const ICONE_CAT={clube:'clube',mercado:'aperto',competicoes:'trofeu',meta:'mapa',carreira:'gravata',outros:'jornal'};
+function cartaoNoticia(n){
+  const img=typeof imagemDaNoticia==='function'?imagemDaNoticia(n,52):null;
+  const cor=img&&img.cor?img.cor:null;
+  return `<div class="nw ${n.meu?'me':''} ${n.imp>=2?'imp':''}" ${cor?`style="--clube:${cor};--clube-rgb:${rgbDe(cor)}"`:''}>
+    <span class="nw-img ${img?img.cls:'vazio'}">${img?img.html:icone(ICONE_CAT[n.c]||'jornal')}</span>
+    <div class="nw-txt"><span class="nw-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(CAT_NOTICIA[n.c]||'Circuito')}</span>
+      <div class="nw-corpo">${textoNoticia(n)}</div></div>
+  </div>`;
+}
 function vNews(){
   const abas=[['tudo','Tudo'],...Object.entries(CAT_NOTICIA)];
-  const lista=noticiasDaAba(newsAba).filter(n=>n.txt);
+  const todas=noticiasDaAba(newsAba).filter(n=>n.txt&&n.c!=='sistema');
+  const lista=todas.slice(0,newsLimite);
+  const m=typeof manchete==='function'?manchete():null;
+  const grupos=[];
+  for(const n of lista){
+    const k=n.ano+'|'+(n.s||0);
+    if(!grupos.length||grupos[grupos.length-1].k!==k)grupos.push({k,ano:n.ano,s:n.s,itens:[]});
+    grupos[grupos.length-1].itens.push(n);
+  }
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
-  <div class="tabs">${abas.map(([k,n])=>{
+  <div class="nw-filtros">${abas.map(([k,n])=>{
     const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
-    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${n} <span class="dim">${q}</span></button>`;}).join('')}</div>
-  <div class="card flat"><div class="feed" style="max-height:none">${lista.map(linhaNoticia).join('')||'<div class="dim">Sem notícias aqui.</div>'}</div></div>`;
+    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${k==='tudo'?'':icone(ICONE_CAT[k]||'jornal')}${n} <span class="num">${q}</span></button>`;}).join('')}</div>
+  ${m&&newsAba==='tudo'&&typeof imagemDaNoticia==='function'?(()=>{const img=imagemDaNoticia(m,120);
+    return `<div class="nw-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${img?`<div class="nwm-img ${img.cls}">${img.html}</div>`:''}
+      <div><div class="eyebrow">Manchete da semana</div><h3>${iconizar(esc(m.txt))}</h3>
+        <span class="dim">${m.s?rotuloSemana(m.ano,m.s)+' · ':''}${esc(CAT_NOTICIA[m.c]||'Circuito')}</span></div></div>`;})():''}
+  ${grupos.length?grupos.map(g=>`<div class="nw-sem"><div class="nw-sem-t"><b>${g.s?'Semana '+g.s:g.ano}</b>
+      <span class="dim">${g.s?esc(rotuloSemana(g.ano,g.s))+' · '+g.ano:''}</span><u></u></div>
+    <div class="nw-l">${g.itens.map(cartaoNoticia).join('')}</div></div>`).join('')
+    :vazio('<b>Sem notícias aqui.</b> Elas chegam a cada semana que você avança.','jornal')}
+  ${todas.length>newsLimite?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite} restantes)</span></button></div>`:''}`;
 }
 
 /* ============================================================
@@ -19884,11 +20016,11 @@ function cardVestiario(t){
 }
 
 /* ---------- 5b. sala de imprensa ---------- */
-function imagemDaNoticia(n){
+function imagemDaNoticia(n,px){
   const p=n.p&&n.p.length?G.jogadores[n.p[0]]:null;
-  if(p)return{html:retrato(p,92),cor:p.timeId&&G.times[p.timeId]?corDoClube(G.times[p.timeId]):null,cls:'foto'};
+  if(p)return{html:retrato(p,px||92),cor:p.timeId&&G.times[p.timeId]?corDoClube(G.times[p.timeId]):null,cls:'foto'};
   const t=n.t&&n.t.length?G.times[n.t[0]]:null;
-  if(t)return{html:escudo(t,80),cor:corDoClube(t),cls:'escudo'};
+  if(t)return{html:escudo(t,px?Math.round(px*0.86):80),cor:corDoClube(t),cls:'escudo'};
   return null;
 }
 function cardImprensa(){
@@ -21531,7 +21663,7 @@ function cartaoFicha(f,rot,trof,extra){
 function telasDaCerimonia(reg,c){
   const T=[];
   /* abertura */
-  T.push({rot:'Abertura',html:`<div class="cer-abre">
+  T.push({rot:'Abertura',fundo:'cidade',html:`<div class="cer-abre">
       <div class="eyebrow">VCT · ${c.ano}</div>
       <h1 class="cer-h1">Cerimônia de encerramento</h1>
       <p class="dim">${c.apres&&c.apres.length?'Apresentação: <b>'+c.apres.map(esc).join('</b> e <b>')+'</b>, ex-jogadores do circuito.':'A temporada '+c.ano+' acabou. Antes da diretoria falar, o circuito celebra quem fez o ano.'}</p>
@@ -21542,14 +21674,14 @@ function telasDaCerimonia(reg,c){
   if(cl){
     const t=G.times[cl.id];
     const l=cl.linha;
-    T.push({rot:'Sua temporada',html:`<div class="cer-tit"><div class="eyebrow">A temporada do seu clube</div>
+    T.push({rot:'Sua temporada',fundo:'clube',html:`<div class="cer-tit"><div class="eyebrow">A temporada do seu clube</div>
         <h2>${t?escudo(t,34):''} ${esc(cl.nome)}</h2></div>
       <div class="cer-grid">
         <div>
           ${l?`<div class="cer-big"><b>${l.p}º</b><span>de ${l.de} na ${l.tier===2?'Challengers':'liga'} · ${l.v}–${l.d} em séries${l.mov==='subiu'?' · <span class="up">subiu para o VCT</span>':l.mov==='caiu'?' · <span class="dn">rebaixado</span>':''}</span></div>`:''}
           <div class="eyebrow" style="margin-top:12px">Torneio a torneio</div>
           <div class="cer-torn">${(cl.torneios||[]).map(x=>`<div class="${lugarCor(x.lugar)}">
-            ${x.tr?imgTrofeu(x.tr,18,x.ev):x.int?'🌍':'·'} <span>${esc(x.ev)}</span><b>${esc(x.lugar)}</b></div>`).join('')||'<div class="dim">—</div>'}</div>
+            ${x.tr?imgTrofeu(x.tr,18,x.ev):x.int?icone('mundo','azul'):'·'} <span>${esc(x.ev)}</span><b>${esc(x.lugar)}</b></div>`).join('')||'<div class="dim">—</div>'}</div>
           ${cl.graf&&cl.graf.filter(x=>x.p).length>1?`<div class="eyebrow" style="margin-top:12px">Posição no ranking mundial</div>${graficoPosicao(cl.graf)}`:''}
         </div>
         <div>
@@ -21566,7 +21698,7 @@ function telasDaCerimonia(reg,c){
 
   /* campeões do ano */
   const ints=(c.campeoes||[]).filter(x=>x.int),regs=(c.campeoes||[]).filter(x=>!x.int);
-  T.push({rot:'Campeões',html:`<div class="cer-tit"><div class="eyebrow">Os campeões de ${c.ano}</div><h2>Quem levantou troféu</h2></div>
+  T.push({rot:'Campeões',fundo:'cidade',html:`<div class="cer-tit"><div class="eyebrow">Os campeões de ${c.ano}</div><h2>Quem levantou troféu</h2></div>
     <div class="cer-ints">${ints.map(x=>{const t=G.times[x.timeId];return `<div class="cer-int">
       ${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),70,x.ev)}<div class="eyebrow">${esc(x.ev)}</div>
       <div class="cer-int-c">${t?escudo(t,30):''}<b>${esc(x.nome)}</b></div></div>`;}).join('')}</div>
@@ -21574,24 +21706,24 @@ function telasDaCerimonia(reg,c){
       return `<div>${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),16,x.ev)} <span class="dim">${esc(x.ev)}</span> ${t?escudo(t,16):''}<b>${esc(t?t.tag:x.nome)}</b></div>`;}).join('')}</div>`:''}`});
 
   /* prêmios, do menor para o maior */
-  if(reg.revelacao)T.push({rot:'Revelação',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Revelação do ano</h2></div>
+  if(reg.revelacao)T.push({rot:'Revelação',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Revelação do ano</h2></div>
     ${cartaoFicha(reg.revelacao,'Revelação do ano',arquivoTrofeuPremio('revelacao'),reg.podios&&podioCurto(reg.podios.revelacao))}`});
-  if(reg.igl)T.push({rot:'IGL',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>IGL do ano</h2></div>
+  if(reg.igl)T.push({rot:'IGL',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>IGL do ano</h2></div>
     ${cartaoFicha(reg.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}`});
   if(reg.treinador){const tr=reg.treinador,t=G.times[tr.timeId];
-    T.push({rot:'Treinador',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Treinador do ano</h2></div>
+    T.push({rot:'Treinador',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Treinador do ano</h2></div>
     <div class="cer-premio">${imgTrofeu(arquivoTrofeuPremio('treinador'),80,'Treinador do ano')}
       <div class="cer-p-nome">${esc(tr.nome)}${tr.voce?' <span class="chip t">você</span>':''}</div>
       <div class="dim">${t?escudo(t,18)+' ':''}${esc(t?t.nome:tr.tag)}</div></div>`});}
-  if(reg.selecao&&reg.selecao.length)T.push({rot:'Seleção',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div>
+  if(reg.selecao&&reg.selecao.length)T.push({rot:'Seleção',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div>
       <h2>${imgTrofeu(arquivoTrofeuPremio('selecao'),30,'Seleção do ano')} Seleção do ano</h2></div>
     <div class="pr-sel">${reg.selecao.map(f=>`<div class="pr-sel-j cer-in">${cartaPremiado(f,140)}<div class="pr-sel-n"><span class="dim">${esc(f.tag)}</span></div></div>`).join('')}</div>`});
   const regioes=REGIONS.filter(R=>reg.regioes&&reg.regioes[R.id]);
-  if(regioes.length)T.push({rot:'MVPs regionais',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>MVP de cada região</h2></div>
+  if(regioes.length)T.push({rot:'MVPs regionais',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>MVP de cada região</h2></div>
     <div class="cer-regmvp">${regioes.map(R=>{const f=reg.regioes[R.id];return `<div class="cer-in">
       <div class="eyebrow">${esc(R.nome)}</div>${cartaPremiado(f,130)}<b>${esc(f.nome)}</b><span class="dim">${esc(f.tag)}</span></div>`;}).join('')}</div>`});
   if(reg.mvp){const m=reg.mvp;
-    T.push({rot:'MVP do ano',html:`<div class="cer-tit"><div class="eyebrow">O maior prêmio · ${c.ano}</div><h2>MVP do ano</h2></div>
+    T.push({rot:'MVP do ano',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">O maior prêmio · ${c.ano}</div><h2>MVP do ano</h2></div>
     <div class="cer-mvp">
       ${imgTrofeu(arquivoTrofeuPremio('mvp'),90,'MVP do ano')}
       <div class="cer-mvp-carta">${(()=>{const p=P(m.id);const base=p||{id:m.id,nome:m.nome,role:m.role,timeId:m.timeId,pais:m.pais};
@@ -21607,14 +21739,14 @@ function telasDaCerimonia(reg,c){
   /* despedidas */
   if((c.despedidas||[]).length||(c.hall||[]).length){
     const dest=d=>d.destino==='dono'?'compra o '+esc(d.clube||'clube'):d.destino?esc(ROT_DESTINO[d.destino]||d.destino):'sai de cena';
-    T.push({rot:'Despedidas',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
-      ${(c.hall||[]).length?`<div class="cer-hall">🏛 Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
+    T.push({rot:'Despedidas',fundo:'despedida',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
+      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
       <div class="cer-desp">${(c.despedidas||[]).map(d=>`<div class="${d.meu?'me':''}">
         <b>${esc(d.nome)}</b> ${FLAG[d.pais]||''} <span class="tag ${d.role}">${d.role}</span>
         <span class="dim">${d.idade} anos · ${esc(d.tag)} · ${d.titulos} título${d.titulos===1?'':'s'}${d.intl?' · '+d.intl+' internacional'+(d.intl===1?'':'is'):''}</span>
         <em>${dest(d)}</em></div>`).join('')}</div>`});
   }
-  T.push({rot:'Fim',html:`<div class="cer-abre"><div class="eyebrow">VCT · ${c.ano}</div><h1 class="cer-h1">Até ${c.ano+1}</h1>
+  T.push({rot:'Fim',fundo:'cidade',html:`<div class="cer-abre"><div class="eyebrow">VCT · ${c.ano}</div><h1 class="cer-h1">Até ${c.ano+1}</h1>
     <p class="dim">${CER&&CER.veredito?'Agora a diretoria quer falar com você.':'Bom descanso — a pré-temporada começa já.'}</p></div>`});
   return T;
 }
@@ -21622,8 +21754,14 @@ function telasDaCerimonia(reg,c){
 function pintarCerimonia(){
   if(!CER)return;
   const T=CER.telas,i=CER.i,ult=i===T.length-1;
-  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer">
-    <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" title="${esc(x.rot)}"></i>`).join('')}</div>
+  /* fundo por momento: a cidade da final, o palco dos prêmios, a cor do clube */
+  const f=T[i].fundo;
+  const sede=typeof sedeDe==='function'?sedeDe('champions',CER.cer.ano):null;
+  const meuT=G.meuTime&&G.times[G.meuTime];
+  const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
+    :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
+  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
+    <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>
       <button class="btn ghost sm" data-cer="pular">${CER.fim?'Pular cerimônia':'Fechar'}</button></div>
     <div class="cer-corpo" key="${i}">${T[i].html}</div>
     <div class="cer-pe">
@@ -21632,6 +21770,8 @@ function pintarCerimonia(){
       <button class="btn" data-cer="seguir">${ult?(CER.veredito?'Ver o veredito':CER.fim?'Seguir':'Fechar'):i===0?'Começar ›':'Próximo ›'}</button>
     </div></div></div>`;
   const md=$('#modal');
+  md.querySelectorAll('[data-cerir]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const k=+b.dataset.cerir;if(k<=CER.i||k===CER.i+1){CER.i=k;pintarCerimonia();}});
   md.querySelectorAll('[data-cer]').forEach(b=>b.onclick=e=>{e.stopPropagation();
     const a=b.dataset.cer;
     if(a==='pular')return fimCerimonia();
@@ -24091,7 +24231,7 @@ function edvTimes(){
     <div class="card flat"><div class="eyebrow">Comissão técnica e estrutura</div>
       <div class="campos">
         ${[['tecnico','Head coach'],['analista','Analista'],['mental','Preparador mental']].map(([k,n])=>
-          `<label>${n}<input type="number" data-edstaff="${k}" value="${t.staff[k]}" min="1" max="5"></label>`).join('')}
+          `<label>${n}<input type="number" data-edstaff="${k}" value="${Math.round((t.staff[k]||1)*10)/10}" min="1" max="5" step="0.1"></label>`).join('')}
         ${[['gh','Gaming house'],['treino','Centro de treino'],['academia','Academia de base']].map(([k,n])=>
           `<label>${n}<input type="number" data-edest="${k}" value="${t.estrutura[k]}" min="1" max="5"></label>`).join('')}
       </div>
@@ -24941,7 +25081,8 @@ function ligarEventos(){
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
-  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
+  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=40;render();});
+  on('[data-newsmais]',()=>{newsLimite+=40;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
   on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
@@ -25515,7 +25656,7 @@ function ligarEventos(){
 /* ============================================================
    NOVO JOGO
    ============================================================ */
-let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal';
+let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
 function telaNovoJogo(){
   const val=edValidar();
   if(!val.ok){
@@ -25538,7 +25679,14 @@ function telaNovoJogo(){
     return;
   }
   const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].slice().sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
-  $('#modal').innerHTML=`<div class="ovl"><div class="box wide">
+  /* clube em destaque na prévia: o escolhido, se ainda estiver na lista, ou o primeiro */
+  const sel=times.includes(escSel)?escSel:times[0];
+  const selT=sel?T(sel):null;
+  /* repintura da mesma tela (trocar região, escolher clube): sem a animação
+     de abertura e no mesmo ponto da rolagem */
+  const antes=$('#modal .ovl.nj-ovl');
+  const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
+  $('#modal').innerHTML=`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
     <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
     <div class="nj-quem">
       <label class="dim">Seu nome
@@ -25558,13 +25706,20 @@ function telaNovoJogo(){
     <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
     <div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2) — modo difícil']].map(([k,n])=>`<button data-tr="${k}" class="${escTier===k?'on':''}">${n}</button>`).join('')}</div>
-    <div class="card flat"><table><thead><tr><th>Equipe</th><th class="c">Prestígio</th><th class="c">Over</th><th class="r">Caixa</th><th class="r">Folha</th><th></th></tr></thead>
-    <tbody>${times.map(id=>{const t=T(id);const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
-      const fo=t.elenco.reduce((s,i)=>s+P(i).salario,0);
-      return `<tr><td><span class="linha-t">${escudo(t,24)}<b>${esc(t.nome)}</b> <span class="dim">${t.tag}</span></span></td><td class="c num">${Math.round(t.prestigio)}</td>
-      <td class="c"><span class="ov ${ovClass(ov)}">${ov}</span></td><td class="r num">${money(t.caixa)}</td>
-      <td class="r num">${money(fo)}</td><td class="r"><button class="btn sm" data-pick="${id}">Assumir</button></td></tr>`;}).join('')}
-    </tbody></table></div>
+    <div class="nj-escolha">
+      <div class="nj-grade">${times.map(id=>{const t=T(id);const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+        return `<button class="nj-clube ${id===sel?'on':''}" data-njsel="${id}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+          ${escudo(t,56)}<b>${esc(t.nome)}</b><span class="nj-mini"><span>prest. <b class="num">${Math.round(t.prestigio)}</b></span><span>over <b class="num">${ov}</b></span></span></button>`;}).join('')}</div>
+      ${selT?(()=>{const t=selT;const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+        const fo=t.elenco.reduce((s,i)=>s+P(i).salario,0);
+        return `<div class="nj-prev" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+          <div class="nj-prev-topo">${escudo(t,84)}<div><div class="eyebrow">${esc(nomeLiga(t))}</div><h3>${esc(t.nome)}</h3>
+            <div class="nj-prev-k"><span>Prestígio <b class="num">${Math.round(t.prestigio)}</b></span><span>Over <b class="num">${ov}</b></span>
+              <span>Caixa <b class="num">${money(t.caixa)}</b></span><span>Folha <b class="num">${money(fo)}/mês</b></span></div></div></div>
+          <div class="nj-prev-cartas">${t.titulares.map(P).filter(Boolean).map(p=>cartaJogador(p,{w:66})).join('')}</div>
+          <button class="btn nj-assumir" data-pick="${t.id}">Assumir o ${esc(t.nome)} ›</button></div>`;})()
+        :'<div class="nj-prev vazio">'+vazio('<b>Escolha um clube</b> na grade para ver o elenco.','clube')+'</div>'}
+    </div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>
@@ -25572,6 +25727,7 @@ function telaNovoJogo(){
   </div></div>`;
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
+  if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}
   const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;};
   const inNome=$('#njNome');
   if(inNome)inNome.oninput=guardaNome;
@@ -25579,6 +25735,7 @@ function telaNovoJogo(){
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-njsel]').forEach(b=>b.onclick=()=>{guardaNome();escSel=b.dataset.njsel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{

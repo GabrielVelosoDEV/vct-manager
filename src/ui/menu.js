@@ -143,7 +143,7 @@ function vConfig(){
     <div class="ctl"><button class="sw ${Prefs.get(k)?'on':''}" data-pref="${k}"
       role="switch" aria-checked="${!!Prefs.get(k)}" aria-label="${esc(rot)}"></button></div></div>`;
   return `
-  <div class="card"><div class="eyebrow">Partida</div>
+  <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('jogar')} Partida</span><span class="dim">relatório, veto, ao vivo, salvamento</span></summary>
     ${sw('prePartida','Relatório e veto antes da partida',
          'Nas suas partidas, abre o relatório de scouting do adversário e passa o veto de mapas '+
          'para você. O nível de detalhe do relatório vem do seu analista e do seu olheiro. '+
@@ -164,9 +164,9 @@ function vConfig(){
          'Desligado, a janela anda de semana em semana, como antes.')}
     ${sw('autosave','Salvar automaticamente ao avançar',
          'Grava a run a cada rodada resolvida. Desligado, só salva no botão Salvar.')}
-  </div>
+  </details>
 
-  <div class="card"><div class="eyebrow">Interface</div>
+  <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('olho')} Interface</span><span class="dim">dicas, animação, rostos, tema</span></summary>
     ${sw('dicas','Dicas da primeira temporada',
          'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
          'só durante a primeira temporada da carreira.')}
@@ -185,9 +185,9 @@ function vConfig(){
       <div class="ctl"><span class="chip">escuro</span></div></div>
     <div class="opt"><div class="txt"><b>Idioma</b><span>Português do Brasil. Sem outros idiomas por enquanto.</span></div>
       <div class="ctl"><span class="chip">pt-BR</span></div></div>
-  </div>
+  </details>
 
-  <div class="card flat"><div class="eyebrow">Armazenamento</div>
+  <details class="card flat cfg-sec"><summary><span class="eyebrow">${icone('disco')} Armazenamento</span><span class="dim">${esc(Storage.modo)} · save v${RUN_VERSAO}</span></summary>
     <table><tbody>
       <tr><td>Camada ativa</td><td class="r"><b>${esc(Storage.modo)}</b></td></tr>
       <tr><td>Versão do save</td><td class="r num">${RUN_VERSAO}</td></tr>
@@ -197,15 +197,15 @@ function vConfig(){
     </tbody></table>
     <p class="dim" style="margin-top:8px">O formato canônico de backup é o arquivo <code>.vctrun.json</code>,
     em Partidas salvas. Nenhuma camada do navegador é confiável em todo contexto.</p>
-  </div>
+  </details>
 
-  <div class="card"><div class="eyebrow">Zona de risco</div>
+  <details class="card cfg-sec risco"><summary><span class="eyebrow">${icone('alerta','red')} Zona de risco</span><span class="dim">ações sem desfazer</span></summary>
     <p class="dim">Estas ações não têm desfazer.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
       <button class="btn ghost" id="cfgApagarRuns">Apagar todas as partidas salvas</button>
       <button class="btn ghost" id="cfgLimparImgs">Limpar o pacote de imagens</button>
     </div>
-  </div>`;
+  </details>`;
 }
 
 /* ============================================================

@@ -48,7 +48,7 @@ function cartaoFicha(f,rot,trof,extra){
 function telasDaCerimonia(reg,c){
   const T=[];
   /* abertura */
-  T.push({rot:'Abertura',html:`<div class="cer-abre">
+  T.push({rot:'Abertura',fundo:'cidade',html:`<div class="cer-abre">
       <div class="eyebrow">VCT · ${c.ano}</div>
       <h1 class="cer-h1">Cerimônia de encerramento</h1>
       <p class="dim">${c.apres&&c.apres.length?'Apresentação: <b>'+c.apres.map(esc).join('</b> e <b>')+'</b>, ex-jogadores do circuito.':'A temporada '+c.ano+' acabou. Antes da diretoria falar, o circuito celebra quem fez o ano.'}</p>
@@ -59,14 +59,14 @@ function telasDaCerimonia(reg,c){
   if(cl){
     const t=G.times[cl.id];
     const l=cl.linha;
-    T.push({rot:'Sua temporada',html:`<div class="cer-tit"><div class="eyebrow">A temporada do seu clube</div>
+    T.push({rot:'Sua temporada',fundo:'clube',html:`<div class="cer-tit"><div class="eyebrow">A temporada do seu clube</div>
         <h2>${t?escudo(t,34):''} ${esc(cl.nome)}</h2></div>
       <div class="cer-grid">
         <div>
           ${l?`<div class="cer-big"><b>${l.p}º</b><span>de ${l.de} na ${l.tier===2?'Challengers':'liga'} · ${l.v}–${l.d} em séries${l.mov==='subiu'?' · <span class="up">subiu para o VCT</span>':l.mov==='caiu'?' · <span class="dn">rebaixado</span>':''}</span></div>`:''}
           <div class="eyebrow" style="margin-top:12px">Torneio a torneio</div>
           <div class="cer-torn">${(cl.torneios||[]).map(x=>`<div class="${lugarCor(x.lugar)}">
-            ${x.tr?imgTrofeu(x.tr,18,x.ev):x.int?'🌍':'·'} <span>${esc(x.ev)}</span><b>${esc(x.lugar)}</b></div>`).join('')||'<div class="dim">—</div>'}</div>
+            ${x.tr?imgTrofeu(x.tr,18,x.ev):x.int?icone('mundo','azul'):'·'} <span>${esc(x.ev)}</span><b>${esc(x.lugar)}</b></div>`).join('')||'<div class="dim">—</div>'}</div>
           ${cl.graf&&cl.graf.filter(x=>x.p).length>1?`<div class="eyebrow" style="margin-top:12px">Posição no ranking mundial</div>${graficoPosicao(cl.graf)}`:''}
         </div>
         <div>
@@ -83,7 +83,7 @@ function telasDaCerimonia(reg,c){
 
   /* campeões do ano */
   const ints=(c.campeoes||[]).filter(x=>x.int),regs=(c.campeoes||[]).filter(x=>!x.int);
-  T.push({rot:'Campeões',html:`<div class="cer-tit"><div class="eyebrow">Os campeões de ${c.ano}</div><h2>Quem levantou troféu</h2></div>
+  T.push({rot:'Campeões',fundo:'cidade',html:`<div class="cer-tit"><div class="eyebrow">Os campeões de ${c.ano}</div><h2>Quem levantou troféu</h2></div>
     <div class="cer-ints">${ints.map(x=>{const t=G.times[x.timeId];return `<div class="cer-int">
       ${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),70,x.ev)}<div class="eyebrow">${esc(x.ev)}</div>
       <div class="cer-int-c">${t?escudo(t,30):''}<b>${esc(x.nome)}</b></div></div>`;}).join('')}</div>
@@ -91,24 +91,24 @@ function telasDaCerimonia(reg,c){
       return `<div>${imgTrofeu(x.tr||trofeuDoTitulo(c.ano,x.ev),16,x.ev)} <span class="dim">${esc(x.ev)}</span> ${t?escudo(t,16):''}<b>${esc(t?t.tag:x.nome)}</b></div>`;}).join('')}</div>`:''}`});
 
   /* prêmios, do menor para o maior */
-  if(reg.revelacao)T.push({rot:'Revelação',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Revelação do ano</h2></div>
+  if(reg.revelacao)T.push({rot:'Revelação',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Revelação do ano</h2></div>
     ${cartaoFicha(reg.revelacao,'Revelação do ano',arquivoTrofeuPremio('revelacao'),reg.podios&&podioCurto(reg.podios.revelacao))}`});
-  if(reg.igl)T.push({rot:'IGL',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>IGL do ano</h2></div>
+  if(reg.igl)T.push({rot:'IGL',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>IGL do ano</h2></div>
     ${cartaoFicha(reg.igl,'IGL do ano',arquivoTrofeuPremio('igl'))}`});
   if(reg.treinador){const tr=reg.treinador,t=G.times[tr.timeId];
-    T.push({rot:'Treinador',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Treinador do ano</h2></div>
+    T.push({rot:'Treinador',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>Treinador do ano</h2></div>
     <div class="cer-premio">${imgTrofeu(arquivoTrofeuPremio('treinador'),80,'Treinador do ano')}
       <div class="cer-p-nome">${esc(tr.nome)}${tr.voce?' <span class="chip t">você</span>':''}</div>
       <div class="dim">${t?escudo(t,18)+' ':''}${esc(t?t.nome:tr.tag)}</div></div>`});}
-  if(reg.selecao&&reg.selecao.length)T.push({rot:'Seleção',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div>
+  if(reg.selecao&&reg.selecao.length)T.push({rot:'Seleção',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div>
       <h2>${imgTrofeu(arquivoTrofeuPremio('selecao'),30,'Seleção do ano')} Seleção do ano</h2></div>
     <div class="pr-sel">${reg.selecao.map(f=>`<div class="pr-sel-j cer-in">${cartaPremiado(f,140)}<div class="pr-sel-n"><span class="dim">${esc(f.tag)}</span></div></div>`).join('')}</div>`});
   const regioes=REGIONS.filter(R=>reg.regioes&&reg.regioes[R.id]);
-  if(regioes.length)T.push({rot:'MVPs regionais',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>MVP de cada região</h2></div>
+  if(regioes.length)T.push({rot:'MVPs regionais',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">Prêmio · ${c.ano}</div><h2>MVP de cada região</h2></div>
     <div class="cer-regmvp">${regioes.map(R=>{const f=reg.regioes[R.id];return `<div class="cer-in">
       <div class="eyebrow">${esc(R.nome)}</div>${cartaPremiado(f,130)}<b>${esc(f.nome)}</b><span class="dim">${esc(f.tag)}</span></div>`;}).join('')}</div>`});
   if(reg.mvp){const m=reg.mvp;
-    T.push({rot:'MVP do ano',html:`<div class="cer-tit"><div class="eyebrow">O maior prêmio · ${c.ano}</div><h2>MVP do ano</h2></div>
+    T.push({rot:'MVP do ano',fundo:'palco',html:`<div class="cer-tit"><div class="eyebrow">O maior prêmio · ${c.ano}</div><h2>MVP do ano</h2></div>
     <div class="cer-mvp">
       ${imgTrofeu(arquivoTrofeuPremio('mvp'),90,'MVP do ano')}
       <div class="cer-mvp-carta">${(()=>{const p=P(m.id);const base=p||{id:m.id,nome:m.nome,role:m.role,timeId:m.timeId,pais:m.pais};
@@ -124,14 +124,14 @@ function telasDaCerimonia(reg,c){
   /* despedidas */
   if((c.despedidas||[]).length||(c.hall||[]).length){
     const dest=d=>d.destino==='dono'?'compra o '+esc(d.clube||'clube'):d.destino?esc(ROT_DESTINO[d.destino]||d.destino):'sai de cena';
-    T.push({rot:'Despedidas',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
-      ${(c.hall||[]).length?`<div class="cer-hall">🏛 Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
+    T.push({rot:'Despedidas',fundo:'despedida',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
+      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
       <div class="cer-desp">${(c.despedidas||[]).map(d=>`<div class="${d.meu?'me':''}">
         <b>${esc(d.nome)}</b> ${FLAG[d.pais]||''} <span class="tag ${d.role}">${d.role}</span>
         <span class="dim">${d.idade} anos · ${esc(d.tag)} · ${d.titulos} título${d.titulos===1?'':'s'}${d.intl?' · '+d.intl+' internacional'+(d.intl===1?'':'is'):''}</span>
         <em>${dest(d)}</em></div>`).join('')}</div>`});
   }
-  T.push({rot:'Fim',html:`<div class="cer-abre"><div class="eyebrow">VCT · ${c.ano}</div><h1 class="cer-h1">Até ${c.ano+1}</h1>
+  T.push({rot:'Fim',fundo:'cidade',html:`<div class="cer-abre"><div class="eyebrow">VCT · ${c.ano}</div><h1 class="cer-h1">Até ${c.ano+1}</h1>
     <p class="dim">${CER&&CER.veredito?'Agora a diretoria quer falar com você.':'Bom descanso — a pré-temporada começa já.'}</p></div>`});
   return T;
 }
@@ -139,8 +139,14 @@ function telasDaCerimonia(reg,c){
 function pintarCerimonia(){
   if(!CER)return;
   const T=CER.telas,i=CER.i,ult=i===T.length-1;
-  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer">
-    <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" title="${esc(x.rot)}"></i>`).join('')}</div>
+  /* fundo por momento: a cidade da final, o palco dos prêmios, a cor do clube */
+  const f=T[i].fundo;
+  const sede=typeof sedeDe==='function'?sedeDe('champions',CER.cer.ano):null;
+  const meuT=G.meuTime&&G.times[G.meuTime];
+  const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
+    :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
+  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
+    <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>
       <button class="btn ghost sm" data-cer="pular">${CER.fim?'Pular cerimônia':'Fechar'}</button></div>
     <div class="cer-corpo" key="${i}">${T[i].html}</div>
     <div class="cer-pe">
@@ -149,6 +155,8 @@ function pintarCerimonia(){
       <button class="btn" data-cer="seguir">${ult?(CER.veredito?'Ver o veredito':CER.fim?'Seguir':'Fechar'):i===0?'Começar ›':'Próximo ›'}</button>
     </div></div></div>`;
   const md=$('#modal');
+  md.querySelectorAll('[data-cerir]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const k=+b.dataset.cerir;if(k<=CER.i||k===CER.i+1){CER.i=k;pintarCerimonia();}});
   md.querySelectorAll('[data-cer]').forEach(b=>b.onclick=e=>{e.stopPropagation();
     const a=b.dataset.cer;
     if(a==='pular')return fimCerimonia();
