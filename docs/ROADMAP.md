@@ -228,6 +228,21 @@
   `tools/caixa.mjs` agora conta vermelho em qualquer semana: 0 clubes em
   5 sementes × 20 temporadas.
 
+- **Elenco e base** (pacote 10): o Elenco mostra, por jogador, forma,
+  desgaste, mental, entrosamento médio com os titulares, mapas jogados,
+  contrato com aviso de fim e o salário em barra relativa; um resumo de
+  cobertura de funções (pela função jogada), idade média, o que falta e o
+  que sobra; e as cartas com filtro por função e ordem (over, idade,
+  contrato, função). Todo nick gerado sai de um banco por região/país
+  (data/nicks.js): gíria brasileira, espanhol latino, romanização coreana e
+  japonesa, pinyin, leste europeu, Turquia, Europa ocidental, sudeste
+  asiático e Índia. A base ficou mais rara (um garoto ao assumir, 2 a 4
+  vagas) e deixou de revelar por sorteio na virada: os garotos chegam pelo
+  radar das rankeds — o olheiro marca contas da ladder (rank, agente,
+  idade aproximada), a leitura de over e potencial fecha a cada semana,
+  você chama para uma semana de teste e decide; rivais levam contas boas e
+  conta esquecida some. Gerador local: o radar não mexe no motor.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

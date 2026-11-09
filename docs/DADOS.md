@@ -23,6 +23,7 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
 | (stage) `resultados[]` | `{a,b,wa,wb,v,mapa,n,rd,sem,det}` | série jogada; `det` = veto, mapas `{m,a,b,l,st}` e MVP, com `st` em texto `id:k,d,a,acs\|…` |
 | `eloHist` | `[{ano,s,v:{id:rating}}]` | foto do ranking mundial a cada 4 semanas, últimas 13 |
 | `recordes` | `{over, transferencia}` | recordes que não dá para recalcular depois |
+| `radar` | `{contas:[{id,nome,pais,role,agente,idade,ov,pot,rank,rankOrd,partidas,obs,desde,estado,testeAte?}], seq, hist}` | radar das rankeds do seu clube (core/radar.js); `ov`/`pot` são o real, a tela mostra a leitura borrada |
 | `donos` | `[{nome,timeId,ano}]` | ex-jogadores que compraram clube (um a cada três temporadas, no mínimo) |
 | `casters` | `[{nome,pais,ano,role}]` | ex-jogadores na cabine, últimos 8; apresentam a cerimônia |
 | `cerimoniaPendente` | ano ou `null` | a interface abre a cerimônia daquele ano antes do veredito |

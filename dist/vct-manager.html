@@ -1176,6 +1176,34 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 .pt-m.perdida .pt-m-t{color:var(--dim);text-decoration:line-through}
 @media (max-width:700px){.pt-m{grid-template-columns:1fr 70px}.pt-m .vb,.pt-m-s{display:none}.pt-cen{flex-wrap:wrap}}
 
+/* ---------- radar das rankeds ---------- */
+.rd-lista{display:flex;flex-direction:column;gap:8px}
+.rd-c{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(140px,1fr) 80px 90px 250px;gap:12px;align-items:center;
+  padding:10px 12px;background:var(--bg2);border:1px solid var(--line)}
+.rd-c.rd-teste{border-color:var(--teal)}.rd-c.rd-decisao{border-color:var(--gold)}
+.rd-id .dim{font-size:11.5px;margin-top:2px}
+.rd-leit{display:flex;flex-direction:column;gap:4px;font-size:11px}.rd-leit .vb{height:7px;min-width:0}
+.rd-num{display:flex;flex-direction:column;font-size:11px}.rd-num b{font-size:15px}
+.rd-bt{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.rd-hist{display:flex;flex-direction:column;gap:3px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--tx2)}
+@media (max-width:800px){.rd-c{grid-template-columns:1fr 1fr}.rd-id,.rd-bt{grid-column:1/-1}.rd-bt{justify-content:flex-start}}
+
+/* ---------- elenco ---------- */
+.el-tab td{vertical-align:middle}
+.el-tab .el-sub{font-size:11px}
+.el-tab tr.el-res{opacity:.92}
+.el-vb{min-width:70px;height:14px}.el-vb span{line-height:14px;font-size:10.5px}
+.el-sal{display:flex;flex-direction:column;gap:3px;min-width:90px}.el-sal .bar{height:6px}
+.el-bt{white-space:nowrap}
+.el-cob{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:8px}
+.el-cob div{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--bg2);border:1px solid var(--line);padding:8px 10px;font-size:12.5px}
+.el-cob div.falta{border-color:var(--red)}
+.el-res-l{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.el-res-l div{display:flex;flex-direction:column;gap:2px;font-size:12.5px;background:var(--bg2);border:1px solid var(--line);padding:8px 10px}
+.el-res-l span{font-size:11px}
+.el-ctl{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+@media (max-width:800px){.el-res-l{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -1357,6 +1385,81 @@ const TN1=['Crimson','Iron','Nova','Vortex','Obsidian','Solar','Phantom','Lunar'
  'Sable','Torch','Vanta','Aurora','Basalt','Cinder','Delta','Echo'];
 const TN2=['Legion','Syndicate','Collective','Dynasty','Vanguard','Order','Union','Force','Guild','Squad','Division',
  'Society','Corps','Circuit','Company','Front','Assembly','Crew','Faction','Line','Pack','Sect','Wing'];
+
+
+/* ===== data/nicks.js ===== */
+/* ============================================================
+   NICKS COM SOTAQUE — banco de nicks por região e país
+   ------------------------------------------------------------
+   Todo jogador gerado (base, agente livre, promessa da IA, conta do
+   radar das rankeds) tira o nick daqui, pelo país dele. Cada grupo tem:
+
+     palavras  nicks inteiros, do jeito que a cena daquele lugar usa
+               (gíria brasileira, bicho e mito, palavra local);
+     pre/suf   pedaços que se combinam ("Kaik" + "zin");
+     caixa     'alta' (muito comum na Coreia), 'baixa' (China) ou normal;
+     num       chance de vir com número no fim.
+
+   Sem acento e sem caractere especial: nick vira nome de arquivo de
+   foto e chave de busca. Quem não tem grupo usa o banco genérico de
+   data/mundo.js (NS1/NS2).
+   ============================================================ */
+const NICKS={
+  BR:{palavras:['Mito','Brabo','Guri','Moleque','Tchola','Fera','Craque','Bala','Raio','Trovao','Jacare','Tatu','Saci',
+      'Curupira','Gambiarra','Pipoca','Farofa','Picanha','Cangaco','Lampiao','Sertao','Caju','Acai','Pivete','Zica','Treta',
+      'Malandro','Parca','Coringa','Pacoca','Bagual','Xodo','Marrento','Brisa','Sossego','Fumaca','Quebrada','Mandacaru',
+      'Pirata','Caboclo','Tropeiro','Cuscuz','Goiaba','Jabuti','Capivara','Boto','Siri','Bode','Dendê'].map(x=>x.replace('ê','e')),
+    pre:['Dud','Gab','Lip','Raf','Tet','Bru','Kaik','Vini','Thig','Lucc','Gui','Ped','Dav','Cai','Mat','Heit','Enz','Art',
+      'Jow','Lek','Nan','Tav','Rod','Fel','Juj','Kau'],
+    suf:['inho','zin','ao','ito','era','ola','eta','ix','zera','ozo','inha','ex','ow'],num:0.12},
+  ES:{palavras:['Lobo','Fuego','Chamo','Pibe','Gaucho','Tigre','Diablo','Rayo','Chino','Flaco','Pana','Cuervo','Toro',
+      'Picante','Mate','Tango','Charro','Zorro','Coyote','Pulpo','Cholo','Jaguar','Condor','Puma','Tiburon','Brujo',
+      'Caudillo','Gringo','Cumbia','Bandido','Chispa','Trueno','Sombra','Mono','Gallo','Alacran'],
+    pre:['Nach','Fran','Sant','Mati','Tom','Agus','Feli','Jua','Laut','Benj','Emil','Rodr','Pach','Lalo','Chuy','Memo'],
+    suf:['ito','o','ii','e','ox','in','ero','iyo','ete','azo'],num:0.14},
+  EN:{palavras:['Hollow','Skyline','Bandit','Maverick','Ripper','Havoc','Ricochet','Wrecker','Nomad','Outlaw','Ranger',
+      'Specter','Crash','Blitz','Hex','Rook','Jinx','Drifter','Rogue','Grizzly','Riptide','Whiplash','Fable','Lynx',
+      'Cinder','Static','Patriot','Tundra','Mustang','Kodiak','Sniper','Wildcard','Pilot','Rebel','Comet','Gambit'],
+    pre:['Jay','Ky','Bry','Cole','Tre','Dex','Jax','Ash','Zay','Ty','Mav','Ry','Bran','Chase','Hunt','Kade'],
+    suf:['den','son','ler','ez','ix','zy','er','o','ton','yy','iee','ster'],num:0.18},
+  KR:{palavras:['Haneul','Byeol','Baram','Dokkaebi','Horangi','Mirae','Kkami','Saebyeok','Nabi','Gureum','Taeyang','Bom',
+      'Ttang','Bada','Noeul','Hwarang','Dalbit','Sanchae','Yeowoo','Gamja','Mandu','Kimbap','Chingu','Daebak'],
+    pre:['Min','Jun','Seo','Hyun','Jae','Do','Woo','Ha','Ji','Sung','Tae','Yeon','Dae','Gyu','Hee','Kyung','Bin','Chan',
+      'Eun','Soo','Hwan','Joon'],
+    suf:['jin','woo','ho','hyun','min','su','bin','seok','yul','jun','gi','won','ha','rang'],caixa:'alta',num:0.1},
+  JP:{palavras:['Kaze','Yuki','Ren','Kumo','Hayate','Raijin','Kitsune','Shiro','Kuro','Sora','Akane','Tsubasa','Hikari',
+      'Yami','Tora','Mochi','Tanuki','Kappa','Oni','Hotaru','Kaminari','Shinobi','Sakura','Kage','Tsuki'],
+    pre:['Ta','Ke','Hi','Yu','Ka','Ri','Sho','Ryo','Mi','Na','Ko','Ha','Su','Ao','Hayo'],
+    suf:['kun','to','ya','ru','zu','ki','ro','ne','ma','shi','chi','tan'],num:0.1},
+  CN:{palavras:['Xiaolong','Feng','Long','Lei','Hu','Bai','Yun','Tian','Jin','Shen','Mo','Ying','Ling','Huolong','Xingyu',
+      'Baozi','Jiaozi','Tuzi','Xiaoyu','Haixin','Qinglong','Fengbao','Shandian'],
+    pre:['Xiao','Zhi','Hao','Yu','Chen','Wei','Jun','Bo','Qi','Kai','Lin','Zi','Yi','Hong','Rui'],
+    suf:['bai','feng','lin','yu','xi','an','hao','chen','ming','ze','long','tian'],caixa:'baixa',num:0.22},
+  LESTE:{palavras:['Wolk','Kot','Zlo','Grom','Volk','Moroz','Sokol','Medved','Kruk','Burza','Zima','Sowa','Kosmos','Dym',
+      'Szczur','Lis','Orzel','Tygrys','Bobr','Kozak','Sapsan','Chort','Buran','Shtorm','Yastreb'],
+    pre:['Kub','Wojt','Bart','Ole','Sash','Dim','Max','Igo','Pash','Vla','Mik','Tym','Kost','Yar','Zhen'],
+    suf:['ek','ko','ik','yk','ov','ski','ich','ka','son','uha','yn'],num:0.16},
+  TR:{palavras:['Aslan','Kurt','Bora','Kartal','Simsek','Yildiz','Deli','Bozkurt','Pasa','Efe','Kral','Tufan','Duman',
+      'Atlas','Kaplan','Sahin','Firtina','Volkan','Ejder','Yavuz','Cesur','Akrep','Turna'],
+    pre:['Ar','Ber','Can','Emr','Kaa','Mer','Ozz','Tun','Yig','Bur','Cem','Sel','Bat','Ege','Alp'],
+    suf:['an','ay','em','ik','kan','er','o','az','ur','ec','han'],num:0.14},
+  OESTE:{palavras:['Loup','Faucon','Sturm','Fuchs','Volpe','Lupo','Falke','Storm','Vind','Ulv','Ravn','Kraken','Draug',
+      'Garou','Brume','Orage','Blitzer','Eisen','Nebbia','Corvo','Halcon','Toro','Frost','Varg','Tempest','Gecko','Mistral'],
+    pre:['Lu','Ma','Ni','Ste','Fab','Alex','Kev','Jo','Lars','Sve','Ben','Theo','Hugo','Nil','Ole','Pim'],
+    suf:['x','rio','ian','ki','sen','ou','er','io','ne','ze','an','ke'],num:0.15},
+  SEA:{palavras:['Garuda','Harimau','Naga','Bayu','Elang','Badai','Kilat','Mangga','Rusa','Bulan','Sinag','Bagyo','Diwa',
+      'Rong','Kancil','Merlion','Tuktuk','Pandan','Durian','Adobo','Lontong','Bunga','Ombak','Petir'],
+    pre:['Bud','Adi','Rizk','Nong','Kit','Jun','Ang','Quan','Duc','Aril','Ezz','Bam','Tam','Paco','Jom'],
+    suf:['i','an','ny','zz','ko','yo','x','ix','on','ah','ee'],num:0.18},
+  IN:{palavras:['Bagh','Garud','Toofan','Vayu','Agni','Shera','Rudra','Chakra','Tandav','Nandi','Masala','Bijli','Sher'],
+    pre:['Ani','Raj','Dev','Kar','Arj','Vik','Ish','Rah','Sid','Yash','Adi','Kab'],
+    suf:['an','ik','u','ya','ush','av','in','esh'],num:0.2}
+};
+/* país → grupo */
+const NICK_PAIS={BR:'BR',AR:'ES',CL:'ES',MX:'ES',PE:'ES',CO:'ES',ES:'ES',US:'EN',CA:'EN',GB:'EN',AU:'EN',
+  KR:'KR',JP:'JP',CN:'CN',PL:'LESTE',UA:'LESTE',RU:'LESTE',TR:'TR',
+  FR:'OESTE',DE:'OESTE',IT:'OESTE',NL:'OESTE',SE:'OESTE',DK:'OESTE',FI:'OESTE',
+  ID:'SEA',TH:'SEA',PH:'SEA',SG:'SEA',VN:'SEA',MY:'SEA',IN:'IN'};
 
 
 /* ===== data/patrocinadores.js ===== */
@@ -4841,7 +4944,23 @@ function descontoSemClube(p){
   if(!p||p.timeId||!p.semLivre)return 1;
   return 1-Math.min(DESCONTO_LIVRE_MAX,p.semLivre*DESCONTO_LIVRE_SEMANA);
 }
-function nomeUnico(usados){
+/* Nick com sotaque (data/nicks.js): metade das vezes uma palavra inteira do
+   grupo do país, metade um pedaço + um final; às vezes um número. Repetido
+   ganha número; sem grupo, cai no banco genérico abaixo. */
+function nickDoPais(pais,usados){
+  const g=typeof NICKS!=='undefined'&&typeof NICK_PAIS!=='undefined'&&NICKS[NICK_PAIS[pais]];
+  if(!g)return null;
+  for(let i=0;i<60;i++){
+    let n=rnd()<0.5?pick(g.palavras):pick(g.pre)+pick(g.suf);
+    if(rnd()<(g.num||0.12)||i>30)n+=ri(1,99);
+    n=g.caixa==='alta'&&rnd()<0.45?n.toUpperCase():g.caixa==='baixa'&&rnd()<0.5?n.toLowerCase():n[0].toUpperCase()+n.slice(1);
+    if(!usados.has(n)){usados.add(n);return n;}
+  }
+  return null;
+}
+function nomeUnico(usados,pais){
+  const regional=pais?nickDoPais(pais,usados):null;
+  if(regional)return regional;
   for(let i=0;i<400;i++){
     let n=pick(NS1)+(rnd()<.55?pick(NS2):'');
     if(rnd()<.18)n+=ri(0,99);
@@ -4885,7 +5004,7 @@ function makePlayer(alvo,role,pais,idade,usados,tier){
   for(const[k]of ATTRS)at[k]=clamp(Math.round(at[k]),25,99);
   at.lider=clamp(Math.round(gauss(alvo-8,13)),20,99);
   const p={
-    id:'p'+(G.seqP++), nome:nomeUnico(usados), pais, role, at, idade, genero:'m',
+    id:'p'+(G.seqP++), nome:nomeUnico(usados,pais), pais, role, at, idade, genero:'m',
     pot:0, contrato:ri(1,3), salario:0, moral:ri(60,85)/100, forma:ri(45,75)/100,
     fadiga:ri(0,15)/100, timeId:null, agentes:sortearAgentes(role), agenteNivel:null,
     hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,acs:0,mvp:0,titulos:0,intl:0},
@@ -8568,6 +8687,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   try{semana();}finally{G._fracaoMercado=1;}
   if(typeof fotoDoRanking==='function')fotoDoRanking();
   if(typeof pagarMetasDaSemana==='function')pagarMetasDaSemana();
+  if(typeof radarSemanal==='function')radarSemanal();
   G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
@@ -12045,6 +12165,172 @@ function cenariosPatrocinio(t){
 }
 
 
+/* ===== src/core/radar.js ===== */
+/* ============================================================
+   RADAR DAS RANKEDS — como um garoto chega à sua base
+   ------------------------------------------------------------
+   A base deixou de revelar garoto por sorteio na virada. Agora o seu
+   olheiro varre a ladder ranqueada da região toda semana e o radar
+   mostra as contas que ele está acompanhando: rank ("Radiante #142"),
+   agente principal, idade aproximada e semanas de observação.
+
+   Cada conta começa com o relatório borrado (como o scouting de
+   adversário) e fica mais nítida a cada semana: olheiro melhor
+   enxerga mais rápido e erra menos o potencial. Quando a leitura
+   estiver boa, você convida para uma semana de teste — o teste mostra
+   tudo — e decide: entra na base ou é dispensado.
+
+   Os rivais também olham a ladder: uma conta boa que fica muito tempo
+   no radar pode ser levada por outro clube. E conta que ninguém chama
+   some depois de algumas semanas.
+
+   Só o seu clube tem radar (os clubes da IA seguem com a base
+   resumida de offseason.js). Tudo aqui sorteia num gerador local
+   (comSorteioLocal): o motor do circuito não anda por causa do radar.
+   ============================================================ */
+const RADAR_MAX=6;            /* contas acompanhadas ao mesmo tempo */
+const RADAR_VIDA=10;          /* semanas até a conta sumir se ninguém chamar */
+const RADAR_HIST=8;
+
+function nivelOlheiroDe(t){
+  return (t&&t.staff&&t.staff.olheiro)||((typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:2);
+}
+function radarRanked(){return G.radar||(G.radar={contas:[],seq:0,hist:[]});}
+function contasAtivas(){return radarRanked().contas.filter(c=>c.estado==='radar'||c.estado==='teste'||c.estado==='decisao');}
+
+/* Rank na ladder, pelo que o garoto realmente é. Os melhores aparecem com a
+   posição no Radiante; os outros, no Imortal. */
+function rankDaConta(ov,pot,ruido){
+  const score=ov*0.4+pot*0.6;
+  if(score>=66){
+    const pos=clamp(Math.round(700-(score-66)*28+ruido*90),1,1500);
+    return{txt:'Radiante #'+pos,ord:pos};
+  }
+  const div=score>=62?3:score>=58?2:1;
+  return{txt:'Imortal '+div,ord:2000+(4-div)*100};
+}
+
+function novaConta(t){
+  const R=radarRanked();
+  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:2;
+  const olh=nivelOlheiroDe(t),acad=(t.estrutura&&t.estrutura.academia)||1;
+  const Rg=REGIONS.find(r=>r.id===t.regiao)||REGIONS[0];
+  const paisClube=typeof paisDoClube==='function'?paisDoClube(t):null;
+  const pais=paisClube&&rnd()<0.7?paisClube:pick(Rg.paises);
+  const role=t.baseFoco&&rnd()<0.7?t.baseFoco:pick(ROLES.filter(r=>r!=='Flex'));
+  const ov=clamp(Math.round(gauss(50+acad*1.5+(olh-neutro)*2,5)),42,68);
+  /* a maioria é boa de ranked e só; de vez em quando aparece uma joia */
+  const joia=rnd()<0.1;
+  const pot=clamp(Math.round(ov+ri(10,24)+(joia?ri(6,12):0)+(olh-neutro)),ov+8,96);
+  const usados=typeof usadosNomes==='function'?usadosNomes():new Set();
+  for(const c of R.contas)usados.add(c.nome);
+  const nome=nomeUnico(usados,pais);
+  const rk=rankDaConta(ov,pot,gauss(0,1));
+  const ag=((typeof AGENTS!=='undefined'&&AGENTS[role])||['—']);
+  const c={id:'r'+(++R.seq),nome,pais,role,agente:pick(ag),idade:ri(IDADE_NOVO_MIN,IDADE_NOVO_MAX),
+    ov,pot,rank:rk.txt,rankOrd:rk.ord,partidas:ri(40,160),obs:0,desde:{ano:G.ano,s:G.semana},estado:'radar'};
+  R.contas.push(c);
+  return c;
+}
+
+/* Quão nítida está a leitura: 0 a 1. */
+function precisaoDaConta(c,t){
+  if(c.estado==='teste'||c.estado==='decisao')return 1;
+  return clamp(c.obs*(0.04+0.025*nivelOlheiroDe(t)),0,0.92);
+}
+/* O que o relatório mostra: faixa de over e de potencial. O centro da faixa
+   erra (olheiro fraco erra mais o potencial), a largura fecha com o tempo. */
+function leituraDaConta(c,t){
+  const p=precisaoDaConta(c,t);
+  if(p>=1)return{p:1,ov:[c.ov,c.ov],pot:[c.pot,c.pot]};
+  const olh=nivelOlheiroDe(t);
+  const ampO=1+(1-p)*9,ampP=2+(1-p)*14;
+  const errP=borrar(c.id+'|pot|'+Math.floor(c.obs/2),(1-p)*8*(1.4-olh*0.18));
+  const errO=borrar(c.id+'|ov|'+Math.floor(c.obs/2),(1-p)*5);
+  const cO=c.ov+errO,cP=c.pot+errP;
+  return{p,ov:[Math.round(cO-ampO),Math.round(cO+ampO)],pot:[Math.round(cP-ampP),Math.min(99,Math.round(cP+ampP))]};
+}
+
+function _histRadar(c,txt){
+  const R=radarRanked();
+  R.hist.unshift({ano:G.ano,s:G.semana,nome:c.nome,pais:c.pais,role:c.role,txt});
+  R.hist=R.hist.slice(0,RADAR_HIST);
+}
+
+/* Toda semana, depois das partidas. */
+function radarSemanal(){
+  const t=G.meuTime&&G.times[G.meuTime];
+  if(!t)return;
+  const R=radarRanked();
+  comSorteioLocal('radar|'+G.ano+'|'+G.semana+'|'+R.seq,()=>{
+    for(const c of R.contas){
+      if(c.estado==='teste'){
+        if(G.ano>c.testeAte.ano||G.semana>=c.testeAte.s){c.estado='decisao';
+          noticia('🧪 Acabou a semana de teste de '+c.nome+': decida na Base se ele entra na categoria.',{c:'clube',t:[t.id],imp:2});}
+        continue;
+      }
+      if(c.estado!=='radar')continue;
+      c.obs++;
+      const idade=(G.ano-c.desde.ano)*SEMANAS_ANO+(G.semana-c.desde.s);
+      /* rival leva: quanto melhor a conta e mais tempo exposta, maior a chance */
+      const chanceRival=c.obs>=2?0.02+Math.max(0,c.pot-78)*0.006:0;
+      if(rnd()<chanceRival){
+        const rivais=Object.values(G.times).filter(x=>x.regiao===t.regiao&&x.id!==t.id);
+        const r=rivais.length?pick(rivais):null;
+        c.estado='rival';c.rival=r?r.tag:null;
+        _histRadar(c,'foi para a base do '+(r?r.nome:'um rival'));
+        noticia('👀 '+c.nome+' ('+c.rank+'), que estava no seu radar, foi chamado para a base do '+(r?r.nome:'um rival')+'.',{c:'clube',t:[t.id].concat(r?[r.id]:[]),imp:1});
+        continue;
+      }
+      if(idade>=RADAR_VIDA){c.estado='sumiu';_histRadar(c,'sumiu da ladder');}
+    }
+    R.contas=R.contas.filter(c=>c.estado==='radar'||c.estado==='teste'||c.estado==='decisao');
+    /* conta nova: olheiro melhor encontra mais */
+    const olh=nivelOlheiroDe(t);
+    if(contasAtivas().length<RADAR_MAX&&rnd()<0.04+0.025*olh){
+      const c=novaConta(t);
+      if(c.pot>=84&&precisaoDaConta(c,t)<0.5)
+        noticia('📡 O olheiro marcou uma conta nova no radar: '+c.nome+', '+c.rank+'.',{c:'clube',t:[t.id]});
+    }
+  });
+}
+
+/* ---------- ações ---------- */
+function convidarParaTeste(id){
+  const t=G.meuTime&&G.times[G.meuTime];const c=radarRanked().contas.find(x=>x.id===id);
+  if(!t||!c||c.estado!=='radar')return{ok:false,erro:'Essa conta não está mais no radar.'};
+  if(radarRanked().contas.some(x=>x.estado==='teste'||x.estado==='decisao'))
+    return{ok:false,erro:'Já tem um garoto em teste. Decida sobre ele antes de chamar outro.'};
+  if(baseDe(t).length>=vagasDaBase(t))
+    return{ok:false,erro:'A categoria está cheia ('+vagasDaBase(t)+' vagas). Promova ou dispense alguém antes.'};
+  c.estado='teste';c.testeAte={ano:G.ano,s:G.semana+1};
+  return{ok:true,msg:c.nome+' vem treinar com a base nesta semana. No fim dela você decide.'};
+}
+function aceitarDoTeste(id){
+  const t=G.meuTime&&G.times[G.meuTime];const R=radarRanked();const c=R.contas.find(x=>x.id===id);
+  if(!t||!c||c.estado!=='decisao')return{ok:false,erro:'Esse teste não está esperando decisão.'};
+  if(baseDe(t).length>=vagasDaBase(t))return{ok:false,erro:'A categoria está cheia.'};
+  const usados=usadosNomes();
+  const p=makePlayer(c.ov,c.role,c.pais,c.idade,usados,t.tier);
+  aplicarOver(p,c.ov);
+  p.nome=c.nome;p.pot=Math.max(c.pot,over(p)+6);
+  p.timeId=null;p.contrato=0;p.salario=0;
+  p.base=t.id;p.daCasa=t.id;p.baseDesde=G.ano;p.doRadar={rank:c.rank,agente:c.agente};
+  G.jogadores[p.id]=p;(t.base=t.base||[]).push(p.id);
+  R.contas=R.contas.filter(x=>x.id!==id);
+  _histRadar(c,'entrou na sua base');
+  noticia('🌱 '+p.nome+' ('+c.rank+', '+p.role+') passou no teste e entrou na base.',{c:'clube',p:[p.id],t:[t.id],imp:2});
+  return{ok:true,msg:p.nome+' está na categoria de base.'};
+}
+function dispensarDoTeste(id){
+  const R=radarRanked();const c=R.contas.find(x=>x.id===id);
+  if(!c)return{ok:false,erro:'Conta não encontrada.'};
+  R.contas=R.contas.filter(x=>x.id!==id);
+  _histRadar(c,c.estado==='radar'?'tirado do radar':'dispensado depois do teste');
+  return{ok:true,msg:c.nome+(c.estado==='radar'?' saiu do radar.':' foi dispensado.')};
+}
+
+
 /* ===== src/core/cerimonia.js ===== */
 /* ============================================================
    CERIMÔNIA DE ENCERRAMENTO — o que a virada do ano mostra
@@ -12334,9 +12620,12 @@ function conferirCartas(t){
 const BASE_IDADE_SAI=20;
 /* Custo semanal de cada garoto, somado ao custeio do clube. */
 const BASE_CUSTO_SEMANA=200;
-const BASE_INICIAL=2;
+/* Base mais rara: um garoto quando você assume o clube, e de 2 a 4 vagas
+   (a academia abre uma a cada dois níveis). O resto chega pelo radar das
+   rankeds (core/radar.js), um de cada vez e por escolha sua. */
+const BASE_INICIAL=1;
 
-function vagasDaBase(t){return 2+((t.estrutura&&t.estrutura.academia)||1);}
+function vagasDaBase(t){return 2+Math.floor((((t.estrutura&&t.estrutura.academia)||1)-1)/2);}
 function baseDe(t){return ((t&&t.base)||[]).map(id=>G.jogadores[id]).filter(Boolean);}
 function custoDaBase(t){return ((t&&t.base)||[]).length*BASE_CUSTO_SEMANA;}
 
@@ -12389,19 +12678,11 @@ function virarBase(usados){
       if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.',{c:'clube',p:[p.id],t:[t.id]});
     }
   }
+  /* A turma nova não cai mais do céu na virada: ela vem do radar das
+     rankeds, ao longo do ano (core/radar.js). */
   const t=G.meuTime&&G.times[G.meuTime];
-  if(!t)return 0;
-  if(!t.base)t.base=[];
-  const vagas=vagasDaBase(t)-baseDe(t).length;
-  if(vagas<=0)return 0;
-  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
-  const olh=(t.staff&&t.staff.olheiro)||neutro;
-  const acad=(t.estrutura&&t.estrutura.academia)||1;
-  const n=Math.min(vagas,1+(rnd()<acad*0.15+(olh-neutro)*0.05?1:0));
-  const novos=[];
-  for(let i=0;i<n;i++)novos.push(revelarUm(t,usados));
-  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.',{c:'clube',p:novos.map(p=>p.id),t:[t.id]});
-  return n;
+  if(t&&!t.base)t.base=[];
+  return 0;
 }
 
 function sairDaBase(t,p){
@@ -16610,27 +16891,93 @@ function vInicio(){
     <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
   </div>`;
 }
+/* ---------- elenco ----------
+   Cada jogador com o que decide a semana: forma, desgaste, mental (core/
+   vestiario.js), entrosamento médio com os titulares, mapas jogados,
+   contrato (aviso quando acaba em menos de um ano) e o peso do salário. */
+let elencoOrd='over', elencoFiltro='';
+function barraElenco(v,cls,rot){
+  const pct=Math.round(clamp(v,0,1)*100);
+  return `<div class="vb el-vb" title="${esc(rot||'')}"><i class="${cls||''}" style="width:${pct}%"></i><span>${pct}</span></div>`;
+}
+function linhaElenco(t,p,titular,maxSal){
+  const outros=t.titulares.filter(i=>i!==p.id);
+  const ent=outros.length&&typeof dupla==='function'?outros.reduce((s,i)=>s+dupla(t,p.id,i),0)/outros.length:null;
+  const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
+  const vence=p.contrato<=1;
+  return `<tr class="${titular?'':'el-res'}">
+    <td><span class="tag ${p.roleAtual||p.role}">${(p.roleAtual||p.role).slice(0,3)}</span></td>
+    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      ${p.igl?'<span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão '+p.lesao+'</span>':''}
+      <div class="dim el-sub">${p.idade}a · pot ${p.pot}</div></td>
+    <td class="c">${ovTag(p)}</td>
+    <td>${barraElenco(p.forma,p.forma>=0.7?'g':p.forma<0.4?'r':'','Forma')}</td>
+    <td>${barraElenco(p.fadiga,p.fadiga>0.7?'r':'','Desgaste')}</td>
+    <td>${barraElenco(men,men>=0.7?'g':men<0.4?'r':'','Mental')}</td>
+    <td class="c num">${ent==null?'—':`<span class="vm-pill" style="background:${typeof corDaDupla==='function'?corDaDupla(ent):'transparent'}">${Math.round(ent)}</span>`}</td>
+    <td class="c num">${(p.temp&&p.temp.maps)||0}</td>
+    <td class="c num ${vence?'dn':''}" title="${vence?'Contrato acaba nesta temporada':''}">${vence?'⚠ ':''}${p.contrato}a</td>
+    <td><div class="el-sal"><div class="bar"><i style="width:${Math.round((p.salario||0)/Math.max(1,maxSal)*100)}%"></i></div>
+      <span class="num dim">${money(p.salario||0)}</span></div></td>
+    <td class="r el-bt">${titular?`<button class="btn ghost sm" data-igl="${p.id}">IGL</button>
+      <button class="btn ghost sm" data-banco="${p.id}">Banco</button>`
+      :`<button class="btn ghost sm" data-tit="${p.id}">Escalar</button>`}</td></tr>`;
+}
+function resumoElenco(t){
+  const js=t.elenco.map(P).filter(Boolean);
+  const funcoes=ROLES.filter(r=>r!=='Flex');
+  /* titular conta pela função em que está jogando (roleAtual) */
+  const cob=funcoes.map(r=>{const ts=js.filter(p=>t.titulares.includes(p.id)&&(p.roleAtual||p.role)===r).length,
+    rs=js.filter(p=>!t.titulares.includes(p.id)&&(p.role===r||p.role2===r)).length;return{r,ts,rs};});
+  const flex=js.filter(p=>p.role==='Flex').length;
+  const idade=js.length?js.reduce((s,p)=>s+p.idade,0)/js.length:0;
+  const idTit=t.titulares.length?t.titulares.map(P).reduce((s,p)=>s+p.idade,0)/t.titulares.length:0;
+  const falta=cob.filter(c=>!c.ts).map(c=>'nenhum '+c.r.toLowerCase()+' entre os titulares')
+    .concat(cob.filter(c=>c.ts&&!c.rs).map(c=>'sem reserva de '+c.r.toLowerCase()));
+  const sobra=cob.filter(c=>c.ts+c.rs>=3).map(c=>c.r.toLowerCase()+' ('+(c.ts+c.rs)+')');
+  const vencem=js.filter(p=>p.contrato<=1);
+  return `<div class="card"><div class="eyebrow">Resumo do elenco</div>
+    <div class="el-cob">${cob.map(c=>`<div class="${c.ts?'':'falta'}"><span class="tag ${c.r}">${c.r}</span>
+      <span><b class="num">${c.ts}</b> <span class="dim">titular${c.ts===1?'':'es'}</span> · <b class="num">${c.rs}</b> <span class="dim">no banco</span></span></div>`).join('')}
+      ${flex?`<div><span class="tag Flex">Flex</span><span><b class="num">${flex}</b> <span class="dim">no elenco, cobre qualquer função</span></span></div>`:''}</div>
+    <div class="el-res-l">
+      <div><span class="dim">Idade média</span><b class="num">${idade.toFixed(1)}</b><span class="dim">titulares ${idTit.toFixed(1)}</span></div>
+      <div><span class="dim">Falta</span><b>${falta.length?esc(falta.join(' · ')):'nada'}</b></div>
+      <div><span class="dim">Sobra</span><b>${sobra.length?esc(sobra.join(' · ')):'nada'}</b></div>
+      <div><span class="dim">Contratos no fim</span><b class="${vencem.length?'dn':''}">${vencem.length?esc(vencem.map(p=>p.nome).join(', ')):'nenhum'}</b></div>
+    </div></div>`;
+}
 function vElenco(){
   const t=meu();
   const tit=t.titulares.map(P),res=t.elenco.filter(i=>!t.titulares.includes(i)).map(P);
+  const maxSal=Math.max(1,...t.elenco.map(i=>P(i).salario||0));
+  const TH=`<thead><tr><th></th><th>Jogador</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
+    <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
+    <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
+  /* cartas: filtro por função e ordem */
+  const ord={over:(a,b)=>over(b)-over(a),idade:(a,b)=>a.idade-b.idade,contrato:(a,b)=>a.contrato-b.contrato,
+    funcao:(a,b)=>ROLES.indexOf(a.role)-ROLES.indexOf(b.role)||over(b)-over(a)}[elencoOrd];
+  const cartas=[...tit,...res].filter(p=>!elencoFiltro||p.role===elencoFiltro).sort(ord);
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
   <div class="card"><div class="split"><div><div class="eyebrow">Titulares</div>
-    <span class="dim">Clique num reserva para trocar. O IGL define leitura de rounds.</span></div>
+    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div>
     <button class="btn ghost sm" id="autoEsc">Escalação automática</button></div>
-    <div style="margin-top:12px">${tit.map(p=>`<div class="slot"><span class="tag ${p.role}">${p.role}</span>
-      <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} ${p.igl?'<span class="pill">IGL</span>':''} ${p.lesao?'<span class="pill">Lesionado '+p.lesao+'</span>':''}</span>
-      ${ovTag(p)} <button class="btn ghost sm" data-igl="${p.id}">IGL</button>
-      <button class="btn ghost sm" data-banco="${p.id}">Banco</button></div>`).join('')}</div>
+    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}</tbody></table></div>
   </div>
-  <div class="card"><div class="eyebrow">Reservas e base</div>
-    <div style="margin-top:8px">${res.length?res.map(p=>`<div class="slot"><span class="tag ${p.role}">${p.role}</span>
-      <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim num">${p.idade}a · pot ${p.pot}</span></span>
-      ${ovTag(p)} <button class="btn ghost sm" data-tit="${p.id}">Escalar</button></div>`).join(''):'<div class="empty">Sem reservas.</div>'}</div>
+  <div class="card"><div class="eyebrow">Reservas</div>
+    ${res.length?`<div class="rolagem"><table class="wide el-tab">${TH}<tbody>${res.map(p=>linhaElenco(t,p,false,maxSal)).join('')}</tbody></table></div>`
+      :'<div class="empty">Sem reservas.</div>'}
   </div>
+  ${resumoElenco(t)}
   <div class="card flat"><div class="split"><div class="eyebrow">Cartas do elenco</div>
-    <span class="dim">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</span></div>
-    <div class="cartas-grade">${[...tit,...res].map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
-      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot}</span></div>`).join('')}</div></div>
+    <div class="el-ctl">
+      <span class="dim">Função</span>${[['','Todas'],...ROLES.map(r=>[r,r])].map(([k,n])=>`<button class="btn sm ${elencoFiltro===k?'':'ghost'}" data-efil="${k}">${n}</button>`).join('')}
+      <span class="dim" style="margin-left:8px">Ordem</span>${[['over','Over'],['idade','Idade'],['contrato','Contrato'],['funcao','Função']].map(([k,n])=>`<button class="btn sm ${elencoOrd===k?'':'ghost'}" data-eord="${k}">${n}</button>`).join('')}
+    </div></div>
+    <div class="cartas-grade">${cartas.map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
+      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot} · ${p.idade}a · <span class="${p.contrato<=1?'dn':''}">${p.contrato}a</span></span></div>`).join('')
+      ||'<div class="empty">Ninguém nessa função.</div>'}</div>
+    <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
     <table><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
@@ -17336,6 +17683,35 @@ function vMercadoJogadores(t){
       <td class="r"><button class="btn sm" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Mesa':'Negociar'}</button></td></tr>`).join('')}
     </tbody></table></div>`;
 }
+/* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
+   leitura borrada que fica nítida a cada semana, o teste e a decisão. */
+function blocoRadar(t){
+  if(typeof radarRanked!=='function')return '';
+  const R=radarRanked(),nv=nivelOlheiroDe(t);
+  const ativas=R.contas.slice().sort((a,b)=>({decisao:0,teste:1,radar:2}[a.estado]-{decisao:0,teste:1,radar:2}[b.estado])||a.rankOrd-b.rankOrd);
+  const faixa=(a,b)=>a===b?String(a):a+'–'+b;
+  const linha=c=>{const L=leituraDaConta(c,t);
+    return `<div class="rd-c rd-${c.estado}">
+      <div class="rd-id"><b>${esc(c.nome)}</b> ${FLAG[c.pais]||''} <span class="tag ${c.role}">${c.role}</span>
+        <div class="dim">${esc(c.rank)} · ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
+      <div class="rd-leit"><div class="vb"><i class="${L.p>=1?'g':''}" style="width:${Math.round(L.p*100)}%"></i></div>
+        <span class="dim">${L.p>=1?'teste: leitura completa':'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
+      <div class="rd-num"><span class="dim">Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
+      <div class="rd-num"><span class="dim">Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div>
+      <div class="rd-bt">${c.estado==='radar'?`<button class="btn sm" data-rteste="${c.id}">Chamar para teste</button>
+          <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button>`
+        :c.estado==='teste'?'<span class="chip t">em teste nesta semana</span>'
+        :`<button class="btn sm" data-raceita="${c.id}">Aceitar na base</button><button class="btn sm ghost" data-rtira="${c.id}">Dispensar</button>`}</div>
+    </div>`;};
+  return `<div class="card"><div class="split"><div class="eyebrow">Radar das rankeds · ${esc(nomeLiga(t).replace(/^VCT /,''))}</div>
+      <span class="dim">olheiro nível ${nv.toFixed(1)} de 5 · ${ativas.length} de ${RADAR_MAX} contas</span></div>
+    <p class="dim" style="margin:4px 0 10px">O olheiro varre a ladder toda semana. Cada conta começa borrada e fica mais nítida a cada
+    semana de observação — olheiro melhor lê mais rápido e erra menos o potencial. O teste dura uma semana e mostra tudo.
+    Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.</p>
+    ${ativas.length?`<div class="rd-lista">${ativas.map(linha).join('')}</div>`:'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
+    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
+  </div>`;
+}
 function vBase(){
   const t=meu();
   const jovens=t.elenco.map(P).filter(p=>p.idade<=22).sort((a,b)=>b.pot-a.pot);
@@ -17346,14 +17722,15 @@ function vBase(){
   const cheio=t.elenco.length>=9;
   return `<div class="eyebrow">Desenvolvimento</div><h2 class="sec">Base e promessas</h2>
   <div class="card"><div class="eyebrow">Academia nível ${t.estrutura.academia}</div>
-    <p class="dim">${base.length} de ${vagas} vagas na categoria. Cada nível de academia abre uma vaga, revela garotos
-    melhores e acelera o crescimento; o head coach também conta. Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana.
-    Na virada do ano a academia revela a turma nova, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
+    <p class="dim">${base.length} de ${vagas} vagas na categoria (a academia abre uma vaga a cada dois níveis e acelera
+    o crescimento; o head coach também conta). Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana. Ninguém cai do céu:
+    os garotos chegam pelo radar das rankeds, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
     <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
-      <span class="dim">O olheiro procura:</span>
+      <span class="dim">O olheiro procura na ladder:</span>
       ${[['','Qualquer função'],...ROLES.filter(r=>r!=='Flex').map(r=>[r,r])].map(([k,n])=>
         `<button class="btn sm ${(t.baseFoco||'')===k?'':'ghost'}" data-basefoco="${k}">${n}</button>`).join('')}
     </div></div>
+  ${blocoRadar(t)}
   <div class="card flat"><div class="eyebrow">Categoria de base</div>
     ${base.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th>
       <th class="c">Pot</th><th class="c">Na base desde</th><th class="r"></th></tr></thead>
@@ -17364,7 +17741,7 @@ function vBase(){
       <td class="c num">${p.baseDesde||'—'}</td>
       <td class="r" style="white-space:nowrap"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
         <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
-    :'<div class="empty">Nenhum garoto na categoria agora. A academia revela a próxima turma na virada do ano.</div>'}</div>
+    :'<div class="empty">Nenhum garoto na categoria agora. Chame alguém do radar para um teste.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
     ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
@@ -21968,10 +22345,15 @@ function ligarEventos(){
   const val=(sel,padrao)=>{const el=v.querySelector(sel);return el?el.value:(padrao===undefined?'':padrao);};
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
+  on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
+  on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
+  on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
+  on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
+  on('[data-rtira]',el=>{const r=dispensarDoTeste(el.dataset.rtira);if(r.ok)flash(r.msg);render();});
   on('[data-bpromo]',async el=>{
     const r=promoverDaBase(t,el.dataset.bpromo);
     if(!r.ok){await avisar(r.msg);return;}

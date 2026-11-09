@@ -16,10 +16,15 @@ function ligarEventos(){
   const val=(sel,padrao)=>{const el=v.querySelector(sel);return el?el.value:(padrao===undefined?'':padrao);};
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
+  on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
+  on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;render();});
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
+  on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
+  on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
+  on('[data-rtira]',el=>{const r=dispensarDoTeste(el.dataset.rtira);if(r.ok)flash(r.msg);render();});
   on('[data-bpromo]',async el=>{
     const r=promoverDaBase(t,el.dataset.bpromo);
     if(!r.ok){await avisar(r.msg);return;}

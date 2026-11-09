@@ -158,27 +158,93 @@ function vInicio(){
     <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema').slice(0,9).map(linhaNoticia).join('')||'<div class="dim">Nada por enquanto.</div>'}</div>
   </div>`;
 }
+/* ---------- elenco ----------
+   Cada jogador com o que decide a semana: forma, desgaste, mental (core/
+   vestiario.js), entrosamento médio com os titulares, mapas jogados,
+   contrato (aviso quando acaba em menos de um ano) e o peso do salário. */
+let elencoOrd='over', elencoFiltro='';
+function barraElenco(v,cls,rot){
+  const pct=Math.round(clamp(v,0,1)*100);
+  return `<div class="vb el-vb" title="${esc(rot||'')}"><i class="${cls||''}" style="width:${pct}%"></i><span>${pct}</span></div>`;
+}
+function linhaElenco(t,p,titular,maxSal){
+  const outros=t.titulares.filter(i=>i!==p.id);
+  const ent=outros.length&&typeof dupla==='function'?outros.reduce((s,i)=>s+dupla(t,p.id,i),0)/outros.length:null;
+  const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
+  const vence=p.contrato<=1;
+  return `<tr class="${titular?'':'el-res'}">
+    <td><span class="tag ${p.roleAtual||p.role}">${(p.roleAtual||p.role).slice(0,3)}</span></td>
+    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      ${p.igl?'<span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão '+p.lesao+'</span>':''}
+      <div class="dim el-sub">${p.idade}a · pot ${p.pot}</div></td>
+    <td class="c">${ovTag(p)}</td>
+    <td>${barraElenco(p.forma,p.forma>=0.7?'g':p.forma<0.4?'r':'','Forma')}</td>
+    <td>${barraElenco(p.fadiga,p.fadiga>0.7?'r':'','Desgaste')}</td>
+    <td>${barraElenco(men,men>=0.7?'g':men<0.4?'r':'','Mental')}</td>
+    <td class="c num">${ent==null?'—':`<span class="vm-pill" style="background:${typeof corDaDupla==='function'?corDaDupla(ent):'transparent'}">${Math.round(ent)}</span>`}</td>
+    <td class="c num">${(p.temp&&p.temp.maps)||0}</td>
+    <td class="c num ${vence?'dn':''}" title="${vence?'Contrato acaba nesta temporada':''}">${vence?'⚠ ':''}${p.contrato}a</td>
+    <td><div class="el-sal"><div class="bar"><i style="width:${Math.round((p.salario||0)/Math.max(1,maxSal)*100)}%"></i></div>
+      <span class="num dim">${money(p.salario||0)}</span></div></td>
+    <td class="r el-bt">${titular?`<button class="btn ghost sm" data-igl="${p.id}">IGL</button>
+      <button class="btn ghost sm" data-banco="${p.id}">Banco</button>`
+      :`<button class="btn ghost sm" data-tit="${p.id}">Escalar</button>`}</td></tr>`;
+}
+function resumoElenco(t){
+  const js=t.elenco.map(P).filter(Boolean);
+  const funcoes=ROLES.filter(r=>r!=='Flex');
+  /* titular conta pela função em que está jogando (roleAtual) */
+  const cob=funcoes.map(r=>{const ts=js.filter(p=>t.titulares.includes(p.id)&&(p.roleAtual||p.role)===r).length,
+    rs=js.filter(p=>!t.titulares.includes(p.id)&&(p.role===r||p.role2===r)).length;return{r,ts,rs};});
+  const flex=js.filter(p=>p.role==='Flex').length;
+  const idade=js.length?js.reduce((s,p)=>s+p.idade,0)/js.length:0;
+  const idTit=t.titulares.length?t.titulares.map(P).reduce((s,p)=>s+p.idade,0)/t.titulares.length:0;
+  const falta=cob.filter(c=>!c.ts).map(c=>'nenhum '+c.r.toLowerCase()+' entre os titulares')
+    .concat(cob.filter(c=>c.ts&&!c.rs).map(c=>'sem reserva de '+c.r.toLowerCase()));
+  const sobra=cob.filter(c=>c.ts+c.rs>=3).map(c=>c.r.toLowerCase()+' ('+(c.ts+c.rs)+')');
+  const vencem=js.filter(p=>p.contrato<=1);
+  return `<div class="card"><div class="eyebrow">Resumo do elenco</div>
+    <div class="el-cob">${cob.map(c=>`<div class="${c.ts?'':'falta'}"><span class="tag ${c.r}">${c.r}</span>
+      <span><b class="num">${c.ts}</b> <span class="dim">titular${c.ts===1?'':'es'}</span> · <b class="num">${c.rs}</b> <span class="dim">no banco</span></span></div>`).join('')}
+      ${flex?`<div><span class="tag Flex">Flex</span><span><b class="num">${flex}</b> <span class="dim">no elenco, cobre qualquer função</span></span></div>`:''}</div>
+    <div class="el-res-l">
+      <div><span class="dim">Idade média</span><b class="num">${idade.toFixed(1)}</b><span class="dim">titulares ${idTit.toFixed(1)}</span></div>
+      <div><span class="dim">Falta</span><b>${falta.length?esc(falta.join(' · ')):'nada'}</b></div>
+      <div><span class="dim">Sobra</span><b>${sobra.length?esc(sobra.join(' · ')):'nada'}</b></div>
+      <div><span class="dim">Contratos no fim</span><b class="${vencem.length?'dn':''}">${vencem.length?esc(vencem.map(p=>p.nome).join(', ')):'nenhum'}</b></div>
+    </div></div>`;
+}
 function vElenco(){
   const t=meu();
   const tit=t.titulares.map(P),res=t.elenco.filter(i=>!t.titulares.includes(i)).map(P);
+  const maxSal=Math.max(1,...t.elenco.map(i=>P(i).salario||0));
+  const TH=`<thead><tr><th></th><th>Jogador</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
+    <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
+    <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
+  /* cartas: filtro por função e ordem */
+  const ord={over:(a,b)=>over(b)-over(a),idade:(a,b)=>a.idade-b.idade,contrato:(a,b)=>a.contrato-b.contrato,
+    funcao:(a,b)=>ROLES.indexOf(a.role)-ROLES.indexOf(b.role)||over(b)-over(a)}[elencoOrd];
+  const cartas=[...tit,...res].filter(p=>!elencoFiltro||p.role===elencoFiltro).sort(ord);
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
   <div class="card"><div class="split"><div><div class="eyebrow">Titulares</div>
-    <span class="dim">Clique num reserva para trocar. O IGL define leitura de rounds.</span></div>
+    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div>
     <button class="btn ghost sm" id="autoEsc">Escalação automática</button></div>
-    <div style="margin-top:12px">${tit.map(p=>`<div class="slot"><span class="tag ${p.role}">${p.role}</span>
-      <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} ${p.igl?'<span class="pill">IGL</span>':''} ${p.lesao?'<span class="pill">Lesionado '+p.lesao+'</span>':''}</span>
-      ${ovTag(p)} <button class="btn ghost sm" data-igl="${p.id}">IGL</button>
-      <button class="btn ghost sm" data-banco="${p.id}">Banco</button></div>`).join('')}</div>
+    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}</tbody></table></div>
   </div>
-  <div class="card"><div class="eyebrow">Reservas e base</div>
-    <div style="margin-top:8px">${res.length?res.map(p=>`<div class="slot"><span class="tag ${p.role}">${p.role}</span>
-      <span class="n"><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim num">${p.idade}a · pot ${p.pot}</span></span>
-      ${ovTag(p)} <button class="btn ghost sm" data-tit="${p.id}">Escalar</button></div>`).join(''):'<div class="empty">Sem reservas.</div>'}</div>
+  <div class="card"><div class="eyebrow">Reservas</div>
+    ${res.length?`<div class="rolagem"><table class="wide el-tab">${TH}<tbody>${res.map(p=>linhaElenco(t,p,false,maxSal)).join('')}</tbody></table></div>`
+      :'<div class="empty">Sem reservas.</div>'}
   </div>
+  ${resumoElenco(t)}
   <div class="card flat"><div class="split"><div class="eyebrow">Cartas do elenco</div>
-    <span class="dim">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</span></div>
-    <div class="cartas-grade">${[...tit,...res].map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
-      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot}</span></div>`).join('')}</div></div>
+    <div class="el-ctl">
+      <span class="dim">Função</span>${[['','Todas'],...ROLES.map(r=>[r,r])].map(([k,n])=>`<button class="btn sm ${elencoFiltro===k?'':'ghost'}" data-efil="${k}">${n}</button>`).join('')}
+      <span class="dim" style="margin-left:8px">Ordem</span>${[['over','Over'],['idade','Idade'],['contrato','Contrato'],['funcao','Função']].map(([k,n])=>`<button class="btn sm ${elencoOrd===k?'':'ghost'}" data-eord="${k}">${n}</button>`).join('')}
+    </div></div>
+    <div class="cartas-grade">${cartas.map(p=>`<div class="carta-item">${cartaJogador(p,{w:132,clique:true})}
+      <span class="dim">${t.titulares.includes(p.id)?'titular':'reserva'} · pot ${p.pot} · ${p.idade}a · <span class="${p.contrato<=1?'dn':''}">${p.contrato}a</span></span></div>`).join('')
+      ||'<div class="empty">Ninguém nessa função.</div>'}</div>
+    <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
     <table><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
@@ -884,6 +950,35 @@ function vMercadoJogadores(t){
       <td class="r"><button class="btn sm" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Mesa':'Negociar'}</button></td></tr>`).join('')}
     </tbody></table></div>`;
 }
+/* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
+   leitura borrada que fica nítida a cada semana, o teste e a decisão. */
+function blocoRadar(t){
+  if(typeof radarRanked!=='function')return '';
+  const R=radarRanked(),nv=nivelOlheiroDe(t);
+  const ativas=R.contas.slice().sort((a,b)=>({decisao:0,teste:1,radar:2}[a.estado]-{decisao:0,teste:1,radar:2}[b.estado])||a.rankOrd-b.rankOrd);
+  const faixa=(a,b)=>a===b?String(a):a+'–'+b;
+  const linha=c=>{const L=leituraDaConta(c,t);
+    return `<div class="rd-c rd-${c.estado}">
+      <div class="rd-id"><b>${esc(c.nome)}</b> ${FLAG[c.pais]||''} <span class="tag ${c.role}">${c.role}</span>
+        <div class="dim">${esc(c.rank)} · ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
+      <div class="rd-leit"><div class="vb"><i class="${L.p>=1?'g':''}" style="width:${Math.round(L.p*100)}%"></i></div>
+        <span class="dim">${L.p>=1?'teste: leitura completa':'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
+      <div class="rd-num"><span class="dim">Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
+      <div class="rd-num"><span class="dim">Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div>
+      <div class="rd-bt">${c.estado==='radar'?`<button class="btn sm" data-rteste="${c.id}">Chamar para teste</button>
+          <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button>`
+        :c.estado==='teste'?'<span class="chip t">em teste nesta semana</span>'
+        :`<button class="btn sm" data-raceita="${c.id}">Aceitar na base</button><button class="btn sm ghost" data-rtira="${c.id}">Dispensar</button>`}</div>
+    </div>`;};
+  return `<div class="card"><div class="split"><div class="eyebrow">Radar das rankeds · ${esc(nomeLiga(t).replace(/^VCT /,''))}</div>
+      <span class="dim">olheiro nível ${nv.toFixed(1)} de 5 · ${ativas.length} de ${RADAR_MAX} contas</span></div>
+    <p class="dim" style="margin:4px 0 10px">O olheiro varre a ladder toda semana. Cada conta começa borrada e fica mais nítida a cada
+    semana de observação — olheiro melhor lê mais rápido e erra menos o potencial. O teste dura uma semana e mostra tudo.
+    Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.</p>
+    ${ativas.length?`<div class="rd-lista">${ativas.map(linha).join('')}</div>`:'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
+    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
+  </div>`;
+}
 function vBase(){
   const t=meu();
   const jovens=t.elenco.map(P).filter(p=>p.idade<=22).sort((a,b)=>b.pot-a.pot);
@@ -894,14 +989,15 @@ function vBase(){
   const cheio=t.elenco.length>=9;
   return `<div class="eyebrow">Desenvolvimento</div><h2 class="sec">Base e promessas</h2>
   <div class="card"><div class="eyebrow">Academia nível ${t.estrutura.academia}</div>
-    <p class="dim">${base.length} de ${vagas} vagas na categoria. Cada nível de academia abre uma vaga, revela garotos
-    melhores e acelera o crescimento; o head coach também conta. Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana.
-    Na virada do ano a academia revela a turma nova, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
+    <p class="dim">${base.length} de ${vagas} vagas na categoria (a academia abre uma vaga a cada dois níveis e acelera
+    o crescimento; o head coach também conta). Cada garoto custa ${money(BASE_CUSTO_SEMANA)} por semana. Ninguém cai do céu:
+    os garotos chegam pelo radar das rankeds, e quem faz ${BASE_IDADE_SAI} anos sem ser promovido vai embora.</p>
     <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
-      <span class="dim">O olheiro procura:</span>
+      <span class="dim">O olheiro procura na ladder:</span>
       ${[['','Qualquer função'],...ROLES.filter(r=>r!=='Flex').map(r=>[r,r])].map(([k,n])=>
         `<button class="btn sm ${(t.baseFoco||'')===k?'':'ghost'}" data-basefoco="${k}">${n}</button>`).join('')}
     </div></div>
+  ${blocoRadar(t)}
   <div class="card flat"><div class="eyebrow">Categoria de base</div>
     ${base.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th>
       <th class="c">Pot</th><th class="c">Na base desde</th><th class="r"></th></tr></thead>
@@ -912,7 +1008,7 @@ function vBase(){
       <td class="c num">${p.baseDesde||'—'}</td>
       <td class="r" style="white-space:nowrap"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
         <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
-    :'<div class="empty">Nenhum garoto na categoria agora. A academia revela a próxima turma na virada do ano.</div>'}</div>
+    :'<div class="empty">Nenhum garoto na categoria agora. Chame alguém do radar para um teste.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
     ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>

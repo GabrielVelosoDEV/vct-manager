@@ -44,7 +44,23 @@ function descontoSemClube(p){
   if(!p||p.timeId||!p.semLivre)return 1;
   return 1-Math.min(DESCONTO_LIVRE_MAX,p.semLivre*DESCONTO_LIVRE_SEMANA);
 }
-function nomeUnico(usados){
+/* Nick com sotaque (data/nicks.js): metade das vezes uma palavra inteira do
+   grupo do país, metade um pedaço + um final; às vezes um número. Repetido
+   ganha número; sem grupo, cai no banco genérico abaixo. */
+function nickDoPais(pais,usados){
+  const g=typeof NICKS!=='undefined'&&typeof NICK_PAIS!=='undefined'&&NICKS[NICK_PAIS[pais]];
+  if(!g)return null;
+  for(let i=0;i<60;i++){
+    let n=rnd()<0.5?pick(g.palavras):pick(g.pre)+pick(g.suf);
+    if(rnd()<(g.num||0.12)||i>30)n+=ri(1,99);
+    n=g.caixa==='alta'&&rnd()<0.45?n.toUpperCase():g.caixa==='baixa'&&rnd()<0.5?n.toLowerCase():n[0].toUpperCase()+n.slice(1);
+    if(!usados.has(n)){usados.add(n);return n;}
+  }
+  return null;
+}
+function nomeUnico(usados,pais){
+  const regional=pais?nickDoPais(pais,usados):null;
+  if(regional)return regional;
   for(let i=0;i<400;i++){
     let n=pick(NS1)+(rnd()<.55?pick(NS2):'');
     if(rnd()<.18)n+=ri(0,99);
@@ -88,7 +104,7 @@ function makePlayer(alvo,role,pais,idade,usados,tier){
   for(const[k]of ATTRS)at[k]=clamp(Math.round(at[k]),25,99);
   at.lider=clamp(Math.round(gauss(alvo-8,13)),20,99);
   const p={
-    id:'p'+(G.seqP++), nome:nomeUnico(usados), pais, role, at, idade, genero:'m',
+    id:'p'+(G.seqP++), nome:nomeUnico(usados,pais), pais, role, at, idade, genero:'m',
     pot:0, contrato:ri(1,3), salario:0, moral:ri(60,85)/100, forma:ri(45,75)/100,
     fadiga:ri(0,15)/100, timeId:null, agentes:sortearAgentes(role), agenteNivel:null,
     hist:[], temp:novaTemp(), carreira:{maps:0,k:0,d:0,a:0,acs:0,mvp:0,titulos:0,intl:0},

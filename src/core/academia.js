@@ -22,9 +22,12 @@
 const BASE_IDADE_SAI=20;
 /* Custo semanal de cada garoto, somado ao custeio do clube. */
 const BASE_CUSTO_SEMANA=200;
-const BASE_INICIAL=2;
+/* Base mais rara: um garoto quando você assume o clube, e de 2 a 4 vagas
+   (a academia abre uma a cada dois níveis). O resto chega pelo radar das
+   rankeds (core/radar.js), um de cada vez e por escolha sua. */
+const BASE_INICIAL=1;
 
-function vagasDaBase(t){return 2+((t.estrutura&&t.estrutura.academia)||1);}
+function vagasDaBase(t){return 2+Math.floor((((t.estrutura&&t.estrutura.academia)||1)-1)/2);}
 function baseDe(t){return ((t&&t.base)||[]).map(id=>G.jogadores[id]).filter(Boolean);}
 function custoDaBase(t){return ((t&&t.base)||[]).length*BASE_CUSTO_SEMANA;}
 
@@ -77,19 +80,11 @@ function virarBase(usados){
       if(t.id===G.meuTime)noticia('🎓 '+p.nome+' fez '+p.idade+' anos sem ser promovido e deixou a base.',{c:'clube',p:[p.id],t:[t.id]});
     }
   }
+  /* A turma nova não cai mais do céu na virada: ela vem do radar das
+     rankeds, ao longo do ano (core/radar.js). */
   const t=G.meuTime&&G.times[G.meuTime];
-  if(!t)return 0;
-  if(!t.base)t.base=[];
-  const vagas=vagasDaBase(t)-baseDe(t).length;
-  if(vagas<=0)return 0;
-  const neutro=(typeof NIVEL_NEUTRO!=='undefined')?NIVEL_NEUTRO:3;
-  const olh=(t.staff&&t.staff.olheiro)||neutro;
-  const acad=(t.estrutura&&t.estrutura.academia)||1;
-  const n=Math.min(vagas,1+(rnd()<acad*0.15+(olh-neutro)*0.05?1:0));
-  const novos=[];
-  for(let i=0;i<n;i++)novos.push(revelarUm(t,usados));
-  noticia('🌱 A academia revelou '+novos.map(p=>p.nome+' ('+p.role+', pot. '+p.pot+')').join(' e ')+'.',{c:'clube',p:novos.map(p=>p.id),t:[t.id]});
-  return n;
+  if(t&&!t.base)t.base=[];
+  return 0;
 }
 
 function sairDaBase(t,p){
