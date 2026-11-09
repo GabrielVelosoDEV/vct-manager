@@ -37,7 +37,7 @@ const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'')
 
 /* Ordem de preferência quando o mesmo nome existe em dois formatos. */
 const FORMATOS=['webp','png','jpg','jpeg','svg'];
-const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura'];
+const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','ui'];
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);

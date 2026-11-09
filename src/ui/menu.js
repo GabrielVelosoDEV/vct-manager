@@ -49,68 +49,7 @@ function carreiraAberta(){
   return !!(g&&g.meuTime);
 }
 
-function vMenuPrincipal(){
-  const salvaComClube=listaRuns.find(r=>r.clube&&r.clube!=='—');
-  const podeContinuar=!!(G&&G.meuTime)||!!salvaComClube;
-  const ondeEstou=(G&&G.meuTime)?T(G.meuTime).nome+' · '+G.ano
-    :salvaComClube?salvaComClube.clube+' · '+salvaComClube.ano:'nenhuma partida em andamento';
-  /* mosaico de escudos: ordem fixa dos ids, sem tocar no RNG do motor */
-  /* repete a lista para o mosaico encher a área sem buracos; ordem fixa dos
-     ids, sem tocar no RNG do motor */
-  const mundo=(G&&G.times)?G:(Base.reg&&Base.reg.estado);
-  const base=mundo?Object.values(mundo.times):[];
-  const escudos=base.length?Array.from({length:130},(_,i)=>base[i%base.length]):[];
-  const item=(id,icone,rot,sub,attrs)=>
-    `<button class="menu-item ${attrs&&attrs.destaque?'destaque':''}" id="${id}" ${attrs&&attrs.off?'disabled':''}>
-       ${ico(icone)}<span>${rot}</span>${sub?`<span class="sub">${esc(sub)}</span>`:''}</button>`;
-  return `
-  <div class="menu-wrap">
-    <div class="menu-lado">
-      <div class="menu-marca">
-        <span class="l1">VCT</span><span class="l2">MANAGER</span>
-        <span class="ver">v${VERSAO_JOGO} · temporada 2027</span>
-      </div>
-      <div class="menu-lista">
-        ${item('mnContinuar','jogar','Continuar',ondeEstou,{destaque:podeContinuar,off:!podeContinuar})}
-        ${item('mnNovo','mais','Novo jogo','começa da base de dados')}
-        ${item('mnRuns','disco','Partidas salvas',listaRuns.length+' salva(s)')}
-        ${item('mnBanco','banco','Banco de dados',
-          Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
-        ${item('mnConfig','engrenagem','Configurações')}
-        ${item('mnCreditos','info','Créditos')}
-      </div>
-      <div class="menu-pe">
-        <span>Armazenamento: <b>${Storage.modo}</b></span>
-        <span>Imagens: <b>${Imgs.quantos()}</b></span>
-        <span>Save v${RUN_VERSAO}</span>
-      </div>
-    </div>
-    <div class="menu-arte">
-      <div class="menu-mosaico">${escudos.map(t=>`<div>${escudo(t,44)}</div>`).join('')}</div>
-      <div class="vinheta"></div>
-      <div class="menu-selo">
-        <div class="t">CIRCUITO<br><em>MUNDIAL</em></div>
-        <div class="s">Americas · EMEA · Pacific · China</div>
-      </div>
-    </div>
-  </div>`;
-}
-function ligarMenuPrincipal(){
-  const liga=(id,fn)=>{const el=$('#'+id);if(el&&!el.disabled)el.onclick=fn;};
-  liga('mnContinuar',async()=>{
-    if(G&&G.meuTime){entrarNoJogo();return;}
-    const r=listaRuns.find(x=>x.clube&&x.clube!=='—');
-    if(!r)return;
-    const ok=await carregarRun(r.id);
-    if(!ok){flash('Não deu para carregar essa partida.');return;}
-    entrarNoJogo();
-  });
-  liga('mnNovo',()=>novaCarreira());
-  liga('mnRuns',()=>{telaMenu='runs';render();});
-  liga('mnBanco',()=>{telaMenu='banco';render();});
-  liga('mnConfig',()=>{telaMenu='config';render();});
-  liga('mnCreditos',()=>{telaMenu='creditos';render();});
-}
+/* vMenuPrincipal e ligarMenuPrincipal moram em ui/abertura.js (tela inicial) */
 
 /* ---------- transições de modo ---------- */
 function entrarNoJogo(){
