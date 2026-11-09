@@ -114,7 +114,9 @@ function ppIrParaVeto(){if(PP){PP.etapa='veto';ppPintar();}}
 /* ---------- desenho ---------- */
 function ppPintar(){
   if(!PP)return;
-  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():PP.etapa==='comps'?ppCompsHTML():ppVetoHTML(),true);
+  /* mesma etapa: redesenha no lugar (sem piscar e sem voltar ao topo) */
+  const mesma=PP._etapaPintada===PP.etapa;PP._etapaPintada=PP.etapa;
+  abrir(PP.etapa==='relatorio'?ppRelatorioHTML():PP.etapa==='comps'?ppCompsHTML():ppVetoHTML(),true,mesma);
   const M=$('#modal');
   M.querySelectorAll('[data-ppmapa]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.ppmapa));
   M.querySelectorAll('[data-pplado]').forEach(b=>b.onclick=()=>ppEscolher(b.dataset.pplado));

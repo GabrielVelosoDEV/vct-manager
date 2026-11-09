@@ -366,7 +366,7 @@ function avPintar(fim){
     <button class="btn" id="avPular">Pular para o fim</button>`;
 
   abrir(`<div class="aovivo">${cabeca}${corpo}
-    <div class="av-controles">${controles}</div></div>`,true);
+    <div class="av-controles">${controles}</div></div>`,true,true);
 
   const on=(sel,fn)=>{const el=$('#modal').querySelector(sel);if(el)el.onclick=fn;};
   on('#avPausa',()=>{AV.pausado=!AV.pausado;avPintar();if(!AV.pausado)avAgendar(120);});

@@ -1,8 +1,19 @@
 /* ============================================================
    MODAIS
    ============================================================ */
-function abrir(html,wide){
-  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${typeof iconizarHtml==='function'?iconizarHtml(html):html}</div></div>`;
+/* `continuar`: a mesma janela sendo redesenhada (partida ao vivo a cada
+   round, veto a cada clique). Antes cada redesenho recriava o modal inteiro,
+   e a animação de abertura, os escudos e as imagens piscavam a cada round.
+   Agora só muda o que mudou (morfar) e a janela fica parada. */
+function abrir(html,wide,continuar){
+  const conteudo=typeof iconizarHtml==='function'?iconizarHtml(html):html;
+  const atual=continuar&&$('#modal .ovl > .box');
+  if(atual){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=`<div class="box ${wide?'wide':''}">${conteudo}</div>`;
+    morfar(atual,tmp.firstElementChild);
+  }else
+  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${conteudo}</div></div>`;
   const ovl=$('#modal .ovl');
   ovl.onclick=e=>{if(e.target===ovl)fechar();};
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
@@ -13,6 +24,27 @@ function abrir(html,wide){
   if(typeof ligarOrdenacao==='function')ligarOrdenacao($('#modal'));
 }
 function fechar(){$('#modal').innerHTML='';render();}
+/* Atualiza `velho` para ficar igual a `novo` mexendo no mínimo: nó igual fica
+   como está (a imagem não recarrega, a animação não repete); texto muda no
+   lugar; nó que nasce agora entra novo. Elementos marcados como novos
+   (.novo, .anima, .agora) e campos de formulário são trocados inteiros, para
+   a animação de entrada valer e o campo não ficar com valor velho. */
+function morfar(velho,novo){
+  for(const at of [...velho.attributes])if(!novo.hasAttribute(at.name))velho.removeAttribute(at.name);
+  for(const at of [...novo.attributes])if(velho.getAttribute(at.name)!==at.value)velho.setAttribute(at.name,at.value);
+  const va=[...velho.childNodes],nb=[...novo.childNodes];
+  nb.forEach((y,i)=>{
+    const x=va[i];
+    if(!x){velho.appendChild(y);return;}
+    if(x.isEqualNode(y))return;
+    if(x.nodeType===3&&y.nodeType===3){x.nodeValue=y.nodeValue;return;}
+    const troca=x.nodeType!==y.nodeType||x.nodeName!==y.nodeName||x.nodeType!==1
+      ||/^(INPUT|SELECT|TEXTAREA)$/.test(x.nodeName)
+      ||/\b(novo|anima|agora)\b/.test(y.getAttribute('class')||'');
+    if(troca)velho.replaceChild(y,x);else morfar(x,y);
+  });
+  for(let i=va.length-1;i>=nb.length;i--)if(va[i].parentNode===velho)velho.removeChild(va[i]);
+}
 
 /* ---------- diálogo do jogo ----------
    No lugar das janelas nativas (alert e confirm): elas quebram o visual, travam a
