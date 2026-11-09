@@ -82,7 +82,9 @@ function ultimosDe(t,n){
    Devolve dados, não HTML: a tela decide como mostrar, e o teste consegue
    perguntar "o nível 2 vazou número que só o nível 4 deveria ter?". */
 function relatorioScout(meuT,advT,bo){
-  const nv=nivelScout(meuT);
+  /* o quiz de VOD da semana (core/minigames.js) pode subir a leitura contra
+     este adversário específico */
+  const nv=typeof nivelScoutContra==='function'?nivelScoutContra(meuT,advT):nivelScout(meuT);
   const pool=(G.mapasAtivos||MAP_POOL).slice();
   const surpAdv=(typeof surpresaDaComp==='function')
     ? pool.reduce((s,mp)=>s+surpresaDaComp(advT,mp),0)/Math.max(1,pool.length) : 0;

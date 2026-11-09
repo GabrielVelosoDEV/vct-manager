@@ -235,7 +235,7 @@ function ppTrilhaVeto(){
 function ppMesaVeto(minha,passo){
   const V=PP.V,meuT=PP.meu,advT=PP.adv;
   const visto=PP.vistoSeq||0;
-  const mostraAdv=nivelScout(meuT)>=3;
+  const mostraAdv=(typeof nivelScoutContra==='function'?nivelScoutContra(meuT,advT):nivelScout(meuT))>=3;
   const ordem=V.seq.filter(x=>x.tipo!=='ban');
   const html=V.pool.map(mp=>{
     const i=V.seq.findIndex(x=>x.m===mp),e=i>=0?V.seq[i]:null;

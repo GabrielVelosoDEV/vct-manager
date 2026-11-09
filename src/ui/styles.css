@@ -2855,3 +2855,27 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-acao select{min-width:150px}
 .mg-card-en{margin-bottom:14px;background:radial-gradient(90% 160% at 0% 50%,rgba(24,229,180,.10),transparent 60%),var(--surf1,var(--panel))}
 .mg-card-en .mg-card-arte svg{animation:none}
+/* quiz de VOD: o card fica por cima do vídeo */
+.qz{position:absolute;top:0;right:0;bottom:0;width:52%;display:flex;align-items:center;padding:20px;pointer-events:auto}
+.qz-card{width:100%;display:flex;flex-direction:column;gap:12px;padding:20px;background:rgba(12,20,28,.92);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px -20px #000;animation:qzEntra .3s cubic-bezier(.2,.7,.2,1) both}
+@keyframes qzEntra{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.qz-card.ok{border-color:rgba(24,229,180,.6)}.qz-card.nao{border-color:rgba(255,70,85,.6);animation:qzTreme .35s}
+@keyframes qzTreme{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.qz-topo{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.qz-topo u{flex:1;height:4px;background:rgba(255,255,255,.08);display:block}
+.qz-topo i{display:block;height:100%;background:var(--red)}
+.qz-card h3{font-size:17px;font-weight:600;line-height:1.35;margin:0;color:var(--tx)}
+.qz-ops{display:flex;flex-direction:column;gap:6px}
+.qz-op{display:flex;align-items:center;gap:10px;padding:10px 12px;text-align:left;font-size:13.5px;color:var(--tx);
+  background:rgba(255,255,255,.035);border:1px solid var(--line);transition:border-color .12s,background .12s,transform .12s}
+.qz-op:hover:not(:disabled){border-color:var(--line2);background:rgba(255,255,255,.07);transform:translateX(3px)}
+.qz-op kbd{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 7px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2)}
+.qz-op.certa{border-color:var(--teal);background:rgba(24,229,180,.14)}
+.qz-op.errada{border-color:var(--red);background:rgba(255,70,85,.14)}
+.qz-op:disabled{cursor:default}
+.mg-card-vod{margin-bottom:14px}
+.mg-card-vod .mg-card-arte{display:grid;place-items:center}
+.mg-card-e{display:block;line-height:1.75}
+.mg-card-e .mg-chip{margin-right:8px;vertical-align:1px}
+.qz-card h3{font-family:'Inter',sans-serif;letter-spacing:0}

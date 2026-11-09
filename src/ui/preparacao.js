@@ -36,7 +36,7 @@ function vPreparo(){
   const div=divisaoTreino(pl);
   const px=proximoConfronto();
   const adv=px&&px.adv?T(px.adv):null;
-  const verAdv=adv&&typeof nivelScout==='function'&&nivelScout(t)>=3;
+  const verAdv=adv&&typeof nivelScout==='function'&&(typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):nivelScout(t))>=3;
   const hist=(t.preparoHist||[]).filter(f=>f.ano===G.ano||true).slice(-12);
   const preps=(G.mapasAtivos||[]).map(mp=>preparoDoMapa(t,mp)).sort((a,b)=>b.nota-a.nota);
   const parte=(rot,v)=>`<span class="prep-p ${v>0.4?'up':v<-0.4?'dn':''}">${rot} ${v>0?'+':''}${v.toFixed(1)}</span>`;
@@ -62,6 +62,7 @@ function vPreparo(){
     ${adv?(verAdv?` Ao lado, o preparo do <b>${esc(adv.tag)}</b>, seu próximo adversário, pelo seu analista.`
       :` Com analista e olheiro melhores você também veria o preparo do <b>${esc(adv.tag)}</b>.`):''}`,'Como o preparo é calculado')}
   ${typeof cardEnigmas==='function'?cardEnigmas(t):''}
+  ${typeof cardQuizVOD==='function'?cardQuizVOD(t):''}
   <div class="grid g4" style="margin-bottom:14px">
     <div class="kpi teal"><div class="lb">Mapa mais forte</div><div class="vl">${esc(melhor?melhor.mapa:'—')}</div>
       <div class="sb">preparo ${melhor?melhor.nota:'—'}</div></div>

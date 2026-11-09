@@ -2889,6 +2889,30 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-acao select{min-width:150px}
 .mg-card-en{margin-bottom:14px;background:radial-gradient(90% 160% at 0% 50%,rgba(24,229,180,.10),transparent 60%),var(--surf1,var(--panel))}
 .mg-card-en .mg-card-arte svg{animation:none}
+/* quiz de VOD: o card fica por cima do vídeo */
+.qz{position:absolute;top:0;right:0;bottom:0;width:52%;display:flex;align-items:center;padding:20px;pointer-events:auto}
+.qz-card{width:100%;display:flex;flex-direction:column;gap:12px;padding:20px;background:rgba(12,20,28,.92);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px -20px #000;animation:qzEntra .3s cubic-bezier(.2,.7,.2,1) both}
+@keyframes qzEntra{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.qz-card.ok{border-color:rgba(24,229,180,.6)}.qz-card.nao{border-color:rgba(255,70,85,.6);animation:qzTreme .35s}
+@keyframes qzTreme{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.qz-topo{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.qz-topo u{flex:1;height:4px;background:rgba(255,255,255,.08);display:block}
+.qz-topo i{display:block;height:100%;background:var(--red)}
+.qz-card h3{font-size:17px;font-weight:600;line-height:1.35;margin:0;color:var(--tx)}
+.qz-ops{display:flex;flex-direction:column;gap:6px}
+.qz-op{display:flex;align-items:center;gap:10px;padding:10px 12px;text-align:left;font-size:13.5px;color:var(--tx);
+  background:rgba(255,255,255,.035);border:1px solid var(--line);transition:border-color .12s,background .12s,transform .12s}
+.qz-op:hover:not(:disabled){border-color:var(--line2);background:rgba(255,255,255,.07);transform:translateX(3px)}
+.qz-op kbd{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 7px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2)}
+.qz-op.certa{border-color:var(--teal);background:rgba(24,229,180,.14)}
+.qz-op.errada{border-color:var(--red);background:rgba(255,70,85,.14)}
+.qz-op:disabled{cursor:default}
+.mg-card-vod{margin-bottom:14px}
+.mg-card-vod .mg-card-arte{display:grid;place-items:center}
+.mg-card-e{display:block;line-height:1.75}
+.mg-card-e .mg-chip{margin-right:8px;vertical-align:1px}
+.qz-card h3{font-family:'Inter',sans-serif;letter-spacing:0}
 
 </style>
 </head>
@@ -8826,7 +8850,9 @@ function ultimosDe(t,n){
    Devolve dados, não HTML: a tela decide como mostrar, e o teste consegue
    perguntar "o nível 2 vazou número que só o nível 4 deveria ter?". */
 function relatorioScout(meuT,advT,bo){
-  const nv=nivelScout(meuT);
+  /* o quiz de VOD da semana (core/minigames.js) pode subir a leitura contra
+     este adversário específico */
+  const nv=typeof nivelScoutContra==='function'?nivelScoutContra(meuT,advT):nivelScout(meuT);
   const pool=(G.mapasAtivos||MAP_POOL).slice();
   const surpAdv=(typeof surpresaDaComp==='function')
     ? pool.reduce((s,mp)=>s+surpresaDaComp(advT,mp),0)/Math.max(1,pool.length) : 0;
@@ -17237,6 +17263,42 @@ function aplicarMiniMapa(t){
   treinarUmMapa(t,m.mapa,ENIG_MAX*m.nota);
 }
 
+/* ---------- Quiz de VOD ----------
+   Dois usos, uma sessão de cada por semana:
+     · do próximo adversário: acertar o quiz dá níveis a mais de leitura
+       no relatório de scouting CONTRA ELE nesta semana (+1 a partir de 50,
+       +2 a partir de 85), até o teto de 5;
+     · de uma conta do radar da Base: semanas de observação a mais para a
+       leitura do garoto (até +5), na hora. */
+function bonusVODDaNota(n){return n>=0.85?2:n>=0.5?1:0;}
+function vodDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniVOD;}
+function registrarVOD(t,adv,res){
+  if(!vodDisponivel(t)||!adv)return null;
+  const nota=clamp(res.nota,0,1);
+  t.miniVOD={adv:adv.id,nota,bonus:bonusVODDaNota(nota),pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniVOD,bateu:registrarRecordeMini('vod',res.pts||0,nota)};
+}
+function bonusVOD(t,adv){
+  const m=t&&t.id===G.meuTime?t.miniVOD:null;
+  return m&&!m.comissao&&adv&&m.adv===adv.id?(m.bonus||0):0;
+}
+/* o nível de leitura contra um adversário específico (core/scout.js lê) */
+function nivelScoutContra(t,adv){
+  const base=typeof nivelScout==='function'?nivelScout(t):1;
+  return clamp(base+bonusVOD(t,adv),1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
+}
+const VOD_BASE_MAX=5;
+function vodBaseDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniBaseVOD;}
+function registrarVODBase(t,contaId,res){
+  if(!vodBaseDisponivel(t)||typeof radarRanked!=='function')return null;
+  const c=radarRanked().contas.find(x=>x.id===contaId&&x.estado==='radar');
+  if(!c)return null;
+  const nota=clamp(res.nota,0,1),obs=Math.round(nota*VOD_BASE_MAX);
+  c.obs+=obs;
+  t.miniBaseVOD={conta:contaId,nome:c.nome,nota,obs,pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniBaseVOD,bateu:registrarRecordeMini('vod',res.pts||0,nota)};
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
@@ -17246,6 +17308,8 @@ function encerrarMiniSemana(t){
   if(t.miniAtividade){t.miniAtividadeUltimo=t.miniAtividade;delete t.miniAtividade;}
   if(t.miniIGL){t.miniIGLUltimo=t.miniIGL;delete t.miniIGL;}
   if(t.miniMapa){t.miniMapaUltimo=t.miniMapa;delete t.miniMapa;}
+  if(t.miniVOD){t.miniVODUltimo=t.miniVOD;delete t.miniVOD;}
+  if(t.miniBaseVOD){t.miniBaseVODUltimo=t.miniBaseVOD;delete t.miniBaseVOD;}
 }
 
 /* ---------- medalhas e recordes ---------- */
@@ -20842,7 +20906,9 @@ function blocoRadar(t){
         <span class="dim">${'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
       <div class="rd-num"><span class="dim">Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
       <div class="rd-num"><span class="dim">Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div>
-      <div class="rd-bt"><button class="btn ghost sm" data-rteste="${c.id}">Chamar para teste</button>
+      <div class="rd-bt">${typeof minigamesLigados==='function'&&minigamesLigados()&&typeof vodBaseDisponivel==='function'&&vodBaseDisponivel(t)
+          ?`<button class="btn ghost sm" data-vodconta="${c.id}" title="Quiz de VOD: até +${VOD_BASE_MAX} semanas de observação">VOD</button>`:''}
+          <button class="btn ghost sm" data-rteste="${c.id}">Chamar para teste</button>
           <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button></div>
     </div>`;};
   const cartaoTeste=c=>{const L=leituraDaConta(c,t);
@@ -21377,7 +21443,7 @@ function cardConfronto(t,px){
     <h3 class="sub">Bye nesta rodada</h3>
     <p class="dim">O clube avança direto e espera o adversário da próxima fase.</p></div>`;
   const adv=T(px.adv);
-  const nv=typeof nivelScout==='function'?nivelScout(t):1;
+  const nv=typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):typeof nivelScout==='function'?nivelScout(t):1;
   const deles=typeof leituraPreparo==='function'?leituraPreparo(adv,nv).slice(0,2):[];
   const meus=mapasFortesMeus(t,2);
   const h2h=typeof confronto==='function'?confronto(t.id,adv.id):null;
@@ -21403,6 +21469,7 @@ function cardConfronto(t,px){
     <div class="vs-acoes">
       <button class="btn ghost sm" data-clube="${adv.id}">Ficha do ${esc(adv.tag)}</button>
       <button class="btn ghost sm" data-ir="preparacao">Preparar o jogo</button>
+      ${typeof minigamesLigados==='function'&&minigamesLigados()&&typeof vodDisponivel==='function'&&vodDisponivel(t)?'<button class="btn ghost sm" data-quizvod>Revisar o VOD</button>':''}
       <button class="btn sm" data-avancar>Ir para o veto ›</button>
     </div>
   </div>`;
@@ -23455,6 +23522,258 @@ function cardEnigmas(t){
 }
 
 
+/* ===== src/ui/quiz.js ===== */
+/* ============================================================
+   QUIZ DE VOD — revisão de vídeo em forma de perguntas
+   ------------------------------------------------------------
+   O VOD roda no fundo (minimapa com os dez jogadores andando, linha do
+   tempo) e as perguntas aparecem por cima: 12 segundos cada, quatro
+   opções, teclas 1 a 4. Responder rápido vale um pouco mais.
+   Dois usos:
+     · próximo adversário (Preparo por mapa e Central): perguntas sobre
+       ele e sobre o jogo; a nota sobe o nível do relatório contra ele;
+     · conta do radar (Base): perguntas sobre o garoto e sobre o jogo; a
+       nota vale semanas de observação a mais.
+   As perguntas gerais falam do que não muda de patch para patch (regras,
+   economia básica, mapas e o vocabulário tático); as de função de agente
+   saem da própria lista do jogo (AGENTS em data/mundo.js).
+   ============================================================ */
+const QZ_SEG=12;
+const QZ_BANCO=[
+  {p:'Quantos rounds um time precisa vencer para fechar um mapa no tempo normal?',c:'13',e:['12','15','16']},
+  {p:'Depois de qual round os times trocam de lado?',c:'12',e:['10','13','15']},
+  {p:'Numa prorrogação do VCT, como o mapa termina?',c:'Quando um time abre dois rounds de vantagem',e:['No primeiro round vencido','Num melhor de cinco rounds','Pelo número de abates']},
+  {p:'Quantos créditos o time ganha por vencer um round?',c:'3.000',e:['2.400','2.900','3.300']},
+  {p:'Qual é o bônus de derrota depois da primeira derrota?',c:'1.900',e:['1.600','2.400','2.900']},
+  {p:'Qual é o maior bônus de derrota, com três ou mais derrotas seguidas?',c:'2.900',e:['2.400','3.000','3.500']},
+  {p:'Quantos créditos vale um abate?',c:'200',e:['100','150','300']},
+  {p:'Qual o máximo de créditos que um jogador pode guardar?',c:'9.000',e:['8.000','10.000','12.000']},
+  {p:'Com quantos créditos cada jogador começa o round de pistol?',c:'800',e:['600','900','1.000']},
+  {p:'Quanto custa uma Vandal?',c:'2.900',e:['2.700','3.100','3.200']},
+  {p:'Qual arma custa o mesmo que a Vandal?',c:'Phantom',e:['Guardian','Odin','Bulldog']},
+  {p:'Quanto custa a Sheriff?',c:'800',e:['500','700','950']},
+  {p:'Quanto tempo leva para plantar a spike?',c:'4 segundos',e:['3 segundos','5 segundos','7 segundos']},
+  {p:'Quanto tempo leva um defuse completo?',c:'7 segundos',e:['5 segundos','6 segundos','10 segundos']},
+  {p:'Depois de plantada, em quanto tempo a spike explode?',c:'45 segundos',e:['30 segundos','40 segundos','60 segundos']},
+  {p:'A partir de quantos segundos o meio defuse fica salvo?',c:'3,5 segundos',e:['2 segundos','4 segundos','5 segundos']},
+  {p:'Qual mapa tem teleportes ligando os dois lados?',c:'Bind',e:['Ascent','Split','Breeze']},
+  {p:'Qual destes mapas tem três bombs?',c:'Haven',e:['Ascent','Bind','Icebox']},
+  {p:'Em qual mapa os atacantes podem chegar a cada bomb pelos dois lados?',c:'Fracture',e:['Pearl','Sunset','Haven']},
+  {p:'Qual destes mapas tem portas que giram e abrem passagem?',c:'Lotus',e:['Haven','Pearl','Split']},
+  {p:'Em qual mapa dá para cair para fora, porque ele não tem paredes nas bordas?',c:'Abyss',e:['Ascent','Haven','Sunset']},
+  {p:'Qual agente revive um aliado?',c:'Sage',e:['Phoenix','Clove','Skye']},
+  {p:'Qual agente usa um arco com flechas de reconhecimento?',c:'Sova',e:['Fade','Cypher','Skye']},
+  {p:'Qual agente tem facas como ultimate?',c:'Jett',e:['Reyna','Neon','Yoru']},
+  {p:'Qual agente cria uma parede de veneno?',c:'Viper',e:['Harbor','Astra','Omen']},
+  {p:'Qual é o ultimate da Raze?',c:'Um lança-foguetes',e:['Uma rajada de facas','Um laser','Um muro de gelo']},
+  {p:'Brimstone posiciona as smokes usando o quê?',c:'Um mapa tático',e:['Um drone','A própria mira','Um boneco']},
+  {p:'O ultimate da Killjoy faz o quê?',c:'Detém quem fica dentro do raio',e:['Revela o mapa inteiro','Cura o time','Cria uma cúpula de fumaça']},
+  {p:'O que é um round de eco?',c:'O time economiza e compra pouco ou nada',e:['Todo mundo compra Operator','Só o IGL compra','O round depois do pistol vencido']},
+  {p:'O que é dar trade?',c:'Matar quem acabou de abater o seu companheiro',e:['Trocar de arma com um aliado','Trocar de lado no intervalo','Dar a spike para outro jogador']},
+  {p:'O que faz um lurker?',c:'Joga sozinho, longe do time, pegando rotações e flancos',e:['Fica sempre com a spike','Entra primeiro no bomb','Só joga de Operator']},
+  {p:'O que é um retake?',c:'Recuperar o bomb depois que a spike foi plantada',e:['Repetir o round','Plantar de novo','Trocar de mapa']},
+  {p:'O que faz o IGL?',c:'Comanda as calls e a estratégia dentro do jogo',e:['Cuida do contrato dos jogadores','Escolhe as skins do time','Treina só a mira']},
+  {p:'O que é um round de anti-eco?',c:'Jogar contra um time que está economizando',e:['Economizar junto com o adversário','Comprar só pistolas','Jogar sem habilidades']},
+  {p:'Quantos Masters a temporada do VCT tem antes do Champions?',c:'2',e:['1','3','4']},
+  {p:'Qual torneio fecha a temporada do VCT?',c:'Valorant Champions',e:['Masters','Kickoff','Ascension']}
+];
+const _qzEmb=a=>a.slice().sort(()=>Math.random()-0.5);
+function qzFuncao(){
+  const roles=['Duelista','Iniciador','Controlador','Sentinela'];
+  const r=roles[(Math.random()*4)|0];
+  const flex=new Set(AGENTS.Flex||[]);
+  const so=x=>AGENTS[x].filter(a=>!flex.has(a)||roles.filter(y=>AGENTS[y].includes(a)).length===1);
+  const certo=_qzEmb(so(r))[0];
+  const errados=_qzEmb(roles.filter(x=>x!==r)).map(x=>_qzEmb(so(x))[0]);
+  return{p:`Qual destes agentes é ${r==='Iniciador'?'um Iniciador':r==='Duelista'?'um Duelista':r==='Controlador'?'um Controlador':'um Sentinela'}?`,c:certo,e:errados};
+}
+/* perguntas sobre o adversário, tiradas do mundo do jogo */
+function qzAdversario(adv){
+  const out=[];
+  const el=(adv.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  const tit=(adv.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  if(adv.igl&&G.jogadores[adv.igl]&&el.length>=4){
+    const igl=G.jogadores[adv.igl];
+    out.push({p:`Quem é o IGL do ${adv.nome}?`,c:igl.nome,e:_qzEmb(el.filter(p=>p.id!==igl.id)).slice(0,3).map(p=>p.nome)});
+  }
+  const comFuncao=tit.filter(p=>['Duelista','Iniciador','Controlador','Sentinela'].includes(p.role));
+  if(comFuncao.length){const p=_qzEmb(comFuncao)[0];
+    out.push({p:`Qual é a função de ${p.nome} no ${adv.tag}?`,c:p.role,e:['Duelista','Iniciador','Controlador','Sentinela'].filter(r=>r!==p.role)});}
+  const outros=Object.values(G.times).filter(x=>x.id!==adv.id&&x.id!==G.meuTime&&x.tier===adv.tier)
+    .flatMap(x=>(x.titulares||[]).map(i=>G.jogadores[i])).filter(Boolean);
+  if(tit.length&&outros.length>=3){
+    out.push({p:`Qual destes jogadores é titular do ${adv.tag}?`,c:_qzEmb(tit)[0].nome,e:_qzEmb(outros).slice(0,3).map(p=>p.nome)});
+  }
+  const tp=adv.temporada||{v:0,d:0};
+  if(tp.v+tp.d>=2){
+    const fmt=(v,d)=>`${v} vitória${v===1?'':'s'} e ${d} derrota${d===1?'':'s'}`;
+    const alt=[[tp.v+1,Math.max(0,tp.d-1)],[Math.max(0,tp.v-1),tp.d+1],[tp.d,tp.v],[tp.v+2,tp.d]].filter(([v,d])=>v!==tp.v||d!==tp.d);
+    const uniq=[...new Set(alt.map(([v,d])=>fmt(v,d)))].slice(0,3);
+    if(uniq.length===3)out.push({p:`Qual é a campanha do ${adv.tag} na temporada?`,c:fmt(tp.v,tp.d),e:uniq});
+  }
+  return out;
+}
+/* perguntas sobre a conta do radar */
+function qzConta(c){
+  const out=[];
+  const ag=(AGENTS[c.role]||[]).filter(a=>a!==c.agente);
+  if(ag.length>=3)out.push({p:`No VOD, com qual agente ${c.nome} está jogando?`,c:c.agente,e:_qzEmb(ag).slice(0,3)});
+  if(['Duelista','Iniciador','Controlador','Sentinela'].includes(c.role))
+    out.push({p:`Qual é a função de ${c.nome} na ranked?`,c:c.role,e:['Duelista','Iniciador','Controlador','Sentinela'].filter(r=>r!==c.role)});
+  return out;
+}
+function montarQuiz(especificas,total){
+  const n=Math.min(especificas.length,Math.ceil(total*0.4));
+  const gerais=_qzEmb(QZ_BANCO).slice(0,total-n-2).concat([qzFuncao(),qzFuncao()]);
+  return _qzEmb(_qzEmb(especificas).slice(0,n).concat(gerais)).slice(0,total)
+    .map(q=>({p:q.p,ops:_qzEmb([q.c,...q.e.slice(0,3)]),c:q.c}));
+}
+
+/* ---------- abrir ---------- */
+function abrirQuizAdversario(){
+  const t=meu();
+  const px=typeof proximoConfronto==='function'?proximoConfronto():null;
+  const adv=px&&px.adv?G.times[px.adv]:null;
+  if(!adv){flash('Não há adversário marcado ainda.');return;}
+  const antes=typeof nivelScout==='function'?nivelScout(t):1;
+  abrirMinigame({
+    id:'vod',titulo:'Revisão de VOD',eyebrow:'Scouting · '+adv.nome,
+    desc:`O analista separou os VODs do <b>${esc(adv.nome)}</b>. Responda o que o vídeo mostra e o que todo coach precisa saber: 8 perguntas, ${QZ_SEG} segundos cada.`,
+    controles:['1','2','3','4','Mouse'],
+    arte:()=>_qzArte(),
+    vale:()=>vodDisponivel(t),
+    efeitoTxt:()=>`O relatório de scouting contra o <b>${esc(adv.tag)}</b> sobe nesta semana: <b class="up">+1 nível</b> a partir de 50, <b class="up">+2</b> a partir de 85. Hoje ele está no nível <b>${antes}</b> de ${SCOUT_MAX}.`,
+    efeitoFeito:res=>{const b=bonusVODDaNota(res.nota);
+      return b?`Relatório contra o <b>${esc(adv.tag)}</b> sobe do nível <b>${antes}</b> para <b class="up">${Math.min(SCOUT_MAX,antes+b)}</b> nesta semana.`
+        :`A revisão não rendeu leitura nova: o relatório contra o <b>${esc(adv.tag)}</b> continua no nível ${antes}.`;},
+    comissao:()=>{t.miniVOD={adv:adv.id,comissao:true,nota:null,bonus:0,ano:G.ano,semana:G.semana||1};},
+    dica:()=>'Clique na resposta ou use as teclas 1 a 4.',
+    registrar:(res,vale)=>{
+      if(vale){const r=registrarVOD(t,adv,res);return r?r.bateu:null;}
+      return registrarRecordeMini('vod',res.pts,res.nota);
+    },
+    jogar:(ctx,fim)=>jogarQuiz(ctx,fim,montarQuiz(qzAdversario(adv),8),{rotulo:adv.tag,cor:corDoClube(adv)})
+  });
+}
+function abrirQuizConta(id){
+  const t=meu();
+  const c=typeof radarRanked==='function'&&radarRanked().contas.find(x=>x.id===id);
+  if(!c){flash('Essa conta não está mais no radar.');return;}
+  abrirMinigame({
+    id:'vod',titulo:'VOD da ranked',eyebrow:'Base · '+c.nome,
+    desc:`O olheiro trouxe partidas de <b>${esc(c.nome)}</b> (${esc(c.rank)}). Responda o que o VOD mostra e o que todo coach precisa saber: 6 perguntas, ${QZ_SEG} segundos cada.`,
+    controles:['1','2','3','4','Mouse'],
+    arte:()=>_qzArte(),
+    vale:()=>vodBaseDisponivel(t),
+    efeitoTxt:()=>`Vale até <b class="up">${VOD_BASE_MAX} semanas</b> de observação a mais na leitura de ${esc(c.nome)}, na hora.`,
+    efeitoFeito:res=>{const o=Math.round(res.nota*VOD_BASE_MAX);return o?`<b class="up">+${o} semana${o>1?'s':''}</b> de observação na leitura de ${esc(c.nome)}.`:'A revisão não acrescentou nada à leitura.';},
+    comissao:()=>{t.miniBaseVOD={conta:c.id,comissao:true,nota:null,ano:G.ano,semana:G.semana||1};},
+    dica:()=>'Clique na resposta ou use as teclas 1 a 4.',
+    registrar:(res,vale)=>{
+      if(vale){const r=registrarVODBase(t,c.id,res);return r?r.bateu:null;}
+      return registrarRecordeMini('vod',res.pts,res.nota);
+    },
+    jogar:(ctx,fim)=>jogarQuiz(ctx,fim,montarQuiz(qzConta(c),6),{rotulo:c.nome,cor:'#E2B45A'})
+  });
+}
+function _qzArte(){return `<svg viewBox="0 0 200 120"><rect x="96" y="22" width="98" height="64" rx="4" fill="none" stroke="rgba(236,232,225,.4)" stroke-width="2"/>
+  <path d="M138 42l18 12-18 12z" fill="#FF4655"/><rect x="96" y="94" width="98" height="4" fill="rgba(255,255,255,.15)"/><rect x="96" y="94" width="58" height="4" fill="#FF4655"/></svg>`;}
+
+/* ---------- o jogo ---------- */
+function jogarQuiz(ctx,fim,perguntas,o){
+  const cx=ctx.cx;
+  const palco=ctx.cv.parentNode;
+  const caixa=document.createElement('div');caixa.className='qz';palco.appendChild(caixa);
+  let i=-1,tq=0,resp=null,pts=0,certas=0,soma=0,fimJa=false,serie=0;
+  const pontos=Array.from({length:10},(_,k)=>({x:Math.random(),y:Math.random(),a:Math.random()*6.28,v:0.04+Math.random()*0.05,time:k<5}));
+  if(MG)MG.quiz={perguntas,get i(){return i;},responder:k=>responder(k)};   /* para os testes */
+  const proxima=()=>{
+    i++;resp=null;tq=0;
+    if(i>=perguntas.length){acabar();return;}
+    const q=perguntas[i];
+    caixa.innerHTML=`<div class="qz-card" key="${i}">
+      <div class="qz-topo"><span>Pergunta ${i+1} de ${perguntas.length}</span><u><i></i></u></div>
+      <h3>${esc(q.p)}</h3>
+      <div class="qz-ops">${q.ops.map((op,k)=>`<button class="qz-op" data-qz="${k}"><kbd>${k+1}</kbd><span>${esc(op)}</span></button>`).join('')}</div>
+    </div>`;
+    caixa.querySelectorAll('[data-qz]').forEach(b=>b.onclick=()=>responder(+b.dataset.qz));
+  };
+  const responder=k=>{
+    if(resp!==null||fimJa||i<0||i>=perguntas.length)return;
+    const q=perguntas[i];resp=k;
+    const ok=k>=0&&q.ops[k]===q.c;
+    const rest=Math.max(0,QZ_SEG-tq);
+    const v=ok?0.7+0.3*rest/QZ_SEG:0;
+    soma+=v;
+    if(ok){certas++;serie++;pts+=Math.round(100+rest*15)*(1+Math.min(serie,5)*0.1);somMini('cabeca');}else{serie=0;somMini('erro');}
+    caixa.querySelectorAll('[data-qz]').forEach(b=>{const n=+b.dataset.qz;b.disabled=true;
+      if(q.ops[n]===q.c)b.classList.add('certa');else if(n===k)b.classList.add('errada');});
+    const card=caixa.querySelector('.qz-card');if(card)card.classList.add(ok?'ok':'nao');
+    setTimeout(()=>{if(!fimJa&&ctx.vivo())proxima();},ok?900:1500);
+  };
+  const tecla=e=>{if(!ctx.vivo()){limpar();return;}const n=['Digit1','Digit2','Digit3','Digit4','Numpad1','Numpad2','Numpad3','Numpad4'].indexOf(e.code);
+    if(n<0)return;e.preventDefault();responder(n%4);};
+  const limpar=()=>window.removeEventListener('keydown',tecla,true);
+  window.addEventListener('keydown',tecla,true);
+  const acabar=()=>{
+    if(fimJa)return;fimJa=true;limpar();caixa.remove();
+    const nota=clamp(soma/perguntas.length,0,1);
+    fim({nota,pts:Math.round(pts),modo:'vod',modoNome:o.rotulo,
+      frase:nota>=0.93?'Leitura de analista campeão':nota>=0.8?'Revisão de primeira':nota>=0.6?'Boa revisão':nota>=0.35?'Revisão pela metade':'O VOD passou batido',
+      stats:[['Pontos',Math.round(pts)],['Acertos',certas+'/'+perguntas.length],['Precisão',Math.round(certas/perguntas.length*100)+'%']]});
+  };
+  proxima();
+  let ult=performance.now(),tv=0;
+  const quadro=agora=>{
+    if(!ctx.vivo()){limpar();return;}
+    if(fimJa)return;
+    const dt=Math.min(0.05,(agora-ult)/1000);ult=agora;tv+=dt;
+    if(resp===null){tq+=dt;if(tq>=QZ_SEG)responder(-1);}
+    const barra=caixa.querySelector('.qz-topo i');if(barra)barra.style.width=Math.max(0,(1-tq/QZ_SEG)*100)+'%';
+    /* o VOD no fundo */
+    cx.fillStyle='#070B0F';cx.fillRect(0,0,MG_W,MG_H);
+    const mx=40,my=40,mw=400,mh=400;
+    cx.fillStyle='#0E161E';cx.fillRect(mx,my,mw,mh);
+    cx.strokeStyle='rgba(255,255,255,.08)';cx.lineWidth=14;cx.lineJoin='round';
+    cx.beginPath();cx.moveTo(mx+60,my+340);cx.lineTo(mx+60,my+120);cx.lineTo(mx+180,my+60);cx.lineTo(mx+340,my+80);cx.lineTo(mx+340,my+300);cx.lineTo(mx+200,my+340);cx.closePath();
+    cx.moveTo(mx+60,my+220);cx.lineTo(mx+340,my+200);cx.moveTo(mx+180,my+60);cx.lineTo(mx+200,my+340);cx.stroke();cx.lineWidth=1;
+    [['A',mx+80,my+90],['B',mx+320,my+290]].forEach(([l,x,y])=>{cx.fillStyle='rgba(255,70,85,.12)';cx.fillRect(x-30,y-30,60,60);
+      cx.fillStyle='rgba(255,70,85,.6)';cx.font='400 26px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';cx.fillText(l,x,y+9);});
+    for(const p of pontos){p.a+=dt*(0.6+Math.sin(tv+p.x*9)*0.4);p.x=clamp(p.x+Math.cos(p.a)*p.v*dt*3,0.08,0.92);p.y=clamp(p.y+Math.sin(p.a)*p.v*dt*3,0.08,0.92);
+      const x=mx+p.x*mw,y=my+p.y*mh;cx.fillStyle=p.time?'#18E5B4':'#FF4655';cx.beginPath();cx.arc(x,y,6,0,6.28);cx.fill();
+      cx.strokeStyle=p.time?'rgba(24,229,180,.35)':'rgba(255,70,85,.35)';cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+Math.cos(p.a)*18,y+Math.sin(p.a)*18);cx.stroke();}
+    cx.fillStyle='rgba(255,255,255,.03)';for(let y=0;y<MG_H;y+=3)cx.fillRect(0,y,MG_W,1);
+    cx.fillStyle='#FF4655';cx.beginPath();cx.arc(mx+12,my-16,5,0,6.28);cx.fill();
+    cx.fillStyle='rgba(236,232,225,.7)';cx.font='700 11px Inter, sans-serif';cx.textAlign='left';cx.fillText('VOD · '+String(o.rotulo).toUpperCase(),mx+24,my-12);
+    const prog=(tv%60)/60;cx.fillStyle='rgba(255,255,255,.12)';cx.fillRect(mx,MG_H-56,mw,4);cx.fillStyle='#FF4655';cx.fillRect(mx,MG_H-56,mw*prog,4);
+    cx.fillStyle='rgba(236,232,225,.5)';cx.font='600 11px JetBrains Mono, monospace';
+    const s=Math.floor(tv%60);cx.fillText(`R${(Math.floor(tv/60)%24)+1} · 0:${String(s).padStart(2,'0')} / 1:00`,mx,MG_H-34);
+    hudRange(ctx,{restante:1-Math.max(0,i)/perguntas.length,rot1:'pergunta',pts:Math.min(i+1,perguntas.length)+'/'+perguntas.length,rot2:'acertos',v2:certas,combo:serie>1?serie:0});
+    requestAnimationFrame(quadro);
+  };
+  requestAnimationFrame(quadro);
+}
+
+/* ---------- cartão no Preparo por mapa ---------- */
+function cardQuizVOD(t){
+  if(typeof minigamesLigados==='function'&&!minigamesLigados())return '';
+  const px=typeof proximoConfronto==='function'?proximoConfronto():null;
+  const adv=px&&px.adv?G.times[px.adv]:null;
+  if(!adv)return '';
+  const m=t.miniVOD,nv=typeof nivelScout==='function'?nivelScout(t):1;
+  let txt;
+  if(m&&m.comissao)txt='A comissão revisou os VODs desta semana.';
+  else if(m&&m.adv!==adv.id)txt='A revisão desta semana foi de outro adversário.';
+  else if(m){const med=medalhaMini(m.nota);txt=`<span class="mg-chip" style="--m:${med.cor}">${esc(med.nome)} · ${Math.round(m.nota*100)}</span>
+    ${m.bonus?`relatório contra o <b>${esc(adv.tag)}</b> no nível <b class="up">${Math.min(SCOUT_MAX,nv+m.bonus)}</b> nesta semana`:'sem leitura extra nesta semana'}`;}
+  else txt=`Próximo adversário: <b>${esc(adv.nome)}</b>. Relatório no nível ${nv} de ${SCOUT_MAX}; a revisão pode subir até +2.`;
+  return `<div class="card mg-card mg-card-vod">
+    <div class="mg-card-arte" aria-hidden="true">${escudo(adv,52)}</div>
+    <div class="mg-card-t"><div class="eyebrow">Minigame · Revisão de VOD</div><div class="mg-card-e">${txt}</div></div>
+    <button class="btn ${m?'ghost':''}" data-quizvod>${m?'Treino livre':'Revisar o VOD'}</button></div>`;
+}
+
+
 /* ===== src/ui/vestiario.js ===== */
 /* ============================================================
    CLUBE › VESTIÁRIO — entrosamento por dupla e a cabeça do elenco
@@ -23658,7 +23977,7 @@ function vPreparo(){
   const div=divisaoTreino(pl);
   const px=proximoConfronto();
   const adv=px&&px.adv?T(px.adv):null;
-  const verAdv=adv&&typeof nivelScout==='function'&&nivelScout(t)>=3;
+  const verAdv=adv&&typeof nivelScout==='function'&&(typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):nivelScout(t))>=3;
   const hist=(t.preparoHist||[]).filter(f=>f.ano===G.ano||true).slice(-12);
   const preps=(G.mapasAtivos||[]).map(mp=>preparoDoMapa(t,mp)).sort((a,b)=>b.nota-a.nota);
   const parte=(rot,v)=>`<span class="prep-p ${v>0.4?'up':v<-0.4?'dn':''}">${rot} ${v>0?'+':''}${v.toFixed(1)}</span>`;
@@ -23684,6 +24003,7 @@ function vPreparo(){
     ${adv?(verAdv?` Ao lado, o preparo do <b>${esc(adv.tag)}</b>, seu próximo adversário, pelo seu analista.`
       :` Com analista e olheiro melhores você também veria o preparo do <b>${esc(adv.tag)}</b>.`):''}`,'Como o preparo é calculado')}
   ${typeof cardEnigmas==='function'?cardEnigmas(t):''}
+  ${typeof cardQuizVOD==='function'?cardQuizVOD(t):''}
   <div class="grid g4" style="margin-bottom:14px">
     <div class="kpi teal"><div class="lb">Mapa mais forte</div><div class="vl">${esc(melhor?melhor.mapa:'—')}</div>
       <div class="sb">preparo ${melhor?melhor.nota:'—'}</div></div>
@@ -24808,7 +25128,7 @@ function vClube(){
   /* preparo por mapa, borrado pelo seu scouting */
   let leitura='';
   if(!souEu&&eu){
-    const nv=typeof nivelScout==='function'?nivelScout(eu):1;
+    const nv=typeof nivelScoutContra==='function'?nivelScoutContra(eu,t):typeof nivelScout==='function'?nivelScout(eu):1;
     const lst=leituraPreparo(t,nv);
     leitura=nv<2?'<div class="dim">Seu analista ainda não tem leitura deste clube. Comissão melhor (analista e olheiro) abre o relatório.</div>'
       :`<div class="cl-mapas">${lst.map(x=>`<div class="cl-mapa">
@@ -27062,7 +27382,7 @@ function ppTrilhaVeto(){
 function ppMesaVeto(minha,passo){
   const V=PP.V,meuT=PP.meu,advT=PP.adv;
   const visto=PP.vistoSeq||0;
-  const mostraAdv=nivelScout(meuT)>=3;
+  const mostraAdv=(typeof nivelScoutContra==='function'?nivelScoutContra(meuT,advT):nivelScout(meuT))>=3;
   const ordem=V.seq.filter(x=>x.tipo!=='ban');
   const html=V.pool.map(mp=>{
     const i=V.seq.findIndex(x=>x.m===mp),e=i>=0?V.seq[i]:null;
@@ -28517,6 +28837,8 @@ function ligarEventos(){
   on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-ritmo]',()=>{if(typeof abrirRitmo==='function')abrirRitmo();});
   on('[data-blocos]',()=>{if(typeof abrirBlocos==='function')abrirBlocos();});
+  on('[data-quizvod]',()=>{if(typeof abrirQuizAdversario==='function')abrirQuizAdversario();});
+  on('[data-vodconta]',el=>{if(typeof abrirQuizConta==='function')abrirQuizConta(el.dataset.vodconta);});
   on('[data-enigmas]',()=>{const s=$('#enMapa');if(s)enigmaMapa=s.value;if(typeof abrirEnigmas==='function')abrirEnigmas(enigmaMapa);});
   on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});

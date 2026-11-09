@@ -106,6 +106,42 @@ function aplicarMiniMapa(t){
   treinarUmMapa(t,m.mapa,ENIG_MAX*m.nota);
 }
 
+/* ---------- Quiz de VOD ----------
+   Dois usos, uma sessão de cada por semana:
+     · do próximo adversário: acertar o quiz dá níveis a mais de leitura
+       no relatório de scouting CONTRA ELE nesta semana (+1 a partir de 50,
+       +2 a partir de 85), até o teto de 5;
+     · de uma conta do radar da Base: semanas de observação a mais para a
+       leitura do garoto (até +5), na hora. */
+function bonusVODDaNota(n){return n>=0.85?2:n>=0.5?1:0;}
+function vodDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniVOD;}
+function registrarVOD(t,adv,res){
+  if(!vodDisponivel(t)||!adv)return null;
+  const nota=clamp(res.nota,0,1);
+  t.miniVOD={adv:adv.id,nota,bonus:bonusVODDaNota(nota),pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniVOD,bateu:registrarRecordeMini('vod',res.pts||0,nota)};
+}
+function bonusVOD(t,adv){
+  const m=t&&t.id===G.meuTime?t.miniVOD:null;
+  return m&&!m.comissao&&adv&&m.adv===adv.id?(m.bonus||0):0;
+}
+/* o nível de leitura contra um adversário específico (core/scout.js lê) */
+function nivelScoutContra(t,adv){
+  const base=typeof nivelScout==='function'?nivelScout(t):1;
+  return clamp(base+bonusVOD(t,adv),1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
+}
+const VOD_BASE_MAX=5;
+function vodBaseDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniBaseVOD;}
+function registrarVODBase(t,contaId,res){
+  if(!vodBaseDisponivel(t)||typeof radarRanked!=='function')return null;
+  const c=radarRanked().contas.find(x=>x.id===contaId&&x.estado==='radar');
+  if(!c)return null;
+  const nota=clamp(res.nota,0,1),obs=Math.round(nota*VOD_BASE_MAX);
+  c.obs+=obs;
+  t.miniBaseVOD={conta:contaId,nome:c.nome,nota,obs,pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniBaseVOD,bateu:registrarRecordeMini('vod',res.pts||0,nota)};
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
@@ -115,6 +151,8 @@ function encerrarMiniSemana(t){
   if(t.miniAtividade){t.miniAtividadeUltimo=t.miniAtividade;delete t.miniAtividade;}
   if(t.miniIGL){t.miniIGLUltimo=t.miniIGL;delete t.miniIGL;}
   if(t.miniMapa){t.miniMapaUltimo=t.miniMapa;delete t.miniMapa;}
+  if(t.miniVOD){t.miniVODUltimo=t.miniVOD;delete t.miniVOD;}
+  if(t.miniBaseVOD){t.miniBaseVODUltimo=t.miniBaseVOD;delete t.miniBaseVOD;}
 }
 
 /* ---------- medalhas e recordes ---------- */

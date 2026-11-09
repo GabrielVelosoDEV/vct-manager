@@ -961,7 +961,9 @@ function blocoRadar(t){
         <span class="dim">${'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
       <div class="rd-num"><span class="dim">Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
       <div class="rd-num"><span class="dim">Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div>
-      <div class="rd-bt"><button class="btn ghost sm" data-rteste="${c.id}">Chamar para teste</button>
+      <div class="rd-bt">${typeof minigamesLigados==='function'&&minigamesLigados()&&typeof vodBaseDisponivel==='function'&&vodBaseDisponivel(t)
+          ?`<button class="btn ghost sm" data-vodconta="${c.id}" title="Quiz de VOD: até +${VOD_BASE_MAX} semanas de observação">VOD</button>`:''}
+          <button class="btn ghost sm" data-rteste="${c.id}">Chamar para teste</button>
           <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button></div>
     </div>`;};
   const cartaoTeste=c=>{const L=leituraDaConta(c,t);

@@ -121,7 +121,7 @@ function cardConfronto(t,px){
     <h3 class="sub">Bye nesta rodada</h3>
     <p class="dim">O clube avança direto e espera o adversário da próxima fase.</p></div>`;
   const adv=T(px.adv);
-  const nv=typeof nivelScout==='function'?nivelScout(t):1;
+  const nv=typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):typeof nivelScout==='function'?nivelScout(t):1;
   const deles=typeof leituraPreparo==='function'?leituraPreparo(adv,nv).slice(0,2):[];
   const meus=mapasFortesMeus(t,2);
   const h2h=typeof confronto==='function'?confronto(t.id,adv.id):null;
@@ -147,6 +147,7 @@ function cardConfronto(t,px){
     <div class="vs-acoes">
       <button class="btn ghost sm" data-clube="${adv.id}">Ficha do ${esc(adv.tag)}</button>
       <button class="btn ghost sm" data-ir="preparacao">Preparar o jogo</button>
+      ${typeof minigamesLigados==='function'&&minigamesLigados()&&typeof vodDisponivel==='function'&&vodDisponivel(t)?'<button class="btn ghost sm" data-quizvod>Revisar o VOD</button>':''}
       <button class="btn sm" data-avancar>Ir para o veto ›</button>
     </div>
   </div>`;

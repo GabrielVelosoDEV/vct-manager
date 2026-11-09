@@ -123,7 +123,7 @@ function vClube(){
   /* preparo por mapa, borrado pelo seu scouting */
   let leitura='';
   if(!souEu&&eu){
-    const nv=typeof nivelScout==='function'?nivelScout(eu):1;
+    const nv=typeof nivelScoutContra==='function'?nivelScoutContra(eu,t):typeof nivelScout==='function'?nivelScout(eu):1;
     const lst=leituraPreparo(t,nv);
     leitura=nv<2?'<div class="dim">Seu analista ainda não tem leitura deste clube. Comissão melhor (analista e olheiro) abre o relatório.</div>'
       :`<div class="cl-mapas">${lst.map(x=>`<div class="cl-mapa">
