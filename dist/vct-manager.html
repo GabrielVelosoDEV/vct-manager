@@ -1445,6 +1445,42 @@ body.sem-anim .tabs.tabs-ind::after{transition:none}
 .sui-seed b{flex:1}.sui-seed.me{border-color:rgba(255,70,85,.55)}
 .sui-seed .num:first-child{width:14px;color:var(--dim)}
 
+/* ============================================================
+   V4 — TABELAS
+   ============================================================ */
+.tb td{padding:8px 10px;vertical-align:middle}
+.pos{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 5px;font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;font-weight:700;color:#B9C6D1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.pos.po{color:#04231C;background:var(--teal);border-color:var(--teal)}
+.pos.q{color:#1A1205;background:var(--ouro);border-color:var(--ouro)}
+.pos.cai{color:#fff;background:var(--red);border-color:var(--red)}
+.pos.top{color:#1A1205;background:linear-gradient(180deg,#F2CF7E,var(--ouro));border-color:var(--ouro)}
+tr.z-po td:first-child{box-shadow:inset 3px 0 0 var(--teal)}
+tr.z-q td:first-child{box-shadow:inset 3px 0 0 var(--ouro)}
+tr.z-cai td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+tr.z-cai{background:rgba(255,70,85,.05)}
+tr.me td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.cel-clube{display:inline-flex;align-items:center;gap:9px;min-width:0}
+.cel-clube .cel-nome{font-weight:600;color:var(--tx)}
+.cel-clube .cel-tag{font-size:10.5px;color:var(--dim);letter-spacing:.06em;font-family:'JetBrains Mono',monospace}
+tr.me .cel-nome{color:#FF9AA2}
+.forma{display:inline-flex;gap:3px;vertical-align:middle}
+.forma i{width:9px;height:9px;border-radius:50%;background:#55636F;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.forma i.v{background:var(--teal)}.forma i.d{background:var(--red)}
+.forma.vazia{color:var(--dim);font-size:11px}
+.tb-legenda{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:11.5px;color:#9FB0BF}
+.tb-legenda span{display:inline-flex;align-items:center;gap:6px}
+.lz{width:10px;height:10px;display:inline-block}
+.lz.po{background:var(--teal)}.lz.q{background:var(--ouro)}.lz.cai{background:var(--red)}
+th.ord{cursor:pointer;user-select:none}
+th.ord:hover{color:var(--tx)}
+th.ord::after{content:'↕';margin-left:5px;opacity:.3;font-size:10px}
+th.ord.asc::after{content:'▲';opacity:.9;color:var(--red)}
+th.ord.desc::after{content:'▼';opacity:.9;color:var(--red)}
+.grades{gap:14px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.gr{background:var(--surf2);border:1px solid rgba(255,255,255,.06);padding:10px 12px;box-shadow:var(--sombra-1)}
+.gr-tit{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;margin-bottom:6px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -16563,6 +16599,7 @@ function render(){
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
   if(typeof animarTela==='function')animarTela(v,tela);
+  if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
 }
 function irPara(k,semHist){
   tela=k;
@@ -16948,6 +16985,70 @@ function celebrar(h){
   setTimeout(()=>{if(document.body.contains(d))fim();},9000);
 }
 
+/* ============================================================
+   V4 — TABELAS
+   Uma linha de clube igual em toda tabela do jogo: posição em selo,
+   escudo, nome com a sigla, faixa colorida pela regra do torneio e
+   forma recente. Tabelas com class "ordenavel" ordenam ao clicar no
+   cabeçalho.
+   ============================================================ */
+/* posição; zona: 'po' (avança), 'q' (vaga em internacional), 'cai' */
+function selo(n,zona){return `<span class="pos ${zona||''}">${n}</span>`;}
+function celClube(id,px){
+  const t=G.times[id];if(!t)return '—';
+  return `<span class="cel-clube">${escudo(t,px||22)}<span class="cel-nome">${esc(t.nome)}</span><span class="cel-tag">${esc(t.tag)}</span></span>`;
+}
+/* últimas séries do clube no ano, da mais antiga para a mais recente */
+function ultimasSeries(id,n){
+  const out=[];
+  for(const b of G.calendario||[])for(const s of b.stages||[])for(const r of s.resultados||[]){
+    if(r.a!==id&&r.b!==id)continue;
+    const adv=r.a===id?r.b:r.a,pl=r.a===id?r.wa+'–'+r.wb:r.wb+'–'+r.wa;
+    out.push({v:r.v===id,sem:r.sem||0,txt:(r.v===id?'V ':'D ')+pl+' '+tagT(adv)});
+  }
+  out.sort((a,b)=>a.sem-b.sem);
+  return out.slice(-(n||5));
+}
+function formaRecente(id,n){
+  const l=ultimasSeries(id,n||5);
+  if(!l.length)return '<span class="forma vazia">—</span>';
+  return `<span class="forma">${l.map(x=>`<i class="${x.v?'v':'d'}" title="${esc(x.txt)}"></i>`).join('')}</span>`;
+}
+function legendaZonas(itens){
+  return `<div class="tb-legenda">${itens.map(([z,txt])=>`<span><i class="lz ${z}"></i>${esc(txt)}</span>`).join('')}</div>`;
+}
+/* ordenação ao clicar no cabeçalho */
+function _valorCelula(td){
+  if(!td)return '';
+  if(td.dataset.v!=null)return parseFloat(td.dataset.v);
+  const t=td.textContent.trim();
+  const limpo=t.replace(/[▲▼$+\s]/g,'').replace('−','-');
+  const m=limpo.match(/^(-?\d+(?:[.,]\d+)?)([kKmM]?)(?![\w])/);
+  if(m){let v=parseFloat(m[1].replace(',','.'));if(/k/i.test(m[2]))v*=1e3;if(/m/i.test(m[2]))v*=1e6;return v;}
+  return t.toLowerCase();
+}
+function ligarOrdenacao(raiz){
+  if(!raiz)return;
+  raiz.querySelectorAll('table.ordenavel').forEach(tb=>{
+    const ths=[...tb.querySelectorAll('thead th')];
+    ths.forEach((th,i)=>{
+      if(th.classList.contains('sem-ord')||!th.textContent.trim())return;
+      th.classList.add('ord');
+      th.onclick=()=>{
+        const tbody=tb.tBodies[0];if(!tbody)return;
+        const asc=th.dataset.dir==='desc';
+        ths.forEach(x=>{delete x.dataset.dir;x.classList.remove('asc','desc');});
+        th.dataset.dir=asc?'asc':'desc';th.classList.add(asc?'asc':'desc');
+        const linhas=[...tbody.rows];
+        linhas.sort((a,b)=>{const va=_valorCelula(a.cells[i]),vb=_valorCelula(b.cells[i]);
+          const r=(typeof va==='number'&&typeof vb==='number')?va-vb:String(va).localeCompare(String(vb),'pt-BR');
+          return asc?r:-r;});
+        linhas.forEach(l=>tbody.appendChild(l));
+      };
+    });
+  });
+}
+
 
 /* ===== src/ui/guia.js ===== */
 /* ============================================================
@@ -17323,18 +17424,18 @@ function cardTabelaDaCasa(t,rr){
     return `<div class="card"><div class="split">
       <div class="eyebrow">${esc((typeof nomeStage==='function'&&nomeStage(rr))||nomeLiga(t))} · ${esc(g.nome)}</div>
       <span class="dim">rodada ${Math.min(rr.idx+1,rr.rodadasMax)}/${rr.rodadasMax}</span></div>
-      <table><tbody>${ord.map((id,i)=>{const x=g.tabela[id];
-        return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-        <td class="r num">${x.v}-${x.d}</td>
-        <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td>
-        <td class="r">${i<rr.passam?'<span class="chip t">PO</span>':''}</td></tr>`;}).join('')}
-      </tbody></table></div>`;
+      <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead>
+      <tbody>${ord.map((id,i)=>{const x=g.tabela[id],z=i<rr.passam?'po':'';
+        return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+        <td class="c num"><b>${x.v}–${x.d}</b></td>
+        <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
+      </tbody></table>${legendaZonas([['po','Vai aos playoffs']])}</div>`;
   }
   const rk=rr.ranking.length?rr.ranking:ordenarTabela(rr);
   return `<div class="card"><div class="eyebrow">${esc(nomeLiga(t))}</div>
-    <table><tbody>${rk.slice(0,6).map((id,i)=>{const x=rr.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-      <td class="r num">${x.v}-${x.d}</td><td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')
+    <table class="tb"><tbody>${rk.slice(0,6).map((id,i)=>{const x=rr.tabela[id];
+      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')
       ||'<tr><td class="dim">Tabela ainda não iniciada.</td></tr>'}</tbody></table></div>`;
 }
 function vInicio(){
@@ -17503,7 +17604,7 @@ function vElenco(){
       ||'<div class="empty">Ninguém nessa função.</div>'}</div>
     <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
-    <table><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
+    <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
 }
 function vTaticas(){
@@ -17767,16 +17868,16 @@ function corpoGrupos(s,t){
     const ord=ordenarGrupo(g);
     return `<div class="gr">
       <div class="gr-tit">${esc(g.nome)}</div>
-      <table><tbody>${ord.map((id,i)=>{
-        const x=g.tabela[id];
-        return `<tr class="${id===t.id?'me':''} ${i<s.passam?'passa':''}">
-          <td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-          <td class="r num">${x.v}-${x.d}</td>
-          <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')}
+      <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Mapas</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead><tbody>${ord.map((id,i)=>{
+        const x=g.tabela[id],z=i<s.passam?'po':'';
+        return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}">
+          <td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+          <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td>
+          <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
       </tbody></table></div>`;
   }).join('');
   return `<div class="grades">${grupos}</div>
-    <p class="dim" style="margin-top:6px">Os ${s.passam} primeiros de cada grupo vão aos playoffs.</p>
+    ${legendaZonas([['po','Os '+s.passam+' primeiros de cada grupo vão aos playoffs']])}
     ${sorteioBox(s)}`;
 }
 /* O sorteio fica guardado: dá para conferir de que pote saiu cada clube, que é
@@ -17840,19 +17941,19 @@ function corpoChave(s,t){
 function corpoSwiss(s,t){
   const ord=s.feito&&s.ranking.length?s.ranking:ordenarSwiss(s);
   const desenho=typeof suicoDesenhado==='function'?suicoDesenhado(s):'';
-  return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Campanha</th><th class="r">Mapas</th></tr></thead>
+  return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">Campanha</th><th class="c">Mapas</th></tr></thead>
     <tbody>${ord.map((id,i)=>{const su=s.suico[id],x=s.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-      <td class="r num">${su.v}-${su.d}</td><td class="r num dim">${x.mv}-${x.md}</td></tr>`;}).join('')}
+      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      <td class="c num"><b>${su.v}–${su.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td></tr>`;}).join('')}
     </tbody></table>
     </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
 }
 /* ---------- pontos corridos (formato antigo, ainda usado por saves velhos) ---------- */
 function corpoTabela(s,t){
   const rk=s.ranking.length?s.ranking:ordenarTabela(s);
-  return `<table><thead><tr><th>#</th><th>Equipe</th><th class="r">V-D</th><th class="r">Mapas</th><th class="r">Rounds</th></tr></thead>
-    <tbody>${rk.map((id,i)=>{const x=s.tabela[id];return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td>
-    <td>${timeInline(id,20)}</td>
+  return `<table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">V-D</th><th class="r">Mapas</th><th class="r">Rounds</th></tr></thead>
+    <tbody>${rk.map((id,i)=>{const x=s.tabela[id];return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td>
+    <td>${celClube(id,22)}</td>
     <td class="r num">${x.v}-${x.d}</td><td class="r num dim">${x.mv}-${x.md}</td>
     <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')}</tbody></table>`;
 }
@@ -18091,7 +18192,7 @@ function vMercadoSaidas(t){
   ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
     ${podeSair?'':`<p class="dim">Com ${t.elenco.length} jogadores você não pode vender ninguém — o mínimo é ${ELENCO_MIN}. Emprestar também não, porque o elenco ficaria curto.</p>`}
-    <table class="wide"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
       <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</td>
@@ -18123,7 +18224,7 @@ function vMercadoStaff(t){
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
   </div>
-  <div class="card flat"><table class="wide"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
+  <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
     <th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th>
     <th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(m=>`<tr>
@@ -18159,7 +18260,7 @@ function vMercadoContratos(t){
   return `<div class="card flat"><div class="eyebrow">Seus contratos</div>
     <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
     pré-contrato com outro clube e sair de graça. Renove antes.</p>
-    <table class="wide"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
       <th class="c">Vontade de ficar</th><th>Situação</th><th></th></tr></thead>
     <tbody>${meus.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="c">${ovTag(p)}</td><td class="r num">${money(p.salario)}</td>
@@ -18170,7 +18271,7 @@ function vMercadoContratos(t){
   <div class="card flat"><div class="eyebrow">Último ano em outros clubes</div>
     <p class="dim" style="margin-bottom:8px">${aberto?'Pré-contrato liberado: negocie direto com o jogador, sem taxa. Ele chega na virada.'
       :'O pré-contrato abre na semana '+SEMANA_PRECONTRATO+'. Até lá, só comprando do clube.'}</p>
-    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
       <th class="c">Interesse</th><th>Situação</th><th></th></tr></thead>
     <tbody>${outros.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${esc(nomeT(p.timeId))}</td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
@@ -18273,7 +18374,7 @@ function vBase(){
         <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
     :'<div class="empty">Nenhum garoto na categoria agora. Chame alguém do radar para um teste.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
-    ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
+    ${jovens.length?`<table class="tb ordenavel"><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
     ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
     <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
@@ -18365,7 +18466,7 @@ function vFinancas(){
   </div></div>
 ${blocoPatrocinios(t)}
   <div class="card flat"><div class="eyebrow">Folha salarial</div>
-    <table><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
+    <table class="tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
     <tbody>${t.elenco.map(i=>{const p=P(i);return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b></td><td class="c">${ovTag(p)}</td>
       <td class="r num">${money(p.salario)}</td><td class="r num dim">${(p.salario/folha*100).toFixed(1)}%</td>
       <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td>
@@ -18529,7 +18630,7 @@ function vHistoria(){
   </div>
   </div>
   <div class="card"><div class="eyebrow">Confronto direto · ${conf.length} adversários</div>
-    ${conf.length?`<div class="rolagem"><table class="wide"><thead><tr><th></th><th>Adversário</th>
+    ${conf.length?`<div class="rolagem"><table class="wide tb ordenavel"><thead><tr><th></th><th>Adversário</th>
       <th class="c">J</th><th class="c">V</th><th class="c">D</th><th class="c">Saldo</th>
       <th class="c">Últimos</th></tr></thead>
       <tbody>${conf.map(linhaConf).join('')}</tbody></table></div>`
@@ -18916,10 +19017,11 @@ function corridaAoChampions(){
   const t=meu();
   return REGIONS.map(R=>{
     const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
-    return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th></tr></thead>
-    <tbody>${rk.map((id,i)=>`<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)} ${i<4?'<span class="chip g">Champions</span>':''}</td>
-    <td class="r num">${G.regioes[R.id].pontos[id]||0}</td></tr>`).join('')}</tbody></table></div>`;
-  }).join('');
+    return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th><th class="c">Forma</th></tr></thead>
+    <tbody>${rk.map((id,i)=>{const z=i<4?'q':i===rk.length-1?'cai':'';
+      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+    <td class="r num"><b>${G.regioes[R.id].pontos[id]||0}</b></td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}</tbody></table></div>`;
+  }).join('')+legendaZonas([['q','Vaga no Champions'],['cai','Rebaixamento: o último cai para o Challengers']]);
 }
 function vComp(){
   if(compSel)return paginaTorneio(compSel);
@@ -19235,12 +19337,12 @@ function mundoRanking(){
   const foto=(G.eloHist||[])[0]||null;
   return `${explica(`Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
   atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.`,'Como o ranking é calculado')}
-  <div class="card flat"><table class="wide"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
-    <th class="c">Variação</th><th>12 meses</th></tr></thead><tbody>
+  <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
+    <th class="c">Variação</th><th class="c sem-ord">Forma</th><th class="sem-ord">12 meses</th></tr></thead><tbody>
   ${rk.map((t,i)=>{const pa=posicaoNaFoto(foto,t.id),dv=pa?pa-(i+1):0;
-    return `<tr class="${t.id===G.meuTime?'me':''}"><td class="num">${i+1}</td><td>${timeInline(t.id,20)}</td>
-      <td class="dim">${esc(nomeLiga(t))}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
-      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
+    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i+1}">${selo(i+1,i<3?'top':'')}</td><td>${celClube(t.id,22)}</td>
+      <td><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span></td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
+      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}" data-v="${dv}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
   </tbody></table></div>`;
 }
 
@@ -20022,6 +20124,7 @@ function abrir(html,wide){
   $('#modal').querySelectorAll('[data-fichastaff]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalStaff(b.dataset.fichastaff);});
   if(typeof ligarClubes==='function')ligarClubes($('#modal'));
   if(typeof animarAbas==='function')animarAbas($('#modal'));
+  if(typeof ligarOrdenacao==='function')ligarOrdenacao($('#modal'));
 }
 function fechar(){$('#modal').innerHTML='';render();}
 

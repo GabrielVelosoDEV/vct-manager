@@ -66,18 +66,18 @@ function cardTabelaDaCasa(t,rr){
     return `<div class="card"><div class="split">
       <div class="eyebrow">${esc((typeof nomeStage==='function'&&nomeStage(rr))||nomeLiga(t))} · ${esc(g.nome)}</div>
       <span class="dim">rodada ${Math.min(rr.idx+1,rr.rodadasMax)}/${rr.rodadasMax}</span></div>
-      <table><tbody>${ord.map((id,i)=>{const x=g.tabela[id];
-        return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-        <td class="r num">${x.v}-${x.d}</td>
-        <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td>
-        <td class="r">${i<rr.passam?'<span class="chip t">PO</span>':''}</td></tr>`;}).join('')}
-      </tbody></table></div>`;
+      <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead>
+      <tbody>${ord.map((id,i)=>{const x=g.tabela[id],z=i<rr.passam?'po':'';
+        return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+        <td class="c num"><b>${x.v}–${x.d}</b></td>
+        <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
+      </tbody></table>${legendaZonas([['po','Vai aos playoffs']])}</div>`;
   }
   const rk=rr.ranking.length?rr.ranking:ordenarTabela(rr);
   return `<div class="card"><div class="eyebrow">${esc(nomeLiga(t))}</div>
-    <table><tbody>${rk.slice(0,6).map((id,i)=>{const x=rr.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-      <td class="r num">${x.v}-${x.d}</td><td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')
+    <table class="tb"><tbody>${rk.slice(0,6).map((id,i)=>{const x=rr.tabela[id];
+      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')
       ||'<tr><td class="dim">Tabela ainda não iniciada.</td></tr>'}</tbody></table></div>`;
 }
 function vInicio(){
@@ -246,7 +246,7 @@ function vElenco(){
       ||'<div class="empty">Ninguém nessa função.</div>'}</div>
     <div class="dim" style="margin-top:8px">Recruta até 70 · Profissional 71–80 · Elite 81–90 · Lenda 91+</div></div>
   <div class="card flat"><div class="eyebrow">Ficha completa</div>
-    <table><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
+    <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
 }
 function vTaticas(){
@@ -510,16 +510,16 @@ function corpoGrupos(s,t){
     const ord=ordenarGrupo(g);
     return `<div class="gr">
       <div class="gr-tit">${esc(g.nome)}</div>
-      <table><tbody>${ord.map((id,i)=>{
-        const x=g.tabela[id];
-        return `<tr class="${id===t.id?'me':''} ${i<s.passam?'passa':''}">
-          <td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-          <td class="r num">${x.v}-${x.d}</td>
-          <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')}
+      <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Mapas</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead><tbody>${ord.map((id,i)=>{
+        const x=g.tabela[id],z=i<s.passam?'po':'';
+        return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}">
+          <td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+          <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td>
+          <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
       </tbody></table></div>`;
   }).join('');
   return `<div class="grades">${grupos}</div>
-    <p class="dim" style="margin-top:6px">Os ${s.passam} primeiros de cada grupo vão aos playoffs.</p>
+    ${legendaZonas([['po','Os '+s.passam+' primeiros de cada grupo vão aos playoffs']])}
     ${sorteioBox(s)}`;
 }
 /* O sorteio fica guardado: dá para conferir de que pote saiu cada clube, que é
@@ -583,19 +583,19 @@ function corpoChave(s,t){
 function corpoSwiss(s,t){
   const ord=s.feito&&s.ranking.length?s.ranking:ordenarSwiss(s);
   const desenho=typeof suicoDesenhado==='function'?suicoDesenhado(s):'';
-  return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Campanha</th><th class="r">Mapas</th></tr></thead>
+  return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">Campanha</th><th class="c">Mapas</th></tr></thead>
     <tbody>${ord.map((id,i)=>{const su=s.suico[id],x=s.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)}</td>
-      <td class="r num">${su.v}-${su.d}</td><td class="r num dim">${x.mv}-${x.md}</td></tr>`;}).join('')}
+      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      <td class="c num"><b>${su.v}–${su.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td></tr>`;}).join('')}
     </tbody></table>
     </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
 }
 /* ---------- pontos corridos (formato antigo, ainda usado por saves velhos) ---------- */
 function corpoTabela(s,t){
   const rk=s.ranking.length?s.ranking:ordenarTabela(s);
-  return `<table><thead><tr><th>#</th><th>Equipe</th><th class="r">V-D</th><th class="r">Mapas</th><th class="r">Rounds</th></tr></thead>
-    <tbody>${rk.map((id,i)=>{const x=s.tabela[id];return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td>
-    <td>${timeInline(id,20)}</td>
+  return `<table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">V-D</th><th class="r">Mapas</th><th class="r">Rounds</th></tr></thead>
+    <tbody>${rk.map((id,i)=>{const x=s.tabela[id];return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td>
+    <td>${celClube(id,22)}</td>
     <td class="r num">${x.v}-${x.d}</td><td class="r num dim">${x.mv}-${x.md}</td>
     <td class="r num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td></tr>`;}).join('')}</tbody></table>`;
 }
@@ -834,7 +834,7 @@ function vMercadoSaidas(t){
   ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
     ${podeSair?'':`<p class="dim">Com ${t.elenco.length} jogadores você não pode vender ninguém — o mínimo é ${ELENCO_MIN}. Emprestar também não, porque o elenco ficaria curto.</p>`}
-    <table class="wide"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
       <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</td>
@@ -866,7 +866,7 @@ function vMercadoStaff(t){
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
   </div>
-  <div class="card flat"><table class="wide"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
+  <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
     <th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th>
     <th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(m=>`<tr>
@@ -902,7 +902,7 @@ function vMercadoContratos(t){
   return `<div class="card flat"><div class="eyebrow">Seus contratos</div>
     <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
     pré-contrato com outro clube e sair de graça. Renove antes.</p>
-    <table class="wide"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
       <th class="c">Vontade de ficar</th><th>Situação</th><th></th></tr></thead>
     <tbody>${meus.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="c">${ovTag(p)}</td><td class="r num">${money(p.salario)}</td>
@@ -913,7 +913,7 @@ function vMercadoContratos(t){
   <div class="card flat"><div class="eyebrow">Último ano em outros clubes</div>
     <p class="dim" style="margin-bottom:8px">${aberto?'Pré-contrato liberado: negocie direto com o jogador, sem taxa. Ele chega na virada.'
       :'O pré-contrato abre na semana '+SEMANA_PRECONTRATO+'. Até lá, só comprando do clube.'}</p>
-    <table class="wide"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
+    <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Clube</th><th class="c">Over</th><th class="c">Idade</th>
       <th class="c">Interesse</th><th>Situação</th><th></th></tr></thead>
     <tbody>${outros.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${esc(nomeT(p.timeId))}</td><td class="c">${ovTag(p)}</td><td class="c num">${p.idade}</td>
@@ -1016,7 +1016,7 @@ function vBase(){
         <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
     :'<div class="empty">Nenhum garoto na categoria agora. Chame alguém do radar para um teste.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
-    ${jovens.length?`<table><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
+    ${jovens.length?`<table class="tb ordenavel"><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
     ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
     <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
@@ -1108,7 +1108,7 @@ function vFinancas(){
   </div></div>
 ${blocoPatrocinios(t)}
   <div class="card flat"><div class="eyebrow">Folha salarial</div>
-    <table><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
+    <table class="tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
     <tbody>${t.elenco.map(i=>{const p=P(i);return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b></td><td class="c">${ovTag(p)}</td>
       <td class="r num">${money(p.salario)}</td><td class="r num dim">${(p.salario/folha*100).toFixed(1)}%</td>
       <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td>
@@ -1272,7 +1272,7 @@ function vHistoria(){
   </div>
   </div>
   <div class="card"><div class="eyebrow">Confronto direto · ${conf.length} adversários</div>
-    ${conf.length?`<div class="rolagem"><table class="wide"><thead><tr><th></th><th>Adversário</th>
+    ${conf.length?`<div class="rolagem"><table class="wide tb ordenavel"><thead><tr><th></th><th>Adversário</th>
       <th class="c">J</th><th class="c">V</th><th class="c">D</th><th class="c">Saldo</th>
       <th class="c">Últimos</th></tr></thead>
       <tbody>${conf.map(linhaConf).join('')}</tbody></table></div>`

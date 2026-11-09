@@ -169,3 +169,67 @@ function celebrar(h){
   d.querySelector('button').onclick=fim;d.onclick=e=>{if(e.target===d)fim();};
   setTimeout(()=>{if(document.body.contains(d))fim();},9000);
 }
+
+/* ============================================================
+   V4 — TABELAS
+   Uma linha de clube igual em toda tabela do jogo: posição em selo,
+   escudo, nome com a sigla, faixa colorida pela regra do torneio e
+   forma recente. Tabelas com class "ordenavel" ordenam ao clicar no
+   cabeçalho.
+   ============================================================ */
+/* posição; zona: 'po' (avança), 'q' (vaga em internacional), 'cai' */
+function selo(n,zona){return `<span class="pos ${zona||''}">${n}</span>`;}
+function celClube(id,px){
+  const t=G.times[id];if(!t)return '—';
+  return `<span class="cel-clube">${escudo(t,px||22)}<span class="cel-nome">${esc(t.nome)}</span><span class="cel-tag">${esc(t.tag)}</span></span>`;
+}
+/* últimas séries do clube no ano, da mais antiga para a mais recente */
+function ultimasSeries(id,n){
+  const out=[];
+  for(const b of G.calendario||[])for(const s of b.stages||[])for(const r of s.resultados||[]){
+    if(r.a!==id&&r.b!==id)continue;
+    const adv=r.a===id?r.b:r.a,pl=r.a===id?r.wa+'–'+r.wb:r.wb+'–'+r.wa;
+    out.push({v:r.v===id,sem:r.sem||0,txt:(r.v===id?'V ':'D ')+pl+' '+tagT(adv)});
+  }
+  out.sort((a,b)=>a.sem-b.sem);
+  return out.slice(-(n||5));
+}
+function formaRecente(id,n){
+  const l=ultimasSeries(id,n||5);
+  if(!l.length)return '<span class="forma vazia">—</span>';
+  return `<span class="forma">${l.map(x=>`<i class="${x.v?'v':'d'}" title="${esc(x.txt)}"></i>`).join('')}</span>`;
+}
+function legendaZonas(itens){
+  return `<div class="tb-legenda">${itens.map(([z,txt])=>`<span><i class="lz ${z}"></i>${esc(txt)}</span>`).join('')}</div>`;
+}
+/* ordenação ao clicar no cabeçalho */
+function _valorCelula(td){
+  if(!td)return '';
+  if(td.dataset.v!=null)return parseFloat(td.dataset.v);
+  const t=td.textContent.trim();
+  const limpo=t.replace(/[▲▼$+\s]/g,'').replace('−','-');
+  const m=limpo.match(/^(-?\d+(?:[.,]\d+)?)([kKmM]?)(?![\w])/);
+  if(m){let v=parseFloat(m[1].replace(',','.'));if(/k/i.test(m[2]))v*=1e3;if(/m/i.test(m[2]))v*=1e6;return v;}
+  return t.toLowerCase();
+}
+function ligarOrdenacao(raiz){
+  if(!raiz)return;
+  raiz.querySelectorAll('table.ordenavel').forEach(tb=>{
+    const ths=[...tb.querySelectorAll('thead th')];
+    ths.forEach((th,i)=>{
+      if(th.classList.contains('sem-ord')||!th.textContent.trim())return;
+      th.classList.add('ord');
+      th.onclick=()=>{
+        const tbody=tb.tBodies[0];if(!tbody)return;
+        const asc=th.dataset.dir==='desc';
+        ths.forEach(x=>{delete x.dataset.dir;x.classList.remove('asc','desc');});
+        th.dataset.dir=asc?'asc':'desc';th.classList.add(asc?'asc':'desc');
+        const linhas=[...tbody.rows];
+        linhas.sort((a,b)=>{const va=_valorCelula(a.cells[i]),vb=_valorCelula(b.cells[i]);
+          const r=(typeof va==='number'&&typeof vb==='number')?va-vb:String(va).localeCompare(String(vb),'pt-BR');
+          return asc?r:-r;});
+        linhas.forEach(l=>tbody.appendChild(l));
+      };
+    });
+  });
+}

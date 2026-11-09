@@ -105,6 +105,7 @@ function render(){
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
   if(typeof animarTela==='function')animarTela(v,tela);
+  if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
 }
 function irPara(k,semHist){
   tela=k;

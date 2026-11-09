@@ -115,10 +115,11 @@ function corridaAoChampions(){
   const t=meu();
   return REGIONS.map(R=>{
     const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
-    return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th></tr></thead>
-    <tbody>${rk.map((id,i)=>`<tr class="${id===t.id?'me':''}"><td class="num">${i+1}</td><td>${timeInline(id,20)} ${i<4?'<span class="chip g">Champions</span>':''}</td>
-    <td class="r num">${G.regioes[R.id].pontos[id]||0}</td></tr>`).join('')}</tbody></table></div>`;
-  }).join('');
+    return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th><th class="c">Forma</th></tr></thead>
+    <tbody>${rk.map((id,i)=>{const z=i<4?'q':i===rk.length-1?'cai':'';
+      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+    <td class="r num"><b>${G.regioes[R.id].pontos[id]||0}</b></td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}</tbody></table></div>`;
+  }).join('')+legendaZonas([['q','Vaga no Champions'],['cai','Rebaixamento: o último cai para o Challengers']]);
 }
 function vComp(){
   if(compSel)return paginaTorneio(compSel);

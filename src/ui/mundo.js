@@ -143,12 +143,12 @@ function mundoRanking(){
   const foto=(G.eloHist||[])[0]||null;
   return `${explica(`Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
   atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.`,'Como o ranking é calculado')}
-  <div class="card flat"><table class="wide"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
-    <th class="c">Variação</th><th>12 meses</th></tr></thead><tbody>
+  <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
+    <th class="c">Variação</th><th class="c sem-ord">Forma</th><th class="sem-ord">12 meses</th></tr></thead><tbody>
   ${rk.map((t,i)=>{const pa=posicaoNaFoto(foto,t.id),dv=pa?pa-(i+1):0;
-    return `<tr class="${t.id===G.meuTime?'me':''}"><td class="num">${i+1}</td><td>${timeInline(t.id,20)}</td>
-      <td class="dim">${esc(nomeLiga(t))}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
-      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
+    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i+1}">${selo(i+1,i<3?'top':'')}</td><td>${celClube(t.id,22)}</td>
+      <td><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span></td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
+      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}" data-v="${dv}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
   </tbody></table></div>`;
 }
 
