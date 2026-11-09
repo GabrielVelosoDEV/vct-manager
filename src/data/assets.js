@@ -206,6 +206,9 @@ ASSETS.staff=function(m){
 };
 function retratoStaff(m,px){
   px=px||44;if(!m)return '';
+  /* você: a foto que você escolheu vem antes de qualquer pacote ou pasta */
+  if(m.voce){const f=m.foto||(typeof G!=='undefined'&&G&&G.manager&&G.manager.foto);
+    if(f)return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" alt="" src="${f}">`;}
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;

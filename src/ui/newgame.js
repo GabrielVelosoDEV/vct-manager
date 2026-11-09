@@ -7,7 +7,9 @@ let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEs
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
-    if(!file||!/^image\//.test(file.type||''))return rej(new Error('Escolha um arquivo de imagem.'));
+    /* alguns sistemas não informam o tipo (.jfif, .webp antigos): vale a extensão */
+    const ehImagem=file&&(/^image\//.test(file.type||'')||/\.(jpe?g|jfif|png|webp|gif|bmp|avif)$/i.test(file.name||''));
+    if(!ehImagem)return rej(new Error('Escolha um arquivo de imagem (JPG, PNG ou WebP).'));
     const fr=new FileReader();
     fr.onload=()=>{const im=new Image();im.onload=()=>{
       const W=240,H=300,cv=document.createElement('canvas');cv.width=W;cv.height=H;
@@ -15,7 +17,7 @@ function fotoDoArquivo(file){
       const cx=cv.getContext('2d');cx.fillStyle='#0F1923';cx.fillRect(0,0,W,H);
       cx.drawImage(im,(W-w)/2,(H-h)/2.6,w,h);
       res(cv.toDataURL('image/jpeg',0.86));};
-      im.onerror=()=>rej(new Error('Não deu para ler essa imagem.'));im.src=fr.result;};
+      im.onerror=()=>rej(new Error('Não deu para ler essa imagem. Formatos como HEIC (foto de iPhone) precisam ser convertidos para JPG.'));im.src=fr.result;};
     fr.onerror=()=>rej(new Error('Falha ao ler o arquivo.'));fr.readAsDataURL(file);
   });
 }
@@ -48,7 +50,7 @@ function telaNovoJogo(){
      de abertura e no mesmo ponto da rolagem */
   const antes=$('#modal .ovl.nj-ovl');
   const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
-  $('#modal').innerHTML=`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
+  pintarModal(`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
     <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
     <div class="nj-perfil">
       <div class="nj-foto">
@@ -105,7 +107,7 @@ function telaNovoJogo(){
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>
       <button class="btn ghost" data-close>Cancelar</button></div>
-  </div></div>`;
+  </div></div>`);
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
   if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}

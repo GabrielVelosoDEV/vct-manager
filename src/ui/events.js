@@ -17,6 +17,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-ir]',el=>irPara(el.dataset.ir));
+  on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
@@ -150,7 +151,7 @@ function ligarEventos(){
     definirPlano(t,el.dataset.plano,tipo,alvo||null);
     render();
   });
-  const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)el.addEventListener(ev,f);};
+  const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)ouvir(el,ev,f);};
   bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;
     const l=v.querySelector('#lbScrim');if(l)l.textContent=e.target.value;});
   v.querySelectorAll('.sl [data-marca]').forEach(m=>m.onclick=()=>{const inp=m.closest('.sl').querySelector('input');
@@ -212,7 +213,7 @@ function ligarEventos(){
     if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(el.dataset.eddel);render();flash(r.ok?r.msg:r.erro);
   });
-  v.querySelectorAll('[data-edmover]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-edmover]').forEach(sel=>ouvir(sel,'change',e=>{
     const r=edMover(sel.dataset.edmover,e.target.value||null);
     render();flash(r.ok?(r.msg||'Movido.'):r.erro);
   }));
@@ -312,7 +313,7 @@ function ligarEventos(){
     render();flash(G.staff[r.id].nome+' assumiu como '+cargo+'.');
   });
   on('#edStaffNovoLivre',()=>{const r=criarStaffLivre({});render();flash(r.ok?r.msg:r.erro);});
-  v.querySelectorAll('[data-comissao]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-comissao]').forEach(sel=>ouvir(sel,'change',e=>{
     const cargo=sel.dataset.comissao,novo=e.target.value;
     const t2=G.times[edTime];
     if(!novo){
@@ -323,7 +324,7 @@ function ligarEventos(){
     const r=moverStaff(novo,edTime,cargo);
     render();flash(r.ok?r.msg:r.erro);
   }));
-  v.querySelectorAll('[data-contratarstaff]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-contratarstaff]').forEach(sel=>ouvir(sel,'change',e=>{
     if(!e.target.value)return;
     const r=moverStaff(sel.dataset.contratarstaff,edTime,e.target.value);
     render();flash(r.ok?r.msg:r.erro);
@@ -370,12 +371,12 @@ function ligarEventos(){
     const r=edRemoverCidade(el.dataset.cdel);
     render();flash(r.ok?'Cidade removida.':r.erro);
   });
-  v.querySelectorAll('[data-tarte]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-tarte]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveTorneio(el.dataset.tarte),f);
   }));
 
   /* ---------- patrocinadores ---------- */
-  v.querySelectorAll('[data-patroc]').forEach(el=>el.addEventListener('change',()=>{
+  v.querySelectorAll('[data-patroc]').forEach(el=>ouvir(el,'change',()=>{
     const r=edPatrocinioTrocar(edTime,el.dataset.patroc,el.value);
     render();flash(r.ok?r.msg:r.erro);
   }));
@@ -385,7 +386,7 @@ function ligarEventos(){
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
   const fMk=v.querySelector('#edMkRegiao');
-  if(fMk)fMk.addEventListener('change',()=>{edMkRegiao=fMk.value;render();});
+  if(fMk)ouvir(fMk,'change',()=>{edMkRegiao=fMk.value;render();});
   on('#mkAdd',()=>{
     const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'),val('#mkNovoSetor'),
       val('#mkNovoPatamar'),val('#mkNovoRegiao'),val('#mkNovoPaises'));
@@ -410,7 +411,7 @@ function ligarEventos(){
     for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash(erros.length?erros[0]:n+' marca(s) atualizada(s).');
   });
-  v.querySelectorAll('[data-mklogo]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-mklogo]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveMarca(el.dataset.mklogo),f);
   }));
 
@@ -427,7 +428,7 @@ function ligarEventos(){
     const r=edRemoverAgente(el.dataset.agde,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
-  v.querySelectorAll('[data-agrole]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-agrole]').forEach(sel=>ouvir(sel,'change',e=>{
     const nome=sel.dataset.agrole,de=sel.dataset.agde,para=e.target.value;
     if(de===para)return;
     const add=edAddAgente(para,nome);
@@ -435,7 +436,7 @@ function ligarEventos(){
     const rem=edRemoverAgente(de,nome);
     render();flash(rem.ok?nome+' virou '+para+'.':rem.erro);
   }));
-  v.querySelectorAll('[data-agarte]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-agarte]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveAgente(el.dataset.agarte),f);
   }));
 
@@ -587,10 +588,10 @@ function ligarEventos(){
         tela='inicio';render();flash('Run importada.');
       }catch(e){flash('Erro ao ler o arquivo.');}
     };
-    dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--red)';});
-    dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
-    dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';
+    ouvir(dz,'dragover',e=>{e.preventDefault();dz.style.borderColor='var(--red)';});
+    ouvir(dz,'dragleave',()=>{dz.style.borderColor='';});
+    ouvir(dz,'drop',e=>{e.preventDefault();dz.style.borderColor='';
       if(e.dataTransfer.files[0])receber(e.dataTransfer.files[0]);});
-    if(fi)fi.addEventListener('change',e=>{if(e.target.files[0])receber(e.target.files[0]);});
+    if(fi)ouvir(fi,'change',e=>{if(e.target.files[0])receber(e.target.files[0]);});
   }
 }

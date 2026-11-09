@@ -82,15 +82,80 @@ function raizAtual(){
 }
 
 /* ============================================================
+   PINTURA SEM PISCAR
+   ------------------------------------------------------------
+   Antes toda chamada de render() apagava a tela inteira e escrevia de novo
+   (innerHTML). Cada clique num botão recriava escudos, fotos e barras: a
+   imagem recarregava, a animação de entrada repetia e a tela dava um
+   "tique". Agora são três casos:
+     · mesma tela, mesma aba  → morfar(): só muda o que mudou, imagem e
+       rolagem ficam onde estão;
+     · outra aba da mesma tela → troca com fusão (a aba velha some enquanto
+       a nova aparece);
+     · outra tela              → a mesma fusão, e a rolagem volta ao topo
+       (ou para onde estava, no voltar/avançar).
+   A fusão usa os PRÓPRIOS nós da tela velha, movidos para uma camada por
+   cima que esmaece: nada recarrega, então nada pisca.
+   ============================================================ */
+const _chavePintada=new WeakMap();
+function assinaturaAbas(r){return [...r.querySelectorAll('.tabs button.on')].map(b=>b.textContent.trim()).join('|');}
+/* listener que pode ser religado sem duplicar: o elemento sobrevive ao
+   morfar, então addEventListener a cada render empilharia cópias */
+function ouvir(el,ev,f){
+  if(!el)return;
+  const m=el._ouv||(el._ouv={});
+  if(m[ev])el.removeEventListener(ev,m[ev]);
+  m[ev]=f;el.addEventListener(ev,f);
+}
+function desligarOuvintes(el){
+  el.onclick=null;el.onchange=null;el.oninput=null;
+  if(el._ouv){for(const ev in el._ouv)el.removeEventListener(ev,el._ouv[ev]);el._ouv=null;}
+}
+/* a tela velha vira uma camada fixa por cima e esmaece */
+function fantasma(raiz){
+  const r=raiz.getBoundingClientRect();
+  if(r.width<=0||r.height<=0||!raiz.firstChild)return;
+  const lim=Math.max(0,r.top),alt=Math.min(window.innerHeight,r.bottom)-lim;
+  if(alt<=0)return;
+  const cs=getComputedStyle(raiz);
+  const g=document.createElement('div');g.className='tela-fantasma';g.setAttribute('aria-hidden','true');
+  g.style.cssText=`left:${r.left}px;top:${lim}px;width:${r.width}px;height:${alt}px`;
+  const w=document.createElement('div');
+  w.className=raiz.className.replace(/\bentra\b/,'');
+  w.style.cssText=`position:absolute;left:0;top:${r.top-lim}px;width:${r.width}px;padding:${cs.padding};box-sizing:border-box;display:block`;
+  while(raiz.firstChild)w.appendChild(raiz.firstChild);
+  g.appendChild(w);document.body.appendChild(g);
+  setTimeout(()=>g.remove(),360);
+}
+/* devolve o que aconteceu: 'nova' (primeira pintura), 'morfou', 'aba' ou 'tela' */
+function pintarRaiz(raiz,html,chave,opc){
+  opc=opc||{};
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const antes=_chavePintada.get(raiz);
+  _chavePintada.set(raiz,chave);
+  if(!raiz.firstChild||opc.limpo){raiz.replaceChildren(...tmp.childNodes);return 'nova';}
+  const mudouTela=antes!==chave;
+  if(!mudouTela&&assinaturaAbas(raiz)===assinaturaAbas(tmp)){morfarFilhos(raiz,tmp);return 'morfou';}
+  if(!opc.semFusao&&typeof animacaoLigada==='function'&&animacaoLigada())fantasma(raiz);
+  raiz.replaceChildren(...tmp.childNodes);
+  return mudouTela?'tela':'aba';
+}
+
+/* ============================================================
    RENDER
    ============================================================ */
+let _modoPintado=null;
+const _rolagemTela={};
 function render(){
   document.body.className='modo-'+modo+(Prefs.get('animacoes')?'':' sem-anim');
+  /* saindo do menu para o jogo (ou o contrário) a tela antiga não é fundida:
+     ela é de outra carreira, ou de antes do menu */
+  const trocouModo=_modoPintado!==modo;_modoPintado=modo;
   /* Banco de dados do MENU edita a base; qualquer outra tela usa a carreira.
      Toda navegação passa por aqui, então é aqui que o G troca de mãos. */
   if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
   else Base.fecharEdicao();
-  if(modo==='menu'){renderMenu();return;}
+  if(modo==='menu'){renderMenu(trocouModo);return;}
   pintarSide();pintarTop();
   const v=$('#view');
   /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
@@ -102,21 +167,25 @@ function render(){
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   const html=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
-  v.innerHTML=typeof iconizarHtml==='function'?iconizarHtml(html):html;
+  const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
-  if(typeof animarTela==='function')animarTela(v,tela);
+  if(typeof animarTela==='function')animarTela(v,tela,como);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
 }
 function irPara(k,semHist){
+  const de=tela;
+  _rolagemTela[de]=window.scrollY;
   tela=k;
   if(!semHist){
     hist=hist.slice(0,histPos+1);
     if(hist[histPos]!==k){hist.push(k);histPos=hist.length-1;}
   }
   render();
+  /* tela nova começa no topo; voltar e avançar devolvem onde você estava */
+  if(de!==k)window.scrollTo(0,semHist?(_rolagemTela[k]||0):0);
 }
 
 function pintarSide(){
@@ -126,7 +195,7 @@ function pintarSide(){
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
-  $('#side').innerHTML=
+  pintarRaiz($('#side'),
     `<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>
      <div class="side-nav">`+
@@ -137,7 +206,7 @@ function pintarSide(){
           av?`<span class="aviso">${av}</span>`:''}</a>`;
       }).join('')).join('')+
     `</div>
-     <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`;
+     <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`,'side',{semFusao:true});
   $('#side').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();irPara(a.dataset.t);});
   $('#btnMenu').onclick=()=>sairParaMenu();
 }
@@ -151,7 +220,7 @@ function pintarTop(){
   const t=meu();
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
-  $('#top').innerHTML=`
+  pintarRaiz($('#top'),`
     <div class="top-hist">
       <button id="hVolta" ${histPos<=0?'disabled':''} title="Tela anterior">${ico('seta_e')}</button>
       <button id="hFrente" ${histPos>=hist.length-1?'disabled':''} title="Tela seguinte">${ico('seta_d')}</button>
@@ -172,7 +241,7 @@ function pintarTop(){
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>
       <button class="btn-fim" id="btnFim" title="Avançar até o próximo jogo do seu clube">${ico('duplo')}</button>
-    </div>`;
+    </div>`,'top',{semFusao:true});
   $('#hVolta').onclick=()=>{if(histPos>0){histPos--;irPara(hist[histPos],true);}};
   $('#hFrente').onclick=()=>{if(histPos<hist.length-1){histPos++;irPara(hist[histPos],true);}};
   ligarAcoesTopo();

@@ -1331,18 +1331,27 @@ td.num,td .num,td.r{font-variant-numeric:tabular-nums}
 /* ============================================================
    V2 — MOVIMENTO
    ============================================================ */
-@keyframes telaEntra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes telaEntra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes barEnche{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes ovlIn{from{opacity:0}to{opacity:1}}
 @keyframes boxIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-#view.entra>*{animation:telaEntra .34s cubic-bezier(.2,.7,.2,1) both}
-#view.entra>*:nth-child(2){animation-delay:.03s}#view.entra>*:nth-child(3){animation-delay:.06s}
-#view.entra>*:nth-child(4){animation-delay:.09s}#view.entra>*:nth-child(5){animation-delay:.12s}
-#view.entra>*:nth-child(6){animation-delay:.15s}#view.entra>*:nth-child(7){animation-delay:.18s}
-#view.entra>*:nth-child(n+8){animation-delay:.21s}
-#view.entra .grid>*{animation:telaEntra .36s cubic-bezier(.2,.7,.2,1) both}
-#view.entra .grid>*:nth-child(2){animation-delay:.05s}#view.entra .grid>*:nth-child(3){animation-delay:.1s}#view.entra .grid>*:nth-child(4){animation-delay:.15s}
+/* Fusão: a tela velha (camada .tela-fantasma) esmaece por cima enquanto a
+   nova sobe de leve, toda junta. A cascata cartão a cartão saiu: cada
+   cartão aparecendo na sua vez era o "tique" que se via na troca. */
+#view.entra>*,#shellMenu.entra>*{animation:telaEntra .28s cubic-bezier(.2,.7,.2,1) both}
+.tela-fantasma{position:fixed;z-index:35;overflow:hidden;pointer-events:none;animation:fantasmaSai .2s ease-out forwards}
+@keyframes fantasmaSai{to{opacity:0}}
+#view.entra.aba>*{animation-name:abaEntra}
+@keyframes abaEntra{from{opacity:0}to{opacity:1}}
+.ovl.sai{animation:ovlSai .17s ease-in forwards;pointer-events:none}
+.ovl.sai .box{animation:boxSai .17s ease-in forwards}
+@keyframes ovlSai{to{opacity:0}}
+@keyframes boxSai{to{opacity:0;transform:translateY(6px) scale(.985)}}
+.ovl .box.troca{animation:boxTroca .2s cubic-bezier(.2,.7,.2,1)}
+@keyframes boxTroca{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.cer{transition:background-image .4s ease,background-color .4s ease}
+body.sem-anim .tela-fantasma{display:none}
 #view.entra .bar>i,#view.entra .vb>i{transform-origin:left;animation:barEnche .75s cubic-bezier(.2,.7,.2,1) .15s both}
 .ovl{animation:ovlIn .18s ease-out}
 .ovl .box{animation:boxIn .24s cubic-bezier(.2,.8,.25,1.05)}
@@ -2546,6 +2555,19 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .dp-linha .dp-ligac{grid-column:span 2;margin:0}
 @media (max-width:1100px){.dp-linha .dp-ligac{grid-column:auto}}
 .dp-js{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));column-gap:24px}
+
+/* foto do manager: clicável, troca a qualquer momento */
+button.mgr-foto{position:relative;display:block;padding:0;border:none;background:none;cursor:pointer;line-height:0}
+.mgr-foto-ed{position:absolute;right:-6px;bottom:-6px;display:grid;place-items:center;width:22px;height:22px;
+  background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);opacity:0;transform:scale(.85);transition:opacity .15s,transform .15s}
+.mgr-foto-ed .ic svg{width:12px;height:12px}
+button.mgr-foto:hover .mgr-foto-ed,button.mgr-foto:focus-visible .mgr-foto-ed{opacity:1;transform:none}
+.mgr-semfoto{display:grid;place-items:center;border:1px dashed var(--line2);color:var(--dim);background:rgba(255,255,255,.02)}
+.mgrf{display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:start;margin-top:10px}
+.mgrf-img{width:160px;height:200px;border:1px solid var(--line2);background:var(--panel2);display:grid;place-items:center;overflow:hidden}
+.mgrf-img img{width:100%;height:100%;object-fit:cover}
+.mgrf-img span{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--dim);font-size:12px}
+.mgrf-bts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 
 </style>
 </head>
@@ -14963,8 +14985,17 @@ function retirarManagerDoClube(t){
 }
 /* Saves de antes: o treinador ainda não estava na comissão. Entra no lugar do
    coach, com o mesmo nível dele, para a troca não mexer na força do time. */
+/* A foto mora no cadastro do manager e no do coach; as duas andam juntas. */
+function definirFotoManager(foto){
+  const g=G.manager;if(!g)return;
+  g.foto=foto||null;
+  const mm=membroManager();if(mm)mm.foto=g.foto;
+}
 function garantirManagerNaComissao(){
   const g=G.manager,t=G.meuTime&&G.times[G.meuTime];
+  /* coach criado sem a foto (save de antes dela, ou foto posta depois):
+     a do cadastro do manager vale */
+  {const mm=g&&membroManager();if(mm&&g.foto&&!mm.foto)mm.foto=g.foto;}
   if(!g||!t||!souTreinador()||g.demitido||!G.staff)return;
   if(membroManager()&&t.comissao&&t.comissao.tecnico===g.staffId)return;
   if(!membroManager()){
@@ -17314,6 +17345,9 @@ ASSETS.staff=function(m){
 };
 function retratoStaff(m,px){
   px=px||44;if(!m)return '';
+  /* você: a foto que você escolheu vem antes de qualquer pacote ou pasta */
+  if(m.voce){const f=m.foto||(typeof G!=='undefined'&&G&&G.manager&&G.manager.foto);
+    if(f)return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" alt="" src="${f}">`;}
   const fb=monogramaAgente(m.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('staff:'+ASSETS.slug(m.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
@@ -18184,15 +18218,80 @@ function raizAtual(){
 }
 
 /* ============================================================
+   PINTURA SEM PISCAR
+   ------------------------------------------------------------
+   Antes toda chamada de render() apagava a tela inteira e escrevia de novo
+   (innerHTML). Cada clique num botão recriava escudos, fotos e barras: a
+   imagem recarregava, a animação de entrada repetia e a tela dava um
+   "tique". Agora são três casos:
+     · mesma tela, mesma aba  → morfar(): só muda o que mudou, imagem e
+       rolagem ficam onde estão;
+     · outra aba da mesma tela → troca com fusão (a aba velha some enquanto
+       a nova aparece);
+     · outra tela              → a mesma fusão, e a rolagem volta ao topo
+       (ou para onde estava, no voltar/avançar).
+   A fusão usa os PRÓPRIOS nós da tela velha, movidos para uma camada por
+   cima que esmaece: nada recarrega, então nada pisca.
+   ============================================================ */
+const _chavePintada=new WeakMap();
+function assinaturaAbas(r){return [...r.querySelectorAll('.tabs button.on')].map(b=>b.textContent.trim()).join('|');}
+/* listener que pode ser religado sem duplicar: o elemento sobrevive ao
+   morfar, então addEventListener a cada render empilharia cópias */
+function ouvir(el,ev,f){
+  if(!el)return;
+  const m=el._ouv||(el._ouv={});
+  if(m[ev])el.removeEventListener(ev,m[ev]);
+  m[ev]=f;el.addEventListener(ev,f);
+}
+function desligarOuvintes(el){
+  el.onclick=null;el.onchange=null;el.oninput=null;
+  if(el._ouv){for(const ev in el._ouv)el.removeEventListener(ev,el._ouv[ev]);el._ouv=null;}
+}
+/* a tela velha vira uma camada fixa por cima e esmaece */
+function fantasma(raiz){
+  const r=raiz.getBoundingClientRect();
+  if(r.width<=0||r.height<=0||!raiz.firstChild)return;
+  const lim=Math.max(0,r.top),alt=Math.min(window.innerHeight,r.bottom)-lim;
+  if(alt<=0)return;
+  const cs=getComputedStyle(raiz);
+  const g=document.createElement('div');g.className='tela-fantasma';g.setAttribute('aria-hidden','true');
+  g.style.cssText=`left:${r.left}px;top:${lim}px;width:${r.width}px;height:${alt}px`;
+  const w=document.createElement('div');
+  w.className=raiz.className.replace(/\bentra\b/,'');
+  w.style.cssText=`position:absolute;left:0;top:${r.top-lim}px;width:${r.width}px;padding:${cs.padding};box-sizing:border-box;display:block`;
+  while(raiz.firstChild)w.appendChild(raiz.firstChild);
+  g.appendChild(w);document.body.appendChild(g);
+  setTimeout(()=>g.remove(),360);
+}
+/* devolve o que aconteceu: 'nova' (primeira pintura), 'morfou', 'aba' ou 'tela' */
+function pintarRaiz(raiz,html,chave,opc){
+  opc=opc||{};
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const antes=_chavePintada.get(raiz);
+  _chavePintada.set(raiz,chave);
+  if(!raiz.firstChild||opc.limpo){raiz.replaceChildren(...tmp.childNodes);return 'nova';}
+  const mudouTela=antes!==chave;
+  if(!mudouTela&&assinaturaAbas(raiz)===assinaturaAbas(tmp)){morfarFilhos(raiz,tmp);return 'morfou';}
+  if(!opc.semFusao&&typeof animacaoLigada==='function'&&animacaoLigada())fantasma(raiz);
+  raiz.replaceChildren(...tmp.childNodes);
+  return mudouTela?'tela':'aba';
+}
+
+/* ============================================================
    RENDER
    ============================================================ */
+let _modoPintado=null;
+const _rolagemTela={};
 function render(){
   document.body.className='modo-'+modo+(Prefs.get('animacoes')?'':' sem-anim');
+  /* saindo do menu para o jogo (ou o contrário) a tela antiga não é fundida:
+     ela é de outra carreira, ou de antes do menu */
+  const trocouModo=_modoPintado!==modo;_modoPintado=modo;
   /* Banco de dados do MENU edita a base; qualquer outra tela usa a carreira.
      Toda navegação passa por aqui, então é aqui que o G troca de mãos. */
   if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
   else Base.fecharEdicao();
-  if(modo==='menu'){renderMenu();return;}
+  if(modo==='menu'){renderMenu(trocouModo);return;}
   pintarSide();pintarTop();
   const v=$('#view');
   /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
@@ -18204,21 +18303,25 @@ function render(){
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   const html=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
-  v.innerHTML=typeof iconizarHtml==='function'?iconizarHtml(html):html;
+  const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
-  if(typeof animarTela==='function')animarTela(v,tela);
+  if(typeof animarTela==='function')animarTela(v,tela,como);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
 }
 function irPara(k,semHist){
+  const de=tela;
+  _rolagemTela[de]=window.scrollY;
   tela=k;
   if(!semHist){
     hist=hist.slice(0,histPos+1);
     if(hist[histPos]!==k){hist.push(k);histPos=hist.length-1;}
   }
   render();
+  /* tela nova começa no topo; voltar e avançar devolvem onde você estava */
+  if(de!==k)window.scrollTo(0,semHist?(_rolagemTela[k]||0):0);
 }
 
 function pintarSide(){
@@ -18228,7 +18331,7 @@ function pintarSide(){
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
-  $('#side').innerHTML=
+  pintarRaiz($('#side'),
     `<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>
      <div class="side-nav">`+
@@ -18239,7 +18342,7 @@ function pintarSide(){
           av?`<span class="aviso">${av}</span>`:''}</a>`;
       }).join('')).join('')+
     `</div>
-     <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`;
+     <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`,'side',{semFusao:true});
   $('#side').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();irPara(a.dataset.t);});
   $('#btnMenu').onclick=()=>sairParaMenu();
 }
@@ -18253,7 +18356,7 @@ function pintarTop(){
   const t=meu();
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
-  $('#top').innerHTML=`
+  pintarRaiz($('#top'),`
     <div class="top-hist">
       <button id="hVolta" ${histPos<=0?'disabled':''} title="Tela anterior">${ico('seta_e')}</button>
       <button id="hFrente" ${histPos>=hist.length-1?'disabled':''} title="Tela seguinte">${ico('seta_d')}</button>
@@ -18274,7 +18377,7 @@ function pintarTop(){
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>
       <button class="btn-fim" id="btnFim" title="Avançar até o próximo jogo do seu clube">${ico('duplo')}</button>
-    </div>`;
+    </div>`,'top',{semFusao:true});
   $('#hVolta').onclick=()=>{if(histPos>0){histPos--;irPara(hist[histPos],true);}};
   $('#hFrente').onclick=()=>{if(histPos<hist.length-1){histPos++;irPara(hist[histPos],true);}};
   ligarAcoesTopo();
@@ -18533,12 +18636,16 @@ function animacaoLigada(){
 }
 let _telaAnimada=null;
 /* chamado por render() depois de pintar a tela */
-function animarTela(v,telaAtual){
-  const mudou=telaAtual!==_telaAnimada;_telaAnimada=telaAtual;
+/* `como` vem de pintarRaiz: só tela nova ou aba nova anima; o redesenho da
+   mesma tela (morfar) fica parado, que era de onde vinha o pisca-pisca */
+function animarTela(v,telaAtual,como){
+  const mudou=como?como!=='morfou':telaAtual!==_telaAnimada;
+  _telaAnimada=telaAtual;
   animarAbas(v);
   if(!mudou||!animacaoLigada())return;
-  v.classList.remove('entra');void v.offsetWidth;v.classList.add('entra');
-  contarNumeros(v);
+  v.classList.remove('entra','aba');void v.offsetWidth;v.classList.add('entra');
+  /* troca de aba: só a fusão, sem o deslize (o cabeçalho da tela é o mesmo) */
+  if(como==='aba')v.classList.add('aba');else contarNumeros(v);
 }
 /* indicador das abas desliza da aba anterior para a nova */
 const _abaAnterior=new Map();
@@ -18788,9 +18895,12 @@ function guiaPassosHTML(){
    ============================================================ */
 const VERSAO_JOGO='0.4';
 
-function renderMenu(){
+function renderMenu(limpo){
   const el=$('#shellMenu');
-  if(telaMenu==='menu'){el.innerHTML=vMenuPrincipal();ligarMenuPrincipal();return;}
+  /* mesma pintura sem piscar do jogo (pintarRaiz em shell.js) */
+  const entra=como=>{if(como!=='morfou'&&typeof animacaoLigada==='function'&&animacaoLigada()){
+    el.classList.remove('entra');void el.offsetWidth;el.classList.add('entra');}};
+  if(telaMenu==='menu'){entra(pintarRaiz(el,vMenuPrincipal(),'menu|menu',{limpo}));ligarMenuPrincipal();return;}
   const mapa={
     banco:['Banco de dados',vEditor],
     runs:['Partidas salvas',vRuns],
@@ -18798,14 +18908,14 @@ function renderMenu(){
     creditos:['Créditos',vCreditos]
   }[telaMenu];
   if(!mapa){telaMenu='menu';return renderMenu();}
-  el.innerHTML=`
+  entra(pintarRaiz(el,`
     <div class="menu-topo">
       <button class="btn ghost sm" id="menuVoltar">‹ Menu</button>
       <h2 class="sec" style="margin:0">${esc(mapa[0])}</h2>
       ${telaMenu==='banco'?'<button class="btn" id="menuComecar">Novo jogo com esta base</button>':''}
       ${carreiraAberta()?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
     </div>
-    <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`;
+    <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`,'menu|'+telaMenu,{limpo}));
   $('#menuVoltar').onclick=()=>{telaMenu='menu';render();};
   const bc=$('#menuComecar');if(bc)bc.onclick=()=>novaCarreira();
   const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>{telaMenu='menu';Base.fecharEdicao();entrarNoJogo();};
@@ -20617,8 +20727,29 @@ function cardImprensa(){
 function retratoManager(px){
   const g=G.manager;if(!g)return '';
   const mm=typeof membroManager==='function'&&membroManager();
-  if(mm)return `<span class="mgr-foto">${retratoStaff(mm,px)}</span>`;
-  return g.foto?`<span class="mgr-foto"><img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt=""></span>`:'';
+  const img=mm?retratoStaff(mm,px)
+    :g.foto?`<img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt="">`
+    :`<span class="mgr-semfoto" style="width:${px}px;height:${Math.round(px*1.25)}px">${icone('mais')}</span>`;
+  /* clicar na foto troca a foto, a qualquer momento da carreira */
+  return `<button class="mgr-foto" data-mgrfoto title="Trocar a sua foto">${img}<span class="mgr-foto-ed">${icone('caneta')}</span></button>`;
+}
+function modalFotoManager(){
+  const g=G.manager;if(!g)return;
+  abrir(`<div class="eyebrow">Você</div><h2 class="sec">Sua foto</h2>
+    <div class="mgrf">
+      <div class="mgrf-img">${g.foto?`<img src="${g.foto}" alt="">`:`<span>${icone('mais')}<b>sem foto</b></span>`}</div>
+      <div class="mgrf-txt"><p class="dim">Aparece na Central, na comissão técnica e na sua ficha de coach.
+        A imagem é recortada em 4:5 e guardada dentro do save.</p>
+        <div class="mgrf-bts"><label class="btn">Escolher imagem<input type="file" id="mgrFotoIn" accept="image/*" hidden></label>
+          ${g.foto?'<button class="btn ghost" id="mgrFotoTira">Tirar a foto</button>':''}
+          <button class="btn ghost" data-close>Fechar</button></div></div>
+    </div>`);
+  const inp=$('#mgrFotoIn');
+  if(inp)inp.onchange=async()=>{
+    try{const f=await fotoDoArquivo(inp.files[0]);definirFotoManager(f);render();modalFotoManager();flash('Foto atualizada.');}
+    catch(e){flash(e.message);}
+  };
+  const tira=$('#mgrFotoTira');if(tira)tira.onclick=()=>{definirFotoManager(null);render();modalFotoManager();};
 }
 /* ---------- a tela ---------- */
 function vInicio(){
@@ -20737,28 +20868,28 @@ function escalacaoHTML(t,opc){
 let _arrastando=null;
 function ligarEscalacao(raiz,t){
   raiz.querySelectorAll('[data-arrasta]').forEach(el=>{
-    el.addEventListener('dragstart',e=>{
+    ouvir(el,'dragstart',e=>{
       _arrastando=el.dataset.arrasta;
       e.dataTransfer.effectAllowed='move';
       try{e.dataTransfer.setData('text/plain',_arrastando);}catch(_){}
       requestAnimationFrame(()=>el.classList.add('arrastando'));
       raiz.classList.add('esc-arrastando');
     });
-    el.addEventListener('dragend',()=>{
+    ouvir(el,'dragend',()=>{
       el.classList.remove('arrastando');raiz.classList.remove('esc-arrastando');
       raiz.querySelectorAll('.alvo').forEach(x=>x.classList.remove('alvo'));
       _arrastando=null;
     });
   });
   raiz.querySelectorAll('[data-alvo]').forEach(el=>{
-    el.addEventListener('dragover',e=>{
+    ouvir(el,'dragover',e=>{
       if(!_arrastando||_arrastando===el.dataset.alvo)return;
       /* banco sobre banco não faz nada */
       if(!t.titulares.includes(_arrastando)&&!t.titulares.includes(el.dataset.alvo))return;
       e.preventDefault();e.dataTransfer.dropEffect='move';el.classList.add('alvo');
     });
-    el.addEventListener('dragleave',()=>el.classList.remove('alvo'));
-    el.addEventListener('drop',e=>{
+    ouvir(el,'dragleave',()=>el.classList.remove('alvo'));
+    ouvir(el,'drop',e=>{
       e.preventDefault();el.classList.remove('alvo');
       const de=_arrastando||e.dataTransfer.getData('text/plain'),para=el.dataset.alvo;
       _arrastando=null;
@@ -20805,7 +20936,8 @@ function _janelas(pos,n,cor,id){
 }
 function cenaEstrutura(k,n,cor){
   cor=cor||'#FF4655';
-  const id='ce'+(++_cenaSeq);
+  /* id estável: o redesenho da tela (morfar) não precisa mexer no SVG */
+  const id='ce-'+k+'-'+n;
   const fundo=`<defs>
       <linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222E"/><stop offset="1" stop-color="#0B1218"/></linearGradient>
       <radialGradient id="${id}g" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="${cor}" stop-opacity="${(0.10+n*0.05).toFixed(2)}"/><stop offset="1" stop-color="${cor}" stop-opacity="0"/></radialGradient>
@@ -22684,7 +22816,7 @@ function pintarCerimonia(){
   const meuT=G.meuTime&&G.times[G.meuTime];
   const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
     :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
-  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
+  pintarModal(`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
     <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>
       <button class="btn ghost sm" data-cer="pular">${CER.fim?'Pular cerimônia':'Fechar'}</button></div>
     <div class="cer-corpo" key="${i}">${T[i].html}</div>
@@ -22692,7 +22824,7 @@ function pintarCerimonia(){
       <button class="btn ghost" data-cer="voltar" ${i?'':'disabled'}>‹ Voltar</button>
       <span class="dim">${esc(T[i].rot)} · ${i+1} de ${T.length}</span>
       <button class="btn" data-cer="seguir">${ult?(CER.veredito?'Ver o veredito':CER.fim?'Seguir':'Fechar'):i===0?'Começar ›':'Próximo ›'}</button>
-    </div></div></div>`;
+    </div></div></div>`);
   const md=$('#modal');
   md.querySelectorAll('[data-cerir]').forEach(b=>b.onclick=e=>{e.stopPropagation();
     const k=+b.dataset.cerir;if(k<=CER.i||k===CER.i+1){CER.i=k;pintarCerimonia();}});
@@ -22716,13 +22848,19 @@ function pintarCerimonia(){
    Agora só muda o que mudou (morfar) e a janela fica parada. */
 function abrir(html,wide,continuar){
   const conteudo=typeof iconizarHtml==='function'?iconizarHtml(html):html;
-  const atual=continuar&&$('#modal .ovl > .box');
+  const caixa=`<div class="box ${wide?'wide':''}">${conteudo}</div>`;
+  const ovlAtual=$('#modal > .ovl');
+  const atual=ovlAtual&&!ovlAtual.classList.contains('cer-ovl')&&ovlAtual.querySelector(':scope > .box');
   if(atual){
-    const tmp=document.createElement('div');
-    tmp.innerHTML=`<div class="box ${wide?'wide':''}">${conteudo}</div>`;
-    morfar(atual,tmp.firstElementChild);
+    /* Já tem janela aberta: o fundo escuro fica, só a caixa muda. A mesma
+       ficha sendo redesenhada (depois de uma ação, a cada round) é morfada;
+       outra janela entra com uma troca curta, sem o fundo piscar. */
+    const tmp=document.createElement('div');tmp.innerHTML=caixa;
+    const nova=tmp.firstElementChild;
+    if(continuar||mesmaJanela(atual,nova))morfar(atual,nova);
+    else{nova.classList.add('troca');ovlAtual.replaceChild(nova,atual);}
   }else
-  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${conteudo}</div></div>`;
+  $('#modal').innerHTML=`<div class="ovl">${caixa}</div>`;
   const ovl=$('#modal .ovl');
   ovl.onclick=e=>{if(e.target===ovl)fechar();};
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
@@ -22732,15 +22870,66 @@ function abrir(html,wide,continuar){
   if(typeof animarAbas==='function')animarAbas($('#modal'));
   if(typeof ligarOrdenacao==='function')ligarOrdenacao($('#modal'));
 }
-function fechar(){$('#modal').innerHTML='';render();}
+/* a mesma janela redesenhada: mesma caixa e o mesmo primeiro bloco */
+function mesmaJanela(a,b){
+  if(!a||!b||a.className.replace(/\btroca\b/,'').trim()!==b.className.trim())return false;
+  const fa=a.firstElementChild,fb=b.firstElementChild;
+  if(!fa||!fb||fa.tagName!==fb.tagName||fa.className!==fb.className)return false;
+  /* fichas de pessoa diferente não são a mesma janela */
+  const qa=a.querySelector('[data-ficha]'),qb=b.querySelector('[data-ficha]');
+  return (qa&&qa.dataset.ficha)===(qb&&qb.dataset.ficha);
+}
+/* fecha esmaecendo: a janela sai do #modal na hora (quem pergunta se há
+   janela aberta já recebe "não") e termina de sumir por cima */
+function fechar(){
+  const o=$('#modal > .ovl');
+  if(o&&typeof animacaoLigada==='function'&&animacaoLigada()){
+    o.classList.add('sai');o.onclick=null;document.body.appendChild(o);
+    setTimeout(()=>o.remove(),180);
+  }
+  $('#modal').innerHTML='';render();
+}
+/* Janelas que se redesenham inteiras (criação de carreira, cerimônia):
+   mesma janela → morfa; outra → escreve. */
+function pintarModal(html){
+  const m=$('#modal'),atual=m.firstElementChild;
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const novo=tmp.firstElementChild;
+  const base=el=>el.className.split(/\s+/).filter(c=>c&&c!=='sem-entrada'&&c!=='sai').join(' ');
+  if(atual&&novo&&atual.classList.contains('ovl')&&base(atual)===base(novo)){
+    for(const at of [...novo.attributes])if(at.name!=='class'&&atual.getAttribute(at.name)!==at.value)atual.setAttribute(at.name,at.value);
+    morfarFilhos(atual,novo);
+  }else m.innerHTML=html;
+}
 /* Atualiza `velho` para ficar igual a `novo` mexendo no mínimo: nó igual fica
    como está (a imagem não recarrega, a animação não repete); texto muda no
-   lugar; nó que nasce agora entra novo. Elementos marcados como novos
-   (.novo, .anima, .agora) e campos de formulário são trocados inteiros, para
-   a animação de entrada valer e o campo não ficar com valor velho. */
+   lugar; nó que nasce agora entra novo.
+   · `key` diferente troca o nó inteiro (o corpo de outra etapa da cerimônia
+     entra com a própria animação);
+   · .novo, .anima e .agora também entram inteiros, para a animação valer;
+   · campo de formulário fica o mesmo elemento: quem está digitando não perde
+     o foco nem o cursor; fora de foco, o valor acompanha o HTML novo;
+   · <details> aberto continua aberto;
+   · se os atributos mudaram, os ouvintes antigos saem (o render religa os
+     certos logo depois), para um botão que virou outro não levar a ação velha. */
 function morfar(velho,novo){
-  for(const at of [...velho.attributes])if(!novo.hasAttribute(at.name))velho.removeAttribute(at.name);
-  for(const at of [...novo.attributes])if(velho.getAttribute(at.name)!==at.value)velho.setAttribute(at.name,at.value);
+  let mudou=false;
+  for(const at of [...velho.attributes])
+    if(!novo.hasAttribute(at.name)&&!(at.name==='open'&&velho.nodeName==='DETAILS')){velho.removeAttribute(at.name);mudou=true;}
+  for(const at of [...novo.attributes])if(velho.getAttribute(at.name)!==at.value){velho.setAttribute(at.name,at.value);mudou=true;}
+  if(mudou&&typeof desligarOuvintes==='function')desligarOuvintes(velho);
+  const n=velho.nodeName;
+  if(n==='INPUT'||n==='TEXTAREA'){
+    if(document.activeElement!==velho){
+      if(velho.value!==novo.value)velho.value=novo.value;
+      if(velho.checked!==novo.checked)velho.checked=novo.checked;
+    }
+    if(n==='INPUT')return;
+  }
+  morfarFilhos(velho,novo);
+  if(n==='SELECT'&&velho.value!==novo.value)velho.value=novo.value;
+}
+function morfarFilhos(velho,novo){
   const va=[...velho.childNodes],nb=[...novo.childNodes];
   nb.forEach((y,i)=>{
     const x=va[i];
@@ -22748,7 +22937,8 @@ function morfar(velho,novo){
     if(x.isEqualNode(y))return;
     if(x.nodeType===3&&y.nodeType===3){x.nodeValue=y.nodeValue;return;}
     const troca=x.nodeType!==y.nodeType||x.nodeName!==y.nodeName||x.nodeType!==1
-      ||/^(INPUT|SELECT|TEXTAREA)$/.test(x.nodeName)
+      ||(x.nodeName==='INPUT'&&x.type!==y.type)
+      ||x.getAttribute('key')!==y.getAttribute('key')
       ||/\b(novo|anima|agora)\b/.test(y.getAttribute('class')||'');
     if(troca)velho.replaceChild(y,x);else morfar(x,y);
   });
@@ -23238,10 +23428,10 @@ function modalEditarJogador(id){
   };
   ATTRS.forEach(([k])=>{
     const r=M.querySelector('[data-atr="'+k+'"]'),n=M.querySelector('[data-atn="'+k+'"]');
-    r.addEventListener('input',()=>{n.value=r.value;repintarOver();});
-    n.addEventListener('input',()=>{r.value=n.value;repintarOver();});
+    ouvir(r,'input',()=>{n.value=r.value;repintarOver();});
+    ouvir(n,'input',()=>{r.value=n.value;repintarOver();});
   });
-  M.querySelector('#edjRole').addEventListener('change',repintarOver);
+  ouvir(M.querySelector('#edjRole'),'change',repintarOver);
 
   M.querySelector('#edjAplicarAlvo').onclick=()=>{
     const alvo=num('#edjAlvo');
@@ -23461,10 +23651,10 @@ function modalEditarStaff(id){
   };
   ATTRS_STAFF.forEach(([k])=>{
     const r=M.querySelector('[data-satr="'+k+'"]'),n=M.querySelector('[data-satn="'+k+'"]');
-    r.addEventListener('input',()=>{n.value=r.value;repintar();});
-    n.addEventListener('input',()=>{r.value=n.value;repintar();});
+    ouvir(r,'input',()=>{n.value=r.value;repintar();});
+    ouvir(n,'input',()=>{r.value=n.value;repintar();});
   });
-  M.querySelector('#edsCargo').addEventListener('change',repintar);
+  ouvir(M.querySelector('#edsCargo'),'change',repintar);
 
   const subir=async file=>{
     try{
@@ -26118,6 +26308,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-ir]',el=>irPara(el.dataset.ir));
+  on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
@@ -26251,7 +26442,7 @@ function ligarEventos(){
     definirPlano(t,el.dataset.plano,tipo,alvo||null);
     render();
   });
-  const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)el.addEventListener(ev,f);};
+  const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)ouvir(el,ev,f);};
   bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;
     const l=v.querySelector('#lbScrim');if(l)l.textContent=e.target.value;});
   v.querySelectorAll('.sl [data-marca]').forEach(m=>m.onclick=()=>{const inp=m.closest('.sl').querySelector('input');
@@ -26313,7 +26504,7 @@ function ligarEventos(){
     if(!await confirmar('Apagar '+p.nome+' da base? Não dá para desfazer.','Apagar'))return;
     const r=edApagar(el.dataset.eddel);render();flash(r.ok?r.msg:r.erro);
   });
-  v.querySelectorAll('[data-edmover]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-edmover]').forEach(sel=>ouvir(sel,'change',e=>{
     const r=edMover(sel.dataset.edmover,e.target.value||null);
     render();flash(r.ok?(r.msg||'Movido.'):r.erro);
   }));
@@ -26413,7 +26604,7 @@ function ligarEventos(){
     render();flash(G.staff[r.id].nome+' assumiu como '+cargo+'.');
   });
   on('#edStaffNovoLivre',()=>{const r=criarStaffLivre({});render();flash(r.ok?r.msg:r.erro);});
-  v.querySelectorAll('[data-comissao]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-comissao]').forEach(sel=>ouvir(sel,'change',e=>{
     const cargo=sel.dataset.comissao,novo=e.target.value;
     const t2=G.times[edTime];
     if(!novo){
@@ -26424,7 +26615,7 @@ function ligarEventos(){
     const r=moverStaff(novo,edTime,cargo);
     render();flash(r.ok?r.msg:r.erro);
   }));
-  v.querySelectorAll('[data-contratarstaff]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-contratarstaff]').forEach(sel=>ouvir(sel,'change',e=>{
     if(!e.target.value)return;
     const r=moverStaff(sel.dataset.contratarstaff,edTime,e.target.value);
     render();flash(r.ok?r.msg:r.erro);
@@ -26471,12 +26662,12 @@ function ligarEventos(){
     const r=edRemoverCidade(el.dataset.cdel);
     render();flash(r.ok?'Cidade removida.':r.erro);
   });
-  v.querySelectorAll('[data-tarte]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-tarte]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveTorneio(el.dataset.tarte),f);
   }));
 
   /* ---------- patrocinadores ---------- */
-  v.querySelectorAll('[data-patroc]').forEach(el=>el.addEventListener('change',()=>{
+  v.querySelectorAll('[data-patroc]').forEach(el=>ouvir(el,'change',()=>{
     const r=edPatrocinioTrocar(edTime,el.dataset.patroc,el.value);
     render();flash(r.ok?r.msg:r.erro);
   }));
@@ -26486,7 +26677,7 @@ function ligarEventos(){
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
   const fMk=v.querySelector('#edMkRegiao');
-  if(fMk)fMk.addEventListener('change',()=>{edMkRegiao=fMk.value;render();});
+  if(fMk)ouvir(fMk,'change',()=>{edMkRegiao=fMk.value;render();});
   on('#mkAdd',()=>{
     const r=edMarcaCriar(val('#mkNovo'),val('#mkNovoNivel'),val('#mkNovoSetor'),
       val('#mkNovoPatamar'),val('#mkNovoRegiao'),val('#mkNovoPaises'));
@@ -26511,7 +26702,7 @@ function ligarEventos(){
     for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash(erros.length?erros[0]:n+' marca(s) atualizada(s).');
   });
-  v.querySelectorAll('[data-mklogo]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-mklogo]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveMarca(el.dataset.mklogo),f);
   }));
 
@@ -26528,7 +26719,7 @@ function ligarEventos(){
     const r=edRemoverAgente(el.dataset.agde,nome);
     render();flash(r.ok?r.msg:r.erro);
   });
-  v.querySelectorAll('[data-agrole]').forEach(sel=>sel.addEventListener('change',e=>{
+  v.querySelectorAll('[data-agrole]').forEach(sel=>ouvir(sel,'change',e=>{
     const nome=sel.dataset.agrole,de=sel.dataset.agde,para=e.target.value;
     if(de===para)return;
     const add=edAddAgente(para,nome);
@@ -26536,7 +26727,7 @@ function ligarEventos(){
     const rem=edRemoverAgente(de,nome);
     render();flash(rem.ok?nome+' virou '+para+'.':rem.erro);
   }));
-  v.querySelectorAll('[data-agarte]').forEach(el=>el.addEventListener('change',e=>{
+  v.querySelectorAll('[data-agarte]').forEach(el=>ouvir(el,'change',e=>{
     const f=e.target.files[0];if(f)subirPara(Imgs.chaveAgente(el.dataset.agarte),f);
   }));
 
@@ -26688,11 +26879,11 @@ function ligarEventos(){
         tela='inicio';render();flash('Run importada.');
       }catch(e){flash('Erro ao ler o arquivo.');}
     };
-    dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--red)';});
-    dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
-    dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';
+    ouvir(dz,'dragover',e=>{e.preventDefault();dz.style.borderColor='var(--red)';});
+    ouvir(dz,'dragleave',()=>{dz.style.borderColor='';});
+    ouvir(dz,'drop',e=>{e.preventDefault();dz.style.borderColor='';
       if(e.dataTransfer.files[0])receber(e.dataTransfer.files[0]);});
-    if(fi)fi.addEventListener('change',e=>{if(e.target.files[0])receber(e.target.files[0]);});
+    if(fi)ouvir(fi,'change',e=>{if(e.target.files[0])receber(e.target.files[0]);});
   }
 }
 
@@ -26707,7 +26898,9 @@ let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEs
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
-    if(!file||!/^image\//.test(file.type||''))return rej(new Error('Escolha um arquivo de imagem.'));
+    /* alguns sistemas não informam o tipo (.jfif, .webp antigos): vale a extensão */
+    const ehImagem=file&&(/^image\//.test(file.type||'')||/\.(jpe?g|jfif|png|webp|gif|bmp|avif)$/i.test(file.name||''));
+    if(!ehImagem)return rej(new Error('Escolha um arquivo de imagem (JPG, PNG ou WebP).'));
     const fr=new FileReader();
     fr.onload=()=>{const im=new Image();im.onload=()=>{
       const W=240,H=300,cv=document.createElement('canvas');cv.width=W;cv.height=H;
@@ -26715,7 +26908,7 @@ function fotoDoArquivo(file){
       const cx=cv.getContext('2d');cx.fillStyle='#0F1923';cx.fillRect(0,0,W,H);
       cx.drawImage(im,(W-w)/2,(H-h)/2.6,w,h);
       res(cv.toDataURL('image/jpeg',0.86));};
-      im.onerror=()=>rej(new Error('Não deu para ler essa imagem.'));im.src=fr.result;};
+      im.onerror=()=>rej(new Error('Não deu para ler essa imagem. Formatos como HEIC (foto de iPhone) precisam ser convertidos para JPG.'));im.src=fr.result;};
     fr.onerror=()=>rej(new Error('Falha ao ler o arquivo.'));fr.readAsDataURL(file);
   });
 }
@@ -26748,7 +26941,7 @@ function telaNovoJogo(){
      de abertura e no mesmo ponto da rolagem */
   const antes=$('#modal .ovl.nj-ovl');
   const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
-  $('#modal').innerHTML=`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
+  pintarModal(`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
     <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
     <div class="nj-perfil">
       <div class="nj-foto">
@@ -26805,7 +26998,7 @@ function telaNovoJogo(){
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>
       <button class="btn ghost" data-close>Cancelar</button></div>
-  </div></div>`;
+  </div></div>`);
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
   if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}

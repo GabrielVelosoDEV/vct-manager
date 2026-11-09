@@ -128,8 +128,17 @@ function retirarManagerDoClube(t){
 }
 /* Saves de antes: o treinador ainda não estava na comissão. Entra no lugar do
    coach, com o mesmo nível dele, para a troca não mexer na força do time. */
+/* A foto mora no cadastro do manager e no do coach; as duas andam juntas. */
+function definirFotoManager(foto){
+  const g=G.manager;if(!g)return;
+  g.foto=foto||null;
+  const mm=membroManager();if(mm)mm.foto=g.foto;
+}
 function garantirManagerNaComissao(){
   const g=G.manager,t=G.meuTime&&G.times[G.meuTime];
+  /* coach criado sem a foto (save de antes dela, ou foto posta depois):
+     a do cadastro do manager vale */
+  {const mm=g&&membroManager();if(mm&&g.foto&&!mm.foto)mm.foto=g.foto;}
   if(!g||!t||!souTreinador()||g.demitido||!G.staff)return;
   if(membroManager()&&t.comissao&&t.comissao.tecnico===g.staffId)return;
   if(!membroManager()){

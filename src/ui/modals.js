@@ -7,13 +7,19 @@
    Agora só muda o que mudou (morfar) e a janela fica parada. */
 function abrir(html,wide,continuar){
   const conteudo=typeof iconizarHtml==='function'?iconizarHtml(html):html;
-  const atual=continuar&&$('#modal .ovl > .box');
+  const caixa=`<div class="box ${wide?'wide':''}">${conteudo}</div>`;
+  const ovlAtual=$('#modal > .ovl');
+  const atual=ovlAtual&&!ovlAtual.classList.contains('cer-ovl')&&ovlAtual.querySelector(':scope > .box');
   if(atual){
-    const tmp=document.createElement('div');
-    tmp.innerHTML=`<div class="box ${wide?'wide':''}">${conteudo}</div>`;
-    morfar(atual,tmp.firstElementChild);
+    /* Já tem janela aberta: o fundo escuro fica, só a caixa muda. A mesma
+       ficha sendo redesenhada (depois de uma ação, a cada round) é morfada;
+       outra janela entra com uma troca curta, sem o fundo piscar. */
+    const tmp=document.createElement('div');tmp.innerHTML=caixa;
+    const nova=tmp.firstElementChild;
+    if(continuar||mesmaJanela(atual,nova))morfar(atual,nova);
+    else{nova.classList.add('troca');ovlAtual.replaceChild(nova,atual);}
   }else
-  $('#modal').innerHTML=`<div class="ovl"><div class="box ${wide?'wide':''}">${conteudo}</div></div>`;
+  $('#modal').innerHTML=`<div class="ovl">${caixa}</div>`;
   const ovl=$('#modal .ovl');
   ovl.onclick=e=>{if(e.target===ovl)fechar();};
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
@@ -23,15 +29,66 @@ function abrir(html,wide,continuar){
   if(typeof animarAbas==='function')animarAbas($('#modal'));
   if(typeof ligarOrdenacao==='function')ligarOrdenacao($('#modal'));
 }
-function fechar(){$('#modal').innerHTML='';render();}
+/* a mesma janela redesenhada: mesma caixa e o mesmo primeiro bloco */
+function mesmaJanela(a,b){
+  if(!a||!b||a.className.replace(/\btroca\b/,'').trim()!==b.className.trim())return false;
+  const fa=a.firstElementChild,fb=b.firstElementChild;
+  if(!fa||!fb||fa.tagName!==fb.tagName||fa.className!==fb.className)return false;
+  /* fichas de pessoa diferente não são a mesma janela */
+  const qa=a.querySelector('[data-ficha]'),qb=b.querySelector('[data-ficha]');
+  return (qa&&qa.dataset.ficha)===(qb&&qb.dataset.ficha);
+}
+/* fecha esmaecendo: a janela sai do #modal na hora (quem pergunta se há
+   janela aberta já recebe "não") e termina de sumir por cima */
+function fechar(){
+  const o=$('#modal > .ovl');
+  if(o&&typeof animacaoLigada==='function'&&animacaoLigada()){
+    o.classList.add('sai');o.onclick=null;document.body.appendChild(o);
+    setTimeout(()=>o.remove(),180);
+  }
+  $('#modal').innerHTML='';render();
+}
+/* Janelas que se redesenham inteiras (criação de carreira, cerimônia):
+   mesma janela → morfa; outra → escreve. */
+function pintarModal(html){
+  const m=$('#modal'),atual=m.firstElementChild;
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const novo=tmp.firstElementChild;
+  const base=el=>el.className.split(/\s+/).filter(c=>c&&c!=='sem-entrada'&&c!=='sai').join(' ');
+  if(atual&&novo&&atual.classList.contains('ovl')&&base(atual)===base(novo)){
+    for(const at of [...novo.attributes])if(at.name!=='class'&&atual.getAttribute(at.name)!==at.value)atual.setAttribute(at.name,at.value);
+    morfarFilhos(atual,novo);
+  }else m.innerHTML=html;
+}
 /* Atualiza `velho` para ficar igual a `novo` mexendo no mínimo: nó igual fica
    como está (a imagem não recarrega, a animação não repete); texto muda no
-   lugar; nó que nasce agora entra novo. Elementos marcados como novos
-   (.novo, .anima, .agora) e campos de formulário são trocados inteiros, para
-   a animação de entrada valer e o campo não ficar com valor velho. */
+   lugar; nó que nasce agora entra novo.
+   · `key` diferente troca o nó inteiro (o corpo de outra etapa da cerimônia
+     entra com a própria animação);
+   · .novo, .anima e .agora também entram inteiros, para a animação valer;
+   · campo de formulário fica o mesmo elemento: quem está digitando não perde
+     o foco nem o cursor; fora de foco, o valor acompanha o HTML novo;
+   · <details> aberto continua aberto;
+   · se os atributos mudaram, os ouvintes antigos saem (o render religa os
+     certos logo depois), para um botão que virou outro não levar a ação velha. */
 function morfar(velho,novo){
-  for(const at of [...velho.attributes])if(!novo.hasAttribute(at.name))velho.removeAttribute(at.name);
-  for(const at of [...novo.attributes])if(velho.getAttribute(at.name)!==at.value)velho.setAttribute(at.name,at.value);
+  let mudou=false;
+  for(const at of [...velho.attributes])
+    if(!novo.hasAttribute(at.name)&&!(at.name==='open'&&velho.nodeName==='DETAILS')){velho.removeAttribute(at.name);mudou=true;}
+  for(const at of [...novo.attributes])if(velho.getAttribute(at.name)!==at.value){velho.setAttribute(at.name,at.value);mudou=true;}
+  if(mudou&&typeof desligarOuvintes==='function')desligarOuvintes(velho);
+  const n=velho.nodeName;
+  if(n==='INPUT'||n==='TEXTAREA'){
+    if(document.activeElement!==velho){
+      if(velho.value!==novo.value)velho.value=novo.value;
+      if(velho.checked!==novo.checked)velho.checked=novo.checked;
+    }
+    if(n==='INPUT')return;
+  }
+  morfarFilhos(velho,novo);
+  if(n==='SELECT'&&velho.value!==novo.value)velho.value=novo.value;
+}
+function morfarFilhos(velho,novo){
   const va=[...velho.childNodes],nb=[...novo.childNodes];
   nb.forEach((y,i)=>{
     const x=va[i];
@@ -39,7 +96,8 @@ function morfar(velho,novo){
     if(x.isEqualNode(y))return;
     if(x.nodeType===3&&y.nodeType===3){x.nodeValue=y.nodeValue;return;}
     const troca=x.nodeType!==y.nodeType||x.nodeName!==y.nodeName||x.nodeType!==1
-      ||/^(INPUT|SELECT|TEXTAREA)$/.test(x.nodeName)
+      ||(x.nodeName==='INPUT'&&x.type!==y.type)
+      ||x.getAttribute('key')!==y.getAttribute('key')
       ||/\b(novo|anima|agora)\b/.test(y.getAttribute('class')||'');
     if(troca)velho.replaceChild(y,x);else morfar(x,y);
   });
@@ -529,10 +587,10 @@ function modalEditarJogador(id){
   };
   ATTRS.forEach(([k])=>{
     const r=M.querySelector('[data-atr="'+k+'"]'),n=M.querySelector('[data-atn="'+k+'"]');
-    r.addEventListener('input',()=>{n.value=r.value;repintarOver();});
-    n.addEventListener('input',()=>{r.value=n.value;repintarOver();});
+    ouvir(r,'input',()=>{n.value=r.value;repintarOver();});
+    ouvir(n,'input',()=>{r.value=n.value;repintarOver();});
   });
-  M.querySelector('#edjRole').addEventListener('change',repintarOver);
+  ouvir(M.querySelector('#edjRole'),'change',repintarOver);
 
   M.querySelector('#edjAplicarAlvo').onclick=()=>{
     const alvo=num('#edjAlvo');
@@ -752,10 +810,10 @@ function modalEditarStaff(id){
   };
   ATTRS_STAFF.forEach(([k])=>{
     const r=M.querySelector('[data-satr="'+k+'"]'),n=M.querySelector('[data-satn="'+k+'"]');
-    r.addEventListener('input',()=>{n.value=r.value;repintar();});
-    n.addEventListener('input',()=>{r.value=n.value;repintar();});
+    ouvir(r,'input',()=>{n.value=r.value;repintar();});
+    ouvir(n,'input',()=>{r.value=n.value;repintar();});
   });
-  M.querySelector('#edsCargo').addEventListener('change',repintar);
+  ouvir(M.querySelector('#edsCargo'),'change',repintar);
 
   const subir=async file=>{
     try{

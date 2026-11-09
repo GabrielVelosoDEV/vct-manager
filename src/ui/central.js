@@ -220,8 +220,29 @@ function cardImprensa(){
 function retratoManager(px){
   const g=G.manager;if(!g)return '';
   const mm=typeof membroManager==='function'&&membroManager();
-  if(mm)return `<span class="mgr-foto">${retratoStaff(mm,px)}</span>`;
-  return g.foto?`<span class="mgr-foto"><img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt=""></span>`:'';
+  const img=mm?retratoStaff(mm,px)
+    :g.foto?`<img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt="">`
+    :`<span class="mgr-semfoto" style="width:${px}px;height:${Math.round(px*1.25)}px">${icone('mais')}</span>`;
+  /* clicar na foto troca a foto, a qualquer momento da carreira */
+  return `<button class="mgr-foto" data-mgrfoto title="Trocar a sua foto">${img}<span class="mgr-foto-ed">${icone('caneta')}</span></button>`;
+}
+function modalFotoManager(){
+  const g=G.manager;if(!g)return;
+  abrir(`<div class="eyebrow">Você</div><h2 class="sec">Sua foto</h2>
+    <div class="mgrf">
+      <div class="mgrf-img">${g.foto?`<img src="${g.foto}" alt="">`:`<span>${icone('mais')}<b>sem foto</b></span>`}</div>
+      <div class="mgrf-txt"><p class="dim">Aparece na Central, na comissão técnica e na sua ficha de coach.
+        A imagem é recortada em 4:5 e guardada dentro do save.</p>
+        <div class="mgrf-bts"><label class="btn">Escolher imagem<input type="file" id="mgrFotoIn" accept="image/*" hidden></label>
+          ${g.foto?'<button class="btn ghost" id="mgrFotoTira">Tirar a foto</button>':''}
+          <button class="btn ghost" data-close>Fechar</button></div></div>
+    </div>`);
+  const inp=$('#mgrFotoIn');
+  if(inp)inp.onchange=async()=>{
+    try{const f=await fotoDoArquivo(inp.files[0]);definirFotoManager(f);render();modalFotoManager();flash('Foto atualizada.');}
+    catch(e){flash(e.message);}
+  };
+  const tira=$('#mgrFotoTira');if(tira)tira.onclick=()=>{definirFotoManager(null);render();modalFotoManager();};
 }
 /* ---------- a tela ---------- */
 function vInicio(){

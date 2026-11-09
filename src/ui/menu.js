@@ -12,9 +12,12 @@
    ============================================================ */
 const VERSAO_JOGO='0.4';
 
-function renderMenu(){
+function renderMenu(limpo){
   const el=$('#shellMenu');
-  if(telaMenu==='menu'){el.innerHTML=vMenuPrincipal();ligarMenuPrincipal();return;}
+  /* mesma pintura sem piscar do jogo (pintarRaiz em shell.js) */
+  const entra=como=>{if(como!=='morfou'&&typeof animacaoLigada==='function'&&animacaoLigada()){
+    el.classList.remove('entra');void el.offsetWidth;el.classList.add('entra');}};
+  if(telaMenu==='menu'){entra(pintarRaiz(el,vMenuPrincipal(),'menu|menu',{limpo}));ligarMenuPrincipal();return;}
   const mapa={
     banco:['Banco de dados',vEditor],
     runs:['Partidas salvas',vRuns],
@@ -22,14 +25,14 @@ function renderMenu(){
     creditos:['Créditos',vCreditos]
   }[telaMenu];
   if(!mapa){telaMenu='menu';return renderMenu();}
-  el.innerHTML=`
+  entra(pintarRaiz(el,`
     <div class="menu-topo">
       <button class="btn ghost sm" id="menuVoltar">‹ Menu</button>
       <h2 class="sec" style="margin:0">${esc(mapa[0])}</h2>
       ${telaMenu==='banco'?'<button class="btn" id="menuComecar">Novo jogo com esta base</button>':''}
       ${carreiraAberta()?'<button class="btn teal" id="menuVoltarJogo">Voltar ao jogo</button>':''}
     </div>
-    <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`;
+    <div class="menu-corpo" id="menuCorpo">${mapa[1]()}</div>`,'menu|'+telaMenu,{limpo}));
   $('#menuVoltar').onclick=()=>{telaMenu='menu';render();};
   const bc=$('#menuComecar');if(bc)bc.onclick=()=>novaCarreira();
   const bv=$('#menuVoltarJogo');if(bv)bv.onclick=()=>{telaMenu='menu';Base.fecharEdicao();entrarNoJogo();};

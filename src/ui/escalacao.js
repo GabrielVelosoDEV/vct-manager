@@ -68,28 +68,28 @@ function escalacaoHTML(t,opc){
 let _arrastando=null;
 function ligarEscalacao(raiz,t){
   raiz.querySelectorAll('[data-arrasta]').forEach(el=>{
-    el.addEventListener('dragstart',e=>{
+    ouvir(el,'dragstart',e=>{
       _arrastando=el.dataset.arrasta;
       e.dataTransfer.effectAllowed='move';
       try{e.dataTransfer.setData('text/plain',_arrastando);}catch(_){}
       requestAnimationFrame(()=>el.classList.add('arrastando'));
       raiz.classList.add('esc-arrastando');
     });
-    el.addEventListener('dragend',()=>{
+    ouvir(el,'dragend',()=>{
       el.classList.remove('arrastando');raiz.classList.remove('esc-arrastando');
       raiz.querySelectorAll('.alvo').forEach(x=>x.classList.remove('alvo'));
       _arrastando=null;
     });
   });
   raiz.querySelectorAll('[data-alvo]').forEach(el=>{
-    el.addEventListener('dragover',e=>{
+    ouvir(el,'dragover',e=>{
       if(!_arrastando||_arrastando===el.dataset.alvo)return;
       /* banco sobre banco não faz nada */
       if(!t.titulares.includes(_arrastando)&&!t.titulares.includes(el.dataset.alvo))return;
       e.preventDefault();e.dataTransfer.dropEffect='move';el.classList.add('alvo');
     });
-    el.addEventListener('dragleave',()=>el.classList.remove('alvo'));
-    el.addEventListener('drop',e=>{
+    ouvir(el,'dragleave',()=>el.classList.remove('alvo'));
+    ouvir(el,'drop',e=>{
       e.preventDefault();el.classList.remove('alvo');
       const de=_arrastando||e.dataTransfer.getData('text/plain'),para=el.dataset.alvo;
       _arrastando=null;

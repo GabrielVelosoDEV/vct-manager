@@ -145,7 +145,7 @@ function pintarCerimonia(){
   const meuT=G.meuTime&&G.times[G.meuTime];
   const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
     :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
-  $('#modal').innerHTML=`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
+  pintarModal(`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
     <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>
       <button class="btn ghost sm" data-cer="pular">${CER.fim?'Pular cerimônia':'Fechar'}</button></div>
     <div class="cer-corpo" key="${i}">${T[i].html}</div>
@@ -153,7 +153,7 @@ function pintarCerimonia(){
       <button class="btn ghost" data-cer="voltar" ${i?'':'disabled'}>‹ Voltar</button>
       <span class="dim">${esc(T[i].rot)} · ${i+1} de ${T.length}</span>
       <button class="btn" data-cer="seguir">${ult?(CER.veredito?'Ver o veredito':CER.fim?'Seguir':'Fechar'):i===0?'Começar ›':'Próximo ›'}</button>
-    </div></div></div>`;
+    </div></div></div>`);
   const md=$('#modal');
   md.querySelectorAll('[data-cerir]').forEach(b=>b.onclick=e=>{e.stopPropagation();
     const k=+b.dataset.cerir;if(k<=CER.i||k===CER.i+1){CER.i=k;pintarCerimonia();}});

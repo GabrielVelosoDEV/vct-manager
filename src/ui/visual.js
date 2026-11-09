@@ -107,12 +107,16 @@ function animacaoLigada(){
 }
 let _telaAnimada=null;
 /* chamado por render() depois de pintar a tela */
-function animarTela(v,telaAtual){
-  const mudou=telaAtual!==_telaAnimada;_telaAnimada=telaAtual;
+/* `como` vem de pintarRaiz: só tela nova ou aba nova anima; o redesenho da
+   mesma tela (morfar) fica parado, que era de onde vinha o pisca-pisca */
+function animarTela(v,telaAtual,como){
+  const mudou=como?como!=='morfou':telaAtual!==_telaAnimada;
+  _telaAnimada=telaAtual;
   animarAbas(v);
   if(!mudou||!animacaoLigada())return;
-  v.classList.remove('entra');void v.offsetWidth;v.classList.add('entra');
-  contarNumeros(v);
+  v.classList.remove('entra','aba');void v.offsetWidth;v.classList.add('entra');
+  /* troca de aba: só a fusão, sem o deslize (o cabeçalho da tela é o mesmo) */
+  if(como==='aba')v.classList.add('aba');else contarNumeros(v);
 }
 /* indicador das abas desliza da aba anterior para a nova */
 const _abaAnterior=new Map();

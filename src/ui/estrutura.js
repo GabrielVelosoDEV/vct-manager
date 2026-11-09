@@ -22,7 +22,8 @@ function _janelas(pos,n,cor,id){
 }
 function cenaEstrutura(k,n,cor){
   cor=cor||'#FF4655';
-  const id='ce'+(++_cenaSeq);
+  /* id estável: o redesenho da tela (morfar) não precisa mexer no SVG */
+  const id='ce-'+k+'-'+n;
   const fundo=`<defs>
       <linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222E"/><stop offset="1" stop-color="#0B1218"/></linearGradient>
       <radialGradient id="${id}g" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="${cor}" stop-opacity="${(0.10+n*0.05).toFixed(2)}"/><stop offset="1" stop-color="${cor}" stop-opacity="0"/></radialGradient>
