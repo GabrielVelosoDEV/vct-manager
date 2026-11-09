@@ -276,6 +276,8 @@ function semana(){
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
+    /* o que os minigames deram valia só para esta semana (core/minigames.js) */
+    if(typeof encerrarMiniSemana==='function')encerrarMiniSemana(t);
     if(typeof conferirCartas==='function')conferirCartas(t);
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
@@ -360,7 +362,7 @@ function desenvolver(p,t){
   const lista = g>0?alvos:decl;
   /* equipamentos, sala de análise e bem-estar aceleram cada um o seu grupo
      de atributos (core/estrutura.js) */
-  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra*fatorEvolucaoAtributo(t,k):1.6),25,99);});
+  lista.forEach(k=>{p.at[k]=clamp(p.at[k]+g*(g>0?2.4*concentra*fatorEvolucaoAtributo(t,k)*(typeof fatorMiniEvolucao==='function'?fatorMiniEvolucao(t,k):1):1.6),25,99);});
   if(g<0)for(const[k]of ATTRS)
     if(!decl.includes(k)&&k!=='lider')p.at[k]=clamp(p.at[k]+g*0.55,25,99);
   /* O empurrãozinho aleatório só existe para quem TREINOU. Sem esta guarda o

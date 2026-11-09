@@ -17,6 +17,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-ir]',el=>irPara(el.dataset.ir));
+  on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});

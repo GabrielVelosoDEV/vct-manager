@@ -110,6 +110,10 @@ function vConfig(){
   </details>
 
   <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('olho')} Interface</span><span class="dim">dicas, animação, rostos, tema</span></summary>
+    ${sw('minigames','Minigames',
+         'Range de mira e os outros minigames aparecem nas telas onde valem. Desligado, eles somem e a semana '+
+         'segue como sempre: é o mesmo que deixar a comissão cuidar.')}
+    ${sw('somMini','Som dos minigames','Tiros, acertos e contagem. Sintetizado no próprio jogo, sem arquivo.')}
     ${sw('dicas','Dicas da primeira temporada',
          'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
          'só durante a primeira temporada da carreira.')}

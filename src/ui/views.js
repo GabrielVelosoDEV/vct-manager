@@ -646,6 +646,7 @@ function vTreino(){
     entra cansado, e cansaço é o que mais custa partida.</div>`
    :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera))}</b> em ${px.semanas}
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
+  ${typeof cardRange==='function'?cardRange(t):''}
 
   <div class="card"><div class="split">
     <div><div class="eyebrow">Treino de mapa · até ${MAPAS_TREINO_MAX} por semana</div>
