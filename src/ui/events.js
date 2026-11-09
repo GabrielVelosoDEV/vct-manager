@@ -68,6 +68,9 @@ function ligarEventos(){
     render();if(!r.ok)flash(r.erro);
   });
   v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);render();});
+  on('[data-prioset]',el=>{const [mp,pr]=el.dataset.prioset.split('|');definirPrioridadeMapa(t,mp,pr);render();});
+  on('[data-focotat]',el=>{t.tatica.foco=el.dataset.focotat;render();});
+  on('[data-blocotreino]',el=>{t.tatica.treino=el.dataset.blocotreino;render();});
   on('[data-prepaba]',el=>{prepAba=el.dataset.prepaba;render();});
   v.querySelectorAll('[data-tmagres],[data-tmfoco]').forEach(el=>el.onchange=()=>{
     const campo=el.dataset.tmagres!==undefined?'agres':'foco';
@@ -147,8 +150,14 @@ function ligarEventos(){
   const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)el.addEventListener(ev,f);};
   bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;
     const l=v.querySelector('#lbScrim');if(l)l.textContent=e.target.value;});
-  bind('#agres','input',e=>{t.tatica.agres=+e.target.value;const l=v.querySelector('#lbAg');if(l)l.textContent=e.target.value;});
-  bind('#scrim','input',e=>{t.tatica.scrim=+e.target.value;const l=v.querySelector('#lbSc');if(l)l.textContent=e.target.value;});
+  v.querySelectorAll('.sl [data-marca]').forEach(m=>m.onclick=()=>{const inp=m.closest('.sl').querySelector('input');
+    if(inp){inp.value=m.dataset.marca;inp.dispatchEvent(new Event('input'));}});
+  /* sliders da tática: número, marca acesa e prévia mudam enquanto arrasta */
+  const marca=(el,val)=>{const m=el.closest('.sl');if(m)m.querySelectorAll('[data-marca]').forEach(x=>x.classList.toggle('on',+x.dataset.marca===val));};
+  bind('#agres','input',e=>{const n=+e.target.value;t.tatica.agres=n;const l=v.querySelector('#lbAg');if(l)l.textContent=n;
+    marca(e.target,n);const pv=v.querySelector('#pvAg');if(pv&&typeof previewAgres==='function')pv.innerHTML=previewAgres(n);});
+  bind('#scrim','input',e=>{const n=+e.target.value;t.tatica.scrim=n;const l=v.querySelector('#lbSc');if(l)l.textContent=n;
+    marca(e.target,n);const pv=v.querySelector('#pvSc');if(pv&&typeof previewScrim==='function')pv.innerHTML=previewScrim(n);});
   bind('#foco','change',e=>{t.tatica.foco=e.target.value;});
   bind('#treino','change',e=>{t.tatica.treino=e.target.value;});
   bind('#fBusca','input',e=>{mFiltro.busca=e.target.value;const p=e.target.selectionStart;render();

@@ -5,10 +5,14 @@
 let vestPar=null;   /* dupla escolhida para a ranked em duo, antes de confirmar */
 
 function corDaDupla(v){
-  /* vermelho (não se entendem) → âmbar → teal (entrosados) */
-  const h=Math.round(clamp(v,0,100)*1.65);
-  return `hsla(${h},72%,46%,${(0.18+clamp(v,0,100)/100*0.5).toFixed(2)})`;
+  /* vermelho escuro (não se entendem) → âmbar → teal (entrosados), em tons
+     menos saturados que antes: a matriz é para ler, não para gritar */
+  const x=clamp(v,0,100)/100;
+  const h=Math.round(355+x*(168+5)) % 360;
+  return `hsla(${h},${Math.round(42+x*14)}%,${Math.round(30+x*10)}%,${(0.55+x*0.35).toFixed(2)})`;
 }
+/* ícone de cada atividade da semana */
+const ICONE_ATIV={nenhuma:'ciclo',bootcamp:'predio',ranked:'controle',stream:'microfone',jantar:'aperto',sessao:'balao',folga:'relogio'};
 function barraMini(v,cls){
   const pct=Math.round(clamp(v,0,1)*100);
   return `<div class="vb"><i class="${cls||''}" style="width:${pct}%"></i><span>${pct}</span></div>`;
@@ -33,21 +37,24 @@ function vVestiario(){
   const tend=ant==null?null:Math.round(t.sinergia)-ant;
   const mom=momentoTxt(t);
 
-  /* matriz 5×5 dos titulares */
+  /* matriz 5×5 dos titulares, com retrato nos dois eixos e a dupla mais
+     fraca contornada */
+  const pior0=(()=>{let m=null;for(const [a,b] of paresDe(t.titulares)){const v=dupla(t,a,b);if(!m||v<m.v)m={a,b,v};}return m;})();
+  const ehPior=(a,b)=>pior0&&((pior0.a===a&&pior0.b===b)||(pior0.a===b&&pior0.b===a));
   const matriz=`<table class="vest-mat"><thead><tr><th></th>${tit.map(p=>
-      `<th><span class="vm-nome">${esc(p.nome)}</span></th>`).join('')}</tr></thead><tbody>
-    ${tit.map(p=>`<tr><th class="r"><span class="vm-nome">${esc(p.nome)}</span>
-        <span class="tag ${p.roleAtual||p.role}">${esc((p.roleAtual||p.role).slice(0,3))}</span></th>
+      `<th><span class="vm-col jrow" data-p="${p.id}">${retrato(p,34)}<span class="vm-nome">${esc(p.nome)}</span></span></th>`).join('')}</tr></thead><tbody>
+    ${tit.map(p=>`<tr><th class="r"><span class="vm-lin jrow" data-p="${p.id}"><span class="vm-nome">${esc(p.nome)}</span>
+        <span class="tag ${p.roleAtual||p.role}">${esc((p.roleAtual||p.role).slice(0,3))}</span>${retrato(p,30)}</span></th>
       ${tit.map(q=>{
         if(p.id===q.id)return `<td class="vm-eu"></td>`;
         const v=Math.round(dupla(t,p.id,q.id));
-        return `<td class="vm-c" style="background:${corDaDupla(v)}" title="${esc(p.nome)} e ${esc(q.nome)}: ${v}">${v}</td>`;
+        return `<td class="vm-c ${ehPior(p.id,q.id)?'pior':''}" style="background:${corDaDupla(v)}" title="${esc(p.nome)} e ${esc(q.nome)}: ${v}">${v}</td>`;
       }).join('')}</tr>`).join('')}
     </tbody></table>`;
 
   const reservas=res.length?`<div class="eyebrow" style="margin-top:14px">Reservas · média com os titulares</div>
     ${res.map(p=>{const m=media(tit,q=>dupla(t,p.id,q.id));
-      return `<div class="vest-res"><b>${esc(p.nome)}</b> <span class="tag ${p.role}">${p.role}</span>
+      return `<div class="vest-res">${retrato(p,26)}<b>${esc(p.nome)}</b> <span class="tag ${p.role}">${p.role}</span>
         <span class="vm-pill" style="background:${corDaDupla(m)}">${Math.round(m)}</span>
         <span class="dim">${m<35?'entraria sem se entender com o time':m<55?'entraria razoavelmente':'entraria bem'}</span></div>`;}).join('')}`:'';
 
@@ -69,9 +76,10 @@ function vVestiario(){
       e.torcida?'torcida +':'',e.custo?money(e.custo):''].filter(Boolean);
     return `<button class="vest-at ${atual===a.id?'on':''} ${d.ok?'':'off'}" data-ativ="${a.id}" ${d.ok?'':'disabled'}
         title="${esc(d.ok?a.desc:d.erro)}">
-      <b>${esc(a.nome)}</b><span>${esc(a.desc)}</span>
-      ${efs.length?`<em>${efs.map(esc).join(' · ')}</em>`:''}
-      ${d.ok?'':`<em class="dn">${esc(d.erro)}</em>`}</button>`;};
+      <span class="vat-topo"><i class="vat-ic">${ico(ICONE_ATIV[a.id]||'ciclo')}</i><b>${esc(a.nome)}</b>${atual===a.id?'<span class="vat-on">esta semana</span>':''}</span>
+      <span class="vat-desc">${esc(a.desc)}</span>
+      ${efs.length?`<span class="vat-chips">${efs.map(x=>`<em class="${/desgaste \+|\$/.test(x)&&!/desgaste -/.test(x)?'custo':''}">${esc(x)}</em>`).join('')}</span>`:''}
+      ${d.ok?'':`<span class="vat-chips"><em class="dn">${esc(d.erro)}</em></span>`}</button>`;};
   const selPar=(i)=>`<select data-vpar="${i}">${nomes.map(p=>`<option value="${p.id}" ${par[i]===p.id?'selected':''}>${esc(p.nome)}</option>`).join('')}</select>`;
   const ult=t.ultimaAtividade&&t.ultimaAtividade.ano===G.ano?atividade(t.ultimaAtividade.id).nome+' na semana '+t.ultimaAtividade.semana:null;
 
@@ -80,7 +88,7 @@ function vVestiario(){
     .map(p=>{const c=confiancaDe(p),m=mentalDe(p);
       const nota=p.fadiga>0.82?'esgotado — desgaste cobra confiança':c<0.35?'em crise de confiança':c>0.8?'confiante':p.moral<0.35?'insatisfeito com o clube':'';
       return `<tr class="jrow ${t.titulares.includes(p.id)?'':'dim-row'}" data-p="${p.id}">
-        <td><b>${esc(p.nome)}</b>${t.titulares.includes(p.id)?'':' <span class="chip">reserva</span>'}</td>
+        <td><span class="merc-j">${retrato(p,26)}<span><b>${esc(p.nome)}</b>${t.titulares.includes(p.id)?'':' <span class="chip">reserva</span>'}</span></span></td>
         <td>${barraMini(c,c<0.35?'r':c>0.75?'g':'')}</td><td>${barraMini(p.moral,p.moral<0.35?'r':'')}</td>
         <td>${barraMini(p.fadiga,p.fadiga>0.7?'r':'')}</td>
         <td class="r num"><b>${Math.round(m*100)}</b></td><td class="dim">${esc(nota)}</td></tr>`;}).join('');
@@ -103,8 +111,10 @@ function vVestiario(){
   <div class="grid g2">
     <div class="card"><div class="eyebrow">Entrosamento entre os titulares</div>
       ${tit.length>=2?matriz:'<div class="empty">Escale os titulares para ver as duplas.</div>'}
-      ${piorDupla?`<div class="dim" style="margin-top:8px">Dupla mais fraca: <b>${esc(P(piorDupla.a).nome)}</b> e
-        <b>${esc(P(piorDupla.b).nome)}</b> (${Math.round(piorDupla.v)}).</div>`:''}
+      ${piorDupla?`<div class="vest-pior">${retrato(P(piorDupla.a),36)}${retrato(P(piorDupla.b),36)}
+        <div><span class="eyebrow">Dupla mais fraca</span><div><b>${esc(P(piorDupla.a).nome)}</b> e <b>${esc(P(piorDupla.b).nome)}</b></div>
+        <span class="dim">uma ranked em duo ou um bootcamp ajudam</span></div>
+        <b class="num" style="color:${corDaDupla(piorDupla.v).replace(/,[\d.]+\)$/,',1)')}">${Math.round(piorDupla.v)}</b></div>`:''}
       ${reservas}
     </div>
     <div>

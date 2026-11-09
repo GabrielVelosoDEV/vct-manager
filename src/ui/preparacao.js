@@ -99,7 +99,7 @@ function vPreparacao(){
   const abas=`<div class="tabs">${PREP_ABAS.map(([k,n])=>
     `<button data-prepaba="${k}" class="${prepAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   if(typeof guiaMarcar==='function'&&prepAba!=='mapas')guiaMarcar(prepAba==='semana'?'treino':prepAba);
-  const corpo=prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas()+vTaticasPorMapa():prepAba==='comps'?vComps():vPreparo();
+  const corpo=prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas():prepAba==='comps'?vComps():vPreparo();
   return `<div class="eyebrow">Clube</div><h2 class="sec">Treinamento & Preparação</h2>${abas}
     <div class="prep-corpo">${corpo}</div>`;
 }

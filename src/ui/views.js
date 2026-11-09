@@ -166,66 +166,112 @@ function vElenco(){
     <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
 }
+/* ============================================================
+   TÁTICAS (pacote V11)
+   ------------------------------------------------------------
+   Sliders com marcação e prévia do efeito que muda enquanto você
+   arrasta; foco e bloco de treino como cartões; a rotação de mapas
+   junta a afinidade e a tática de cada mapa no mesmo cartão (antes
+   eram duas tabelas que não se falavam); comissão e estrutura em
+   cartões com retrato.
+   ============================================================ */
+const MARCAS_AGRES=['Cauteloso','Contido','Equilibrado','Agressivo','All-in'];
+const MARCAS_SCRIM=['Leve','Moderado','Normal','Puxado','Intenso'];
+const FOCOS_TAT=[
+  {id:'execucao',nome:'Execuções',ic:'spike',desc:'Entradas coordenadas no site. Rende mais em mapa que favorece o ataque.'},
+  {id:'default',nome:'Default',ic:'ciclo',desc:'Equilibrado: lê o round antes de decidir. Não ganha nem perde muito em lugar nenhum.'},
+  {id:'retake',nome:'Retakes',ic:'escudo2',desc:'Defesa que cede o site e volta junto. Rende mais em mapa de defesa.'}];
+const BLOCOS_TREINO=[
+  {id:'mira',nome:'Mira e duelo',ic:'alvo',at:'mira, reflexo'},
+  {id:'utilidade',nome:'Utilidade',ic:'pecas',at:'utilidade, movimentação'},
+  {id:'tatica',nome:'Leitura e chamada',ic:'olho',at:'visão, liderança'},
+  {id:'mental',nome:'Mental',ic:'balao',at:'clutch, consistência'},
+  {id:'geral',nome:'Geral',ic:'ciclo',at:'tudo um pouco'}];
+/* prévia: o que muda em relação ao meio da régua, em pontinhos */
+function pontosEfeito(n){
+  const a=Math.min(3,Math.abs(n));
+  if(!a)return '<span class="pv-pts">neutro</span>';
+  return `<span class="pv-pts ${n>0?'up':n<0?'dn':''}">${n>0?'▲':n<0?'▼':'•'}${'●'.repeat(a)}${'○'.repeat(3-a)}</span>`;
+}
+function previewAgres(v){
+  const d=v-3;
+  return [['Pistols',d],['Rounds de ataque',d],['Retakes',-d],['Rounds de eco',-Math.round(d*1.5)]]
+    .map(([r,n])=>`<span class="pv">${r} ${pontosEfeito(clamp(Math.round(n),-3,3))}</span>`).join('');
+}
+function previewScrim(v){
+  const d=v-3;
+  return [['Entrosamento',d],['Evolução',d>0?1:d<0?-1:0],['Desgaste',d*1.5]]
+    .map(([r,n])=>`<span class="pv">${r} ${pontosEfeito(clamp(Math.round(r==='Desgaste'?-n:n),-3,3))}</span>`).join('')
+    +(v>=5?'<span class="pv aviso">acima de 82 de fadiga o jogador perde moral e pode quebrar</span>':'');
+}
+function sliderMarcado(id,v,marcas,lb){
+  return `<div class="sl"><input type="range" min="1" max="5" step="1" value="${v}" id="${id}">
+    <div class="sl-marcas">${marcas.map((m,i)=>`<span class="${i+1===v?'on':''}" data-marca="${i+1}">${m}</span>`).join('')}</div></div>`;
+}
 function vTaticas(){
   const t=meu();
-  /* Duas colunas porque são duas coisas: a identidade tática do clube e o que
-     os cinco em quadra sabem jogar. Um clube pode gostar de um mapa que o
-     elenco atual detesta — e é exatamente isso que a tabela precisa mostrar. */
-  const mp=G.mapasAtivos.map(m=>{
-    const clube=t.mapPref[m]||0, elenco=afinidadeElenco(t,m), soma=clube*0.6+elenco*0.6;
-    return `<tr><td>${m}</td>
-      <td class="c"><span class="pill">${clube>0?'+':''}${clube}</span></td>
-      <td class="c"><span class="pill ${elenco>=1?'g':elenco<=-1?'r':''}">${elenco>0?'+':''}${elenco.toFixed(1)}</span></td>
-      <td><div class="bar"><i style="width:${clamp(50+soma*6,4,100)}%"></i></div></td></tr>`;}).join('');
+  const focos=[['execucao','Execução'],['default','Default'],['retake','Retake']];
+  const nomeFoco=k=>(focos.find(f=>f[0]===k)||focos[1])[1];
+  const mapas=(G.mapasAtivos||[]).map(mp=>{
+    const clube=t.mapPref[mp]||0, elenco=afinidadeElenco(t,mp), soma=clube*0.6+elenco*0.6;
+    const tm=(t.taticaMapa&&t.taticaMapa[mp])||{};
+    const p=preparoDoMapa(t,mp);
+    return `<div class="tat-mapa" style="${fundoMapa(mp,0.7)}">
+      <div class="split"><b class="tat-mn">${esc(mp)}</b>${anelPreparo(p.nota,46)}</div>
+      <div class="tat-af"><span>clube <b class="num">${clube>0?'+':''}${clube}</b></span><span>elenco <b class="num ${elenco>=1?'up':elenco<=-1?'dn':''}">${elenco>0?'+':''}${elenco.toFixed(1)}</b></span></div>
+      <div class="tat-conf"><i style="width:${clamp(50+soma*6,4,100)}%"></i></div>
+      <div class="tat-sel">
+        <select data-tmagres="${esc(mp)}" title="Agressividade neste mapa"><option value="">agres. ${t.tatica.agres} (padrão)</option>
+          ${[1,2,3,4,5].map(n=>`<option value="${n}" ${tm.agres===n?'selected':''}>agres. ${n}</option>`).join('')}</select>
+        <select data-tmfoco="${esc(mp)}" title="Foco neste mapa"><option value="">${esc(nomeFoco(t.tatica.foco))} (padrão)</option>
+          ${focos.map(([k,n])=>`<option value="${k}" ${tm.foco===k?'selected':''}>${n}</option>`).join('')}</select></div>
+      <div class="tat-pe ${p.partes.tatica>0.4?'up':p.partes.tatica<-0.4?'dn':''}">tática no preparo <b class="num">${p.partes.tatica>0?'+':''}${p.partes.tatica.toFixed(1)}</b>
+        ${tm.agres||tm.foco?'<span class="chip t">própria</span>':''}</div>
+    </div>`;}).join('');
+  const comissao=comissaoDe(t).map(({cargo,membro})=>membro?`<div class="stf-c">
+      ${retratoStaff(membro,58)}
+      <div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}</span><b>${esc(membro.nome)} ${bandeira(membro.pais)}</b>
+        <span class="dim">${membro.nomeReal?esc(membro.nomeReal)+' · ':''}${membro.idade}a · ${money(membro.salario)}/mês</span></div>
+      <span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>
+      <button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button></div>`
+    :`<div class="stf-c vago"><span class="stf-vago">${icone('gravata')}</span><div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}</span>
+      <b class="dn">vago</b><span class="dim">a vaga vale nível 1 · contrate no Mercado</span></div></div>`).join('');
+  const extra=(t.equipeExtra||[]).map(x=>`<div class="stf-c">${retratoStaff(x,58)}<div class="stf-i"><span class="eyebrow">${esc(x.funcao||'Equipe')}</span>
+      <b>${esc(x.nome)} ${x.pais?bandeira(x.pais):''}</b>${x.nomeReal?`<span class="dim">${esc(x.nomeReal)}</span>`:''}</div></div>`).join('');
+  const estrutura=[['gh','Gaming house','predio'],['treino','Centro de treino','controle'],['academia','Academia de base','broto']].map(([k,n,ic])=>
+    `<div class="est-c"><span class="est-ic">${icone(ic)}</span><div><b>${n}</b>
+      <div class="est-nv">${[1,2,3,4,5].map(i=>`<i class="${i<=t.estrutura[k]?'on':''}"></i>`).join('')}<span class="num">nível ${t.estrutura[k]}</span></div></div>
+      <button class="btn ghost sm" data-up="estrutura.${k}" ${t.estrutura[k]>=5?'disabled':''}>${t.estrutura[k]>=5?'máximo':'Melhorar · '+money(custoUpgrade(t.estrutura[k]))}</button></div>`).join('');
   return `
   <div class="grid g2">
    <div class="card"><div class="eyebrow">Estilo de jogo</div>
-    <label>Agressividade <b class="num" id="lbAg">${t.tatica.agres}</b>/5</label>
-    <input type="range" min="1" max="5" value="${t.tatica.agres}" id="agres">
-    <p class="dim" style="margin-bottom:12px">Agressivo ganha mais pistols e rounds de ataque, mas perde em retake e sofre em eco.</p>
-    <label>Foco tático</label><br>
-    <select id="foco">${[['execucao','Execuções coordenadas (ataque)'],['default','Default equilibrado'],['retake','Retakes e pós-plant (defesa)']]
-      .map(([k,n])=>`<option value="${k}" ${t.tatica.foco===k?'selected':''}>${n}</option>`).join('')}</select>
-    <br><br><label>Intensidade de scrims <b class="num" id="lbSc">${t.tatica.scrim}</b>/5</label>
-    <input type="range" min="1" max="5" value="${t.tatica.scrim}" id="scrim">
-    <p class="dim">Acima de 3, scrims somam entrosamento e aceleram a evolução; abaixo, poupam o elenco. Intensidade alta acumula fadiga, e acima de 82 de fadiga o jogador perde moral e pode quebrar.</p>
+    <div class="tat-sl"><div class="split"><span>Agressividade</span><b class="num" id="lbAg">${t.tatica.agres}</b></div>
+      ${sliderMarcado('agres',t.tatica.agres,MARCAS_AGRES)}
+      <div class="pv-l" id="pvAg">${previewAgres(t.tatica.agres)}</div></div>
+    <div class="eyebrow" style="margin-top:16px">Foco tático</div>
+    <div class="tat-focos">${FOCOS_TAT.map(f=>`<button class="tat-foco ${t.tatica.foco===f.id?'on':''}" data-focotat="${f.id}">
+      <i>${ico(f.ic)}</i><b>${f.nome}</b><span>${esc(f.desc)}</span></button>`).join('')}</div>
+    <div class="tat-sl" style="margin-top:16px"><div class="split"><span>Intensidade de scrims</span><b class="num" id="lbSc">${t.tatica.scrim}</b></div>
+      ${sliderMarcado('scrim',t.tatica.scrim,MARCAS_SCRIM)}
+      <div class="pv-l" id="pvSc">${previewScrim(t.tatica.scrim)}</div></div>
    </div>
    <div class="card"><div class="eyebrow">Bloco de treino</div>
-    <select id="treino">${[['mira','Mira e duelo (mira, reflexo)'],['utilidade','Utilidade e movimentação'],
-      ['tatica','Leitura e chamada (visão, liderança)'],['mental','Mental e consistência'],['geral','Geral (equilibrado)']]
-      .map(([k,n])=>`<option value="${k}" ${t.tatica.treino===k?'selected':''}>${n}</option>`).join('')}</select>
-    <p class="dim" style="margin-top:8px">O treino direciona onde os jogadores evoluem rumo ao potencial. Jovens ganham muito mais que veteranos.</p>
-    <div class="eyebrow" style="margin-top:18px">Comissão técnica</div>
-    ${comissaoDe(t).map(({cargo,membro})=>`<div class="slot">
-       ${membro?retratoStaff(membro,30):''}
-       <span class="n">${membro?`<b>${esc(membro.nome)}</b> ${bandeira(membro.pais)}
-         <div class="dim" style="font-size:11px">${cargo.nome}${membro.nomeReal?' · '+esc(membro.nomeReal):''} · ${membro.idade}a · ${money(membro.salario)}/mês</div>`
-         :`<b class="dn">${cargo.nome} vago</b><div class="dim" style="font-size:11px">a vaga vale nível 1</div>`}</span>
-       <span class="ov ${ovClass(membro?overStaff(membro):40)}">${membro?overStaff(membro):'—'}</span>
-       ${membro?`<button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button>`:''}
-      </div>`).join('')}
-    ${(t.equipeExtra||[]).map(x=>`<div class="slot">
-       ${retratoStaff(x,30)}
-       <span class="n"><b>${esc(x.nome)}</b> ${x.pais?bandeira(x.pais):''}
-         <div class="dim" style="font-size:11px">${esc(x.funcao||'Equipe')}${x.nomeReal?' · '+esc(x.nomeReal):''}</div></span>
-      </div>`).join('')}
-    <p class="dim" style="margin-top:6px">Comissão não se compra com upgrade: contrate no
-    <b>Mercado › Comissão</b>. Nível ${NIVEL_NEUTRO} é o ponto neutro — acima ajuda, abaixo
-    atrapalha. A escala é do mundo inteiro: o Tier 1 vive acima do neutro, e no Challengers
-    dá para passar dele contratando bem.</p>
-    <div class="eyebrow" style="margin-top:14px">Estrutura</div>
-    ${[['gh','Gaming house'],['treino','Centro de treino'],['academia','Academia de base']].map(([k,n])=>
-      `<div class="slot"><span class="n">${n} <b class="num">nv ${t.estrutura[k]}</b></span>
-       <button class="btn ghost sm" data-up="estrutura.${k}" ${t.estrutura[k]>=5?'disabled':''}>Melhorar ${money(custoUpgrade(t.estrutura[k]))}</button></div>`).join('')}
+    <div class="tat-blocos">${BLOCOS_TREINO.map(b=>`<button class="tat-bloco ${t.tatica.treino===b.id?'on':''}" data-blocotreino="${b.id}">
+      <i>${ico(b.ic)}</i><b>${b.nome}</b><span>${b.at}</span></button>`).join('')}</div>
+    <p class="dim" style="margin-top:8px;font-size:12px">O treino direciona onde os jogadores evoluem rumo ao potencial. Jovens ganham muito mais que veteranos. O plano de cada um fica em <b>Plano da semana</b>.</p>
+    <div class="eyebrow" style="margin-top:16px">Estrutura</div>
+    <div class="est-l">${estrutura}</div>
    </div>
   </div>
-  <div class="card flat"><div class="eyebrow">Rotação de mapas · afinidade do time</div>
-   <table><thead><tr><th>Mapa</th><th class="c">Clube</th><th class="c">Elenco</th><th>Conforto</th></tr></thead><tbody>${mp}</tbody></table>
-   <p class="dim" style="margin-top:8px"><b>Clube</b> é a identidade tática, editável no Banco de dados.
-   <b>Elenco</b> é a média dos cinco titulares — muda quando você troca de escalação e evolui
-   conforme cada jogador vai bem ou mal em cada mapa.</p>
-   <p class="dim" style="margin-top:8px">Oito mapas em rotação, como no circuito de 2026.
-   Ela guia o veto de bans e picks — e em <b>Comps</b> você decide quem pega qual agente em cada um.</p></div>`;
+  <div class="card"><div class="split"><div class="eyebrow">Rotação de mapas · afinidade e tática por mapa</div>
+    <span class="dim">a tática geral vale onde você não marcou outra</span></div>
+    <div class="tat-mapas">${mapas}</div>
+    <p class="dim" style="margin-top:8px;font-size:12px"><b>Clube</b> é a identidade tática (editável no Banco de dados); <b>elenco</b> é a média dos cinco titulares.
+    Execução rende mais em mapa que favorece o ataque, retake em mapa de defesa; agressividade combina com elenco de duelo.
+    O anel é o preparo do mapa, o mesmo da aba Preparo e do veto.</p></div>
+  <div class="card"><div class="split"><div class="eyebrow">Comissão técnica</div>
+    <span class="dim">nível ${NIVEL_NEUTRO} é o neutro: acima ajuda, abaixo atrapalha</span></div>
+    <div class="stf-grade">${comissao}${extra}</div></div>`;
 }
 
 /* ============================================================
@@ -246,7 +292,7 @@ function vComps(){
   /* ---- abas de mapa: a comp é POR MAPA, então o mapa é a primeira escolha ---- */
   const abas=pool.map(mp=>{
     const escolhidos=Object.keys((t.comps&&t.comps[mp])||{}).length;
-    return `<button class="btn ${mp===mapa?'':'ghost'} sm" data-compmapa="${esc(mp)}">${esc(mp)}
+    return `<button class="cmp-aba ${mp===mapa?'on':''}" data-compmapa="${esc(mp)}" style="${fundoMapa(mp,mp===mapa?0.35:0.65)}">${esc(mp)}
       ${escolhidos?`<span class="chip">${escolhidos}</span>`:''}</button>`;
   }).join(' ');
 
@@ -256,16 +302,16 @@ function vComps(){
     const fx=faixaMeta(ag);
     const foraDaFuncao=fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
     return `<tr>
-      <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
-        <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></td>
+      <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+        <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></span></span></td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
-      <td>
+      <td><div class="cmp-ag">${retratoAgente(ag,40)}<div>
         <select data-compag="${p.id}">
           ${pool2.map(a=>`<option value="${esc(a.nome)}" ${a.nome===ag?'selected':''}
             >${esc(a.nome)} · ${a.nivel}/${a.teto} · ${esc(faixaMeta(a.nome).rot)}</option>`).join('')}
         </select>
         ${escolhido?'':'<div class="dim" style="font-size:10.5px">automático</div>'}
-      </td>
+      </div></div></td>
       <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
       <td class="c"><span class="pill ${fx.id==='topo'||fx.id==='forte'?'g':fx.id==='esq'?'r':''}"
         >${forcaMeta(ag)}</span></td>
@@ -285,12 +331,10 @@ function vComps(){
 
   /* ---- o meta de hoje ---- */
   const porFuncao=['Duelista','Iniciador','Controlador','Sentinela'].map(r=>
-    `<div class="slot"><span class="n"><b>${r}</b>
-      <div class="dim" style="font-size:11px">${topoDoMeta(r,3).map(a=>esc(a)+' '+forcaMeta(a)).join(' · ')}</div></span></div>`).join('');
+    `<div class="cmp-meta"><span class="tag ${r}">${r}</span><div class="cmp-meta-l">${topoDoMeta(r,3).map((a,i)=>`<span class="cmp-mag ${i===0?'top':''}" title="${esc(a)}">${retratoAgente(a,40)}<b>${esc(a)}</b><i class="num">${forcaMeta(a)}</i></span>`).join('')}</div></div>`).join('');
   const patches=(G.patches||[]).slice(0,4).map(pt=>
     `<div class="slot"><span class="n"><b>${pt.ano} · semana ${pt.semana}</b>
-      <div class="dim" style="font-size:11px">${pt.mudou.map(x=>
-        (x.tipo==='nerf'?'▼ ':'▲ ')+esc(x.ag)+' '+x.de+'→'+x.para).join(' · ')||'sem mudanças'}</div></span></div>`).join('')
+      <div class="cmp-patch">${pt.mudou.map(x=>`<span class="cmp-pt ${x.tipo==='nerf'?'dn':'up'}">${retratoAgente(x.ag,26)}${x.tipo==='nerf'?'▼':'▲'} ${esc(x.ag)} <i class="num">${x.de}→${x.para}</i></span>`).join('')||'<span class="dim">sem mudanças</span>'}</div></span></div>`).join('')
     ||'<div class="dim">Nenhum patch ainda nesta temporada.</div>';
 
   return `
@@ -553,8 +597,9 @@ function vTreino(){
       <div class="mp-val ${meuA>=3?'up':meuA<=-2?'dn':''}">${meuA>0?'+':''}${meuA.toFixed(1)}</div>
       ${adv?`<div class="mp-adv">${esc(adv.tag)} ${advA>0?'+':''}${advA.toFixed(1)}</div>`:''}
       <div class="mp-tag">${d?'treinando · '+Math.round(d.frac*100)+'%':'treinar'}</div></button>
-      ${d?`<select class="mp-prio" data-prio="${esc(mp)}">${['alta','media','baixa'].map(p=>
-        `<option value="${p}" ${d.prio===p?'selected':''}>${PRIO_NOME[p]}</option>`).join('')}</select>`:''}
+      ${d?`<div class="mp-niv" title="Prioridade no treino">${['baixa','media','alta'].map((p,i)=>
+        `<button data-prioset="${esc(mp)}|${p}" class="${['baixa','media','alta'].indexOf(d.prio)>=i?'on':''}" title="${PRIO_NOME[p]}"></button>`).join('')}
+        <span>${PRIO_NOME[d.prio]}</span></div>`:''}
     </div>`;
   }).join('');
 
@@ -565,7 +610,7 @@ function vTreino(){
     const gap=Math.max(0,(p.pot||0)-over(p));
     const meusAg=agentesDoJogador(p);
     return `<tr class="${plano.tipo==='descanso'?'descansa':''}">
-      <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      <td>${retrato(p,26)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
         ${t.titulares.includes(p.id)?'<span class="chip">titular</span>':''}
         ${p.lesao?'<span class="chip r">'+p.lesao+' sem. fora</span>':''}</td>
       <td class="c">${p.idade}</td>
@@ -876,30 +921,62 @@ function vMercadoJogadores(t){
 }
 /* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
    leitura borrada que fica nítida a cada semana, o teste e a decisão. */
+/* Selo de rank desenhado (Radiante e Imortal), sem depender de arquivo. */
+function seloRank(rank,px){
+  px=px||40;
+  const rad=/^Radiante/.test(rank),num=(String(rank).match(/#(\d+)/)||[])[1],div=(String(rank).match(/Imortal (\d)/)||[])[1];
+  const c1=rad?'#FFF2B0':'#FF6B8A',c2=rad?'#E2B45A':'#B5174A',id='rk'+(rad?'r':'i')+(div||'');
+  const forma=rad
+    ?`<path d="M20 3 27 12 37 14 30 22 32 33 20 28 8 33 10 22 3 14 13 12z" fill="url(#${id})" stroke="#FFF7D6" stroke-width="1.2"/>
+       <circle cx="20" cy="18" r="5" fill="#fff" opacity=".85"/>`
+    :`<path d="M6 10 13 16 20 6 27 16 34 10 31 30H9z" fill="url(#${id})" stroke="#FFC2CF" stroke-width="1.2"/>
+       ${Array.from({length:+div||1},(_,i)=>`<rect x="${14+i*5}" y="22" width="3" height="5" fill="#fff" opacity=".85"/>`).join('')}`;
+  return `<span class="rk-selo ${rad?'rad':'imo'}" title="${esc(rank)}"><svg width="${px}" height="${px}" viewBox="0 0 40 40">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>${forma}</svg>
+    ${num?`<b class="num">#${num}</b>`:''}</span>`;
+}
+const COR_OLHEIRO=['var(--red)','var(--red)','var(--amber)','#E8D25A','var(--teal)','var(--gold)'];
+/* Radar das rankeds (core/radar.js) como uma ladder: o selo do rank, a
+   leitura enchendo na cor do olheiro e o teste em destaque. */
 function blocoRadar(t){
   if(typeof radarRanked!=='function')return '';
   const R=radarRanked(),nv=nivelOlheiroDe(t);
+  const corO=COR_OLHEIRO[clamp(Math.round(nv),1,5)];
   const ativas=R.contas.slice().sort((a,b)=>({decisao:0,teste:1,radar:2}[a.estado]-{decisao:0,teste:1,radar:2}[b.estado])||a.rankOrd-b.rankOrd);
   const faixa=(a,b)=>a===b?String(a):a+'–'+b;
-  const linha=c=>{const L=leituraDaConta(c,t);
+  const destaque=ativas.filter(c=>c.estado!=='radar');
+  const ladder=ativas.filter(c=>c.estado==='radar');
+  const linha=(c,i)=>{const L=leituraDaConta(c,t);
     return `<div class="rd-c rd-${c.estado}">
+      <span class="rd-pos num">${i+1}</span>
+      ${seloRank(c.rank,38)}
       <div class="rd-id"><b>${esc(c.nome)}</b> ${FLAG[c.pais]||''} <span class="tag ${c.role}">${c.role}</span>
-        <div class="dim">${esc(c.rank)} · ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
-      <div class="rd-leit"><div class="vb"><i class="${L.p>=1?'g':''}" style="width:${Math.round(L.p*100)}%"></i></div>
-        <span class="dim">${L.p>=1?'teste: leitura completa':'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
+        <div class="dim">${esc(c.rank)} · ${retratoAgente(c.agente,18)} ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
+      <div class="rd-leit"><div class="rd-barra" style="--cor:${corO}"><i style="width:${Math.round(L.p*100)}%"></i></div>
+        <span class="dim">${'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
       <div class="rd-num"><span class="dim">Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
       <div class="rd-num"><span class="dim">Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div>
-      <div class="rd-bt">${c.estado==='radar'?`<button class="btn sm" data-rteste="${c.id}">Chamar para teste</button>
-          <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button>`
-        :c.estado==='teste'?'<span class="chip t">em teste nesta semana</span>'
+      <div class="rd-bt"><button class="btn ghost sm" data-rteste="${c.id}">Chamar para teste</button>
+          <button class="btn sm ghost" data-rtira="${c.id}">Tirar</button></div>
+    </div>`;};
+  const cartaoTeste=c=>{const L=leituraDaConta(c,t);
+    return `<div class="rd-teste ${c.estado}">
+      ${seloRank(c.rank,64)}
+      <div class="rd-t-id"><span class="eyebrow">${c.estado==='teste'?'Em teste nesta semana':'Teste encerrado · decida'}</span>
+        <b>${esc(c.nome)} ${FLAG[c.pais]||''}</b>
+        <div class="dim">${esc(c.rank)} · ${c.role} · ~${c.idade} anos · main ${esc(c.agente)}</div></div>
+      <div class="rd-t-nums"><div><span>Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
+        <div><span>Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div></div>
+      <div class="rd-bt">${c.estado==='teste'?'<span class="chip t">resultado no fim da semana</span>'
         :`<button class="btn sm" data-raceita="${c.id}">Aceitar na base</button><button class="btn sm ghost" data-rtira="${c.id}">Dispensar</button>`}</div>
     </div>`;};
   return `<div class="card"><div class="split"><div class="eyebrow">Radar das rankeds · ${esc(nomeLiga(t).replace(/^VCT /,''))}</div>
-      <span class="dim">olheiro nível ${nv.toFixed(1)} de 5 · ${ativas.length} de ${RADAR_MAX} contas</span></div>
+      <span class="rd-olh" style="--cor:${corO}">olheiro <b class="num">${nv.toFixed(1)}</b> de 5 · ${ativas.length} de ${RADAR_MAX} contas</span></div>
     ${explica(`O olheiro varre a ladder toda semana. Cada conta começa borrada e fica mais nítida a cada
     semana de observação — olheiro melhor lê mais rápido e erra menos o potencial. O teste dura uma semana e mostra tudo.
     Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.`,'Como o radar funciona')}
-    ${ativas.length?`<div class="rd-lista">${ativas.map(linha).join('')}</div>`:'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
+    ${destaque.map(cartaoTeste).join('')}
+    ${ladder.length?`<div class="rd-lista">${ladder.map(linha).join('')}</div>`:destaque.length?'':'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
     ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
   </div>`;
 }
@@ -922,16 +999,14 @@ function vBase(){
         `<button class="btn sm ${(t.baseFoco||'')===k?'':'ghost'}" data-basefoco="${k}">${n}</button>`).join('')}
     </div></div>
   ${blocoRadar(t)}
-  <div class="card flat"><div class="eyebrow">Categoria de base</div>
-    ${base.length?`<table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th>
-      <th class="c">Pot</th><th class="c">Na base desde</th><th class="r"></th></tr></thead>
-    <tbody>${base.map(p=>`<tr><td><b class="jrow" data-p="${p.id}" style="cursor:pointer">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
-      ${p.idade>=BASE_IDADE_SAI-1?' <span class="chip">último ano</span>':''}</td>
-      <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
-      <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
-      <td class="c num">${p.baseDesde||'—'}</td>
-      <td class="r" style="white-space:nowrap"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
-        <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></td></tr>`).join('')}</tbody></table>`
+  <div class="card flat"><div class="split"><div class="eyebrow">Categoria de base</div><span class="dim">${base.length} de ${vagas} vagas</span></div>
+    ${base.length||vagas?`<div class="base-cartas">${base.map(p=>`<div class="base-c">
+      ${cartaJogador(p,{w:118,clique:true})}
+      <div class="base-pot"><span>pot</span><b class="num">${p.pot}</b></div>
+      <span class="dim">${p.idade} anos · desde ${p.baseDesde||'—'}${p.idade>=BASE_IDADE_SAI-1?' · <span class="am">último ano</span>':''}</span>
+      <div class="base-bt"><button class="btn sm" data-bpromo="${p.id}" ${cheio?'disabled title="elenco com nove"':''}>Promover</button>
+        <button class="btn sm ghost" data-bdisp="${p.id}">Dispensar</button></div></div>`).join('')}
+      ${Array.from({length:Math.max(0,vagas-base.length)},()=>`<div class="base-c vaga"><span>${icone('broto')}</span><b>vaga aberta</b><span class="dim">chame alguém do radar para um teste</span></div>`).join('')}</div>`
     :'<div class="empty">Nenhum garoto na categoria agora. Chame alguém do radar para um teste.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Jovens no elenco</div>
     ${jovens.length?`<table class="tb ordenavel"><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
