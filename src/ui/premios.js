@@ -124,15 +124,17 @@ function vPremios(){
   ${nav}
   ${r&&r.cer?`<div class="pr-rever"><button class="btn ghost sm" data-rever="${r.ano}">▶ Rever a cerimônia de ${r.ano}</button></div>`:''}
   ${corpo}
-  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
-    ${lendas.length?`<div class="rolagem"><table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
-      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
-    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
-      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
-      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
-      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
-      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
-      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table></div>`
+  <div class="card flat"><div class="split"><div class="eyebrow">${icone('coluna','ouro')} Hall da Fama</div>
+      <span class="dim">${lendas.length} lenda${lendas.length===1?'':'s'}</span></div>
+    ${lendas.length?`<div class="hf-grade">${lendas.map(l=>{
+      const base={id:'lenda-'+l.nome,nome:l.nome,role:l.role,pais:l.pais,timeId:null};
+      return `<div class="hf-carta" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">
+        ${cartaJogador(base,{w:128,o:l.pico})}
+        <b>${esc(l.nome)} ${FLAG[l.pais]||''}</b>
+        <span class="dim">${esc(l.role)} · aposentou em ${l.ano} (${l.idade}a)</span>
+        <div class="hf-nums"><span><b class="num">${l.carreira.titulos}</b>títulos</span><span><b class="num">${l.carreira.intl}</b>intern.</span>
+          <span><b class="num">${l.premios.length}</b>prêmios</span><span><b class="num">${l.carreira.kd.toFixed(2)}</b>K/D</span></div>
+        <span class="dim hf-cl">${esc(l.clubes.slice(-3).join(' · '))}</span></div>`;}).join('')}</div>`
     :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
       e uma carreira longa.</div>`}</div>`;
 }

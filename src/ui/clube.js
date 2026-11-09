@@ -39,14 +39,16 @@ function ligarClubes(raiz){
 /* Uma linha da linha do tempo do clube (t.temporadas). Usada aqui e na
    História do seu clube. */
 function linhaTemporadaClube(x){
-  return `<div class="hc-temp">
+  const tits=x.t&&x.t.length;
+  return `<div class="hc-temp ${tits?'campeao':''} ${x.mov==='caiu'?'caiu':''}">
       <div class="hc-ano">${x.a}</div>
+      <div class="hc-no">${tits?imgTrofeu(trofeuDoTitulo(x.a,x.t[0]),22,x.t[0]):`<b class="num">${x.p?x.p+'º':'—'}</b>`}</div>
       <div class="hc-corpo">
         <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
           <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
           ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
-        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
-        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
+        ${x.i?`<div class="hc-intl">${icone('mundo','azul')} ${esc(x.i)}</div>`:''}
+        ${tits?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),26,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
         <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
       </div></div>`;
 }

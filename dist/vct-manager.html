@@ -2024,6 +2024,115 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .cl-sala.prateleira .cl-trof .trofeu{height:54px;width:auto;filter:drop-shadow(0 0 10px rgba(226,180,90,.45));transition:transform .2s,filter .2s}
 .cl-sala.prateleira .cl-trof:hover .trofeu{transform:translateY(-3px) scale(1.06);filter:drop-shadow(0 0 16px rgba(226,180,90,.7))}
 
+/* ============================================================
+   V9 — ESTATÍSTICAS DO MUNDO, PRÊMIOS E HISTÓRIA
+   ============================================================ */
+/* filtros em chips */
+.chips-f{display:flex;flex-wrap:wrap;gap:4px;padding:3px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.chips-f button{padding:5px 11px;font-size:11.5px;color:var(--tx2);letter-spacing:.03em;transition:background .15s,color .15s}
+.chips-f button:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.chips-f button.on{background:var(--tx);color:var(--bg);font-weight:600}
+/* ranking: pódio */
+.rk-podio{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin:6px 0 14px}
+.rk-deg{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:16px 12px 0;overflow:hidden;
+  border:1px solid rgba(var(--clube-rgb),.35);
+  background:radial-gradient(80% 70% at 50% 18%,rgba(var(--clube-rgb),.28),transparent 70%),linear-gradient(180deg,var(--surf2,var(--panel)),var(--surf1,var(--bg2)));
+  box-shadow:var(--sombra-2)}
+.rk-deg.me{box-shadow:var(--sombra-2),0 0 0 1px var(--red)}
+.rk-deg.vazio{visibility:hidden}
+.rk-esc img{filter:drop-shadow(0 8px 18px rgba(0,0,0,.6));transition:transform .25s}
+.rk-deg:hover .rk-esc img{transform:scale(1.06)}
+.rk-nome{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:24px;letter-spacing:.03em;line-height:1}
+.rk-sub{display:flex;gap:8px;align-items:center;font-size:12px}
+.rk-rt{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--tx)}
+.rk-bloco{align-self:stretch;margin:8px -12px 0;display:grid;place-items:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:#14100A;
+  background:linear-gradient(180deg,#C9D2DA,#8E99A4)}
+.rk-deg.d1 .rk-bloco{height:62px;background:linear-gradient(180deg,#F1D58A,#C8943A);font-size:40px}
+.rk-deg.d2 .rk-bloco{height:44px}
+.rk-deg.d3 .rk-bloco{height:32px;background:linear-gradient(180deg,#D69A6E,#99603A)}
+.rk-deg.d1{padding-top:22px}
+.rk-deg.d1 .rk-nome{font-size:30px}
+.spk{display:block;overflow:visible}
+/* líderes */
+.lid-top{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;margin:8px 0 6px;padding:8px 12px 8px 8px;cursor:pointer;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--clube) 22%,transparent),transparent 75%);border-left:3px solid var(--clube);
+  transition:transform .15s}
+.lid-top:hover{transform:translateX(2px)}
+.lid-foto img{width:72px;height:72px;object-fit:cover;border:1px solid var(--line2)}
+.lid-q b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:24px;letter-spacing:.03em}
+.lid-q .dim{display:flex;align-items:center;gap:5px;font-size:12px}
+.lid-pos{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);margin-right:6px}
+.lid-v{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold);line-height:1}
+/* galeria de títulos */
+.tit-ano-n{display:flex;align-items:center;gap:10px;color:var(--ano)}
+.tit-ano-n span{font-size:30px}
+.tit-ano-n i{font-style:normal;font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.tit-ano-n u{flex:1;height:2px;background:linear-gradient(90deg,var(--ano),transparent);text-decoration:none}
+.tit-galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.tit-pec{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px 10px 10px;
+  border:1px solid var(--line);background:radial-gradient(70% 55% at 50% 28%,rgba(226,180,90,.10),transparent 70%),var(--surf1,var(--panel));
+  transition:transform .18s,box-shadow .18s,border-color .18s}
+.tit-pec.intl{background:radial-gradient(70% 55% at 50% 28%,rgba(226,180,90,.22),transparent 70%),var(--surf1,var(--panel))}
+.tit-pec:hover{transform:translateY(-3px);box-shadow:var(--sombra-2);border-color:rgba(226,180,90,.4)}
+.tit-pec.meu{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.tit-pec.abre{cursor:pointer}
+.tit-trof .trofeu{height:72px;width:auto;filter:drop-shadow(0 0 10px rgba(226,180,90,.35));transition:transform .2s}
+.tit-pec:hover .tit-trof .trofeu{transform:scale(1.07)}
+.tit-ped{display:flex;align-items:center;gap:6px;padding:4px 10px;margin-top:-2px;background:linear-gradient(180deg,#2A3440,#1A222B);
+  border-top:2px solid #3A4654;font-size:12.5px}
+.tit-ev{font-size:11px;color:var(--tx2);line-height:1.25}
+.tit-vice{position:absolute;left:0;right:0;bottom:0;padding:5px 8px;font-size:10.5px;color:var(--tx2);background:rgba(11,18,24,.95);
+  border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:4px;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.tit-pec:hover .tit-vice{opacity:1;transform:none}
+/* recordes */
+.rec-kpi{display:flex;gap:12px;align-items:center}
+.rec-kpi img{width:52px;height:52px;object-fit:cover;border:1px solid var(--line2);flex:none}
+.rec-hall{display:inline-grid;place-items:center;width:30px;height:30px;color:var(--gold);background:rgba(226,180,90,.1)}
+.rec-hall.g{width:52px;height:52px;flex:none}.rec-hall.g svg{width:28px;height:28px}
+.rec-top{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;margin:8px 0 6px;padding:8px 10px;
+  background:linear-gradient(90deg,rgba(226,180,90,.12),transparent 80%);border-left:3px solid var(--gold)}
+.rec-top.me{border-left-color:var(--red)}
+.rec-img img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.rec-img .rec-hall{width:56px;height:56px}
+.rec-top>b{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold);line-height:1}
+.rec-top .linha-t span{font-weight:600}
+/* prêmios: palco */
+.pr-hero{position:relative;overflow:hidden}
+.pr-hero::before{content:"";position:absolute;left:-60px;top:-120px;width:420px;height:560px;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(226,180,90,.28),rgba(226,180,90,.06) 55%,transparent 72%);
+  animation:palcoLuz 6s ease-in-out infinite alternate}
+@keyframes palcoLuz{from{opacity:.75;transform:translateX(-10px)}to{opacity:1;transform:translateX(14px)}}
+.pr-hero>*{position:relative}
+.pr-carta{position:relative;overflow:hidden}
+.pr-carta::after{content:"";position:absolute;top:-20%;bottom:-20%;width:40%;left:-60%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);animation:brilhoCarta 1.4s .4s ease-out both}
+@keyframes brilhoCarta{to{left:130%}}
+.sem-anim .pr-hero::before,.sem-anim .pr-carta::after{animation:none}
+.sem-anim .pr-carta::after{display:none}
+.hf-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:10px}
+.hf-carta{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px 8px;
+  background:radial-gradient(70% 50% at 50% 25%,rgba(226,180,90,.14),transparent 70%),var(--surf1,var(--panel));border:1px solid rgba(226,180,90,.22)}
+.hf-carta>b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:22px;letter-spacing:.03em;margin-top:4px}
+.hf-carta>.dim{font-size:11px}
+.hf-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;margin:6px 0 2px}
+.hf-nums span{display:flex;flex-direction:column;font-size:9.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.hf-nums b{font-size:15px;color:var(--tx);letter-spacing:0}
+.hf-cl{font-size:10.5px!important}
+/* história: trilha vertical */
+.hc-trilha{position:relative;margin-top:8px}
+.hc-trilha::before{content:"";position:absolute;left:96px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--clube),rgba(255,255,255,.08))}
+.hc-trilha .hc-temp{grid-template-columns:64px 66px 1fr;align-items:start;border-bottom:0;padding:8px 0}
+.hc-trilha .hc-ano{padding-top:8px}
+.hc-no{position:relative;z-index:1;justify-self:center;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
+  background:var(--surf2,var(--panel));border:2px solid var(--line2);font-size:13px}
+.hc-temp.campeao .hc-no{width:48px;height:48px;border-color:var(--gold);box-shadow:0 0 14px rgba(226,180,90,.45);background:radial-gradient(circle,rgba(226,180,90,.25),var(--surf2,var(--panel)))}
+.hc-temp.caiu .hc-no{border-color:var(--red)}
+.hc-trilha .hc-corpo{padding:6px 10px;background:rgba(255,255,255,.02);border:1px solid var(--line)}
+.hc-temp.campeao .hc-corpo{border-color:rgba(226,180,90,.35);background:linear-gradient(90deg,rgba(226,180,90,.08),transparent)}
+.hc-tit .trofeu{vertical-align:middle}
+.hc-lendas{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:8px}
+.hc-lenda{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:11px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -19159,13 +19268,20 @@ function vHistoria(){
       <div class="sb">pelo histórico, não por decreto</div></div>
   </div>
 
+  <div class="card"><div class="split"><div class="eyebrow">Galeria de títulos</div><span class="dim">${l.titulos.length} troféu${l.titulos.length===1?'':'s'}</span></div>
+    ${l.titulos.length?`<div class="tit-galeria" style="margin-top:10px">${l.titulos.slice().reverse().map(x=>{
+      const ano=parseInt(x.split(' · ')[0]),ev=x.split(' · ').slice(1).join(' · ');
+      return `<div class="tit-pec ${ehInternacional(ev)?'intl':''}"><div class="tit-trof">${imgTrofeu(trofeuDoTitulo(ano,ev),48,ev)}</div>
+        <div class="tit-ped">${escudo(t,22)}<b class="num">${esc(String(ano))}</b></div><div class="tit-ev">${esc(ev)}</div></div>`;}).join('')}</div>`
+      :'<div class="empty">Nenhum título ainda. É por isso que você está aqui.</div>'}
+  </div>
   <div class="grid g2">
-    <div class="card"><div class="eyebrow">Galeria de títulos</div>
-      ${l.titulos.length?`<div class="titulo-lista">${l.titulos.slice().reverse().map(x=>{
-        const ano=parseInt(x.split(' · ')[0]),ev=x.split(' · ').slice(1).join(' · ');
-        return `<div class="titulo-item">${imgTrofeu(trofeuDoTitulo(ano,ev),30,ev)}
-          <div><div class="ano">${esc(String(ano))}</div><div class="ev">${esc(ev)}</div></div></div>`;}).join('')}</div>`
-        :'<div class="empty">Nenhum título ainda. É por isso que você está aqui.</div>'}
+    <div class="card"><div class="eyebrow">Linha do tempo do clube</div>
+      ${temps.length?`<div class="hc-trilha" style="--clube:${corDoClube(t)}">${temps.map(linhaTemp).join('')}</div>`:'<div class="empty">A primeira temporada entra aqui na virada do ano.</div>'}
+      ${preDoClube.length?`<div class="eyebrow" style="margin-top:14px">Antes da carreira · títulos reais</div>
+        ${preDoClube.slice().reverse().map(h=>`<div class="hc-pre">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),16,h.evento)}
+          <span class="num dim">${h.ano}</span> ${esc(h.evento)}</div>`).join('')}`:''}
+      <button class="btn ghost sm" data-irmundo="titulos" style="margin-top:10px">Galeria de títulos do mundo ›</button>
     </div>
     <div class="card"><div class="eyebrow">Rivalidades</div>
       ${rivais.length?rivais.map(r=>`<div class="riv">
@@ -19178,31 +19294,18 @@ function vHistoria(){
            temporadas — são precisos pelo menos ${RIV_MIN_JOGOS} confrontos.</div>`}
     </div>
   </div>
-
-
-  <div class="grid g2">
-    <div class="card"><div class="eyebrow">Linha do tempo do clube</div>
-      ${temps.length?temps.map(linhaTemp).join(''):'<div class="empty">A primeira temporada entra aqui na virada do ano.</div>'}
-      ${preDoClube.length?`<div class="eyebrow" style="margin-top:14px">Antes da carreira · títulos reais</div>
-        ${preDoClube.slice().reverse().map(h=>`<div class="hc-pre">${imgTrofeu(trofeuDoTitulo(h.ano,h.evento),16,h.evento)}
-          <span class="num dim">${h.ano}</span> ${esc(h.evento)}</div>`).join('')}`:''}
-      <button class="btn ghost sm" data-irmundo="titulos" style="margin-top:10px">Galeria de títulos do mundo ›</button>
-    </div>
-    <div>
+  <div class="${casa.length?'grid g2':''}">
       <div class="card"><div class="eyebrow">Lendas do clube</div>
-        ${porClube.length?`<table><thead><tr><th>Jogador</th><th class="c">Temporadas</th><th class="r">Mapas pelo clube</th></tr></thead><tbody>
-          ${porClube.map(x=>`<tr class="jrow" data-p="${x.p.id}"><td>${retrato(x.p,22)} <b>${esc(x.p.nome)}</b>
-            ${x.p.timeId===t.id?'':' <span class="dim">'+(x.p.timeId?esc(tagT(x.p.timeId)):'livre')+'</span>'}</td>
-            <td class="c num">${x.anos}</td><td class="r num">${x.maps}</td></tr>`).join('')}</tbody></table>`
+        ${porClube.length?`<div class="hc-lendas">${porClube.map(x=>`<div class="hc-lenda">${cartaJogador(x.p,{w:96,clique:true})}
+            <span class="num"><b>${x.maps}</b> mapas · ${x.anos} temp.</span>
+            ${x.p.timeId===t.id?'<span class="chip t">no elenco</span>':'<span class="dim">'+(x.p.timeId?esc(tagT(x.p.timeId)):'livre')+'</span>'}</div>`).join('')}</div>`
           :'<div class="empty">Ainda ninguém com história no clube.</div>'}
-        ${hall.length?`<div class="eyebrow" style="margin-top:12px">No Hall da Fama</div>${hall.map(l=>`<div class="hc-pre">🏛 <b>${esc(l.nome)}</b>
+        ${hall.length?`<div class="eyebrow" style="margin-top:12px">No Hall da Fama</div>${hall.map(l=>`<div class="hc-pre">${icone('coluna','ouro')} <b>${esc(l.nome)}</b>
           <span class="dim">${l.carreira.titulos} títulos · aposentou em ${l.ano}</span></div>`).join('')}`:''}
       </div>
       ${casa.length?`<div class="card"><div class="eyebrow">Revelados pela casa</div>
         ${casa.map(p=>`<div class="hc-pre jrow" data-p="${p.id}" style="cursor:pointer">${retrato(p,22)} <b>${esc(p.nome)}</b>
           <span class="ov ${ovClass(over(p))}">${over(p)}</span> <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></div>`).join('')}</div>`:''}
-    </div>
-  </div>
   </div>
   <div class="card"><div class="eyebrow">Confronto direto · ${conf.length} adversários</div>
     ${conf.length?`<div class="rolagem"><table class="wide tb ordenavel"><thead><tr><th></th><th>Adversário</th>
@@ -20194,7 +20297,11 @@ function ligarCompeticoes(v,on){
    Visão geral, líderes, títulos de 2021 até hoje, recordes e o
    ranking mundial. As contas novas moram em core/estatisticas.js.
    ============================================================ */
-let mundoAba='geral', lidEscopo='temp', lidRegiao='todas', lidFuncao='todas', titFiltro='todos';
+let mundoAba='geral', lidEscopo='temp', lidRegiao='todas', lidFuncao='todas', titFiltro='todos', rkRegiao='todas';
+/* filtros em chips (pacote V9) */
+function chipsFiltro(attr,atual,ops){
+  return `<div class="chips-f">${ops.map(([k,n])=>`<button data-${attr}="${k}" class="${atual===k?'on':''}">${n}</button>`).join('')}</div>`;
+}
 
 function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
 function linhaJogadorMini(p,valor,i,extra){
@@ -20256,16 +20363,22 @@ function mundoLideres(){
     ['MVPs',p=>base(p).mvp||0,v=>v],
     [car?'Mapas':'First kills',p=>car?base(p).maps:(base(p).fk||0),v=>v],
     [car?'Títulos':'Clutches',p=>car?(base(p).titulos||0):(base(p).cl||0),v=>v]];
-  const sel=(id,val,ops)=>`<select data-lidf="${id}">${ops.map(([k,n])=>`<option value="${k}" ${val===k?'selected':''}>${n}</option>`).join('')}</select>`;
+  const regs=[['todas','Todas'],...REGIONS.map(r=>[r.id,r.nome.replace(/^VCT /,'')])];
   return `<div class="mundo-filtros">
-    ${sel('escopo',lidEscopo,[['temp','Temporada '+G.ano],['carreira','Carreira inteira']])}
-    ${sel('regiao',lidRegiao,[['todas','Todas as regiões'],...REGIONS.map(r=>[r.id,r.nome])])}
-    ${sel('funcao',lidFuncao,[['todas','Todas as funções'],...ROLES.map(r=>[r,r])])}
+    ${chipsFiltro('lidesc',lidEscopo,[['temp','Temporada '+G.ano],['carreira','Carreira']])}
+    ${chipsFiltro('lidreg',lidRegiao,regs)}
+    ${chipsFiltro('lidfun',lidFuncao,[['todas','Todas as funções'],...ROLES.map(r=>[r,r])])}
     <span class="dim">${jog.length} jogadores com ${minMaps}+ mapas</span></div>
   <div class="grid g2">${tabs.map(([rot,f,fmt])=>{
     const top=jog.slice().sort((a,b)=>f(b)-f(a)).slice(0,10);
-    return `<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${
-      top.map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i)).join('')||'<tr><td class="dim">Sem dados.</td></tr>'}</tbody></table></div>`;}).join('')}</div>`;
+    const p1=top[0];
+    return `<div class="card flat lid-card"><div class="eyebrow">${rot}</div>
+      ${p1?`<div class="lid-top jrow" data-p="${p1.id}" style="--clube:${p1.timeId?corDoClube(G.times[p1.timeId]):'#8A96A3'}">
+        <span class="lid-foto">${retrato(p1,72)}</span>
+        <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${FLAG[p1.pais]||''}
+          <div class="dim">${p1.timeId?escudo(G.times[p1.timeId],16)+' '+esc(tagT(p1.timeId)):'livre'} · ${esc(p1.role)}</div></div>
+        <b class="lid-v num">${fmt(f(p1))}</b></div>`:''}
+      <table><tbody>${top.slice(1).map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i+1)).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
 }
 
 /* ---------- títulos ---------- */
@@ -20277,16 +20390,19 @@ function mundoTitulos(){
          ||x.evento.includes(REGIONS.find(r=>r.id===titFiltro).t2));
   const anos=[...new Set(h.map(x=>x.ano))].sort((a,b)=>b-a);
   const filtros=[['todos','Todos'],['INT','Internacionais'],...REGIONS.map(r=>[r.id,r.nome.replace('VCT ','')])];
-  return `<div class="tabs" style="margin-top:4px">${filtros.map(([k,n])=>`<button data-titf="${k}" class="${titFiltro===k?'on':''}">${n}</button>`).join('')}</div>
+  return `<div class="mundo-filtros">${chipsFiltro('titf',titFiltro,filtros)}</div>
   <p class="dim">Do primeiro Masters de 2021 até hoje: a pré-história real e a sua carreira na mesma galeria.
   Títulos da temporada em curso abrem a página do torneio.</p>
   ${anos.map(a=>{const l=h.filter(x=>x.ano===a&&filtra(x));if(!l.length)return '';
-    return `<div class="tit-ano"><div class="tit-ano-n">${a}${a<2027?' <span class="dim">· real</span>':''}</div>
-      <div class="titulo-lista">${l.map(x=>{const c=(x.timeId&&G.times[x.timeId])||(typeof acharClubePorNome==='function'?acharClubePorNome(x.campeao):null);
+    return `<div class="tit-ano" style="--ano:hsl(${(a*47)%360} 70% 62%)"><div class="tit-ano-n"><span>${a}</span>${a<2027?' <i>real</i>':''}<u></u></div>
+      <div class="tit-galeria">${l.map(x=>{const c=(x.timeId&&G.times[x.timeId])||(typeof acharClubePorNome==='function'?acharClubePorNome(x.campeao):null);
+        const v=x.vice&&typeof acharClubePorNome==='function'?acharClubePorNome(x.vice):null;
         const ev=x.ano===G.ano&&x.torneioId?` data-evento="${esc(x.torneioId)}"`:'';
-        return `<div class="titulo-item ${c&&c.id===G.meuTime?'meu':''} ${ev?'abre':''}"${ev}>${imgTrofeu(trofeuDoTitulo(x.ano,x.evento),30,x.evento)}
-          <div><div class="ev">${esc(x.evento)}</div>
-          <div class="ano">${c?escudo(c,14)+' ':''}${esc(x.campeao)}${x.vice?' · vice '+esc(x.vice):''}</div></div></div>`;}).join('')}</div></div>`;}).join('')}`;
+        return `<div class="tit-pec ${c&&c.id===G.meuTime?'meu':''} ${ev?'abre':''} ${ehInternacional(x.evento)?'intl':''}"${ev}>
+          <div class="tit-trof">${imgTrofeu(trofeuDoTitulo(x.ano,x.evento),48,x.evento)}</div>
+          <div class="tit-ped">${c?escudo(c,26):''}<b>${esc(x.campeao)}</b></div>
+          <div class="tit-ev">${esc(x.evento)}</div>
+          ${x.vice?`<div class="tit-vice">vice ${v?escudo(v,14)+' ':''}${esc(x.vice)}</div>`:''}</div>`;}).join('')}</div></div>`;}).join('')}`;
 }
 
 /* ---------- recordes ---------- */
@@ -20301,45 +20417,77 @@ function mundoRecordes(){
   const carreira=[...vivos.map(p=>({nome:p.nome,v:p.carreira.maps||0,p})),...lendas.map(l=>({nome:l.nome,v:l.carreira.maps||0,lenda:true}))]
     .sort((a,b)=>b.v-a.v).slice(0,5);
   const r=recordes();
-  const bloco=(rot,linhas)=>`<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${linhas||'<tr><td class="dim">—</td></tr>'}</tbody></table></div>`;
-  const lt=(l,f)=>l.map((x,i)=>`<tr class="${x.t&&x.t.id===G.meuTime?'me':''}"><td class="num dim">${i+1}</td><td>${f(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('');
+  const vivoPorNome=n=>vivos.find(p=>p.nome===n)||null;
+  const imgT=(x,px)=>escudo(x.t,px||30),imgJ=(x,px)=>x.p?retrato(x.p,px||30):`<span class="rec-hall">${icone('coluna')}</span>`;
+  /* o primeiro de cada lista ganha a imagem grande; o resto segue em linhas */
+  const bloco=(rot,lista,img,nome)=>{
+    if(!lista.length)return `<div class="card flat"><div class="eyebrow">${rot}</div><div class="dim">—</div></div>`;
+    const x1=lista[0];
+    return `<div class="card flat rec-card"><div class="eyebrow">${rot}</div>
+      <div class="rec-top ${x1.t&&x1.t.id===G.meuTime?'me':''}"><span class="rec-img">${img(x1,56)}</span>
+        <div>${nome(x1)}</div><b class="num">${x1.v}</b></div>
+      <table><tbody>${lista.slice(1).map((x,i)=>`<tr class="${x.t&&x.t.id===G.meuTime?'me':''}"><td class="num dim">${i+2}</td><td>${nome(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('')}</tbody></table></div>`;
+  };
+  const nT=x=>timeInline(x.t.id,18),nJ=x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`;
+  const pOver=r.over&&vivoPorNome(r.over.nome),pTr=r.transferencia&&vivoPorNome(r.transferencia.nome);
   return `<div class="grid g3">
-    <div class="kpi gold"><div class="lb">Maior over já registrado</div><div class="vl">${r.over?r.over.v:'—'}</div>
-      <div class="sb">${r.over?esc(r.over.nome)+' · '+esc(r.over.time)+' · '+r.over.ano:'conferido a cada virada de temporada'}</div></div>
-    <div class="kpi"><div class="lb">Maior transferência</div><div class="vl">${r.transferencia?money(r.transferencia.v):'—'}</div>
-      <div class="sb">${r.transferencia?esc(r.transferencia.nome)+' · '+esc(r.transferencia.de)+' → '+esc(r.transferencia.para)+' · '+r.transferencia.ano:'nenhuma ainda nesta carreira'}</div></div>
-    <div class="kpi"><div class="lb">Hall da Fama</div><div class="vl">${lendas.length}</div><div class="sb">lendas aposentadas</div></div>
+    <div class="kpi gold rec-kpi">${pOver?retrato(pOver,52):''}<div><div class="lb">Maior over já registrado</div><div class="vl">${r.over?r.over.v:'—'}</div>
+      <div class="sb">${r.over?esc(r.over.nome)+' · '+esc(r.over.time)+' · '+r.over.ano:'conferido a cada virada de temporada'}</div></div></div>
+    <div class="kpi rec-kpi">${pTr?retrato(pTr,52):''}<div><div class="lb">Maior transferência</div><div class="vl">${r.transferencia?money(r.transferencia.v):'—'}</div>
+      <div class="sb">${r.transferencia?esc(r.transferencia.nome)+' · '+esc(r.transferencia.de)+' → '+esc(r.transferencia.para)+' · '+r.transferencia.ano:'nenhuma ainda nesta carreira'}</div></div></div>
+    <div class="kpi rec-kpi"><span class="rec-hall g">${icone('coluna')}</span><div><div class="lb">Hall da Fama</div><div class="vl">${lendas.length}</div><div class="sb">lendas aposentadas</div></div></div>
   </div>
-  <div class="grid g2" style="margin-top:12px">
-    ${bloco('Mais títulos por clube',lt(topT(t=>(t.titulos||[]).length),x=>timeInline(x.t.id,18)))}
-    ${bloco('Mais títulos de Champions',lt(topT(t=>conta(t,/Champions/)),x=>timeInline(x.t.id,18)))}
-    ${bloco('Mais títulos de Masters',lt(topT(t=>conta(t,/Masters/)),x=>timeInline(x.t.id,18)))}
-    ${bloco('Mais títulos por jogador',lt(titJog,x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`))}
-    ${bloco('Carreira mais longa (mapas)',lt(carreira,x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`))}
-    ${bloco('Mais vices',lt(topT(t=>t.vices||0),x=>timeInline(x.t.id,18)))}
+  <div class="grid g3" style="margin-top:12px">
+    ${bloco('Mais títulos por clube',topT(t=>(t.titulos||[]).length),imgT,nT)}
+    ${bloco('Mais títulos de Champions',topT(t=>conta(t,/Champions/)),imgT,nT)}
+    ${bloco('Mais títulos de Masters',topT(t=>conta(t,/Masters/)),imgT,nT)}
+    ${bloco('Mais títulos por jogador',titJog.filter(x=>x.v>0),imgJ,nJ)}
+    ${bloco('Carreira mais longa (mapas)',carreira.filter(x=>x.v>0),imgJ,nJ)}
+    ${bloco('Mais vices',topT(t=>t.vices||0),imgT,nT)}
   </div>`;
 }
 
 /* ---------- ranking mundial ---------- */
-function sparkElo(id){
+function sparkElo(id,w,h){
   const vals=(G.eloHist||[]).map(f=>f.v[id]).filter(v=>typeof v==='number');
   if(vals.length<2)return '';
-  const w=90,h=22,min=Math.min(...vals),max=Math.max(...vals,min+1);
-  const d=vals.map((v,i)=>(i?'L':'M')+(i/(vals.length-1)*(w-2)+1).toFixed(1)+' '+(h-1-(v-min)/(max-min)*(h-2)).toFixed(1)).join(' ');
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none"
-    stroke="${vals[vals.length-1]>=vals[0]?'var(--teal)':'var(--red)'}" stroke-width="1.5"/></svg>`;
+  w=w||140;h=h||30;
+  const min=Math.min(...vals),max=Math.max(...vals,min+1);
+  const pts=vals.map((v,i)=>[(i/(vals.length-1)*(w-2)+1),(h-2-(v-min)/(max-min)*(h-5))]);
+  const d=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+  const cor=vals[vals.length-1]>=vals[0]?'var(--teal)':'var(--red)';
+  const ult=pts[pts.length-1];
+  return `<svg class="spk" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <path d="${d} L${ult[0].toFixed(1)} ${h} L1 ${h} Z" fill="${cor}" opacity=".12"/>
+    <path d="${d}" fill="none" stroke="${cor}" stroke-width="1.6"/><circle cx="${ult[0].toFixed(1)}" cy="${ult[1].toFixed(1)}" r="2.4" fill="${cor}"/></svg>`;
 }
 function mundoRanking(){
-  const rk=rankingMundial();
+  const todos=rankingMundial();
   const foto=(G.eloHist||[])[0]||null;
+  const posMundo=new Map(todos.map((t,i)=>[t.id,i+1]));
+  const rk=rkRegiao==='todas'?todos:todos.filter(t=>t.regiao===rkRegiao);
+  const varDe=t=>{const pa=posicaoNaFoto(foto,t.id);return pa?pa-posMundo.get(t.id):0;};
+  const setaVar=dv=>dv>0?`<span class="up">▲ ${dv}</span>`:dv<0?`<span class="dn">▼ ${-dv}</span>`:'<span class="dim">—</span>';
+  const deg=(t,k)=>{if(!t)return '<div class="rk-deg vazio"></div>';
+    const cor=corDoClube(t);
+    return `<div class="rk-deg d${k} ${t.id===G.meuTime?'me':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+      <div class="rk-esc">${escudo(t,k===1?96:72)}</div>
+      <b class="rk-nome">${linkClube(t)}</b>
+      <div class="rk-sub"><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span> ${setaVar(varDe(t))}</div>
+      <div class="rk-rt num">${Math.round(eloDe(t))}</div>
+      ${sparkElo(t.id,120,26)}
+      <div class="rk-bloco"><span>${posMundo.get(t.id)}</span></div></div>`;};
+  const regs=[['todas','Mundo'],...REGIONS.map(r=>[r.id,r.nome.replace(/^VCT /,'')])];
   return `${explica(`Rating por resultado de série: vencer quem está acima vale mais, internacional pesa 1,5× e
   atropelo mexe mais que série apertada. A coluna de variação compara com a foto mais antiga dos últimos doze meses.`,'Como o ranking é calculado')}
+  <div class="mundo-filtros">${chipsFiltro('rkreg',rkRegiao,regs)}<span class="dim">${rk.length} clubes</span></div>
+  <div class="rk-podio">${deg(rk[1],2)}${deg(rk[0],1)}${deg(rk[2],3)}</div>
   <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
     <th class="c">Variação</th><th class="c sem-ord">Forma</th><th class="sem-ord">12 meses</th></tr></thead><tbody>
-  ${rk.map((t,i)=>{const pa=posicaoNaFoto(foto,t.id),dv=pa?pa-(i+1):0;
-    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i+1}">${selo(i+1,i<3?'top':'')}</td><td>${celClube(t.id,22)}</td>
+  ${rk.slice(3).map(t=>{const i=posMundo.get(t.id),dv=varDe(t);
+    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i}">${selo(i,i<=3?'top':'')}</td><td>${celClube(t.id,24)}</td>
       <td><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span></td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
-      <td class="c num ${dv>0?'up':dv<0?'dn':'dim'}" data-v="${dv}">${dv>0?'▲ '+dv:dv<0?'▼ '+(-dv):'—'}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
+      <td class="c num" data-v="${dv}">${setaVar(dv)}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
   </tbody></table></div>`;
 }
 
@@ -20355,9 +20503,13 @@ function ligarMundo(v,on){
   on('[data-mundo]',el=>{mundoAba=el.dataset.mundo;render();});
   on('[data-irmundo]',el=>{mundoAba=el.dataset.irmundo;irPara('stats');});
   on('[data-titf]',el=>{titFiltro=el.dataset.titf;render();});
+  on('[data-rkreg]',el=>{rkRegiao=el.dataset.rkreg;render();});
+  on('[data-lidesc]',el=>{lidEscopo=el.dataset.lidesc;render();});
+  on('[data-lidreg]',el=>{lidRegiao=el.dataset.lidreg;render();});
+  on('[data-lidfun]',el=>{lidFuncao=el.dataset.lidfun;render();});
   v.querySelectorAll('[data-lidf]').forEach(el=>el.onchange=()=>{
     const k=el.dataset.lidf;if(k==='escopo')lidEscopo=el.value;else if(k==='regiao')lidRegiao=el.value;else lidFuncao=el.value;render();});
-  v.querySelectorAll('.mg-dest .jrow').forEach(el=>el.onclick=()=>modalJogador(el.dataset.p));
+  v.querySelectorAll('.mg-dest .jrow,.lid-top').forEach(el=>el.onclick=()=>modalJogador(el.dataset.p));
 }
 
 
@@ -20488,15 +20640,17 @@ function vPremios(){
   ${nav}
   ${r&&r.cer?`<div class="pr-rever"><button class="btn ghost sm" data-rever="${r.ano}">▶ Rever a cerimônia de ${r.ano}</button></div>`:''}
   ${corpo}
-  <div class="card flat"><div class="eyebrow">Hall da Fama</div>
-    ${lendas.length?`<div class="rolagem"><table><thead><tr><th>Jogador</th><th>Função</th><th class="c">Aposentou</th><th class="c">Pico</th>
-      <th class="r">Títulos</th><th class="r">Internac.</th><th class="r">Prêmios</th><th class="r">Mapas</th><th class="r">K/D</th><th>Clubes</th></tr></thead>
-    <tbody>${lendas.map(l=>`<tr><td><b>${esc(l.nome)}</b> ${FLAG[l.pais]||''}</td>
-      <td><span class="tag ${l.role}">${l.role}</span></td><td class="c num">${l.ano} · ${l.idade}a</td>
-      <td class="c num">${l.pico}</td><td class="r num">${l.carreira.titulos}</td><td class="r num">${l.carreira.intl}</td>
-      <td class="r num" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">${l.premios.length}</td>
-      <td class="r num">${l.carreira.maps}</td><td class="r num">${l.carreira.kd.toFixed(2)}</td>
-      <td class="dim">${esc(l.clubes.slice(-3).join(', '))}</td></tr>`).join('')}</tbody></table></div>`
+  <div class="card flat"><div class="split"><div class="eyebrow">${icone('coluna','ouro')} Hall da Fama</div>
+      <span class="dim">${lendas.length} lenda${lendas.length===1?'':'s'}</span></div>
+    ${lendas.length?`<div class="hf-grade">${lendas.map(l=>{
+      const base={id:'lenda-'+l.nome,nome:l.nome,role:l.role,pais:l.pais,timeId:null};
+      return `<div class="hf-carta" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">
+        ${cartaJogador(base,{w:128,o:l.pico})}
+        <b>${esc(l.nome)} ${FLAG[l.pais]||''}</b>
+        <span class="dim">${esc(l.role)} · aposentou em ${l.ano} (${l.idade}a)</span>
+        <div class="hf-nums"><span><b class="num">${l.carreira.titulos}</b>títulos</span><span><b class="num">${l.carreira.intl}</b>intern.</span>
+          <span><b class="num">${l.premios.length}</b>prêmios</span><span><b class="num">${l.carreira.kd.toFixed(2)}</b>K/D</span></div>
+        <span class="dim hf-cl">${esc(l.clubes.slice(-3).join(' · '))}</span></div>`;}).join('')}</div>`
     :`<div class="empty">Ninguém ainda. Entra quem se aposenta com prêmios do ano, títulos internacionais
       e uma carreira longa.</div>`}</div>`;
 }
@@ -20797,14 +20951,16 @@ function ligarClubes(raiz){
 /* Uma linha da linha do tempo do clube (t.temporadas). Usada aqui e na
    História do seu clube. */
 function linhaTemporadaClube(x){
-  return `<div class="hc-temp">
+  const tits=x.t&&x.t.length;
+  return `<div class="hc-temp ${tits?'campeao':''} ${x.mov==='caiu'?'caiu':''}">
       <div class="hc-ano">${x.a}</div>
+      <div class="hc-no">${tits?imgTrofeu(trofeuDoTitulo(x.a,x.t[0]),22,x.t[0]):`<b class="num">${x.p?x.p+'º':'—'}</b>`}</div>
       <div class="hc-corpo">
         <div><b>${x.p?x.p+'º':'—'}</b> <span class="dim">de ${x.de||'—'} na ${x.tier===2?'Challengers':'liga'}</span>
           <span class="num dim"> · ${x.v}–${x.d} em séries</span>${x.elo?`<span class="dim"> · rating ${x.elo}</span>`:''}
           ${x.mov==='subiu'?' <span class="chip g">subiu para o VCT</span>':x.mov==='caiu'?' <span class="chip r">rebaixado</span>':''}</div>
-        ${x.i?`<div class="hc-intl">🌍 ${esc(x.i)}</div>`:''}
-        ${x.t&&x.t.length?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),16,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
+        ${x.i?`<div class="hc-intl">${icone('mundo','azul')} ${esc(x.i)}</div>`:''}
+        ${tits?`<div class="hc-tits">${x.t.map(ev=>`<span class="hc-tit">${imgTrofeu(trofeuDoTitulo(x.a,ev),26,ev)} ${esc(ev)}</span>`).join('')}</div>`:''}
         <div class="dim hc-el">${x.e&&x.e.length?esc(x.e.join(' · ')):''}${x.c?' — técnico '+esc(x.c):''}</div>
       </div></div>`;
 }
