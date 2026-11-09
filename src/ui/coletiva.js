@@ -75,7 +75,9 @@ function montarColetiva(c){
   const ok=([p])=>(!/\{mvp\}/.test(p)||mvp)&&(!/\{pior\}/.test(p)||pior)&&(!/\{adv\}/.test(p)||adv);
   const doCtx=(COL_PERGUNTAS[c.ctx]||[]).filter(ok).sort(()=>Math.random()-0.5).slice(0,3);
   const gerais=COL_PERGUNTAS.geral.filter(q=>!doCtx.includes(q)).sort(()=>Math.random()-0.5).slice(0,4-doCtx.length);
-  const jor=COL_IMPRENSA.slice().sort(()=>Math.random()-0.5);
+  /* quem pergunta: jornalistas dos veículos que cobrem o seu clube (feed de notícias) */
+  const regionais=typeof jornalistasDaRegiao==='function'?jornalistasDaRegiao(t.regiao,typeof paisDoClube==='function'?paisDoClube(t):null).slice(0,8):[];
+  const jor=(regionais.length>=3?regionais.map(j=>{const v=veiculo(j.veiculo);return [j.nome,v.nome,v.cor];}):COL_IMPRENSA.slice()).sort(()=>Math.random()-0.5);
   return{mvp,perguntas:doCtx.concat(gerais).map(([p,rs],i)=>({p:troca(p),j:jor[i%jor.length],
     rs:rs.map((r,k)=>({txt:troca(r),v:COL_VALOR[k]})).sort(()=>Math.random()-0.5)}))};
 }

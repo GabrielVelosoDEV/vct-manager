@@ -2986,6 +2986,119 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .ver-topo:has(>.cn){min-height:170px}
 .ver-fundo::after{content:"";position:absolute;inset:0;background:rgba(11,18,24,.35)}
 .cn.cn-direita{left:auto;width:60%;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 38%);mask-image:linear-gradient(90deg,transparent 0%,#000 38%)}
+/* ---------- notícias: feed da imprensa (ui/imprensa.js) ---------- */
+.fd{display:grid;grid-template-columns:200px minmax(0,660px) minmax(260px,320px);gap:20px;align-items:start;justify-content:start}
+.fd-nav{position:sticky;top:8px;display:flex;flex-direction:column;gap:2px}
+.fd-nav button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;color:var(--tx2);font-size:14px;
+  border-left:2px solid transparent;transition:background .15s,color .15s}
+.fd-nav button svg{width:19px;height:19px;flex:none}
+.fd-nav button i{margin-left:auto;font-style:normal;font-size:11px;color:var(--dim)}
+.fd-nav button:hover{background:rgba(255,255,255,.04);color:var(--tx)}
+.fd-nav button.on{color:var(--tx);font-weight:600;border-left-color:var(--red);background:rgba(255,70,85,.07)}
+.fd-col{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--bg2)}
+.fd-col>.vazio{margin:16px}
+.fd-col .nw-mais{margin:12px 0}
+.fd-lado{position:sticky;top:8px;display:flex;flex-direction:column;gap:12px}
+.fd-box{padding:12px 14px}
+.fd-box .eyebrow{margin-bottom:8px}
+.fd-alta{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;width:100%;padding:7px 0;border-top:1px solid var(--line)}
+.fd-alta:first-of-type{border-top:0}
+.fd-alta>span:nth-child(2){display:flex;flex-direction:column;font-size:12px}
+.fd-alta b{font-size:14px;color:var(--tx)}
+.fd-alta:hover b{color:var(--red)}
+.fd-pf{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.fd-pf:first-of-type{border-top:0}
+.fd-pf-t{all:unset;cursor:pointer;display:flex;flex-direction:column;min-width:0}
+.fd-pf-t b{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-pf-t span{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-pf .btn.sm{padding:4px 10px;font-size:10.5px}
+/* post */
+.ps{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);transition:background .15s}
+.ps:hover{background:rgba(255,255,255,.015)}
+.ps:last-of-type{border-bottom:0}
+.ps.me{box-shadow:inset 3px 0 0 var(--red)}
+.ps.destaque{background:linear-gradient(180deg,rgba(255,70,85,.06),transparent 70%);border-bottom:1px solid var(--line2)}
+.ps.destaque .ps-txt{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1.12;letter-spacing:.02em}
+.ps.imp:not(.destaque) .ps-txt{font-weight:600}
+.ps-dest{margin:2px 0 4px;color:var(--red)}
+.ps-av{all:unset;cursor:pointer;display:block;align-self:start;line-height:0}
+.ps-av-img{display:block;border-radius:50%;overflow:hidden;background:#1a2530}
+.ps-av-img.q{border-radius:10px;background:#fff}
+.ps-av-img img{width:100%;height:100%;object-fit:cover;display:block}
+.ps-av-img.q img{object-fit:contain;padding:12%;box-sizing:border-box}
+.ps-mono{display:grid;place-items:center;border-radius:10px;background:var(--c);color:#fff;font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-height:1;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.ps-mono.r{border-radius:50%;background:color-mix(in srgb,var(--c) 55%,#1a2530)}
+.ps-c{min-width:0}
+.ps-topo{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:13px;line-height:1.3}
+.ps-nome{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:var(--tx)}
+.ps-nome:hover b{text-decoration:underline}
+.ps-verif{width:15px;height:15px;color:#3EA6FF;flex:none}
+.ps-arroba,.ps-pt,.ps-tempo{color:var(--dim)}
+.ps-veic{all:unset;cursor:pointer;font-size:10.5px;padding:1px 7px;border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:color-mix(in srgb,var(--c) 70%,#fff);
+  background:color-mix(in srgb,var(--c) 14%,transparent);letter-spacing:.02em}
+.ps-veic:hover{background:color-mix(in srgb,var(--c) 26%,transparent)}
+.ps-cat{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.ps-cat .ic svg{width:12px;height:12px}
+.ps-txt{font-size:14.5px;line-height:1.45;margin-top:4px;color:var(--tx)}
+.ps-txt .news-link{cursor:pointer;color:var(--tx);text-decoration:underline dotted;text-underline-offset:3px;font-weight:600}
+.ps-txt .news-link:hover{color:var(--red)}
+.ps-trad{font-size:11px;color:var(--dim);margin-top:4px}
+.ps-m{margin-top:10px;border:1px solid var(--line2);overflow:hidden;position:relative;border-radius:12px}
+.ps-mc{aspect-ratio:16/8}
+.ps-mj{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 14px;margin-top:10px;width:100%;
+  border:1px solid var(--line2);border-radius:12px;overflow:hidden;position:relative;
+  background:linear-gradient(100deg,rgba(var(--clube-rgb),.22),rgba(var(--clube-rgb),.04) 60%,transparent)}
+.ps-mj-f img{width:72px;height:72px;object-fit:cover;border-radius:10px;display:block}
+.ps-mj-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ps-mj-t b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:26px;letter-spacing:.03em;line-height:1}
+.ps-mj-t .dim{display:flex;align-items:center;gap:5px;font-size:12px}
+.ps-mj-esc img{width:64px;height:64px;opacity:.85;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.ps-mj:hover{border-color:var(--tx2)}
+.ps-mt{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;
+  background:radial-gradient(120% 160% at 0% 50%,rgba(var(--clube-rgb),.3),transparent 60%),var(--bg)}
+.ps-mt>span{display:flex;flex-direction:column}
+.ps-mt b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:26px;letter-spacing:.03em;line-height:1}
+.ps-acoes{display:flex;gap:28px;margin-top:10px;color:var(--dim);font-size:12px}
+.ps-acoes span{display:inline-flex;align-items:center;gap:6px}
+.ps-acoes svg{width:16px;height:16px}
+.ps-rx{margin-top:10px;display:flex;flex-direction:column;gap:2px;border-left:2px solid var(--line2);padding-left:12px}
+.ps-r{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:6px 0}
+.ps-r .ps-nome b{font-size:12.5px}
+.ps-r .ps-arroba{font-size:11px;margin-left:4px}
+.ps-r-t{font-size:13px;color:var(--tx2);margin-top:1px}
+.ps-r-c{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)}
+.ps-r-c svg{width:13px;height:13px}
+/* perfil */
+.pf{position:relative;min-width:min(660px,90vw)}
+.pf-capa{height:110px;margin:-20px -22px 0;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 30%,#0B1218) 70%);opacity:.85}
+.pf-topo{display:flex;justify-content:space-between;align-items:flex-end;margin-top:-44px}
+.pf-av{display:inline-block;padding:4px;background:var(--bg2);border-radius:50%;line-height:0}
+.pf-av .ps-mono:not(.r){border-radius:14px}
+.pf-nome{display:flex;align-items:center;gap:6px;margin:8px 0 0}
+.pf-nome .ps-verif{width:20px;height:20px}
+.pf-bio{margin:10px 0;font-size:13.5px;color:var(--tx2);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.pf-bio .ic svg{width:13px;height:13px;vertical-align:-2px}
+.pf-num{display:flex;gap:18px;font-size:13px;color:var(--dim);margin-bottom:12px}
+.pf-num b{color:var(--tx)}
+.pf-eq{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pf-eq-p{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border:1px solid var(--line);font-size:12px}
+.pf-eq-p>span{display:flex;flex-direction:column}
+.pf-eq-p:hover{border-color:var(--tx2)}
+.pf-posts{border:1px solid var(--line);max-height:52vh;overflow:auto;margin-bottom:12px}
+@media (max-width:1280px){.fd{grid-template-columns:180px minmax(0,1fr)}.fd-lado{display:none}}
+@media (max-width:860px){.fd{grid-template-columns:1fr}.fd-nav{position:static;flex-direction:row;overflow-x:auto}
+  .fd-nav button{border-left:0;border-bottom:2px solid transparent;padding:8px 10px;white-space:nowrap}.fd-nav button.on{border-bottom-color:var(--red)}}
+.feed .nl-a{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin:0 6px 0 4px;vertical-align:-4px}
+.feed .nl-a b{font-size:12px;color:var(--tx)}
+.feed .nl-a:hover b{text-decoration:underline}
+.feed .nl-a .ps-mono{border-radius:4px}
+.fd-seg{all:unset;box-sizing:border-box;cursor:pointer;padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--tx);color:var(--bg);white-space:nowrap;transition:background .15s,color .15s}
+.fd-seg:hover{background:#fff}
+.fd-seg.on{background:transparent;color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+.fd-seg.on:hover{color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.fd-seg.grande{padding:8px 18px;font-size:13px}
+.fd-nav{scrollbar-width:none}.fd-nav::-webkit-scrollbar{display:none}
 
 </style>
 </head>
@@ -5694,6 +5807,80 @@ const PLACAS={
   'estrutura/saude':[32.2,13.8,40.2,25.4],
   'estrutura/treino':[36.2,17.7,28.1,18.8]
 };
+
+
+/* ===== data/imprensa.js ===== */
+/* ============================================================
+   IMPRENSA — veículos e pessoas que postam no feed de notícias
+   ------------------------------------------------------------
+   VEICULOS: sites e perfis reais que cobrem Valorant e esports.
+     regiao   'GLOBAL' ou AMER / EMEA / PAC / CN
+     paises   de onde o veículo é (cobre mais os clubes desses países)
+     lingua   pt, es, en, fr, de, tr, uk, ko, ja, zh, in, sea — decide
+              o nome dos jornalistas fictícios e o "traduzido do…"
+     foco     categorias de notícia que o veículo mais cobre
+              (clube, mercado, competicoes, meta, carreira)
+     alcance  1 a 3: quanto o veículo pesa e quanto engajamento tem
+     equipe   quantos jornalistas fictícios ele tem
+   Logo opcional em assets/veiculos/<id>.png (ver a LISTA.md de lá).
+
+   PERSONALIDADES: pessoas reais que você adiciona. A foto vai em
+   assets/imprensa/<nome-em-slug>.png. Uma foto sem cadastro aqui
+   entra sozinha como jornalista brasileiro independente, com o nome
+   tirado do arquivo; cadastre para dar o tipo, o veículo e o @.
+     tipo     'jornalista' (assina notícias), 'streamer', 'caster' ou
+              'criador' (reagem às notícias grandes)
+     veiculo  id de um VEICULO (opcional; sem ele, independente)
+     pais     país de quem ela cobre / com quem ela fala (padrão BR)
+     arroba   @ sem o arroba (opcional; sem ele, sai do nome)
+   ============================================================ */
+const VEICULOS=[
+  /* ---------- global (inglês) ---------- */
+  {id:'dexerto',     nome:'Dexerto',          arroba:'Dexerto',      regiao:'GLOBAL',paises:[],    lingua:'en',cor:'#E8262E',foco:['mercado','competicoes'],alcance:3,equipe:3},
+  {id:'dotesports',  nome:'Dot Esports',      arroba:'dotesports',   regiao:'GLOBAL',paises:[],    lingua:'en',cor:'#E5473B',foco:['competicoes','meta'],alcance:3,equipe:3},
+  {id:'sheep',       nome:'Sheep Esports',    arroba:'SheepEsports', regiao:'GLOBAL',paises:['FR'],lingua:'en',cor:'#8C6CF2',foco:['mercado','carreira'],alcance:3,equipe:3},
+  {id:'esportsgg',   nome:'esports.gg',       arroba:'esportsgg',    regiao:'GLOBAL',paises:[],    lingua:'en',cor:'#1FB5FF',foco:['competicoes','mercado'],alcance:2,equipe:2},
+  {id:'thespike',    nome:'THESPIKE.GG',      arroba:'thespikegg',   regiao:'GLOBAL',paises:['GB'],lingua:'en',cor:'#F25C54',foco:['competicoes','mercado'],alcance:2,equipe:2},
+  {id:'vlr',         nome:'VLR.gg',           arroba:'vlrdotgg',     regiao:'GLOBAL',paises:[],    lingua:'en',cor:'#C9473F',foco:['competicoes','meta'],alcance:3,equipe:1},
+  {id:'escharts',    nome:'Esports Charts',   arroba:'EsportsCharts',regiao:'GLOBAL',paises:[],    lingua:'en',cor:'#2E9BFF',foco:['competicoes'],alcance:1,equipe:1},
+  /* ---------- Américas ---------- */
+  {id:'maisesports', nome:'Mais Esports',     arroba:'maisesports',  regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FFC21A',foco:['mercado','competicoes','clube'],alcance:3,equipe:3},
+  {id:'geesports',   nome:'ge esports',       arroba:'geesports',    regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#06AA48',foco:['competicoes','clube','carreira'],alcance:3,equipe:2},
+  {id:'theenemy',    nome:'The Enemy',        arroba:'theenemy',     regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#E5262D',foco:['meta','competicoes'],alcance:2,equipe:2},
+  {id:'valorantzone',nome:'Valorant Zone',    arroba:'valorantzone', regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FF4655',foco:['mercado','clube','meta'],alcance:2,equipe:2},
+  {id:'hotspawn',    nome:'Hotspawn',         arroba:'hotspawn',     regiao:'AMER',paises:['US','CA'],lingua:'en',cor:'#F7931E',foco:['competicoes','mercado'],alcance:1,equipe:2},
+  {id:'levelup',     nome:'LevelUp',          arroba:'LevelUp',      regiao:'AMER',paises:['MX'],lingua:'es',cor:'#E31B23',foco:['competicoes','clube'],alcance:2,equipe:2},
+  {id:'libero',      nome:'Líbero Esports',   arroba:'liberoesports',regiao:'AMER',paises:['PE','CL','CO'],lingua:'es',cor:'#E30613',foco:['competicoes','mercado'],alcance:1,equipe:1},
+  {id:'culturageek', nome:'Cultura Geek',     arroba:'culturageekar',regiao:'AMER',paises:['AR','CL'],lingua:'es',cor:'#00A3E0',foco:['competicoes','meta'],alcance:1,equipe:1},
+  /* ---------- EMEA ---------- */
+  {id:'millenium',   nome:'Millenium',        arroba:'MilleniumFR',  regiao:'EMEA',paises:['FR','BE'],lingua:'fr',cor:'#E4002B',foco:['competicoes','mercado'],alcance:2,equipe:2},
+  {id:'mggespana',   nome:'MGG España',       arroba:'MGG_ES',       regiao:'EMEA',paises:['ES'],lingua:'es',cor:'#D7263D',foco:['competicoes','meta'],alcance:1,equipe:1},
+  {id:'gaminginturkey',nome:'Gaming in Turkey',arroba:'gaminginturkey',regiao:'EMEA',paises:['TR'],lingua:'tr',cor:'#E30A17',foco:['mercado','competicoes'],alcance:2,equipe:2},
+  {id:'rtparena',    nome:'RTP Arena',        arroba:'RTPArena',     regiao:'EMEA',paises:['PT'],lingua:'pt',cor:'#00A651',foco:['competicoes','carreira'],alcance:1,equipe:1},
+  {id:'esportsnet',  nome:'esports.net',      arroba:'esportsnet',   regiao:'EMEA',paises:['DE','AT','PL'],lingua:'de',cor:'#3D7BF7',foco:['competicoes','meta'],alcance:1,equipe:2},
+  {id:'playersua',   nome:'Players.com.ua',   arroba:'playerscomua', regiao:'EMEA',paises:['UA','RU'],lingua:'uk',cor:'#F5C400',foco:['mercado','competicoes'],alcance:1,equipe:1},
+  /* ---------- Pacífico ---------- */
+  {id:'invenglobal', nome:'Inven Global',     arroba:'InvenGlobal',  regiao:'PAC',paises:['KR'],lingua:'ko',cor:'#E6007E',foco:['competicoes','carreira'],alcance:2,equipe:2},
+  {id:'osen',        nome:'OSEN',             arroba:'osen_esports', regiao:'PAC',paises:['KR'],lingua:'ko',cor:'#1A6FD1',foco:['competicoes','clube'],alcance:2,equipe:2},
+  {id:'saiganak',    nome:'SAIGANAK',         arroba:'saiganak',     regiao:'PAC',paises:['JP'],lingua:'ja',cor:'#111C2E',foco:['competicoes','clube'],alcance:1,equipe:2},
+  {id:'valorantnewsjp',nome:'VALORANT NEWS JP',arroba:'valorantnewsjp',regiao:'PAC',paises:['JP'],lingua:'ja',cor:'#FF5A5F',foco:['meta','mercado'],alcance:1,equipe:1},
+  {id:'valo2asia',   nome:'VALO2ASIA',        arroba:'valo2asia',    regiao:'PAC',paises:['SG','MY','TH','VN','ID','PH'],lingua:'sea',cor:'#FF6B35',foco:['competicoes','mercado'],alcance:2,equipe:2},
+  {id:'oneesports',  nome:'ONE Esports',      arroba:'ONEEsports',   regiao:'PAC',paises:['SG','PH','ID','TH'],lingua:'sea',cor:'#F0A202',foco:['competicoes','carreira'],alcance:2,equipe:2},
+  {id:'afkgaming',   nome:'AFK Gaming',       arroba:'afkgaming',    regiao:'PAC',paises:['IN'],lingua:'in',cor:'#2BB673',foco:['competicoes','mercado'],alcance:1,equipe:2},
+  {id:'sportskeeda', nome:'Sportskeeda Esports',arroba:'SKEsports',  regiao:'PAC',paises:['IN'],lingua:'in',cor:'#F15A24',foco:['meta','competicoes'],alcance:1,equipe:1},
+  /* ---------- China ---------- */
+  {id:'gamersky',    nome:'游民星空 Gamersky', arroba:'gamersky',     regiao:'CN',paises:['CN'],lingua:'zh',cor:'#E73B3B',foco:['meta','competicoes'],alcance:2,equipe:2},
+  {id:'wanplus',     nome:'玩加电竞 Wanplus',  arroba:'wanplus',      regiao:'CN',paises:['CN'],lingua:'zh',cor:'#FF7A00',foco:['competicoes','mercado'],alcance:2,equipe:2},
+  {id:'hupu',        nome:'虎扑电竞 Hupu',     arroba:'hupuesports',  regiao:'CN',paises:['CN'],lingua:'zh',cor:'#C8102E',foco:['clube','mercado'],alcance:2,equipe:1},
+  {id:'sinaesports', nome:'新浪电竞 Sina',     arroba:'sinaesports',  regiao:'CN',paises:['CN'],lingua:'zh',cor:'#E6162D',foco:['competicoes','carreira'],alcance:1,equipe:1}
+];
+
+/* Cadastre aqui as pessoas reais cujas fotos você colocar em assets/imprensa/.
+   Exemplo (descomente e troque):
+   {nome:'Nome da Pessoa', tipo:'jornalista', veiculo:'maisesports', pais:'BR', arroba:'nomedapessoa'},
+   {nome:'Nome do Streamer', tipo:'streamer', pais:'BR'},                                          */
+const PERSONALIDADES=[
+];
 
 
 /* ===== src/core/datas.js ===== */
@@ -10423,6 +10610,269 @@ function manchete(){
     if(v>nota){nota=v;melhor=n;}
   }
   return nota>=2?melhor:null;
+}
+
+
+/* ===== src/core/imprensa.js ===== */
+/* ============================================================
+   IMPRENSA — quem assina cada notícia do feed
+   ------------------------------------------------------------
+   Os veículos são reais (data/imprensa.js); os jornalistas de cada
+   um são fictícios, gerados uma vez por carreira (G.imprensa), com
+   nome do país do veículo e rosto do pacote sintético. As pessoas
+   reais que você cadastra (PERSONALIDADES, ou só a foto em
+   assets/imprensa) entram no mesmo elenco.
+
+   Quem assina uma notícia sai de um hash do texto e da semana, não
+   do rnd() do motor: o feed nunca muda o resultado da simulação, e a
+   mesma notícia tem sempre o mesmo autor.
+
+   Uma notícia vira post com: autor, veículo, engajamento e, nas
+   grandes, reações de streamers e jornalistas.
+   ============================================================ */
+function hashImp(s){
+  let h=0x811c9dc5;s=String(s);
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h>>>0;
+}
+/* sorteio estável: n-ésimo número de 0 a 1 a partir de uma semente */
+function sorteImp(semente,n){return (hashImp(semente+'#'+(n||0))%100000)/100000;}
+function escolhePeso(itens,peso,u){
+  const tot=itens.reduce((s,x)=>s+Math.max(0,peso(x)),0);
+  if(!tot)return itens[0]||null;
+  let a=u*tot;
+  for(const x of itens){a-=Math.max(0,peso(x));if(a<=0)return x;}
+  return itens[itens.length-1];
+}
+
+/* ---------- nomes por língua (só para os jornalistas fictícios) ---------- */
+const NOMES_IMPRENSA={
+  pt:{m:['Lucas','Gabriel','Rafael','Bruno','Felipe','Thiago','Matheus','Pedro','Vinícius','Caio','Gustavo','Diego','Leonardo','André','Renan','Igor'],
+      f:['Ana','Beatriz','Júlia','Mariana','Camila','Larissa','Fernanda','Carol','Bianca','Letícia','Natália','Isabela'],
+      s:['Silva','Souza','Oliveira','Costa','Pereira','Almeida','Ribeiro','Carvalho','Rocha','Martins','Barbosa','Teixeira','Moura','Campos','Freitas','Lima']},
+  es:{m:['Javier','Diego','Andrés','Mateo','Sebastián','Nicolás','Pablo','Martín','Alejandro','Tomás','Joaquín','Facundo'],
+      f:['Valentina','Camila','Lucía','Sofía','María','Daniela','Paula','Agustina'],
+      s:['García','Rodríguez','López','Martínez','Fernández','Gómez','Díaz','Torres','Ramírez','Castro','Vargas','Morales']},
+  en:{m:['Jake','Ryan','Tyler','Kevin','Josh','Connor','Ethan','Liam','Nick','Brandon','Daniel','Sam','Owen','Adam'],
+      f:['Emily','Sarah','Hannah','Olivia','Megan','Chloe','Grace','Rachel'],
+      s:['Miller','Johnson','Walker','Hughes','Bennett','Carter','Reed','Cooper','Ward','Foster','Hayes','Brooks','Turner','Price']},
+  fr:{m:['Lucas','Hugo','Théo','Maxime','Antoine','Julien','Romain','Nathan','Bastien'],f:['Léa','Chloé','Manon','Camille','Inès','Margaux'],
+      s:['Martin','Bernard','Dubois','Moreau','Laurent','Lefèvre','Girard','Roux','Fontaine','Mercier']},
+  de:{m:['Lukas','Jonas','Felix','Tim','Niklas','Jan','Moritz','Paul'],f:['Lena','Laura','Anna','Sophie','Marie'],
+      s:['Müller','Schmidt','Fischer','Weber','Wagner','Becker','Hoffmann','Koch','Richter']},
+  tr:{m:['Emre','Burak','Mert','Can','Kerem','Onur','Arda','Efe','Barış'],f:['Elif','Zeynep','Ece','Melis','Ayşe'],
+      s:['Yılmaz','Kaya','Demir','Şahin','Çelik','Aydın','Öztürk','Arslan','Doğan']},
+  uk:{m:['Oleksandr','Dmytro','Andriy','Maksym','Bohdan'],f:['Olena','Iryna','Kateryna'],s:['Kovalenko','Shevchenko','Bondarenko','Tkachenko','Melnyk']},
+  ko:{m:['Min-jun','Seo-jun','Ji-hoon','Hyun-woo','Dong-hyun','Jae-won','Sung-min'],f:['Su-bin','Ji-woo','Ye-jin','Seo-yeon','Ha-eun'],
+      s:['Kim','Lee','Park','Choi','Jung','Kang','Yoon','Jang','Han','Shin'],ordem:'sn'},
+  ja:{m:['Haruto','Ren','Sota','Yuto','Kaito','Takumi','Daiki'],f:['Yui','Aoi','Hina','Sakura','Mio'],
+      s:['Sato','Suzuki','Takahashi','Tanaka','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato']},
+  zh:{m:['Wei','Hao','Yu','Jie','Lei','Chen','Ming','Rui','Tao','Bo'],f:['Xin','Yi','Jing','Lin','Mei','Yan'],
+      s:['Wang','Li','Zhang','Liu','Chen','Yang','Zhao','Huang','Zhou','Wu'],ordem:'sn'},
+  in:{m:['Aditya','Rahul','Arjun','Rohan','Siddharth','Karan','Vikram'],f:['Priya','Ananya','Sneha','Kavya'],
+      s:['Sharma','Patel','Gupta','Singh','Iyer','Nair','Mehta']},
+  sea:{m:['Miguel','Paolo','Carlo','Joshua','Marco','Rizky','Arif','Nattapong','Minh'],f:['Bea','Nicole','Andrea','Putri','Linh'],
+      s:['Santos','Reyes','Cruz','Bautista','Mendoza','Pratama','Nguyen','Tan','Lim']}
+};
+const LINGUA_NOME={pt:'português',es:'espanhol',en:'inglês',fr:'francês',de:'alemão',tr:'turco',uk:'ucraniano',ko:'coreano',ja:'japonês',zh:'chinês',in:'inglês',sea:'inglês'};
+const REGIAO_DA_LINGUA={pt:'AMER',es:'AMER',en:'AMER',fr:'EMEA',de:'EMEA',tr:'EMEA',uk:'EMEA',ko:'PAC',ja:'PAC',zh:'CN',in:'PAC',sea:'PAC'};
+/* o cargo puxa a categoria que a pessoa mais assina */
+const CARGOS_IMPRENSA=[
+  {id:'reporter',nome:'Repórter',foco:['competicoes','clube']},
+  {id:'insider', nome:'Insider de mercado',foco:['mercado','carreira']},
+  {id:'analista',nome:'Analista',foco:['meta','competicoes']},
+  {id:'editor',  nome:'Editor',foco:['competicoes','mercado','clube']},
+  {id:'bastidor',nome:'Repórter de bastidores',foco:['clube','carreira']}
+];
+
+function veiculo(id){return (typeof VEICULOS!=='undefined'?VEICULOS:[]).find(v=>v.id===id)||null;}
+function slugImp(s){return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();}
+function arrobaDeNome(nome){return slugImp(nome).replace(/-/g,'_').slice(0,15);}
+
+/* ---------- elenco fictício: uma vez por carreira ---------- */
+function garantirImprensa(){
+  if(!G)return null;
+  const vs=typeof VEICULOS!=='undefined'?VEICULOS:[];
+  if(G.imprensa&&G.imprensa.v===1){
+    /* veículo novo no arquivo de dados ganha equipe sem refazer a dos outros */
+    for(const v of vs)if(!G.imprensa.jor.some(j=>j.veiculo===v.id))G.imprensa.jor.push(...equipeDoVeiculo(v,G.imprensa.jor));
+    return G.imprensa;
+  }
+  const jor=[];
+  for(const v of vs)jor.push(...equipeDoVeiculo(v,jor));
+  G.imprensa={v:1,jor,seguindo:(G.imprensa&&G.imprensa.seguindo)||[]};
+  return G.imprensa;
+}
+function equipeDoVeiculo(v,ja){
+  const L=NOMES_IMPRENSA[v.lingua]||NOMES_IMPRENSA.en;
+  const usados=new Set(ja.map(j=>j.nome));
+  const sem=(G.runId||G.ano||0)+'|'+v.id;
+  const out=[];
+  for(let i=0;i<(v.equipe||1);i++){
+    const f=sorteImp(sem,i*7+1)<0.28;
+    let nome='';
+    for(let k=0;k<20;k++){
+      const pn=(f?L.f:L.m)[Math.floor(sorteImp(sem,i*7+2+k*31)*(f?L.f:L.m).length)];
+      const sn=L.s[Math.floor(sorteImp(sem,i*7+3+k*31)*L.s.length)];
+      nome=L.ordem==='sn'?sn+' '+pn:pn+' '+sn;
+      if(!usados.has(nome))break;
+    }
+    usados.add(nome);
+    /* o primeiro de cada veículo é editor; os outros variam */
+    const cargo=i===0?'editor':CARGOS_IMPRENSA[1+Math.floor(sorteImp(sem,i*7+4)*(CARGOS_IMPRENSA.length-1))].id;
+    out.push({id:'j-'+v.id+'-'+i,nome,genero:f?'f':'m',idade:24+Math.floor(sorteImp(sem,i*7+5)*24),
+      veiculo:v.id,cargo,regiaoOrigem:v.regiao==='GLOBAL'?REGIAO_DA_LINGUA[v.lingua]||'AMER':v.regiao,
+      arroba:arrobaDeNome(nome)+(sorteImp(sem,i*7+6)<0.4?String(Math.floor(sorteImp(sem,i*7+8)*90)+10):'')});
+  }
+  return out;
+}
+
+/* ---------- pessoas reais: cadastro + fotos soltas em assets/imprensa ---------- */
+function personalidades(){
+  const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  const cad=(typeof PERSONALIDADES!=='undefined'?PERSONALIDADES:[]).filter(p=>p&&p.nome);
+  const lista=cad.map(p=>({...p,slug:slugImp(p.nome)}));
+  const tem=new Set(lista.map(p=>p.slug));
+  for(const k in M){
+    if(!k.startsWith('imprensa/'))continue;
+    const s=k.slice(9);
+    if(tem.has(s))continue;
+    /* sem cadastro: o nome sai do arquivo ("gabriel-toledo" → "Gabriel Toledo") */
+    lista.push({nome:s.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),tipo:'jornalista',pais:'BR',slug:s,auto:true});
+  }
+  return lista.map(p=>({id:'r-'+p.slug,nome:p.nome,real:true,tipo:p.tipo||'jornalista',veiculo:p.veiculo||null,
+    pais:p.pais||'BR',arroba:p.arroba||arrobaDeNome(p.nome),slug:p.slug,auto:!!p.auto}));
+}
+/* todo mundo que posta, por id (jornalista fictício, pessoa real ou o perfil do veículo) */
+let _imprensaCache=null;
+function perfisImprensa(){
+  const imp=garantirImprensa();
+  const chave=(imp?imp.jor.length:0)+'|'+(typeof MIDIA!=='undefined'&&MIDIA.arquivos?Object.keys(MIDIA.arquivos).length:0)+'|'+(typeof PERSONALIDADES!=='undefined'?PERSONALIDADES.length:0)+'|'+(G.runId||G.ano);
+  if(_imprensaCache&&_imprensaCache.chave===chave)return _imprensaCache.mapa;
+  const mapa={};
+  for(const v of (typeof VEICULOS!=='undefined'?VEICULOS:[]))mapa['v-'+v.id]={id:'v-'+v.id,tipo:'veiculo',nome:v.nome,arroba:v.arroba,veiculo:v.id,verificado:true};
+  for(const j of (imp?imp.jor:[]))mapa[j.id]={...j,tipo:'jornalista',verificado:j.cargo==='editor'||j.cargo==='insider'};
+  for(const p of personalidades())mapa[p.id]={...p,verificado:true};
+  _imprensaCache={chave,mapa};
+  return mapa;
+}
+function perfilImprensa(id){return perfisImprensa()[id]||null;}
+
+/* ---------- de onde é a notícia ---------- */
+function escopoNoticia(n){
+  let t=n.t&&n.t.length?G.times[n.t[0]]:null;
+  if(!t&&n.p&&n.p.length){const p=G.jogadores[n.p[0]];if(p&&p.timeId)t=G.times[p.timeId];}
+  return{time:t||null,regiao:t?t.regiao:null,pais:t&&typeof paisDoClube==='function'?paisDoClube(t):null};
+}
+
+/* ---------- quem assina ---------- */
+const _autorCache=new WeakMap();
+function autorDaNoticia(n){
+  if(!n)return null;
+  if(_autorCache.has(n)){const a=_autorCache.get(n);const P=perfisImprensa();if(P[a])return P[a];}
+  const P=perfisImprensa();
+  const sem=n.txt+'|'+n.ano+'|'+(n.s||0);
+  const esc=escopoNoticia(n);
+  const imp=n.imp||1;
+  const vs=typeof VEICULOS!=='undefined'?VEICULOS:[];
+  /* 1. o veículo: do país do clube > da região > global (o global pesa mais nas grandes) */
+  const pesoV=v=>{
+    let w;
+    if(esc.pais&&v.paises.includes(esc.pais))w=5;
+    else if(esc.regiao&&v.regiao===esc.regiao)w=v.paises.length?0.8:1.5;
+    else if(v.regiao==='GLOBAL')w=esc.regiao?(imp>=2?2.6:0.9):2.2;
+    else w=esc.regiao?0:0.15;
+    if((v.foco||[]).includes(n.c))w*=1.7;
+    return w*(0.6+0.4*(v.alcance||1));
+  };
+  /* pessoas reais independentes concorrem como se fossem um veículo do país delas */
+  const indep=Object.values(P).filter(p=>p.real&&p.tipo==='jornalista'&&!p.veiculo);
+  const opcoes=vs.map(v=>({v,w:pesoV(v)})).concat(indep.map(p=>({p,w:esc.pais&&p.pais===esc.pais?4:esc.regiao==='AMER'&&p.pais==='BR'?0.5:0})));
+  const o=escolhePeso(opcoes,x=>x.w,sorteImp(sem,1));
+  let autor;
+  if(!o)autor=null;
+  else if(o.p)autor=o.p;
+  else{
+    /* 2. dentro do veículo: o perfil oficial ou alguém da equipe (o cargo puxa a categoria) */
+    const equipe=Object.values(P).filter(x=>x.veiculo===o.v.id&&x.tipo!=='veiculo'&&(x.tipo==='jornalista'||x.tipo==='caster'));
+    if(!equipe.length||sorteImp(sem,2)<0.3)autor=P['v-'+o.v.id];
+    else autor=escolhePeso(equipe,x=>{
+      const c=CARGOS_IMPRENSA.find(k=>k.id===x.cargo);
+      return (x.real?2.5:1)*(c&&c.foco.includes(n.c)?2:1);
+    },sorteImp(sem,3));
+  }
+  if(autor)_autorCache.set(n,autor.id);
+  return autor;
+}
+function veiculoDoPerfil(p){return p&&p.veiculo?veiculo(p.veiculo):null;}
+
+/* ---------- engajamento (só aparência; não mexe em nada) ---------- */
+function engajamentoNoticia(n){
+  const a=autorDaNoticia(n);const v=veiculoDoPerfil(a);
+  const esc=escopoNoticia(n);
+  const imp=n.imp||1;
+  const torc=esc.time?Math.max(10,esc.time.torcida||esc.time.prestigio||40):30;
+  let base=18*imp*imp*(v?0.5+0.5*(v.alcance||1):1.4)*(torc/40)*(n.meu?1.5:1)*(a&&a.real?2.2:1);
+  const sem=n.txt+'|'+n.ano+'|'+(n.s||0);
+  const cur=Math.round(base*(0.55+sorteImp(sem,7)*1.4)*10);
+  return{curtidas:cur,reposts:Math.round(cur*(0.08+sorteImp(sem,8)*0.14)),respostas:Math.round(cur*(0.03+sorteImp(sem,9)*0.06))};
+}
+
+/* ---------- reações nas notícias grandes ----------
+   Frases curtas e neutras ou de empolgação: quem reage é, primeiro, quem
+   você cadastrou do país do clube; sem ninguém, jornalistas fictícios. */
+const REACOES={
+  titulo:['Que campanha do {tag}. Merecido demais','Ninguém segurou o {tag}. Respeita!','Final histórica, que nível','Título com muito trabalho por trás. Parabéns, {tag}!','O {tag} fez por merecer'],
+  mercado:['Esse mercado tá pegando fogo','Movimento grande. Curioso pra ver como encaixa','Não esperava essa. E vocês?','Isso muda o tabuleiro da liga','Contratação que pode virar a temporada'],
+  clube:['De olho no {tag} nessa temporada','Torcida do {tag} tá on','Vamos ver como o {tag} responde','Semana movimentada no {tag}'],
+  competicoes:['Que série! Valeu cada round','Jogaço. A liga tá muito parelha','Resultado que mexe com a tabela','Esse confronto entregou demais'],
+  carreira:['Grande trajetória. Respeito total','Fim de uma era','Vai deixar saudade'],
+  meta:['O meta mudou de novo kkk','Agora quero ver quem adapta mais rápido','Patch que vai dar o que falar']
+};
+function reacoesNoticia(n){
+  if((n.imp||1)<2)return [];
+  const P=perfisImprensa();
+  const sem=n.txt+'|'+n.ano+'|'+(n.s||0)+'|r';
+  const esc=escopoNoticia(n);
+  const autor=autorDaNoticia(n);
+  const reais=Object.values(P).filter(p=>p.real&&p.id!==(autor&&autor.id)&&(!esc.pais||p.pais===esc.pais||(esc.regiao==='AMER'&&p.pais==='BR')));
+  const ficticios=Object.values(P).filter(p=>p.tipo==='jornalista'&&!p.real&&p.id!==(autor&&autor.id)&&(()=>{const v=veiculo(p.veiculo);return v&&(!esc.regiao||v.regiao===esc.regiao||v.regiao==='GLOBAL');})());
+  const quantos=(n.imp>=3?2:1)+(sorteImp(sem,1)<0.35?1:0);
+  const grupo=/campe|título/i.test(n.txt)?'titulo':REACOES[n.c]?n.c:'competicoes';
+  const frases=REACOES[grupo];
+  const tag=esc.time?esc.time.tag:'';
+  const out=[],vistos=new Set();
+  for(let i=0;i<quantos;i++){
+    const pool=reais.length&&sorteImp(sem,10+i)<0.8?reais:ficticios;
+    if(!pool.length)break;
+    const p=pool[Math.floor(sorteImp(sem,20+i)*pool.length)];
+    if(!p||vistos.has(p.id))continue;vistos.add(p.id);
+    let f=frases[Math.floor(sorteImp(sem,30+i)*frases.length)];
+    if(/\{tag\}/.test(f)&&!tag)f=frases.find(x=>!/\{tag\}/.test(x))||'Isso vai render';
+    out.push({autor:p,txt:f.replace(/\{tag\}/g,tag),curtidas:Math.round(engajamentoNoticia(n).curtidas*(0.1+sorteImp(sem,40+i)*0.4))});
+  }
+  return out;
+}
+
+/* ---------- seguir ---------- */
+function seguindoImprensa(id){const imp=garantirImprensa();return !!(imp&&imp.seguindo.includes(id));}
+function alternarSeguir(id){
+  const imp=garantirImprensa();if(!imp)return false;
+  const i=imp.seguindo.indexOf(id);
+  if(i>=0)imp.seguindo.splice(i,1);else imp.seguindo.push(id);
+  return i<0;
+}
+/* a notícia aparece em "Seguindo" se o autor ou o veículo dele é seguido */
+function noticiaSeguida(n){
+  const a=autorDaNoticia(n);if(!a)return false;
+  return seguindoImprensa(a.id)||(a.veiculo&&seguindoImprensa('v-'+a.veiculo));
+}
+/* jornalistas fictícios que cobrem uma região (coletiva de imprensa) */
+function jornalistasDaRegiao(regiao,pais){
+  const imp=garantirImprensa();if(!imp)return [];
+  return imp.jor.filter(j=>{const v=veiculo(j.veiculo);return v&&(pais&&v.paises.includes(pais)||v.regiao===regiao);})
+    .sort((a,b)=>{const va=veiculo(a.veiculo),vb=veiculo(b.veiculo);
+      return (pais&&vb.paises.includes(pais)?1:0)-(pais&&va.paises.includes(pais)?1:0)||(vb.alcance||1)-(va.alcance||1);});
 }
 
 
@@ -21326,7 +21776,9 @@ ${blocoPatrocinios(t)}
 let newsAba='tudo';
 function linhaNoticia(n){
   if(n.c==='sistema')return `<div class="news-sep">${esc(n.txt.replace(/=/g,'').trim())}</div>`;
-  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span> <span>${textoNoticia(n)}</span></div>`;
+  const a=typeof autorDaNoticia==='function'?autorDaNoticia(n):null;
+  return `<div class="news ${n.meu?'me':''}"><span class="dim num">${n.s?rotuloSemanaCurto(n.ano,n.s):n.ano}</span>
+    ${a?`<button class="nl-a" data-perfil="${a.id}" title="${esc(a.nome)}">${avatarImprensa(a,18)}<b>${esc(a.nome)}</b></button>`:''}<span>${textoNoticia(n)}</span></div>`;
 }
 /* o texto da notícia com os nomes de clube e de jogador virando link */
 function textoNoticia(n){
@@ -21353,55 +21805,8 @@ function textoNoticia(n){
   return txt;
 }
 function rotuloSemanaCurto(ano,s){return ano+' · S'+s;}
-function noticiasDaAba(aba){
-  if(aba==='tudo')return G.noticias;
-  if(aba==='clube')return G.noticias.filter(n=>n.meu);
-  return G.noticias.filter(n=>n.c===aba);
-}
-/* Notícias (pacote V12): cartões agrupados por semana, cada um com a
-   imagem de quem a notícia cita e o ícone da categoria; a manchete grande no
-   topo; filtros fixos e "carregar mais" no lugar da página interminável. */
-let newsLimite=40;
 const ICONE_CAT={clube:'clube',mercado:'aperto',competicoes:'trofeu',meta:'mapa',carreira:'gravata',outros:'jornal'};
-function cartaoNoticia(n){
-  const img=typeof imagemDaNoticia==='function'?imagemDaNoticia(n,52):null;
-  const cor=img&&img.cor?img.cor:null;
-  /* sem jogador nem clube com imagem: a foto do assunto (assets/cenas/news-*) */
-  const cena=!img&&typeof cenaDaNoticia==='function'?cenaDaNoticia(n):null;
-  return `<div class="nw ${n.meu?'me':''} ${n.imp>=2?'imp':''}" ${cor?`style="--clube:${cor};--clube-rgb:${rgbDe(cor)}"`:''}>
-    <span class="nw-img ${img?img.cls:cena?'cena com-cena':'vazio'}">${img?img.html:cena?cenaFoto('cenas',cena,timeDaNoticia(n),{foco:40}):icone(ICONE_CAT[n.c]||'jornal')}</span>
-    <div class="nw-txt"><span class="nw-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(CAT_NOTICIA[n.c]||'Circuito')}</span>
-      <div class="nw-corpo">${textoNoticia(n)}</div></div>
-  </div>`;
-}
-function vNews(){
-  const abas=[['tudo','Tudo'],...Object.entries(CAT_NOTICIA)];
-  const todas=noticiasDaAba(newsAba).filter(n=>n.txt&&n.c!=='sistema');
-  const lista=todas.slice(0,newsLimite);
-  const m=typeof manchete==='function'?manchete():null;
-  const grupos=[];
-  for(const n of lista){
-    const k=n.ano+'|'+(n.s||0);
-    if(!grupos.length||grupos[grupos.length-1].k!==k)grupos.push({k,ano:n.ano,s:n.s,itens:[]});
-    grupos[grupos.length-1].itens.push(n);
-  }
-  return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
-  <div class="nw-filtros">${abas.map(([k,n])=>{
-    const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
-    return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${k==='tudo'?'':icone(ICONE_CAT[k]||'jornal')}${n} <span class="num">${q}</span></button>`;}).join('')}</div>
-  ${m&&newsAba==='tudo'&&typeof imagemDaNoticia==='function'?(()=>{const img=imagemDaNoticia(m,120);
-    const cena=typeof cenaDaNoticia==='function'?cenaDaNoticia(m):null;
-    return `<div class="nw-manchete ${m.meu?'me':''} ${cena?'com-cena':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
-      ${cena?cenaFoto('cenas',cena,timeDaNoticia(m),{cls:'nw-fundo cn-direita',foco:'placa'}):''}
-      ${img?`<div class="nwm-img ${img.cls}">${img.html}</div>`:''}
-      <div><div class="eyebrow">Manchete da semana</div><h3>${iconizar(esc(m.txt))}</h3>
-        <span class="dim">${m.s?rotuloSemana(m.ano,m.s)+' · ':''}${esc(CAT_NOTICIA[m.c]||'Circuito')}</span></div></div>`;})():''}
-  ${grupos.length?grupos.map(g=>`<div class="nw-sem"><div class="nw-sem-t"><b>${g.s?'Semana '+g.s:g.ano}</b>
-      <span class="dim">${g.s?esc(rotuloSemana(g.ano,g.s))+' · '+g.ano:''}</span><u></u></div>
-    <div class="nw-l">${g.itens.map(cartaoNoticia).join('')}</div></div>`).join('')
-    :vazio('<b>Sem notícias aqui.</b> Elas chegam a cada semana que você avança.','jornal')}
-  ${todas.length>newsLimite?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite} restantes)</span></button></div>`:''}`;
-}
+/* a página de Notícias (o feed) está em ui/imprensa.js */
 
 /* ============================================================
    HISTÓRIA DO CLUBE
@@ -22012,6 +22417,223 @@ function cenaDaNoticia(n){
 function timeDaNoticia(n){
   const t=n&&n.t&&n.t.length?G.times[n.t[0]]:null;
   return t||(n&&n.meu&&typeof meu==='function'?meu():null);
+}
+
+
+/* ===== src/ui/imprensa.js ===== */
+/* ============================================================
+   NOTÍCIAS COMO FEED
+   ------------------------------------------------------------
+   Cada notícia vira um post de quem a assinou (core/imprensa.js):
+   foto do autor, @, veículo, há quanto tempo, a mídia do assunto
+   (jogador, clube ou a foto da cena) e o engajamento. As notícias
+   grandes trazem reações. Clicar num autor abre o perfil dele, de
+   onde dá para seguir; "Seguindo" filtra o feed por quem você segue.
+   ============================================================ */
+let newsLimite=30;
+let newsPerfilAba='posts';
+const SELO_VERIF=`<svg class="ps-verif" viewBox="0 0 24 24" aria-label="verificado"><path d="M12 2l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 22l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z" fill="currentColor"/><path d="M8 12.2l2.6 2.6L16.2 9" fill="none" stroke="#0B1218" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* iniciais na cor do veículo: o que aparece sem logo e sem foto */
+function monogramaImprensa(txt,cor,px,redondo){
+  const ini=String(txt).replace(/[^\p{L}\p{N} ]/gu,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+  return `<span class="ps-mono ${redondo?'r':''}" style="--c:${cor||'#4A5866'};width:${px}px;height:${px}px;font-size:${Math.round(px*0.38)}px">${esc(ini)}</span>`;
+}
+function avatarImprensa(p,px){
+  px=px||44;
+  if(!p)return monogramaImprensa('?','#4A5866',px,true);
+  const v=veiculoDoPerfil(p);
+  const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  if(p.tipo==='veiculo'){
+    const fb=monogramaImprensa(v?v.nome:p.nome,v&&v.cor,px,false);
+    return M['veiculos/'+v.id]?`<span class="ps-av-img q" style="width:${px}px;height:${px}px"><img src="${ASSETS.arq('veiculos',v.id)}" alt="" loading="lazy"></span>`:fb;
+  }
+  if(p.real){
+    return M['imprensa/'+p.slug]?`<span class="ps-av-img" style="width:${px}px;height:${px}px"><img src="${ASSETS.arq('imprensa',p.slug)}" alt="" loading="lazy"></span>`
+      :monogramaImprensa(p.nome,'#5B6B7A',px,true);
+  }
+  /* jornalista fictício: rosto do pacote sintético, senão as iniciais */
+  const r=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
+  const fb=monogramaImprensa(p.nome,v&&v.cor,px,true);
+  return r?`<span class="ps-av-img" style="width:${px}px;height:${px}px"><img src="${r}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=decodeURIComponent('${encodeURIComponent(fb)}')"></span>`:fb;
+}
+function rotuloPerfil(p){
+  if(!p)return '';
+  if(p.tipo==='veiculo')return 'Veículo';
+  if(p.real)return {jornalista:'Jornalista',streamer:'Streamer',caster:'Caster',criador:'Criador de conteúdo'}[p.tipo]||'Imprensa';
+  const c=CARGOS_IMPRENSA.find(k=>k.id===p.cargo);return c?c.nome:'Jornalista';
+}
+function tempoPost(n){
+  if(!n.s)return String(n.ano);
+  const ag=(G.ano||0)*SEMANAS_ANO+(G.semana||1),d=ag-((n.ano||0)*SEMANAS_ANO+n.s);
+  if(d<=0)return 'esta semana';
+  if(d<8)return 'há '+d+' sem';
+  return rotuloSemanaCurto(n.ano,n.s);
+}
+function numCurto(x){
+  if(x>=1e6)return (x/1e6).toFixed(1).replace('.',',').replace(',0','')+' mi';
+  if(x>=1e4)return Math.round(x/1e3)+' mil';
+  if(x>=1e3)return (x/1e3).toFixed(1).replace('.',',').replace(',0','')+' mil';
+  return String(x);
+}
+
+/* mídia do post: o jogador citado, a foto do assunto com a placa do clube,
+   ou o escudo do clube na cor dele */
+function midiaPost(n){
+  const p=n.p&&n.p.length?G.jogadores[n.p[0]]:null;
+  if(p){
+    const t=p.timeId&&G.times[p.timeId];
+    const cor=t?corDoClube(t):'#5B6B7A';
+    return `<div class="ps-m ps-mj jrow" data-p="${p.id}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+      <span class="ps-mj-f">${retrato(p,72)}</span>
+      <span class="ps-mj-t"><span class="eyebrow">${esc(p.role||'')}${p.idade?' · '+p.idade+' anos':''}</span><b>${esc(p.nome)}</b>
+        <span class="dim">${t?escudo(t,16)+' '+esc(t.nome):'sem clube'}</span></span>
+      ${t?`<span class="ps-mj-esc">${escudo(t,64)}</span>`:''}</div>`;
+  }
+  const cena=typeof cenaDaNoticia==='function'?cenaDaNoticia(n):null;
+  const t=n.t&&n.t.length?G.times[n.t[0]]:null;
+  if(cena)return `<div class="ps-m ps-mc com-cena">${cenaFoto('cenas',cena,timeDaNoticia(n),{foco:'placa'})}</div>`;
+  if(t){
+    const cor=corDoClube(t);
+    return `<div class="ps-m ps-mt" data-clube="${t.id}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+      ${escudo(t,64)}<span><b>${esc(t.nome)}</b><span class="dim">${esc(nomeLiga(t))}</span></span></div>`;
+  }
+  return '';
+}
+function postNoticia(n,opc){
+  opc=opc||{};
+  const a=autorDaNoticia(n);
+  const v=veiculoDoPerfil(a);
+  const eng=engajamentoNoticia(n);
+  const rx=opc.semReacoes?[]:reacoesNoticia(n);
+  const trad=v&&v.lingua!=='pt'?LINGUA_NOME[v.lingua]:null;
+  const cat=CAT_NOTICIA[n.c]||'Circuito';
+  return `<article class="ps ${n.meu?'me':''} ${(n.imp||1)>=2?'imp':''} ${opc.destaque?'destaque':''}">
+    <button class="ps-av" data-perfil="${a?a.id:''}" title="Ver perfil">${avatarImprensa(a,opc.destaque?52:44)}</button>
+    <div class="ps-c">
+      <div class="ps-topo">
+        <button class="ps-nome" data-perfil="${a?a.id:''}"><b>${esc(a?a.nome:'Imprensa')}</b>${a&&a.verificado?SELO_VERIF:''}</button>
+        <span class="ps-arroba">@${esc(a?a.arroba:'imprensa')}</span><span class="ps-pt">·</span><span class="ps-tempo">${esc(tempoPost(n))}</span>
+        ${v&&a.tipo!=='veiculo'?`<button class="ps-veic" data-perfil="v-${v.id}" style="--c:${v.cor}">${esc(v.nome)}</button>`:''}
+        <span class="ps-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(cat)}</span>
+      </div>
+      ${opc.destaque?`<div class="eyebrow ps-dest">Manchete da semana</div>`:''}
+      <div class="ps-txt">${textoNoticia(n)}</div>
+      ${trad?`<div class="ps-trad">Traduzido do ${trad}</div>`:''}
+      ${midiaPost(n)}
+      <div class="ps-acoes"><span>${ico('balao')}${numCurto(eng.respostas)}</span><span>${ico('ciclo')}${numCurto(eng.reposts)}</span>
+        <span>${ico('coracao')}${numCurto(eng.curtidas)}</span></div>
+      ${rx.length?`<div class="ps-rx">${rx.map(r=>`<div class="ps-r"><button class="ps-av" data-perfil="${r.autor.id}">${avatarImprensa(r.autor,28)}</button>
+        <div><button class="ps-nome" data-perfil="${r.autor.id}"><b>${esc(r.autor.nome)}</b>${r.autor.verificado?SELO_VERIF:''}</button>
+        <span class="ps-arroba">${esc(rotuloPerfil(r.autor))}</span><div class="ps-r-t">${esc(r.txt)}</div></div>
+        <span class="ps-r-c">${ico('coracao')}${numCurto(r.curtidas)}</span></div>`).join('')}</div>`:''}
+    </div>
+  </article>`;
+}
+
+/* ---------- a página ---------- */
+function noticiasDaAba(aba){
+  const base=G.noticias.filter(n=>n.txt&&n.c!=='sistema');
+  if(aba==='tudo')return base;
+  if(aba==='clube')return base.filter(n=>n.meu);
+  if(aba==='seguindo')return base.filter(noticiaSeguida);
+  return base.filter(n=>n.c===aba);
+}
+function vNews(){
+  garantirImprensa();
+  const t=meu();
+  const abas=[['tudo','Para você','jornal'],['seguindo','Seguindo','estrela'],['clube','Meu clube','clube'],
+    ['mercado','Mercado','aperto'],['competicoes','Competições','trofeu'],['meta','Meta e mapas','mapa'],['carreira','Carreira','gravata']];
+  const todas=noticiasDaAba(newsAba);
+  const m=newsAba==='tudo'&&typeof manchete==='function'?manchete():null;
+  const lista=todas.filter(n=>n!==m).slice(0,newsLimite);
+  /* em alta: os clubes mais citados nas duas últimas semanas */
+  const ag=(G.ano||0)*SEMANAS_ANO+(G.semana||1);
+  const conta={};
+  for(const n of G.noticias){
+    if(!n.s||ag-((n.ano||0)*SEMANAS_ANO+n.s)>2)continue;
+    for(const id of n.t||[])conta[id]=(conta[id]||0)+1;
+    for(const id of n.p||[]){const p=G.jogadores[id];if(p&&p.timeId)conta[p.timeId]=(conta[p.timeId]||0)+1;}
+  }
+  const alta=Object.entries(conta).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([id,q])=>({t:G.times[id],q})).filter(x=>x.t);
+  /* quem cobre o seu clube: os autores das notícias dele */
+  const cobre={};
+  for(const n of G.noticias.filter(x=>x.meu).slice(0,60)){const a=autorDaNoticia(n);if(a)cobre[a.id]=(cobre[a.id]||0)+1;}
+  const P=perfisImprensa();
+  const quem=Object.entries(cobre).sort((a,b)=>b[1]-a[1]).map(([id])=>P[id]).filter(Boolean).slice(0,5);
+  /* veículos da sua região */
+  const pais=t&&typeof paisDoClube==='function'?paisDoClube(t):null;
+  const veics=VEICULOS.filter(v=>t&&(v.regiao===t.regiao||v.regiao==='GLOBAL'))
+    .sort((a,b)=>(pais&&b.paises.includes(pais)?2:b.regiao===t.regiao?1:0)-(pais&&a.paises.includes(pais)?2:a.regiao===t.regiao?1:0)||b.alcance-a.alcance).slice(0,7);
+  const linhaPerfil=p=>`<div class="fd-pf"><button class="ps-av" data-perfil="${p.id}">${avatarImprensa(p,34)}</button>
+    <button class="fd-pf-t" data-perfil="${p.id}"><b>${esc(p.nome)}${p.verificado?SELO_VERIF:''}</b><span>${esc(p.tipo==='veiculo'?'@'+p.arroba:rotuloPerfil(p)+(veiculoDoPerfil(p)?' · '+veiculoDoPerfil(p).nome:''))}</span></button>
+    <button class="fd-seg ${seguindoImprensa(p.id)?'on':''}" data-seguir="${p.id}">${seguindoImprensa(p.id)?'Seguindo':'Seguir'}</button></div>`;
+  const vazioTxt=newsAba==='seguindo'?'<b>Você ainda não segue ninguém.</b> Abra um jornalista ou veículo e toque em Seguir.'
+    :'<b>Sem posts aqui.</b> Eles chegam a cada semana que você avança.';
+  return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
+  <div class="fd">
+    <nav class="fd-nav">${abas.map(([k,n,ic])=>{
+      const q=k==='tudo'?0:noticiasDaAba(k).length;
+      return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${ico(ic)}<span>${n}</span>${q?`<i class="num">${q}</i>`:''}</button>`;}).join('')}</nav>
+    <div class="fd-col">
+      ${m?postNoticia(m,{destaque:true}):''}
+      ${lista.length?lista.map(n=>postNoticia(n)).join(''):vazio(vazioTxt,'jornal')}
+      ${todas.length>newsLimite+(m?1:0)?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite-(m?1:0)} restantes)</span></button></div>`:''}
+    </div>
+    <aside class="fd-lado">
+      ${alta.length?`<div class="card fd-box"><div class="eyebrow">Em alta</div>${alta.map((x,i)=>`<button class="fd-alta" data-clube="${x.t.id}">
+        <span class="dim num">${i+1}</span><span><b>#${esc(x.t.tag)}</b><span class="dim">${x.q} post${x.q>1?'s':''} · ${esc(nomeLiga(x.t))}</span></span>${escudo(x.t,24)}</button>`).join('')}</div>`:''}
+      ${quem.length?`<div class="card fd-box"><div class="eyebrow">Quem cobre o ${esc(t?t.tag:'clube')}</div>${quem.map(linhaPerfil).join('')}</div>`:''}
+      <div class="card fd-box"><div class="eyebrow">Veículos</div>${veics.map(v=>linhaPerfil(P['v-'+v.id])).join('')}</div>
+    </aside>
+  </div>`;
+}
+
+/* ---------- perfil ---------- */
+function modalPerfilImprensa(id){
+  const p=perfilImprensa(id);if(!p)return;
+  const v=veiculoDoPerfil(p);
+  const posts=G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&(()=>{const a=autorDaNoticia(n);return a&&(a.id===id||p.tipo==='veiculo'&&a.veiculo===p.veiculo);})());
+  const equipe=p.tipo==='veiculo'?Object.values(perfisImprensa()).filter(x=>x.veiculo===p.veiculo&&x.tipo!=='veiculo'):[];
+  const seg=hashImp(id)%1000;
+  const seguidores=p.tipo==='veiculo'?(v.alcance||1)*120000+seg*700:p.real?40000+seg*900:800+seg*40;
+  const onde=p.tipo==='veiculo'?(v.regiao==='GLOBAL'?'Global':v.regiao)+(v.paises.length?' · '+v.paises.join(', '):'')
+    :v?(v.regiao==='GLOBAL'?'Global':v.regiao):p.pais||'';
+  const cor=v?v.cor:'#5B6B7A';
+  abrir(`<div class="pf" style="--c:${cor}">
+    <div class="pf-capa"></div>
+    <div class="pf-topo">
+      <span class="pf-av">${avatarImprensa(p,88)}</span>
+      <button class="fd-seg grande ${seguindoImprensa(id)?'on':''}" data-seguir="${id}">${seguindoImprensa(id)?'Seguindo':'Seguir'}</button>
+    </div>
+    <h2 class="sec pf-nome">${esc(p.nome)}${p.verificado?SELO_VERIF:''}</h2>
+    <div class="dim">@${esc(p.arroba)}</div>
+    <div class="pf-bio">${p.tipo==='veiculo'?`Veículo de esports${v.lingua!=='pt'?' em '+LINGUA_NOME[v.lingua]:''}. Cobre ${(v.foco||[]).map(c=>(CAT_NOTICIA[c]||c).toLowerCase()).join(', ')}.`
+      :`${esc(rotuloPerfil(p))}${v?` no <button class="ps-veic" data-perfil="v-${v.id}" style="--c:${v.cor}">${esc(v.nome)}</button>`:p.real&&p.tipo==='jornalista'?' independente':''}.`}
+      ${onde?`<span class="dim"> ${icone('mundo')} ${esc(onde)}</span>`:''}</div>
+    <div class="pf-num"><span><b>${posts.length}</b> posts na carreira</span><span><b>${numCurto(seguidores)}</b> seguidores</span>
+      ${equipe.length?`<span><b>${equipe.length}</b> na equipe</span>`:''}</div>
+    ${equipe.length?`<div class="pf-eq">${equipe.map(x=>`<button class="pf-eq-p" data-perfil="${x.id}">${avatarImprensa(x,30)}<span><b>${esc(x.nome)}</b><span class="dim">${esc(rotuloPerfil(x))}</span></span></button>`).join('')}</div>`:''}
+    <div class="pf-posts">${posts.length?posts.slice(0,12).map(n=>postNoticia(n,{semReacoes:true})).join(''):'<div class="dim">Ainda não postou nesta carreira.</div>'}</div>
+    <div class="neg-bts" style="justify-content:flex-end"><button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true,!!$('#modal .pf'));
+  const md=$('#modal');
+  ligarImprensa(md);
+  if(typeof ligarClubes==='function')ligarClubes(md);
+  md.querySelectorAll('.jrow').forEach(r=>r.onclick=e=>{e.stopPropagation();modalJogador(r.dataset.p);});
+}
+
+/* cliques do feed: na página e dentro do perfil aberto */
+function ligarImprensa(raiz){
+  if(!raiz)return;
+  raiz.querySelectorAll('[data-perfil]').forEach(el=>{if(!el.dataset.perfil)return;
+    el.onclick=e=>{e.stopPropagation();modalPerfilImprensa(el.dataset.perfil);};});
+  raiz.querySelectorAll('[data-seguir]').forEach(el=>el.onclick=e=>{e.stopPropagation();
+    const id=el.dataset.seguir,p=perfilImprensa(id);
+    const agora=alternarSeguir(id);
+    flash(agora?'Seguindo '+(p?p.nome:''):'Deixou de seguir '+(p?p.nome:''));
+    if(raiz.id==='modal'||raiz.closest&&raiz.closest('#modal'))modalPerfilImprensa(id);
+    render();});
 }
 
 
@@ -24158,7 +24780,9 @@ function montarColetiva(c){
   const ok=([p])=>(!/\{mvp\}/.test(p)||mvp)&&(!/\{pior\}/.test(p)||pior)&&(!/\{adv\}/.test(p)||adv);
   const doCtx=(COL_PERGUNTAS[c.ctx]||[]).filter(ok).sort(()=>Math.random()-0.5).slice(0,3);
   const gerais=COL_PERGUNTAS.geral.filter(q=>!doCtx.includes(q)).sort(()=>Math.random()-0.5).slice(0,4-doCtx.length);
-  const jor=COL_IMPRENSA.slice().sort(()=>Math.random()-0.5);
+  /* quem pergunta: jornalistas dos veículos que cobrem o seu clube (feed de notícias) */
+  const regionais=typeof jornalistasDaRegiao==='function'?jornalistasDaRegiao(t.regiao,typeof paisDoClube==='function'?paisDoClube(t):null).slice(0,8):[];
+  const jor=(regionais.length>=3?regionais.map(j=>{const v=veiculo(j.veiculo);return [j.nome,v.nome,v.cor];}):COL_IMPRENSA.slice()).sort(()=>Math.random()-0.5);
   return{mvp,perguntas:doCtx.concat(gerais).map(([p,rs],i)=>({p:troca(p),j:jor[i%jor.length],
     rs:rs.map((r,k)=>({txt:troca(r),v:COL_VALOR[k]})).sort(()=>Math.random()-0.5)}))};
 }
@@ -29421,8 +30045,9 @@ function ligarEventos(){
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
-  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=40;render();});
-  on('[data-newsmais]',()=>{newsLimite+=40;render();});
+  on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=30;render();});
+  on('[data-newsmais]',()=>{newsLimite+=30;render();});
+  if(typeof ligarImprensa==='function')ligarImprensa(v);
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
   on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
