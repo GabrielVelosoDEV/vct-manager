@@ -71,7 +71,7 @@ function pintarMiniAbertura(){
     <div class="mg-pe">
       <label class="mg-som"><input type="checkbox" id="mgSom" ${Prefs.get('somMini')===false?'':'checked'}> som</label>
       <div class="mg-bts">
-        ${MG.vale?'<button class="btn ghost" id="mgComissao" title="Sem sessão: a semana segue como sempre">Deixar a comissão cuidar</button>':'<button class="btn ghost" data-close>Fechar</button>'}
+        ${MG.vale?`<button class="btn ghost" id="mgComissao" title="Sem sessão: a semana segue como sempre">${esc(d.rotuloComissao||'Deixar a comissão cuidar')}</button>`:'<button class="btn ghost" data-close>Fechar</button>'}
         <button class="btn" id="mgComecar">${MG.vale?'Começar':'Treino livre'} ${modo?'· '+esc(modo.nome):''}</button>
       </div>
     </div>
@@ -80,7 +80,7 @@ function pintarMiniAbertura(){
   const M=$('#modal');
   M.querySelectorAll('[data-mgmodo]').forEach(b=>b.onclick=()=>{MG.modo=b.dataset.mgmodo;pintarMiniAbertura();});
   const som=$('#mgSom');if(som)som.onchange=()=>{Prefs.set('somMini',som.checked);};
-  const com=$('#mgComissao');if(com)com.onclick=()=>{d.comissao();fechar();flash('A comissão conduziu o treino da semana.');};
+  const com=$('#mgComissao');if(com)com.onclick=()=>{d.comissao();fechar();flash(d.msgComissao||'A comissão conduziu o treino da semana.');};
   $('#mgComecar').onclick=()=>comecarMini();
 }
 function comecarMini(){

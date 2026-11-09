@@ -20,6 +20,8 @@ function ligarEventos(){
   on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-ritmo]',()=>{if(typeof abrirRitmo==='function')abrirRitmo();});
   on('[data-blocos]',()=>{if(typeof abrirBlocos==='function')abrirBlocos();});
+  on('[data-coletiva]',()=>{if(typeof abrirColetiva==='function')abrirColetiva();});
+  on('[data-coletivaass]',()=>{if(G.coletiva)G.coletiva.feita='assessoria';render();flash('A assessoria respondeu por você. Nada mudou.');});
   on('[data-quizvod]',()=>{if(typeof abrirQuizAdversario==='function')abrirQuizAdversario();});
   on('[data-vodconta]',el=>{if(typeof abrirQuizConta==='function')abrirQuizConta(el.dataset.vodconta);});
   on('[data-enigmas]',()=>{const s=$('#enMapa');if(s)enigmaMapa=s.value;if(typeof abrirEnigmas==='function')abrirEnigmas(enigmaMapa);});

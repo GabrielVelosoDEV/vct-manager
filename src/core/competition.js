@@ -170,6 +170,8 @@ function stageAplicar(s,res){
      algum torneio de fora e o histórico ficaria mentindo por omissão. */
   if(typeof registrarConfronto==='function')
     registrarConfronto(aId,bId,vencedor,nomeStage(s)||s.id);
+  /* coletiva de imprensa depois das séries que pesam (core/minigames.js) */
+  if(typeof coletivaDaSerie==='function')coletivaDaSerie(s,aId,bId,vencedor,res);
   if(typeof aplicarClassico==='function')aplicarClassico(vencedor,perdedor);
   /* ranking mundial (core/estatisticas.js) */
   if(typeof atualizarElo==='function')atualizarElo(s,res);
@@ -290,6 +292,7 @@ function encerrarStage(s){
 function titulo(id,nome,imp,torneioId){
   const t=G.times[id];if(!t)return;
   t.titulos.push(G.ano+' · '+nome);t.prestigio=clamp(t.prestigio+2.2,20,99);
+  if(typeof coletivaDoTitulo==='function')coletivaDoTitulo(id,nome);
   t.titulares.forEach(pid=>G.jogadores[pid].carreira.titulos++);
   if(typeof CARGOS!=='undefined')CARGOS.forEach(c=>{
     const m=membroDe(t,c.id);if(m)m.temp.titulos++;

@@ -142,6 +142,64 @@ function registrarVODBase(t,contaId,res){
   return{sessao:t.miniBaseVOD,bateu:registrarRecordeMini('vod',res.pts||0,nota)};
 }
 
+/* ---------- Coletiva de imprensa ----------
+   Não é semanal: nasce de um momento. Série de playoff ou internacional do
+   seu clube, título, eliminação, e sequência de 3 ou 5 vitórias/derrotas.
+   Fica esperando você por duas semanas na Central; a assessoria responde
+   se você não for (nada muda). A nota mexe, de uma vez:
+     moral dos titulares  ±0,04   torcida ±2   confiança da diretoria ±4
+   com a resposta "morna" (0,4) como ponto neutro. */
+const COLETIVA_PRAZO=2;
+function _semAbsCol(){return (G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+function marcarColetiva(ctx,dados){
+  if(!G||!G.meuTime)return;
+  const atual=G.coletiva;
+  /* título e eliminação passam na frente de uma coletiva comum pendente */
+  const peso={titulo:3,eliminado:2,derrota:1,vitoria:1,sequencia_boa:0,sequencia_ruim:0};
+  if(atual&&!atual.feita&&(peso[atual.ctx]||0)>(peso[ctx]||0))return;
+  G.coletiva=Object.assign({ctx,ano:G.ano,semana:G.semana||1,ate:_semAbsCol()+COLETIVA_PRAZO,feita:false},dados||{});
+}
+/* chamado por competition.js a cada série resolvida */
+function coletivaDaSerie(s,aId,bId,vencedor,res){
+  const eu=G.meuTime;if(!eu||(aId!==eu&&bId!==eu))return;
+  const grande=s.tipo==='de'||s.tipo==='ko'||s.regiao==='INT';
+  if(!grande)return;
+  const adv=aId===eu?bId:aId,ganhou=vencedor===eu;
+  const torneio=typeof nomeStage==='function'?nomeStage(s):s.id;
+  const elim=!ganhou&&s.tipo==='ko';
+  marcarColetiva(elim?'eliminado':ganhou?'vitoria':'derrota',{adv,torneio,mvp:res&&res.mvp||null});
+}
+function coletivaDoTitulo(id,nome){
+  if(id!==G.meuTime)return;
+  marcarColetiva('titulo',{torneio:nome});
+}
+function coletivaPendente(){
+  const c=G&&G.coletiva;
+  return c&&!c.feita&&_semAbsCol()<=c.ate?c:null;
+}
+function coletivaSemanal(t){
+  if(!t||t.id!==G.meuTime)return;
+  if(G.coletiva&&!G.coletiva.feita&&_semAbsCol()>G.coletiva.ate)G.coletiva.feita='expirou';
+  const s=t.seq||0,marca=t.coletivaSeq||0;
+  if(Math.abs(s)>=3&&[3,5].includes(Math.abs(s))&&marca!==s){
+    t.coletivaSeq=s;
+    if(!coletivaPendente())marcarColetiva(s>0?'sequencia_boa':'sequencia_ruim',{n:Math.abs(s)});
+  }
+}
+function aplicarColetiva(nota){
+  const c=G.coletiva,t=G.meuTime&&G.times[G.meuTime];
+  if(!c||!t)return null;
+  c.feita=true;c.nota=nota;
+  const d=(clamp(nota,0,1)-0.4)/0.6;
+  const ef={moral:d*0.04,torcida:d*2,conf:0};
+  for(const id of (t.titulares||[])){const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+ef.moral,0.15,1);}
+  if(typeof t.torcida==='number')t.torcida=clamp(t.torcida+ef.torcida,0,100);
+  if(G.manager&&typeof souTreinador==='function'&&souTreinador()&&typeof G.manager.confianca==='number'){
+    ef.conf=Math.round(d*4);G.manager.confianca=clamp(G.manager.confianca+ef.conf,0,100);
+  }
+  return ef;
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
@@ -153,6 +211,7 @@ function encerrarMiniSemana(t){
   if(t.miniMapa){t.miniMapaUltimo=t.miniMapa;delete t.miniMapa;}
   if(t.miniVOD){t.miniVODUltimo=t.miniVOD;delete t.miniVOD;}
   if(t.miniBaseVOD){t.miniBaseVODUltimo=t.miniBaseVOD;delete t.miniBaseVOD;}
+  coletivaSemanal(t);
 }
 
 /* ---------- medalhas e recordes ---------- */
