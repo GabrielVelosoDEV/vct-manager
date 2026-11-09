@@ -10,19 +10,25 @@ const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ordem=[...readFileSync(resolve(raiz,'index.html'),'utf8')
   .matchAll(/<script src="([^"]+)"><\/script>/g)].map(p=>p[1])
   .filter(p=>!p.includes('/ui/')&&!p.includes('storage')&&!p.includes('assets')&&!p.endsWith('main.js'));
-writeFileSync(resolve(raiz,'.cx.tmp.cjs'),ordem.map(p=>readFileSync(resolve(raiz,p),'utf8')).join('\n')
+writeFileSync(resolve(raiz,'.cx.'+process.pid+'.tmp.cjs'),ordem.map(p=>readFileSync(resolve(raiz,p),'utf8')).join('\n')
   +'\nmodule.exports={criarMundo,montarCalendario,avancar,receitaAnual,custeioAnual,receitaLivre,folhaAnual,'
   +'tetoFolhaDe,ESTRUTURA_MAX,get G(){return G;}};');
-const m=createRequire(import.meta.url)(resolve(raiz,'.cx.tmp.cjs'));
-unlinkSync(resolve(raiz,'.cx.tmp.cjs'));
+const m=createRequire(import.meta.url)(resolve(raiz,'.cx.'+process.pid+'.tmp.cjs'));
+unlinkSync(resolve(raiz,'.cx.'+process.pid+'.tmp.cjs'));
 
 const anos=parseInt(process.argv[2]||'10',10), semente=parseInt(process.argv[3]||'20260828',10);
 m.criarMundo(semente);m.montarCalendario();const G=m.G;
 const k=v=>Math.round(v/1000)+'k';
 const alvo=G.ano+anos;
 console.log(' ano  índice  T1: caixa mediano · folha/receita');
+/* o vermelho conta em qualquer semana, não só no fim: o bônus de patrocínio
+   chega na virada e o caixa pode afundar no meio do ano */
+const vermelhoNaSemana=new Map();
+const bonus={1:[0,0],2:[0,0]};
 while(G.ano<alvo){
-  const a=G.ano;while(G.ano===a)m.avancar();
+  const a=G.ano;while(G.ano===a){m.avancar();
+    for(const t of Object.values(G.times))if(t.caixa<0&&t.id!==G.meuTime){const o=vermelhoNaSemana.get(t.id);if(!o||t.caixa<o.v)vermelhoNaSemana.set(t.id,{v:t.caixa,quando:G.ano+'/S'+G.semana,tier:t.tier,folha:Math.round(m.folhaAnual(t)/1000)+'k',rec:Math.round(m.receitaAnual(t)/1000)+'k'});}}
+  for(const t of Object.values(G.times)){const h=t.patrocAno;if(h&&h.ano===a&&h.n){bonus[t.tier][0]+=h.ok;bonus[t.tier][1]+=h.n;}}
   const ts=Object.values(G.times).filter(t=>t.tier===1);
   const med=f=>{const v=ts.map(f).sort((x,y)=>x-y);return v[Math.floor(v.length/2)];};
   console.log(` ${a}  ${(G.indiceSalario||1).toFixed(2)}    ${k(med(t=>t.caixa)).padStart(6)} · `+
@@ -51,5 +57,9 @@ for(const tier of[1,2]){
       ' (sobra '+k(m.receitaAnual(t)-m.custeioAnual(t)-m.folhaAnual(t))+')').join(', '));
   console.log('');
 }
+console.log(`vermelho em alguma semana (sem o seu clube): ${vermelhoNaSemana.size}`+
+  (vermelhoNaSemana.size?' — '+[...vermelhoNaSemana].map(([id,v])=>G.times[id].tag+' '+k(v.v)+' em '+v.quando+' (T'+v.tier+', folha '+v.folha+', receita '+v.rec+')').join(', '):''));
+if(bonus[1][1])console.log(`metas de patrocínio cumpridas: Tier 1 ${pct(bonus[1][0],bonus[1][1])} · Tier 2 ${pct(bonus[2][0],bonus[2][1])}`);
+console.log('');
 console.log('mais ricos:');
 Object.values(G.times).sort((a,b)=>b.caixa-a.caixa).slice(0,6).forEach(t=>console.log(`  ${t.tag.padEnd(5)} T${t.tier} caixa ${k(t.caixa)} · receita ${k(m.receitaAnual(t))} · custeio ${k(m.custeioAnual(t))} · folha ${k(m.folhaAnual(t))} · torcida ${t.torcida} · elenco ${t.elenco.length}`));

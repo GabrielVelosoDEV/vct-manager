@@ -242,7 +242,7 @@ function migrarRun(reg){
     if(semPatroc)atribuirPatrocinios();
     for(const id in G.times){
       const t=G.times[id];
-      if(typeof t.patroc!=='number'||!isFinite(t.patroc))t.patroc=receitaAnual(t);
+      if(typeof t.patroc!=='number'||!isFinite(t.patroc))t.patroc=receitaCaixa(t);
     }
 
     /* Saves anteriores à marcação de nome real não sabem quem é real, e sem

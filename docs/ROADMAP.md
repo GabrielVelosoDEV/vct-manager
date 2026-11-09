@@ -214,6 +214,20 @@
   passa a assinar o veredito). Sorteio local: o gerador do motor não anda.
   Medido com `tools/poscarreira.mjs`.
 
+- **Patrocínio com metas** (pacote 7): cada contrato tem fixo (80% da tabela
+  no Tier 1, 90% no Challengers) e bônus (até 40% / 25%) repartido em duas
+  ou três metas que a marca escolhe pelo setor e pelo tamanho do clube —
+  posição na liga, aproveitamento, playoffs, Masters, Champions, título,
+  seleção do ano, torcida, clássico e jogadores do país da marca. A marca
+  adianta 45% do bônus semana a semana e acerta na virada (sem encostar na
+  reserva do clube). Contrato de uma ou duas temporadas, com cláusula de
+  saída por rebaixamento ou torcida e renegociação ao subir de divisão.
+  Finanças mostra cada contrato com as metas em barra, o valor em jogo, a
+  receita em três cenários e avisos de meta perdida e de cláusula. A virada
+  também passou a cortar comissão cara de quem estourou o teto de folha.
+  `tools/caixa.mjs` agora conta vermelho em qualquer semana: 0 clubes em
+  5 sementes × 20 temporadas.
+
 ## Próximo
 2. **Empacotar em Tauri** — só quando o jogo estiver polido.
 3. **2026 no histórico** — quando a temporada real terminar, acrescentar Masters

@@ -185,6 +185,7 @@ const K_SALARIO_STAFF=0.15;
    quem responde é a economia. */
 const CAIXA_BASE ={1:40000, 2:16000};
 function patrocinioDe(t){
+  if(typeof receitaCaixa==='function')return receitaCaixa(t);
   if(typeof receitaAnual==='function')return receitaAnual(t);
   return Math.round((t.tier===1?20000:8500)*t.prestigio);
 }

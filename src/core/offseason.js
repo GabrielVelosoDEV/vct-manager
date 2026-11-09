@@ -65,6 +65,22 @@ function ajustarFolha(){
       if(!alvo)break;
       liberar(alvo);cortes++;
     }
+    /* A comissão também é folha. Clube que caiu de divisão com comissão de
+       Tier 1 não fechava a conta só cortando jogador (o elenco tem piso) e
+       sangrava o caixa por anos: aqui o membro mais caro sai e entra um do
+       mercado que custe no máximo metade. */
+    guarda=0;
+    while(folhaAnual(t)>receitaLivre(t)*tetoFolhaDe(t)&&guarda++<5&&typeof CARGOS!=='undefined'){
+      const m=CARGOS.map(c=>membroDe(t,c.id)).filter(Boolean).sort((a,b)=>b.salario-a.salario)[0];
+      if(!m||m.salario<=600)break;
+      const sub=(G.staffLivres||[]).map(i=>G.staff[i])
+        .filter(x=>x&&x.cargo===m.cargo&&salarioStaff(x)<=m.salario*0.5)
+        .sort((a,b)=>overStaff(b)-overStaff(a))[0];
+      if(!sub)break;
+      const cargo=m.cargo;
+      liberarStaff(m.id);moverStaff(sub.id,t.id,cargo);sub.salario=salarioStaff(sub);sub.contrato=Math.max(1,sub.contrato||1);
+      cortes++;
+    }
   }
   return cortes;
 }
@@ -103,6 +119,9 @@ function fimDeTemporada(){
      empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
   if(typeof registrarTemporadaDoClube==='function')for(const id in G.times)registrarTemporadaDoClube(G.times[id]);
   if(typeof conferirRecordeOver==='function')conferirRecordeOver();
+  /* bônus de patrocínio pelas metas de resultado, com a campanha ainda
+     intacta e antes de alguém ser declarado em crise por caixa */
+  if(typeof pagarMetasPatrocinio==='function')pagarMetasPatrocinio(1);
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
@@ -229,7 +248,10 @@ function fimDeTemporada(){
   /* torcida antes das marcas: é a campanha recém-encerrada que decide quem
      ficou atraente para os patrocinadores desta temporada */
   for(const id in G.times)atualizarTorcida(G.times[id]);
-  atribuirPatrocinios();
+  /* com a torcida nova: a meta de torcida e as cláusulas de saída */
+  if(typeof pagarMetasPatrocinio==='function')pagarMetasPatrocinio(2);
+  if(typeof clausulasDeSaida==='function')clausulasDeSaida();
+  atribuirPatrocinios(G.ano+1);
   /* A campanha só é zerada depois de avaliada: avaliarTemporada() lê
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
@@ -237,7 +259,7 @@ function fimDeTemporada(){
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};
-    t.patroc=receitaAnual(t);
+    t.patroc=receitaCaixa(t);
     if(typeof entrosamentoVirada==='function'&&t.duplas)entrosamentoVirada(t);
     else t.sinergia=clamp(t.sinergia+4,0,100);
     for(const m of MAP_POOL)t.mapPref[m]=clamp(Math.round((t.mapPref[m]||0)+gauss(0,2)),-8,8);

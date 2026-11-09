@@ -144,6 +144,8 @@ function aplicarClassico(vencedorId,perdedorId){
   const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
     if(p)p.moral=clamp(p.moral+dm,0.15,1);});
   mexer(V,0.04*k);
+  /* conta para a meta de patrocínio "vencer um clássico" */
+  V.classicos=V.classicos&&V.classicos.ano===G.ano?{ano:G.ano,n:V.classicos.n+1}:{ano:G.ano,n:1};
   mexer(P,-0.05*k);
   const piso=t=>(typeof pisoTorcida==='function')?pisoTorcida(t):0;
   const teto=(typeof TORCIDA_MAX!=='undefined')?TORCIDA_MAX:100;

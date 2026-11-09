@@ -211,10 +211,17 @@ function valorContrato(mk,t,vagaId){
 function patrociniosDe(t){
   return VAGAS.map(v=>({vaga:v,mk:marca(t.patrocinios&&t.patrocinios[v.id])}));
 }
+/* Receita de patrocínio do ano: o fixo mais o bônus que a marca adianta ao
+   longo da temporada (o resto, ou o desconto, vem no acerto da virada — ver
+   core/patrocinio.js). Vaga sem contrato (save antigo, Editor) vale a tabela. */
 function receitaPatrocinio(t){
   if(!t.patrocinios)return 0;
-  return VAGAS.reduce((s,v)=>s+valorContrato(marca(t.patrocinios[v.id]),t,v.id),0);
+  return VAGAS.reduce((s,v)=>{
+    const c=typeof contratoDe==='function'?contratoDe(t,v.id):null;
+    return s+(c?c.fixo+(c.adiant||0):valorContrato(marca(t.patrocinios[v.id]),t,v.id));},0);
 }
+/* t.patroc: a receita anual que o relógio divide pelas semanas */
+function receitaCaixa(t){return receitaPatrocinio(t)+aporteLiga(t);}
 
 /* Redistribui as marcas entre todos os clubes. Roda na criação do mundo e
    em toda virada de temporada: é isso que faz o patrocinador ir embora
@@ -224,24 +231,46 @@ function receitaPatrocinio(t){
    o mesmo resultado com dez vezes mais código. */
 /* Setores de quem faz uniforme e periférico: o fornecedor prefere estes. */
 const SETORES_FORNECEDOR=new Set(['Vestuário','Periféricos','Hardware','Cadeiras','Computadores','Áudio','Esporte']);
-function atribuirPatrocinios(){
+function atribuirPatrocinios(anoInicio){
+  const ano=anoInicio||G.ano;
   const clubes=Object.values(G.times).sort((a,b)=>atratividade(b)-atratividade(a));
   const usoExclusivo=new Set();
   const uso={};
   const todas=listaMarcas();
+  /* Contrato que ainda vale para a temporada que começa fica: a marca não
+     troca de clube no meio do contrato. Ele entra primeiro no uso, para a
+     exclusividade do máster continuar valendo para todo mundo. */
+  const fica=(t,v)=>{const c=t.contratos&&t.contratos[v.id];
+    return c&&c.ate>=ano&&t.patrocinios&&t.patrocinios[v.id]===c.marca&&marca(c.marca)?c:null;};
+  for(const t of clubes)for(const v of VAGAS){
+    const c=fica(t,v);if(!c)continue;
+    uso[c.marca]=(uso[c.marca]||0)+1;
+    if(v.exclusiva)usoExclusivo.add(c.marca);
+  }
   /* Clube por clube, e dentro do clube na ordem das vagas. Antes o laço era
      vaga por vaga: quando chegava no secundário havia marca grande sobrando e
      o clube acabava com um secundário nível 4 ao lado de um máster nível 3,
      que não faz sentido nenhum. Fechando o pacote de uma vez, o máster é
      sempre a maior marca que o clube alcança. */
   for(const t of clubes){
+    const antes=t.patrocinios||{};
+    const contratos=t.contratos||{};
     t.patrocinios={master:null,secundario:null,fornecedor:null};
+    t.contratos={};
     /* O clube alcança o nível de marca que a atratividade dele permite. Sem
        esse teto, o lanterna do Tier 2 ficaria com a sobra do topo e a vaga de
        máster não significaria nada. */
     let teto=Math.max(1,Math.round(atratividade(t)*(t.tier===1?4.2:2.8)));
     const setores=new Set();
     for(const v of VAGAS){
+      const c=contratos[v.id];
+      if(c&&c.ate>=ano&&antes[v.id]===c.marca&&marca(c.marca)){
+        const mk=marca(c.marca);
+        t.patrocinios[v.id]=c.marca;t.contratos[v.id]=c;
+        if(c.ano!==ano&&typeof renovarMetas==='function')renovarMetas(t,c,ano);
+        setores.add(mk.setor);teto=Math.max(1,Math.min(teto,mk.nivel));
+        continue;
+      }
       const livre=mk=>{
         if(mk.nivel>teto)return false;
         if(v.exclusiva)return !usoExclusivo.has(mk.id);
@@ -267,6 +296,7 @@ function atribuirPatrocinios(){
       const nota=new Map(cand.map(mk=>[mk.id,mk.nivel+bonus(mk)+rnd()*0.9]));
       const escolhida=cand.sort((a,b)=>nota.get(b.id)-nota.get(a.id))[0];
       t.patrocinios[v.id]=escolhida.id;
+      if(typeof novoContrato==='function')t.contratos[v.id]=novoContrato(t,escolhida,v.id,ano);
       uso[escolhida.id]=(uso[escolhida.id]||0)+1;
       if(v.exclusiva)usoExclusivo.add(escolhida.id);
       setores.add(escolhida.setor);
@@ -490,8 +520,8 @@ function edMarcaRemover(id){
   let soltas=0;
   for(const tid in G.times){
     const t=G.times[tid];if(!t.patrocinios)continue;
-    for(const v of VAGAS)if(t.patrocinios[v.id]===id){t.patrocinios[v.id]=null;soltas++;}
-    t.patroc=receitaAnual(t);
+    for(const v of VAGAS)if(t.patrocinios[v.id]===id){t.patrocinios[v.id]=null;if(t.contratos)delete t.contratos[v.id];soltas++;}
+    t.patroc=receitaCaixa(t);
   }
   delete G.marcas[id];
   return{ok:true,msg:mk.nome+' removida'+(soltas?' — '+soltas+' vaga(s) ficaram abertas.':'.')};
@@ -504,7 +534,7 @@ function edPatrocinioTrocar(timeId,vagaId,marcaId){
   const vaga=VAGAS.find(v=>v.id===vagaId);
   if(!vaga)return{ok:false,erro:'Vaga inválida.'};
   if(!t.patrocinios)t.patrocinios={master:null,secundario:null,fornecedor:null};
-  if(!marcaId){t.patrocinios[vagaId]=null;t.patroc=receitaAnual(t);return{ok:true,msg:'Vaga aberta.'};}
+  if(!marcaId){t.patrocinios[vagaId]=null;if(t.contratos)delete t.contratos[vagaId];t.patroc=receitaCaixa(t);return{ok:true,msg:'Vaga aberta.'};}
   const mk=marca(marcaId);
   if(!mk)return{ok:false,erro:'Marca não encontrada.'};
   const outros=Object.values(G.times).filter(x=>x.id!==timeId&&x.patrocinios);
@@ -517,6 +547,7 @@ function edPatrocinioTrocar(timeId,vagaId,marcaId){
       return{ok:false,erro:mk.nome+' já atende '+n+' clubes nessa vaga (máximo '+MAX_CLUBES_POR_MARCA+').'};
   }
   t.patrocinios[vagaId]=marcaId;
-  t.patroc=receitaAnual(t);
+  if(typeof novoContrato==='function')(t.contratos=t.contratos||{})[vagaId]=novoContrato(t,mk,vagaId,G.ano);
+  t.patroc=receitaCaixa(t);
   return{ok:true,msg:mk.nome+' agora é '+vaga.nome.toLowerCase()+' do '+t.tag+'.'};
 }

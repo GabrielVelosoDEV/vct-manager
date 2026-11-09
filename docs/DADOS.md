@@ -55,6 +55,10 @@ Tudo vive num único objeto `G`, serializável em JSON. Uma run salva é
   elo,                        // rating do ranking mundial
   tierAno,                    // divisão em que começou a temporada
   dono: {nome,pais,desde,exId,aporte} | null, // ex-jogador que comprou o clube
+  contratos: {master|secundario|fornecedor: {marca, vaga, valor, fixo, adiant, de, ate, ano,
+    torcidaMin, clausulaRebaixamento, saida?, metas:[{tipo, alvo, txt, valor, pago?}]}},
+  patrocAno: {ano, bonus, ok, n, acerto},  // metas do ano e o acerto da virada
+  classicos: {ano, n},                     // clássicos vencidos no ano (meta de patrocínio)
   temporadas: [{a,tier,mov,p,de,v,d,i,t,e,c,elo}], // linha de cada temporada (12; o seu clube, 40)
   atividade, atividadePar,    // atividade da semana no Vestiário (só o seu clube)
   staff:     {tecnico, analista, mental},        // 1..5

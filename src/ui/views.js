@@ -930,6 +930,45 @@ function vBase(){
       <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
       <td class="r num">${p.timeId?money(pedidoDeVenda(p)):'livre'}</td></tr>`).join('')}</tbody></table></div>`;
 }
+/* Patrocinadores com o contrato: fixo, metas com barra de progresso e o
+   valor de cada uma, e a receita do ano em três cenários (core/patrocinio.js). */
+function blocoPatrocinios(t){
+  const cen=typeof cenariosPatrocinio==='function'?cenariosPatrocinio(t):null;
+  const avisos=[];
+  const linhas=patrociniosDe(t).map(({vaga,mk})=>{
+    const c=typeof contratoDe==='function'?contratoDe(t,vaga.id):null;
+    if(!mk)return `<div class="pt-c vazio"><b>${esc(vaga.nome)}</b> <span class="dn">vaga aberta</span></div>`;
+    const risco=c&&typeof riscoDeClausula==='function'?riscoDeClausula(t,c):null;
+    if(risco)avisos.push(mk.nome+': '+risco);
+    const metas=c?(c.metas||[]).map(m=>{
+      const a=m.pago!=null?{estado:m.pago?'ok':'perdida',txt:m.pago?'cumprida':'não cumprida',prog:m.pago?1:0}:avaliarMetaPatroc(t,m,false);
+      if(a.estado==='perdida'&&m.pago==null)avisos.push(mk.nome+': a meta "'+m.txt.toLowerCase()+'" não tem mais como ser cumprida.');
+      return `<div class="pt-m ${a.estado}">
+        <span class="pt-m-t">${esc(m.txt)}</span>
+        <div class="vb"><i class="${a.estado==='ok'?'g':a.estado==='perdida'?'r':''}" style="width:${Math.round((a.estado==='ok'?1:a.prog||0)*100)}%"></i></div>
+        <span class="dim pt-m-s">${esc(a.estado==='ok'?'cumprida':a.estado==='perdida'?'perdida':a.txt)}</span>
+        <b class="num ${a.estado==='ok'?'up':a.estado==='perdida'?'dim':''}">${money(m.valor)}</b></div>`;}).join(''):'';
+    return `<div class="pt-c">
+      <div class="pt-c-topo">${logoMarca(mk,84)}<div><b>${esc(vaga.nome)} · ${esc(mk.nome)}</b>
+        <div class="dim">${esc(mk.setor)} · ${esc(areaMarca(mk))} · nível ${mk.nivel}</div></div>
+        <div class="pt-c-val">${c?`<span class="num">${money(c.fixo)}</span><span class="dim">fixo/ano${c.adiant?' + '+money(c.adiant)+' de bônus adiantado':''}</span>
+          <span class="dim">${c.ate>G.ano?'contrato até '+c.ate:'último ano'}${c.saida?' · sai por cláusula':''}</span>`
+          :`<span class="num">${money(valorContrato(mk,t,vaga.id))}</span><span class="dim">por ano</span>`}</div></div>
+      ${metas?`<div class="pt-ms">${metas}</div>`:''}</div>`;
+  }).join('');
+  return `<div class="card flat"><div class="split"><div class="eyebrow">Patrocinadores</div>
+      ${cen?`<div class="pt-cen"><div><span class="dim">Só o fixo</span><b class="num">${money(cen.fixo)}</b></div>
+        <div><span class="dim">No ritmo atual</span><b class="num">${money(cen.atual)}</b></div>
+        <div><span class="dim">Tudo cumprido</span><b class="num up">${money(cen.tudo)}</b></div></div>`:''}</div>
+    ${avisos.length?`<div class="pt-aviso">${avisos.map(x=>'⚠ '+esc(x)).join('<br>')}</div>`:''}
+    <div class="pt-cs">${linhas}</div>
+    <p class="dim" style="margin-top:8px">O fixo e um adiantamento de 45% do bônus entram semana a semana. Na virada a
+    marca faz o acerto: paga as metas cumpridas que passarem do adiantado, ou desconta a diferença (sem encostar
+    na reserva do clube). Título, vaga em internacional, playoffs e clássico ficam marcados na semana em que
+    acontecem. Rebaixamento ou torcida abaixo do piso do contrato deixam a marca sair no fim da temporada; subir de
+    divisão reabre a negociação. Vaga aberta ou contrato no fim é preenchida na virada: clube mais atraente
+    escolhe primeiro.</p></div>`;
+}
 function vFinancas(){
   const t=meu();
   const folha=t.elenco.reduce((s,i)=>s+P(i).salario,0)+folhaStaff(t);
@@ -938,7 +977,7 @@ function vFinancas(){
   <div class="grid g4" style="margin-bottom:16px">
     <div class="kpi"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div></div>
     <div class="kpi"><div class="lb">Receita anual</div><div class="vl">${money(rec)}</div>
-      <div class="sb">${money(patro)} de marca · ${money(aporte)} da liga</div></div>
+      <div class="sb">${money(patro)} de marca (fixo + bônus adiantado) · ${money(aporte)} da liga</div></div>
     <div class="kpi red"><div class="lb">Folha mensal</div><div class="vl">${money(folha)}</div><div class="sb">elenco + comissão · ${money(folha*12)}/ano</div></div>
     <div class="kpi teal"><div class="lb">Resultado anual</div><div class="vl">${money(rec-folha*12-custeioAnual(t))}</div>
       <div class="sb">já com ${money(custeioAnual(t))} de custeio · sem premiações</div></div>
@@ -965,17 +1004,7 @@ function vFinancas(){
       Ela decide o aporte da liga e o tamanho da marca que você alcança.</div></div>
     <div style="min-width:200px">${medidor('<span class="dim">de '+TORCIDA_MAX+'</span>',(t.torcida||0)/TORCIDA_MAX,100)}</div>
   </div></div>
-  <div class="card flat"><div class="eyebrow">Patrocinadores</div>
-    <table><thead><tr><th></th><th>Vaga</th><th>Marca</th><th class="c">Nível</th><th class="r">Por ano</th></tr></thead>
-    <tbody>${patrociniosDe(t).map(({vaga,mk})=>`<tr>
-      <td style="width:104px">${mk?logoMarca(mk,96):''}</td>
-      <td><b>${esc(vaga.nome)}</b></td>
-      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+' · '+esc(areaMarca(mk))+'</span>':'<span class="dn">vaga aberta</span>'}</td>
-      <td class="c num">${mk?mk.nivel:'—'}</td>
-      <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}</td></tr>`).join('')}
-    </tbody></table>
-    <p class="dim" style="margin-top:8px">Os contratos são revistos na virada de temporada:
-    clube mais atraente escolhe primeiro.</p></div>
+${blocoPatrocinios(t)}
   <div class="card flat"><div class="eyebrow">Folha salarial</div>
     <table><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
     <tbody>${t.elenco.map(i=>{const p=P(i);return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b></td><td class="c">${ovTag(p)}</td>

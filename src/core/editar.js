@@ -317,7 +317,7 @@ function edAplicarPaises(texto){
     if(typeof PAISES!=='undefined'&&PAISES&&!PAISES[pais]){erros.push(pais+' não é um país da lista ('+tag+')');continue;}
     t.pais=pais;
     t.torcida=torcidaInicial(t);
-    t.patroc=receitaAnual(t);
+    t.patroc=receitaCaixa(t);
     ok++;
   }
   return{ok:true,n:ok,erros};

@@ -369,7 +369,7 @@ function ligarEventos(){
   }));
   on('#edRedistribuir',()=>{
     atribuirPatrocinios();
-    for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+    for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
   const fMk=v.querySelector('#edMkRegiao');
@@ -395,7 +395,7 @@ function ligarEventos(){
       const r=edMarcaAplicar(id,campos[id]);
       if(r.ok)n++;else erros.push(r.erro);
     }
-    for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+    for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash(erros.length?erros[0]:n+' marca(s) atualizada(s).');
   });
   v.querySelectorAll('[data-mklogo]').forEach(el=>el.addEventListener('change',e=>{

@@ -1158,6 +1158,24 @@ table.box{width:100%}table.box th{font-size:11px}table.box tr.mvp td{background:
 .cer-desp em{margin-left:auto;color:var(--gold);font-style:normal;font-size:12.5px}
 @media (max-width:800px){.cer-grid,.cer-mvp{grid-template-columns:1fr;justify-items:center}.cer-regmvp{grid-template-columns:repeat(2,1fr)}.cer-h1{font-size:44px}}
 
+/* ---------- patrocínio com metas ---------- */
+.pt-cen{display:flex;gap:8px}
+.pt-cen div{display:flex;flex-direction:column;align-items:flex-end;background:var(--bg2);border:1px solid var(--line);padding:6px 12px}
+.pt-cen span{font-size:11px}.pt-cen b{font-size:15px}
+.pt-aviso{margin:10px 0;padding:8px 12px;border:1px solid var(--amber);color:var(--amber);font-size:12.5px;line-height:1.5}
+.pt-cs{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.pt-c{border:1px solid var(--line);background:var(--panel);padding:12px 14px}
+.pt-c.vazio{color:var(--tx2)}
+.pt-c-topo{display:flex;gap:14px;align-items:center}
+.pt-c-topo>div:nth-child(2){flex:1}
+.pt-c-val{display:flex;flex-direction:column;align-items:flex-end;font-size:12px}.pt-c-val .num{font-size:16px;color:var(--tx)}
+.pt-ms{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.pt-m{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(90px,1fr) 120px 70px;gap:10px;align-items:center;font-size:12.5px}
+.pt-m .vb{height:8px;min-width:0}
+.pt-m b{text-align:right}
+.pt-m.perdida .pt-m-t{color:var(--dim);text-decoration:line-through}
+@media (max-width:700px){.pt-m{grid-template-columns:1fr 70px}.pt-m .vb,.pt-m-s{display:none}.pt-cen{flex-wrap:wrap}}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -3995,6 +4013,7 @@ const K_SALARIO_STAFF=0.15;
    quem responde é a economia. */
 const CAIXA_BASE ={1:40000, 2:16000};
 function patrocinioDe(t){
+  if(typeof receitaCaixa==='function')return receitaCaixa(t);
   if(typeof receitaAnual==='function')return receitaAnual(t);
   return Math.round((t.tier===1?20000:8500)*t.prestigio);
 }
@@ -4433,10 +4452,17 @@ function valorContrato(mk,t,vagaId){
 function patrociniosDe(t){
   return VAGAS.map(v=>({vaga:v,mk:marca(t.patrocinios&&t.patrocinios[v.id])}));
 }
+/* Receita de patrocínio do ano: o fixo mais o bônus que a marca adianta ao
+   longo da temporada (o resto, ou o desconto, vem no acerto da virada — ver
+   core/patrocinio.js). Vaga sem contrato (save antigo, Editor) vale a tabela. */
 function receitaPatrocinio(t){
   if(!t.patrocinios)return 0;
-  return VAGAS.reduce((s,v)=>s+valorContrato(marca(t.patrocinios[v.id]),t,v.id),0);
+  return VAGAS.reduce((s,v)=>{
+    const c=typeof contratoDe==='function'?contratoDe(t,v.id):null;
+    return s+(c?c.fixo+(c.adiant||0):valorContrato(marca(t.patrocinios[v.id]),t,v.id));},0);
 }
+/* t.patroc: a receita anual que o relógio divide pelas semanas */
+function receitaCaixa(t){return receitaPatrocinio(t)+aporteLiga(t);}
 
 /* Redistribui as marcas entre todos os clubes. Roda na criação do mundo e
    em toda virada de temporada: é isso que faz o patrocinador ir embora
@@ -4446,24 +4472,46 @@ function receitaPatrocinio(t){
    o mesmo resultado com dez vezes mais código. */
 /* Setores de quem faz uniforme e periférico: o fornecedor prefere estes. */
 const SETORES_FORNECEDOR=new Set(['Vestuário','Periféricos','Hardware','Cadeiras','Computadores','Áudio','Esporte']);
-function atribuirPatrocinios(){
+function atribuirPatrocinios(anoInicio){
+  const ano=anoInicio||G.ano;
   const clubes=Object.values(G.times).sort((a,b)=>atratividade(b)-atratividade(a));
   const usoExclusivo=new Set();
   const uso={};
   const todas=listaMarcas();
+  /* Contrato que ainda vale para a temporada que começa fica: a marca não
+     troca de clube no meio do contrato. Ele entra primeiro no uso, para a
+     exclusividade do máster continuar valendo para todo mundo. */
+  const fica=(t,v)=>{const c=t.contratos&&t.contratos[v.id];
+    return c&&c.ate>=ano&&t.patrocinios&&t.patrocinios[v.id]===c.marca&&marca(c.marca)?c:null;};
+  for(const t of clubes)for(const v of VAGAS){
+    const c=fica(t,v);if(!c)continue;
+    uso[c.marca]=(uso[c.marca]||0)+1;
+    if(v.exclusiva)usoExclusivo.add(c.marca);
+  }
   /* Clube por clube, e dentro do clube na ordem das vagas. Antes o laço era
      vaga por vaga: quando chegava no secundário havia marca grande sobrando e
      o clube acabava com um secundário nível 4 ao lado de um máster nível 3,
      que não faz sentido nenhum. Fechando o pacote de uma vez, o máster é
      sempre a maior marca que o clube alcança. */
   for(const t of clubes){
+    const antes=t.patrocinios||{};
+    const contratos=t.contratos||{};
     t.patrocinios={master:null,secundario:null,fornecedor:null};
+    t.contratos={};
     /* O clube alcança o nível de marca que a atratividade dele permite. Sem
        esse teto, o lanterna do Tier 2 ficaria com a sobra do topo e a vaga de
        máster não significaria nada. */
     let teto=Math.max(1,Math.round(atratividade(t)*(t.tier===1?4.2:2.8)));
     const setores=new Set();
     for(const v of VAGAS){
+      const c=contratos[v.id];
+      if(c&&c.ate>=ano&&antes[v.id]===c.marca&&marca(c.marca)){
+        const mk=marca(c.marca);
+        t.patrocinios[v.id]=c.marca;t.contratos[v.id]=c;
+        if(c.ano!==ano&&typeof renovarMetas==='function')renovarMetas(t,c,ano);
+        setores.add(mk.setor);teto=Math.max(1,Math.min(teto,mk.nivel));
+        continue;
+      }
       const livre=mk=>{
         if(mk.nivel>teto)return false;
         if(v.exclusiva)return !usoExclusivo.has(mk.id);
@@ -4489,6 +4537,7 @@ function atribuirPatrocinios(){
       const nota=new Map(cand.map(mk=>[mk.id,mk.nivel+bonus(mk)+rnd()*0.9]));
       const escolhida=cand.sort((a,b)=>nota.get(b.id)-nota.get(a.id))[0];
       t.patrocinios[v.id]=escolhida.id;
+      if(typeof novoContrato==='function')t.contratos[v.id]=novoContrato(t,escolhida,v.id,ano);
       uso[escolhida.id]=(uso[escolhida.id]||0)+1;
       if(v.exclusiva)usoExclusivo.add(escolhida.id);
       setores.add(escolhida.setor);
@@ -4712,8 +4761,8 @@ function edMarcaRemover(id){
   let soltas=0;
   for(const tid in G.times){
     const t=G.times[tid];if(!t.patrocinios)continue;
-    for(const v of VAGAS)if(t.patrocinios[v.id]===id){t.patrocinios[v.id]=null;soltas++;}
-    t.patroc=receitaAnual(t);
+    for(const v of VAGAS)if(t.patrocinios[v.id]===id){t.patrocinios[v.id]=null;if(t.contratos)delete t.contratos[v.id];soltas++;}
+    t.patroc=receitaCaixa(t);
   }
   delete G.marcas[id];
   return{ok:true,msg:mk.nome+' removida'+(soltas?' — '+soltas+' vaga(s) ficaram abertas.':'.')};
@@ -4726,7 +4775,7 @@ function edPatrocinioTrocar(timeId,vagaId,marcaId){
   const vaga=VAGAS.find(v=>v.id===vagaId);
   if(!vaga)return{ok:false,erro:'Vaga inválida.'};
   if(!t.patrocinios)t.patrocinios={master:null,secundario:null,fornecedor:null};
-  if(!marcaId){t.patrocinios[vagaId]=null;t.patroc=receitaAnual(t);return{ok:true,msg:'Vaga aberta.'};}
+  if(!marcaId){t.patrocinios[vagaId]=null;if(t.contratos)delete t.contratos[vagaId];t.patroc=receitaCaixa(t);return{ok:true,msg:'Vaga aberta.'};}
   const mk=marca(marcaId);
   if(!mk)return{ok:false,erro:'Marca não encontrada.'};
   const outros=Object.values(G.times).filter(x=>x.id!==timeId&&x.patrocinios);
@@ -4739,7 +4788,8 @@ function edPatrocinioTrocar(timeId,vagaId,marcaId){
       return{ok:false,erro:mk.nome+' já atende '+n+' clubes nessa vaga (máximo '+MAX_CLUBES_POR_MARCA+').'};
   }
   t.patrocinios[vagaId]=marcaId;
-  t.patroc=receitaAnual(t);
+  if(typeof novoContrato==='function')(t.contratos=t.contratos||{})[vagaId]=novoContrato(t,mk,vagaId,G.ano);
+  t.patroc=receitaCaixa(t);
   return{ok:true,msg:mk.nome+' agora é '+vaga.nome.toLowerCase()+' do '+t.tag+'.'};
 }
 
@@ -5117,7 +5167,7 @@ function criarMundo(seedVal){
      primeiro */
   semearHistoria();
   atribuirPatrocinios();
-  for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+  for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
   /* entrosamento por dupla, semeado do número do clube (core/vestiario.js) */
   if(typeof semearDuplas==='function')for(const id in G.times)semearDuplas(G.times[id]);
   return G;
@@ -8517,6 +8567,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}
   if(typeof fotoDoRanking==='function')fotoDoRanking();
+  if(typeof pagarMetasDaSemana==='function')pagarMetasDaSemana();
   G.turno=0;G.turnoUsado=false;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
@@ -11172,6 +11223,8 @@ function aplicarClassico(vencedorId,perdedorId){
   const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
     if(p)p.moral=clamp(p.moral+dm,0.15,1);});
   mexer(V,0.04*k);
+  /* conta para a meta de patrocínio "vencer um clássico" */
+  V.classicos=V.classicos&&V.classicos.ano===G.ano?{ano:G.ano,n:V.classicos.n+1}:{ano:G.ano,n:1};
   mexer(P,-0.05*k);
   const piso=t=>(typeof pisoTorcida==='function')?pisoTorcida(t):0;
   const teto=(typeof TORCIDA_MAX!=='undefined')?TORCIDA_MAX:100;
@@ -11688,6 +11741,307 @@ function posCarreira(p){
     tag:t?t.tag:((p.hist||[]).slice().reverse().find(h=>h.time&&h.time!=='Sem clube'&&!/^Base/.test(h.time))||{time:'sem clube'}).time,titulos:c.titulos||0,intl:c.intl||0,maps:c.maps||0,pts:Math.round(L*10)/10,
     destino:destino||null,clube:clube?clube.nome:null,meu:!!(G.meuTime&&p.timeId===G.meuTime)});
   return destino;
+}
+
+
+/* ===== src/core/patrocinio.js ===== */
+/* ============================================================
+   PATROCÍNIO COM METAS — contrato fixo + bônus
+   ------------------------------------------------------------
+   Antes cada vaga pagava um valor fixo por temporada. Agora o contrato
+   tem duas partes, sobre o valor de tabela da vaga (valorContrato):
+
+     FIXO   80% (Challengers 90%) — garantido;
+     BÔNUS  até 40% (Challengers 25%) — repartido entre duas ou três
+            metas que a marca escolhe pelo próprio perfil.
+
+   Quem cumpre tudo recebe mais do que antes; quem não cumpre nada,
+   menos. A marca ADIANTA 45% do bônus ao longo da temporada (perto do
+   que as metas pagam na média do circuito) e na virada faz o acerto:
+   paga o que faltou ou desconta o que adiantou demais — sem encostar na
+   reserva do clube (uma temporada de folha), porque marca nenhuma quebra
+   o clube que leva o nome dela. Assim o caixa semana a semana se comporta como antes, e
+   o resultado das metas aparece de uma vez, na virada certa.
+
+   O contrato dura uma ou duas temporadas. Rebaixamento ou torcida
+   abaixo do piso combinado dão à marca o direito de sair no fim da
+   temporada — e ela sai.
+
+   Metas e duração são sorteadas num gerador local (comSorteioLocal,
+   core/poscarreira.js): o motor não anda por causa delas.
+   ============================================================ */
+/* Challengers vive com margem curta: lá o contrato é mais fixo (90% + até
+   25%), para um ano ruim de metas não quebrar o clube. */
+const PATROC_PARTES={1:{fixo:0.80,bonus:0.40},2:{fixo:0.90,bonus:0.25}};
+/* parte do bônus adiantada semana a semana (e a que o planejamento conta) */
+const PATROC_ADIANTAMENTO=0.45;
+function partesDe(t){return PATROC_PARTES[t.tier]||PATROC_PARTES[1];}
+const PATROC_QUEDA_TORCIDA=12;   /* pontos de torcida abaixo do início que liberam a saída */
+
+/* Setor → o que a marca quer ver. Tecnologia quer palco e resultado;
+   consumo quer audiência e barulho; corporativo quer resultado e marca. */
+const SETOR_TECH=new Set(['Periféricos','Hardware','Computadores','Cadeiras','Áudio','Games','Software','Eletrônicos','Streaming','Nuvem','Plataforma','Telecom']);
+const SETOR_CONSUMO=new Set(['Bebida','Energético','Alimentos','Alimentação','Snacks','Doces','Laticínios','Delivery','Varejo','E-commerce','Cosméticos','Vestuário','Esporte','Colecionáveis']);
+function pesosDeMetas(mk){
+  if(SETOR_TECH.has(mk.setor))return{liga:3,masters:2.5,champions:2,titulo:2,selecao:2,torcida:0.8,classico:0.8,aproveitamento:1.5,playoffs:2};
+  if(SETOR_CONSUMO.has(mk.setor))return{liga:1.5,masters:1,champions:1,titulo:1.5,selecao:0.8,torcida:3,classico:2.5,aproveitamento:1,playoffs:1};
+  return{liga:2.5,masters:2,champions:1.5,titulo:2.5,selecao:1,torcida:1.6,classico:1,aproveitamento:2,playoffs:1.5};
+}
+
+/* Onde o clube "deveria" terminar pela força (prestígio) dentro da liga dele. */
+function rankNaLiga(t){
+  const liga=Object.values(G.times).filter(x=>x.regiao===t.regiao&&x.tier===t.tier)
+    .sort((a,b)=>b.prestigio-a.prestigio||(a.id<b.id?-1:1));
+  return{r:liga.indexOf(t)+1,n:liga.length};
+}
+/* Metas possíveis para este clube, já com o alvo ajustado ao tamanho dele:
+   ninguém pede título ao lanterna nem top 8 ao campeão. */
+function metasPossiveis(t,mk){
+  const{r,n}=rankNaLiga(t);
+  const op=[];
+  /* no Challengers a força pesa menos (todo mundo tem o mesmo prestígio):
+     a meta de posição dá mais folga */
+  const topN=t.tier===1?clamp(r<=2?2:r<=4?4:Math.ceil(r*0.75+1),2,Math.max(2,n-2))
+                       :clamp(r<=2?3:Math.ceil(r*0.75+2),3,Math.max(3,n-2));
+  op.push({tipo:'liga',alvo:topN,txt:'Terminar entre os '+topN+' da liga'});
+  if(t.tier===1){
+    if(r<=Math.ceil(n*0.6))op.push({tipo:'masters',alvo:1,txt:'Classificar para um Masters'});
+    if(r<=Math.ceil(n*0.35))op.push({tipo:'champions',alvo:1,txt:'Chegar ao Champions'});
+  }
+  const ap=r<=Math.ceil(n/3)?60:r<=Math.ceil(n*2/3)?50:40;
+  op.push({tipo:'aproveitamento',alvo:ap,txt:'Vencer '+ap+'% das séries do ano'});
+  if(r>2)op.push({tipo:'playoffs',alvo:1,txt:'Chegar aos playoffs de um stage da liga'});
+  if(r<=Math.max(3,Math.ceil(n*0.3)))op.push({tipo:'titulo',alvo:1,txt:t.tier===1?'Ganhar um título (liga ou internacional)':'Ganhar um split do Challengers'});
+  if(t.tier===1&&r<=Math.ceil(n*0.5))op.push({tipo:'selecao',alvo:1,txt:'Ter um jogador na seleção do ano'});
+  const tor=Math.round(t.torcida||0);
+  const sobe=t.tier===1?Math.max(3,Math.round(tor*0.08)):Math.max(2,Math.round(tor*0.06));
+  op.push({tipo:'torcida',alvo:tor+sobe,ini:tor,txt:'Fazer a torcida chegar a '+(tor+sobe)});
+  op.push({tipo:'classico',alvo:1,txt:'Vencer um clássico'});
+  /* marca de um país: quer ver gente da casa no elenco */
+  if(mk.regiao&&mk.regiao!=='GLOBAL'&&mk.paises&&mk.paises.length){
+    const nomes=mk.paises.length<=2&&typeof PAISES!=='undefined'?mk.paises.map(c=>PAISES[c]||c).join(' ou '):'da área da marca';
+    op.push({tipo:'regional',alvo:2,paises:mk.paises.slice(),txt:'Manter dois jogadores de '+nomes+' no elenco',peso:3});
+  }
+  return op;
+}
+/* metas que as outras marcas do clube já pedem neste ano: cada marca puxa
+   para o seu lado, em vez de as três pedirem a mesma coisa */
+function metasJaPedidas(t,ano,vagaId){
+  const s=new Set();
+  for(const v of VAGAS){if(v.id===vagaId)continue;const c=t.contratos&&t.contratos[v.id];
+    if(c&&c.ano===ano)for(const m of c.metas||[])s.add(m.tipo);}
+  return s;
+}
+function sortearMetas(t,mk,valor,ano,vagaId){
+  const ja=metasJaPedidas(t,ano,vagaId);
+  return comSorteioLocal('metas|'+t.id+'|'+mk.id+'|'+ano,()=>{
+    const pesos=pesosDeMetas(mk);
+    let op=metasPossiveis(t,mk);
+    const n=mk.nivel>=3?3:2;
+    const escolhidas=[];
+    while(escolhidas.length<n&&op.length){
+      const w=op.map(m=>(m.peso||pesos[m.tipo]||1)*(ja.has(m.tipo)?0.15:1));
+      let x=rnd()*w.reduce((s,v)=>s+v,0),k=0;
+      for(;k<op.length-1;k++){x-=w[k];if(x<=0)break;}
+      escolhidas.push(op[k]);
+      /* masters e champions juntos pedem duas vezes a mesma coisa */
+      const tipo=op[k].tipo;
+      op=op.filter((m,i)=>i!==k&&!((tipo==='champions'&&m.tipo==='masters')||(tipo==='masters'&&m.tipo==='champions')));
+    }
+    const pote=Math.round(valor*partesDe(t).bonus/1000)*1000;
+    return escolhidas.map(m=>Object.assign({},m,{valor:Math.round(pote/escolhidas.length/1000)*1000}));
+  });
+}
+/* adiantamento do bônus para a temporada: a taxa do próprio clube */
+function adiantamentoDe(t,metas){return Math.round((metas||[]).reduce((x,m)=>x+m.valor,0)*PATROC_ADIANTAMENTO/1000)*1000;}
+function novoContrato(t,mk,vagaId,ano){
+  const valor=valorContrato(mk,t,vagaId);
+  const anos=comSorteioLocal('dur|'+t.id+'|'+mk.id+'|'+ano,()=>rnd()<0.5?1:2);
+  const tor=Math.round(t.torcida||0);
+  return _comAdiantamento(t,{marca:mk.id,vaga:vagaId,valor,fixo:Math.round(valor*partesDe(t).fixo/1000)*1000,de:ano,ate:ano+anos-1,
+    torcidaMin:Math.max(typeof pisoTorcida==='function'?pisoTorcida(t):0,tor-PATROC_QUEDA_TORCIDA),
+    clausulaRebaixamento:t.tier===1,ano,metas:sortearMetas(t,mk,valor,ano,vagaId),adiant:0});
+}
+function _comAdiantamento(t,c){c.adiant=adiantamentoDe(t,c.metas);return c;}
+/* contrato que segue para mais uma temporada: metas novas, mesmo valor */
+function renovarMetas(t,c,ano){
+  const mk=marca(c.marca);if(!mk)return;
+  c.ano=ano;c.metas=sortearMetas(t,mk,c.valor,ano,c.vaga);_comAdiantamento(t,c);
+}
+function contratoDe(t,vagaId){
+  const c=t.contratos&&t.contratos[vagaId];
+  return c&&t.patrocinios&&t.patrocinios[vagaId]===c.marca?c:null;
+}
+
+/* ---------- metas: onde estão ---------- */
+function _noTorneio(t,re){
+  for(const b of G.calendario||[])for(const s of b.stages||[])
+    if(re.test(s.torneioId||'')&&((s.times||[]).includes(t.id)||(s.ranking||[]).includes(t.id)))return true;
+  return false;
+}
+/* As vagas do torneio já foram todas definidas? Os blocos só montam os
+   stages quando começam, então "fechado" é: todo bloco daquele torneio já
+   montou o seu. Antes disso a meta continua em aberto. */
+const BLOCOS_DO_TORNEIO={masters:['m1Suico','m1PO','m2Suico','m2PO'],champions:['chGrupos','chPO'],
+  playoffs:['kickPO','po1','po2']};
+function _torneioFechado(tipo){
+  const ms=BLOCOS_DO_TORNEIO[tipo]||[];
+  const bs=(G.calendario||[]).filter(b=>ms.includes(b.montar));
+  return bs.length>0&&bs.every(b=>(b.stages||[]).length>0);
+}
+/* {estado:'ok'|'andamento'|'perdida', txt, prog 0..1}. Lê o ano em curso. */
+function avaliarMetaPatroc(t,m,final){
+  const reg=(G.premios||[]).find(r=>r.ano===G.ano);
+  switch(m.tipo){
+    case 'liga':{
+      const p=typeof posicaoNoAno==='function'?posicaoNoAno(t).pos:posicaoNaLiga(t).pos;
+      const ok=p&&p<=m.alvo;
+      return{estado:final?(ok?'ok':'perdida'):'andamento',txt:p?p+'º agora':'—',prog:p?clamp((m.alvo+1-p)/m.alvo+0.5,0,1):0,bom:ok};
+    }
+    case 'masters':case 'champions':{
+      const re=m.tipo==='masters'?/^masters/:/^champions$/;
+      if(_noTorneio(t,re))return{estado:'ok',txt:'classificado',prog:1,bom:true};
+      const fechado=_torneioFechado(m.tipo);
+      return{estado:final||fechado?'perdida':'andamento',txt:fechado||final?'ficou de fora':'em disputa',prog:0};
+    }
+    case 'aproveitamento':{
+      const c=t.temporada||{v:0,d:0},j=c.v+c.d,pct=j?Math.round(c.v/j*100):0,ok=j>=6&&pct>=m.alvo;
+      return{estado:final?(ok?'ok':'perdida'):'andamento',txt:j?pct+'% ('+c.v+'–'+c.d+')':'sem séries',prog:clamp(pct/m.alvo,0,1),bom:ok};
+    }
+    case 'playoffs':{
+      let ok=false;
+      for(const b of G.calendario||[])for(const s of b.stages||[]){
+        if(s.regiao==='INT'||!(s.tipo==='de'||s.tipo==='ko'))continue;
+        if(s.regiao!==t.regiao||s.tier!==t.tier||/^asc/.test(s.id))continue;
+        if((s.times||[]).length&&(s.times||[]).length<(G.regioes[t.regiao][t.tier===1?'t1':'t2']||[]).length&&(s.times||[]).includes(t.id))ok=true;
+      }
+      const aberto=!_torneioFechado('playoffs');
+      return{estado:ok?'ok':final||!aberto?'perdida':'andamento',txt:ok?'classificado':aberto?'em disputa':'ficou de fora',prog:ok?1:0,bom:ok};
+    }
+    case 'titulo':{
+      const n=(G.historico||[]).filter(h=>h&&h.ano===G.ano&&h.timeId===t.id).length;
+      return{estado:n?'ok':final?'perdida':'andamento',txt:n?n+' título'+(n>1?'s':''):'nenhum ainda',prog:n?1:0,bom:!!n};
+    }
+    case 'selecao':{
+      if(!reg)return{estado:final?'perdida':'andamento',txt:'sai na virada',prog:0};
+      const ok=(reg.selecao||[]).some(f=>f.timeId===t.id);
+      return{estado:ok?'ok':'perdida',txt:ok?'na seleção':'ninguém na seleção',prog:ok?1:0};
+    }
+    case 'torcida':{
+      const v=Math.round(t.torcida||0),ok=v>=m.alvo;
+      return{estado:final?(ok?'ok':'perdida'):'andamento',txt:v+' de '+m.alvo,prog:clamp((v-(m.ini||0))/Math.max(1,m.alvo-(m.ini||0)),0,1),bom:ok};
+    }
+    case 'classico':{
+      const n=t.classicos&&t.classicos.ano===G.ano?t.classicos.n:0;
+      return{estado:n?'ok':final?'perdida':'andamento',txt:n?n+' vencido'+(n>1?'s':''):'nenhum ainda',prog:n?1:0,bom:!!n};
+    }
+    case 'regional':{
+      const n=(t.elenco||[]).filter(id=>G.jogadores[id]&&(m.paises||[]).includes(G.jogadores[id].pais)).length;
+      return{estado:final?(n>=m.alvo?'ok':'perdida'):'andamento',txt:n+' de '+m.alvo,prog:clamp(n/m.alvo,0,1),bom:n>=m.alvo};
+    }
+  }
+  return{estado:'andamento',txt:'',prog:0};
+}
+
+/* ---------- metas cumpridas e acerto ---------- */
+/* Na semana em que sai — título, vaga em internacional, playoffs,
+   clássico — a meta fica cumprida e a notícia sai na hora; o dinheiro entra
+   no acerto da virada. */
+const METAS_NA_HORA=new Set(['titulo','masters','champions','classico','playoffs']);
+function _registroAno(t){return (t.patrocAno&&t.patrocAno.ano===G.ano)?t.patrocAno:(t.patrocAno={ano:G.ano,bonus:0,ok:0,n:0,acerto:0});}
+function pagarMetasDaSemana(){
+  for(const id in G.times){
+    const t=G.times[id];if(!t.contratos)continue;
+    for(const v of VAGAS){
+      const c=contratoDe(t,v.id);if(!c||c.ano!==G.ano)continue;
+      for(const m of c.metas||[]){
+        if(m.pago!=null||!METAS_NA_HORA.has(m.tipo))continue;
+        if(avaliarMetaPatroc(t,m,false).estado!=='ok')continue;
+        m.pago=m.valor;
+        const h=_registroAno(t);h.bonus+=m.valor;h.ok++;h.n++;
+        if(t.id===G.meuTime){const mk=marca(c.marca);
+          noticia('💼 Meta de patrocínio cumprida: '+m.txt.toLowerCase()+' — '+money(m.valor)+' de '+(mk?mk.nome:'bônus')+' no acerto da virada.',{c:'clube',t:[t.id]});}
+      }
+    }
+  }
+}
+/* Fase 1 (começo da virada, campanha ainda intacta): confere as metas de
+   resultado. Fase 2 (depois da torcida da virada): a meta de torcida e o
+   acerto com cada marca. */
+function pagarMetasPatrocinio(fase){
+  for(const id in G.times){
+    const t=G.times[id];if(!t.contratos)continue;
+    const h=_registroAno(t);
+    for(const v of VAGAS){
+      const c=contratoDe(t,v.id);if(!c||c.ano!==G.ano)continue;
+      for(const m of c.metas||[]){
+        if(m.pago!=null)continue;
+        if(fase===1&&m.tipo==='torcida')continue;
+        const a=avaliarMetaPatroc(t,m,true);
+        m.pago=a.estado==='ok'?m.valor:0;
+        h.bonus+=m.pago;h.n++;if(m.pago)h.ok++;
+      }
+    }
+    if(fase!==2)continue;
+    /* acerto: o que as metas pagaram menos o que a marca adiantou. Desconto
+       só até onde o caixa alcança — a marca não quebra o clube por isso. */
+    let adiant=0;
+    for(const v of VAGAS){const c=contratoDe(t,v.id);if(c&&c.ano===G.ano)adiant+=c.adiant||0;}
+    let acerto=h.bonus-adiant;
+    /* o desconto respeita a reserva do clube (uma temporada de folha): marca
+       nenhuma empurra para a crise o clube que leva o nome dela */
+    const folga=Math.max(0,t.caixa-(typeof reservaMinima==='function'?reservaMinima(t):0));
+    if(acerto<0)acerto=-Math.min(-acerto,folga);
+    t.caixa+=acerto;h.acerto=acerto;
+    if(t.id===G.meuTime&&h.n)
+      noticia('💼 Metas de patrocínio de '+G.ano+': '+h.ok+' de '+h.n+' cumpridas, '+money(h.bonus)+' em bônus. '+
+        (acerto>=0?'Acerto com as marcas: +'+money(acerto)+'.':'As marcas descontaram '+money(-acerto)+' do que tinham adiantado.'),{c:'clube',t:[t.id],imp:2});
+  }
+}
+/* Fase 2, depois da torcida: cláusulas de saída. A marca que tem o direito
+   sai; o contrato que chegou ao fim também. atribuirPatrocinios preenche. */
+function clausulasDeSaida(){
+  for(const id in G.times){
+    const t=G.times[id];if(!t.contratos)continue;
+    for(const v of VAGAS){
+      const c=contratoDe(t,v.id);if(!c)continue;
+      const caiu=c.clausulaRebaixamento&&(t.tierAno||1)===1&&t.tier===2;
+      /* subiu de divisão: o contrato de Challengers não paga uma operação de
+         Tier 1, e a marca renegocia — a vaga volta para a mesa na virada */
+      if((t.tierAno||t.tier)===2&&t.tier===1&&c.ate>G.ano){c.ate=G.ano;c.saida='acesso';continue;}
+      const torcida=(t.torcida||0)<c.torcidaMin;
+      if((caiu||torcida)&&c.ate>G.ano){
+        c.ate=G.ano;c.saida=caiu?'rebaixamento':'torcida';
+        const mk=marca(c.marca);
+        if(t.id===G.meuTime)noticia('📉 '+(mk?mk.nome:'O patrocinador')+' usou a cláusula de saída ('+(caiu?'rebaixamento':'torcida abaixo do combinado')+') e deixa o clube no fim da temporada.',{c:'clube',t:[t.id],imp:2});
+      }
+    }
+  }
+}
+/* aviso para a tela de Finanças: cláusula que pode disparar */
+function riscoDeClausula(t,c){
+  if(!c)return null;
+  if(c.ate<=G.ano)return null;
+  if(c.clausulaRebaixamento&&t.tier===1){
+    const p=typeof posicaoNoAno==='function'?posicaoNoAno(t):null;
+    if(p&&p.pos>=p.de-1&&(t.temporada&&t.temporada.v+t.temporada.d>=4))return 'O clube está na zona de rebaixamento: cair dá à marca o direito de sair.';
+  }
+  if((t.torcida||0)<c.torcidaMin+4)return 'A torcida está perto do piso do contrato ('+c.torcidaMin+'): abaixo dele a marca pode sair.';
+  return null;
+}
+/* Receita do ano em três cenários, para a tela de Finanças. */
+function cenariosPatrocinio(t){
+  let fixo=0,atual=0,tudo=0;
+  for(const v of VAGAS){
+    const c=contratoDe(t,v.id);if(!c)continue;
+    fixo+=c.fixo;tudo+=c.fixo;atual+=c.fixo;
+    for(const m of c.metas||[]){
+      tudo+=m.valor;
+      const a=m.pago!=null?{estado:m.pago?'ok':'perdida'}:avaliarMetaPatroc(t,m,false);
+      if(a.estado==='ok'||(a.estado==='andamento'&&a.bom))atual+=m.valor;
+    }
+  }
+  return{fixo,atual,tudo};
 }
 
 
@@ -12767,6 +13121,22 @@ function ajustarFolha(){
       if(!alvo)break;
       liberar(alvo);cortes++;
     }
+    /* A comissão também é folha. Clube que caiu de divisão com comissão de
+       Tier 1 não fechava a conta só cortando jogador (o elenco tem piso) e
+       sangrava o caixa por anos: aqui o membro mais caro sai e entra um do
+       mercado que custe no máximo metade. */
+    guarda=0;
+    while(folhaAnual(t)>receitaLivre(t)*tetoFolhaDe(t)&&guarda++<5&&typeof CARGOS!=='undefined'){
+      const m=CARGOS.map(c=>membroDe(t,c.id)).filter(Boolean).sort((a,b)=>b.salario-a.salario)[0];
+      if(!m||m.salario<=600)break;
+      const sub=(G.staffLivres||[]).map(i=>G.staff[i])
+        .filter(x=>x&&x.cargo===m.cargo&&salarioStaff(x)<=m.salario*0.5)
+        .sort((a,b)=>overStaff(b)-overStaff(a))[0];
+      if(!sub)break;
+      const cargo=m.cargo;
+      liberarStaff(m.id);moverStaff(sub.id,t.id,cargo);sub.salario=salarioStaff(sub);sub.contrato=Math.max(1,sub.contrato||1);
+      cortes++;
+    }
   }
   return cortes;
 }
@@ -12805,6 +13175,9 @@ function fimDeTemporada(){
      empréstimo voltar, de alguém se aposentar e de a campanha ser zerada */
   if(typeof registrarTemporadaDoClube==='function')for(const id in G.times)registrarTemporadaDoClube(G.times[id]);
   if(typeof conferirRecordeOver==='function')conferirRecordeOver();
+  /* bônus de patrocínio pelas metas de resultado, com a campanha ainda
+     intacta e antes de alguém ser declarado em crise por caixa */
+  if(typeof pagarMetasPatrocinio==='function')pagarMetasPatrocinio(1);
   if(typeof resolverEmprestimos==='function')resolverEmprestimos();
   /* o mercado reage ao dinheiro guardado antes das renovações da virada */
   if(typeof atualizarIndiceSalarial==='function')atualizarIndiceSalarial();
@@ -12931,7 +13304,10 @@ function fimDeTemporada(){
   /* torcida antes das marcas: é a campanha recém-encerrada que decide quem
      ficou atraente para os patrocinadores desta temporada */
   for(const id in G.times)atualizarTorcida(G.times[id]);
-  atribuirPatrocinios();
+  /* com a torcida nova: a meta de torcida e as cláusulas de saída */
+  if(typeof pagarMetasPatrocinio==='function')pagarMetasPatrocinio(2);
+  if(typeof clausulasDeSaida==='function')clausulasDeSaida();
+  atribuirPatrocinios(G.ano+1);
   /* A campanha só é zerada depois de avaliada: avaliarTemporada() lê
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
@@ -12939,7 +13315,7 @@ function fimDeTemporada(){
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};
-    t.patroc=receitaAnual(t);
+    t.patroc=receitaCaixa(t);
     if(typeof entrosamentoVirada==='function'&&t.duplas)entrosamentoVirada(t);
     else t.sinergia=clamp(t.sinergia+4,0,100);
     for(const m of MAP_POOL)t.mapPref[m]=clamp(Math.round((t.mapPref[m]||0)+gauss(0,2)),-8,8);
@@ -14466,7 +14842,7 @@ function edAplicarPaises(texto){
     if(typeof PAISES!=='undefined'&&PAISES&&!PAISES[pais]){erros.push(pais+' não é um país da lista ('+tag+')');continue;}
     t.pais=pais;
     t.torcida=torcidaInicial(t);
-    t.patroc=receitaAnual(t);
+    t.patroc=receitaCaixa(t);
     ok++;
   }
   return{ok:true,n:ok,erros};
@@ -15011,7 +15387,7 @@ function migrarRun(reg){
     if(semPatroc)atribuirPatrocinios();
     for(const id in G.times){
       const t=G.times[id];
-      if(typeof t.patroc!=='number'||!isFinite(t.patroc))t.patroc=receitaAnual(t);
+      if(typeof t.patroc!=='number'||!isFinite(t.patroc))t.patroc=receitaCaixa(t);
     }
 
     /* Saves anteriores à marcação de nome real não sabem quem é real, e sem
@@ -17006,6 +17382,45 @@ function vBase(){
       <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
       <td class="r num">${p.timeId?money(pedidoDeVenda(p)):'livre'}</td></tr>`).join('')}</tbody></table></div>`;
 }
+/* Patrocinadores com o contrato: fixo, metas com barra de progresso e o
+   valor de cada uma, e a receita do ano em três cenários (core/patrocinio.js). */
+function blocoPatrocinios(t){
+  const cen=typeof cenariosPatrocinio==='function'?cenariosPatrocinio(t):null;
+  const avisos=[];
+  const linhas=patrociniosDe(t).map(({vaga,mk})=>{
+    const c=typeof contratoDe==='function'?contratoDe(t,vaga.id):null;
+    if(!mk)return `<div class="pt-c vazio"><b>${esc(vaga.nome)}</b> <span class="dn">vaga aberta</span></div>`;
+    const risco=c&&typeof riscoDeClausula==='function'?riscoDeClausula(t,c):null;
+    if(risco)avisos.push(mk.nome+': '+risco);
+    const metas=c?(c.metas||[]).map(m=>{
+      const a=m.pago!=null?{estado:m.pago?'ok':'perdida',txt:m.pago?'cumprida':'não cumprida',prog:m.pago?1:0}:avaliarMetaPatroc(t,m,false);
+      if(a.estado==='perdida'&&m.pago==null)avisos.push(mk.nome+': a meta "'+m.txt.toLowerCase()+'" não tem mais como ser cumprida.');
+      return `<div class="pt-m ${a.estado}">
+        <span class="pt-m-t">${esc(m.txt)}</span>
+        <div class="vb"><i class="${a.estado==='ok'?'g':a.estado==='perdida'?'r':''}" style="width:${Math.round((a.estado==='ok'?1:a.prog||0)*100)}%"></i></div>
+        <span class="dim pt-m-s">${esc(a.estado==='ok'?'cumprida':a.estado==='perdida'?'perdida':a.txt)}</span>
+        <b class="num ${a.estado==='ok'?'up':a.estado==='perdida'?'dim':''}">${money(m.valor)}</b></div>`;}).join(''):'';
+    return `<div class="pt-c">
+      <div class="pt-c-topo">${logoMarca(mk,84)}<div><b>${esc(vaga.nome)} · ${esc(mk.nome)}</b>
+        <div class="dim">${esc(mk.setor)} · ${esc(areaMarca(mk))} · nível ${mk.nivel}</div></div>
+        <div class="pt-c-val">${c?`<span class="num">${money(c.fixo)}</span><span class="dim">fixo/ano${c.adiant?' + '+money(c.adiant)+' de bônus adiantado':''}</span>
+          <span class="dim">${c.ate>G.ano?'contrato até '+c.ate:'último ano'}${c.saida?' · sai por cláusula':''}</span>`
+          :`<span class="num">${money(valorContrato(mk,t,vaga.id))}</span><span class="dim">por ano</span>`}</div></div>
+      ${metas?`<div class="pt-ms">${metas}</div>`:''}</div>`;
+  }).join('');
+  return `<div class="card flat"><div class="split"><div class="eyebrow">Patrocinadores</div>
+      ${cen?`<div class="pt-cen"><div><span class="dim">Só o fixo</span><b class="num">${money(cen.fixo)}</b></div>
+        <div><span class="dim">No ritmo atual</span><b class="num">${money(cen.atual)}</b></div>
+        <div><span class="dim">Tudo cumprido</span><b class="num up">${money(cen.tudo)}</b></div></div>`:''}</div>
+    ${avisos.length?`<div class="pt-aviso">${avisos.map(x=>'⚠ '+esc(x)).join('<br>')}</div>`:''}
+    <div class="pt-cs">${linhas}</div>
+    <p class="dim" style="margin-top:8px">O fixo e um adiantamento de 45% do bônus entram semana a semana. Na virada a
+    marca faz o acerto: paga as metas cumpridas que passarem do adiantado, ou desconta a diferença (sem encostar
+    na reserva do clube). Título, vaga em internacional, playoffs e clássico ficam marcados na semana em que
+    acontecem. Rebaixamento ou torcida abaixo do piso do contrato deixam a marca sair no fim da temporada; subir de
+    divisão reabre a negociação. Vaga aberta ou contrato no fim é preenchida na virada: clube mais atraente
+    escolhe primeiro.</p></div>`;
+}
 function vFinancas(){
   const t=meu();
   const folha=t.elenco.reduce((s,i)=>s+P(i).salario,0)+folhaStaff(t);
@@ -17014,7 +17429,7 @@ function vFinancas(){
   <div class="grid g4" style="margin-bottom:16px">
     <div class="kpi"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div></div>
     <div class="kpi"><div class="lb">Receita anual</div><div class="vl">${money(rec)}</div>
-      <div class="sb">${money(patro)} de marca · ${money(aporte)} da liga</div></div>
+      <div class="sb">${money(patro)} de marca (fixo + bônus adiantado) · ${money(aporte)} da liga</div></div>
     <div class="kpi red"><div class="lb">Folha mensal</div><div class="vl">${money(folha)}</div><div class="sb">elenco + comissão · ${money(folha*12)}/ano</div></div>
     <div class="kpi teal"><div class="lb">Resultado anual</div><div class="vl">${money(rec-folha*12-custeioAnual(t))}</div>
       <div class="sb">já com ${money(custeioAnual(t))} de custeio · sem premiações</div></div>
@@ -17041,17 +17456,7 @@ function vFinancas(){
       Ela decide o aporte da liga e o tamanho da marca que você alcança.</div></div>
     <div style="min-width:200px">${medidor('<span class="dim">de '+TORCIDA_MAX+'</span>',(t.torcida||0)/TORCIDA_MAX,100)}</div>
   </div></div>
-  <div class="card flat"><div class="eyebrow">Patrocinadores</div>
-    <table><thead><tr><th></th><th>Vaga</th><th>Marca</th><th class="c">Nível</th><th class="r">Por ano</th></tr></thead>
-    <tbody>${patrociniosDe(t).map(({vaga,mk})=>`<tr>
-      <td style="width:104px">${mk?logoMarca(mk,96):''}</td>
-      <td><b>${esc(vaga.nome)}</b></td>
-      <td>${mk?esc(mk.nome)+' <span class="dim">· '+esc(mk.setor)+' · '+esc(areaMarca(mk))+'</span>':'<span class="dn">vaga aberta</span>'}</td>
-      <td class="c num">${mk?mk.nivel:'—'}</td>
-      <td class="r num">${mk?money(valorContrato(mk,t,vaga.id)):'—'}</td></tr>`).join('')}
-    </tbody></table>
-    <p class="dim" style="margin-top:8px">Os contratos são revistos na virada de temporada:
-    clube mais atraente escolhe primeiro.</p></div>
+${blocoPatrocinios(t)}
   <div class="card flat"><div class="eyebrow">Folha salarial</div>
     <table><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
     <tbody>${t.elenco.map(i=>{const p=P(i);return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b></td><td class="c">${ovTag(p)}</td>
@@ -21916,7 +22321,7 @@ function ligarEventos(){
   }));
   on('#edRedistribuir',()=>{
     atribuirPatrocinios();
-    for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+    for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash('Patrocínios redistribuídos pela atratividade atual.');
   });
   const fMk=v.querySelector('#edMkRegiao');
@@ -21942,7 +22347,7 @@ function ligarEventos(){
       const r=edMarcaAplicar(id,campos[id]);
       if(r.ok)n++;else erros.push(r.erro);
     }
-    for(const id in G.times)G.times[id].patroc=receitaAnual(G.times[id]);
+    for(const id in G.times)G.times[id].patroc=receitaCaixa(G.times[id]);
     render();flash(erros.length?erros[0]:n+' marca(s) atualizada(s).');
   });
   v.querySelectorAll('[data-mklogo]').forEach(el=>el.addEventListener('change',e=>{
