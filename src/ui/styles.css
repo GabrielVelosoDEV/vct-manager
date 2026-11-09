@@ -1446,3 +1446,78 @@ th.ord.desc::after{content:'▼';opacity:.9;color:var(--red)}
 .grades{gap:14px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
 .gr{background:var(--surf2);border:1px solid rgba(255,255,255,.06);padding:10px 12px;box-shadow:var(--sombra-1)}
 .gr-tit{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;margin-bottom:6px}
+
+/* ============================================================
+   V6 — COMPETIÇÕES
+   ============================================================ */
+/* capa do torneio */
+.tp-capa{position:relative;min-height:170px;padding:22px 26px;background-size:cover;background-position:center;
+  border:1px solid rgba(255,255,255,.07);box-shadow:var(--sombra-2);overflow:hidden}
+.tp-capa::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,18,24,.92) 0,rgba(11,18,24,.55) 55%,rgba(11,18,24,.25) 100%);pointer-events:none}
+.tp-capa::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--cor),transparent 80%)}
+.tp-capa>*{position:relative}
+.tp-nome{font-size:52px;letter-spacing:.03em}
+.tp-trofeu{display:flex;align-items:center;gap:14px;padding:10px 16px;background:rgba(11,18,24,.6);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(4px)}
+.tp-trofeu .trofeu{height:84px;width:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.tp-trofeu.ganho{border-color:rgba(226,180,90,.55);box-shadow:0 0 24px -8px rgba(226,180,90,.5)}
+/* cartões do hub */
+.ev-card{position:relative;border-color:rgba(255,255,255,.08);box-shadow:var(--sombra-1);background-size:cover;background-position:center;min-height:118px;overflow:hidden}
+.ev-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cor)}
+.ev-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,24,.15),rgba(11,18,24,.75));pointer-events:none}
+.ev-card>*{position:relative;z-index:1}
+.ev-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--cor) 60%,transparent)}
+.ev-card.andamento{box-shadow:0 0 0 1px color-mix(in srgb,var(--cor) 55%,transparent),var(--sombra-2)}
+.ev-camp .trofeu{height:22px;width:auto}
+/* linha do tempo */
+.lt-bar{border-color:color-mix(in srgb,var(--cor) 70%,transparent)!important}
+.lt-bar.andamento{background:color-mix(in srgb,var(--cor) 28%,transparent);box-shadow:0 0 12px -4px var(--cor)}
+.lt-agora{box-shadow:0 0 8px rgba(255,70,85,.8)}
+/* jogos */
+.partidas{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.partida{display:flex;flex-direction:column;gap:10px;padding:12px 14px;text-align:left;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),var(--surf2);
+  border:1px solid rgba(255,255,255,.07);box-shadow:var(--sombra-1);transition:transform .18s,border-color .18s}
+.partida:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(255,255,255,.22)}
+.partida.me{border-color:rgba(255,70,85,.55)}
+.pt-lados{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.pt-time{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0}
+.pt-time b{font-size:14px;color:var(--tx);letter-spacing:.04em}
+.pt-time span{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.pt-time.l{opacity:.55}
+.pt-placar{font-family:'Bebas Neue',sans-serif;font-size:40px;display:flex;gap:6px;color:#8C9EAD}
+.pt-placar .w{color:var(--tx)}.pt-placar i{font-style:normal;opacity:.4}
+.pt-mapas{display:flex;gap:5px;flex-wrap:wrap}
+.pt-mapa{flex:1;min-width:86px;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 8px;
+  background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.08);font-size:11.5px}
+.pt-mapa b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:16px;letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis}
+.pt-mapa>span{white-space:nowrap;flex:none}
+.pt-mapa i{font-style:normal;font-family:'JetBrains Mono',monospace;color:#9FB0BF}.pt-mapa i.w{color:var(--tx);font-weight:700}
+/* estatísticas: mini pódio */
+.st-podio{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;margin:6px 0 10px}
+.st-pod{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px 8px;cursor:pointer;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0)),var(--surf2);border:1px solid rgba(255,255,255,.07);position:relative}
+.st-pod.p1{border-color:rgba(226,180,90,.5);padding-top:14px;background:linear-gradient(180deg,rgba(226,180,90,.12),rgba(226,180,90,0)),var(--surf2)}
+.st-pod .pos{position:absolute;top:6px;left:6px}
+.st-pod b{font-size:13px}.st-pod .dim{font-size:11px}
+.st-v{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--tx)}
+.st-pod.p1 .st-v{color:var(--ouro);font-size:30px}
+.pos.prata{color:#1A1E22;background:#C9D2DA;border-color:#C9D2DA}.pos.bronze{color:#fff;background:#B0764A;border-color:#B0764A}
+tr.pr-1{background:rgba(226,180,90,.07)}
+tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
+/* ficha de série */
+.sr-cabeca{margin:-6px -6px 12px;padding:14px 18px 6px;background:
+  radial-gradient(600px 160px at 50% 0,color-mix(in srgb,var(--cor) 18%,transparent),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.sr-time b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em;font-weight:400}
+.sr-time.l{opacity:.6}
+.sr-time img.logo-t{filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.sr-score{font-size:72px;line-height:1;text-shadow:0 4px 24px rgba(0,0,0,.5)}
+.sr-score .w{color:var(--tx)}
+.sr-mvp{display:flex;gap:14px;align-items:center;padding:10px 14px;margin-bottom:12px;border:1px solid rgba(226,180,90,.35);
+  background:linear-gradient(90deg,rgba(226,180,90,.1),rgba(226,180,90,0) 70%)}
+.sr-mvp-n{font-family:'Bebas Neue',sans-serif;font-size:28px;font-weight:400;display:block}
+.sr-mvp-st{display:flex;gap:16px;margin-top:6px}
+.sr-mvp-st span{display:flex;flex-direction:column;font-size:10.5px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.sr-mvp-st b{font-size:17px;color:var(--tx);letter-spacing:0;text-transform:none}
+.sr-mapa{box-shadow:var(--sombra-1);border-color:rgba(255,255,255,.07)}
+.sr-mapa-topo{min-height:74px;background-size:cover;background-position:center}
+.sr-placar{font-size:34px}

@@ -58,11 +58,15 @@ function eventoDoMeuClube(e){
   const t=meu();
   return e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
 }
+/* cor do circuito (V1): é ela que pinta a barra, o cartão e a capa */
 function corDoEvento(e){
-  if(e.id==='champions')return '#E8C46A';
-  if(e.id.startsWith('masters'))return '#B9C3CE';
-  if(e.tier===2)return '#4C8DFF';
-  return 'var(--red)';
+  const id=String(e.id||'');
+  if(id==='champions')return 'var(--c-champions)';
+  if(id.startsWith('masters'))return 'var(--c-masters)';
+  if(id.startsWith('asc'))return 'var(--c-ascension)';
+  if(e.tier===2||id.startsWith('split'))return 'var(--c-challengers)';
+  if(id.startsWith('kickoff'))return 'var(--c-kickoff)';
+  return 'var(--c-stage)';
 }
 
 /* ---------- hub ---------- */
@@ -103,7 +107,7 @@ function cartaoEvento(e){
   const meuJoga=e.times.has(G.meuTime);
   const est=e.status==='encerrado'?'Encerrado':e.status==='andamento'?'Em disputa':'Em '+Math.max(0,e.ini-(G.semana||1))+' sem.';
   return `<button class="ev-card ${e.status} ${meuJoga?'meu':''}" data-evento="${esc(e.id)}"
-      ${sede?`style="${fundoCidade(sede.slug,0.6)}"`:''}>
+      style="--cor:${corDoEvento(e)};${sede?fundoCidade(sede.slug,0.62):''}">
     <div class="ev-topo">${e.tor?arteTorneio(e.tor,30):''}<div><b>${esc(e.nome)}</b>
       <span class="dim">${rotuloPeriodo(G.ano,e.ini,e.fim)}${sede?' · '+esc(sede.nome):''}</span></div></div>
     <div class="ev-pe"><span class="chip ${e.status==='andamento'?'t':''}">${esc(est)}</span>
@@ -160,13 +164,15 @@ function paginaTorneio(id){
   const premios=e.final?premiosDoStage(e.final):[];
   const total=premios.reduce((s,v)=>s+v,0);
   const fases=e.stages.map(s=>s.rotulo||nomeStage(s)).join(' → ')||'começa em '+rotuloPeriodo(G.ano,e.ini,e.fim);
-  const capa=`<div class="tp-capa" ${sede?`style="${fundoCidade(sede.slug,0.45)}"`:''}>
+  const capa=`<div class="tp-capa" style="--cor:${corDoEvento(e)};${sede?fundoCidade(sede.slug,0.42):''}">
     <div class="tp-id">${e.tor?arteTorneio(e.tor,64):''}<div>
       <div class="eyebrow">${e.regiao==='INT'?'Internacional':esc(nomeLiga({regiao:e.regiao,tier:e.tier})||e.regiao)}</div>
       <div class="tp-nome">${esc(e.nome)}</div>
       <div class="dim">${sede?bandeira(sede.pais)+' '+esc(sede.nome)+' · ':''}${rotuloPeriodo(G.ano,e.ini,e.fim)}</div></div></div>
-    ${camp?`<div class="tn-campeao">${imgTrofeu(arquivoTrofeu(e.id),56,'Troféu de '+e.nome)}
-      <div><div class="eyebrow">Campeão</div>${timeInline(camp.id,24)}</div></div>`:''}
+    <div class="tp-trofeu ${camp?'ganho':''}">${imgTrofeu(arquivoTrofeu(e.id),camp?64:54,'Troféu de '+e.nome)}
+      <div>${camp?`<div class="eyebrow">Campeão</div>${timeInline(camp.id,26)}`
+        :`<div class="eyebrow">${e.status==='andamento'?'Em disputa':e.status==='encerrado'?'Encerrado':'A seguir'}</div>
+          <div class="dim">${e.status==='andamento'?'o troféu ainda não tem dono':rotuloPeriodo(G.ano,e.ini,e.fim)}</div>`}</div></div>
   </div>
   <div class="tn-info" style="margin:10px 0 4px">
     <span>${esc(fases)}</span>
@@ -186,6 +192,23 @@ function paginaTorneio(id){
   <div class="tabs">${abas.map(([k,n])=>`<button data-csaba="${k}" class="${compSelAba===k?'on':''}">${n}</button>`).join('')}</div>
   ${corpo}`;
 }
+/* Jogos em cartões de partida: escudos grandes, placar em destaque e os
+   mapas em miniatura com o placar de cada um. */
+function cartaoPartida(s,r,t){
+  const A=G.times[r.a],B=G.times[r.b],vA=r.v===r.a;
+  const mapas=((r.det&&r.det.mp)||[]).map(mp=>`<span class="pt-mapa" style="${fundoMapa(mp.m,0.5)}">
+      <b>${esc(mp.m)}</b><span><i class="${mp.a>mp.b?'w':''}">${mp.a}</i>–<i class="${mp.b>mp.a?'w':''}">${mp.b}</i></span></span>`).join('')
+    ||(r.mapa?`<span class="dim">${esc(r.mapa)}</span>`:'');
+  const meu=t&&(r.a===t.id||r.b===t.id);
+  return `<button class="partida ${meu?'me':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
+    <div class="pt-lados">
+      <div class="pt-time ${vA?'w':'l'}">${escudo(A,40)}<b>${esc(A?A.tag:'—')}</b><span>${esc(A?A.nome:'')}</span></div>
+      <div class="pt-placar"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
+      <div class="pt-time ${vA?'l':'w'}">${escudo(B,40)}<b>${esc(B?B.tag:'—')}</b><span>${esc(B?B.nome:'')}</span></div>
+    </div>
+    <div class="pt-mapas">${mapas}</div>
+  </button>`;
+}
 function jogosDoEvento(e){
   const t=meu();
   return e.stages.slice().reverse().map(s=>{
@@ -194,23 +217,27 @@ function jogosDoEvento(e){
     const porRodada=new Map();
     for(const r of rs){const k=r.rd||'';if(!porRodada.has(k))porRodada.set(k,[]);porRodada.get(k).push(r);}
     return `<div class="card flat"><div class="eyebrow">${esc(nomeStage(s))} · ${rs.length} série${rs.length===1?'':'s'}</div>
-      ${[...porRodada].reverse().map(([rd,l])=>`<div class="jg-rod">${rd?`<div class="jg-rod-t">${esc(rd)}</div>`:''}
-        ${l.map(r=>{const vA=r.v===r.a;return `<button class="jg-linha ${r.a===t.id||r.b===t.id?'me':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
-          <span class="${vA?'w':''}">${escudo(G.times[r.a],18)} ${esc(tagT(r.a))}</span>
-          <b class="num">${r.wa} – ${r.wb}</b>
-          <span class="${vA?'':'w'}">${esc(tagT(r.b))} ${escudo(G.times[r.b],18)}</span>
-          <span class="dim">${esc(r.mapa||'')}</span></button>`;}).join('')}</div>`).join('')}
+      ${[...porRodada].reverse().map(([rd,l])=>`<div class="jg-rod">${rd?`<div class="jg-rod-t">${esc(rd)}${l[0]&&l[0].sem?' · '+esc(rotuloSemana(G.ano,l[0].sem)):''}</div>`:''}
+        <div class="partidas">${l.map(r=>cartaoPartida(s,r,t)).join('')}</div></div>`).join('')}
     </div>`;}).join('')||'<div class="empty">Nenhum jogo disputado ainda.</div>';
 }
 function estatisticasDoEvento(e){
   const st=statsDoEvento(e);
   const lista=Object.entries(st).filter(([id,x])=>x.maps>=Math.min(3,Math.max(1,...Object.values(st).map(y=>y.maps)))&&G.jogadores[id]);
+  /* os três primeiros em mini pódio com foto; o resto em lista */
   const tab=(rot,f,fmt)=>{
     const top=lista.slice().sort((a,b)=>f(b[1])-f(a[1])).slice(0,8);
-    return `<div class="card flat"><div class="eyebrow">${rot}</div><table><tbody>${top.map(([id,x],i)=>{const p=G.jogadores[id];
-      return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${id}"><td class="num dim">${i+1}</td>
-        <td><b>${esc(p.nome)}</b> <span class="dim">${esc(tagT(x.timeId||p.timeId))}</span></td>
-        <td class="r num"><b>${fmt(x)}</b></td></tr>`;}).join('')||'<tr><td class="dim">Sem dados ainda.</td></tr>'}</tbody></table></div>`;};
+    const pod=top.slice(0,3).map(([id,x],i)=>{const p=G.jogadores[id],tm=G.times[x.timeId||p.timeId];
+      return `<div class="st-pod p${i+1} jrow" data-p="${id}">${retrato(p,i===0?64:52)}
+        <span class="pos ${i===0?'top':''}">${i+1}</span><b>${esc(p.nome)}</b>
+        <span class="dim">${tm?escudo(tm,14)+' '+esc(tm.tag):''}</span><span class="st-v num">${fmt(x)}</span></div>`;});
+    const ordemPod=pod.length===3?[pod[1],pod[0],pod[2]]:pod;
+    return `<div class="card flat"><div class="eyebrow">${rot}</div>
+      ${top.length?`<div class="st-podio">${ordemPod.join('')}</div>`:''}
+      <table class="tb"><tbody>${top.slice(3).map(([id,x],i)=>{const p=G.jogadores[id];
+      return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${id}"><td>${selo(i+4)}</td>
+        <td><span class="linha-t">${retrato(p,22)}<b>${esc(p.nome)}</b></span> <span class="dim">${esc(tagT(x.timeId||p.timeId))}</span></td>
+        <td class="r num"><b>${fmt(x)}</b></td></tr>`;}).join('')||(top.length?'':'<tr><td class="dim">Sem dados ainda.</td></tr>')}</tbody></table></div>`;};
   const mapas={};
   for(const s of e.stages)for(const r of s.resultados||[])for(const mp of (r.det&&r.det.mp)||[])mapas[mp.m]=(mapas[mp.m]||0)+1;
   const mapasOrd=Object.entries(mapas).sort((a,b)=>b[1]-a[1]);
@@ -230,9 +257,10 @@ function premiacaoDoEvento(e,premios){
   if(!f||!premios.length)return '<div class="empty">Este torneio não paga premiação: é fase classificatória.</div>';
   const rk=f.feito&&f.ranking&&f.ranking.length?f.ranking:null;
   return `<div class="card flat"><div class="eyebrow">Premiação · ${money(premios.reduce((s,v)=>s+v,0))} no total</div>
-    <table class="wide"><thead><tr><th>Colocação</th><th>Equipe</th><th class="r">Prêmio</th></tr></thead><tbody>
-    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===t.id?'me':''}"><td class="num">${i+1}º</td>
-      <td>${id?timeInline(id,20):'<span class="dim">a definir</span>'}</td><td class="r num">${money(v)}</td></tr>`;}).join('')}
+    <table class="wide tb"><thead><tr><th>Colocação</th><th>Equipe</th><th class="r">Prêmio</th></tr></thead><tbody>
+    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===t.id?'me':''} ${i===0?'pr-1':''}">
+      <td>${i===0?imgTrofeu(arquivoTrofeu(e.id),26,'Troféu')+' ':''}${selo((i+1)+'º',i===0?'top':i===1?'prata':i===2?'bronze':'')}</td>
+      <td>${id?celClube(id,24):'<span class="dim">a definir</span>'}</td><td class="r num"><b>${money(v)}</b></td></tr>`;}).join('')}
     </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
 }
 
@@ -254,7 +282,7 @@ function modalSerie(chave){
     const tabela=(lista,time)=>`<table class="box"><thead><tr><th>${escudo(time,16)} ${esc(time?time.tag:'—')}</th>
       <th class="r">K</th><th class="r">D</th><th class="r">A</th><th class="r">ACS</th></tr></thead><tbody>
       ${lista.sort((x,y)=>y.acs-x.acs).map(l=>{const p=G.jogadores[l.id];
-        return `<tr class="${p?'jrow':''} ${l.id===d.mvp?'mvp':''}" ${p?`data-p="${l.id}"`:''}><td>${esc(p?p.nome:'—')}${l.id===d.mvp&&i===0?' <span class="chip g">MVP da série</span>':''}</td>
+        return `<tr class="${p?'jrow':''} ${l.id===d.mvp?'mvp':''}" ${p?`data-p="${l.id}"`:''}><td><span class="linha-t">${p?retrato(p,22):''}<span>${esc(p?p.nome:'—')}</span></span>${l.id===d.mvp?' <span class="chip g">MVP</span>':''}</td>
         <td class="r num">${l.k}</td><td class="r num">${l.d}</td><td class="r num">${l.a}</td><td class="r num"><b>${l.acs}</b></td></tr>`;}).join('')}</tbody></table>`;
     const ladoA=mp.l==='atk'?'atacando':mp.l==='def'?'defendendo':'';
     return `<div class="sr-mapa">
@@ -265,13 +293,29 @@ function modalSerie(chave){
       ${ls.length?`<div class="grid g2">${tabela(ls.slice(0,meio),A)}${tabela(ls.slice(meio),B)}</div>`
         :'<div class="dim" style="padding:8px 0">Linha dos jogadores guardada só nas séries de playoffs, internacionais e do seu clube.</div>'}
     </div>`;}).join('')||`<div class="dim">${esc(r.mapa||'')}</div>`;
-  abrir(`<div class="sr">
-    <div class="eyebrow">${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}</div>
-    <div class="sr-topo">
-      <div class="sr-time ${vA?'w':''}">${escudo(A,48)}<div><b>${esc(A?A.nome:'—')}</b><span class="dim">${esc(A?A.tag:'')}</span></div></div>
-      <div class="sr-score"><span class="${vA?'w':''}">${r.wa}</span><i>–</i><span class="${vA?'':'w'}">${r.wb}</span></div>
-      <div class="sr-time r ${vA?'':'w'}"><div><b>${esc(B?B.nome:'—')}</b><span class="dim">${esc(B?B.tag:'')}</span></div>${escudo(B,48)}</div>
+  /* MVP da série com a carta e a soma dos mapas */
+  let mvpBox='';
+  const pm=d.mvp&&G.jogadores[d.mvp];
+  if(pm){
+    let k=0,de=0,a=0,acs=0,n=0;
+    for(const mp of d.mp||[])for(const l of linhasDe(mp.st))if(l.id===d.mvp){k+=l.k;de+=l.d;a+=l.a;acs+=l.acs;n++;}
+    mvpBox=`<div class="sr-mvp">${cartaJogador(pm,{w:92,clique:true})}<div>
+      <div class="eyebrow gold">MVP da série</div><b class="sr-mvp-n">${esc(pm.nome)}</b>
+      <div class="dim">${esc(tagT(pm.timeId))} · ${esc(pm.role)}</div>
+      ${n?`<div class="sr-mvp-st"><span><b class="num">${k}/${de}/${a}</b>K/D/A</span><span><b class="num">${Math.round(acs/n)}</b>ACS</span><span><b class="num">${(k/Math.max(1,de)).toFixed(2)}</b>K/D</span></div>`:''}
+    </div></div>`;
+  }
+  const corS=typeof corDoEvento==='function'&&s.torneioId?corDoEvento({id:s.torneioId,tier:s.tier}):'var(--red)';
+  abrir(`<div class="sr" style="--cor:${corS}">
+    <div class="sr-cabeca">
+      <div class="eyebrow">${s.torneioId?arteTorneio(torneio(s.torneioId),18)+' ':''}${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}</div>
+      <div class="sr-topo">
+        <div class="sr-time ${vA?'w':'l'}">${escudo(A,72)}<div><b>${esc(A?A.nome:'—')}</b><span class="dim">${esc(A?A.tag:'')}</span></div></div>
+        <div class="sr-score"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
+        <div class="sr-time r ${vA?'l':'w'}"><div><b>${esc(B?B.nome:'—')}</b><span class="dim">${esc(B?B.tag:'')}</span></div>${escudo(B,72)}</div>
+      </div>
     </div>
+    ${mvpBox}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     ${mapas}
     <div class="split" style="margin-top:12px"><span></span><button class="btn ghost" id="srFechar">Fechar</button></div>
