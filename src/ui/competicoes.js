@@ -177,7 +177,7 @@ function paginaTorneio(id){
   <div class="tn-info" style="margin:10px 0 4px">
     <span>${esc(fases)}</span>
     ${total?`<span class="gold">${money(total)} em prêmios · ${money(premios[0])} ao campeão</span>`:''}
-    <span>${e.times.size||'—'} equipes</span>
+    <span>${e.times.size?e.times.size+' equipes':'equipes a definir'}</span>
     ${e.times.has(t.id)?'<span class="chip r">seu clube joga</span>':''}
   </div>`;
   const abas=[['chave','Chave e tabela'],['jogos','Jogos'],['stats','Estatísticas'],['premios','Premiação']];

@@ -2502,7 +2502,10 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .dp-jv{font-size:11.5px;text-align:right}
 .dp-nota{font-size:11.5px;margin-top:10px}
 .dp-liga{display:flex;flex-direction:column;gap:4px;margin:8px 0 12px}
-.dp-lr{display:grid;grid-template-columns:auto minmax(0,1fr) 120px 34px;gap:10px;align-items:center;padding:5px 6px}
+.dp-lr{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(40px,1fr) 34px;gap:10px;align-items:center;padding:5px 6px}
+.dp-lr .cel-clube{min-width:0;overflow:hidden;max-width:100%}
+.dp-lr .cel-nome{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dp-lr .cel-tag{display:none}
 .dp-lr.eu{background:rgba(var(--clube-rgb,255,70,85),.10);outline:1px solid rgba(255,255,255,.08)}
 .dp-lr u{display:block;height:6px;background:rgba(255,255,255,.06)}
 .dp-lr u i{display:block;height:100%;background:var(--gold)}
@@ -3037,7 +3040,7 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .ps-r-c svg{width:13px;height:13px}
 /* perfil */
 .pf{position:relative;min-width:min(660px,90vw)}
-.pf-capa{height:110px;margin:-20px -22px 0;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 30%,#0B1218) 70%);opacity:.85}
+.pf-capa{height:110px;margin:-22px -24px 0;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 30%,#0B1218) 70%);opacity:.85}
 .pf-topo{display:flex;justify-content:space-between;align-items:flex-end;margin-top:-44px}
 .pf-av{display:inline-block;padding:4px;background:var(--bg2);border-radius:50%;line-height:0}
 .pf-av .ps-mono:not(.r){border-radius:14px}

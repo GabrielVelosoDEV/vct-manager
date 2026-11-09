@@ -91,7 +91,8 @@ function aplicarAvanco(r,quantas){
   /* Rodada dupla: a semana parou antes do seu próximo jogo, que tem o próprio
      relatório e o próprio veto. */
   if(r.parcial)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
-  if(r.encerrado)flash(r.encerrado+' encerrado.');
+  if(r.encerrado)flash(/^fim de temporada/i.test(r.encerrado)?'Temporada encerrada.'
+    :r.encerrado+(/^(pré-temporada|pausa)/i.test(r.encerrado)?' encerrada.':' encerrado.'));
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre

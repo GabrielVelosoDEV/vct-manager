@@ -5,6 +5,14 @@ elenco, táticas, treino, mercado de transferências, base, finanças e o circui
 internacional completo rodando ao redor.
 
 Projeto pessoal, sem fins comerciais. https://gabrielvelosodev.github.io/vct-manager/
+
+**Versão 1.0** — carreira de treinador ou de diretoria, com a diretoria cobrando metas;
+o circuito inteiro (Kickoff, Stages, Masters, Champions, Challengers e Ascension) nas
+quatro regiões; veto, relatório de scouting, partida ao vivo e ficha; treino por mapa,
+comps e táticas; vestiário com entrosamento por dupla; estrutura do clube em sete
+departamentos; base com radar das rankeds; mercado com negociação em etapas, trocas e
+empréstimos; finanças, patrocínio e torcida; feed de imprensa com veículos reais;
+seis minigames opcionais; cerimônia de fim de ano e prêmios da temporada.
 ---
 
 ## Rodar
@@ -101,8 +109,8 @@ avanço rápido (`»`, que pula as rodadas em que seu clube não joga).
 
 | Grupo | Telas |
 |---|---|
-| Clube | Central, Elenco, Táticas, Base |
-| Circuito | Competições, Líderes, Notícias |
+| Clube | Central, Elenco, Vestiário, Treinamento, Estrutura, Base, História |
+| Circuito | Competições, Estatísticas, Prêmios, Notícias |
 | Gestão | Mercado, Finanças |
 | Sistema | Banco de dados, Configurações |
 
@@ -125,8 +133,9 @@ primário, painel e KPI.
 
 1. **Menu › Novo jogo** — a semente define os elencos gerados. A mesma semente
    sempre produz o mesmo mundo.
-2. **Banco de dados** — você cai direto nele, ainda no shell do menu. É aqui que
-   corrige nomes, move jogadores, cola elencos reais e sobe imagens.
+2. **Quem é você** — nome, foto, papel (treinador ou diretoria), trajetória, estilo
+   e dificuldade. Para mexer na base antes (nomes, elencos, imagens), o Banco de
+   dados do menu principal vale para todas as carreiras novas.
 3. **Escolher clube e começar** — a aba Validação precisa estar limpa. A run começa,
    o app troca para `modo-jogo` e salva automaticamente.
 4. **Jogar** — cada Avançar resolve uma rodada de todas as competições ativas.

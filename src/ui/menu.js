@@ -10,7 +10,7 @@
    (permanente, vale para toda carreira nova — ver data/base.js);
    dentro do jogo ele edita só aquele save.
    ============================================================ */
-const VERSAO_JOGO='0.4';
+const VERSAO_JOGO='1.0';
 
 function renderMenu(limpo){
   const el=$('#shellMenu');
@@ -128,7 +128,7 @@ function vConfig(){
       se lê como foto da pessoa, e não é. Por isso o padrão cobre só quem é fictício.</span></div>
       <div class="ctl"><select id="cfgRostos">${[['ficticios','Só fictícios'],['todos','Todos'],['nenhum','Ninguém']]
         .map(([k,n])=>`<option value="${k}" ${Prefs.get('rostosGerados')===k?'selected':''}>${n}</option>`).join('')}</select></div></div>
-    <div class="opt"><div class="txt"><b>Tema</b><span>Escuro. O tema claro saiu na versão 0.4 — a paleta hoje é a do Valorant sobre fundo escuro.</span></div>
+    <div class="opt"><div class="txt"><b>Tema</b><span>Escuro: a paleta do Valorant sobre fundo escuro.</span></div>
       <div class="ctl"><span class="chip">escuro</span></div></div>
     <div class="opt"><div class="txt"><b>Idioma</b><span>Português do Brasil. Sem outros idiomas por enquanto.</span></div>
       <div class="ctl"><span class="chip">pt-BR</span></div></div>
@@ -182,9 +182,18 @@ function vCreditos(){
     semente, com xorshift próprio em vez de <code>Math.random</code>.</p>
   </div>
 
+  <div class="card flat"><div class="eyebrow">Imagens e imprensa</div>
+    <p class="dim">Os rostos dos jogadores, técnicos e jornalistas gerados pelo jogo vêm do pacote sintético
+    <b>SFHQ</b> (licença MIT): são imagens geradas, não pessoas reais. As cenas da estrutura, do vestiário e
+    das notícias foram geradas para o jogo, sem marca, e recebem o escudo de cada clube. Os veículos de
+    imprensa citados no feed são reais; os jornalistas deles são fictícios, e as personalidades reais
+    aparecem só reagindo, sem opinião atribuída sobre pessoas.</p>
+  </div>
+
   <div class="card" style="border-left:3px solid var(--line2)"><div class="eyebrow">Aviso</div>
     <p class="dim">Projeto de fã, sem qualquer vínculo, patrocínio ou aprovação da Riot Games.
-    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores e comissão
-    técnica, escudos e fotos aparecem a título informativo e pertencem aos seus titulares.</p>
+    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores, comissão
+    técnica, veículos de imprensa e criadores de conteúdo, escudos, logos e fotos aparecem a título
+    informativo e pertencem aos seus titulares.</p>
   </div>`;
 }

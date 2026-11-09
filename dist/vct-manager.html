@@ -2536,7 +2536,10 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .dp-jv{font-size:11.5px;text-align:right}
 .dp-nota{font-size:11.5px;margin-top:10px}
 .dp-liga{display:flex;flex-direction:column;gap:4px;margin:8px 0 12px}
-.dp-lr{display:grid;grid-template-columns:auto minmax(0,1fr) 120px 34px;gap:10px;align-items:center;padding:5px 6px}
+.dp-lr{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(40px,1fr) 34px;gap:10px;align-items:center;padding:5px 6px}
+.dp-lr .cel-clube{min-width:0;overflow:hidden;max-width:100%}
+.dp-lr .cel-nome{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dp-lr .cel-tag{display:none}
 .dp-lr.eu{background:rgba(var(--clube-rgb,255,70,85),.10);outline:1px solid rgba(255,255,255,.08)}
 .dp-lr u{display:block;height:6px;background:rgba(255,255,255,.06)}
 .dp-lr u i{display:block;height:100%;background:var(--gold)}
@@ -3071,7 +3074,7 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .ps-r-c svg{width:13px;height:13px}
 /* perfil */
 .pf{position:relative;min-width:min(660px,90vw)}
-.pf-capa{height:110px;margin:-20px -22px 0;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 30%,#0B1218) 70%);opacity:.85}
+.pf-capa{height:110px;margin:-22px -24px 0;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 30%,#0B1218) 70%);opacity:.85}
 .pf-topo{display:flex;justify-content:space-between;align-items:flex-end;margin-top:-44px}
 .pf-av{display:inline-block;padding:4px;background:var(--bg2);border-radius:50%;line-height:0}
 .pf-av .ps-mono:not(.r){border-radius:14px}
@@ -10779,14 +10782,15 @@ function equipeDoVeiculo(v,ja){
   const usados=new Set(ja.map(j=>j.nome));
   const sem=(G.runId||G.ano||0)+'|'+v.id;
   const out=[];
-  for(let i=0;i<(v.equipe||1);i++){
+  for(let i=0;i<(v.equipe==null?1:v.equipe);i++){
     const f=sorteImp(sem,i*7+1)<0.28;
     let nome='';
     for(let k=0;k<20;k++){
       const pn=(f?L.f:L.m)[Math.floor(sorteImp(sem,i*7+2+k*31)*(f?L.f:L.m).length)];
       const sn=L.s[Math.floor(sorteImp(sem,i*7+3+k*31)*L.s.length)];
       nome=L.ordem==='sn'?sn+' '+pn:pn+' '+sn;
-      if(!usados.has(nome))break;
+      /* nome inteiro inédito e, dentro do mesmo veículo, primeiro nome também */
+      if(!usados.has(nome)&&!out.some(o=>o.nome.split(' ')[L.ordem==='sn'?1:0]===pn))break;
     }
     usados.add(nome);
     /* o primeiro de cada veículo é editor; os outros variam */
@@ -18456,6 +18460,14 @@ const ASSETS={
     const ext=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos[dir+'/'+s]:null;
     return 'assets/'+dir+'/'+s+'.'+(ext||this.ext);
   },
+  /* O caminho só quando o arquivo existe de verdade (data/midia.js). Sem o
+     manifesto, devolve o caminho e deixa o onerror resolver; com ele, nem
+     pede o que não existe — no site, cada 404 era uma requisição perdida. */
+  talvez(dir,nome){
+    const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:null;
+    if(!M||!Object.keys(M).length)return this.arq(dir,nome);
+    return M[dir+'/'+this.slug(nome)]?this.arq(dir,nome):'';
+  },
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
@@ -18497,7 +18509,9 @@ function monogramaJogador(nome,px){
 function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
-  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${ASSETS.logo(t)}"
+  const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+ASSETS.slug(t.tag));
+  const src=up||t.logo||ASSETS.talvez('logos',t.tag)||fb;
+  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${src}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
 /* Cor do clube (pacote V5). Vem do próprio escudo (tools/cores.py → data/
@@ -18530,6 +18544,8 @@ function rgbDe(hex){
    onerror é montada de acordo. */
 function cadeiaRetrato(fonteDefinitiva,fonteFolder,gerado,fb){
   if(fonteDefinitiva)return{src:fonteDefinitiva,on:`this.onerror=null;this.src='${fb}'`};
+  /* sem arquivo na pasta: direto para o rosto gerado, ou para o monograma */
+  if(!fonteFolder)return gerado?{src:gerado,on:`this.onerror=null;this.src='${fb}'`}:{src:fb,on:''};
   if(gerado)return{src:fonteFolder,
     on:`this.onerror=function(){this.onerror=null;this.src='${fb}'};this.src='${gerado}'`};
   return{src:fonteFolder,on:`this.onerror=null;this.src='${fb}'`};
@@ -18539,7 +18555,7 @@ function retrato(p,px){
   const fb=monogramaJogador(p.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const c=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,fb);
+  const c=cadeiaRetrato(up||p.foto||'',ASSETS.talvez('players',p.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${px}" loading="lazy" alt="" src="${c.src}"
     onerror="${c.on}">`;
 }
@@ -18648,9 +18664,9 @@ function retratoStaff(m,px){
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
   /* ex-jogador na comissão mantém a foto de quando jogava */
   if(m.ex){const upJ=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(m.ex.nome));
-    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.arq('players',m.ex.nome),gerado,fb);
+    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.talvez('players',m.ex.nome),gerado,fb);
     return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt="" src="${cj.src}" onerror="${cj.on}">`;}
-  const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
+  const c=cadeiaRetrato(up||m.foto||'',ASSETS.talvez('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
 }
@@ -20190,7 +20206,7 @@ function guiaPassosHTML(){
    (permanente, vale para toda carreira nova — ver data/base.js);
    dentro do jogo ele edita só aquele save.
    ============================================================ */
-const VERSAO_JOGO='0.4';
+const VERSAO_JOGO='1.0';
 
 function renderMenu(limpo){
   const el=$('#shellMenu');
@@ -20308,7 +20324,7 @@ function vConfig(){
       se lê como foto da pessoa, e não é. Por isso o padrão cobre só quem é fictício.</span></div>
       <div class="ctl"><select id="cfgRostos">${[['ficticios','Só fictícios'],['todos','Todos'],['nenhum','Ninguém']]
         .map(([k,n])=>`<option value="${k}" ${Prefs.get('rostosGerados')===k?'selected':''}>${n}</option>`).join('')}</select></div></div>
-    <div class="opt"><div class="txt"><b>Tema</b><span>Escuro. O tema claro saiu na versão 0.4 — a paleta hoje é a do Valorant sobre fundo escuro.</span></div>
+    <div class="opt"><div class="txt"><b>Tema</b><span>Escuro: a paleta do Valorant sobre fundo escuro.</span></div>
       <div class="ctl"><span class="chip">escuro</span></div></div>
     <div class="opt"><div class="txt"><b>Idioma</b><span>Português do Brasil. Sem outros idiomas por enquanto.</span></div>
       <div class="ctl"><span class="chip">pt-BR</span></div></div>
@@ -20362,10 +20378,19 @@ function vCreditos(){
     semente, com xorshift próprio em vez de <code>Math.random</code>.</p>
   </div>
 
+  <div class="card flat"><div class="eyebrow">Imagens e imprensa</div>
+    <p class="dim">Os rostos dos jogadores, técnicos e jornalistas gerados pelo jogo vêm do pacote sintético
+    <b>SFHQ</b> (licença MIT): são imagens geradas, não pessoas reais. As cenas da estrutura, do vestiário e
+    das notícias foram geradas para o jogo, sem marca, e recebem o escudo de cada clube. Os veículos de
+    imprensa citados no feed são reais; os jornalistas deles são fictícios, e as personalidades reais
+    aparecem só reagindo, sem opinião atribuída sobre pessoas.</p>
+  </div>
+
   <div class="card" style="border-left:3px solid var(--line2)"><div class="eyebrow">Aviso</div>
     <p class="dim">Projeto de fã, sem qualquer vínculo, patrocínio ou aprovação da Riot Games.
-    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores e comissão
-    técnica, escudos e fotos aparecem a título informativo e pertencem aos seus titulares.</p>
+    VALORANT e VCT são marcas da Riot Games, Inc. Nomes de organizações, jogadores, comissão
+    técnica, veículos de imprensa e criadores de conteúdo, escudos, logos e fotos aparecem a título
+    informativo e pertencem aos seus titulares.</p>
   </div>`;
 }
 
@@ -25540,7 +25565,7 @@ function paginaTorneio(id){
   <div class="tn-info" style="margin:10px 0 4px">
     <span>${esc(fases)}</span>
     ${total?`<span class="gold">${money(total)} em prêmios · ${money(premios[0])} ao campeão</span>`:''}
-    <span>${e.times.size||'—'} equipes</span>
+    <span>${e.times.size?e.times.size+' equipes':'equipes a definir'}</span>
     ${e.times.has(t.id)?'<span class="chip r">seu clube joga</span>':''}
   </div>`;
   const abas=[['chave','Chave e tabela'],['jogos','Jogos'],['stats','Estatísticas'],['premios','Premiação']];
@@ -26652,7 +26677,10 @@ function pintarCerimonia(){
   const f=T[i].fundo;
   const sede=typeof sedeDe==='function'?sedeDe('champions',CER.cer.ano):null;
   const meuT=G.meuTime&&G.times[G.meuTime];
-  const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
+  /* Campeões tem três colunas de texto sobre a foto: escurece por igual, não só à esquerda */
+  const estilo=f==='cidade'&&sede&&T[i].rot==='Campeões'
+      ?`background-image:linear-gradient(180deg,rgba(11,18,24,.78),rgba(11,18,24,.9)),${urlCSS(ASSETS.cidade(sede.slug))};background-size:cover;background-position:center`
+    :f==='cidade'&&sede?fundoCidade(sede.slug,0.74)
     :f==='palco'&&typeof temCena==='function'&&temCena('cenas','palco-premios')
       ?`background-image:radial-gradient(60% 55% at 50% 30%,rgba(226,180,90,.22),transparent 70%),linear-gradient(180deg,rgba(11,18,24,.55),rgba(11,18,24,.88) 70%),${urlCSS(ASSETS.arq('cenas','palco-premios'))};background-size:cover;background-position:center 30%`
     :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
@@ -28414,7 +28442,7 @@ function cartaJogador(p,opt){
   /* mesma cadeia do retrato da lista, trocando só o último recurso */
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const cad=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,silhuetaCarta());
+  const cad=cadeiaRetrato(up||p.foto||'',ASSETS.talvez('players',p.nome),gerado,silhuetaCarta());
   const nome=String(p.nome);
   /* nome comprido encolhe para caber na placa */
   const fn=nome.length<=7?9.4:nome.length<=10?8.2:nome.length<=13?6.6:5.4;
@@ -30136,6 +30164,7 @@ function iniciarPreRun(seed){
 /* ============================================================
    EVENTOS
    ============================================================ */
+let _tlRolada=null;
 function ligarEventos(){
   const t=meu();const v=raizAtual();
   if(!v)return;
@@ -30169,6 +30198,16 @@ function ligarEventos(){
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=30;render();});
   on('[data-newsmais]',()=>{newsLimite+=30;render();});
   if(typeof ligarImprensa==='function')ligarImprensa(v);
+  /* a faixa do circuito abre no bloco de agora, não em janeiro; só uma vez por
+     semana, para não brigar com quem rolou a faixa à mão */
+  const tl=v.querySelector('.tl');
+  const chaveTl=G.ano+'|'+G.semana+'|'+tela;
+  if(tl&&_tlRolada!==chaveTl){
+    _tlRolada=chaveTl;
+    const alvo=tl.querySelector('.tl-item.on')||tl.querySelector('.tl-item:not(.done)');
+    const ant=alvo&&alvo.previousElementSibling;
+    if(alvo)tl.scrollLeft=Math.max(0,(ant||alvo).offsetLeft-tl.offsetLeft-4);
+  }
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
   on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
@@ -30990,7 +31029,8 @@ function aplicarAvanco(r,quantas){
   /* Rodada dupla: a semana parou antes do seu próximo jogo, que tem o próprio
      relatório e o próprio veto. */
   if(r.parcial)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
-  if(r.encerrado)flash(r.encerrado+' encerrado.');
+  if(r.encerrado)flash(/^fim de temporada/i.test(r.encerrado)?'Temporada encerrada.'
+    :r.encerrado+(/^(pré-temporada|pausa)/i.test(r.encerrado)?' encerrada.':' encerrado.'));
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre

@@ -54,7 +54,7 @@ function cartaJogador(p,opt){
   /* mesma cadeia do retrato da lista, trocando só o último recurso */
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const cad=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,silhuetaCarta());
+  const cad=cadeiaRetrato(up||p.foto||'',ASSETS.talvez('players',p.nome),gerado,silhuetaCarta());
   const nome=String(p.nome);
   /* nome comprido encolhe para caber na placa */
   const fn=nome.length<=7?9.4:nome.length<=10?8.2:nome.length<=13?6.6:5.4;

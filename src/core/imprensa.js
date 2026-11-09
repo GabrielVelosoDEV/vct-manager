@@ -92,14 +92,15 @@ function equipeDoVeiculo(v,ja){
   const usados=new Set(ja.map(j=>j.nome));
   const sem=(G.runId||G.ano||0)+'|'+v.id;
   const out=[];
-  for(let i=0;i<(v.equipe||1);i++){
+  for(let i=0;i<(v.equipe==null?1:v.equipe);i++){
     const f=sorteImp(sem,i*7+1)<0.28;
     let nome='';
     for(let k=0;k<20;k++){
       const pn=(f?L.f:L.m)[Math.floor(sorteImp(sem,i*7+2+k*31)*(f?L.f:L.m).length)];
       const sn=L.s[Math.floor(sorteImp(sem,i*7+3+k*31)*L.s.length)];
       nome=L.ordem==='sn'?sn+' '+pn:pn+' '+sn;
-      if(!usados.has(nome))break;
+      /* nome inteiro inédito e, dentro do mesmo veículo, primeiro nome também */
+      if(!usados.has(nome)&&!out.some(o=>o.nome.split(' ')[L.ordem==='sn'?1:0]===pn))break;
     }
     usados.add(nome);
     /* o primeiro de cada veículo é editor; os outros variam */

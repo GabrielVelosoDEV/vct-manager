@@ -22,6 +22,14 @@ const ASSETS={
     const ext=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos[dir+'/'+s]:null;
     return 'assets/'+dir+'/'+s+'.'+(ext||this.ext);
   },
+  /* O caminho só quando o arquivo existe de verdade (data/midia.js). Sem o
+     manifesto, devolve o caminho e deixa o onerror resolver; com ele, nem
+     pede o que não existe — no site, cada 404 era uma requisição perdida. */
+  talvez(dir,nome){
+    const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:null;
+    if(!M||!Object.keys(M).length)return this.arq(dir,nome);
+    return M[dir+'/'+this.slug(nome)]?this.arq(dir,nome):'';
+  },
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
@@ -63,7 +71,9 @@ function monogramaJogador(nome,px){
 function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
-  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${ASSETS.logo(t)}"
+  const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+ASSETS.slug(t.tag));
+  const src=up||t.logo||ASSETS.talvez('logos',t.tag)||fb;
+  return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${src}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
 /* Cor do clube (pacote V5). Vem do próprio escudo (tools/cores.py → data/
@@ -96,6 +106,8 @@ function rgbDe(hex){
    onerror é montada de acordo. */
 function cadeiaRetrato(fonteDefinitiva,fonteFolder,gerado,fb){
   if(fonteDefinitiva)return{src:fonteDefinitiva,on:`this.onerror=null;this.src='${fb}'`};
+  /* sem arquivo na pasta: direto para o rosto gerado, ou para o monograma */
+  if(!fonteFolder)return gerado?{src:gerado,on:`this.onerror=null;this.src='${fb}'`}:{src:fb,on:''};
   if(gerado)return{src:fonteFolder,
     on:`this.onerror=function(){this.onerror=null;this.src='${fb}'};this.src='${gerado}'`};
   return{src:fonteFolder,on:`this.onerror=null;this.src='${fb}'`};
@@ -105,7 +117,7 @@ function retrato(p,px){
   const fb=monogramaJogador(p.nome,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome));
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(p):null;
-  const c=cadeiaRetrato(up||p.foto||'',ASSETS.arq('players',p.nome),gerado,fb);
+  const c=cadeiaRetrato(up||p.foto||'',ASSETS.talvez('players',p.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${px}" loading="lazy" alt="" src="${c.src}"
     onerror="${c.on}">`;
 }
@@ -214,9 +226,9 @@ function retratoStaff(m,px){
   const gerado=typeof Rostos!=='undefined'?Rostos.caminho(m):null;
   /* ex-jogador na comissão mantém a foto de quando jogava */
   if(m.ex){const upJ=typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(m.ex.nome));
-    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.arq('players',m.ex.nome),gerado,fb);
+    const cj=cadeiaRetrato(up||upJ||m.ex.foto||'',ASSETS.talvez('players',m.ex.nome),gerado,fb);
     return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt="" src="${cj.src}" onerror="${cj.on}">`;}
-  const c=cadeiaRetrato(up||m.foto||'',ASSETS.arq('staff',m.nome),gerado,fb);
+  const c=cadeiaRetrato(up||m.foto||'',ASSETS.talvez('staff',m.nome),gerado,fb);
   return `<img class="foto-j" width="${px}" height="${Math.round(px*1.25)}" loading="lazy" alt=""
     src="${c.src}" onerror="${c.on}">`;
 }

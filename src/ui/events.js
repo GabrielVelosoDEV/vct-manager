@@ -1,6 +1,7 @@
 /* ============================================================
    EVENTOS
    ============================================================ */
+let _tlRolada=null;
 function ligarEventos(){
   const t=meu();const v=raizAtual();
   if(!v)return;
@@ -34,6 +35,16 @@ function ligarEventos(){
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=30;render();});
   on('[data-newsmais]',()=>{newsLimite+=30;render();});
   if(typeof ligarImprensa==='function')ligarImprensa(v);
+  /* a faixa do circuito abre no bloco de agora, não em janeiro; só uma vez por
+     semana, para não brigar com quem rolou a faixa à mão */
+  const tl=v.querySelector('.tl');
+  const chaveTl=G.ano+'|'+G.semana+'|'+tela;
+  if(tl&&_tlRolada!==chaveTl){
+    _tlRolada=chaveTl;
+    const alvo=tl.querySelector('.tl-item.on')||tl.querySelector('.tl-item:not(.done)');
+    const ant=alvo&&alvo.previousElementSibling;
+    if(alvo)tl.scrollLeft=Math.max(0,(ant||alvo).offsetLeft-tl.offsetLeft-4);
+  }
   on('[data-basefoco]',el=>{definirFocoBase(t,el.dataset.basefoco||null);render();});
   on('[data-rteste]',async el=>{const r=convidarParaTeste(el.dataset.rteste);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
   on('[data-raceita]',async el=>{const r=aceitarDoTeste(el.dataset.raceita);if(!r.ok){await avisar(r.erro);return;}flash(r.msg);render();});
