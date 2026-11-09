@@ -160,10 +160,16 @@ function vConfig(){
    ============================================================ */
 function vCreditos(){
   return `
-  <div class="card"><div class="eyebrow">O que é isto</div>
-    <h3 class="sub">VCT Manager v${VERSAO_JOGO}</h3>
-    <p class="dim">Simulador de gestão de e-sports de Valorant: elenco, táticas, treino, mercado,
-    base, finanças e o circuito internacional rodando ao redor. Projeto pessoal, sem fins comerciais.</p>
+  <div class="card cr-autor"><div class="eyebrow">Feito por</div>
+    <h3 class="sub">Gabriel Veloso</h3>
+    <p>O VCT Manager nasceu de duas paixões: o <b>competitivo de Valorant</b> — acompanhar o VCT, torcer, discutir
+    elenco, veto e mercado como se fosse o técnico — e os <b>jogos de simulação</b>, daqueles em que uma temporada
+    vira cem e cada decisão tem consequência. A vontade era juntar as duas coisas num manager que tratasse o
+    circuito com o mesmo carinho que os de futebol tratam os campeonatos.</p>
+    <p>É um projeto de fã, feito por amor ao cenário, e <b>não será monetizado</b>: sem anúncios, sem compras e sem
+    cobrança, no site e no app de PC. Se você gosta de Valorant e de gerenciar, ele é seu.</p>
+    <p class="dim">VCT Manager v${VERSAO_JOGO} · elenco, táticas, treino, mercado, base, finanças e o circuito internacional
+    inteiro rodando ao redor.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Dados</div>
@@ -174,6 +180,12 @@ function vCreditos(){
     <p class="dim" style="margin-top:8px">A comissão técnica real (técnicos, assistentes, analistas e
     managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), sob licença CC-BY-SA 3.0, e da
     seção de staff do <b>vlr.gg</b>, ambas lidas em 30/10/2026. Cargo sem dado real continua gerado.</p>
+  </div>
+
+  <div class="card flat"><div class="eyebrow">Seus dados</div>
+    <p class="dim">O jogo não tem servidor nem conta: carreiras, configurações e a sua versão do Banco de dados ficam
+    só no seu computador — no navegador, numa pasta que você escolher em Partidas salvas, ou no app de PC.
+    Nada é enviado para a internet.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Tecnologia</div>

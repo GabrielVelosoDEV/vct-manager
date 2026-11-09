@@ -589,6 +589,12 @@ function ligarEventos(){
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
   on('#runNova',()=>novaCarreira());
+  on('#pastaEscolher',()=>modalPasta());
+  on('#pastaReconectar',()=>reconectarPasta());
+  on('#pastaDesligar',async()=>{
+    if(!await confirmar('Parar de salvar na pasta '+Pasta.nome+'? Os arquivos que já estão lá continuam; o jogo volta a salvar só no navegador.','Parar'))return;
+    await Pasta.desligar();render();flash('O jogo voltou a salvar só no navegador.');
+  });
   on('[data-runload]',async el=>{
     const ok=await carregarRun(el.dataset.runload);
     if(!ok){flash('Não foi possível carregar essa run.');return;}

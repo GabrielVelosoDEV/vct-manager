@@ -6,13 +6,17 @@
      1. IndexedDB   (sem limite prático; exige http:// ou app empacotado)
      2. localStorage (~5 MB; funciona em file:// na maioria dos navegadores)
      3. memória      (só durante a sessão)
-   Independente da camada, exportar/importar .json sempre funciona
+   Por cima de qualquer camada, a PASTA NO PC (Pasta, abaixo): quando o
+   jogador escolhe uma, cada save e a base editada também viram arquivo
+   .json nela, e o que está na pasta volta para o navegador ao abrir o
+   jogo. Independente da camada, exportar/importar .json sempre funciona
    e é o formato canônico de backup, versionável no git em /runs.
    ============================================================ */
 const RUNS_DB='vctmanager', RUNS_STORE='runs', RUNS_LS='vct_runs_v3';
-/* versão 2 do banco: acrescenta o store 'imgs' do pacote de imagens.
-   Bancos da versão 1 sobem sozinhos no onupgradeneeded, sem perder runs. */
-const RUNS_DB_VERSAO=2;
+/* versão 2 do banco: acrescenta o store 'imgs' do pacote de imagens; versão 3,
+   o store 'cfg' (guarda a pasta escolhida). Bancos antigos sobem sozinhos no
+   onupgradeneeded, sem perder runs. */
+const RUNS_DB_VERSAO=3, CFG_STORE='cfg';
 const Storage={
   modo:'memoria', _db:null, _mem:{},
 
@@ -20,6 +24,7 @@ const Storage={
     if(await this._tentarIDB())this.modo='indexeddb';
     else if(this._tentarLS())this.modo='localstorage';
     else this.modo='memoria';
+    await Pasta.iniciar();
     return this.modo;
   },
   _tentarIDB(){
@@ -28,7 +33,8 @@ const Storage={
       let req;try{req=indexedDB.open(RUNS_DB,RUNS_DB_VERSAO);}catch(e){return res(false);}
       req.onupgradeneeded=()=>{const db=req.result;
         if(!db.objectStoreNames.contains(RUNS_STORE))db.createObjectStore(RUNS_STORE,{keyPath:'id'});
-        if(!db.objectStoreNames.contains(IMGS_STORE))db.createObjectStore(IMGS_STORE,{keyPath:'k'});};
+        if(!db.objectStoreNames.contains(IMGS_STORE))db.createObjectStore(IMGS_STORE,{keyPath:'k'});
+        if(!db.objectStoreNames.contains(CFG_STORE))db.createObjectStore(CFG_STORE,{keyPath:'k'});};
       req.onsuccess=()=>{this._db=req.result;res(true);};
       req.onerror=()=>res(false);
       setTimeout(()=>res(!!this._db),1500);
@@ -48,19 +54,27 @@ const Storage={
   _lsGravar(o){try{localStorage.setItem(RUNS_LS,JSON.stringify(o));return true;}catch(e){return false;}},
 
   async listar(){
-    let itens=[];
-    if(this.modo==='indexeddb')itens=await this._idb(st=>st.getAll());
-    else if(this.modo==='localstorage')itens=Object.values(this._lsTudo());
-    else itens=Object.values(this._mem);
+    const itens=await this._todosLocal();
     /* o registro da base de dados mora no mesmo store, mas não é partida */
     return itens.filter(r=>r&&r.id!==BASE_ID).map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
       .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
   },
-  async gravar(reg){
-    reg.atualizado=Date.now();
+  async _todosLocal(){
+    if(this.modo==='indexeddb')return await this._idb(st=>st.getAll());
+    if(this.modo==='localstorage')return Object.values(this._lsTudo());
+    return Object.values(this._mem);
+  },
+  /* grava sem mexer no carimbo de hora: é o que a sincronização com a pasta usa */
+  async _gravarLocal(reg){
     if(this.modo==='indexeddb'){await this._idb(st=>st.put(reg),'readwrite');return true;}
     if(this.modo==='localstorage'){const o=this._lsTudo();o[reg.id]=reg;return this._lsGravar(o);}
     this._mem[reg.id]=reg;return true;
+  },
+  async gravar(reg){
+    reg.atualizado=Date.now();
+    const ok=await this._gravarLocal(reg);
+    await Pasta.gravar(reg);
+    return ok;
   },
   async ler(id){
     if(this.modo==='indexeddb')return await this._idb(st=>st.get(id));
@@ -68,9 +82,114 @@ const Storage={
     return this._mem[id]||null;
   },
   async apagar(id){
+    await Pasta.apagar(id);
     if(this.modo==='indexeddb'){await this._idb(st=>st.delete(id),'readwrite');return;}
     if(this.modo==='localstorage'){const o=this._lsTudo();delete o[id];this._lsGravar(o);return;}
     delete this._mem[id];
+  },
+  /* configurações pequenas do app no IndexedDB (a pasta escolhida mora aqui:
+     o "endereço" dela só pode ser guardado ali, não no localStorage) */
+  async cfgLer(k){try{const r=await this._store(CFG_STORE,st=>st.get(k));return r?r.v:null;}catch(e){return null;}},
+  async cfgGravar(k,v){try{await this._store(CFG_STORE,st=>st.put({k,v}),'readwrite');return true;}catch(e){return false;}},
+  async cfgApagar(k){try{await this._store(CFG_STORE,st=>st.delete(k),'readwrite');}catch(e){}}
+};
+
+/* ============================================================
+   PASTA NO PC — os saves como arquivos de verdade
+   ------------------------------------------------------------
+   O site é estático e não guarda nada de ninguém: tudo fica no
+   computador de quem joga. Por padrão, no armazenamento do navegador;
+   se o jogador escolher uma pasta (Chrome, Edge e Opera no computador),
+   cada carreira vira um arquivo .vctrun.json nela e a base editada vira
+   base-de-dados.vctbase.json. O navegador continua com uma cópia (é ela
+   que o jogo lê, rápido); a pasta é a cópia que não some se alguém limpar
+   os dados do navegador, e que dá para levar para o app de PC.
+
+   Ao abrir o jogo, o que estiver mais novo de um lado vai para o outro.
+   O navegador pede para confirmar o acesso à pasta de novo em algumas
+   visitas: aí ela fica "pendente" até um clique em Permitir.
+   ============================================================ */
+const PASTA_NOME='VCT Manager';
+const Pasta={
+  handle:null, nome:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
+  /* no app de PC os saves já ficam no computador, no armazenamento do app */
+  suporta(){return typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||'');},
+  noApp(){return /Electron/i.test(navigator.userAgent||'');},
+  async iniciar(){
+    if(!this.suporta()){this.estado='sem-suporte';return;}
+    const h=await Storage.cfgLer('pasta');
+    if(!h||typeof h.queryPermission!=='function'){this.estado='nenhuma';return;}
+    this.handle=h;this.nome=h.name;
+    let p='prompt';try{p=await h.queryPermission({mode:'readwrite'});}catch(e){}
+    if(p==='granted'){this.estado='ligada';await this.sincronizar();}
+    else this.estado='pendente';
+  },
+  /* Escolhida pelo jogador (precisa vir de um clique). Se ele apontar para uma
+     pasta qualquer (Documentos, por exemplo), o jogo cria "VCT Manager" dentro
+     dela; se já for a pasta do jogo, usa ela mesma. */
+  async escolher(){
+    if(!this.suporta())return{ok:false,erro:'Este navegador não permite salvar numa pasta.'};
+    let raiz;
+    try{raiz=await self.showDirectoryPicker({id:'vctmanager',mode:'readwrite',startIn:'documents'});}
+    catch(e){return{ok:false,cancelou:e&&e.name==='AbortError',erro:'O navegador não liberou essa pasta. Tente outra (Documentos, por exemplo).'};}
+    let h=raiz;
+    try{
+      let ehDoJogo=raiz.name===PASTA_NOME;
+      if(!ehDoJogo)for await(const [n] of raiz.entries()){if(/\.vct(run|base)\.json$/.test(n)){ehDoJogo=true;break;}}
+      if(!ehDoJogo)h=await raiz.getDirectoryHandle(PASTA_NOME,{create:true});
+    }catch(e){return{ok:false,erro:'Não deu para criar a pasta "'+PASTA_NOME+'" aí. Escolha outro lugar.'};}
+    this.handle=h;this.nome=h.name;this.estado='ligada';
+    await Storage.cfgGravar('pasta',h);
+    const n=await this.sincronizar();
+    return{ok:true,caminho:(h===raiz?'':raiz.name+' › ')+h.name,...n};
+  },
+  async reconectar(){
+    if(!this.handle)return false;
+    let p='denied';try{p=await this.handle.requestPermission({mode:'readwrite'});}catch(e){}
+    if(p!=='granted')return false;
+    this.estado='ligada';await this.sincronizar();return true;
+  },
+  async desligar(){await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
+  arquivo(id){return id===BASE_ID?'base-de-dados.vctbase.json':String(id).replace(/[^A-Za-z0-9_-]/g,'_')+'.vctrun.json';},
+  async gravar(reg){
+    if(this.estado!=='ligada'||!reg||!reg.id)return false;
+    try{
+      const fh=await this.handle.getFileHandle(this.arquivo(reg.id),{create:true});
+      const w=await fh.createWritable();await w.write(JSON.stringify(reg));await w.close();
+      return true;
+    }catch(e){
+      /* perdeu a permissão no meio da sessão: o navegador continua salvando,
+         e a pasta volta a receber quando o jogador permitir de novo */
+      if(e&&(e.name==='NotAllowedError'||e.name==='SecurityError'))this.estado='pendente';
+      console.warn('Pasta de saves:',e&&e.message);return false;
+    }
+  },
+  async apagar(id){
+    if(this.estado!=='ligada')return;
+    try{await this.handle.removeEntry(this.arquivo(id));}catch(e){}
+  },
+  async lerTodos(){
+    const out=[];
+    if(!this.handle)return out;
+    for await(const [n,h] of this.handle.entries()){
+      if(h.kind!=='file'||!/\.vct(run|base)\.json$/.test(n))continue;
+      try{const f=await h.getFile();const r=JSON.parse(await f.text());if(r&&r.id)out.push(r);}catch(e){}
+    }
+    return out;
+  },
+  /* o mais novo de cada lado ganha; devolve quantos vieram e quantos foram */
+  async sincronizar(){
+    if(this.estado!=='ligada')return{vieram:0,foram:0};
+    let vieram=0,foram=0;
+    try{
+      const daPasta=await this.lerTodos();
+      const naPasta=new Map(daPasta.map(r=>[r.id,r]));
+      const locais=await Storage._todosLocal();
+      const local=new Map(locais.map(r=>[r.id,r]));
+      for(const r of daPasta){const l=local.get(r.id);if(!l||(r.atualizado||0)>(l.atualizado||0)){await Storage._gravarLocal(r);vieram++;}}
+      for(const r of locais){const p=naPasta.get(r.id);if(!p||(r.atualizado||0)>(p.atualizado||0)){if(await this.gravar(r))foram++;}}
+    }catch(e){console.warn('Pasta de saves:',e&&e.message);}
+    return{vieram,foram};
   }
 };
 

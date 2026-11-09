@@ -3105,6 +3105,38 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .ps-av-clube{display:grid;place-items:center;border-radius:10px;background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--clube) 35%,#1a2530),#121b24);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--clube) 45%,transparent)}
 .ps-av-clube img{object-fit:contain}
 .pf-topo{position:relative;z-index:1}
+/* menu: aviso da pasta e link do app de PC */
+.mn .menu-item.mi-aviso{color:var(--amber)}
+.mn .menu-item.mi-aviso svg{opacity:1}
+.mn-app{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:22px;padding:11px 14px;
+  color:var(--tx2);text-decoration:none;border:1px solid rgba(255,255,255,.1);background:rgba(7,12,17,.45);transition:border-color .18s,color .18s,transform .18s}
+.mn-app-ic{display:grid;place-items:center;width:34px;height:34px;background:rgba(255,255,255,.06)}
+.mn-app-ic svg{width:18px;height:18px}
+.mn-app-t{display:flex;flex-direction:column;min-width:0}
+.mn-app-t b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:20px;letter-spacing:.06em;line-height:1.05;color:var(--tx)}
+.mn-app-t span{font-size:11.5px;color:var(--dim)}
+.mn-app>svg{width:14px;height:14px;opacity:.6}
+.mn-app:hover,.mn-app:focus-visible{border-color:rgba(255,255,255,.28);color:var(--tx);transform:translateX(3px)}
+.mn-boot .mn-app{animation:mnSobe .6s ease-out .6s both}
+/* partidas salvas: a pasta no PC */
+.pst{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+.pst-ic{display:grid;place-items:center;width:38px;height:38px;background:rgba(255,255,255,.06);color:var(--tx2)}
+.pst-ic svg{width:20px;height:20px}
+.pst.ok{border-left:3px solid var(--teal)}.pst.ok .pst-ic{color:var(--teal);background:rgba(24,229,180,.1)}
+.pst.pend{border-left:3px solid var(--amber)}.pst.pend .pst-ic{color:var(--amber);background:rgba(255,159,67,.1)}
+.pst p{margin:4px 0 0}
+.pst-bts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pst-modal{max-width:620px}
+.pst-modal p{line-height:1.55}
+.pst-lista{list-style:none;padding:0;margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.pst-lista li{display:flex;align-items:center;gap:10px;font-size:13.5px}
+.pst-lista svg{width:16px;height:16px;flex:none}
+.pst-lista li:nth-child(-n+2) svg{color:var(--teal)}
+.pst-lista li:nth-child(n+3) svg{color:var(--red)}
+.cr-autor{border-left:3px solid var(--red)}
+.cr-autor h3{font-size:30px;margin:2px 0 8px}
+.cr-autor p{line-height:1.6;margin:0 0 10px;color:var(--tx2)}
+.cr-autor p b{color:var(--tx)}
 
 </style>
 </head>
@@ -18766,13 +18798,17 @@ function arteDoStage(s,px){
      1. IndexedDB   (sem limite prático; exige http:// ou app empacotado)
      2. localStorage (~5 MB; funciona em file:// na maioria dos navegadores)
      3. memória      (só durante a sessão)
-   Independente da camada, exportar/importar .json sempre funciona
+   Por cima de qualquer camada, a PASTA NO PC (Pasta, abaixo): quando o
+   jogador escolhe uma, cada save e a base editada também viram arquivo
+   .json nela, e o que está na pasta volta para o navegador ao abrir o
+   jogo. Independente da camada, exportar/importar .json sempre funciona
    e é o formato canônico de backup, versionável no git em /runs.
    ============================================================ */
 const RUNS_DB='vctmanager', RUNS_STORE='runs', RUNS_LS='vct_runs_v3';
-/* versão 2 do banco: acrescenta o store 'imgs' do pacote de imagens.
-   Bancos da versão 1 sobem sozinhos no onupgradeneeded, sem perder runs. */
-const RUNS_DB_VERSAO=2;
+/* versão 2 do banco: acrescenta o store 'imgs' do pacote de imagens; versão 3,
+   o store 'cfg' (guarda a pasta escolhida). Bancos antigos sobem sozinhos no
+   onupgradeneeded, sem perder runs. */
+const RUNS_DB_VERSAO=3, CFG_STORE='cfg';
 const Storage={
   modo:'memoria', _db:null, _mem:{},
 
@@ -18780,6 +18816,7 @@ const Storage={
     if(await this._tentarIDB())this.modo='indexeddb';
     else if(this._tentarLS())this.modo='localstorage';
     else this.modo='memoria';
+    await Pasta.iniciar();
     return this.modo;
   },
   _tentarIDB(){
@@ -18788,7 +18825,8 @@ const Storage={
       let req;try{req=indexedDB.open(RUNS_DB,RUNS_DB_VERSAO);}catch(e){return res(false);}
       req.onupgradeneeded=()=>{const db=req.result;
         if(!db.objectStoreNames.contains(RUNS_STORE))db.createObjectStore(RUNS_STORE,{keyPath:'id'});
-        if(!db.objectStoreNames.contains(IMGS_STORE))db.createObjectStore(IMGS_STORE,{keyPath:'k'});};
+        if(!db.objectStoreNames.contains(IMGS_STORE))db.createObjectStore(IMGS_STORE,{keyPath:'k'});
+        if(!db.objectStoreNames.contains(CFG_STORE))db.createObjectStore(CFG_STORE,{keyPath:'k'});};
       req.onsuccess=()=>{this._db=req.result;res(true);};
       req.onerror=()=>res(false);
       setTimeout(()=>res(!!this._db),1500);
@@ -18808,19 +18846,27 @@ const Storage={
   _lsGravar(o){try{localStorage.setItem(RUNS_LS,JSON.stringify(o));return true;}catch(e){return false;}},
 
   async listar(){
-    let itens=[];
-    if(this.modo==='indexeddb')itens=await this._idb(st=>st.getAll());
-    else if(this.modo==='localstorage')itens=Object.values(this._lsTudo());
-    else itens=Object.values(this._mem);
+    const itens=await this._todosLocal();
     /* o registro da base de dados mora no mesmo store, mas não é partida */
     return itens.filter(r=>r&&r.id!==BASE_ID).map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
       .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
   },
-  async gravar(reg){
-    reg.atualizado=Date.now();
+  async _todosLocal(){
+    if(this.modo==='indexeddb')return await this._idb(st=>st.getAll());
+    if(this.modo==='localstorage')return Object.values(this._lsTudo());
+    return Object.values(this._mem);
+  },
+  /* grava sem mexer no carimbo de hora: é o que a sincronização com a pasta usa */
+  async _gravarLocal(reg){
     if(this.modo==='indexeddb'){await this._idb(st=>st.put(reg),'readwrite');return true;}
     if(this.modo==='localstorage'){const o=this._lsTudo();o[reg.id]=reg;return this._lsGravar(o);}
     this._mem[reg.id]=reg;return true;
+  },
+  async gravar(reg){
+    reg.atualizado=Date.now();
+    const ok=await this._gravarLocal(reg);
+    await Pasta.gravar(reg);
+    return ok;
   },
   async ler(id){
     if(this.modo==='indexeddb')return await this._idb(st=>st.get(id));
@@ -18828,9 +18874,114 @@ const Storage={
     return this._mem[id]||null;
   },
   async apagar(id){
+    await Pasta.apagar(id);
     if(this.modo==='indexeddb'){await this._idb(st=>st.delete(id),'readwrite');return;}
     if(this.modo==='localstorage'){const o=this._lsTudo();delete o[id];this._lsGravar(o);return;}
     delete this._mem[id];
+  },
+  /* configurações pequenas do app no IndexedDB (a pasta escolhida mora aqui:
+     o "endereço" dela só pode ser guardado ali, não no localStorage) */
+  async cfgLer(k){try{const r=await this._store(CFG_STORE,st=>st.get(k));return r?r.v:null;}catch(e){return null;}},
+  async cfgGravar(k,v){try{await this._store(CFG_STORE,st=>st.put({k,v}),'readwrite');return true;}catch(e){return false;}},
+  async cfgApagar(k){try{await this._store(CFG_STORE,st=>st.delete(k),'readwrite');}catch(e){}}
+};
+
+/* ============================================================
+   PASTA NO PC — os saves como arquivos de verdade
+   ------------------------------------------------------------
+   O site é estático e não guarda nada de ninguém: tudo fica no
+   computador de quem joga. Por padrão, no armazenamento do navegador;
+   se o jogador escolher uma pasta (Chrome, Edge e Opera no computador),
+   cada carreira vira um arquivo .vctrun.json nela e a base editada vira
+   base-de-dados.vctbase.json. O navegador continua com uma cópia (é ela
+   que o jogo lê, rápido); a pasta é a cópia que não some se alguém limpar
+   os dados do navegador, e que dá para levar para o app de PC.
+
+   Ao abrir o jogo, o que estiver mais novo de um lado vai para o outro.
+   O navegador pede para confirmar o acesso à pasta de novo em algumas
+   visitas: aí ela fica "pendente" até um clique em Permitir.
+   ============================================================ */
+const PASTA_NOME='VCT Manager';
+const Pasta={
+  handle:null, nome:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
+  /* no app de PC os saves já ficam no computador, no armazenamento do app */
+  suporta(){return typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||'');},
+  noApp(){return /Electron/i.test(navigator.userAgent||'');},
+  async iniciar(){
+    if(!this.suporta()){this.estado='sem-suporte';return;}
+    const h=await Storage.cfgLer('pasta');
+    if(!h||typeof h.queryPermission!=='function'){this.estado='nenhuma';return;}
+    this.handle=h;this.nome=h.name;
+    let p='prompt';try{p=await h.queryPermission({mode:'readwrite'});}catch(e){}
+    if(p==='granted'){this.estado='ligada';await this.sincronizar();}
+    else this.estado='pendente';
+  },
+  /* Escolhida pelo jogador (precisa vir de um clique). Se ele apontar para uma
+     pasta qualquer (Documentos, por exemplo), o jogo cria "VCT Manager" dentro
+     dela; se já for a pasta do jogo, usa ela mesma. */
+  async escolher(){
+    if(!this.suporta())return{ok:false,erro:'Este navegador não permite salvar numa pasta.'};
+    let raiz;
+    try{raiz=await self.showDirectoryPicker({id:'vctmanager',mode:'readwrite',startIn:'documents'});}
+    catch(e){return{ok:false,cancelou:e&&e.name==='AbortError',erro:'O navegador não liberou essa pasta. Tente outra (Documentos, por exemplo).'};}
+    let h=raiz;
+    try{
+      let ehDoJogo=raiz.name===PASTA_NOME;
+      if(!ehDoJogo)for await(const [n] of raiz.entries()){if(/\.vct(run|base)\.json$/.test(n)){ehDoJogo=true;break;}}
+      if(!ehDoJogo)h=await raiz.getDirectoryHandle(PASTA_NOME,{create:true});
+    }catch(e){return{ok:false,erro:'Não deu para criar a pasta "'+PASTA_NOME+'" aí. Escolha outro lugar.'};}
+    this.handle=h;this.nome=h.name;this.estado='ligada';
+    await Storage.cfgGravar('pasta',h);
+    const n=await this.sincronizar();
+    return{ok:true,caminho:(h===raiz?'':raiz.name+' › ')+h.name,...n};
+  },
+  async reconectar(){
+    if(!this.handle)return false;
+    let p='denied';try{p=await this.handle.requestPermission({mode:'readwrite'});}catch(e){}
+    if(p!=='granted')return false;
+    this.estado='ligada';await this.sincronizar();return true;
+  },
+  async desligar(){await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
+  arquivo(id){return id===BASE_ID?'base-de-dados.vctbase.json':String(id).replace(/[^A-Za-z0-9_-]/g,'_')+'.vctrun.json';},
+  async gravar(reg){
+    if(this.estado!=='ligada'||!reg||!reg.id)return false;
+    try{
+      const fh=await this.handle.getFileHandle(this.arquivo(reg.id),{create:true});
+      const w=await fh.createWritable();await w.write(JSON.stringify(reg));await w.close();
+      return true;
+    }catch(e){
+      /* perdeu a permissão no meio da sessão: o navegador continua salvando,
+         e a pasta volta a receber quando o jogador permitir de novo */
+      if(e&&(e.name==='NotAllowedError'||e.name==='SecurityError'))this.estado='pendente';
+      console.warn('Pasta de saves:',e&&e.message);return false;
+    }
+  },
+  async apagar(id){
+    if(this.estado!=='ligada')return;
+    try{await this.handle.removeEntry(this.arquivo(id));}catch(e){}
+  },
+  async lerTodos(){
+    const out=[];
+    if(!this.handle)return out;
+    for await(const [n,h] of this.handle.entries()){
+      if(h.kind!=='file'||!/\.vct(run|base)\.json$/.test(n))continue;
+      try{const f=await h.getFile();const r=JSON.parse(await f.text());if(r&&r.id)out.push(r);}catch(e){}
+    }
+    return out;
+  },
+  /* o mais novo de cada lado ganha; devolve quantos vieram e quantos foram */
+  async sincronizar(){
+    if(this.estado!=='ligada')return{vieram:0,foram:0};
+    let vieram=0,foram=0;
+    try{
+      const daPasta=await this.lerTodos();
+      const naPasta=new Map(daPasta.map(r=>[r.id,r]));
+      const locais=await Storage._todosLocal();
+      const local=new Map(locais.map(r=>[r.id,r]));
+      for(const r of daPasta){const l=local.get(r.id);if(!l||(r.atualizado||0)>(l.atualizado||0)){await Storage._gravarLocal(r);vieram++;}}
+      for(const r of locais){const p=naPasta.get(r.id);if(!p||(r.atualizado||0)>(p.atualizado||0)){if(await this.gravar(r))foram++;}}
+    }catch(e){console.warn('Pasta de saves:',e&&e.message);}
+    return{vieram,foram};
   }
 };
 
@@ -20356,10 +20507,16 @@ function vConfig(){
    ============================================================ */
 function vCreditos(){
   return `
-  <div class="card"><div class="eyebrow">O que é isto</div>
-    <h3 class="sub">VCT Manager v${VERSAO_JOGO}</h3>
-    <p class="dim">Simulador de gestão de e-sports de Valorant: elenco, táticas, treino, mercado,
-    base, finanças e o circuito internacional rodando ao redor. Projeto pessoal, sem fins comerciais.</p>
+  <div class="card cr-autor"><div class="eyebrow">Feito por</div>
+    <h3 class="sub">Gabriel Veloso</h3>
+    <p>O VCT Manager nasceu de duas paixões: o <b>competitivo de Valorant</b> — acompanhar o VCT, torcer, discutir
+    elenco, veto e mercado como se fosse o técnico — e os <b>jogos de simulação</b>, daqueles em que uma temporada
+    vira cem e cada decisão tem consequência. A vontade era juntar as duas coisas num manager que tratasse o
+    circuito com o mesmo carinho que os de futebol tratam os campeonatos.</p>
+    <p>É um projeto de fã, feito por amor ao cenário, e <b>não será monetizado</b>: sem anúncios, sem compras e sem
+    cobrança, no site e no app de PC. Se você gosta de Valorant e de gerenciar, ele é seu.</p>
+    <p class="dim">VCT Manager v${VERSAO_JOGO} · elenco, táticas, treino, mercado, base, finanças e o circuito internacional
+    inteiro rodando ao redor.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Dados</div>
@@ -20370,6 +20527,12 @@ function vCreditos(){
     <p class="dim" style="margin-top:8px">A comissão técnica real (técnicos, assistentes, analistas e
     managers) vem da <b>Liquipedia</b> (liquipedia.net/valorant), sob licença CC-BY-SA 3.0, e da
     seção de staff do <b>vlr.gg</b>, ambas lidas em 30/10/2026. Cargo sem dado real continua gerado.</p>
+  </div>
+
+  <div class="card flat"><div class="eyebrow">Seus dados</div>
+    <p class="dim">O jogo não tem servidor nem conta: carreiras, configurações e a sua versão do Banco de dados ficam
+    só no seu computador — no navegador, numa pasta que você escolher em Partidas salvas, ou no app de PC.
+    Nada é enviado para a internet.</p>
   </div>
 
   <div class="card flat"><div class="eyebrow">Tecnologia</div>
@@ -20586,6 +20749,9 @@ function fundoMenu(mundo,cor){
   </div>`;
 }
 
+/* onde o instalador do Windows é publicado (GitHub Releases) */
+const LINK_APP_PC='https://github.com/GabrielVelosoDEV/vct-manager/releases/latest';
+
 /* ---------- a tela ---------- */
 function vMenuPrincipal(){
   const mundo=(G&&G.times)?G:(Base.reg&&Base.reg.estado);
@@ -20610,7 +20776,10 @@ function vMenuPrincipal(){
         ${t?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
         ${item('mnRuns','disco','Partidas salvas',nSalvas?nSalvas+(nSalvas===1?' partida':' partidas'):'nenhuma ainda')}
         ${item('mnBanco','banco','Banco de dados',Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
+        ${typeof Pasta!=='undefined'&&Pasta.estado==='pendente'?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso'):''}
       </nav>
+      ${typeof Pasta!=='undefined'&&Pasta.noApp()?'':`<a class="mn-app" href="${LINK_APP_PC}" target="_blank" rel="noopener">
+        <span class="mn-app-ic">${ico('monitor')}</span><span class="mn-app-t"><b>Baixar o app de PC</b><span>Windows · grátis</span></span>${ico('externo')}</a>`}
       <div class="mn-pe">
         <button class="mn-link" id="mnConfig">${ico('engrenagem')}<span>Configurações</span></button>
         <button class="mn-link" id="mnCreditos">${ico('info')}<span>Créditos</span></button>
@@ -20643,6 +20812,7 @@ function ligarMenuPrincipal(){
   liga('mnBanco',()=>{telaMenu='banco';render();});
   liga('mnConfig',()=>{telaMenu='config';render();});
   liga('mnCreditos',()=>{telaMenu='creditos';render();});
+  liga('mnPasta',()=>reconectarPasta());
   document.querySelectorAll('[data-mn]').forEach(b=>b.onclick=()=>b.dataset.mn==='continuar'?continuar():novaCarreira());
   iniciarFxMenu();
 }
@@ -30115,9 +30285,11 @@ function dataBr(ts){
   return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
 function vRuns(){
-  const modoTxt={indexeddb:'IndexedDB (sem limite prático)',localstorage:'localStorage (~5 MB)',memoria:'somente memória — exporte antes de fechar'}[Storage.modo];
-  return `<div class="eyebrow">Arquivo</div><h2 class="sec">Runs</h2>
-  <p class="dim">Armazenamento ativo: <b>${modoTxt}</b>. O arquivo <code>.vctrun.json</code> é o backup canônico e pode ser versionado na pasta <code>/runs</code>.</p>
+  const modoTxt={indexeddb:'no navegador (IndexedDB)',localstorage:'no navegador (localStorage, ~5 MB)',memoria:'só na memória — exporte antes de fechar'}[Storage.modo];
+  return `<div class="eyebrow">Arquivo</div><h2 class="sec">Partidas salvas</h2>
+  <p class="dim">Tudo o que você joga fica no seu computador: o site não guarda partida de ninguém. Hoje as carreiras estão
+    salvas <b>${modoTxt}</b>${Pasta.estado==='ligada'?` e na pasta <b>${esc(Pasta.nome)}</b>`:''}. O arquivo <code>.vctrun.json</code> é o backup de uma carreira.</p>
+  ${cartaoPasta()}
 
   ${G&&G.meuTime?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
     <span class="chip t">em andamento</span></div>
@@ -30148,6 +30320,65 @@ function vRuns(){
     <button class="btn" id="runNova">Novo jogo</button>
   </div>`;
 }
+/* ---------- pasta no PC (data/storage.js › Pasta) ---------- */
+function cartaoPasta(){
+  if(Pasta.noApp())return `<div class="card flat pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Saves no seu computador</div>
+    <p class="dim">No app de PC as carreiras já ficam guardadas no seu usuário do Windows e continuam lá ao atualizar o app.
+    Para levar uma carreira do site para cá (ou daqui para o site), use <b>Exportar .json</b> e <b>Importar run</b>.</p></div></div>`;
+  if(Pasta.estado==='sem-suporte')return `<div class="card flat pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Salvar numa pasta do PC</div>
+    <p class="dim">Este navegador não deixa sites gravarem numa pasta (só Chrome, Edge e Opera no computador deixam). Suas carreiras
+    continuam salvas no navegador; se você limpar os dados de navegação, elas vão junto. Use <b>Exportar .json</b> de vez em quando para ter uma cópia.</p></div></div>`;
+  if(Pasta.estado==='ligada')return `<div class="card pst ok"><div class="pst-ic">${ico('check')}</div><div><div class="eyebrow">Salvando também numa pasta do seu PC</div>
+    <p class="dim">Pasta <b>${esc(Pasta.nome)}</b>: cada carreira é um arquivo <code>.vctrun.json</code> e a sua versão do Banco de dados é
+    <code>base-de-dados.vctbase.json</code>. Pode copiar a pasta para outro computador ou fazer backup dela.</p>
+    <div class="pst-bts"><button class="btn ghost sm" id="pastaEscolher">Trocar de pasta</button>
+      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button></div></div></div>`;
+  if(Pasta.estado==='pendente')return `<div class="card pst pend"><div class="pst-ic">${ico('alerta')}</div><div><div class="eyebrow">A pasta precisa da sua permissão</div>
+    <p class="dim">A pasta <b>${esc(Pasta.nome)}</b> está ligada, mas o navegador pede que você confirme o acesso de novo. Até lá, o jogo
+    salva só no navegador; ao permitir, o que estiver mais novo vai para a pasta.</p>
+    <div class="pst-bts"><button class="btn sm" id="pastaReconectar">Permitir acesso à pasta</button>
+      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button></div></div></div>`;
+  return `<div class="card pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Guarde suas carreiras numa pasta do PC</div>
+    <p class="dim">Por enquanto elas estão só no navegador. Com uma pasta, cada carreira vira um arquivo no seu computador: não some se
+    você limpar os dados do navegador, dá para fazer backup e levar para o app de PC.</p>
+    <div class="pst-bts"><button class="btn sm" id="pastaEscolher">Escolher a pasta</button></div></div></div>`;
+}
+/* o pedido de acesso, com o motivo dito antes do navegador perguntar */
+function modalPasta(){
+  abrir(`<div class="pst-modal"><div class="eyebrow">Pasta de saves</div><h2 class="sec">Salvar no seu computador</h2>
+    <p>O VCT Manager não tem servidor: suas carreiras ficam só com você. Para guardá-las como arquivos, o navegador vai pedir que você
+    escolha um lugar, como <b>Documentos</b>. O jogo cria ali uma pasta <b>${esc(PASTA_NOME)}</b> e só mexe dentro dela.</p>
+    <ul class="pst-lista">
+      <li>${ico('check')} grava cada carreira (<code>.vctrun.json</code>) e a sua versão do Banco de dados</li>
+      <li>${ico('check')} lê essa pasta ao abrir o jogo, para continuar de onde você parou</li>
+      <li>${ico('x')} não lê nem altera nenhum outro arquivo do seu computador</li>
+      <li>${ico('x')} não envia nada para a internet</li>
+    </ul>
+    <p class="dim">O navegador pode pedir para confirmar o acesso de novo em outras visitas. Dá para parar de usar a pasta quando quiser;
+    os arquivos continuam lá.</p>
+    <div class="neg-bts" style="justify-content:flex-end"><button class="btn ghost" data-close>Agora não</button>
+      <button class="btn" id="pastaOk">Escolher a pasta</button></div></div>`);
+  const b=$('#pastaOk');
+  if(b)b.onclick=async()=>{
+    const r=await Pasta.escolher();
+    if(!r.ok){if(!r.cancelou)flash(r.erro);return;}
+    fechar();
+    await depoisDaPasta(r);
+    flash('Salvando em '+r.caminho+(r.vieram?' — '+r.vieram+' arquivo(s) carregado(s) da pasta':'')+'.');
+  };
+}
+async function depoisDaPasta(r){
+  /* uma base editada que veio da pasta passa a valer no menu */
+  if(r&&r.vieram&&typeof Base!=='undefined'&&!Base.editando)await Base.iniciar();
+  await atualizarRuns();render();
+}
+async function reconectarPasta(){
+  const ok=await Pasta.reconectar();
+  if(!ok){flash('O navegador não liberou a pasta.');return;}
+  await depoisDaPasta({vieram:1});
+  flash('Pasta '+Pasta.nome+' conectada.');
+}
+
 /* monta o mundo de uma carreira nova, copiado da base de dados (ver
    data/base.js), ainda sem clube. A semente só decide o que acontece daqui
    para frente: os elencos são os da base. Não navega: quem chamou decide
@@ -30752,6 +30983,12 @@ function ligarEventos(){
   });
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
   on('#runNova',()=>novaCarreira());
+  on('#pastaEscolher',()=>modalPasta());
+  on('#pastaReconectar',()=>reconectarPasta());
+  on('#pastaDesligar',async()=>{
+    if(!await confirmar('Parar de salvar na pasta '+Pasta.nome+'? Os arquivos que já estão lá continuam; o jogo volta a salvar só no navegador.','Parar'))return;
+    await Pasta.desligar();render();flash('O jogo voltou a salvar só no navegador.');
+  });
   on('[data-runload]',async el=>{
     const ok=await carregarRun(el.dataset.runload);
     if(!ok){flash('Não foi possível carregar essa run.');return;}
