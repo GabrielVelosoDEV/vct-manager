@@ -9,6 +9,7 @@ function abrir(html,wide){
   $('#modal').querySelectorAll('[data-prop]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalProposta(b.dataset.prop);});
   $('#modal').querySelectorAll('[data-fichastaff]').forEach(b=>b.onclick=e=>{e.stopPropagation();modalStaff(b.dataset.fichastaff);});
   if(typeof ligarClubes==='function')ligarClubes($('#modal'));
+  if(typeof animarAbas==='function')animarAbas($('#modal'));
 }
 function fechar(){$('#modal').innerHTML='';render();}
 

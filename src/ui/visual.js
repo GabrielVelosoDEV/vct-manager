@@ -85,3 +85,87 @@ function explica(html,rot){
 function vazio(txt,iconeNome,acao){
   return `<div class="vazio">${icone(iconeNome||'info')}<div>${txt}</div>${acao||''}</div>`;
 }
+
+/* ============================================================
+   V2 — MOVIMENTO
+   Discreto no dia a dia (troca de tela, abas, números, barras) e
+   vistoso nos momentos que merecem (título do seu clube). Tudo some
+   com "Animação" desligada nas Configurações ou com movimento reduzido
+   no sistema.
+   ============================================================ */
+function animacaoLigada(){
+  if(document.body.classList.contains('sem-anim'))return false;
+  return !(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+let _telaAnimada=null;
+/* chamado por render() depois de pintar a tela */
+function animarTela(v,telaAtual){
+  const mudou=telaAtual!==_telaAnimada;_telaAnimada=telaAtual;
+  animarAbas(v);
+  if(!mudou||!animacaoLigada())return;
+  v.classList.remove('entra');void v.offsetWidth;v.classList.add('entra');
+  contarNumeros(v);
+}
+/* indicador das abas desliza da aba anterior para a nova */
+const _abaAnterior=new Map();
+function animarAbas(raiz){
+  raiz.querySelectorAll('.tabs').forEach(tb=>{
+    const on=tb.querySelector('button.on');
+    const chave=[...tb.querySelectorAll('button')].map(b=>b.textContent.trim().slice(0,12)).join('|');
+    if(!on){tb.style.removeProperty('--tab-w');return;}
+    const x=on.offsetLeft,w=on.offsetWidth;
+    const ant=_abaAnterior.get(chave);
+    tb.classList.add('tabs-ind');
+    if(ant&&animacaoLigada()&&(ant.x!==x||ant.w!==w)){
+      tb.style.setProperty('--tab-x',ant.x+'px');tb.style.setProperty('--tab-w',ant.w+'px');
+      tb.classList.add('sem-trans');void tb.offsetWidth;tb.classList.remove('sem-trans');
+      requestAnimationFrame(()=>{tb.style.setProperty('--tab-x',x+'px');tb.style.setProperty('--tab-w',w+'px');});
+    }else{tb.style.setProperty('--tab-x',x+'px');tb.style.setProperty('--tab-w',w+'px');}
+    _abaAnterior.set(chave,{x,w});
+  });
+}
+/* números de KPI contam até o valor ("$4.59M", "82", "13 derrotas") */
+function contarNumeros(raiz){
+  raiz.querySelectorAll('.kpi .vl, [data-conta]').forEach(el=>{
+    if(el.children.length)return;
+    const txt=el.textContent;
+    const m=txt.match(/^([^\d-]*)(-?\d+(?:[.,]\d+)?)(.*)$/);
+    if(!m)return;
+    const alvo=parseFloat(m[2].replace(',','.'));if(!isFinite(alvo)||alvo===0)return;
+    const casas=(m[2].split(/[.,]/)[1]||'').length,sep=m[2].includes(',')?',':'.';
+    const t0=performance.now(),dur=650;
+    const passo=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);
+      el.textContent=m[1]+(alvo*e).toFixed(casas).replace('.',sep)+m[3];
+      if(k<1)requestAnimationFrame(passo);else el.textContent=txt;};
+    requestAnimationFrame(passo);
+  });
+}
+
+/* ---------- momento: título do seu clube ---------- */
+let _titulosVistos=null;
+function titulosDoMeuClube(){return (G&&G.historico||[]).filter(h=>h&&!h.pre&&G.meuTime&&h.timeId===G.meuTime);}
+function conferirCelebracao(){
+  if(!G||!G.meuTime)return;
+  const tits=titulosDoMeuClube();
+  if(_titulosVistos==null){_titulosVistos=tits.length;return;}
+  const novos=tits.slice(_titulosVistos);_titulosVistos=tits.length;
+  if(novos.length)celebrar(novos[novos.length-1]);
+}
+function celebrar(h){
+  const t=G.times[h.timeId];
+  const cores=['#FF4655','#E2B45A','#18E5B4','#ECE8E1','#4C8DFF'];
+  const confete=animacaoLigada()?Array.from({length:70},(_,i)=>`<i style="left:${(i*137)%100}%;background:${cores[i%5]};
+    animation-delay:${(i%14)*0.06}s;animation-duration:${1.8+(i%7)*0.18}s;transform:rotate(${i*47}deg)"></i>`).join(''):'';
+  const d=document.createElement('div');d.className='celebra';
+  d.innerHTML=`<div class="celebra-confete">${confete}</div>
+    <div class="celebra-caixa">
+      <div class="celebra-trofeu">${typeof imgTrofeu==='function'?imgTrofeu(h.trofeu||(typeof trofeuDoTitulo==='function'?trofeuDoTitulo(h.ano,h.evento):null),110,h.evento):''}</div>
+      <div class="eyebrow">Campeão · ${h.ano}</div>
+      <h1>${esc(h.evento)}</h1>
+      <div class="celebra-clube">${t?escudo(t,34):''}<b>${esc(h.campeao)}</b></div>
+      <button class="btn">Comemorar</button></div>`;
+  document.body.appendChild(d);
+  const fim=()=>{d.classList.add('sai');setTimeout(()=>d.remove(),300);};
+  d.querySelector('button').onclick=fim;d.onclick=e=>{if(e.target===d)fim();};
+  setTimeout(()=>{if(document.body.contains(d))fim();},9000);
+}

@@ -51,6 +51,7 @@ function usarTurnos(){
 }
 function aplicarTurno(r){
   if(!r)return;
+  if(typeof conferirCelebracao==='function')conferirCelebracao();
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'){pintarTop();pintarSide();render();}
   const dias=diasAteFecharJanela(G.ano,G.semana,G.turno);

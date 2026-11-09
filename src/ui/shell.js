@@ -104,6 +104,7 @@ function render(){
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
+  if(typeof animarTela==='function')animarTela(v,tela);
 }
 function irPara(k,semHist){
   tela=k;
