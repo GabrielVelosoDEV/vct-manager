@@ -1,7 +1,8 @@
 # Gera o instalador do app de PC (Windows) com Electron.
-# Roda a cada mudança em desktop/ (para testar o empacotamento) e a cada tag v*
-# (ex.: v1.0.0), que além de gerar o instalador cria um rascunho de Release com
-# ele anexado. O rascunho só aparece para você até ser publicado.
+# Roda a cada mudança em desktop/ (para testar o empacotamento). Numa tag v*
+# (ex.: v1.0.0) ou num commit com [release] na mensagem, também cria um rascunho
+# de Release com o instalador; o rascunho só aparece para você até ser publicado,
+# e a tag v<versão do desktop/package.json> nasce quando você publica.
 name: App de PC
 
 on:
@@ -41,12 +42,19 @@ jobs:
           path: desktop/release/*.exe
           if-no-files-found: error
 
+      - name: Versão do app
+        id: versao
+        shell: bash
+        run: echo "v=$(node -p "require('./desktop/package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Rascunho de Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || contains(github.event.head_commit.message, '[release]')
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          name: VCT Manager ${{ github.ref_name }}
+          tag_name: v${{ steps.versao.outputs.v }}
+          target_commitish: ${{ github.sha }}
+          name: VCT Manager ${{ steps.versao.outputs.v }}
           files: desktop/release/*.exe
           body: |
             Instalador do VCT Manager para Windows (64 bits).
