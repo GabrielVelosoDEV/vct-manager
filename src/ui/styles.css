@@ -2602,6 +2602,10 @@ button.mgr-foto:hover .mgr-foto-ed,button.mgr-foto:focus-visible .mgr-foto-ed{op
 .mn-marca .l1{display:block;font-size:46px;letter-spacing:.08em}
 .mn-marca .l2{display:block;font-size:46px;letter-spacing:.06em;color:var(--red)}
 .mn-simbolo{flex:none;filter:drop-shadow(0 6px 18px rgba(255,70,85,.35))}
+.mn-logo{flex:none;display:grid;place-items:center}
+.mn-logo img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 22px rgba(255,70,85,.45))}
+.mn-boot .mn-logo img{animation:mnLogo 1s cubic-bezier(.2,.8,.25,1.2) .1s both}
+@keyframes mnLogo{from{opacity:0;transform:scale(.6) rotate(-8deg);filter:drop-shadow(0 0 0 rgba(255,70,85,0)) brightness(2)}to{opacity:1;transform:none}}
 .mn-ver{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:.06em}
 .mn-lista{margin-top:42px;display:flex;flex-direction:column;gap:6px}
 .mn-principal{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;text-align:left;

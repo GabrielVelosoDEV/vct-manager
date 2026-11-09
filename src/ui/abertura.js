@@ -26,6 +26,13 @@ function marcaVCT(px){
     <path d="M38 50l4-8h10l-4 8z" fill="var(--red)" opacity=".8"/></svg>`;
 }
 
+/* o emblema do jogo (assets/ui/logo.png, recortado do favicon); se o
+   arquivo faltar, fica o V desenhado */
+function logoJogo(px){
+  const fb=encodeURIComponent(marcaVCT(px));
+  return `<span class="mn-logo" style="width:${px}px;height:${px}px"><img src="assets/ui/logo.png" width="${px}" height="${px}" alt=""
+    onerror="this.parentNode.innerHTML=decodeURIComponent('${fb}')"></span>`;
+}
 /* "salvo há 12 min" */
 function haQuanto(ms){
   if(!ms)return '';
@@ -198,7 +205,7 @@ function vMenuPrincipal(){
   return `<div class="mn ${boot?'mn-boot':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
     ${fundoMenu(mundo,cor)}
     <aside class="mn-lado">
-      <div class="mn-marca">${marcaVCT(54)}<div><span class="l1">VCT</span><span class="l2">MANAGER</span></div></div>
+      <div class="mn-marca">${logoJogo(76)}<div><span class="l1">VCT</span><span class="l2">MANAGER</span></div></div>
       <span class="mn-ver">v${VERSAO_JOGO} · temporada 2027</span>
       <nav class="mn-lista" aria-label="Menu principal">
         ${principal}
