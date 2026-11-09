@@ -127,6 +127,7 @@ function vVestiario(){
         <div class="vest-par ${atual==='ranked'?'':'dim'}">Ranked em duo: ${selPar(0)} e ${selPar(1)}
           <button class="btn ghost sm" id="vestParOk">Marcar dupla</button>
           ${piorDupla?`<span class="dim">sugestão: a dupla mais fraca</span>`:''}</div>
+        ${typeof faixaRitmo==='function'?faixaRitmo(t):''}
       </div>
     </div>
   </div>

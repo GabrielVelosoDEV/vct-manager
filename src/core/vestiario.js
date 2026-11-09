@@ -284,7 +284,14 @@ function aplicarAtividade(t){
   if(a.id==='nenhuma')return;
   const ok=atividadeDisponivel(t,a.id);
   if(!ok.ok){t.atividade='nenhuma';return;}
-  const e=efeitoAtividade(t,a.id);
+  const e=Object.assign({},efeitoAtividade(t,a.id));
+  /* o jogo de ritmo da atividade (core/minigames.js) dá a força da semana;
+     sem sessão, o fator é 1 e nada muda */
+  const f=typeof fatorAtividadeSemana==='function'?fatorAtividadeSemana(t):1;
+  if(f!==1){
+    for(const k of ['duplas','dupla','confianca','torcida'])if(e[k])e[k]*=f;
+    if(e.desgaste&&e.desgaste<0)e.desgaste*=f;
+  }
   const el=(t.elenco||[]).filter(x=>G.jogadores[x]);
   if(e.custo)t.caixa-=e.custo;
   if(e.duplas){

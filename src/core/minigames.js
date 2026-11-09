@@ -44,12 +44,35 @@ function beneficiadosRange(t){
   });
 }
 
+/* ---------- jogos de ritmo das atividades do Vestiário ----------
+   Cada atividade extra tem o seu jogo de ritmo. A nota muda a força da
+   atividade naquela semana: de 80% (sessão ruim) a 125% (perfeita) do
+   entrosamento, da confiança, da torcida ou do descanso que ela daria.
+   Custo em caixa e o cansaço do bootcamp não mudam. A sessão vale para a
+   atividade em que foi jogada: trocar de atividade depois perde o bônus. */
+const ATIV_MIN=0.8, ATIV_MAX=1.25;
+function fatorAtividade(nota){return ATIV_MIN+clamp(nota,0,1)*(ATIV_MAX-ATIV_MIN);}
+function ritmoDisponivel(t){
+  return !!t&&t.id===G.meuTime&&!!t.atividade&&t.atividade!=='nenhuma'&&!t.miniAtividade;
+}
+function fatorAtividadeSemana(t){
+  const m=t&&t.id===G.meuTime?t.miniAtividade:null;
+  if(!m||m.comissao||m.nota==null||m.id!==t.atividade)return 1;
+  return fatorAtividade(m.nota);
+}
+function registrarRitmo(t,res){
+  if(!ritmoDisponivel(t))return null;
+  t.miniAtividade={id:t.atividade,nota:clamp(res.nota,0,1),pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniAtividade,bateu:registrarRecordeMini('ritmo-'+t.atividade,res.pts||0,res.nota)};
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
 function encerrarMiniSemana(t){
   if(!t||t.id!==G.meuTime)return;
   if(t.miniTreino){t.miniTreinoUltimo=t.miniTreino;delete t.miniTreino;}
+  if(t.miniAtividade){t.miniAtividadeUltimo=t.miniAtividade;delete t.miniAtividade;}
 }
 
 /* ---------- medalhas e recordes ---------- */

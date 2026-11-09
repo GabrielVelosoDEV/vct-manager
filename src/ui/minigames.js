@@ -63,6 +63,7 @@ function pintarMiniAbertura(){
     ${d.modos?`<div class="mg-modos">${d.modos.map(m=>`<button class="mg-modo ${m.id===MG.modo?'on':''}" data-mgmodo="${m.id}">
       <span class="mg-modo-ic">${ico(m.ic||'alvo')}</span><b>${esc(m.nome)}</b><span>${esc(m.desc)}</span>
       ${_mgRecordeTxt(d.id+'-'+m.id)}</button>`).join('')}</div>`:_mgRecordeTxt(d.id)}
+    ${d.controles?`<div class="mg-teclas"><span>Controles</span>${d.controles.map(k=>`<kbd>${esc(k)}</kbd>`).join('')}</div>`:''}
     <div class="mg-vale ${MG.vale?'':'livre'}">
       ${MG.vale?`${ico('check')}<div><b>Sessão da semana aberta.</b> ${d.efeitoTxt()}</div>`
         :`${ico('relogio')}<div><b>Treino livre.</b> A sessão desta semana já foi. Jogar agora só vale recorde.</div>`}
