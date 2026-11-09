@@ -2490,7 +2490,6 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .dp-c.max{border-color:rgba(200,148,58,.35)}
 .dp-cena{position:relative;display:block;width:100%;aspect-ratio:320/150;overflow:hidden;border-bottom:1px solid var(--line);cursor:zoom-in}
 .dp-svg{display:block;width:100%;height:100%}
-.dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .dp-nvb{position:absolute;left:10px;top:10px;font-size:10px;letter-spacing:.14em;color:var(--tx2);padding:3px 8px;
   background:rgba(11,18,24,.75);border:1px solid var(--line2);backdrop-filter:blur(3px)}
 .dp-nvb b{font-family:'Bebas Neue',sans-serif;font-size:17px;font-weight:400;color:var(--tx);margin-left:3px;letter-spacing:.02em}
@@ -2943,11 +2942,50 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-card-col .mg-card-arte svg{animation:none}
 .col-card:has(.col-reacao) .col-n{visibility:hidden}
 /* foto da estrutura: tinta da cor do clube e o escudo na placa vazia */
-.dp-fotocx{position:absolute;inset:0;display:block}
-.dp-fotocx .dp-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.dp-tinta{position:absolute;inset:0;background:var(--clube);mix-blend-mode:soft-light;opacity:.4;pointer-events:none}
-.dp-placa{position:absolute;left:50%;top:22%;width:18%;aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center}
-.dp-placa img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+/* ---------- cenas com foto (ui/cenas.js) ---------- */
+.cn{position:absolute;inset:0;overflow:hidden;container-type:size;display:block;pointer-events:none}
+.cn-palco{position:absolute;left:50%;top:var(--foco,50%);display:block;
+  width:max(100cqw,calc(100cqh * var(--ar)));height:max(100cqh,calc(100cqw / var(--ar)));transform:translate(-50%,calc(-1 * var(--foco,50%)))}
+.cn-img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cn-placa{position:absolute;display:block;container-type:size;overflow:hidden;border-radius:1px}
+.cn-tinta{position:absolute;inset:1px;mix-blend-mode:multiply;
+  background:linear-gradient(115deg,#252c33 0 58%,var(--clube) 58% 66%,#1b2127 66% 100%)}
+.cn-marca{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;gap:6cqw;padding-left:14cqw}
+.cn-marca img{height:66cqh;width:auto;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+.cn-marca b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:34cqh;letter-spacing:.04em;line-height:1;color:rgba(240,244,248,.92);
+  text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.dp-fotocena .cn-img{transition:filter .4s}
+.dp-nv1 .cn-img{filter:brightness(.62) saturate(.45) contrast(.95)}
+.dp-nv2 .cn-img{filter:brightness(.76) saturate(.65)}
+.dp-nv3 .cn-img{filter:brightness(.88) saturate(.85)}
+.dp-nv5 .cn-img{filter:brightness(1.06) saturate(1.12) contrast(1.04)}
+/* vestiário: foto da atividade no topo do cartão */
+.vest-at{position:relative;overflow:hidden}
+.vat-foto{position:relative;display:block;height:84px;margin:-10px -12px 2px;background:linear-gradient(135deg,#17222c,#0e151c);border-bottom:1px solid var(--line)}
+.vat-foto.com-cena::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,24,0) 45%,rgba(11,18,24,.55));pointer-events:none}
+.vat-foto.vazio{display:grid;place-items:center;color:var(--dim)}
+.vat-foto.vazio i{display:grid;opacity:.5}.vat-foto.vazio svg{width:28px;height:28px}
+.vat-foto .cn-img{transition:transform .5s ease,filter .3s}
+.vest-at:not(.off):hover .vat-foto .cn-img{transform:scale(1.04)}
+.vest-at.off .vat-foto .cn-img{filter:grayscale(.8)}
+.vest-at.on .vat-foto{border-bottom-color:var(--teal)}
+.mg-cab.com-cena{min-height:150px}
+.mg-cab.com-cena .cn::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(11,18,24,.5))}
+.mg-cab.com-cena .mg-arte{display:none}
+/* notícias: foto do assunto */
+.nw-img.cena{position:relative;overflow:hidden;border:1px solid var(--line2)}
+.nw-manchete.com-cena>:not(.cn),.cx-manchete.com-cena>:not(.cn){position:relative;z-index:1}
+.nw-fundo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,18,24,.75),rgba(11,18,24,.35) 60%,rgba(11,18,24,.2))}
+.nw-manchete.com-cena{min-height:150px}
+.cx-manchete.com-cena{min-height:96px}
+/* negociação e veredito: a sala por trás */
+.neg-palco{position:relative;overflow:hidden}
+.neg-palco:has(>.cn)>:not(.cn),.ver-topo:has(>.cn)>:not(.cn){position:relative;z-index:1}
+.neg-fundo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(11,18,24,.55),rgba(11,18,24,.86) 75%)}
+.ver-topo{position:relative;overflow:hidden}
+.ver-topo:has(>.cn){min-height:170px}
+.ver-fundo::after{content:"";position:absolute;inset:0;background:rgba(11,18,24,.35)}
+.cn.cn-direita{left:auto;width:60%;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 38%);mask-image:linear-gradient(90deg,transparent 0%,#000 38%)}
 
 </style>
 </head>
@@ -4608,6 +4646,20 @@ const MIDIA={
     'agentes/vyse':'png',
     'agentes/waylay':'png',
     'agentes/yoru':'png',
+    'cenas/ativ-folga':'webp',
+    'cenas/ativ-jantar':'webp',
+    'cenas/ativ-ranked':'webp',
+    'cenas/ativ-sessao':'webp',
+    'cenas/ativ-stream':'webp',
+    'cenas/news-base':'webp',
+    'cenas/news-contrato':'webp',
+    'cenas/news-diretoria':'webp',
+    'cenas/news-lesao':'webp',
+    'cenas/news-mercado':'webp',
+    'cenas/news-torneio':'webp',
+    'cenas/palco-premios':'webp',
+    'cenas/sala-diretoria':'webp',
+    'cenas/sala-negociacao':'webp',
     'cidades/amsterda':'webp',
     'cidades/atlanta':'webp',
     'cidades/bangkok':'webp',
@@ -4668,6 +4720,13 @@ const MIDIA={
     'cidades/toronto':'webp',
     'cidades/varsovia':'webp',
     'cidades/xangai':'webp',
+    'estrutura/academia':'webp',
+    'estrutura/analise':'webp',
+    'estrutura/equip':'webp',
+    'estrutura/gh':'webp',
+    'estrutura/mente':'webp',
+    'estrutura/saude':'webp',
+    'estrutura/treino':'webp',
     'logos/100t':'png',
     'logos/2g':'png',
     'logos/ag':'png',
@@ -5593,6 +5652,8 @@ const MIDIA={
     'trofeus/padrao':'png',
     'trofeus/premio-igl':'png',
     'trofeus/premio-mvp':'png',
+    'trofeus/premio-mvp-regional':'webp',
+    'trofeus/premio-revelacao':'webp',
     'trofeus/premio-selecao':'png',
     'trofeus/premio-treinador':'png',
     'trofeus/stage1-amer':'png',
@@ -5604,8 +5665,34 @@ const MIDIA={
     'trofeus/stage2-emea':'png',
     'trofeus/stage2-pac':'png',
     'ui/favicon':'png',
-    'ui/logo':'png'
+    'ui/logo':'png',
+    'ui/menu-fundo':'webp'
   }
+};
+
+
+/* ===== data/placas.js ===== */
+/* Onde fica a placa branca vazia em cada imagem de cena e de estrutura:
+   [x, y, largura, altura] em % da imagem, medidos nos arquivos de assets/.
+   O jogo pinta essa placa com a cor do clube e põe o escudo no meio, então a
+   mesma foto serve para todos os clubes. Imagem sem entrada aqui não ganha
+   placa (fica só a foto). Ao trocar uma imagem, meça de novo. */
+const PLACAS={
+  'cenas/ativ-folga':[39.9,20.7,35.7,16.3],
+  'cenas/ativ-jantar':[27.0,7.9,46.7,35.4],
+  'cenas/ativ-ranked':[22.8,9.0,54.9,29.2],
+  'cenas/ativ-sessao':[29.9,4.3,40.1,25.0],
+  'cenas/ativ-stream':[28.2,11.7,44.3,32.1],
+  'cenas/news-diretoria':[30.6,9.7,38.8,20.8],
+  'cenas/sala-diretoria':[32.4,5.6,35.0,28.1],
+  'cenas/sala-negociacao':[29.2,13.2,41.4,35.1],
+  'estrutura/academia':[32.7,10.1,34.7,16.9],
+  'estrutura/analise':[34.1,6.6,32.2,19.4],
+  'estrutura/equip':[33.0,9.2,34.6,26.9],
+  'estrutura/gh':[51.2,14.9,33.0,23.1],
+  'estrutura/mente':[35.7,15.7,37.2,23.5],
+  'estrutura/saude':[32.2,13.8,40.2,25.4],
+  'estrutura/treino':[36.2,17.7,28.1,18.8]
 };
 
 
@@ -21279,8 +21366,10 @@ const ICONE_CAT={clube:'clube',mercado:'aperto',competicoes:'trofeu',meta:'mapa'
 function cartaoNoticia(n){
   const img=typeof imagemDaNoticia==='function'?imagemDaNoticia(n,52):null;
   const cor=img&&img.cor?img.cor:null;
+  /* sem jogador nem clube com imagem: a foto do assunto (assets/cenas/news-*) */
+  const cena=!img&&typeof cenaDaNoticia==='function'?cenaDaNoticia(n):null;
   return `<div class="nw ${n.meu?'me':''} ${n.imp>=2?'imp':''}" ${cor?`style="--clube:${cor};--clube-rgb:${rgbDe(cor)}"`:''}>
-    <span class="nw-img ${img?img.cls:'vazio'}">${img?img.html:icone(ICONE_CAT[n.c]||'jornal')}</span>
+    <span class="nw-img ${img?img.cls:cena?'cena com-cena':'vazio'}">${img?img.html:cena?cenaFoto('cenas',cena,timeDaNoticia(n),{foco:40}):icone(ICONE_CAT[n.c]||'jornal')}</span>
     <div class="nw-txt"><span class="nw-cat">${icone(ICONE_CAT[n.c]||'jornal')}${esc(CAT_NOTICIA[n.c]||'Circuito')}</span>
       <div class="nw-corpo">${textoNoticia(n)}</div></div>
   </div>`;
@@ -21301,7 +21390,9 @@ function vNews(){
     const q=noticiasDaAba(k).filter(x=>x.txt&&x.c!=='sistema').length;
     return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${k==='tudo'?'':icone(ICONE_CAT[k]||'jornal')}${n} <span class="num">${q}</span></button>`;}).join('')}</div>
   ${m&&newsAba==='tudo'&&typeof imagemDaNoticia==='function'?(()=>{const img=imagemDaNoticia(m,120);
-    return `<div class="nw-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+    const cena=typeof cenaDaNoticia==='function'?cenaDaNoticia(m):null;
+    return `<div class="nw-manchete ${m.meu?'me':''} ${cena?'com-cena':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${cena?cenaFoto('cenas',cena,timeDaNoticia(m),{cls:'nw-fundo cn-direita',foco:'placa'}):''}
       ${img?`<div class="nwm-img ${img.cls}">${img.html}</div>`:''}
       <div><div class="eyebrow">Manchete da semana</div><h3>${iconizar(esc(m.txt))}</h3>
         <span class="dim">${m.s?rotuloSemana(m.ano,m.s)+' · ':''}${esc(CAT_NOTICIA[m.c]||'Circuito')}</span></div></div>`;})():''}
@@ -21627,10 +21718,12 @@ function imagemDaNoticia(n,px){
 function cardImprensa(){
   const m=manchete();
   const img=m?imagemDaNoticia(m):null;
+  const cena=m&&typeof cenaDaNoticia==='function'?cenaDaNoticia(m):null;
   const tit=m?(typeof iconizar==='function'?iconizar(esc(m.txt)):esc(m.txt)):'';
   return `<div class="card cx-imprensa"><div class="split"><div class="eyebrow">Sala de imprensa</div>
       <button class="btn ghost sm" data-ir="news">Todas ›</button></div>
-    ${m?`<div class="cx-manchete ${m.meu?'me':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+    ${m?`<div class="cx-manchete ${m.meu?'me':''} ${cena?'com-cena':''}" ${img&&img.cor?`style="--clube:${img.cor};--clube-rgb:${rgbDe(img.cor)}"`:''}>
+      ${cena?cenaFoto('cenas',cena,timeDaNoticia(m),{cls:'nw-fundo cn-direita',foco:'placa'}):''}
       ${img?`<div class="cxm-img ${img.cls}">${img.html}</div>`:''}
       <div><div class="eyebrow">Manchete da semana</div><h3 class="sub">${tit}</h3></div></div>`:''}
     <div class="feed">${G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&n!==m).slice(0,7).map(linhaNoticia).join('')
@@ -21827,6 +21920,101 @@ function ligarEscalacao(raiz,t){
 let _trocaRecente=null;
 
 
+/* ===== src/ui/cenas.js ===== */
+/* ============================================================
+   CENAS COM FOTO
+   ------------------------------------------------------------
+   Fotos neutras de ambientes (assets/cenas e assets/estrutura) que
+   viram do seu clube: a placa branca vazia de cada foto (data/
+   placas.js diz onde ela fica) ganha a cor do clube e o escudo.
+   Sem o arquivo, nada aparece e a tela segue com o que já tinha.
+
+   A foto cobre a caixa como um object-fit:cover, mas montada à mão
+   (um palco do tamanho da foto, centrado e cortado pela caixa) para
+   a placa continuar presa no lugar certo da foto em qualquer corte.
+   ============================================================ */
+function temCena(dir,nome){
+  return !!(nome&&typeof MIDIA!=='undefined'&&MIDIA.arquivos&&MIDIA.arquivos[dir+'/'+nome]);
+}
+/* proporção de cada pasta (as fotos de uma pasta têm todas o mesmo tamanho) */
+const PROPORCAO_CENA={cenas:16/9,estrutura:1600/753};
+/* `foco`: altura da foto (0–100) que fica alinhada à mesma altura da caixa —
+   50 corta igual em cima e embaixo; 25 mostra mais a parte de cima.
+   `cls:'cn-direita'` põe a foto só na metade direita, sumindo para a
+   esquerda: em faixas largas e baixas a foto encolhe e a placa cabe. */
+function cenaFoto(dir,nome,t,opc){
+  if(!temCena(dir,nome))return '';
+  opc=opc||{};
+  const k=dir+'/'+nome;
+  const P=typeof PLACAS!=='undefined'?PLACAS[k]:null;
+  const ar=PROPORCAO_CENA[dir]||16/9;
+  /* foco 'placa': o topo da placa fica na mesma altura relativa da caixa,
+     o que deixa a placa inteira à vista mesmo em faixas baixas */
+  const foco=opc.foco==='placa'?(P?P[1]:30):opc.foco==null?50:opc.foco;
+  return `<span class="cn ${opc.cls||''}" style="--ar:${ar.toFixed(4)};--foco:${foco}%" aria-hidden="true">
+    <span class="cn-palco"><img class="cn-img" src="${ASSETS.arq(dir,nome)}" alt="" decoding="async" ${opc.ansioso?'':'loading="lazy"'}
+      onerror="var c=this.closest('.cn');if(c){var p=c.parentNode;c.remove();if(p)p.classList.remove('com-cena');}">
+      ${P&&t?placaDoClube(P,t):''}</span></span>`;
+}
+function placaDoClube(P,t){
+  const cor=corDoClube(t);
+  return `<span class="cn-placa" style="left:${P[0]}%;top:${P[1]}%;width:${P[2]}%;height:${P[3]}%;--clube:${cor}">
+    <i class="cn-tinta"></i><span class="cn-marca">${escudo(t,96)}<b>${esc(t.tag||'')}</b></span></span>`;
+}
+
+/* ---------- a mesma cena num <canvas> (jogos de ritmo) ----------
+   Carrega a foto e o escudo uma vez; desenhar() pinta cobrindo a tela,
+   com a placa na cor do clube, e não faz nada enquanto não carregou. */
+function cenaCanvas(dir,nome,t){
+  if(!temCena(dir,nome))return null;
+  const P=typeof PLACAS!=='undefined'?PLACAS[dir+'/'+nome]:null;
+  const foto=new Image(),esc_=new Image();
+  let ok=false,okEsc=false;
+  foto.onload=()=>{ok=true;};foto.src=ASSETS.arq(dir,nome);
+  if(t&&P){esc_.onload=()=>{okEsc=true;};esc_.src=ASSETS.logo(t);}
+  const cor=t?corDoClube(t):'#7a8794';
+  return{
+    desenhar(cx,W,H,alfa){
+      if(!ok)return;
+      const iw=foto.naturalWidth,ih=foto.naturalHeight,s=Math.max(W/iw,H/ih);
+      const dw=iw*s,dh=ih*s,dx=(W-dw)/2,dy=(H-dh)/2;
+      cx.save();cx.globalAlpha=alfa==null?1:alfa;
+      cx.drawImage(foto,dx,dy,dw,dh);
+      if(P&&t){
+        const x=dx+P[0]/100*dw,y=dy+P[1]/100*dh,w=P[2]/100*dw,h=P[3]/100*dh;
+        cx.globalCompositeOperation='multiply';
+        const g=cx.createLinearGradient(x,y,x+w,y+h);
+        g.addColorStop(0,'#232a31');g.addColorStop(0.58,'#232a31');g.addColorStop(0.58,cor);g.addColorStop(0.66,cor);g.addColorStop(0.66,'#1b2127');g.addColorStop(1,'#1b2127');
+        cx.fillStyle=g;cx.fillRect(x+1,y+1,w-2,h-2);
+        cx.globalCompositeOperation='source-over';
+        if(okEsc){const e=h*0.66;cx.drawImage(esc_,x+w*0.3-e/2,y+(h-e)/2,e,e);}
+      }
+      cx.restore();
+    }
+  };
+}
+
+/* ---------- qual cena vai em cada lugar ---------- */
+const CENA_ATIVIDADE={bootcamp:'ativ-bootcamp',ranked:'ativ-ranked',stream:'ativ-stream',jantar:'ativ-jantar',sessao:'ativ-sessao',folga:'ativ-folga'};
+/* notícia → foto pela categoria e pelo assunto do texto */
+function cenaDaNoticia(n){
+  if(!n)return null;
+  const tx=String(n.txt||'').toLowerCase();
+  let s=null;
+  if(/lesã|lesio|desgaste|burnout|afastad|tendinite|punho/.test(tx))s='news-lesao';
+  else if(/renov|contrato até|estende o contrato|novo contrato/.test(tx))s='news-contrato';
+  else if(/academia|da base|revela|promovid|sub-|juvenil/.test(tx))s='news-base';
+  else if(/diretoria|caixa|patroc|orçamento|financ|folha salarial|demiti|presidente|dono/.test(tx))s='news-diretoria';
+  else if(n.c==='mercado'||/contrat|transfer|empréstimo|multa|proposta/.test(tx))s='news-mercado';
+  else if(n.c==='competicoes'||/campeão|final|playoff|masters|champions|stage|título/.test(tx))s='news-torneio';
+  return s&&temCena('cenas',s)?s:null;
+}
+function timeDaNoticia(n){
+  const t=n&&n.t&&n.t.length?G.times[n.t[0]]:null;
+  return t||(n&&n.meu&&typeof meu==='function'?meu():null);
+}
+
+
 /* ===== src/ui/estrutura.js ===== */
 /* ============================================================
    ESTRUTURA — a aba dos departamentos do clube
@@ -21954,12 +22142,13 @@ function fotoDepto(k,n){
   return v&&M['estrutura/'+v]?v:M['estrutura/'+k]?k:null;
 }
 function arteDepto(t,k,n){
-  const cor=corDoClube(t);
-  const svg=cenaEstrutura(k,n,cor);
+  const svg=cenaEstrutura(k,n,corDoClube(t));
   const arq=fotoDepto(k,n);
   if(!arq)return svg;
-  return `${svg}<span class="dp-fotocx" style="--clube:${cor}"><img class="dp-foto" src="${ASSETS.arq('estrutura',arq)}" alt="" loading="lazy" onerror="this.parentNode.remove()">
-    <i class="dp-tinta"></i><span class="dp-placa">${escudo(t,64)}</span></span>`;
+  /* sem versão própria do nível, a foto principal escurece e perde cor nos
+     níveis baixos e ganha brilho no alto: a evolução continua visível */
+  const varia=arq===k?` dp-nv${n}`:'';
+  return svg+cenaFoto('estrutura',arq,t,{cls:'dp-fotocena'+varia,foco:40});
 }
 
 /* ---------- efeitos, com a mesma conta do motor ---------- */
@@ -22237,7 +22426,7 @@ function pintarMiniAbertura(){
   const d=MG.def;
   const modo=(d.modos||[]).find(m=>m.id===MG.modo);
   abrir(`<div class="mg mg-${d.id}" data-ficha="mg-${d.id}">
-    <div class="mg-cab">
+    <div class="mg-cab ${d.fundo?'com-cena':''}">${d.fundo?d.fundo():''}
       <div class="mg-arte" aria-hidden="true">${d.arte?d.arte():''}</div>
       <div class="mg-cab-t"><div class="eyebrow">${esc(d.eyebrow||'Minigame')}</div>
         <h2 class="mg-tit">${esc(d.titulo)}</h2><p>${d.desc}</p></div>
@@ -22769,7 +22958,10 @@ function partituraFolga(J){
 }
 
 /* ---------- o motor ---------- */
+/* foto da atividade por trás do jogo, apagada (ui/cenas.js) */
+let _ritmoCena=null;
 function jogarRitmo(ctx,J,fim){
+  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],meu()):null;
   const cx=ctx.cx,cv=ctx.cv,spb=60/J.bpm,total=J.compassos*4*spb;
   const notas=J.partitura(J).map(n=>Object.assign(n,{t:n.b*spb,res:null})).sort((a,b)=>a.t-b.t);
   const reais=notas.filter(n=>!n.eco);
@@ -22890,6 +23082,8 @@ function jogarRitmo(ctx,J,fim){
 const CORES_TRILHA=['#FF4655','#E2B45A','#18E5B4','#4C8DFF'];
 function fundoGradiente(cx,a,b,pulso,corPulso){
   const g=cx.createLinearGradient(0,0,0,MG_H);g.addColorStop(0,a);g.addColorStop(1,b);cx.fillStyle=g;cx.fillRect(0,0,MG_W,MG_H);
+  if(_ritmoCena){_ritmoCena.desenhar(cx,MG_W,MG_H,0.3);
+    const v=cx.createLinearGradient(0,0,0,MG_H);v.addColorStop(0,'rgba(11,18,24,.15)');v.addColorStop(1,'rgba(11,18,24,.7)');cx.fillStyle=v;cx.fillRect(0,0,MG_W,MG_H);}
   if(corPulso){const r=cx.createRadialGradient(MG_W/2,MG_H*0.55,10,MG_W/2,MG_H*0.55,MG_W*0.6);
     r.addColorStop(0,corPulso.replace('A',(0.10+pulso*0.14).toFixed(2)));r.addColorStop(1,corPulso.replace('A','0'));cx.fillStyle=r;cx.fillRect(0,0,MG_W,MG_H);}
 }
@@ -23098,6 +23292,7 @@ function abrirRitmo(){
     id:'ritmo-'+id,titulo:J.nome,eyebrow:'Vestiário · '+a.nome,
     desc:J.desc,
     controles:J.teclasTxt,
+    fundo:()=>typeof cenaFoto==='function'?cenaFoto('cenas',CENA_ATIVIDADE[id],t,{cls:'cn-direita',foco:'placa',ansioso:true}):'',
     arte:()=>`<svg viewBox="0 0 200 120">${[0,1,2,3,4,5,6].map(i=>`<rect x="${70+i*18}" y="${60-[20,34,48,30,42,24,36][i]}" width="10" height="${[20,34,48,30,42,24,36][i]*2}" rx="3" fill="${['#FF4655','#E2B45A','#18E5B4','#4C8DFF'][i%4]}" opacity=".7"/>`).join('')}</svg>`,
     vale:()=>ritmoDisponivel(t),
     efeitoTxt:()=>`A atividade <b>${esc(a.nome)}</b> rende de <b class="dn">${Math.round(ATIV_MIN*100)}%</b> a <b class="up">${Math.round(ATIV_MAX*100)}%</b> nesta semana, conforme a sua nota.`,
@@ -24166,6 +24361,14 @@ function momentoTxt(t){
   return{v:'—',sb:'nenhuma série ainda',cls:''};
 }
 
+/* faixa de foto no topo do cartão da atividade (assets/cenas/ativ-*.webp);
+   sem a foto, um degradê com o ícone, para os cartões ficarem do mesmo tamanho */
+function fotoAtividade(t,id){
+  const nome=typeof CENA_ATIVIDADE!=='undefined'?CENA_ATIVIDADE[id]:null;
+  const foto=nome&&typeof cenaFoto==='function'?cenaFoto('cenas',nome,t,{foco:28}):'';
+  return foto?`<span class="vat-foto com-cena">${foto}</span>`
+    :`<span class="vat-foto vazio"><i>${ico(ICONE_ATIV[id]||'ciclo')}</i></span>`;
+}
 function vVestiario(){
   const t=meu();
   if(!t.duplas&&typeof semearDuplas==='function')semearDuplas(t);
@@ -24216,6 +24419,7 @@ function vVestiario(){
       e.torcida?'torcida +':'',e.custo?money(e.custo):''].filter(Boolean);
     return `<button class="vest-at ${atual===a.id?'on':''} ${d.ok?'':'off'}" data-ativ="${a.id}" ${d.ok?'':'disabled'}
         title="${esc(d.ok?a.desc:d.erro)}">
+      ${fotoAtividade(t,a.id)}
       <span class="vat-topo"><i class="vat-ic">${ico(ICONE_ATIV[a.id]||'ciclo')}</i><b>${esc(a.nome)}</b>${atual===a.id?'<span class="vat-on">esta semana</span>':''}</span>
       <span class="vat-desc">${esc(a.desc)}</span>
       ${efs.length?`<span class="vat-chips">${efs.map(x=>`<em class="${/desgaste \+|\$/.test(x)&&!/desgaste -/.test(x)?'custo':''}">${esc(x)}</em>`).join('')}</span>`:''}
@@ -25704,6 +25908,8 @@ function pintarCerimonia(){
   const sede=typeof sedeDe==='function'?sedeDe('champions',CER.cer.ano):null;
   const meuT=G.meuTime&&G.times[G.meuTime];
   const estilo=f==='cidade'&&sede?fundoCidade(sede.slug,T[i].rot==='Campeões'?0.9:0.74)
+    :f==='palco'&&typeof temCena==='function'&&temCena('cenas','palco-premios')
+      ?`background-image:radial-gradient(60% 55% at 50% 30%,rgba(226,180,90,.22),transparent 70%),linear-gradient(180deg,rgba(11,18,24,.55),rgba(11,18,24,.88) 70%),${urlCSS(ASSETS.arq('cenas','palco-premios'))};background-size:cover;background-position:center 30%`
     :f==='clube'&&meuT?`--clube:${corDoClube(meuT)};--clube-rgb:${rgbDe(corDoClube(meuT))}`:'';
   pintarModal(`<div class="ovl cer-ovl"><div class="cer cer-f-${f||'nada'}" ${estilo?`style="${estilo}"`:''}>
     <div class="cer-topo"><div class="cer-pontos">${T.map((x,k)=>`<i class="${k===i?'on':k<i?'feito':''}" data-cerir="${k}" title="${esc(x.rot)}"><span>${esc(x.rot)}</span></i>`).join('')}</div>
@@ -26605,7 +26811,7 @@ function modalVeredito(v){
   const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
   const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
   abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
-    <div class="ver-topo">
+    <div class="ver-topo">${t&&typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ver-fundo cn-direita',foco:'placa',ansioso:true}):''}
       <div class="ver-esc">${t?escudo(t,84):''}</div>
       <div class="ver-tit">
         <div class="eyebrow">${esc(v.clube)} · ${v.meio?'balanço do meio do ano':'temporada'} ${v.ano}</div>
@@ -26663,6 +26869,10 @@ function modalVeredito(v){
 /* o que você estava montando, para o redesenho não apagar */
 let _mesaRasc={};
 
+/* a sala de reunião do clube atrás da mesa (assets/cenas/sala-negociacao) */
+function fundoNegociacao(){
+  return typeof cenaFoto==='function'?cenaFoto('cenas','sala-negociacao',meu(),{cls:'neg-fundo',foco:95,ansioso:true}):'';
+}
 function modalProposta(id){return modalNegociacao(id);}
 function modalNegociacao(id){
   const p=P(id),t=meu();
@@ -26763,7 +26973,7 @@ function mesa(p,n,bloqueio,tipoBloq){
   const lado=(time,rot,extra)=>`<div class="neg-lado">
     ${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
     <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
-  const palco=renov?`<div class="neg-palco">
+  const palco=renov?`<div class="neg-palco">${fundoNegociacao()}
     <div class="neg-lado"><div class="neg-contrato"><span class="eyebrow">Contrato atual</span>
       <b class="num">${dinheiro(fechada&&n.final?n.final.sal:p.salario)}/mês</b>
       <span class="dim">${fechada?'renovado':p.contrato<=1?'vence no fim desta temporada':'mais '+p.contrato+' ano(s)'}</span>
@@ -26772,7 +26982,7 @@ function mesa(p,n,bloqueio,tipoBloq){
       <div class="neg-perfil" title="${esc(pf.desc)}">Perfil: <b>${esc(pf.nome)}</b></div></div>
     <div class="neg-seta${fase==='fechada'?' ok':''}"><span></span></div>
     ${lado(t,'Renova com',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
-  </div>`:`<div class="neg-palco">
+  </div>`:`<div class="neg-palco">${fundoNegociacao()}
     ${lado(origem,'Sai de',fechada?'':origem?`<div><span class="chip ${ps.cls}">${esc(ps.nome)}</span></div>
       <div class="dim neg-sub">Multa ${dinheiro(multa)}</div>`:'<div class="dim neg-sub">Sem taxa de transferência</div>')}
     <div class="neg-centro">${cartaJogador(p,{w:150})}
@@ -27017,7 +27227,7 @@ function modalNegociarVenda(id,prFeito,resultado){
   const rev0=_vendaRasc.id===pr.id?(+_vendaRasc.rev||0):0;
   const max=Math.round(Math.max(multa,valorMerc,pr.taxa)*(emp?0.3:1.35)/5000)*5000+5000;
   const lado=(time,rot,extra)=>`<div class="neg-lado">${escudo(time,64)}<div class="eyebrow">${rot}</div><b>${esc(time.nome)}</b>${extra||''}</div>`;
-  const palco=`<div class="neg-palco">
+  const palco=`<div class="neg-palco">${fundoNegociacao()}
     ${lado(t,'Você vende',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
     <div class="neg-centro">${cartaJogador(p,{w:150})}<div class="neg-perfil">${esc(p.role)} · ${p.idade} anos · contrato ${p.contrato}a</div></div>
     <div class="neg-seta${vendido?' ok':''}"><span></span></div>
