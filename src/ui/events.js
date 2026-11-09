@@ -89,6 +89,7 @@ function ligarEventos(){
     noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
+  on('[data-negvenda]',el=>{_vendaRasc={};modalNegociarVenda(el.dataset.negvenda);});
   /* mercado vivo */
   on('[data-psaida]',el=>{
     const [r0,pid]=el.dataset.psaida.split(':');const p=P(pid);
@@ -285,6 +286,7 @@ function ligarEventos(){
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));
   on('[data-dispstaff]',async el=>{
     const m=G.staff[el.dataset.dispstaff];if(!m)return;
+    if(m.voce){avisar('Esse é você: o head coach não se dispensa.');return;}
     const multa=Math.round(m.salario*Math.max(1,m.contrato)*4);
     if(!await confirmar('Dispensar '+m.nome+'? Multa de '+money(multa)+'.','Dispensar'))return;
     t.caixa-=multa;

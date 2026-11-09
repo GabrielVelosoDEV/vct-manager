@@ -228,9 +228,9 @@ function vTaticas(){
       <div class="tat-pe ${p.partes.tatica>0.4?'up':p.partes.tatica<-0.4?'dn':''}">tática no preparo <b class="num">${p.partes.tatica>0?'+':''}${p.partes.tatica.toFixed(1)}</b>
         ${tm.agres||tm.foco?'<span class="chip t">própria</span>':''}</div>
     </div>`;}).join('');
-  const comissao=comissaoDe(t).map(({cargo,membro})=>membro?`<div class="stf-c">
+  const comissao=comissaoDe(t).map(({cargo,membro})=>membro?`<div class="stf-c ${membro.voce?'voce':''}">
       ${retratoStaff(membro,58)}
-      <div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}</span><b>${esc(membro.nome)} ${bandeira(membro.pais)}</b>
+      <div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}${membro.voce?' · você':''}</span><b>${esc(membro.nome)} ${bandeira(membro.pais)}</b>
         <span class="dim">${membro.nomeReal?esc(membro.nomeReal)+' · ':''}${membro.idade}a · ${money(membro.salario)}/mês</span></div>
       <span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>
       <button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button></div>`
@@ -743,7 +743,8 @@ function vMercadoSaidas(t){
       <div class="prop-bts">${x.tipo==='multa'
         ?`<button class="btn sm" data-segurar="${x.id}" title="Oferece ${Math.round(SEGURAR_AUMENTO*100)}% de aumento; uma tentativa só">Tentar segurar</button>
           <button class="btn ghost sm" data-aceitar="${x.id}">Liberar</button>`
-        :`<button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
+        :`${x.tipo!=='troca'?`<button class="btn teal sm" data-negvenda="${x.id}" title="Peça mais: o clube responde subindo a oferta ou parando no limite dele">${x.neg?'Mesa':'Negociar'}</button>`:''}
+          <button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
           <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button>`}</div></div>`;};
   const cxPropostas=props.length?`
   <div class="card flat"><div class="eyebrow">Propostas na mesa</div>
@@ -824,7 +825,7 @@ function vMercadoStaff(t){
       <td>${membro?`<span class="linha-t">${retratoStaff(membro,24)}<b>${esc(membro.nome)}</b></span>`:'<span class="dn">vago</span>'}</td>
       <td class="c">${membro?`<span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>`:'—'}</td>
       <td class="r num dim">${membro?money(membro.salario)+'/mês':''}</td>
-      <td class="r">${membro?`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`:''}</td>
+      <td class="r">${membro&&membro.voce?'<span class="chip t">você</span>':membro?`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`:''}</td>
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
   </div>

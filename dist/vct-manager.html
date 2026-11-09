@@ -2438,6 +2438,31 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 .campos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;align-items:start}
 .campos label input,.campos label select{width:100%;box-sizing:border-box;min-height:34px}
 
+/* ============================================================
+   Treinador personalizado e mesa de venda
+   ============================================================ */
+.nj-perfil{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;margin-top:6px}
+.nj-foto{display:flex;flex-direction:column;align-items:center;gap:6px}
+.nj-foto-img{display:grid;place-items:center;width:112px;height:140px;cursor:pointer;overflow:hidden;
+  border:1px dashed var(--line2);background:rgba(255,255,255,.03);transition:border-color .15s}
+.nj-foto-img:hover{border-color:var(--red)}
+.nj-foto-img img{width:100%;height:100%;object-fit:cover}
+.nj-foto-img span{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--dim);font-size:11px}
+.nj-foto-img span svg{width:24px;height:24px}
+.nj-foto .dim{font-size:10.5px}
+.nj-ov{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--gold);margin-left:6px}
+.nj-estilos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.nj-estilo{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);transition:border-color .15s,background .15s}
+.nj-estilo:hover{border-color:var(--tx2)}
+.nj-estilo.on{border-color:var(--red);background:rgba(255,70,85,.08)}
+.nj-estilo b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:19px;letter-spacing:.04em}
+.nj-estilo span{font-size:11.5px;color:var(--tx2)}
+.nj-estilo i{font-style:normal;font-size:10.5px;color:var(--teal)}
+.mgr-quem{display:flex;align-items:center;gap:12px}
+.mgr-foto img{object-fit:cover;border:1px solid var(--line2)}
+.stf-c.voce{border-color:var(--teal);background:linear-gradient(90deg,rgba(24,229,180,.08),transparent 70%)}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -12543,6 +12568,95 @@ function emprestadosDe(t){
     .filter(p=>p.emprestimo&&p.emprestimo.donoId===t.id&&p.timeId!==t.id);
 }
 
+/* ============================================================
+   NEGOCIAR A PROPOSTA — a mesa ao contrário
+   ------------------------------------------------------------
+   Antes a proposta que chegava por um jogador seu só tinha dois
+   botões: aceitar ou recusar. Agora dá para pedir mais, do mesmo
+   jeito que você negocia quando compra, só que do outro lado da
+   mesa: você pede, o clube que quer o jogador responde subindo a
+   oferta ou parando no limite dele, e tem paciência — pedido
+   recusado gasta um ponto, pedido fora da realidade gasta dois.
+   Acabou a paciência, ele retira a proposta.
+
+   O limite do comprador é escondido e não sorteia: sai do valor do
+   jogador, do quanto ele precisa da função, do caixa dele e de um
+   embaralhador fixo da proposta — o mesmo pedido dá sempre a mesma
+   resposta e o gerador do motor não anda.
+   Pedir parte de uma venda futura (revenda) também vale: ele aceita
+   pagar menos agora em troca, como você faz quando compra.
+   ============================================================ */
+const VENDA_PAC=3;
+const VENDA_EXAGERO=1.45;      /* acima disto do limite dele, o pedido ofende */
+function vendaNegociavel(pr){return !!pr&&(pr.tipo==='compra'||pr.tipo==='emprestimo');}
+/* o máximo que o comprador paga por esta proposta */
+function limiteDoComprador(pr){
+  const p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+  if(!p||!c)return pr.taxa||0;
+  const h=_hashTxt(pr.id+'|limite');
+  if(pr.tipo==='emprestimo'){
+    const lim=Math.max(pr.taxa,Math.round(p.valor*(0.06+(h%5)/100)/500)*500);
+    return Math.min(Math.max(pr.taxa,c.caixa*0.5),lim);
+  }
+  /* quanto mais ele precisa do jogador, mais esticado o limite */
+  const necessidade=Math.min(0.12,Math.max(0,interesseDe(c,p))*0.012);
+  const base=Math.max(pr.taxa,pr.pedido||0,pedidoDeVenda(p));
+  const lim=Math.round(base*(1.02+(h%20)/100+necessidade)/500)*500;
+  const caixa=Math.max(0,c.caixa*TETO_TAXA);
+  return Math.max(pr.taxa,Math.min(caixa,lim));
+}
+function _falaVenda(pr,de,txt,extra){(pr.neg.hist=pr.neg.hist||[]).push({de,txt,sem:G.semana,ano:G.ano,...(extra||{})});}
+function abrirNegociacaoVenda(id){
+  const pr=proposta(id);
+  if(!pr)return{ok:false,erro:'A proposta não está mais na mesa.'};
+  if(!vendaNegociavel(pr))return{ok:false,erro:pr.tipo==='multa'?'Multa paga não se negocia: só ele decide.':'Essa proposta não se negocia.'};
+  if(!pr.neg){
+    const p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+    pr.neg={pac:VENDA_PAC,pacMax:VENDA_PAC,inicial:pr.taxa,hist:[]};
+    _falaVenda(pr,'clube',pr.tipo==='emprestimo'
+      ?'Queremos '+p.nome+' emprestado por uma temporada: '+dinheiro(pr.taxa)+' de taxa'+(pr.opcaoCompra?' e opção de compra de '+dinheiro(pr.opcaoCompra):'')+'.'
+      :'Oferecemos '+dinheiro(pr.taxa)+' por '+p.nome+'. Ele receberia '+dinheiro(pr.salario)+'/mês aqui no '+c.nome+'.');
+  }
+  return{ok:true,pr};
+}
+/* Você pede `valor` (e, na venda, `revenda`% de uma venda futura).
+   Devolve {ok, resposta:'aceita'|'contra'|'limite'|'retirada', valor, venda} */
+function pedirNaVenda(id,valor,revenda){
+  const a=abrirNegociacaoVenda(id);if(!a.ok)return a;
+  const pr=a.pr,p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  valor=Math.max(0,Math.round((valor||0)/500)*500);
+  revenda=pr.tipo==='compra'&&REVENDA_OPCOES.includes(+revenda)?+revenda:0;
+  if(valor<=pr.taxa&&!revenda)return{ok:false,erro:'Isso é o que eles já oferecem: é só aceitar.'};
+  _falaVenda(pr,'voce','Pedimos '+dinheiro(valor)+(revenda?' e '+revenda+'% de uma venda futura':'')+'.',{valor});
+  /* revenda custa para quem compra: o pedido pesa como se fosse maior */
+  const custo=revenda?valor*(1+revenda/100*pesoRevenda(p)):valor;
+  const lim=limiteDoComprador(pr);
+  if(custo<=lim){
+    pr.taxa=valor;pr.revenda=revenda||pr.revenda||0;
+    _falaVenda(pr,'clube','Fechado: '+dinheiro(valor)+(revenda?' e '+revenda+'% da próxima venda':'')+'.');
+    const r=aceitarProposta(pr.id);
+    return{ok:r.ok,erro:r.erro,resposta:'aceita',valor,venda:r};
+  }
+  const exagero=custo>lim*VENDA_EXAGERO;
+  pr.neg.pac-=exagero?2:1;
+  if(pr.neg.pac<=0){
+    _falaVenda(pr,'clube',exagero?'Esse valor está fora da realidade. Retiramos a proposta.':'Não chegamos a um acordo. Retiramos a proposta.');
+    G.propostas=(G.propostas||[]).filter(x=>x.id!==pr.id);
+    noticia('🚪 '+c.nome+' desistiu de '+p.nome+' depois da negociação.',{c:'mercado',p:[p.id],t:[c.id]});
+    return{ok:true,resposta:'retirada',hist:pr.neg.hist};
+  }
+  /* a contraproposta sobe na sua direção, mas nunca passa do limite dele */
+  const antes=pr.taxa;
+  const nova=Math.min(lim,Math.max(antes+5000,Math.round((antes+(Math.min(custo,lim*1.2)-antes)*0.45)/5000)*5000));
+  pr.taxa=Math.max(antes,Math.round(nova/500)*500);
+  pr.prazo=Math.max(pr.prazo||1,2);
+  const noLimite=pr.taxa>=lim;
+  _falaVenda(pr,'clube',(exagero?'Muito acima do que ele vale para nós. ':'')+
+    (noLimite?'Esse é o nosso limite: '+dinheiro(pr.taxa)+'.':'Subimos para '+dinheiro(pr.taxa)+'.'),{valor:pr.taxa});
+  return{ok:true,resposta:noLimite?'limite':'contra',valor:pr.taxa};
+}
+
 
 /* ===== src/core/legado.js ===== */
 /* ============================================================
@@ -14437,14 +14551,142 @@ const PAPEIS=[
 function papelAtual(){return (G.manager&&G.manager.papel)||'diretoria';}
 function souTreinador(){return papelAtual()==='treinador';}
 
-function criarManager(nome,papel){
+/* Trajetória do treinador: começar no topo ou subir trabalhando. */
+const MODOS_TREINADOR=[
+  {id:'carreira',nome:'Do zero',resumo:'Começa como um coach comum da divisão e evolui com resultados, títulos e anos de trabalho, até poder chegar ao topo do mundo.',over:{1:80,2:64},pot:97},
+  {id:'lenda',nome:'Lenda',resumo:'Já começa entre os melhores do mundo. O elenco rende mais desde a primeira semana, mas o salário pesa na folha e há pouco para evoluir.',over:{1:94,2:94},pot:99}
+];
+/* Estilo: puxa um atributo da comissão para cima e outro um pouco para baixo,
+   sem mudar o over — muda o PERFIL, como a função de um jogador. */
+const ESTILOS_TREINADOR=[
+  {id:'estrategista',nome:'Estrategista',desc:'Leitura de jogo e preparação de mapa.',mais:'visao',menos:'gestao'},
+  {id:'tecnico',nome:'Técnico',desc:'Mecânica, execução e evolução individual.',mais:'tecnica',menos:'disciplina'},
+  {id:'motivador',nome:'Motivador',desc:'Vestiário unido e cabeça no lugar.',mais:'gestao',menos:'tecnica'},
+  {id:'disciplinador',nome:'Disciplinador',desc:'Rotina, método e cobrança.',mais:'disciplina',menos:'visao'}
+];
+function modoTreinador(id){return MODOS_TREINADOR.find(x=>x.id===id)||MODOS_TREINADOR[0];}
+function estiloTreinador(id){return ESTILOS_TREINADOR.find(x=>x.id===id)||ESTILOS_TREINADOR[0];}
+
+function criarManager(nome,papel,opc){
   const p=PAPEIS.some(x=>x.id===papel)?papel:'diretoria';
+  opc=opc||{};
   G.manager={
     nome:String(nome||'').trim().slice(0,28)||'Manager',
     papel:p, desde:G.ano, confianca:dificuldade().confianca,
-    metas:[], historico:[], demitido:false, clubes:[]
+    metas:[], historico:[], demitido:false, clubes:[],
+    pais:opc.pais||null, idade:clamp(parseInt(opc.idade)||34,22,70), genero:opc.genero==='f'?'f':'m',
+    modo:modoTreinador(opc.modo).id, estilo:estiloTreinador(opc.estilo).id,
+    foto:opc.foto||null, staffId:null
   };
   return G.manager;
+}
+
+/* ============================================================
+   O TREINADOR NA COMISSÃO
+   ------------------------------------------------------------
+   No papel de treinador você É o head coach: entra na comissão no
+   lugar do coach do clube, que vai para o mercado. O seu nível vale
+   no motor e no treino como o de qualquer coach (t.staff.tecnico),
+   evolui com o trabalho (ou já começa no topo, se você escolheu a
+   trajetória de lenda) e vai com você quando trocar de clube.
+   Na diretoria o coach do clube continua — quem manda é você, quem
+   treina é ele.
+   Nada aqui sorteia: o seu cadastro é montado na mão, sem gerador.
+   ============================================================ */
+function membroManager(){
+  const m=G.manager;
+  return m&&m.staffId&&G.staff?G.staff[m.staffId]||null:null;
+}
+function _criarMembroManager(overAlvo){
+  const g=G.manager,t=G.times[G.meuTime];
+  const est=estiloTreinador(g.estilo);
+  const at={tecnica:overAlvo,gestao:overAlvo,visao:overAlvo,disciplina:overAlvo};
+  at[est.mais]+=7;at[est.menos]-=4;
+  const R=t?REGIONS.find(r=>r.id===t.regiao):null;
+  const m={id:'s'+(G.seqS=(G.seqS||0)+1),nome:g.nome,genero:g.genero,cargo:'tecnico',
+    pais:g.pais||(t&&typeof paisDoClube==='function'&&paisDoClube(t))||(R?R.paises[0]:'BR'),
+    idade:g.idade,at,pot:modoTreinador(g.modo).pot,timeId:null,contrato:9,salario:0,valor:0,
+    temp:{v:0,d:0,titulos:0},carreira:{anos:0,titulos:0},hist:[],voce:true,foto:g.foto||null};
+  aplicarOverStaff(m,overAlvo);
+  m.pot=Math.max(m.pot,overStaff(m));
+  G.staff[m.id]=m;
+  g.staffId=m.id;
+  return m;
+}
+/* over de partida: lenda no topo; do zero, um coach comum da divisão */
+function overInicialManager(t){
+  const md=modoTreinador(G.manager.modo);
+  return md.over[t&&t.tier===2?2:1];
+}
+/* Coloca você no cargo de head coach do clube. O coach que estava lá vai
+   para o mercado. Vale na carreira nova e ao assumir outro clube. */
+function instalarManagerNoClube(t){
+  if(!t||!souTreinador()||!G.staff)return null;
+  let m=membroManager();
+  if(!m)m=_criarMembroManager(overInicialManager(t));
+  const antigo=membroDe(t,'tecnico');
+  if(antigo&&antigo.id!==m.id){
+    moverStaff(antigo.id,null);
+    noticia('👔 '+antigo.nome+' deixa o comando técnico do '+t.nome+' e vai para o mercado: quem treina agora é '+m.nome+'.',{c:'clube',t:[t.id]});
+  }
+  /* sai de onde estava, sem passar pelo mercado */
+  for(const x of Object.values(G.times))if(x.comissao&&x.comissao.tecnico===m.id&&x.id!==t.id){x.comissao.tecnico=null;atualizarComissao(x);}
+  G.staffLivres=(G.staffLivres||[]).filter(x=>x!==m.id);
+  m.timeId=t.id;m.contrato=9;
+  m.salario=salarioStaff(m);m.valor=valorStaff(m);
+  t.comissao=t.comissao||{};t.comissao.tecnico=m.id;
+  atualizarComissao(t);
+  return m;
+}
+/* Você sai do clube (demissão): o clube contrata o melhor coach livre que
+   couber, para não ficar com interino. */
+function retirarManagerDoClube(t){
+  const m=membroManager();
+  if(!t||!m||!t.comissao||t.comissao.tecnico!==m.id)return;
+  t.comissao.tecnico=null;m.timeId=null;
+  const livre=(G.staffLivres||[]).map(i=>G.staff[i]).filter(x=>x&&!x.voce&&x.cargo==='tecnico')
+    .sort((a,b)=>overStaff(b)-overStaff(a))[0];
+  if(livre){moverStaff(livre.id,t.id,'tecnico');
+    noticia('👔 '+livre.nome+' é o novo head coach do '+t.nome+'.',{c:'mercado',t:[t.id]});}
+  else atualizarComissao(t);
+}
+/* Saves de antes: o treinador ainda não estava na comissão. Entra no lugar do
+   coach, com o mesmo nível dele, para a troca não mexer na força do time. */
+function garantirManagerNaComissao(){
+  const g=G.manager,t=G.meuTime&&G.times[G.meuTime];
+  if(!g||!t||!souTreinador()||g.demitido||!G.staff)return;
+  if(membroManager()&&t.comissao&&t.comissao.tecnico===g.staffId)return;
+  if(!membroManager()){
+    if(!g.modo)g.modo='carreira';
+    if(!g.estilo)g.estilo='estrategista';
+    if(!g.idade)g.idade=34;
+    const atual=membroDe(t,'tecnico');
+    _criarMembroManager(atual?overStaff(atual):overInicialManager(t));
+  }
+  instalarManagerNoClube(t);
+}
+/* Evolução de fim de temporada do seu cadastro de coach. Do zero sobe com
+   o trabalho e o resultado; a lenda quase não sobe, mas também não cai cedo. */
+function evoluirManagerStaff(m){
+  const g=G.manager||{};
+  const jogos=m.temp.v+m.temp.d,aprov=jogos?m.temp.v/jogos:0.5;
+  m.hist.push({ano:G.ano,time:m.timeId&&G.times[m.timeId]?G.times[m.timeId].nome:'Sem clube',over:overStaff(m),
+    v:m.temp.v,d:m.temp.d,titulos:m.temp.titulos});
+  if(m.hist.length>20)m.hist.shift();
+  m.carreira.anos++;m.carreira.titulos+=m.temp.titulos;
+  const o=overStaff(m),gap=Math.max(0,m.pot-o);
+  const metas=(g.metas||[]).filter(x=>x.peso&&x.cumprida===true).length;
+  let d=g.modo==='lenda'
+    ?(aprov-0.5)*1.6+m.temp.titulos*0.6
+    :(m.timeId?1.0:0)+(aprov-0.5)*4.5+m.temp.titulos*2.4+metas*0.8;
+  if(m.idade>=58)d-=(m.idade-57)*0.4;
+  if(d>0)d=Math.min(d,gap*0.5);
+  if(Math.abs(d)>=0.3)aplicarOverStaff(m,clamp(Math.round(o+d),40,99));
+  m.idade++;g.idade=m.idade;
+  m.temp={v:0,d:0,titulos:0};
+  m.salario=salarioStaff(m);m.valor=valorStaff(m);
+  if(m.timeId&&Math.round(overStaff(m))>o&&typeof noticia==='function')
+    noticia('📈 '+m.nome+' fecha a temporada como coach '+overStaff(m)+' (era '+o+').',{c:'carreira',t:[m.timeId]});
 }
 
 /* ---------- metas ----------
@@ -14627,6 +14869,7 @@ function avaliarTemporada(){
 function demitirManager(t){
   const m=G.manager;
   m.demitido=true;
+  retirarManagerDoClube(t);
   m.clubes.push({tag:t.tag,nome:t.nome,de:m.desde,ate:G.ano});
   noticia('📉 '+m.nome+' foi demitido do '+t.nome+'.',{c:'clube',t:[t.id],imp:3});
 }
@@ -14654,6 +14897,7 @@ function assumirClube(id){
   const m=G.manager;
   m.demitido=false;m.desde=G.ano;m.confianca=dificuldade().confianca-4;
   if(typeof iniciarBase==='function')iniciarBase(t);
+  instalarManagerNoClube(t);
   montarMetas();
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
@@ -15617,6 +15861,9 @@ function salarioPedidoStaff(m,destino){
 }
 function avaliarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   const motivos=[];
+  if(cargo==='tecnico'&&destino&&destino.id===G.meuTime&&typeof souTreinador==='function'&&souTreinador()&&!(G.manager&&G.manager.demitido))
+    motivos.push('Você é o head coach do clube: a vaga não está aberta.');
+  if(m.voce)motivos.push('Esse é você.');
   if(m.timeId){
     const pedido=pedidoStaff(m);
     if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' para liberar.');
@@ -15674,6 +15921,9 @@ function evoluirStaff(){
   const usados=nomesStaffUsados();
   for(const id in G.staff){
     const m=G.staff[id];
+    /* você: evolução própria, sem aposentadoria nem fim de contrato e sem
+       tocar no gerador (core/manager.js) */
+    if(m.voce){if(typeof evoluirManagerStaff==='function')evoluirManagerStaff(m);continue;}
     const t=m.timeId?G.times[m.timeId]:null;
     const jogos=m.temp.v+m.temp.d;
     const aprov=jogos?m.temp.v/jogos:0.5;
@@ -18318,6 +18568,7 @@ function ligarMenuPrincipal(){
 function entrarNoJogo(){
   if(!G||!G.meuTime){flash('Assuma um clube primeiro.');return;}
   modo='jogo';
+  if(typeof garantirManagerNaComissao==='function')garantirManagerNaComissao();
   if(typeof _titulosVistos!=='undefined')_titulosVistos=null;
   if(!hist.length){hist=[tela];histPos=0;}
   render();
@@ -18679,9 +18930,9 @@ function vTaticas(){
       <div class="tat-pe ${p.partes.tatica>0.4?'up':p.partes.tatica<-0.4?'dn':''}">tática no preparo <b class="num">${p.partes.tatica>0?'+':''}${p.partes.tatica.toFixed(1)}</b>
         ${tm.agres||tm.foco?'<span class="chip t">própria</span>':''}</div>
     </div>`;}).join('');
-  const comissao=comissaoDe(t).map(({cargo,membro})=>membro?`<div class="stf-c">
+  const comissao=comissaoDe(t).map(({cargo,membro})=>membro?`<div class="stf-c ${membro.voce?'voce':''}">
       ${retratoStaff(membro,58)}
-      <div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}</span><b>${esc(membro.nome)} ${bandeira(membro.pais)}</b>
+      <div class="stf-i"><span class="eyebrow">${esc(cargo.nome)}${membro.voce?' · você':''}</span><b>${esc(membro.nome)} ${bandeira(membro.pais)}</b>
         <span class="dim">${membro.nomeReal?esc(membro.nomeReal)+' · ':''}${membro.idade}a · ${money(membro.salario)}/mês</span></div>
       <span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>
       <button class="btn ghost sm" data-fichastaff="${membro.id}">Ficha</button></div>`
@@ -19194,7 +19445,8 @@ function vMercadoSaidas(t){
       <div class="prop-bts">${x.tipo==='multa'
         ?`<button class="btn sm" data-segurar="${x.id}" title="Oferece ${Math.round(SEGURAR_AUMENTO*100)}% de aumento; uma tentativa só">Tentar segurar</button>
           <button class="btn ghost sm" data-aceitar="${x.id}">Liberar</button>`
-        :`<button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
+        :`${x.tipo!=='troca'?`<button class="btn teal sm" data-negvenda="${x.id}" title="Peça mais: o clube responde subindo a oferta ou parando no limite dele">${x.neg?'Mesa':'Negociar'}</button>`:''}
+          <button class="btn sm" data-aceitar="${x.id}">Aceitar</button>
           <button class="btn ghost sm" data-recusar="${x.id}">Recusar</button>`}</div></div>`;};
   const cxPropostas=props.length?`
   <div class="card flat"><div class="eyebrow">Propostas na mesa</div>
@@ -19275,7 +19527,7 @@ function vMercadoStaff(t){
       <td>${membro?`<span class="linha-t">${retratoStaff(membro,24)}<b>${esc(membro.nome)}</b></span>`:'<span class="dn">vago</span>'}</td>
       <td class="c">${membro?`<span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>`:'—'}</td>
       <td class="r num dim">${membro?money(membro.salario)+'/mês':''}</td>
-      <td class="r">${membro?`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`:''}</td>
+      <td class="r">${membro&&membro.voce?'<span class="chip t">você</span>':membro?`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`:''}</td>
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
   </div>
@@ -20037,6 +20289,13 @@ function cardImprensa(){
   </div>`;
 }
 
+/* retrato do manager: o cadastro de coach quando existe, senão a foto enviada */
+function retratoManager(px){
+  const g=G.manager;if(!g)return '';
+  const mm=typeof membroManager==='function'&&membroManager();
+  if(mm)return `<span class="mgr-foto">${retratoStaff(mm,px)}</span>`;
+  return g.foto?`<span class="mgr-foto"><img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt=""></span>`:'';
+}
 /* ---------- a tela ---------- */
 function vInicio(){
   const t=meu();
@@ -20056,8 +20315,9 @@ function vInicio(){
   ${heroClube(t,rr)}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">
-      <div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}</div>
-        <div style="margin-top:4px">${esc(sit.texto)}</div></div>
+      <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();
+          return mm?` · coach <b class="num">${overStaff(mm)}</b>${G.manager.modo==='lenda'?' · lenda':''}`:'';})()}</div>
+        <div style="margin-top:4px">${esc(sit.texto)}</div></div></div>
       ${sit.livre?'':`<div class="mgr-conf">${medidor('<span class="dim">confiança</span>',sit.confianca/100,54)}</div>`}
     </div>
     ${sit.demitido?`<div class="mgr-ofertas">
@@ -22989,6 +23249,124 @@ function _ligarMesa(p,n){
   }
 }
 
+/* ============================================================
+   MESA DE VENDA — a proposta que chegou por um jogador seu
+   ------------------------------------------------------------
+   A mesma mesa da compra, do outro lado: o seu clube à esquerda,
+   o comprador à direita. Você pede um valor (e, se quiser, parte
+   de uma venda futura); ele sobe a oferta ou para no limite dele.
+   Pedido aceito fecha a venda na hora.
+   ============================================================ */
+let _vendaRasc={};
+function modalNegociarVenda(id,prFeito,resultado){
+  const t=meu();
+  const pr=prFeito||proposta(id);
+  if(!pr){avisar('Essa proposta não está mais na mesa.');return;}
+  if(!prFeito){const a=abrirNegociacaoVenda(id);if(!a.ok){avisar(a.erro);return;}}
+  const p=P(pr.jogadorId),c=T(pr.clubeId);
+  if(!p||!c)return;
+  const viva=!!proposta(pr.id);
+  const vendido=resultado&&resultado.resposta==='aceita'&&resultado.venda&&resultado.venda.ok;
+  const retirada=resultado&&resultado.resposta==='retirada';
+  const emp=pr.tipo==='emprestimo';
+  const valorMerc=pedidoDeVenda(p),multa=multaDe(p);
+  const pedido0=_vendaRasc.id===pr.id&&_vendaRasc.v!=null?_vendaRasc.v:Math.round(Math.max(pr.taxa*1.15,emp?pr.taxa+5000:valorMerc)/5000)*5000;
+  const rev0=_vendaRasc.id===pr.id?(+_vendaRasc.rev||0):0;
+  const max=Math.round(Math.max(multa,valorMerc,pr.taxa)*(emp?0.3:1.35)/5000)*5000+5000;
+  const lado=(time,rot,extra)=>`<div class="neg-lado">${escudo(time,64)}<div class="eyebrow">${rot}</div><b>${esc(time.nome)}</b>${extra||''}</div>`;
+  const palco=`<div class="neg-palco">
+    ${lado(t,'Você vende',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
+    <div class="neg-centro">${cartaJogador(p,{w:150})}<div class="neg-perfil">${esc(p.role)} · ${p.idade} anos · contrato ${p.contrato}a</div></div>
+    <div class="neg-seta${vendido?' ok':''}"><span></span></div>
+    ${lado(c,emp?'Quer emprestado':'Quer comprar',`<div class="dim neg-sub">${esc(nomeLiga(c))}</div>`)}
+  </div>`;
+  const esquerda=`<div class="neg-col">
+    <div class="eyebrow">A proposta do ${esc(c.nome)}</div>
+    <div class="neg-numeros">
+      <div><span class="dim">${emp?'Taxa de empréstimo':'Oferta pelo passe'}</span><b class="num">${dinheiro(pr.taxa)}</b></div>
+      ${pr.neg&&pr.neg.inicial!==pr.taxa?`<div><span class="dim">Oferta inicial</span><b class="num dim">${dinheiro(pr.neg.inicial)}</b></div>`:''}
+      <div><span class="dim">Salário dele lá</span><b class="num">${dinheiro(pr.salario)}/mês</b></div>
+      ${emp&&pr.opcaoCompra?`<div><span class="dim">Opção de compra</span><b class="num">${dinheiro(pr.opcaoCompra)}</b></div>`:''}
+    </div>
+    <div class="eyebrow" style="margin-top:12px">Referências</div>
+    <table><tbody>
+      <tr><td>Valor de mercado (o que um clube paga)</td><td class="r num">${dinheiro(valorMerc)}</td></tr>
+      ${p.anuncio&&p.anuncio.pedido?`<tr><td>Seu pedido no anúncio</td><td class="r num">${dinheiro(p.anuncio.pedido)}</td></tr>`:''}
+      <tr><td>Multa rescisória</td><td class="r num">${dinheiro(multa)}</td></tr>
+      <tr><td>Salário dele hoje</td><td class="r num">${dinheiro(p.salario)}/mês</td></tr>
+    </tbody></table>
+    <p class="dim neg-nota">O ${esc(c.nome)} ${interesseDe(c,p)>=4?'precisa muito de um '+esc(p.role.toLowerCase())+': tende a esticar mais':'gosta dele, mas não depende dele: estica pouco'}.
+      Pedir parte de uma venda futura faz ele aceitar pagar um pouco menos agora${p.idade<=22?' — jovem, a revenda vale mais':''}.</p>
+  </div>`;
+  let direita;
+  if(vendido){
+    direita=`<div class="neg-col neg-fechada"><div class="neg-carimbo">${emp?'Emprestado':'Vendido'}</div>
+      <table><tbody><tr><td>${emp?'Taxa':'Valor da venda'}</td><td class="r num">${dinheiro(pr.taxa)}</td></tr>
+      ${pr.revenda?`<tr><td>Revenda</td><td class="r num">${pr.revenda}% da próxima venda</td></tr>`:''}
+      ${pr.neg?`<tr><td>Ganho na negociação</td><td class="r num up">+${dinheiro(pr.taxa-pr.neg.inicial)}</td></tr>`:''}</tbody></table></div>`;
+  }else if(retirada||!viva){
+    direita=`<div class="neg-col"><div class="neg-aviso">${retirada?'O '+esc(c.nome)+' retirou a proposta.':'A proposta não está mais na mesa.'}</div></div>`;
+  }else{
+    direita=`<div class="neg-col">
+      <div class="split"><div class="eyebrow">Conversa com o ${esc(c.nome)}</div>${_pac(pr.neg.pac,pr.neg.pacMax)}</div>
+      <label class="neg-campo"><span>${emp?'Taxa que você pede':'Quanto você pede pelo passe'}</span>
+        <input type="range" id="vValR" min="${pr.taxa}" max="${max}" step="5000" value="${clamp(pedido0,pr.taxa,max)}">
+        <input type="number" id="vVal" value="${pedido0}" step="5000"></label>
+      ${!emp?`<div class="neg-campo"><span>Percentual de revenda <span class="dim">(você fica com parte da próxima venda dele)</span></span>
+        <div class="neg-anos neg-multa">${REVENDA_OPCOES.map(v=>`<button class="${rev0===v?'on':''}" data-vrev="${v}">${v?v+'%':'Sem'}</button>`).join('')}</div></div>`:''}
+      <div id="vBarra"></div>
+      <div class="neg-bts">
+        <button class="btn" id="vPedir">Enviar pedido</button>
+        <button class="btn ghost" id="vAceitar">Aceitar ${dinheiro(pr.taxa)}</button>
+        <button class="btn ghost" id="vRecusar">Recusar a proposta</button>
+      </div>
+      <div id="vFeed"></div>
+      <p class="dim neg-nota">Pedido recusado gasta um ponto de paciência; pedido muito acima do que ele pode pagar gasta dois. Sem paciência, ele retira a proposta.</p>
+    </div>`;
+  }
+  abrir(`<div class="neg">
+    <div class="eyebrow">${emp?'Empréstimo':'Venda'} · proposta recebida</div><h2 class="sec">${esc(p.nome)}</h2>
+    ${palco}
+    <div class="neg-corpo">${esquerda}${direita}</div>
+    ${pr.neg&&pr.neg.hist.length?`<div class="neg-chat">${pr.neg.hist.map(h=>`<div class="neg-msg m-${h.de}">${{voce:'Você',clube:esc(c.tag)}[h.de]?`<span class="neg-quem">${{voce:'Você',clube:esc(c.tag)}[h.de]}</span>`:''}${esc(h.txt)}</div>`).join('')}</div>`:''}
+    <div class="neg-bts" style="justify-content:flex-end">
+      <button class="btn ghost" data-ficha="${p.id}">Ver ficha</button>
+      <button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true,!!$('#modal .neg'));
+  const bf=$('#modal [data-ficha]');if(bf)bf.onclick=()=>modalJogador(p.id);
+  const chat=$('#modal .neg-chat');if(chat)chat.scrollTop=chat.scrollHeight;
+  if(vendido||retirada||!viva){render();return;}
+  const feed=txt=>{const f=$('#vFeed');if(f)f.innerHTML=`<div class="neg-aviso">${esc(txt)}</div>`;};
+  const pinta=()=>{
+    const v=parseFloat($('#vVal').value)||0;_vendaRasc={id:pr.id,v,rev:_vendaRasc.id===pr.id?_vendaRasc.rev:0};
+    const r=v/Math.max(1,valorMerc);
+    $('#vBarra').innerHTML=_barraNeg(r,[{c:'t',w:0.85/1.3*100},{c:'y',w:0.2/1.3*100},{c:'a',w:0.15/1.3*100},{c:'r',w:0.1/1.3*100}],
+      v<=pr.taxa?'É o que eles já oferecem':r<0.95?'Abaixo do valor de mercado: fácil de aceitarem'
+        :r<1.15?'Perto do valor de mercado':r<1.3?'Acima do mercado: só se precisarem muito':'Muito acima: pode ofender');
+  };
+  const a=$('#vValR'),b=$('#vVal');
+  a.oninput=()=>{b.value=a.value;pinta();};b.oninput=()=>{a.value=b.value;pinta();};pinta();
+  $('#modal').querySelectorAll('[data-vrev]').forEach(x=>x.onclick=()=>{_vendaRasc.rev=+x.dataset.vrev;
+    $('#modal').querySelectorAll('[data-vrev]').forEach(y=>y.classList.toggle('on',y===x));});
+  $('#vPedir').onclick=()=>{
+    const r=pedirNaVenda(pr.id,parseFloat($('#vVal').value)||0,+_vendaRasc.rev||0);
+    if(!r.ok&&r.resposta!=='aceita')return feed(r.erro);
+    if(r.resposta==='aceita'){
+      if(r.venda&&r.venda.ok)noticia('🤝 '+r.venda.msg,{c:'mercado',t:[t.id],p:[p.id]});
+      else if(r.venda)feed(r.venda.erro);
+    }
+    if(r.resposta==='contra'||r.resposta==='limite')_vendaRasc.v=Math.round(Math.max(r.valor+5000,(parseFloat($('#vVal').value)||0)*0.97)/5000)*5000;
+    modalNegociarVenda(pr.id,(r.resposta==='aceita'||r.resposta==='retirada')?pr:null,r);
+  };
+  $('#vAceitar').onclick=()=>{
+    const r=aceitarProposta(pr.id);
+    if(!r.ok)return feed(r.erro||'Não deu para aceitar.');
+    noticia('🤝 '+r.msg,{c:'mercado',t:[t.id],p:[p.id]});
+    modalNegociarVenda(pr.id,pr,{resposta:'aceita',venda:r});
+  };
+  $('#vRecusar').onclick=()=>{recusarProposta(pr.id);fechar();flash('Proposta recusada.');};
+}
+
 
 /* ===== src/ui/trocas.js ===== */
 /* ============================================================
@@ -25148,6 +25526,7 @@ function ligarEventos(){
     noticia('🤝 '+r.msg,{c:'mercado',t:[t.id]});render();
   });
   on('[data-recusar]',el=>{recusarProposta(el.dataset.recusar);render();});
+  on('[data-negvenda]',el=>{_vendaRasc={};modalNegociarVenda(el.dataset.negvenda);});
   /* mercado vivo */
   on('[data-psaida]',el=>{
     const [r0,pid]=el.dataset.psaida.split(':');const p=P(pid);
@@ -25344,6 +25723,7 @@ function ligarEventos(){
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));
   on('[data-dispstaff]',async el=>{
     const m=G.staff[el.dataset.dispstaff];if(!m)return;
+    if(m.voce){avisar('Esse é você: o head coach não se dispensa.');return;}
     const multa=Math.round(m.salario*Math.max(1,m.contrato)*4);
     if(!await confirmar('Dispensar '+m.nome+'? Multa de '+money(multa)+'.','Dispensar'))return;
     t.caixa-=multa;
@@ -25657,6 +26037,23 @@ function ligarEventos(){
    NOVO JOGO
    ============================================================ */
 let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
+/* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
+let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
+/* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
+function fotoDoArquivo(file){
+  return new Promise((res,rej)=>{
+    if(!file||!/^image\//.test(file.type||''))return rej(new Error('Escolha um arquivo de imagem.'));
+    const fr=new FileReader();
+    fr.onload=()=>{const im=new Image();im.onload=()=>{
+      const W=240,H=300,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+      const e=Math.max(W/im.width,H/im.height),w=im.width*e,h=im.height*e;
+      const cx=cv.getContext('2d');cx.fillStyle='#0F1923';cx.fillRect(0,0,W,H);
+      cx.drawImage(im,(W-w)/2,(H-h)/2.6,w,h);
+      res(cv.toDataURL('image/jpeg',0.86));};
+      im.onerror=()=>rej(new Error('Não deu para ler essa imagem.'));im.src=fr.result;};
+    fr.onerror=()=>rej(new Error('Falha ao ler o arquivo.'));fr.readAsDataURL(file);
+  });
+}
 function telaNovoJogo(){
   const val=edValidar();
   if(!val.ok){
@@ -25688,17 +26085,36 @@ function telaNovoJogo(){
   const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
   $('#modal').innerHTML=`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
     <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
-    <div class="nj-quem">
-      <label class="dim">Seu nome
-        <input type="text" id="njNome" value="${esc(escNome)}" maxlength="28"
-          placeholder="como a imprensa vai te chamar"></label>
-      <div class="nj-papeis">${PAPEIS.map(p=>`
+    <div class="nj-perfil">
+      <div class="nj-foto">
+        <label class="nj-foto-img" title="Escolher foto">${escFoto?`<img src="${escFoto}" alt="">`:`<span>${icone('mais')}<b>Sua foto</b></span>`}
+          <input type="file" id="njFoto" accept="image/*" hidden></label>
+        ${escFoto?'<button class="btn ghost sm" id="njFotoTira">Tirar a foto</button>':'<span class="dim">opcional · PNG ou JPG</span>'}
+      </div>
+      <div class="nj-campos campos">
+        <label>Seu nome<input type="text" id="njNome" value="${esc(escNome)}" maxlength="28" placeholder="como a imprensa vai te chamar"></label>
+        <label>Nacionalidade${selectPais('id="njPais"',escPais)}</label>
+        <label>Idade<input type="number" id="njIdade" value="${escIdade}" min="22" max="70"></label>
+        <label>Gênero<select id="njGenero"><option value="m" ${escGenero==='m'?'selected':''}>Masculino</option><option value="f" ${escGenero==='f'?'selected':''}>Feminino</option></select></label>
+      </div>
+    </div>
+    <div class="eyebrow" style="margin-top:14px">Papel</div>
+    <div class="nj-papeis">${PAPEIS.map(p=>`
         <button class="nj-papel ${escPapel===p.id?'on':''}" data-papel="${p.id}">
           <b>${esc(p.nome)}</b>
           <span>${esc(p.resumo)}</span>
-          <i>${esc(p.detalhe)}</i>
+          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':' O coach do clube continua no cargo.'}</i>
         </button>`).join('')}</div>
-    </div>
+    ${escPapel==='treinador'?`
+    <div class="eyebrow" style="margin-top:14px">Trajetória</div>
+    <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
+        <button class="nj-papel ${escModo===md.id?'on':''}" data-modo="${md.id}">
+          <b>${esc(md.nome)} <span class="nj-ov">coach ${md.over[escTier]}${md.id==='carreira'?' → até '+md.pot:''}</span></b>
+          <span>${esc(md.resumo)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Estilo</div>
+    <div class="nj-estilos">${ESTILOS_TREINADOR.map(e=>`
+        <button class="nj-estilo ${escEstilo===e.id?'on':''}" data-estilo="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span>
+          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>`:''}
     <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
@@ -25728,9 +26144,16 @@ function telaNovoJogo(){
   /* o nome digitado sobrevive a cada repintura da tela: sem isso, trocar de
      região no meio do preenchimento apagava o que a pessoa escreveu */
   if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}
-  const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;};
-  const inNome=$('#njNome');
-  if(inNome)inNome.oninput=guardaNome;
+  const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;
+    const pa=$('#njPais');if(pa)escPais=pa.value;const id=$('#njIdade');if(id)escIdade=clamp(parseInt(id.value)||34,22,70);
+    const ge=$('#njGenero');if(ge)escGenero=ge.value;};
+  ['#njNome','#njPais','#njIdade','#njGenero'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
+  const inFoto=$('#njFoto');
+  if(inFoto)inFoto.onchange=async()=>{guardaNome();
+    try{escFoto=await fotoDoArquivo(inFoto.files[0]);telaNovoJogo();}catch(e){flash(e.message);}};
+  const tiraFoto=$('#njFotoTira');if(tiraFoto)tiraFoto.onclick=()=>{guardaNome();escFoto=null;telaNovoJogo();};
+  $('#modal').querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>{guardaNome();escModo=b.dataset.modo;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
@@ -25744,7 +26167,8 @@ function telaNovoJogo(){
     G.iniciadaEm=Date.now();
     aplicarDificuldade(escDif,T(G.meuTime));
     iniciarGuia();
-    criarManager(escNome,escPapel);
+    criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
+    if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     iniciarBase(T(G.meuTime));
     montarMetas();
     const eu=G.manager;

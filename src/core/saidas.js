@@ -259,3 +259,92 @@ function emprestadosDe(t){
   return Object.values(G.jogadores)
     .filter(p=>p.emprestimo&&p.emprestimo.donoId===t.id&&p.timeId!==t.id);
 }
+
+/* ============================================================
+   NEGOCIAR A PROPOSTA — a mesa ao contrário
+   ------------------------------------------------------------
+   Antes a proposta que chegava por um jogador seu só tinha dois
+   botões: aceitar ou recusar. Agora dá para pedir mais, do mesmo
+   jeito que você negocia quando compra, só que do outro lado da
+   mesa: você pede, o clube que quer o jogador responde subindo a
+   oferta ou parando no limite dele, e tem paciência — pedido
+   recusado gasta um ponto, pedido fora da realidade gasta dois.
+   Acabou a paciência, ele retira a proposta.
+
+   O limite do comprador é escondido e não sorteia: sai do valor do
+   jogador, do quanto ele precisa da função, do caixa dele e de um
+   embaralhador fixo da proposta — o mesmo pedido dá sempre a mesma
+   resposta e o gerador do motor não anda.
+   Pedir parte de uma venda futura (revenda) também vale: ele aceita
+   pagar menos agora em troca, como você faz quando compra.
+   ============================================================ */
+const VENDA_PAC=3;
+const VENDA_EXAGERO=1.45;      /* acima disto do limite dele, o pedido ofende */
+function vendaNegociavel(pr){return !!pr&&(pr.tipo==='compra'||pr.tipo==='emprestimo');}
+/* o máximo que o comprador paga por esta proposta */
+function limiteDoComprador(pr){
+  const p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+  if(!p||!c)return pr.taxa||0;
+  const h=_hashTxt(pr.id+'|limite');
+  if(pr.tipo==='emprestimo'){
+    const lim=Math.max(pr.taxa,Math.round(p.valor*(0.06+(h%5)/100)/500)*500);
+    return Math.min(Math.max(pr.taxa,c.caixa*0.5),lim);
+  }
+  /* quanto mais ele precisa do jogador, mais esticado o limite */
+  const necessidade=Math.min(0.12,Math.max(0,interesseDe(c,p))*0.012);
+  const base=Math.max(pr.taxa,pr.pedido||0,pedidoDeVenda(p));
+  const lim=Math.round(base*(1.02+(h%20)/100+necessidade)/500)*500;
+  const caixa=Math.max(0,c.caixa*TETO_TAXA);
+  return Math.max(pr.taxa,Math.min(caixa,lim));
+}
+function _falaVenda(pr,de,txt,extra){(pr.neg.hist=pr.neg.hist||[]).push({de,txt,sem:G.semana,ano:G.ano,...(extra||{})});}
+function abrirNegociacaoVenda(id){
+  const pr=proposta(id);
+  if(!pr)return{ok:false,erro:'A proposta não está mais na mesa.'};
+  if(!vendaNegociavel(pr))return{ok:false,erro:pr.tipo==='multa'?'Multa paga não se negocia: só ele decide.':'Essa proposta não se negocia.'};
+  if(!pr.neg){
+    const p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+    pr.neg={pac:VENDA_PAC,pacMax:VENDA_PAC,inicial:pr.taxa,hist:[]};
+    _falaVenda(pr,'clube',pr.tipo==='emprestimo'
+      ?'Queremos '+p.nome+' emprestado por uma temporada: '+dinheiro(pr.taxa)+' de taxa'+(pr.opcaoCompra?' e opção de compra de '+dinheiro(pr.opcaoCompra):'')+'.'
+      :'Oferecemos '+dinheiro(pr.taxa)+' por '+p.nome+'. Ele receberia '+dinheiro(pr.salario)+'/mês aqui no '+c.nome+'.');
+  }
+  return{ok:true,pr};
+}
+/* Você pede `valor` (e, na venda, `revenda`% de uma venda futura).
+   Devolve {ok, resposta:'aceita'|'contra'|'limite'|'retirada', valor, venda} */
+function pedirNaVenda(id,valor,revenda){
+  const a=abrirNegociacaoVenda(id);if(!a.ok)return a;
+  const pr=a.pr,p=G.jogadores[pr.jogadorId],c=G.times[pr.clubeId];
+  if(!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  valor=Math.max(0,Math.round((valor||0)/500)*500);
+  revenda=pr.tipo==='compra'&&REVENDA_OPCOES.includes(+revenda)?+revenda:0;
+  if(valor<=pr.taxa&&!revenda)return{ok:false,erro:'Isso é o que eles já oferecem: é só aceitar.'};
+  _falaVenda(pr,'voce','Pedimos '+dinheiro(valor)+(revenda?' e '+revenda+'% de uma venda futura':'')+'.',{valor});
+  /* revenda custa para quem compra: o pedido pesa como se fosse maior */
+  const custo=revenda?valor*(1+revenda/100*pesoRevenda(p)):valor;
+  const lim=limiteDoComprador(pr);
+  if(custo<=lim){
+    pr.taxa=valor;pr.revenda=revenda||pr.revenda||0;
+    _falaVenda(pr,'clube','Fechado: '+dinheiro(valor)+(revenda?' e '+revenda+'% da próxima venda':'')+'.');
+    const r=aceitarProposta(pr.id);
+    return{ok:r.ok,erro:r.erro,resposta:'aceita',valor,venda:r};
+  }
+  const exagero=custo>lim*VENDA_EXAGERO;
+  pr.neg.pac-=exagero?2:1;
+  if(pr.neg.pac<=0){
+    _falaVenda(pr,'clube',exagero?'Esse valor está fora da realidade. Retiramos a proposta.':'Não chegamos a um acordo. Retiramos a proposta.');
+    G.propostas=(G.propostas||[]).filter(x=>x.id!==pr.id);
+    noticia('🚪 '+c.nome+' desistiu de '+p.nome+' depois da negociação.',{c:'mercado',p:[p.id],t:[c.id]});
+    return{ok:true,resposta:'retirada',hist:pr.neg.hist};
+  }
+  /* a contraproposta sobe na sua direção, mas nunca passa do limite dele */
+  const antes=pr.taxa;
+  const nova=Math.min(lim,Math.max(antes+5000,Math.round((antes+(Math.min(custo,lim*1.2)-antes)*0.45)/5000)*5000));
+  pr.taxa=Math.max(antes,Math.round(nova/500)*500);
+  pr.prazo=Math.max(pr.prazo||1,2);
+  const noLimite=pr.taxa>=lim;
+  _falaVenda(pr,'clube',(exagero?'Muito acima do que ele vale para nós. ':'')+
+    (noLimite?'Esse é o nosso limite: '+dinheiro(pr.taxa)+'.':'Subimos para '+dinheiro(pr.taxa)+'.'),{valor:pr.taxa});
+  return{ok:true,resposta:noLimite?'limite':'contra',valor:pr.taxa};
+}

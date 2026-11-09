@@ -2403,3 +2403,28 @@ tr:hover .btn-ic,.btn-ic:focus-visible,.btn-ic.on{opacity:1;transform:none}
 /* banco de dados: formulário em duas colunas alinhadas */
 .campos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;align-items:start}
 .campos label input,.campos label select{width:100%;box-sizing:border-box;min-height:34px}
+
+/* ============================================================
+   Treinador personalizado e mesa de venda
+   ============================================================ */
+.nj-perfil{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;margin-top:6px}
+.nj-foto{display:flex;flex-direction:column;align-items:center;gap:6px}
+.nj-foto-img{display:grid;place-items:center;width:112px;height:140px;cursor:pointer;overflow:hidden;
+  border:1px dashed var(--line2);background:rgba(255,255,255,.03);transition:border-color .15s}
+.nj-foto-img:hover{border-color:var(--red)}
+.nj-foto-img img{width:100%;height:100%;object-fit:cover}
+.nj-foto-img span{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--dim);font-size:11px}
+.nj-foto-img span svg{width:24px;height:24px}
+.nj-foto .dim{font-size:10.5px}
+.nj-ov{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--gold);margin-left:6px}
+.nj-estilos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.nj-estilo{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);transition:border-color .15s,background .15s}
+.nj-estilo:hover{border-color:var(--tx2)}
+.nj-estilo.on{border-color:var(--red);background:rgba(255,70,85,.08)}
+.nj-estilo b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:19px;letter-spacing:.04em}
+.nj-estilo span{font-size:11.5px;color:var(--tx2)}
+.nj-estilo i{font-style:normal;font-size:10.5px;color:var(--teal)}
+.mgr-quem{display:flex;align-items:center;gap:12px}
+.mgr-foto img{object-fit:cover;border:1px solid var(--line2)}
+.stf-c.voce{border-color:var(--teal);background:linear-gradient(90deg,rgba(24,229,180,.08),transparent 70%)}

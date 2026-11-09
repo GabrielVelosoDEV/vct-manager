@@ -236,6 +236,9 @@ function salarioPedidoStaff(m,destino){
 }
 function avaliarPropostaStaff(m,destino,cargo,taxa,sal,anos){
   const motivos=[];
+  if(cargo==='tecnico'&&destino&&destino.id===G.meuTime&&typeof souTreinador==='function'&&souTreinador()&&!(G.manager&&G.manager.demitido))
+    motivos.push('Você é o head coach do clube: a vaga não está aberta.');
+  if(m.voce)motivos.push('Esse é você.');
   if(m.timeId){
     const pedido=pedidoStaff(m);
     if(taxa<pedido*0.92)motivos.push('O clube pede cerca de '+money(pedido)+' para liberar.');
@@ -293,6 +296,9 @@ function evoluirStaff(){
   const usados=nomesStaffUsados();
   for(const id in G.staff){
     const m=G.staff[id];
+    /* você: evolução própria, sem aposentadoria nem fim de contrato e sem
+       tocar no gerador (core/manager.js) */
+    if(m.voce){if(typeof evoluirManagerStaff==='function')evoluirManagerStaff(m);continue;}
     const t=m.timeId?G.times[m.timeId]:null;
     const jogos=m.temp.v+m.temp.d;
     const aprov=jogos?m.temp.v/jogos:0.5;

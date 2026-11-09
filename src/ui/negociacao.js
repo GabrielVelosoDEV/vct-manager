@@ -343,3 +343,121 @@ function _ligarMesa(p,n){
     };
   }
 }
+
+/* ============================================================
+   MESA DE VENDA — a proposta que chegou por um jogador seu
+   ------------------------------------------------------------
+   A mesma mesa da compra, do outro lado: o seu clube à esquerda,
+   o comprador à direita. Você pede um valor (e, se quiser, parte
+   de uma venda futura); ele sobe a oferta ou para no limite dele.
+   Pedido aceito fecha a venda na hora.
+   ============================================================ */
+let _vendaRasc={};
+function modalNegociarVenda(id,prFeito,resultado){
+  const t=meu();
+  const pr=prFeito||proposta(id);
+  if(!pr){avisar('Essa proposta não está mais na mesa.');return;}
+  if(!prFeito){const a=abrirNegociacaoVenda(id);if(!a.ok){avisar(a.erro);return;}}
+  const p=P(pr.jogadorId),c=T(pr.clubeId);
+  if(!p||!c)return;
+  const viva=!!proposta(pr.id);
+  const vendido=resultado&&resultado.resposta==='aceita'&&resultado.venda&&resultado.venda.ok;
+  const retirada=resultado&&resultado.resposta==='retirada';
+  const emp=pr.tipo==='emprestimo';
+  const valorMerc=pedidoDeVenda(p),multa=multaDe(p);
+  const pedido0=_vendaRasc.id===pr.id&&_vendaRasc.v!=null?_vendaRasc.v:Math.round(Math.max(pr.taxa*1.15,emp?pr.taxa+5000:valorMerc)/5000)*5000;
+  const rev0=_vendaRasc.id===pr.id?(+_vendaRasc.rev||0):0;
+  const max=Math.round(Math.max(multa,valorMerc,pr.taxa)*(emp?0.3:1.35)/5000)*5000+5000;
+  const lado=(time,rot,extra)=>`<div class="neg-lado">${escudo(time,64)}<div class="eyebrow">${rot}</div><b>${esc(time.nome)}</b>${extra||''}</div>`;
+  const palco=`<div class="neg-palco">
+    ${lado(t,'Você vende',`<div class="dim neg-sub">Caixa ${dinheiro(t.caixa)}</div>`)}
+    <div class="neg-centro">${cartaJogador(p,{w:150})}<div class="neg-perfil">${esc(p.role)} · ${p.idade} anos · contrato ${p.contrato}a</div></div>
+    <div class="neg-seta${vendido?' ok':''}"><span></span></div>
+    ${lado(c,emp?'Quer emprestado':'Quer comprar',`<div class="dim neg-sub">${esc(nomeLiga(c))}</div>`)}
+  </div>`;
+  const esquerda=`<div class="neg-col">
+    <div class="eyebrow">A proposta do ${esc(c.nome)}</div>
+    <div class="neg-numeros">
+      <div><span class="dim">${emp?'Taxa de empréstimo':'Oferta pelo passe'}</span><b class="num">${dinheiro(pr.taxa)}</b></div>
+      ${pr.neg&&pr.neg.inicial!==pr.taxa?`<div><span class="dim">Oferta inicial</span><b class="num dim">${dinheiro(pr.neg.inicial)}</b></div>`:''}
+      <div><span class="dim">Salário dele lá</span><b class="num">${dinheiro(pr.salario)}/mês</b></div>
+      ${emp&&pr.opcaoCompra?`<div><span class="dim">Opção de compra</span><b class="num">${dinheiro(pr.opcaoCompra)}</b></div>`:''}
+    </div>
+    <div class="eyebrow" style="margin-top:12px">Referências</div>
+    <table><tbody>
+      <tr><td>Valor de mercado (o que um clube paga)</td><td class="r num">${dinheiro(valorMerc)}</td></tr>
+      ${p.anuncio&&p.anuncio.pedido?`<tr><td>Seu pedido no anúncio</td><td class="r num">${dinheiro(p.anuncio.pedido)}</td></tr>`:''}
+      <tr><td>Multa rescisória</td><td class="r num">${dinheiro(multa)}</td></tr>
+      <tr><td>Salário dele hoje</td><td class="r num">${dinheiro(p.salario)}/mês</td></tr>
+    </tbody></table>
+    <p class="dim neg-nota">O ${esc(c.nome)} ${interesseDe(c,p)>=4?'precisa muito de um '+esc(p.role.toLowerCase())+': tende a esticar mais':'gosta dele, mas não depende dele: estica pouco'}.
+      Pedir parte de uma venda futura faz ele aceitar pagar um pouco menos agora${p.idade<=22?' — jovem, a revenda vale mais':''}.</p>
+  </div>`;
+  let direita;
+  if(vendido){
+    direita=`<div class="neg-col neg-fechada"><div class="neg-carimbo">${emp?'Emprestado':'Vendido'}</div>
+      <table><tbody><tr><td>${emp?'Taxa':'Valor da venda'}</td><td class="r num">${dinheiro(pr.taxa)}</td></tr>
+      ${pr.revenda?`<tr><td>Revenda</td><td class="r num">${pr.revenda}% da próxima venda</td></tr>`:''}
+      ${pr.neg?`<tr><td>Ganho na negociação</td><td class="r num up">+${dinheiro(pr.taxa-pr.neg.inicial)}</td></tr>`:''}</tbody></table></div>`;
+  }else if(retirada||!viva){
+    direita=`<div class="neg-col"><div class="neg-aviso">${retirada?'O '+esc(c.nome)+' retirou a proposta.':'A proposta não está mais na mesa.'}</div></div>`;
+  }else{
+    direita=`<div class="neg-col">
+      <div class="split"><div class="eyebrow">Conversa com o ${esc(c.nome)}</div>${_pac(pr.neg.pac,pr.neg.pacMax)}</div>
+      <label class="neg-campo"><span>${emp?'Taxa que você pede':'Quanto você pede pelo passe'}</span>
+        <input type="range" id="vValR" min="${pr.taxa}" max="${max}" step="5000" value="${clamp(pedido0,pr.taxa,max)}">
+        <input type="number" id="vVal" value="${pedido0}" step="5000"></label>
+      ${!emp?`<div class="neg-campo"><span>Percentual de revenda <span class="dim">(você fica com parte da próxima venda dele)</span></span>
+        <div class="neg-anos neg-multa">${REVENDA_OPCOES.map(v=>`<button class="${rev0===v?'on':''}" data-vrev="${v}">${v?v+'%':'Sem'}</button>`).join('')}</div></div>`:''}
+      <div id="vBarra"></div>
+      <div class="neg-bts">
+        <button class="btn" id="vPedir">Enviar pedido</button>
+        <button class="btn ghost" id="vAceitar">Aceitar ${dinheiro(pr.taxa)}</button>
+        <button class="btn ghost" id="vRecusar">Recusar a proposta</button>
+      </div>
+      <div id="vFeed"></div>
+      <p class="dim neg-nota">Pedido recusado gasta um ponto de paciência; pedido muito acima do que ele pode pagar gasta dois. Sem paciência, ele retira a proposta.</p>
+    </div>`;
+  }
+  abrir(`<div class="neg">
+    <div class="eyebrow">${emp?'Empréstimo':'Venda'} · proposta recebida</div><h2 class="sec">${esc(p.nome)}</h2>
+    ${palco}
+    <div class="neg-corpo">${esquerda}${direita}</div>
+    ${pr.neg&&pr.neg.hist.length?`<div class="neg-chat">${pr.neg.hist.map(h=>`<div class="neg-msg m-${h.de}">${{voce:'Você',clube:esc(c.tag)}[h.de]?`<span class="neg-quem">${{voce:'Você',clube:esc(c.tag)}[h.de]}</span>`:''}${esc(h.txt)}</div>`).join('')}</div>`:''}
+    <div class="neg-bts" style="justify-content:flex-end">
+      <button class="btn ghost" data-ficha="${p.id}">Ver ficha</button>
+      <button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true,!!$('#modal .neg'));
+  const bf=$('#modal [data-ficha]');if(bf)bf.onclick=()=>modalJogador(p.id);
+  const chat=$('#modal .neg-chat');if(chat)chat.scrollTop=chat.scrollHeight;
+  if(vendido||retirada||!viva){render();return;}
+  const feed=txt=>{const f=$('#vFeed');if(f)f.innerHTML=`<div class="neg-aviso">${esc(txt)}</div>`;};
+  const pinta=()=>{
+    const v=parseFloat($('#vVal').value)||0;_vendaRasc={id:pr.id,v,rev:_vendaRasc.id===pr.id?_vendaRasc.rev:0};
+    const r=v/Math.max(1,valorMerc);
+    $('#vBarra').innerHTML=_barraNeg(r,[{c:'t',w:0.85/1.3*100},{c:'y',w:0.2/1.3*100},{c:'a',w:0.15/1.3*100},{c:'r',w:0.1/1.3*100}],
+      v<=pr.taxa?'É o que eles já oferecem':r<0.95?'Abaixo do valor de mercado: fácil de aceitarem'
+        :r<1.15?'Perto do valor de mercado':r<1.3?'Acima do mercado: só se precisarem muito':'Muito acima: pode ofender');
+  };
+  const a=$('#vValR'),b=$('#vVal');
+  a.oninput=()=>{b.value=a.value;pinta();};b.oninput=()=>{a.value=b.value;pinta();};pinta();
+  $('#modal').querySelectorAll('[data-vrev]').forEach(x=>x.onclick=()=>{_vendaRasc.rev=+x.dataset.vrev;
+    $('#modal').querySelectorAll('[data-vrev]').forEach(y=>y.classList.toggle('on',y===x));});
+  $('#vPedir').onclick=()=>{
+    const r=pedirNaVenda(pr.id,parseFloat($('#vVal').value)||0,+_vendaRasc.rev||0);
+    if(!r.ok&&r.resposta!=='aceita')return feed(r.erro);
+    if(r.resposta==='aceita'){
+      if(r.venda&&r.venda.ok)noticia('🤝 '+r.venda.msg,{c:'mercado',t:[t.id],p:[p.id]});
+      else if(r.venda)feed(r.venda.erro);
+    }
+    if(r.resposta==='contra'||r.resposta==='limite')_vendaRasc.v=Math.round(Math.max(r.valor+5000,(parseFloat($('#vVal').value)||0)*0.97)/5000)*5000;
+    modalNegociarVenda(pr.id,(r.resposta==='aceita'||r.resposta==='retirada')?pr:null,r);
+  };
+  $('#vAceitar').onclick=()=>{
+    const r=aceitarProposta(pr.id);
+    if(!r.ok)return feed(r.erro||'Não deu para aceitar.');
+    noticia('🤝 '+r.msg,{c:'mercado',t:[t.id],p:[p.id]});
+    modalNegociarVenda(pr.id,pr,{resposta:'aceita',venda:r});
+  };
+  $('#vRecusar').onclick=()=>{recusarProposta(pr.id);fechar();flash('Proposta recusada.');};
+}

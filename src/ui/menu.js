@@ -113,6 +113,7 @@ function ligarMenuPrincipal(){
 function entrarNoJogo(){
   if(!G||!G.meuTime){flash('Assuma um clube primeiro.');return;}
   modo='jogo';
+  if(typeof garantirManagerNaComissao==='function')garantirManagerNaComissao();
   if(typeof _titulosVistos!=='undefined')_titulosVistos=null;
   if(!hist.length){hist=[tela];histPos=0;}
   render();

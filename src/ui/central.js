@@ -216,6 +216,13 @@ function cardImprensa(){
   </div>`;
 }
 
+/* retrato do manager: o cadastro de coach quando existe, senão a foto enviada */
+function retratoManager(px){
+  const g=G.manager;if(!g)return '';
+  const mm=typeof membroManager==='function'&&membroManager();
+  if(mm)return `<span class="mgr-foto">${retratoStaff(mm,px)}</span>`;
+  return g.foto?`<span class="mgr-foto"><img class="foto-j" src="${g.foto}" width="${px}" height="${Math.round(px*1.25)}" alt=""></span>`:'';
+}
 /* ---------- a tela ---------- */
 function vInicio(){
   const t=meu();
@@ -235,8 +242,9 @@ function vInicio(){
   ${heroClube(t,rr)}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">
-      <div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}</div>
-        <div style="margin-top:4px">${esc(sit.texto)}</div></div>
+      <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();
+          return mm?` · coach <b class="num">${overStaff(mm)}</b>${G.manager.modo==='lenda'?' · lenda':''}`:'';})()}</div>
+        <div style="margin-top:4px">${esc(sit.texto)}</div></div></div>
       ${sit.livre?'':`<div class="mgr-conf">${medidor('<span class="dim">confiança</span>',sit.confianca/100,54)}</div>`}
     </div>
     ${sit.demitido?`<div class="mgr-ofertas">
