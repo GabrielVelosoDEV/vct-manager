@@ -8,8 +8,11 @@ Só com a foto, a pessoa entra no feed como jornalista brasileiro independente. 
 dizer que ela é streamer ou caster, de qual veículo ela é, ou dar o @ certo, cadastre
 em `data/imprensa.js`, na lista PERSONALIDADES:
 
-  {nome:'Gabriel Toledo', tipo:'streamer', pais:'BR', arroba:'gaules'},
-  {nome:'Fulana de Tal', tipo:'jornalista', veiculo:'maisesports'},
+  {nome:'TcK10', foto:'tck10', tipo:'streamer', pais:'BR'},
+  {nome:'Alejandro Gomis', foto:'alejandro-gomis', tipo:'jornalista', regiao:'LATAM'},
+
+`foto` é o nome do arquivo sem extensão; `pais` (BR, US, KR…) ou `regiao` (LATAM, AMER,
+EMEA, PAC, CN) diz de quem a pessoa fala. Logo de veículo vai em `assets/veiculos/`.
 
 Jornalistas assinam notícias do país deles. Streamers, casters e criadores reagem às
 notícias grandes (títulos, contratações de peso). Depois de salvar, rode

@@ -35,6 +35,7 @@ const VEICULOS=[
   {id:'maisesports', nome:'Mais Esports',     arroba:'maisesports',  regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FFC21A',foco:['mercado','competicoes','clube'],alcance:3,equipe:3},
   {id:'geesports',   nome:'ge esports',       arroba:'geesports',    regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#06AA48',foco:['competicoes','clube','carreira'],alcance:3,equipe:2},
   {id:'theenemy',    nome:'The Enemy',        arroba:'theenemy',     regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#E5262D',foco:['meta','competicoes'],alcance:2,equipe:2},
+  {id:'vctatualizado',nome:'VCT Atualizado',arroba:'vctatualizado',regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#7B2FF7',foco:['mercado','competicoes'],alcance:2,equipe:0},
   {id:'valorantzone',nome:'Valorant Zone',    arroba:'valorantzone', regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FF4655',foco:['mercado','clube','meta'],alcance:2,equipe:2},
   {id:'hotspawn',    nome:'Hotspawn',         arroba:'hotspawn',     regiao:'AMER',paises:['US','CA'],lingua:'en',cor:'#F7931E',foco:['competicoes','mercado'],alcance:1,equipe:2},
   {id:'levelup',     nome:'LevelUp',          arroba:'LevelUp',      regiao:'AMER',paises:['MX'],lingua:'es',cor:'#E31B23',foco:['competicoes','clube'],alcance:2,equipe:2},
@@ -63,9 +64,35 @@ const VEICULOS=[
   {id:'sinaesports', nome:'新浪电竞 Sina',     arroba:'sinaesports',  regiao:'CN',paises:['CN'],lingua:'zh',cor:'#E6162D',foco:['competicoes','carreira'],alcance:1,equipe:1}
 ];
 
-/* Cadastre aqui as pessoas reais cujas fotos você colocar em assets/imprensa/.
-   Exemplo (descomente e troque):
-   {nome:'Nome da Pessoa', tipo:'jornalista', veiculo:'maisesports', pais:'BR', arroba:'nomedapessoa'},
-   {nome:'Nome do Streamer', tipo:'streamer', pais:'BR'},                                          */
+/* Cadastre aqui as pessoas reais cujas fotos estão em assets/imprensa/.
+     nome     como aparece no feed
+     foto     nome do arquivo sem extensão (padrão: o nome em slug)
+     tipo     'jornalista' assina notícias; 'streamer', 'caster' e 'criador' reagem
+     pais     país (BR, US, KR…) — cobre/reage aos clubes de lá
+     regiao   no lugar do país: 'LATAM' (América Latina), 'AMER', 'EMEA', 'PAC' ou 'CN'
+     veiculo  id de um VEICULO (opcional; sem ele, independente)
+     arroba   @ sem o arroba; genero 'f' quando for o caso                         */
 const PERSONALIDADES=[
+  /* jornalistas */
+  {nome:'Bruno Povoleri', foto:'bruno-povoleri', tipo:'jornalista', pais:'BR'},
+  {nome:'Nando Show',     foto:'nando-show',     tipo:'jornalista', pais:'BR'},
+  {nome:'Alejandro Gomis',foto:'alejandro-gomis',tipo:'jornalista', regiao:'LATAM'},
+  {nome:'2COX1NUT',       foto:'2cox1nut',       tipo:'jornalista', pais:'TR'},
+  {nome:'GoodGoodGame',   foto:'goodgoodgame',   tipo:'jornalista', pais:'CN'},
+  {nome:'Tanmay',         foto:'tanmay',         tipo:'jornalista', regiao:'PAC'},
+  /* streamers */
+  {nome:'TcK10',   foto:'tck10',   tipo:'streamer', pais:'BR'},
+  {nome:'Xarola',  foto:'xarola',  tipo:'streamer', pais:'BR'},
+  {nome:'Tixinha', foto:'tixinha', tipo:'streamer', pais:'BR', arroba:'tixinhadois'},
+  {nome:'frttt',   foto:'frttt',   tipo:'streamer', pais:'BR'},
+  {nome:'tarik',   foto:'tarik',   tipo:'streamer', pais:'US'},
+  {nome:'Kyedae',  foto:'kyedae',  tipo:'streamer', pais:'US', genero:'f'},
+  {nome:'s0m',     foto:'s0m',     tipo:'streamer', pais:'US'},
+  {nome:'FNS',     foto:'fns',     tipo:'streamer', pais:'US'},
+  {nome:'Horcus',  foto:'horcus',  tipo:'streamer', regiao:'LATAM'},
+  {nome:'Mixwell', foto:'m1xwell', tipo:'streamer', pais:'ES', arroba:'m1xwell'},
+  {nome:'Sliggy',  foto:'sliggy',  tipo:'streamer', pais:'GB'},
+  {nome:'Squeezie',foto:'squeezie',tipo:'streamer', pais:'FR'},
+  {nome:'Kim',     foto:'kim',     tipo:'streamer', pais:'KR'},
+  {nome:'Laz',     foto:'lazvell', tipo:'streamer', pais:'JP', arroba:'lazvell'}
 ];

@@ -112,10 +112,20 @@ function equipeDoVeiculo(v,ja){
 }
 
 /* ---------- pessoas reais: cadastro + fotos soltas em assets/imprensa ---------- */
+const PAISES_LATAM=['MX','AR','CL','CO','PE','UY','VE','EC','BO','PY','CR','GT','PA','DO','SV','HN','PR'];
+function regiaoDoPais(c){
+  if(!c)return null;
+  const R=(typeof REGIONS!=='undefined'?REGIONS:[]).find(r=>(r.paises||[]).includes(c));
+  if(R)return R.id;
+  if(PAISES_LATAM.includes(c)||['US','CA','BR'].includes(c))return 'AMER';
+  if(['KR','JP','TH','VN','ID','PH','SG','MY','IN','TW','HK','AU','NZ'].includes(c))return 'PAC';
+  return c==='CN'?'CN':'EMEA';
+}
+const NOME_REGIAO_IMP={LATAM:'América Latina',AMER:'Américas',EMEA:'EMEA',PAC:'Pacífico',CN:'China'};
 function personalidades(){
   const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
   const cad=(typeof PERSONALIDADES!=='undefined'?PERSONALIDADES:[]).filter(p=>p&&p.nome);
-  const lista=cad.map(p=>({...p,slug:slugImp(p.nome)}));
+  const lista=cad.map(p=>({...p,slug:p.foto?slugImp(p.foto):slugImp(p.nome)}));
   const tem=new Set(lista.map(p=>p.slug));
   for(const k in M){
     if(!k.startsWith('imprensa/'))continue;
@@ -124,8 +134,23 @@ function personalidades(){
     /* sem cadastro: o nome sai do arquivo ("gabriel-toledo" → "Gabriel Toledo") */
     lista.push({nome:s.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),tipo:'jornalista',pais:'BR',slug:s,auto:true});
   }
-  return lista.map(p=>({id:'r-'+p.slug,nome:p.nome,real:true,tipo:p.tipo||'jornalista',veiculo:p.veiculo||null,
-    pais:p.pais||'BR',arroba:p.arroba||arrobaDeNome(p.nome),slug:p.slug,auto:!!p.auto}));
+  return lista.map(p=>{
+    /* de onde a pessoa é: país, ou uma região inteira (LATAM é parte das Américas) */
+    let paises=[],regiao=null,local='';
+    if(p.pais){paises=[p.pais];regiao=regiaoDoPais(p.pais);local=typeof PAISES!=='undefined'&&PAISES[p.pais]||p.pais;}
+    else if(p.regiao==='LATAM'){paises=PAISES_LATAM.slice();regiao='AMER';local=NOME_REGIAO_IMP.LATAM;}
+    else if(p.regiao){regiao=p.regiao;local=NOME_REGIAO_IMP[p.regiao]||p.regiao;}
+    else{paises=['BR'];regiao='AMER';local='Brasil';}
+    return{id:'r-'+p.slug,nome:p.nome,real:true,tipo:p.tipo||'jornalista',veiculo:p.veiculo||null,genero:p.genero||'m',
+      paises,regiao,local,arroba:p.arroba||arrobaDeNome(p.nome),slug:p.slug,auto:!!p.auto};
+  });
+}
+/* quanto uma pessoa real tem a ver com a notícia: do país do clube > da região */
+function afinidadeReal(p,esc){
+  if(!esc.regiao)return p.tipo==='jornalista'?0.3:0.5;
+  if(esc.pais&&p.paises.includes(esc.pais))return 3;
+  if(p.regiao===esc.regiao)return p.paises.length?0.35:1.5;
+  return 0;
 }
 /* todo mundo que posta, por id (jornalista fictício, pessoa real ou o perfil do veículo) */
 let _imprensaCache=null;
@@ -140,7 +165,15 @@ function perfisImprensa(){
   _imprensaCache={chave,mapa};
   return mapa;
 }
-function perfilImprensa(id){return perfisImprensa()[id]||null;}
+function perfilImprensa(id){
+  if(String(id).startsWith('c-'))return perfilClube(G.times[String(id).slice(2)]);
+  return perfisImprensa()[id]||null;
+}
+/* o perfil oficial de um clube: posta o que é da casa (lesão, patrocínio, premiação) */
+function perfilClube(t){
+  if(!t)return null;
+  return{id:'c-'+t.id,tipo:'clube',timeId:t.id,nome:t.nome,arroba:String(t.tag||t.nome).replace(/[^A-Za-z0-9]/g,''),verificado:true};
+}
 
 /* ---------- de onde é a notícia ---------- */
 function escopoNoticia(n){
@@ -159,6 +192,9 @@ function autorDaNoticia(n){
   const esc=escopoNoticia(n);
   const imp=n.imp||1;
   const vs=typeof VEICULOS!=='undefined'?VEICULOS:[];
+  /* o dia a dia do seu clube (recuperação, meta de patrocínio, premiação, olheiro)
+     sai pelo perfil oficial do clube, não pela imprensa */
+  if(n.meu&&n.c==='clube'&&imp<2&&G.meuTime&&G.times[G.meuTime])return perfilClube(G.times[G.meuTime]);
   /* 1. o veículo: do país do clube > da região > global (o global pesa mais nas grandes) */
   const pesoV=v=>{
     let w;
@@ -171,7 +207,7 @@ function autorDaNoticia(n){
   };
   /* pessoas reais independentes concorrem como se fossem um veículo do país delas */
   const indep=Object.values(P).filter(p=>p.real&&p.tipo==='jornalista'&&!p.veiculo);
-  const opcoes=vs.map(v=>({v,w:pesoV(v)})).concat(indep.map(p=>({p,w:esc.pais&&p.pais===esc.pais?4:esc.regiao==='AMER'&&p.pais==='BR'?0.5:0})));
+  const opcoes=vs.map(v=>({v,w:pesoV(v)})).concat(indep.map(p=>({p,w:afinidadeReal(p,esc)*1.6*((p.foco||[]).includes(n.c)?1.5:1)})));
   const o=escolhePeso(opcoes,x=>x.w,sorteImp(sem,1));
   let autor;
   if(!o)autor=null;
@@ -219,7 +255,7 @@ function reacoesNoticia(n){
   const sem=n.txt+'|'+n.ano+'|'+(n.s||0)+'|r';
   const esc=escopoNoticia(n);
   const autor=autorDaNoticia(n);
-  const reais=Object.values(P).filter(p=>p.real&&p.id!==(autor&&autor.id)&&(!esc.pais||p.pais===esc.pais||(esc.regiao==='AMER'&&p.pais==='BR')));
+  const reais=Object.values(P).filter(p=>p.real&&p.id!==(autor&&autor.id)&&afinidadeReal(p,esc)>0);
   const ficticios=Object.values(P).filter(p=>p.tipo==='jornalista'&&!p.real&&p.id!==(autor&&autor.id)&&(()=>{const v=veiculo(p.veiculo);return v&&(!esc.regiao||v.regiao===esc.regiao||v.regiao==='GLOBAL');})());
   const quantos=(n.imp>=3?2:1)+(sorteImp(sem,1)<0.35?1:0);
   const grupo=/campe|título/i.test(n.txt)?'titulo':REACOES[n.c]?n.c:'competicoes';
@@ -227,9 +263,12 @@ function reacoesNoticia(n){
   const tag=esc.time?esc.time.tag:'';
   const out=[],vistos=new Set();
   for(let i=0;i<quantos;i++){
-    const pool=reais.length&&sorteImp(sem,10+i)<0.8?reais:ficticios;
+    const usaReal=reais.length&&sorteImp(sem,10+i)<0.85;
+    const pool=usaReal?reais.filter(x=>!vistos.has(x.id)):ficticios;
     if(!pool.length)break;
-    const p=pool[Math.floor(sorteImp(sem,20+i)*pool.length)];
+    /* entre os reais, quem é do país do clube reage bem mais; streamer reage mais que jornalista */
+    const p=usaReal?escolhePeso(pool,x=>afinidadeReal(x,esc)*(x.tipo==='jornalista'?0.5:1),sorteImp(sem,20+i))
+      :pool[Math.floor(sorteImp(sem,20+i)*pool.length)];
     if(!p||vistos.has(p.id))continue;vistos.add(p.id);
     let f=frases[Math.floor(sorteImp(sem,30+i)*frases.length)];
     if(/\{tag\}/.test(f)&&!tag)f=frases.find(x=>!/\{tag\}/.test(x))||'Isso vai render';

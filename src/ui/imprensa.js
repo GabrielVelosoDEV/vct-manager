@@ -21,6 +21,10 @@ function avatarImprensa(p,px){
   if(!p)return monogramaImprensa('?','#4A5866',px,true);
   const v=veiculoDoPerfil(p);
   const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  if(p.tipo==='clube'){
+    const t=G.times[p.timeId];
+    return `<span class="ps-av-clube" style="width:${px}px;height:${px}px;--clube:${t?corDoClube(t):'#5B6B7A'}">${t?escudo(t,Math.round(px*0.72)):''}</span>`;
+  }
   if(p.tipo==='veiculo'){
     const fb=monogramaImprensa(v?v.nome:p.nome,v&&v.cor,px,false);
     return M['veiculos/'+v.id]?`<span class="ps-av-img q" style="width:${px}px;height:${px}px"><img src="${ASSETS.arq('veiculos',v.id)}" alt="" loading="lazy"></span>`:fb;
@@ -37,6 +41,7 @@ function avatarImprensa(p,px){
 function rotuloPerfil(p){
   if(!p)return '';
   if(p.tipo==='veiculo')return 'Veículo';
+  if(p.tipo==='clube')return 'Perfil oficial';
   if(p.real)return {jornalista:'Jornalista',streamer:'Streamer',caster:'Caster',criador:'Criador de conteúdo'}[p.tipo]||'Imprensa';
   const c=CARGOS_IMPRENSA.find(k=>k.id===p.cargo);return c?c.nome:'Jornalista';
 }
@@ -170,12 +175,15 @@ function vNews(){
 function modalPerfilImprensa(id){
   const p=perfilImprensa(id);if(!p)return;
   const v=veiculoDoPerfil(p);
-  const posts=G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&(()=>{const a=autorDaNoticia(n);return a&&(a.id===id||p.tipo==='veiculo'&&a.veiculo===p.veiculo);})());
+  /* streamer, caster e criador não assinam notícia: o perfil mostra onde reagiram */
+  const reage=p.real&&p.tipo!=='jornalista';
+  const posts=G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&(reage?(n.imp||1)>=2&&reacoesNoticia(n).some(r=>r.autor.id===id)
+    :(()=>{const a=autorDaNoticia(n);return a&&(a.id===id||p.tipo==='veiculo'&&a.veiculo===p.veiculo);})()));
   const equipe=p.tipo==='veiculo'?Object.values(perfisImprensa()).filter(x=>x.veiculo===p.veiculo&&x.tipo!=='veiculo'):[];
   const seg=hashImp(id)%1000;
   const seguidores=p.tipo==='veiculo'?(v.alcance||1)*120000+seg*700:p.real?40000+seg*900:800+seg*40;
   const onde=p.tipo==='veiculo'?(v.regiao==='GLOBAL'?'Global':v.regiao)+(v.paises.length?' · '+v.paises.join(', '):'')
-    :v?(v.regiao==='GLOBAL'?'Global':v.regiao):p.pais||'';
+    :v?(v.regiao==='GLOBAL'?'Global':v.regiao):p.local||'';
   const cor=v?v.cor:'#5B6B7A';
   abrir(`<div class="pf" style="--c:${cor}">
     <div class="pf-capa"></div>
@@ -188,10 +196,11 @@ function modalPerfilImprensa(id){
     <div class="pf-bio">${p.tipo==='veiculo'?`Veículo de esports${v.lingua!=='pt'?' em '+LINGUA_NOME[v.lingua]:''}. Cobre ${(v.foco||[]).map(c=>(CAT_NOTICIA[c]||c).toLowerCase()).join(', ')}.`
       :`${esc(rotuloPerfil(p))}${v?` no <button class="ps-veic" data-perfil="v-${v.id}" style="--c:${v.cor}">${esc(v.nome)}</button>`:p.real&&p.tipo==='jornalista'?' independente':''}.`}
       ${onde?`<span class="dim"> ${icone('mundo')} ${esc(onde)}</span>`:''}</div>
-    <div class="pf-num"><span><b>${posts.length}</b> posts na carreira</span><span><b>${numCurto(seguidores)}</b> seguidores</span>
+    <div class="pf-num"><span><b>${posts.length}</b> ${reage?'reações':'posts'} na carreira</span><span><b>${numCurto(seguidores)}</b> seguidores</span>
       ${equipe.length?`<span><b>${equipe.length}</b> na equipe</span>`:''}</div>
     ${equipe.length?`<div class="pf-eq">${equipe.map(x=>`<button class="pf-eq-p" data-perfil="${x.id}">${avatarImprensa(x,30)}<span><b>${esc(x.nome)}</b><span class="dim">${esc(rotuloPerfil(x))}</span></span></button>`).join('')}</div>`:''}
-    <div class="pf-posts">${posts.length?posts.slice(0,12).map(n=>postNoticia(n,{semReacoes:true})).join(''):'<div class="dim">Ainda não postou nesta carreira.</div>'}</div>
+    <div class="pf-posts">${posts.length?posts.slice(0,12).map(n=>postNoticia(n,{semReacoes:!reage})).join('')
+      :`<div class="dim" style="padding:12px">${reage?'Ainda não reagiu a nenhuma notícia grande nesta carreira.':'Ainda não postou nesta carreira.'}</div>`}</div>
     <div class="neg-bts" style="justify-content:flex-end"><button class="btn ghost" data-close>Fechar</button></div>
   </div>`,true,!!$('#modal .pf'));
   const md=$('#modal');
@@ -204,7 +213,9 @@ function modalPerfilImprensa(id){
 function ligarImprensa(raiz){
   if(!raiz)return;
   raiz.querySelectorAll('[data-perfil]').forEach(el=>{if(!el.dataset.perfil)return;
-    el.onclick=e=>{e.stopPropagation();modalPerfilImprensa(el.dataset.perfil);};});
+    el.onclick=e=>{e.stopPropagation();const id=el.dataset.perfil;
+      if(id.startsWith('c-')){if(typeof irClube==='function')irClube(id.slice(2));return;}
+      modalPerfilImprensa(id);};});
   raiz.querySelectorAll('[data-seguir]').forEach(el=>el.onclick=e=>{e.stopPropagation();
     const id=el.dataset.seguir,p=perfilImprensa(id);
     const agora=alternarSeguir(id);

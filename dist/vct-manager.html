@@ -3023,9 +3023,9 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .ps-dest{margin:2px 0 4px;color:var(--red)}
 .ps-av{all:unset;cursor:pointer;display:block;align-self:start;line-height:0}
 .ps-av-img{display:block;border-radius:50%;overflow:hidden;background:#1a2530}
-.ps-av-img.q{border-radius:10px;background:#fff}
+.ps-av-img.q{border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .ps-av-img img{width:100%;height:100%;object-fit:cover;display:block}
-.ps-av-img.q img{object-fit:contain;padding:12%;box-sizing:border-box}
+
 .ps-mono{display:grid;place-items:center;border-radius:10px;background:var(--c);color:#fff;font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-height:1;
   text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 .ps-mono.r{border-radius:50%;background:color-mix(in srgb,var(--c) 55%,#1a2530)}
@@ -3099,6 +3099,9 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .fd-seg.on:hover{color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
 .fd-seg.grande{padding:8px 18px;font-size:13px}
 .fd-nav{scrollbar-width:none}.fd-nav::-webkit-scrollbar{display:none}
+.ps-av-clube{display:grid;place-items:center;border-radius:10px;background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--clube) 35%,#1a2530),#121b24);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--clube) 45%,transparent)}
+.ps-av-clube img{object-fit:contain}
+.pf-topo{position:relative;z-index:1}
 
 </style>
 </head>
@@ -4840,6 +4843,26 @@ const MIDIA={
     'estrutura/mente':'webp',
     'estrutura/saude':'webp',
     'estrutura/treino':'webp',
+    'imprensa/2cox1nut':'webp',
+    'imprensa/alejandro-gomis':'webp',
+    'imprensa/bruno-povoleri':'webp',
+    'imprensa/fns':'webp',
+    'imprensa/frttt':'webp',
+    'imprensa/goodgoodgame':'webp',
+    'imprensa/horcus':'webp',
+    'imprensa/kim':'webp',
+    'imprensa/kyedae':'webp',
+    'imprensa/lazvell':'webp',
+    'imprensa/m1xwell':'webp',
+    'imprensa/nando-show':'webp',
+    'imprensa/s0m':'webp',
+    'imprensa/sliggy':'webp',
+    'imprensa/squeezie':'webp',
+    'imprensa/tanmay':'webp',
+    'imprensa/tarik':'webp',
+    'imprensa/tck10':'webp',
+    'imprensa/tixinha':'webp',
+    'imprensa/xarola':'webp',
     'logos/100t':'png',
     'logos/2g':'png',
     'logos/ag':'png',
@@ -5779,7 +5802,28 @@ const MIDIA={
     'trofeus/stage2-pac':'png',
     'ui/favicon':'png',
     'ui/logo':'png',
-    'ui/menu-fundo':'webp'
+    'ui/menu-fundo':'webp',
+    'veiculos/afkgaming':'webp',
+    'veiculos/culturageek':'webp',
+    'veiculos/esportsgg':'webp',
+    'veiculos/gamersky':'webp',
+    'veiculos/gaminginturkey':'webp',
+    'veiculos/geesports':'webp',
+    'veiculos/hotspawn':'webp',
+    'veiculos/invenglobal':'webp',
+    'veiculos/levelup':'webp',
+    'veiculos/libero':'webp',
+    'veiculos/millenium':'webp',
+    'veiculos/osen':'webp',
+    'veiculos/playersua':'webp',
+    'veiculos/rtparena':'webp',
+    'veiculos/saiganak':'webp',
+    'veiculos/sheep':'webp',
+    'veiculos/sportskeeda':'webp',
+    'veiculos/thespike':'webp',
+    'veiculos/valo2asia':'webp',
+    'veiculos/valorantnewsjp':'webp',
+    'veiculos/vctatualizado':'webp'
   }
 };
 
@@ -5847,6 +5891,7 @@ const VEICULOS=[
   {id:'maisesports', nome:'Mais Esports',     arroba:'maisesports',  regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FFC21A',foco:['mercado','competicoes','clube'],alcance:3,equipe:3},
   {id:'geesports',   nome:'ge esports',       arroba:'geesports',    regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#06AA48',foco:['competicoes','clube','carreira'],alcance:3,equipe:2},
   {id:'theenemy',    nome:'The Enemy',        arroba:'theenemy',     regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#E5262D',foco:['meta','competicoes'],alcance:2,equipe:2},
+  {id:'vctatualizado',nome:'VCT Atualizado',arroba:'vctatualizado',regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#7B2FF7',foco:['mercado','competicoes'],alcance:2,equipe:0},
   {id:'valorantzone',nome:'Valorant Zone',    arroba:'valorantzone', regiao:'AMER',paises:['BR'],lingua:'pt',cor:'#FF4655',foco:['mercado','clube','meta'],alcance:2,equipe:2},
   {id:'hotspawn',    nome:'Hotspawn',         arroba:'hotspawn',     regiao:'AMER',paises:['US','CA'],lingua:'en',cor:'#F7931E',foco:['competicoes','mercado'],alcance:1,equipe:2},
   {id:'levelup',     nome:'LevelUp',          arroba:'LevelUp',      regiao:'AMER',paises:['MX'],lingua:'es',cor:'#E31B23',foco:['competicoes','clube'],alcance:2,equipe:2},
@@ -5875,11 +5920,37 @@ const VEICULOS=[
   {id:'sinaesports', nome:'新浪电竞 Sina',     arroba:'sinaesports',  regiao:'CN',paises:['CN'],lingua:'zh',cor:'#E6162D',foco:['competicoes','carreira'],alcance:1,equipe:1}
 ];
 
-/* Cadastre aqui as pessoas reais cujas fotos você colocar em assets/imprensa/.
-   Exemplo (descomente e troque):
-   {nome:'Nome da Pessoa', tipo:'jornalista', veiculo:'maisesports', pais:'BR', arroba:'nomedapessoa'},
-   {nome:'Nome do Streamer', tipo:'streamer', pais:'BR'},                                          */
+/* Cadastre aqui as pessoas reais cujas fotos estão em assets/imprensa/.
+     nome     como aparece no feed
+     foto     nome do arquivo sem extensão (padrão: o nome em slug)
+     tipo     'jornalista' assina notícias; 'streamer', 'caster' e 'criador' reagem
+     pais     país (BR, US, KR…) — cobre/reage aos clubes de lá
+     regiao   no lugar do país: 'LATAM' (América Latina), 'AMER', 'EMEA', 'PAC' ou 'CN'
+     veiculo  id de um VEICULO (opcional; sem ele, independente)
+     arroba   @ sem o arroba; genero 'f' quando for o caso                         */
 const PERSONALIDADES=[
+  /* jornalistas */
+  {nome:'Bruno Povoleri', foto:'bruno-povoleri', tipo:'jornalista', pais:'BR'},
+  {nome:'Nando Show',     foto:'nando-show',     tipo:'jornalista', pais:'BR'},
+  {nome:'Alejandro Gomis',foto:'alejandro-gomis',tipo:'jornalista', regiao:'LATAM'},
+  {nome:'2COX1NUT',       foto:'2cox1nut',       tipo:'jornalista', pais:'TR'},
+  {nome:'GoodGoodGame',   foto:'goodgoodgame',   tipo:'jornalista', pais:'CN'},
+  {nome:'Tanmay',         foto:'tanmay',         tipo:'jornalista', regiao:'PAC'},
+  /* streamers */
+  {nome:'TcK10',   foto:'tck10',   tipo:'streamer', pais:'BR'},
+  {nome:'Xarola',  foto:'xarola',  tipo:'streamer', pais:'BR'},
+  {nome:'Tixinha', foto:'tixinha', tipo:'streamer', pais:'BR', arroba:'tixinhadois'},
+  {nome:'frttt',   foto:'frttt',   tipo:'streamer', pais:'BR'},
+  {nome:'tarik',   foto:'tarik',   tipo:'streamer', pais:'US'},
+  {nome:'Kyedae',  foto:'kyedae',  tipo:'streamer', pais:'US', genero:'f'},
+  {nome:'s0m',     foto:'s0m',     tipo:'streamer', pais:'US'},
+  {nome:'FNS',     foto:'fns',     tipo:'streamer', pais:'US'},
+  {nome:'Horcus',  foto:'horcus',  tipo:'streamer', regiao:'LATAM'},
+  {nome:'Mixwell', foto:'m1xwell', tipo:'streamer', pais:'ES', arroba:'m1xwell'},
+  {nome:'Sliggy',  foto:'sliggy',  tipo:'streamer', pais:'GB'},
+  {nome:'Squeezie',foto:'squeezie',tipo:'streamer', pais:'FR'},
+  {nome:'Kim',     foto:'kim',     tipo:'streamer', pais:'KR'},
+  {nome:'Laz',     foto:'lazvell', tipo:'streamer', pais:'JP', arroba:'lazvell'}
 ];
 
 
@@ -10728,10 +10799,20 @@ function equipeDoVeiculo(v,ja){
 }
 
 /* ---------- pessoas reais: cadastro + fotos soltas em assets/imprensa ---------- */
+const PAISES_LATAM=['MX','AR','CL','CO','PE','UY','VE','EC','BO','PY','CR','GT','PA','DO','SV','HN','PR'];
+function regiaoDoPais(c){
+  if(!c)return null;
+  const R=(typeof REGIONS!=='undefined'?REGIONS:[]).find(r=>(r.paises||[]).includes(c));
+  if(R)return R.id;
+  if(PAISES_LATAM.includes(c)||['US','CA','BR'].includes(c))return 'AMER';
+  if(['KR','JP','TH','VN','ID','PH','SG','MY','IN','TW','HK','AU','NZ'].includes(c))return 'PAC';
+  return c==='CN'?'CN':'EMEA';
+}
+const NOME_REGIAO_IMP={LATAM:'América Latina',AMER:'Américas',EMEA:'EMEA',PAC:'Pacífico',CN:'China'};
 function personalidades(){
   const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
   const cad=(typeof PERSONALIDADES!=='undefined'?PERSONALIDADES:[]).filter(p=>p&&p.nome);
-  const lista=cad.map(p=>({...p,slug:slugImp(p.nome)}));
+  const lista=cad.map(p=>({...p,slug:p.foto?slugImp(p.foto):slugImp(p.nome)}));
   const tem=new Set(lista.map(p=>p.slug));
   for(const k in M){
     if(!k.startsWith('imprensa/'))continue;
@@ -10740,8 +10821,23 @@ function personalidades(){
     /* sem cadastro: o nome sai do arquivo ("gabriel-toledo" → "Gabriel Toledo") */
     lista.push({nome:s.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),tipo:'jornalista',pais:'BR',slug:s,auto:true});
   }
-  return lista.map(p=>({id:'r-'+p.slug,nome:p.nome,real:true,tipo:p.tipo||'jornalista',veiculo:p.veiculo||null,
-    pais:p.pais||'BR',arroba:p.arroba||arrobaDeNome(p.nome),slug:p.slug,auto:!!p.auto}));
+  return lista.map(p=>{
+    /* de onde a pessoa é: país, ou uma região inteira (LATAM é parte das Américas) */
+    let paises=[],regiao=null,local='';
+    if(p.pais){paises=[p.pais];regiao=regiaoDoPais(p.pais);local=typeof PAISES!=='undefined'&&PAISES[p.pais]||p.pais;}
+    else if(p.regiao==='LATAM'){paises=PAISES_LATAM.slice();regiao='AMER';local=NOME_REGIAO_IMP.LATAM;}
+    else if(p.regiao){regiao=p.regiao;local=NOME_REGIAO_IMP[p.regiao]||p.regiao;}
+    else{paises=['BR'];regiao='AMER';local='Brasil';}
+    return{id:'r-'+p.slug,nome:p.nome,real:true,tipo:p.tipo||'jornalista',veiculo:p.veiculo||null,genero:p.genero||'m',
+      paises,regiao,local,arroba:p.arroba||arrobaDeNome(p.nome),slug:p.slug,auto:!!p.auto};
+  });
+}
+/* quanto uma pessoa real tem a ver com a notícia: do país do clube > da região */
+function afinidadeReal(p,esc){
+  if(!esc.regiao)return p.tipo==='jornalista'?0.3:0.5;
+  if(esc.pais&&p.paises.includes(esc.pais))return 3;
+  if(p.regiao===esc.regiao)return p.paises.length?0.35:1.5;
+  return 0;
 }
 /* todo mundo que posta, por id (jornalista fictício, pessoa real ou o perfil do veículo) */
 let _imprensaCache=null;
@@ -10756,7 +10852,15 @@ function perfisImprensa(){
   _imprensaCache={chave,mapa};
   return mapa;
 }
-function perfilImprensa(id){return perfisImprensa()[id]||null;}
+function perfilImprensa(id){
+  if(String(id).startsWith('c-'))return perfilClube(G.times[String(id).slice(2)]);
+  return perfisImprensa()[id]||null;
+}
+/* o perfil oficial de um clube: posta o que é da casa (lesão, patrocínio, premiação) */
+function perfilClube(t){
+  if(!t)return null;
+  return{id:'c-'+t.id,tipo:'clube',timeId:t.id,nome:t.nome,arroba:String(t.tag||t.nome).replace(/[^A-Za-z0-9]/g,''),verificado:true};
+}
 
 /* ---------- de onde é a notícia ---------- */
 function escopoNoticia(n){
@@ -10775,6 +10879,9 @@ function autorDaNoticia(n){
   const esc=escopoNoticia(n);
   const imp=n.imp||1;
   const vs=typeof VEICULOS!=='undefined'?VEICULOS:[];
+  /* o dia a dia do seu clube (recuperação, meta de patrocínio, premiação, olheiro)
+     sai pelo perfil oficial do clube, não pela imprensa */
+  if(n.meu&&n.c==='clube'&&imp<2&&G.meuTime&&G.times[G.meuTime])return perfilClube(G.times[G.meuTime]);
   /* 1. o veículo: do país do clube > da região > global (o global pesa mais nas grandes) */
   const pesoV=v=>{
     let w;
@@ -10787,7 +10894,7 @@ function autorDaNoticia(n){
   };
   /* pessoas reais independentes concorrem como se fossem um veículo do país delas */
   const indep=Object.values(P).filter(p=>p.real&&p.tipo==='jornalista'&&!p.veiculo);
-  const opcoes=vs.map(v=>({v,w:pesoV(v)})).concat(indep.map(p=>({p,w:esc.pais&&p.pais===esc.pais?4:esc.regiao==='AMER'&&p.pais==='BR'?0.5:0})));
+  const opcoes=vs.map(v=>({v,w:pesoV(v)})).concat(indep.map(p=>({p,w:afinidadeReal(p,esc)*1.6*((p.foco||[]).includes(n.c)?1.5:1)})));
   const o=escolhePeso(opcoes,x=>x.w,sorteImp(sem,1));
   let autor;
   if(!o)autor=null;
@@ -10835,7 +10942,7 @@ function reacoesNoticia(n){
   const sem=n.txt+'|'+n.ano+'|'+(n.s||0)+'|r';
   const esc=escopoNoticia(n);
   const autor=autorDaNoticia(n);
-  const reais=Object.values(P).filter(p=>p.real&&p.id!==(autor&&autor.id)&&(!esc.pais||p.pais===esc.pais||(esc.regiao==='AMER'&&p.pais==='BR')));
+  const reais=Object.values(P).filter(p=>p.real&&p.id!==(autor&&autor.id)&&afinidadeReal(p,esc)>0);
   const ficticios=Object.values(P).filter(p=>p.tipo==='jornalista'&&!p.real&&p.id!==(autor&&autor.id)&&(()=>{const v=veiculo(p.veiculo);return v&&(!esc.regiao||v.regiao===esc.regiao||v.regiao==='GLOBAL');})());
   const quantos=(n.imp>=3?2:1)+(sorteImp(sem,1)<0.35?1:0);
   const grupo=/campe|título/i.test(n.txt)?'titulo':REACOES[n.c]?n.c:'competicoes';
@@ -10843,9 +10950,12 @@ function reacoesNoticia(n){
   const tag=esc.time?esc.time.tag:'';
   const out=[],vistos=new Set();
   for(let i=0;i<quantos;i++){
-    const pool=reais.length&&sorteImp(sem,10+i)<0.8?reais:ficticios;
+    const usaReal=reais.length&&sorteImp(sem,10+i)<0.85;
+    const pool=usaReal?reais.filter(x=>!vistos.has(x.id)):ficticios;
     if(!pool.length)break;
-    const p=pool[Math.floor(sorteImp(sem,20+i)*pool.length)];
+    /* entre os reais, quem é do país do clube reage bem mais; streamer reage mais que jornalista */
+    const p=usaReal?escolhePeso(pool,x=>afinidadeReal(x,esc)*(x.tipo==='jornalista'?0.5:1),sorteImp(sem,20+i))
+      :pool[Math.floor(sorteImp(sem,20+i)*pool.length)];
     if(!p||vistos.has(p.id))continue;vistos.add(p.id);
     let f=frases[Math.floor(sorteImp(sem,30+i)*frases.length)];
     if(/\{tag\}/.test(f)&&!tag)f=frases.find(x=>!/\{tag\}/.test(x))||'Isso vai render';
@@ -22444,6 +22554,10 @@ function avatarImprensa(p,px){
   if(!p)return monogramaImprensa('?','#4A5866',px,true);
   const v=veiculoDoPerfil(p);
   const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:{};
+  if(p.tipo==='clube'){
+    const t=G.times[p.timeId];
+    return `<span class="ps-av-clube" style="width:${px}px;height:${px}px;--clube:${t?corDoClube(t):'#5B6B7A'}">${t?escudo(t,Math.round(px*0.72)):''}</span>`;
+  }
   if(p.tipo==='veiculo'){
     const fb=monogramaImprensa(v?v.nome:p.nome,v&&v.cor,px,false);
     return M['veiculos/'+v.id]?`<span class="ps-av-img q" style="width:${px}px;height:${px}px"><img src="${ASSETS.arq('veiculos',v.id)}" alt="" loading="lazy"></span>`:fb;
@@ -22460,6 +22574,7 @@ function avatarImprensa(p,px){
 function rotuloPerfil(p){
   if(!p)return '';
   if(p.tipo==='veiculo')return 'Veículo';
+  if(p.tipo==='clube')return 'Perfil oficial';
   if(p.real)return {jornalista:'Jornalista',streamer:'Streamer',caster:'Caster',criador:'Criador de conteúdo'}[p.tipo]||'Imprensa';
   const c=CARGOS_IMPRENSA.find(k=>k.id===p.cargo);return c?c.nome:'Jornalista';
 }
@@ -22593,12 +22708,15 @@ function vNews(){
 function modalPerfilImprensa(id){
   const p=perfilImprensa(id);if(!p)return;
   const v=veiculoDoPerfil(p);
-  const posts=G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&(()=>{const a=autorDaNoticia(n);return a&&(a.id===id||p.tipo==='veiculo'&&a.veiculo===p.veiculo);})());
+  /* streamer, caster e criador não assinam notícia: o perfil mostra onde reagiram */
+  const reage=p.real&&p.tipo!=='jornalista';
+  const posts=G.noticias.filter(n=>n.txt&&n.c!=='sistema'&&(reage?(n.imp||1)>=2&&reacoesNoticia(n).some(r=>r.autor.id===id)
+    :(()=>{const a=autorDaNoticia(n);return a&&(a.id===id||p.tipo==='veiculo'&&a.veiculo===p.veiculo);})()));
   const equipe=p.tipo==='veiculo'?Object.values(perfisImprensa()).filter(x=>x.veiculo===p.veiculo&&x.tipo!=='veiculo'):[];
   const seg=hashImp(id)%1000;
   const seguidores=p.tipo==='veiculo'?(v.alcance||1)*120000+seg*700:p.real?40000+seg*900:800+seg*40;
   const onde=p.tipo==='veiculo'?(v.regiao==='GLOBAL'?'Global':v.regiao)+(v.paises.length?' · '+v.paises.join(', '):'')
-    :v?(v.regiao==='GLOBAL'?'Global':v.regiao):p.pais||'';
+    :v?(v.regiao==='GLOBAL'?'Global':v.regiao):p.local||'';
   const cor=v?v.cor:'#5B6B7A';
   abrir(`<div class="pf" style="--c:${cor}">
     <div class="pf-capa"></div>
@@ -22611,10 +22729,11 @@ function modalPerfilImprensa(id){
     <div class="pf-bio">${p.tipo==='veiculo'?`Veículo de esports${v.lingua!=='pt'?' em '+LINGUA_NOME[v.lingua]:''}. Cobre ${(v.foco||[]).map(c=>(CAT_NOTICIA[c]||c).toLowerCase()).join(', ')}.`
       :`${esc(rotuloPerfil(p))}${v?` no <button class="ps-veic" data-perfil="v-${v.id}" style="--c:${v.cor}">${esc(v.nome)}</button>`:p.real&&p.tipo==='jornalista'?' independente':''}.`}
       ${onde?`<span class="dim"> ${icone('mundo')} ${esc(onde)}</span>`:''}</div>
-    <div class="pf-num"><span><b>${posts.length}</b> posts na carreira</span><span><b>${numCurto(seguidores)}</b> seguidores</span>
+    <div class="pf-num"><span><b>${posts.length}</b> ${reage?'reações':'posts'} na carreira</span><span><b>${numCurto(seguidores)}</b> seguidores</span>
       ${equipe.length?`<span><b>${equipe.length}</b> na equipe</span>`:''}</div>
     ${equipe.length?`<div class="pf-eq">${equipe.map(x=>`<button class="pf-eq-p" data-perfil="${x.id}">${avatarImprensa(x,30)}<span><b>${esc(x.nome)}</b><span class="dim">${esc(rotuloPerfil(x))}</span></span></button>`).join('')}</div>`:''}
-    <div class="pf-posts">${posts.length?posts.slice(0,12).map(n=>postNoticia(n,{semReacoes:true})).join(''):'<div class="dim">Ainda não postou nesta carreira.</div>'}</div>
+    <div class="pf-posts">${posts.length?posts.slice(0,12).map(n=>postNoticia(n,{semReacoes:!reage})).join('')
+      :`<div class="dim" style="padding:12px">${reage?'Ainda não reagiu a nenhuma notícia grande nesta carreira.':'Ainda não postou nesta carreira.'}</div>`}</div>
     <div class="neg-bts" style="justify-content:flex-end"><button class="btn ghost" data-close>Fechar</button></div>
   </div>`,true,!!$('#modal .pf'));
   const md=$('#modal');
@@ -22627,7 +22746,9 @@ function modalPerfilImprensa(id){
 function ligarImprensa(raiz){
   if(!raiz)return;
   raiz.querySelectorAll('[data-perfil]').forEach(el=>{if(!el.dataset.perfil)return;
-    el.onclick=e=>{e.stopPropagation();modalPerfilImprensa(el.dataset.perfil);};});
+    el.onclick=e=>{e.stopPropagation();const id=el.dataset.perfil;
+      if(id.startsWith('c-')){if(typeof irClube==='function')irClube(id.slice(2));return;}
+      modalPerfilImprensa(id);};});
   raiz.querySelectorAll('[data-seguir]').forEach(el=>el.onclick=e=>{e.stopPropagation();
     const id=el.dataset.seguir,p=perfilImprensa(id);
     const agora=alternarSeguir(id);
