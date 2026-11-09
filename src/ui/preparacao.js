@@ -61,6 +61,7 @@ function vPreparo(){
     neutro; cada ponto de força na partida vale 4 aqui. É o mesmo número que o veto enxerga.
     ${adv?(verAdv?` Ao lado, o preparo do <b>${esc(adv.tag)}</b>, seu próximo adversário, pelo seu analista.`
       :` Com analista e olheiro melhores você também veria o preparo do <b>${esc(adv.tag)}</b>.`):''}`,'Como o preparo é calculado')}
+  ${typeof cardEnigmas==='function'?cardEnigmas(t):''}
   <div class="grid g4" style="margin-bottom:14px">
     <div class="kpi teal"><div class="lb">Mapa mais forte</div><div class="vl">${esc(melhor?melhor.mapa:'—')}</div>
       <div class="sb">preparo ${melhor?melhor.nota:'—'}</div></div>

@@ -87,6 +87,25 @@ function aplicarMiniIGL(t){
   for(const id of (t.titulares||[]))if(id!==m.igl&&G.jogadores[id])mexerDupla(t,m.igl,id,d);
 }
 
+/* ---------- Enigmas táticos ----------
+   Estudo do mapa: três enigmas (leitura do adversário, smokes e o mapa
+   embaralhado). A nota vira uma sessão extra de estudo do mapa escolhido no
+   fim da semana: até 60% de uma semana inteira de treino dedicada a ele.
+   É estudo, não treino físico: não cansa e não tem lado negativo. */
+const ENIG_MAX=0.6;
+function enigmaDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniMapa;}
+function registrarEnigma(t,mapa,res){
+  if(!enigmaDisponivel(t))return null;
+  t.miniMapa={mapa,nota:clamp(res.nota,0,1),pts:res.pts||0,ano:G.ano,semana:G.semana||1};
+  return{sessao:t.miniMapa,bateu:registrarRecordeMini('enigmas',res.pts||0,res.nota)};
+}
+/* chamado por semana(), depois do treino da semana (core/clock.js) */
+function aplicarMiniMapa(t){
+  const m=t&&t.id===G.meuTime?t.miniMapa:null;
+  if(!m||m.comissao||!m.nota||typeof treinarUmMapa!=='function')return;
+  treinarUmMapa(t,m.mapa,ENIG_MAX*m.nota);
+}
+
 /* ---------- fim da semana ----------
    chamado por semana() depois do desenvolvimento: o que valia para esta
    semana sai, e a próxima abre uma sessão nova */
@@ -95,6 +114,7 @@ function encerrarMiniSemana(t){
   if(t.miniTreino){t.miniTreinoUltimo=t.miniTreino;delete t.miniTreino;}
   if(t.miniAtividade){t.miniAtividadeUltimo=t.miniAtividade;delete t.miniAtividade;}
   if(t.miniIGL){t.miniIGLUltimo=t.miniIGL;delete t.miniIGL;}
+  if(t.miniMapa){t.miniMapaUltimo=t.miniMapa;delete t.miniMapa;}
 }
 
 /* ---------- medalhas e recordes ---------- */

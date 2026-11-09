@@ -268,6 +268,7 @@ function semana(){
        clube usa o que VOCÊ deixou marcado na tela de Treino. */
     if(typeof planoIA==='function')planoIA(t);
     if(typeof aplicarTreinoSemanal==='function')aplicarTreinoSemanal(t);
+    if(typeof aplicarMiniMapa==='function')aplicarMiniMapa(t);
     if(typeof registrarPreparo==='function')registrarPreparo(t);
     /* comp e tática da semana: a IA reescolhe, o seu clube usa o que você marcou */
     if(typeof limparComps==='function')limparComps(t);

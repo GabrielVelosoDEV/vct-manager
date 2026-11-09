@@ -2851,3 +2851,7 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .mg-faixa.igl{background:linear-gradient(90deg,rgba(24,229,180,.10),transparent 70%);border-color:rgba(24,229,180,.3);margin-top:8px}
 .mg-faixa.igl .mg-faixa-ic{color:var(--teal);background:rgba(24,229,180,.12)}
 .mg-teclas{flex-wrap:wrap}
+.mg-card-acao{display:flex;gap:8px;align-items:center}
+.mg-card-acao select{min-width:150px}
+.mg-card-en{margin-bottom:14px;background:radial-gradient(90% 160% at 0% 50%,rgba(24,229,180,.10),transparent 60%),var(--surf1,var(--panel))}
+.mg-card-en .mg-card-arte svg{animation:none}
