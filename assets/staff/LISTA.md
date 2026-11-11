@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/staff/` com o nome exato da lista. O nome é o
 nick da pessoa em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-153/220 com imagem.
+154/220 com imagem.
 
 ## SEN
 
@@ -454,4 +454,4 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## LIVRE
 
-- [ ] `sacy.png` — Sacy (LIVRE, Head Coach)
+- [x] `sacy.png` — Sacy (LIVRE, Head Coach)
