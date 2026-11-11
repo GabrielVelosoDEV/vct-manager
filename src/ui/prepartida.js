@@ -17,6 +17,8 @@ let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'|'comps'} */
 function prePartidaDisponivel(){
   if(!G||!G.meuTime)return null;
   if(typeof compromissoDaSemana!=='function')return null;
+  /* sem cinco não há veto nem transmissão: a semana roda e o jogo é W.O. */
+  if(typeof emCondicaoDeJogo==='function'&&!emCondicaoDeJogo(G.times[G.meuTime]))return null;
   return compromissoDaSemana();
 }
 /* Ponto de entrada: chamado pelo botão de avançar antes de a semana rodar. */

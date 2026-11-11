@@ -510,7 +510,38 @@ function fecharSerie(S,ctx){
   return{aId,bId,bo,veto:S.veto.seq,mapas:S.mapas,wa:S.wa,wb:S.wb,
          vencedor,perdedor,agg,mvp,ctx:ctx||{}};
 }
+/* ---------- W.O. ----------
+   Clube que chega ao jogo sem cinco jogadores perde sem jogar: a série vai
+   para o outro lado pelo placar mínimo (2–0 numa MD3, 3–0 numa MD5), sem
+   mapa, sem estatística e sem MVP. É a punição de vender e não repor — a IA
+   repõe na hora (reporElenco), então na prática só acontece com você. */
+function emCondicaoDeJogo(t){return !!t&&(t.elenco||[]).length>=ELENCO_MIN;}
+function woDaSerie(aId,bId,bo,ctx){
+  const A=G.times[aId],B=G.times[bId];
+  const okA=emCondicaoDeJogo(A),okB=emCondicaoDeJogo(B);
+  if(okA&&okB)return null;
+  /* os dois sem cinco: quem tem mais gente leva; empate, o mandante */
+  const vencedor=okA&&!okB?aId:okB&&!okA?bId:((B.elenco||[]).length>(A.elenco||[]).length?bId:aId);
+  const perdedor=vencedor===aId?bId:aId;
+  const precisa=Math.ceil(bo/2);
+  const V=G.times[vencedor],P=G.times[perdedor];
+  V.temporada.v++;P.temporada.d++;
+  if(typeof CARGOS!=='undefined')CARGOS.forEach(c=>{
+    const mv=membroDe(V,c.id);if(mv)mv.temp.v++;
+    const mp=membroDe(P,c.id);if(mp)mp.temp.d++;
+  });
+  P.prestigio=clamp(P.prestigio-0.4,20,99);
+  P.woTemporada=(P.woTemporada||0)+1;
+  /* o vestiário de quem não entrou em quadra sente */
+  (P.elenco||[]).forEach(id=>{const j=G.jogadores[id];if(j)j.moral=clamp(j.moral-0.06,.15,1);});
+  if(typeof noticia==='function')noticia('🚫 W.O.: o '+P.nome+' não tinha cinco jogadores e perdeu para o '+V.nome+
+    ' sem entrar em quadra'+(ctx&&ctx.nome?' ('+ctx.nome+')':'')+'.',{c:'competicoes',t:[P.id,V.id],imp:perdedor===G.meuTime?3:1});
+  return{aId,bId,bo,veto:[],mapas:[],wa:vencedor===aId?precisa:0,wb:vencedor===bId?precisa:0,
+         vencedor,perdedor,agg:{},mvp:null,ctx:ctx||{},wo:perdedor};
+}
 function simPartida(aId,bId,bo,ctx){
+  const wo=woDaSerie(aId,bId,bo,ctx);
+  if(wo)return wo;
   const S=abrirSerie(aId,bId,bo,ctx&&ctx.veto);
   while(!S.fim){
     if(!serieAbrirMapa(S))break;

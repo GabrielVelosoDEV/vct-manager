@@ -80,7 +80,7 @@ function avaliarTroca(eu,outro,tr){
   }
   const meuDepois=eu.elenco.length-envia.length+recebe.length;
   const deleDepois=outro.elenco.length-recebe.length+envia.length;
-  if(meuDepois<ELENCO_MIN)erros.push('Você ficaria com '+meuDepois+' jogadores (mínimo '+ELENCO_MIN+').');
+  /* descer de cinco é permitido: quem chega ao jogo sem cinco toma W.O. */
   if(meuDepois>ELENCO_MAX)erros.push('Você ficaria com '+meuDepois+' jogadores (máximo '+ELENCO_MAX+').');
   if(deleDepois<ELENCO_MIN||deleDepois>ELENCO_MAX)erros.push('O '+outro.nome+' ficaria com '+deleDepois+' jogadores.');
   if(din>0&&eu.caixa<din)erros.push('Caixa insuficiente para pagar '+dinheiro(din)+'.');
@@ -198,37 +198,51 @@ function executarTroca(n,a){
 }
 
 /* ---------- a IA oferece troca ----------
-   Pelos jogadores que você anunciou para venda: o clube interessado pode
-   oferecer um jogador dele e completar com dinheiro. Chamado por
-   gerarPropostas() quando o clube decide fazer proposta de compra. */
-function montarTrocaIA(p,alvo){
+   Pelos seus jogadores, anunciados ou não: o clube interessado oferece um
+   jogador dele — de preferência da mesma função, para você não ficar com o
+   buraco — e completa com dinheiro. Quando a diferença é grande e o elenco
+   dele é longo, às vezes entram dois. */
+function montarTrocaIA(p,alvo,ganho){
   const eu=G.times[p.timeId];
-  if(!eu||p.preContrato||p.emprestimo||(alvo.elenco||[]).length<=ELENCO_MIN)return null;
-  const preco=p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:precoPedido(p);
-  /* o que o clube aceita soltar: fora os dois melhores, e quem quer ir */
+  if(!eu||p.preContrato||p.emprestimo||p.base)return null;
+  if(!reacaoNaTroca(p,alvo).ok)return null;
+  if(ganho==null)ganho=interesseDe(alvo,p);
+  /* o quanto ele vale para quem oferece */
+  const vale=valorDeMercado(p)*(1+Math.min(0.15,Math.max(0,ganho)*0.015));
+  const funcao=p.roleAtual||p.role;
+  /* o que o clube aceita soltar: menos o melhor dele e quem não quer ir */
   const ordem=(alvo.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
-  const cand=ordem.slice(2).filter(q=>!q.emprestimo&&!q.preContrato&&!q.base
-    &&precoNaTroca(q)<preco&&reacaoNaTroca(q,eu).ok&&reacaoNaTroca(p,alvo).ok);
+  const cand=ordem.slice(1).filter(q=>!q.emprestimo&&!q.preContrato&&!q.base&&!q.lesao
+    &&precoNaTroca(q)<vale*0.92&&precoNaTroca(q)>=vale*0.2&&reacaoNaTroca(q,eu).ok);
   if(!cand.length)return null;
-  /* o que mais se aproxima do preço, para o dinheiro ser complemento */
-  const q=cand.sort((a,b)=>precoNaTroca(b)-precoNaTroca(a))[0];
-  const oferta=Math.round(valorParaClube(alvo,p)*(0.85+rnd()*0.2)/500)*500;
-  const din=Math.max(0,Math.round((oferta-precoNaTroca(q))/5000)*5000);
-  if(din>alvo.caixa*TETO_TAXA)return null;
-  return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'troca',oferecidoId:q.id,
+  /* mesma função vale mais na escolha: é a peça que você perde */
+  const nota=q=>precoNaTroca(q)*(typeof cobre==='function'&&cobre(q,funcao)?1.3:1)*(0.9+rnd()*0.2);
+  cand.sort((a,b)=>nota(b)-nota(a));
+  const ofs=[cand[0]];
+  let soma=precoNaTroca(cand[0]);
+  /* diferença grande e elenco longo: entra um segundo */
+  if(vale-soma>vale*0.45&&(alvo.elenco||[]).length>=7&&rnd()<0.4){
+    const seg=cand.slice(1).find(q=>soma+precoNaTroca(q)<vale*0.95);
+    if(seg){ofs.push(seg);soma+=precoNaTroca(seg);}
+  }
+  const din=Math.max(0,Math.round((vale*(0.88+rnd()*0.17)-soma)/5000)*5000);
+  if(din>capacidadeDeCompra(alvo,ganho).agora)return null;
+  return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'troca',
+         oferecidoId:ofs[0].id,oferecidos:ofs.map(q=>q.id),
          taxa:din,salario:reacaoNaTroca(p,alvo).sal,anos:Math.max(1,p.contrato||1),opcaoCompra:0,
-         prazo:PRAZO_PROPOSTA,pedido:preco};
+         prazo:PRAZO_PROPOSTA,pedido:p.anuncio&&p.anuncio.pedido?p.anuncio.pedido:precoPedido(p)};
 }
 /* Aceitar a troca oferecida pela IA. */
 function executarTrocaIA(pr){
-  const p=G.jogadores[pr.jogadorId], q=G.jogadores[pr.oferecidoId];
+  const p=G.jogadores[pr.jogadorId];
+  const ofs=(pr.oferecidos||[pr.oferecidoId]).map(i=>G.jogadores[i]);
   const eu=G.times[G.meuTime], outro=G.times[pr.clubeId];
-  if(!p||!q||!eu||!outro||q.timeId!==outro.id||p.timeId!==eu.id)return{ok:false,erro:'A troca não está mais de pé.'};
-  const n={tipo:'troca',id:'tri'+pr.id,origemId:outro.id,destinoId:eu.id,jogadorId:q.id,fase:'troca',
-           envia:[p.id],recebe:[q.id],dinheiro:-pr.taxa,pacClube:1,pacClubeMax:1,hist:[],ano:G.ano,semana:G.semana};
+  if(!p||!eu||!outro||ofs.some(q=>!q||q.timeId!==outro.id)||p.timeId!==eu.id)return{ok:false,erro:'A troca não está mais de pé.'};
+  const n={tipo:'troca',id:'tri'+pr.id,origemId:outro.id,destinoId:eu.id,jogadorId:ofs[0].id,fase:'troca',
+           envia:[p.id],recebe:ofs.map(q=>q.id),dinheiro:-pr.taxa,pacClube:1,pacClubeMax:1,hist:[],ano:G.ano,semana:G.semana};
   const a=avaliarTroca(eu,outro,n);
   if(a.erros.length)return{ok:false,erro:a.erros.join(' ')};
   if(!a.jogadoresAceitam)return{ok:false,erro:Object.values(a.reacoes).find(r=>!r.ok).txt};
   executarTroca(n,a);
-  return{ok:true,msg:p.nome+' trocado por '+q.nome+(pr.taxa?' mais '+dinheiro(pr.taxa):'')+'.'};
+  return{ok:true,msg:p.nome+' trocado por '+ofs.map(q=>q.nome).join(' e ')+(pr.taxa?' mais '+dinheiro(pr.taxa):'')+'.'};
 }

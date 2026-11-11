@@ -267,7 +267,7 @@ const Prefs={
   padrao:{modalPartida:true,resumoRodada:true,autosave:true,animacoes:true,
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
-          prePartida:true, tempoTecnico:true, dicas:true, turnosNaJanela:true,
+          prePartida:true, tempoTecnico:true, dicas:true, turnosNaJanela:true, animarTempo:true,
           minigames:true, somMini:true, palavroes:true},
   dados:null,
   iniciar(){
@@ -284,7 +284,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=13;
+const RUN_VERSAO=14;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -440,6 +440,8 @@ function migrarRun(reg){
     if(de<12&&typeof migrarMainsReais==='function')migrarMainsReais();
     /* v13: donos e compras de vaga durante a carreira */
     if(de<13&&typeof migrarOrganizacoes==='function')migrarOrganizacoes();
+    /* v14: a janela anda dia a dia; o turno de dois dias vira o primeiro dia dele */
+    if(de<14&&G.turno)G.turno=[0,2,4][G.turno]||0;
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;

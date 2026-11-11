@@ -71,14 +71,14 @@ function compromissoDaSemana(){
 function meuJogoPreparado(b){
   return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
 }
-/* ---------- turnos de dois dias na janela ----------
-   A janela de transferências anda devagar: cada Avançar move dois dias, e a
-   semana vira três turnos (TURNOS_SEMANA em datas.js). Nos dois primeiros só
+/* ---------- a janela dia a dia ----------
+   A janela de transferências anda devagar: cada Avançar move um dia, e a
+   semana vira sete passos (TURNOS_SEMANA em datas.js). Nos seis primeiros só
    o mercado anda — propostas chegando, a IA contratando, ligações por gente
-   sua —, cada um com um terço da chance semanal. O terceiro fecha a semana
-   como sempre: partidas, treino, folha e o último terço do mercado.
+   sua —, cada um com um sétimo da chance semanal. O domingo fecha a semana
+   como sempre: partidas, treino, folha e o último sétimo do mercado.
 
-   Assim a semana tem o mesmo volume de negócios, mas você tem três momentos
+   Assim a semana tem o mesmo volume de negócios, mas você tem sete momentos
    para reagir em vez de um. Os prazos (proposta, multa, conversa fechada)
    continuam contados em semanas, então negociar fica mais folgado, não mais
    apertado. Num avanço sem turnos (avanço rápido, ferramentas de teste) nada
@@ -426,7 +426,7 @@ function contratar(p,time,anos,sal){
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
   /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
-  delete p.multa;delete p.sondado;delete p.pedidoSaida;delete p.semInfeliz;
+  delete p.multa;delete p.sondado;delete p.pedidoSaida;delete p.semInfeliz;delete p.rumor;
   if(p.preContrato&&p.preContrato.clubeId!==time.id)delete p.preContrato;
   if(G.negociacoes)G.negociacoes=G.negociacoes.filter(n=>n.jogadorId!==p.id||n.fase==='fechada');
   /* O anúncio é do clube que anunciou, não do jogador: mudou de clube, o

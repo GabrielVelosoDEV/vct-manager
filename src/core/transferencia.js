@@ -251,6 +251,32 @@ function pedidoDeVenda(p){
   return Math.round(p.valor*m/500)*500;
 }
 
+/* ---------- valor de mercado ----------
+   O que o jogador vale para quem compra: valor, titularidade, anos de
+   contrato e o que ainda falta crescer. É o pedido de venda SEM o que é
+   circunstância do clube dono (elenco curto, caixa apertado) — o comprador
+   não paga a mais porque você ficou com cinco. É a régua das propostas da
+   IA: ela oferece perto disto, e não perto do que o caixa dela aguenta. */
+function valorDeMercado(p){
+  const t=p.timeId?G.times[p.timeId]:null;
+  const titular=!!(t&&(t.titulares||[]).includes(p.id));
+  const m=1+(titular?.45:.10)+((p.contrato||1)*.18)+Math.max(0,(p.pot||0)-over(p))*.012;
+  return Math.round((p.valor||valor(p))*m/5000)*5000;
+}
+/* Quanto um clube consegue pagar numa taxa. À vista: uma fatia do caixa, que
+   cresce com o quanto ele quer o jogador (salto grande justifica esticar).
+   Parcelado: um pedaço da receita do ano que vem, pago em seis meses. É o
+   que deixa um clube de 3 milhões em caixa fazer uma proposta de verdade
+   por um jogador de 2 milhões, como acontece no mundo real. */
+const PARCELA_SEMANAS=26, PARCELA_RECEITA=0.30;
+function capacidadeDeCompra(t,ganho){
+  if(!t)return{agora:0,futuro:0,total:0};
+  const fatia=TETO_TAXA+Math.min(0.30,Math.max(0,ganho||0)*0.03);
+  const agora=Math.max(0,(t.caixa||0)*fatia);
+  const futuro=(t.caixa||0)>0&&typeof receitaAnual==='function'?Math.max(0,receitaAnual(t)*PARCELA_RECEITA):0;
+  return{agora,futuro,total:agora+futuro};
+}
+
 /* ---------- multa rescisória ----------
    Todo contrato tem uma. Paga a multa, o clube dono não tem como recusar: só
    o jogador decide. Enquanto ninguém fixa um valor (contrato vindo da base de
@@ -368,14 +394,18 @@ function avaliarProposta(p,destino,taxa,sal,anos){
   if(destino.caixa<taxa)motivos.push('Caixa insuficiente.');
   return motivos;
 }
-function executarProposta(p,destino,taxa,sal,anos){
+/* `parcela`: parte da taxa que fica para daqui a seis meses (agendarParcela,
+   em mercadovivo.js). Sem ela, tudo à vista como sempre. */
+function executarProposta(p,destino,taxa,sal,anos,parcela){
   const origem=p.timeId?G.times[p.timeId]:null;
-  destino.caixa-=taxa;if(origem)origem.caixa+=taxa;
+  const depois=origem&&parcela>0?Math.min(taxa,Math.round(parcela)):0;
+  destino.caixa-=taxa-depois;if(origem)origem.caixa+=taxa-depois;
+  if(depois&&typeof agendarParcela==='function')agendarParcela(destino,origem,depois,p);
   const de=origem?origem.tag:'sem clube';
   contratar(p,destino,anos,sal);
   if(typeof registrarTransferencia==='function')registrarTransferencia(p,origem,destino,taxa,origem?'compra':'livre');
   noticia('✍ '+p.nome+' ('+de+') assinou com '+destino.nome+
-          (taxa?' por '+money(taxa):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
+          (taxa?' por '+money(taxa)+(depois?' ('+money(depois)+' em seis meses)':''):' — livre')+'.',{c:'mercado',p:[p.id],t:[destino.id,origem&&origem.id],imp:over(p)>=88?2:1});
   return true;
 }
 
@@ -447,7 +477,6 @@ function carenciaDe(t){
 function tentarReforco(t,candidatos){
   const car=carenciaDe(t);
   const folga=folgaSalarial(t);
-  const tetoTaxa=Math.max(0,t.caixa*TETO_TAXA);
   if(folga<=0)return null;
 
   const avaliados=[];
@@ -460,7 +489,8 @@ function tentarReforco(t,candidatos){
     const d=detalharPedido(p,t);
     if(d.pedido>folga)continue;
     const taxa=p.timeId?precoPedido(p):0;
-    if(taxa>tetoTaxa)continue;
+    /* salto grande justifica esticar o caixa (capacidadeDeCompra) */
+    if(taxa>capacidadeDeCompra(t,ganho).agora)continue;
     /* intransferível só sai pela multa, e a IA só paga multa por salto grande */
     if(p.timeId&&taxa>=multaDe(p)&&ganho<5)continue;
     if(recusasDuras(p,t,3).length)continue;

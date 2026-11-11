@@ -265,6 +265,7 @@ function vInicio(){
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
+  ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">

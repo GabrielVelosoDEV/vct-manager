@@ -339,12 +339,19 @@ function blocoConversa(t,p){
 function modalAnunciar(id){
   const p=P(id),t=meu();
   if(!p||!t)return;
-  const justo=pedidoDeVenda(p);
+  const justo=valorDeMercado(p);
   const titular=t.titulares.includes(p.id);
+  const interessados=typeof clubesInteressados==='function'?clubesInteressados(p).length:0;
+  const deixaCurto=t.elenco.length-1<ELENCO_MIN;
   abrir(`<div class="eyebrow">Anunciar</div><h2 class="sec">${esc(p.nome)}</h2>
   <p class="dim">${p.idade} anos · ${esc(p.role)} · over ${over(p)} · potencial ${p.pot}
     · contrato de mais ${p.contrato} ano(s)${titular?' · <b>é titular hoje</b>':''}.
     O mercado avalia o passe dele em <b>${money(justo)}</b>.</p>
+  <p class="dim" style="margin-top:6px">${interessados?`<b>${interessados}</b> clube${interessados===1?'':'s'} precisa${interessados===1?'':'m'} de alguém como ele e cabe${interessados===1?'':'m'} o salário na folha.`
+    :'Hoje nenhum clube tem a função em falta e folha para o salário dele: as propostas devem demorar.'}
+    Pedir bem acima do valor não espanta ninguém, mas quem vier oferece perto do que ele vale.</p>
+  ${deixaCurto?`<div class="card flat" style="border-left:4px solid var(--amber);margin-top:10px">Vendido, ele deixa o elenco com
+    ${t.elenco.length-1}. Dá para vender — contrate o substituto antes do próximo jogo, ou o time perde por W.O.</div>`:''}
   ${p.pot-over(p)>=8&&p.idade<=21?`<div class="card flat" style="border-left:4px solid var(--teal);margin-top:10px">
     <b>Vale considerar o empréstimo.</b> Ele ainda tem ${p.pot-over(p)} pontos de evolução pela frente,
     e jogador que não entra em quadra não evolui.</div>`:''}
@@ -374,6 +381,24 @@ function modalAnunciar(id){
     render();modalJogador(p.id);
     flash(p.nome+' anunciado. As propostas aparecem em Mercado › Saídas'+(G.janela?'.':' quando a janela abrir.'));
   };
+}
+
+/* W.O.: não houve jogo, então não há mapa nem box score — só o placar e o porquê. */
+function modalWO(res){
+  const eu=G.meuTime, perdi=res.wo===eu;
+  const A=T(res.aId),B=T(res.bId);
+  const t=meu();
+  abrir(`<div class="eyebrow">${esc((res.ctx&&res.ctx.nome)||'Partida')}</div>
+    <div class="wo-placar">${escudo(A,56)}<b class="num">${res.wa}</b><span class="dim">W.O.</span><b class="num">${res.wb}</b>${escudo(B,56)}</div>
+    <h2 class="sec" style="text-align:center">${perdi?'Derrota por W.O.':'Vitória por W.O.'}</h2>
+    <p class="dim" style="text-align:center">${perdi
+      ?`O ${esc(t.nome)} não tinha cinco jogadores e não entrou em quadra. A derrota conta na tabela, o vestiário sente e o prestígio cai. ${t.elenco.length<ELENCO_MIN?`Você está com ${t.elenco.length}: contrate antes do próximo jogo.`:''}`
+      :`O ${esc(T(res.wo).nome)} não tinha cinco jogadores. A vitória conta na tabela, sem mapa jogado.`}</p>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+      ${perdi&&t.elenco.length<ELENCO_MIN?'<button class="btn" id="woMerc">Ir ao mercado</button>':''}
+      <button class="btn ghost" data-close>Fechar</button></div>`);
+  const b=$('#woMerc');
+  if(b)b.onclick=()=>{fechar();tela='mercado';mercAba='jogadores';render();};
 }
 
 let aba=0;

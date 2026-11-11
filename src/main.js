@@ -36,21 +36,22 @@ function ligarAcoesTopo(){
     flash(ok?'Partida salva.':'Falha ao salvar — exporte o .json em Partidas salvas.');
   };
   const bn=$('#btnNext');
-  if(bn)bn.onclick=()=>avancarComRitual(1);
+  if(bn)bn.onclick=()=>{if(typeof relogioMarcar==='function')relogioMarcar();avancarComRitual(1);};
   const bf=$('#btnFim');
-  if(bf)bf.onclick=()=>avancarAteMeuJogo();
+  if(bf)bf.onclick=()=>{if(typeof relogioMarcar==='function')relogioMarcar();avancarAteMeuJogo();};
 }
 
 /* Avançar uma semana passando pelo ritual de antes da partida, quando há
    partida sua e a preferência está ligada: relatório de scouting e veto de
    mapas ANTES de a semana ser jogada. Sem isso, o veto continua automático e o
    botão faz o que sempre fez. */
-/* Turno de dois dias na janela: só o mercado anda. */
+/* Um dia de janela: só o mercado anda. */
 function usarTurnos(){
   return Prefs.get('turnosNaJanela')!==false&&typeof turnoDisponivel==='function'&&turnoDisponivel();
 }
 function aplicarTurno(r){
   if(!r)return;
+  if(typeof relogioTocar==='function')relogioTocar();
   if(typeof conferirCelebracao==='function')conferirCelebracao();
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'){pintarTop();pintarSide();render();}
@@ -77,9 +78,15 @@ function avancarComRitual(quantas){
 /* resolve o que mostrar depois de avançar, respeitando as preferências */
 function aplicarAvanco(r,quantas){
   if(!r)return;
+  if(typeof relogioTocar==='function')relogioTocar(
+    r.minhaPartida&&r.minhaPartida.wo?{legenda:r.minhaPartida.wo===G.meuTime?'W.O. — sem cinco em quadra':'Vitória por W.O.'}
+    :r.minhaPartida?{legenda:'Dia de jogo'}
+    :r.encerrado?{legenda:r.encerrado+(/^fim de temporada/i.test(r.encerrado)?'':' encerrado')}
+    :quantas>1?{legenda:quantas+' semanas adiantadas'}:null);
   if(r.tipo==='rodada'){
     aba=0;
-    if(r.minhaPartida&&Prefs.get('aoVivo'))partidaAoVivo(r.minhaPartida);
+    if(r.minhaPartida&&r.minhaPartida.wo)modalWO(r.minhaPartida);
+    else if(r.minhaPartida&&Prefs.get('aoVivo'))partidaAoVivo(r.minhaPartida);
     else if(r.minhaPartida&&Prefs.get('modalPartida'))modalPartida(r.minhaPartida);
     else if(!r.minhaPartida&&Prefs.get('resumoRodada'))modalResumo(r);
     else render();

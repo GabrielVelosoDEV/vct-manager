@@ -86,6 +86,10 @@ function _fala(n,de,txt,extra){
 }
 
 /* Abre (ou devolve a que já existe) a negociação do seu clube por um jogador. */
+/* Inscrição de emergência: com a janela fechada, clube que tem menos de cinco
+   pode assinar com agente livre — só o bastante para entrar em quadra. É a
+   saída para quem vendeu e não repôs, antes que o W.O. chegue. */
+function inscricaoEmergencia(t){return !!t&&(t.elenco||[]).length<ELENCO_MIN;}
 function abrirNegociacao(p,dest){
   dest=dest||G.times[G.meuTime];
   if(!p||!dest)return{ok:false,erro:'Negociação inválida.'};
@@ -95,7 +99,7 @@ function abrirNegociacao(p,dest){
   if(conversaFechada(p))
     return{ok:false,erro:'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'};
   const origem=p.timeId?G.times[p.timeId]:null;
-  if(!G.janela&&!podePreContrato(p,dest))
+  if(!G.janela&&!podePreContrato(p,dest)&&!(!origem&&inscricaoEmergencia(dest)))
     return{ok:false,erro:'A janela está fechada.'};
   const ps=posturaDoClube(p);
   const it=interessePor(p,dest);
@@ -301,7 +305,7 @@ function _limparOferta(o){
 function proporAoJogador(n,oferta){
   const p=G.jogadores[n.jogadorId], dest=G.times[n.destinoId];
   if(!p||!dest||n.fase!=='jogador')return{ok:false,erro:'Essa etapa não está aberta.'};
-  if(n.tipo==='compra'&&!G.janela)return{ok:false,erro:'A janela está fechada.'};
+  if(n.tipo==='compra'&&!G.janela&&!(!n.origemId&&inscricaoEmergencia(G.times[n.destinoId])))return{ok:false,erro:'A janela está fechada.'};
   oferta=_limparOferta(oferta);
   const a=avaliarOfertaJogador(n,oferta);
   if(a.duras.length)return{ok:false,erro:a.duras.join(' ')};
@@ -473,7 +477,7 @@ function limparNegociacoes(){
   G.negociacoes=negociacoes().filter(n=>{
     /* renovação e pré-contrato não dependem da janela */
     const foraDaJanela=n.tipo==='renovacao'||n.tipo==='precontrato';
-    if(n.fase==='clube'||n.fase==='jogador')return !!G.janela||foraDaJanela;
+    if(n.fase==='clube'||n.fase==='jogador')return !!G.janela||foraDaJanela||(!n.origemId&&inscricaoEmergencia(G.times[n.destinoId]));
     return agora-((n.ano||0)*SEMANAS_ANO+(n.semana||1))<NEG_ESPERA+2&&(!!G.janela||foraDaJanela);
   });
 }

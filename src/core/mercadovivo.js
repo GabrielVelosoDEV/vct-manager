@@ -23,9 +23,9 @@
 /* Chance semanal, por jogador seu, de chegar proposta sem anúncio. Sobe com
    o over: estrela recebe ligação toda janela, reserva quase nunca. Calibrada
    para as duas janelas de calendário, que somam cerca de 22 semanas por ano. */
-const ESPONTANEA_BASE=0.045;
-const ESPONTANEA_POR_OVER=0.012;    /* por ponto de over acima de 75 */
-const ESPONTANEA_MAX=0.25;
+const ESPONTANEA_BASE=0.06;
+const ESPONTANEA_POR_OVER=0.015;    /* por ponto de over acima de 75 */
+const ESPONTANEA_MAX=0.35;
 /* A IA só paga multa por um salto grande no time dela, e com folga no caixa. */
 const MULTA_IA_GANHO=6;
 const MULTA_IA_CAIXA=0.6;
@@ -42,7 +42,7 @@ const CRISE_DESCONTO=0.80, CRISE_SEMANAS=34;
 const REVENDA_OPCOES=[0,10,20];
 function pesoRevenda(p){return p.idade<=22?0.9:0.5;}
 /* IA durante a janela: chance por semana de cada clube tentar um reforço. */
-const IA_JANELA_CHANCE=0.025, IA_PRAZO_FINAL=0.14;
+const IA_JANELA_CHANCE=0.05, IA_PRAZO_FINAL=0.22;
 
 /* ---------- último dia da janela ---------- */
 function ultimoDiaDaJanela(){
@@ -119,6 +119,7 @@ function rondaPedidosSaida(){
 /* ---------- propostas espontâneas e multa paga ---------- */
 function chanceEspontanea(p){
   let c=ESPONTANEA_BASE+Math.max(0,over(p)-75)*ESPONTANEA_POR_OVER;
+  if(p.rumor&&_semanaNeg()<=p.rumor.ate)c*=1.6;
   if(p.pedidoSaida&&!p.pedidoSaida.negado)c*=2.5;
   if(ultimoDiaDaJanela())c*=2;
   return Math.min(ESPONTANEA_MAX,c);
@@ -137,21 +138,50 @@ function propostasEspontaneas(){
       .map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0&&!propostasDe(p.id).some(y=>y.clubeId===x.t.id))
       .sort((a,b)=>b.n-a.n);
     if(!cand.length)continue;
+    /* quem apareceu no rumor liga primeiro */
+    if(p.rumor){const i=cand.findIndex(x=>x.t.id===p.rumor.clubeId);if(i>0)cand.unshift(cand.splice(i,1)[0]);}
     /* até três clubes tentam, do mais interessado para baixo: quem mais
        precisa nem sempre tem caixa ou folha para bancar */
     let pr=null,alvo=null;
     for(let k=0;k<3&&!pr&&cand.length;k++){
       const i=Math.min(cand.length-1,Math.floor(Math.pow(rnd(),1.8)*cand.length));
-      alvo=cand[i].t;pr=montarEspontanea(p,alvo,cand[i].n);cand.splice(i,1);
+      alvo=cand[i].t;
+      /* às vezes a ligação já vem com um jogador deles na conversa */
+      if(rnd()<0.2&&typeof montarTrocaIA==='function'){pr=montarTrocaIA(p,alvo,cand[i].n);if(pr)pr.espontanea=true;}
+      if(!pr)pr=montarEspontanea(p,alvo,cand[i].n);
+      cand.splice(i,1);
     }
     if(!pr)continue;
     G.propostas.push(pr);novas++;
     noticia(pr.tipo==='multa'
       ?'💥 '+alvo.nome+' pagou a multa rescisória de '+p.nome+' ('+money(pr.taxa)+'). Você não pode recusar: só ele decide.'
-      :'📞 '+alvo.nome+' ligou por '+p.nome+', que nem estava à venda: '+money(pr.taxa)+(pr.revenda?' e '+pr.revenda+'% de revenda':'')+'.',
+      :pr.tipo==='troca'?textoProposta(pr).replace('📨','📞').replace('fez uma proposta','ligou')+' Ele nem estava à venda.'
+      :'📞 '+alvo.nome+' ligou por '+p.nome+', que nem estava à venda: '+money(pr.taxa)+(pr.parcela?' ('+money(pr.parcela)+' em seis meses)':'')+(pr.revenda?' e '+pr.revenda+'% de revenda':'')+'.',
       {c:'mercado',p:[p.id],t:[alvo.id],imp:pr.tipo==='multa'?2:1});
   }
   return novas;
+}
+/* ---------- rumores ----------
+   Antes do telefone tocar, a imprensa fala: "o clube X monitora o seu
+   jogador". O rumor aponta quem tem interesse de verdade (a mesma conta das
+   propostas) e deixa a ligação desse clube mais provável nas semanas
+   seguintes. Às vezes não dá em nada, como na vida. */
+const RUMOR_CHANCE=0.05, RUMOR_SEMANAS=3;
+function rondaRumores(){
+  if(!G.janela)return;
+  const eu=G.times[G.meuTime];if(!eu)return;
+  for(const pid of eu.elenco){
+    const p=G.jogadores[pid];
+    if(!p||p.anuncio||p.emprestimo||p.base||over(p)<75)continue;
+    if(p.rumor&&_semanaNeg()<=p.rumor.ate)continue;
+    if(rnd()>RUMOR_CHANCE*(1+Math.max(0,over(p)-80)*0.06))continue;
+    const cand=Object.values(G.times).filter(t=>t.id!==eu.id).map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0)
+      .sort((a,b)=>b.n-a.n).slice(0,4);
+    if(!cand.length)continue;
+    const c=cand[Math.floor(rnd()*cand.length)].t;
+    p.rumor={clubeId:c.id,ate:_semanaNeg()+RUMOR_SEMANAS};
+    noticia('🗞 Rumor: o '+c.nome+' está monitorando '+p.nome+'. Na imprensa, fala-se em proposta ainda nesta janela.',{c:'mercado',p:[p.id],t:[c.id]});
+  }
 }
 function montarEspontanea(p,alvo,ganho){
   const eu=G.times[p.timeId];
@@ -159,7 +189,6 @@ function montarEspontanea(p,alvo,ganho){
   const sal=salarioPedido(p,alvo);
   if(sal>folgaSalarial(alvo)*1.1)return null;
   const multa=multaDe(p), ps=posturaDoClube(p);
-  const teto=Math.max(0,alvo.caixa*TETO_TAXA);
   /* multa: o salto precisa ser grande, o caixa precisa aguentar, e o jogador
      precisa preferir ir */
   /* metade das vezes o clube tenta antes negociar: multa é o último recurso */
@@ -170,14 +199,16 @@ function montarEspontanea(p,alvo,ganho){
   }
   if(ps.id==='intransferivel'&&rnd()<0.6)return null;
   const preco=precoPedido(p);
-  let oferta=Math.round(Math.min(teto,preco*(0.80+rnd()*0.25))/5000)*5000;
-  if(oferta<=0||oferta<preco*0.6)return null;
+  /* ninguém liga oferecendo a multa: quem quer pagar a multa paga (acima) */
+  const o=ofertaIA(p,alvo,ganho,Math.min(preco,valorDeMercado(p)));
+  if(!o)return null;
+  let oferta=o.taxa;
   /* jovem: às vezes a oferta vem com revenda, e um pouco menor por isso */
   let revenda=0;
   if(p.idade<=21&&rnd()<0.35){revenda=rnd()<0.5?10:15;oferta=Math.round(oferta*0.95/5000)*5000;}
-  return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'compra',taxa:oferta,
+  return ajustarParcela({id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'compra',taxa:oferta,
          salario:Math.round(sal),anos:ri(2,3),opcaoCompra:0,prazo:PRAZO_PROPOSTA,
-         pedido:preco,espontanea:true,revenda};
+         pedido:preco,espontanea:true,revenda});
 }
 /* A multa paga pela IA: liberar é aceitar. Também é o que acontece se o prazo
    vence sem você reagir. */
@@ -219,8 +250,8 @@ function _tetoLeilao(t,p,x){
   const ganho=interesseDe(t,p);
   /* cada um estica pelo menos um pouco além da própria proposta; quem precisa
      mais do jogador estica mais */
-  const quer=precoPedido(p)*(1+Math.min(10,ganho)*0.03)*(0.95+(_hashTxt(t.id+p.id)%100)/1000);
-  return Math.round(Math.max(x.taxa*1.08,Math.min(t.caixa*TETO_TAXA*1.4,quer))/5000)*5000;
+  const quer=valorDeMercado(p)*(1+Math.min(10,ganho)*0.03)*(0.98+(_hashTxt(t.id+p.id)%150)/1000);
+  return Math.round(Math.max(x.taxa*1.08,Math.min(capacidadeDeCompra(t,ganho).total,quer))/5000)*5000;
 }
 function podeLeiloar(jogadorId){
   return propostasDe(jogadorId).filter(x=>x.tipo==='compra').length>=2;
@@ -250,7 +281,7 @@ function abrirLeilao(jogadorId){
     if(!cobriu&&!lances.some(l=>!l.fora&&l!==lider))break;
   }
   /* quem ganhou fica com a proposta; os outros saem da mesa */
-  lider.x.taxa=atual;lider.x.prazo=PRAZO_PROPOSTA;lider.x.leilao=true;
+  lider.x.taxa=atual;lider.x.prazo=PRAZO_PROPOSTA;lider.x.leilao=true;ajustarParcela(lider.x);
   G.propostas=G.propostas.filter(x=>x.jogadorId!==jogadorId||x===lider.x||x.tipo!=='compra');
   rodadas.push({clube:lider.t.id,valor:atual,txt:lider.t.nome+' vence o leilão com '+money(atual)+'.',vence:true});
   noticia('🔨 Leilão por '+p.nome+': '+lider.t.nome+' venceu com '+money(atual)+'.',{c:'mercado',p:[p.id],t:[lider.t.id]});
@@ -349,6 +380,34 @@ function exercerOpcao(p){
   return{ok:true,msg:p.nome+' agora é seu.'};
 }
 
+/* ---------- parcelas ----------
+   Taxa parcelada: o comprador paga a entrada na hora e o resto em seis
+   meses (PARCELA_SEMANAS). A conta corre sozinha; se o caixa dele estiver
+   no vermelho, paga assim mesmo — dívida é dívida. */
+function agendarParcela(de,para,valor,p){
+  if(!de||!para||!(valor>0))return;
+  (G.parcelas=G.parcelas||[]).push({de:de.id,para:para.id,valor:Math.round(valor),
+    em:_semanaNeg()+PARCELA_SEMANAS,jogadorId:p?p.id:null,nome:p?p.nome:''});
+}
+function cobrarParcelas(){
+  if(!G.parcelas||!G.parcelas.length)return;
+  const agora=_semanaNeg();
+  G.parcelas=G.parcelas.filter(x=>{
+    if(x.em>agora)return true;
+    const de=G.times[x.de],para=G.times[x.para];
+    if(de)de.caixa-=x.valor;
+    if(para)para.caixa+=x.valor;
+    if(x.de===G.meuTime||x.para===G.meuTime)
+      noticia('🧾 Parcela da transferência de '+(x.nome||'um jogador')+': '+(de?de.nome:'—')+' pagou '+money(x.valor)+' ao '+(para?para.nome:'—')+'.',{c:'mercado',t:[x.de,x.para].filter(Boolean)});
+    return false;
+  });
+}
+/* O que um clube tem a receber e a pagar em parcelas, para a tela. */
+function parcelasDe(t){
+  const l=(G.parcelas||[]);
+  return{receber:l.filter(x=>x.para===t.id),pagar:l.filter(x=>x.de===t.id)};
+}
+
 /* ---------- IA negociando durante a janela ---------- */
 function mercadoNaJanela(){
   if(!G.janela)return 0;
@@ -369,8 +428,8 @@ function mercadoNaJanela(){
 
 /* ---------- a semana ---------- */
 /* Fração da semana que este passo do mercado representa. Com a janela andando
-   em turnos de dois dias (TURNOS_SEMANA em clock.js), cada turno e a virada
-   da semana rodam o mercado com 1/3 da chance semanal: o volume de negócios
+   dia a dia (TURNOS_SEMANA em datas.js), cada dia e a virada da semana rodam
+   o mercado com 1/7 da chance semanal: o volume de negócios
    da semana é o mesmo, só chega espalhado. Fora dos turnos vale 1, e o
    mercado faz exatamente o que fazia — inclusive a mesma sequência de sorteio. */
 function fracaoMercado(){return (G&&G._fracaoMercado)||1;}
@@ -383,6 +442,7 @@ function mercadoVivo(){
     return;
   }
   rondaPedidosSaida();
+  cobrarParcelas();
   /* multa paga corre o prazo com a janela aberta ou fechada: o negócio foi
      feito dentro dela, e sem reação sua ele sai */
   for(const x of (G.propostas||[]).filter(y=>y.tipo==='multa')){
@@ -401,6 +461,7 @@ function mercadoVivo(){
     G._prazoAvisado=_semanaNeg();
     noticia('⏰ Último dia da janela! Os clubes correm atrás de reforço e as propostas chegam mais rápido.',{c:'mercado',imp:2});
   }
+  rondaRumores();
   propostasEspontaneas();
   mercadoNaJanela();
 }

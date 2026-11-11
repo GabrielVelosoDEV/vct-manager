@@ -670,13 +670,6 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [ ] `maofish.png` — maofish (VLG)
 - [ ] `ayu.png` — Ayu (VLG)
 - [ ] `yunni.png` — Yunni (VLG)
-- [x] `pancada.png` — pANcada (VLG)
-- [x] `canezerra.png` — canezerra (VLG)
-- [ ] `guardy.png` — Guardy (VLG)
-- [ ] `wanzeru.png` — WanZeru (VLG)
-- [x] `b1sk.png` — B1SK (VLG)
-- [ ] `netin.png` — netin (VLG)
-- [x] `raised.png` — raised (VLG)
 
 ## Sem clube
 
@@ -791,3 +784,10 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `florescent.png` — florescent (LIVRE)
 - [x] `impact.png` — Impact (LIVRE)
 - [ ] `dark.png` — DarK (LIVRE)
+- [x] `pancada.png` — pANcada (LIVRE)
+- [x] `canezerra.png` — canezerra (LIVRE)
+- [ ] `guardy.png` — Guardy (LIVRE)
+- [ ] `wanzeru.png` — WanZeru (LIVRE)
+- [x] `b1sk.png` — B1SK (LIVRE)
+- [ ] `netin.png` — netin (LIVRE)
+- [x] `raised.png` — raised (LIVRE)

@@ -263,7 +263,7 @@ function fimDeTemporada(){
   if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();
   for(const id in G.times){
     const t=G.times[id];
-    t.temporada={v:0,d:0,mv:0,md:0,pts:0};
+    t.temporada={v:0,d:0,mv:0,md:0,pts:0};delete t.woTemporada;
     t.patroc=receitaCaixa(t);
     if(typeof entrosamentoVirada==='function'&&t.duplas)entrosamentoVirada(t);
     else t.sinergia=clamp(t.sinergia+4,0,100);

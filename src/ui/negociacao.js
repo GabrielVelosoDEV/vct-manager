@@ -26,7 +26,7 @@ function modalNegociacao(id){
   let n=negociacaoAtivaDe(p.id);
   if(!n){
     /* janela fechada ou porta fechada: mostra a mesa só para olhar */
-    const bloqueio=!G.janela&&!podePreContrato(p,t)?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta (ou pré-contrato, no último ano dele, da semana '+SEMANA_PRECONTRATO+' em diante).'
+    const bloqueio=!G.janela&&!podePreContrato(p,t)&&!(!p.timeId&&inscricaoEmergencia(t))?'A janela está fechada. Dá para estudar o jogador, mas propostas só com a janela aberta (ou pré-contrato, no último ano dele, da semana '+SEMANA_PRECONTRATO+' em diante).'
       :conversaFechada(p)?'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'
       :null;
     const duras=recusasDuras(p,t,2);
@@ -368,7 +368,7 @@ function modalNegociarVenda(id,prFeito,resultado){
   const vendido=resultado&&resultado.resposta==='aceita'&&resultado.venda&&resultado.venda.ok;
   const retirada=resultado&&resultado.resposta==='retirada';
   const emp=pr.tipo==='emprestimo';
-  const valorMerc=pedidoDeVenda(p),multa=multaDe(p);
+  const valorMerc=valorDeMercado(p),multa=multaDe(p);
   const pedido0=_vendaRasc.id===pr.id&&_vendaRasc.v!=null?_vendaRasc.v:Math.round(Math.max(pr.taxa*1.15,emp?pr.taxa+5000:valorMerc)/5000)*5000;
   const rev0=_vendaRasc.id===pr.id?(+_vendaRasc.rev||0):0;
   const max=Math.round(Math.max(multa,valorMerc,pr.taxa)*(emp?0.3:1.35)/5000)*5000+5000;
@@ -384,6 +384,7 @@ function modalNegociarVenda(id,prFeito,resultado){
     <div class="neg-numeros">
       <div><span class="dim">${emp?'Taxa de empréstimo':'Oferta pelo passe'}</span><b class="num">${dinheiro(pr.taxa)}</b></div>
       ${pr.neg&&pr.neg.inicial!==pr.taxa?`<div><span class="dim">Oferta inicial</span><b class="num dim">${dinheiro(pr.neg.inicial)}</b></div>`:''}
+      ${!emp&&pr.parcela>0?`<div><span class="dim">Como paga</span><b class="num">${dinheiro(pr.taxa-pr.parcela)} agora + ${dinheiro(pr.parcela)} em 6 meses</b></div>`:''}
       <div><span class="dim">Salário dele lá</span><b class="num">${dinheiro(pr.salario)}/mês</b></div>
       ${emp&&pr.opcaoCompra?`<div><span class="dim">Opção de compra</span><b class="num">${dinheiro(pr.opcaoCompra)}</b></div>`:''}
     </div>

@@ -71,7 +71,7 @@ const EMOJI_ICONE={
   '💬':['balao',''],'🔄':['ciclo',''],'🔁':['ciclo',''],'↻':['ciclo',''],'🏷':['maleta',''],'✋':['alerta','red'],
   '💥':['fogo','red'],'📞':['telefone',''],'🛡':['escudo2','teal'],'🔨':['martelo',''],'🧾':['contrato',''],
   '🔒':['cadeado',''],'🔥':['fogo','red'],'📨':['envelope',''],'🎯':['alvo',''],'🎮':['controle','azul'],
-  '✓':['check','teal'],'✕':['x','red']
+  '✓':['check','teal'],'✕':['x','red'],'🚫':['x','red'],'🗞':['olho',''],'⌛':['relogio',''],'🚪':['saida','']
 };
 const _RE_EMOJI=new RegExp('('+Object.keys(EMOJI_ICONE).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','g');
 function icone(nome,cls){return `<i class="ic ${cls||''}">${ico(nome)}</i>`;}

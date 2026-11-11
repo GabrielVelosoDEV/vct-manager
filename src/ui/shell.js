@@ -249,7 +249,7 @@ function pintarTop(){
 
 /* O que a topbar mostra numa semana sem torneio: não é "—", é a espera pelo
    próximo compromisso, que é uma informação de planejamento. */
-/* A data mostrada é do turno (dois dias) quando a janela anda em turnos. */
+/* A data mostrada é a do dia quando a janela anda dia a dia. */
 function turnosNaTela(){
   return Prefs.get('turnosNaJanela')!==false&&janelaAberta(G.ano,G.semana||1)&&!G.semanaEmCurso;
 }

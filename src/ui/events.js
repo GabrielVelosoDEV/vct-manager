@@ -305,6 +305,7 @@ function ligarEventos(){
 
   /* ---------- comissão técnica ---------- */
   on('[data-merc]',el=>{mercAba=el.dataset.merc;render();});
+  on('[data-ir-merc]',el=>{tela='mercado';mercAba=el.dataset.irMerc;render();window.scrollTo&&window.scrollTo(0,0);});
   on('[data-fichastaff]',el=>modalStaff(el.dataset.fichastaff));
   on('[data-propstaff]',el=>modalPropostaStaff(el.dataset.propstaff));
   on('[data-edstaffp]',el=>modalEditarStaff(el.dataset.edstaffp));

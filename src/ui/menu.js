@@ -105,10 +105,12 @@ function vConfig(){
          'Ao avançar, mostra o placar round a round e o box score do seu jogo. Desligado, o resultado entra direto no histórico.')}
     ${sw('resumoRodada','Mostrar resumo das outras partidas',
          'Quando você não joga na rodada, abre um resumo do que aconteceu no circuito.')}
-    ${sw('turnosNaJanela','Janela de transferências em turnos de dois dias',
-         'Com a janela aberta, cada Avançar move dois dias em vez de uma semana: três momentos por semana '+
-         'para responder propostas e fechar negócios antes da concorrência. O volume de negócios da semana é o mesmo. '+
-         'Desligado, a janela anda de semana em semana, como antes.')}
+    ${sw('turnosNaJanela','Janela de transferências dia a dia',
+         'Com a janela aberta, cada Avançar move um dia em vez de uma semana: sete momentos por semana '+
+         'para responder propostas e fechar negócios antes da concorrência. Os jogos continuam no domingo. '+
+         'Desligado, a janela anda de semana em semana.')}
+    ${sw('animarTempo','Animar a passagem do tempo',
+         'Ao avançar, o calendário vira na tela dia a dia. Desligado, a tela só troca.')}
     ${sw('autosave','Salvar automaticamente ao avançar',
          'Grava a run a cada rodada resolvida. Desligado, só salva no botão Salvar.')}
   </details>

@@ -161,8 +161,8 @@ function stageAplicar(s,res){
       /* "id:k,d,a,acs|id:…" — texto em vez de objeto: um terço menor no save */
       st:!comBox?null:Object.entries(m.st||{}).filter(([,x])=>x&&x.rounds>0)
         .map(([id,x])=>id+':'+x.k+','+x.d+','+x.a+','+Math.round(typeof acsDe==='function'?acsDe(x):0)).join('|')})),
-    mvp:res.mvp||null};
-  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
+    mvp:res.mvp||null,...(res.wo?{wo:res.wo}:{})};
+  s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.wo?'W.O.':res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
     n:s.resultados.length,rd:s.nomeRodada||(s.tipo==='rr'||s.tipo==='grupos'?'Rodada '+(s.idx+1):''),
     sem:res.semana||G.semana,det});
   /* Confronto direto: registrado aqui, no único lugar por onde TODO resultado

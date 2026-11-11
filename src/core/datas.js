@@ -68,19 +68,27 @@ function proximaJanela(ano,semana){
 /* Quantas semanas faltam de um intervalo, contando a atual. */
 function semanasRestantes(semana,fim){return Math.max(1,fim-semana+1);}
 
-/* ---------- turnos de dois dias na janela ----------
-   Com a janela aberta a semana anda em três turnos: segunda e terça, quarta
-   e quinta, sexta a domingo. O motor continua semanal (partidas, treino,
-   folha); os turnos existem para o mercado. Ver avancarTurno() em clock.js. */
-const TURNOS_SEMANA=3;
-const TURNO_DIAS=[[0,1],[2,3],[4,6]];
+/* ---------- a janela dia a dia ----------
+   Com a janela aberta a semana anda um dia por vez: segunda a sábado só o
+   mercado se mexe, o domingo fecha a semana (partidas, treino, folha). O
+   motor continua semanal; os dias existem para o mercado. Ver avancarTurno()
+   em clock.js. Saves antigos, de quando eram três turnos de dois dias, caem
+   no dia certo: o turno guardado vira o primeiro dia dele. */
+const TURNOS_SEMANA=7;
+const TURNO_DIAS=[[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]];
 const DIAS_CURTO=['seg','ter','qua','qui','sex','sáb','dom'];
+const DIAS_LONGO=['segunda','terça','quarta','quinta','sexta','sábado','domingo'];
 function rotuloTurno(ano,semana,turno){
   const seg=segundaDaSemana(ano,semana).getTime();
   const [i,f]=TURNO_DIAS[clamp(turno||0,0,TURNOS_SEMANA-1)];
   const a=new Date(seg+i*86400000), b=new Date(seg+f*86400000);
   const ma=MESES_CURTO[a.getUTCMonth()], mb=MESES_CURTO[b.getUTCMonth()];
+  if(i===f)return `${DIAS_CURTO[i]} ${a.getUTCDate()} ${ma}`;
   return `${DIAS_CURTO[i]} ${a.getUTCDate()}${ma===mb?'':' '+ma} – ${DIAS_CURTO[f]} ${b.getUTCDate()} ${mb}`;
+}
+/* A data de um dia da semana (0 = segunda), para a animação do relógio. */
+function dataDoDia(ano,semana,dia){
+  return new Date(segundaDaSemana(ano,semana).getTime()+clamp(dia||0,0,6)*86400000);
 }
 /* Dias até a janela fechar, contando a partir do turno atual (o último dia
    aberto é o domingo da última semana de janela). */

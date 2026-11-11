@@ -73,6 +73,10 @@ function garantirElencos(){
    oferecer a ninguém, nem à IA nem a você. */
 function reporElenco(t){
   if(!t)return 0;
+  /* O SEU clube não é reposto sozinho: vender um titular para contratar o
+     substituto com o dinheiro é decisão sua, e chegar a um jogo sem cinco é
+     W.O. (core/match.js). A IA continua repondo na hora. */
+  if(G.meuTime&&t.id===G.meuTime)return 0;
   if(t._repondo)return 0;          /* reporElenco chama contratar, que chama reporElenco */
   t._repondo=true;
   try{

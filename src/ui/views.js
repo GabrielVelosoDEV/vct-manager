@@ -697,6 +697,17 @@ function agentesDoJogador(p){
 
 let mFiltro={busca:'',role:'',reg:'',so:'todos',ordem:'over'};
 let mercAba='jogadores';
+/* Elenco abaixo de cinco: o próximo jogo é W.O. se ninguém chegar. */
+function avisoWO(t){
+  if(!t||t.elenco.length>=ELENCO_MIN)return '';
+  const falta=ELENCO_MIN-t.elenco.length;
+  const px=typeof proximoConfronto==='function'?proximoConfronto():null;
+  const adv=px&&px.adv?T(px.adv):null;
+  return `<div class="card wo-aviso"><b>🚫 Elenco com ${t.elenco.length} jogador${t.elenco.length===1?'':'es'}.</b>
+    Falta${falta>1?'m':''} ${falta} para entrar em quadra${adv?` — se o jogo contra o ${esc(adv.nome)} chegar assim, é derrota por W.O.`:': chegar ao próximo jogo assim é derrota por W.O.'}
+    ${G.janela?'Contrate pelo Mercado.':'Com a janela fechada, só agentes livres: a inscrição de emergência vale para quem tem menos de '+ELENCO_MIN+'.'}
+    <button class="btn sm" data-ir-merc="jogadores" style="margin-left:6px">Ir ao mercado</button></div>`;
+}
 function vMercado(){
   const t=meu();
   const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
@@ -706,7 +717,7 @@ function vMercado(){
       ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
   const prazo=typeof ultimoDiaDaJanela==='function'&&ultimoDiaDaJanela();
-  return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>
+  return `<div class="eyebrow">Mercado ${G.janela?'· janela aberta':'· janela fechada'}</div>${mercAba==='saidas'?'':avisoWO(t)}
     ${(()=>{
       /* Reta final da janela: contagem em dias e o que ainda está em aberto.
          Quem não fechar até o domingo da última semana só fecha na próxima. */
@@ -731,20 +742,23 @@ function vMercado(){
 function vMercadoSaidas(t){
   const props=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;});
   const fora=typeof emprestadosDe==='function'?emprestadosDe(t):[];
-  const podeSair=t.elenco.length>ELENCO_MIN;
+  const curto=t.elenco.length<ELENCO_MIN;
 
   /* propostas agrupadas por jogador: cada um vira um cartão, com o leilão
      quando dois clubes ou mais querem o mesmo */
   const porJog={};props.forEach(x=>(porJog[x.jogadorId]=porJog[x.jogadorId]||[]).push(x));
-  const linhaProp=x=>{const c=T(x.clubeId);const o=x.tipo==='troca'?P(x.oferecidoId):null;
+  const linhaProp=x=>{const c=T(x.clubeId);
+    const ofs=x.tipo==='troca'?(x.oferecidos||[x.oferecidoId]).map(P).filter(Boolean):[];
     const tipo=x.tipo==='multa'?'<span class="chip r">Multa paga</span>'
-      :x.tipo==='troca'&&o?`<span class="chip g">Troca</span> por <b class="jrow" data-p="${o.id}">${esc(o.nome)}</b> ${ovTag(o)}`
+      :x.tipo==='troca'&&ofs.length?`<span class="chip g">Troca</span> por ${ofs.map(o=>`<b class="jrow" data-p="${o.id}">${esc(o.nome)}</b> ${ovTag(o)} <span class="dim">${esc(o.role)}</span>`).join(' + ')}`
       :x.tipo==='compra'?'<span class="chip">Compra</span>'+(x.leilao?' <span class="chip t">leilão</span>':'')+(x.espontanea?' <span class="dim">sem anúncio</span>':'')
       :'<span class="chip t">Empréstimo</span>'+(x.opcaoCompra?' <span class="dim">opção '+money(x.opcaoCompra)+'</span>':'');
     return `<div class="prop-linha ${x.tipo==='multa'?'multa':''}">
       ${escudo(c,30)}<div class="prop-clube"><b>${esc(c.nome)}</b><span class="dim">${nomeLiga(c)}</span></div>
       <div class="prop-tipo">${tipo}</div>
       <div class="prop-valor num"><b>${x.tipo==='troca'?(x.taxa?'+ '+money(x.taxa):'só a troca'):money(x.taxa)}</b>
+        ${x.parcela>0?`<span class="chip" title="O comprador paga ${money(x.taxa-x.parcela)} na hora e ${money(x.parcela)} daqui a seis meses">${money(x.taxa-x.parcela)} + ${money(x.parcela)} em 6 meses</span>`:''}
+        ${x.cobriu?'<span class="chip t" title="Cobriu a oferta de outro clube">cobriu</span>':''}
         ${x.revenda?`<span class="chip t" title="Você fica com ${x.revenda}% de uma venda futura">+${x.revenda}% revenda</span>`:''}
         ${x.tipo==='compra'&&x.pedido?`<span class="dim">pede ${money(x.pedido)}</span>`:''}</div>
       <div class="prop-sal dim num">${money(x.salario)}/mês</div>
@@ -762,7 +776,7 @@ function vMercadoSaidas(t){
       return `<div class="prop-card ${multa?'multa':''}">
         <div class="prop-jog">${cartaJogador(p,{w:74})}<div><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b>
           <div class="dim">${esc(p.role)} · ${p.idade} anos · ${p.contrato}a de contrato</div>
-          <div class="dim">Vale ${money(pedidoDeVenda(p))} · multa ${money(multaDe(p))}</div>
+          <div class="dim">Vale ${money(valorDeMercado(p))} · multa ${money(multaDe(p))}</div>
           ${multa?`<div class="prop-alerta">${esc(T(multa.clubeId).nome)} pagou a multa. O clube não pode recusar: só ele decide, e ele quer ir.</div>`:''}
           ${podeLeiloar(pid)?`<button class="btn teal sm" data-leilao="${pid}" style="margin-top:6px">Abrir leilão (${lst.filter(x=>x.tipo==='compra').length} clubes)</button>`:''}
         </div></div>
@@ -805,7 +819,7 @@ function vMercadoSaidas(t){
   return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode anunciar, mas proposta só chega com a janela aberta.</div>'}
   ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
-    ${podeSair?'':`<p class="dim">Com ${t.elenco.length} jogadores você não pode vender ninguém — o mínimo é ${ELENCO_MIN}. Emprestar também não, porque o elenco ficaria curto.</p>`}
+    ${curto?avisoWO(t):t.elenco.length===ELENCO_MIN?`<p class="dim">Você está com ${ELENCO_MIN}: pode vender, mas contrate o substituto antes do próximo jogo — quem entra em quadra com menos de ${ELENCO_MIN} perde por W.O.</p>`:''}
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
@@ -814,14 +828,14 @@ function vMercadoSaidas(t){
       <td class="c num">${p.idade}</td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
       <td class="c num dim">${p.pot}</td>
-      <td class="r num">${money(pedidoDeVenda(p))}</td>
+      <td class="r num">${money(valorDeMercado(p))}</td>
       <td>${p.anuncio
         ?`<span class="chip t">${p.anuncio.modo==='venda'?'à venda':p.anuncio.modo==='emprestimo'?'para empréstimo':'venda ou empréstimo'}</span>
           <span class="dim">${money(p.anuncio.pedido)}</span>`
         :'<span class="dim">—</span>'}</td>
       <td class="r">${p.anuncio
         ?`<button class="btn ghost sm" data-desanunciar="${p.id}">Retirar</button>`
-        :`<button class="btn ghost sm" data-anunciar="${p.id}" ${podeSair?'':'disabled'}>Anunciar</button>`}</td>
+        :`<button class="btn ghost sm" data-anunciar="${p.id}">Anunciar</button>`}</td>
     </tr>`).join('')}</tbody></table></div>`;
 }
 function vMercadoStaff(t){
@@ -908,7 +922,8 @@ function vMercadoJogadores(t){
   if(mFiltro.busca)lista=lista.filter(p=>p.nome.toLowerCase().includes(mFiltro.busca.toLowerCase()));
   lista.sort((a,b)=>mFiltro.ordem==='over'?over(b)-over(a):mFiltro.ordem==='pot'?(b.pot-b.idade*1.5)-(a.pot-a.idade*1.5):a.valor-b.valor);
   lista=lista.slice(0,60);
-  return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode observar e montar alvos, mas contratações só na pré-temporada ou na janela do meio de ano.</div>'}
+  return `${G.janela?'':inscricaoEmergencia(t)?'<div class="card" style="border-left:4px solid var(--amber)">A janela está fechada, mas você tem menos de '+ELENCO_MIN+': a <b>inscrição de emergência</b> libera agentes livres até completar o elenco. Filtre por “Agentes livres”.</div>'
+    :'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode observar e montar alvos, mas contratações só na pré-temporada ou na janela do meio de ano.</div>'}
   <div class="card flat"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <input type="text" id="fBusca" placeholder="Buscar jogador" value="${esc(mFiltro.busca)}">
     <select id="fSo">${[['todos','Todos'],['livres','Agentes livres'],['promessas','Promessas']].map(([k,n])=>`<option value="${k}" ${mFiltro.so===k?'selected':''}>${n}</option>`).join('')}</select>
