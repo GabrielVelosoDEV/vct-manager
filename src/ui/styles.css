@@ -3190,3 +3190,15 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .bk-classico svg{width:11px;height:11px}
 .bk-classico.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.5)}
 .bk-classico.cl-rival{color:var(--red);border-color:var(--line2)}
+
+/* ---------- onde ficam os saves ---------- */
+.sv-modal{max-width:880px}
+.sv-ops{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media (max-width:760px){.sv-ops{grid-template-columns:1fr}}
+.sv-op{border:1px solid var(--line2);background:var(--bg2);padding:14px 16px}
+.sv-op.on{border-color:color-mix(in srgb,var(--teal) 50%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--teal) 25%,transparent)}
+.sv-op-t{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.sv-op .pst-lista li.sv-c{color:var(--tx2)}
+.sv-op .pst-lista li.sv-c svg{color:var(--red)}
+.sv-op .pst-lista li:not(.sv-c) svg{color:var(--teal)}
+.sv-op-t .chip{white-space:nowrap;flex:none}

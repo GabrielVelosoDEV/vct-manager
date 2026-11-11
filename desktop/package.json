@@ -1,7 +1,7 @@
 {
   "name": "vct-manager",
   "productName": "VCT Manager",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Simulador de gestão de e-sports de Valorant",
   "author": "GabrielVelosoDEV",
   "homepage": "https://gabrielvelosodev.github.io/vct-manager/",
@@ -22,7 +22,7 @@
     "productName": "VCT Manager",
     "copyright": "Projeto de fã, sem vínculo com a Riot Games",
     "directories": { "output": "release", "buildResources": "build" },
-    "files": ["main.js", "web/**/*", "!web/**/LISTA.md", "!web/**/LEIAME.md"],
+    "files": ["main.js", "preload.js", "web/**/*", "!web/**/LISTA.md", "!web/**/LEIAME.md"],
     "asar": true,
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],

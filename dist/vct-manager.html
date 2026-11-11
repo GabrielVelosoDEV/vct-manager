@@ -3225,6 +3225,18 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .bk-classico.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.5)}
 .bk-classico.cl-rival{color:var(--red);border-color:var(--line2)}
 
+/* ---------- onde ficam os saves ---------- */
+.sv-modal{max-width:880px}
+.sv-ops{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media (max-width:760px){.sv-ops{grid-template-columns:1fr}}
+.sv-op{border:1px solid var(--line2);background:var(--bg2);padding:14px 16px}
+.sv-op.on{border-color:color-mix(in srgb,var(--teal) 50%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--teal) 25%,transparent)}
+.sv-op-t{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.sv-op .pst-lista li.sv-c{color:var(--tx2)}
+.sv-op .pst-lista li.sv-c svg{color:var(--red)}
+.sv-op .pst-lista li:not(.sv-c) svg{color:var(--teal)}
+.sv-op-t .chip{white-space:nowrap;flex:none}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -20406,11 +20418,21 @@ const Storage={
    ============================================================ */
 const PASTA_NOME='VCT Manager';
 const Pasta={
-  handle:null, nome:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
-  /* no app de PC os saves já ficam no computador, no armazenamento do app */
-  suporta(){return typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||'');},
+  handle:null, nome:'', caminho:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
+  /* No app de PC a pasta passa pela ponte do Electron (desktop/preload.js):
+     arquivos de verdade em Documentos\VCT Manager, sem o pedido de permissão
+     do navegador. No site, pela File System Access API do Chrome/Edge. */
+  app(){return typeof self.vctPasta==='object'&&self.vctPasta;},
+  suporta(){return !!this.app()||(typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||''));},
   noApp(){return /Electron/i.test(navigator.userAgent||'');},
   async iniciar(){
+    if(this.app()){
+      let e=null;try{e=await this.app().estado();}catch(x){}
+      this.caminho=(e&&(e.caminho||e.padrao))||'';this.nome=this.caminho.split(/[\\/]/).pop()||PASTA_NOME;
+      this.estado=e&&e.ligada?'ligada':'nenhuma';
+      if(this.estado==='ligada')await this.sincronizar();
+      return;
+    }
     if(!this.suporta()){this.estado='sem-suporte';return;}
     const h=await Storage.cfgLer('pasta');
     if(!h||typeof h.queryPermission!=='function'){this.estado='nenhuma';return;}
@@ -20422,7 +20444,14 @@ const Pasta={
   /* Escolhida pelo jogador (precisa vir de um clique). Se ele apontar para uma
      pasta qualquer (Documentos, por exemplo), o jogo cria "VCT Manager" dentro
      dela; se já for a pasta do jogo, usa ela mesma. */
-  async escolher(){
+  async escolher(trocar){
+    if(this.app()){
+      let r=null;try{r=await this.app().ligar(!!trocar);}catch(e){r={ok:false,erro:String(e&&e.message||e)};}
+      if(!r||!r.ok)return{ok:false,cancelou:r&&r.cancelou,erro:(r&&r.erro)||'Não deu para usar essa pasta.'};
+      this.caminho=r.caminho;this.nome=r.caminho.split(/[\\/]/).pop();this.estado='ligada';
+      const n=await this.sincronizar();
+      return{ok:true,caminho:r.caminho,...n};
+    }
     if(!this.suporta())return{ok:false,erro:'Este navegador não permite salvar numa pasta.'};
     let raiz;
     try{raiz=await self.showDirectoryPicker({id:'vctmanager',mode:'readwrite',startIn:'documents'});}
@@ -20444,10 +20473,13 @@ const Pasta={
     if(p!=='granted')return false;
     this.estado='ligada';await this.sincronizar();return true;
   },
-  async desligar(){await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
+  async desligar(){
+    if(this.app()){try{await this.app().desligar();}catch(e){}this.estado='nenhuma';return;}
+    await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
   arquivo(id){return id===BASE_ID?'base-de-dados.vctbase.json':String(id).replace(/[^A-Za-z0-9_-]/g,'_')+'.vctrun.json';},
   async gravar(reg){
     if(this.estado!=='ligada'||!reg||!reg.id)return false;
+    if(this.app()){try{return await this.app().gravar(this.arquivo(reg.id),JSON.stringify(reg));}catch(e){return false;}}
     try{
       const fh=await this.handle.getFileHandle(this.arquivo(reg.id),{create:true});
       const w=await fh.createWritable();await w.write(JSON.stringify(reg));await w.close();
@@ -20461,10 +20493,16 @@ const Pasta={
   },
   async apagar(id){
     if(this.estado!=='ligada')return;
+    if(this.app()){try{await this.app().apagar(this.arquivo(id));}catch(e){}return;}
     try{await this.handle.removeEntry(this.arquivo(id));}catch(e){}
   },
   async lerTodos(){
     const out=[];
+    if(this.app()){
+      let l=[];try{l=await this.app().listar();}catch(e){}
+      for(const f of l||[]){try{const r=JSON.parse(f.texto);if(r&&r.id)out.push(r);}catch(e){}}
+      return out;
+    }
     if(!this.handle)return out;
     for await(const [n,h] of this.handle.entries()){
       if(h.kind!=='file'||!/\.vct(run|base)\.json$/.test(n))continue;
@@ -20472,6 +20510,8 @@ const Pasta={
     }
     return out;
   },
+  /* abre a pasta no Explorer (só no app; no site o navegador não deixa) */
+  async abrirNoPC(){if(this.app()){try{return await this.app().abrir();}catch(e){}}return false;},
   /* o mais novo de cada lado ganha; devolve quantos vieram e quantos foram */
   async sincronizar(){
     if(this.estado!=='ligada')return{vieram:0,foram:0};
@@ -22286,7 +22326,10 @@ function vMenuPrincipal(){
         ${t?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
         ${item('mnRuns','disco','Partidas salvas',nSalvas?nSalvas+(nSalvas===1?' partida':' partidas'):'nenhuma ainda')}
         ${item('mnBanco','banco','Banco de dados',Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
-        ${typeof Pasta!=='undefined'&&Pasta.estado==='pendente'?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso'):''}
+        ${typeof Pasta!=='undefined'?(Pasta.estado==='pendente'
+          ?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso')
+          :item('mnSaves',Pasta.estado==='ligada'?'check':'alerta','Onde ficam seus saves',textoOndeSalva(),
+            Pasta.estado!=='ligada'&&!Prefs.get('savesVisto')?'mi-aviso':'')):''}
       </nav>
       ${typeof Pasta!=='undefined'&&Pasta.noApp()?'':`<a class="mn-app" href="${LINK_APP_PC}" target="_blank" rel="noopener">
         <span class="mn-app-ic">${ico('monitor')}</span><span class="mn-app-t"><b>Baixar o app de PC</b><span>Windows · grátis</span></span>${ico('externo')}</a>`}
@@ -22323,6 +22366,7 @@ function ligarMenuPrincipal(){
   liga('mnConfig',()=>{telaMenu='config';render();});
   liga('mnCreditos',()=>{telaMenu='creditos';render();});
   liga('mnPasta',()=>reconectarPasta());
+  liga('mnSaves',()=>modalSaves());
   document.querySelectorAll('[data-mn]').forEach(b=>b.onclick=()=>b.dataset.mn==='continuar'?continuar():novaCarreira());
   iniciarFxMenu();
 }
@@ -31997,29 +32041,85 @@ function vRuns(){
 }
 /* ---------- pasta no PC (data/storage.js › Pasta) ---------- */
 function cartaoPasta(){
-  if(Pasta.noApp())return `<div class="card flat pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Saves no seu computador</div>
-    <p class="dim">No app de PC as carreiras já ficam guardadas no seu usuário do Windows e continuam lá ao atualizar o app.
-    Para levar uma carreira do site para cá (ou daqui para o site), use <b>Exportar .json</b> e <b>Importar run</b>.</p></div></div>`;
+  const app=Pasta.noApp();
+  const mais=`<button class="btn ghost sm" data-savesinfo>Vantagens e desvantagens</button>`;
   if(Pasta.estado==='sem-suporte')return `<div class="card flat pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Salvar numa pasta do PC</div>
-    <p class="dim">Este navegador não deixa sites gravarem numa pasta (só Chrome, Edge e Opera no computador deixam). Suas carreiras
-    continuam salvas no navegador; se você limpar os dados de navegação, elas vão junto. Use <b>Exportar .json</b> de vez em quando para ter uma cópia.</p></div></div>`;
+    <p class="dim">Este navegador não deixa sites gravarem numa pasta (só Chrome, Edge e Opera no computador deixam, ou o app de PC). Suas carreiras
+    continuam salvas no navegador; se você limpar os dados de navegação, elas vão junto. Use <b>Exportar .json</b> de vez em quando para ter uma cópia.</p>
+    <div class="pst-bts">${mais}</div></div></div>`;
   if(Pasta.estado==='ligada')return `<div class="card pst ok"><div class="pst-ic">${ico('check')}</div><div><div class="eyebrow">Salvando também numa pasta do seu PC</div>
-    <p class="dim">Pasta <b>${esc(Pasta.nome)}</b>: cada carreira é um arquivo <code>.vctrun.json</code> e a sua versão do Banco de dados é
-    <code>base-de-dados.vctbase.json</code>. Pode copiar a pasta para outro computador ou fazer backup dela.</p>
-    <div class="pst-bts"><button class="btn ghost sm" id="pastaEscolher">Trocar de pasta</button>
-      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button></div></div></div>`;
+    <p class="dim">Pasta <b>${esc(Pasta.caminho||Pasta.nome)}</b>: cada carreira é um arquivo <code>.vctrun.json</code> e a sua versão do Banco de dados é
+    <code>base-de-dados.vctbase.json</code>. Pode copiar a pasta para outro computador, pôr no OneDrive/Google Drive ou fazer backup dela.</p>
+    <div class="pst-bts">${app?'<button class="btn ghost sm" id="pastaAbrir">Abrir a pasta</button>':''}
+      <button class="btn ghost sm" id="pastaTrocar">Trocar de pasta</button>
+      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button>${mais}</div></div></div>`;
   if(Pasta.estado==='pendente')return `<div class="card pst pend"><div class="pst-ic">${ico('alerta')}</div><div><div class="eyebrow">A pasta precisa da sua permissão</div>
     <p class="dim">A pasta <b>${esc(Pasta.nome)}</b> está ligada, mas o navegador pede que você confirme o acesso de novo. Até lá, o jogo
     salva só no navegador; ao permitir, o que estiver mais novo vai para a pasta.</p>
     <div class="pst-bts"><button class="btn sm" id="pastaReconectar">Permitir acesso à pasta</button>
-      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button></div></div></div>`;
+      <button class="btn ghost sm" id="pastaDesligar">Parar de usar a pasta</button>${mais}</div></div></div>`;
   return `<div class="card pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Guarde suas carreiras numa pasta do PC</div>
-    <p class="dim">Por enquanto elas estão só no navegador. Com uma pasta, cada carreira vira um arquivo no seu computador: não some se
-    você limpar os dados do navegador, dá para fazer backup e levar para o app de PC.</p>
-    <div class="pst-bts"><button class="btn sm" id="pastaEscolher">Escolher a pasta</button></div></div></div>`;
+    <p class="dim">Por enquanto elas estão só ${app?'dentro do app':'no navegador'}. Com uma pasta, cada carreira vira um arquivo no seu computador:
+    ${app?'dá para abrir, copiar, fazer backup e levar para o site ou para outro PC.':'não some se você limpar os dados do navegador, dá para fazer backup e levar para o app de PC.'}</p>
+    <div class="pst-bts"><button class="btn sm" id="pastaEscolher">${app?'Salvar em Documentos\\VCT Manager':'Escolher a pasta'}</button>${mais}</div></div></div>`;
+}
+/* Onde as carreiras ficam, com prós e contras de cada jeito. Abre do menu
+   principal e da tela de partidas salvas: o jogador tem de saber disso antes
+   de perder uma carreira por limpar o navegador. */
+function textoOndeSalva(){
+  const app=Pasta.noApp();
+  if(Pasta.estado==='ligada')return 'na pasta '+(Pasta.caminho||Pasta.nome)+(app?' e no app':' e no navegador');
+  if(Pasta.estado==='pendente')return 'só no navegador: a pasta pede permissão';
+  return app?'dentro do app (sem pasta)':'só no navegador';
+}
+function modalSaves(){
+  const app=Pasta.noApp();
+  const pode=Pasta.suporta();
+  const atual=Pasta.estado==='ligada';
+  const lado=(titulo,on,pros,contras,rodape)=>`<div class="sv-op ${on?'on':''}">
+    <div class="sv-op-t"><b>${titulo}</b>${on?'<span class="chip g">você está usando</span>':''}</div>
+    <ul class="pst-lista">${pros.map(t=>`<li>${ico('check')} ${t}</li>`).join('')}${contras.map(t=>`<li class="sv-c">${ico('x')} ${t}</li>`).join('')}</ul>
+    ${rodape||''}</div>`;
+  const soLocal=app
+    ?lado('Só dentro do app',!atual,
+      ['nada para configurar: salva sozinho a cada rodada','continua lá ao atualizar ou reinstalar o app'],
+      ['fica escondido em %APPDATA%\\VCT Manager, num banco de dados, e não como arquivos','não aparece no site nem em outro computador; para levar, só exportando a carreira (.vctrun.json)','desinstalar apagando os dados do app leva as carreiras junto'])
+    :lado('Só no navegador',!atual,
+      ['nada para configurar: salva sozinho a cada rodada','funciona em qualquer navegador, inclusive no celular'],
+      ['limpar os dados de navegação (ou "cookies e dados de sites") apaga as carreiras','aba anônima, outro navegador ou outro computador não enxergam o que você jogou','não dá para ver nem copiar os arquivos; o backup é exportar carreira por carreira']);
+  const pasta=lado(app?'Numa pasta do PC (Documentos\\VCT Manager)':'Numa pasta do PC',atual,
+    ['cada carreira vira um arquivo .vctrun.json que você vê no Explorer','dá para fazer backup, pôr no OneDrive/Google Drive e levar para outro PC',
+     app?'a mesma pasta serve para o site (no Chrome ou no Edge): o mais novo de cada lado vale':'não some ao limpar o navegador, e serve também para o app de PC'],
+    app?['os arquivos são seus: se apagar a pasta, apaga a cópia (o app ainda guarda a dele)']
+       :['só Chrome, Edge e Opera no computador deixam (Firefox, Safari e celular não)','o navegador pode pedir para você confirmar o acesso de novo em algumas visitas','os arquivos são seus: se apagar a pasta, apaga a cópia'],
+    !pode?'<p class="dim" style="font-size:12px">Este navegador não deixa. Use o Chrome ou o Edge no computador, ou o app de PC.</p>':'');
+  abrir(`<div class="sv-modal"><div class="eyebrow">Seus saves</div><h2 class="sec">Onde ficam suas carreiras</h2>
+    <p>O VCT Manager não tem servidor: nada do que você joga sai do seu computador. Agora suas carreiras estão
+      <b>${esc(textoOndeSalva())}</b>.</p>
+    <div class="sv-ops">${soLocal}${pasta}</div>
+    <p class="dim" style="font-size:12px">Usar a pasta não tira o jeito automático: o jogo continua salvando ${app?'no app':'no navegador'} e também grava na pasta.
+      Em qualquer modo, <b>Partidas salvas › Exportar .json</b> gera um arquivo de uma carreira para guardar ou mandar para alguém.</p>
+    <div class="neg-bts" style="justify-content:flex-end;flex-wrap:wrap">
+      ${atual&&app?'<button class="btn ghost" id="svAbrir">Abrir a pasta</button>':''}
+      ${atual?'<button class="btn ghost" id="svParar">Parar de usar a pasta</button>':''}
+      <button class="btn ghost" data-close>Fechar</button>
+      ${!atual&&pode?`<button class="btn" id="svPasta">${app?'Usar Documentos\\VCT Manager':'Escolher a pasta'}</button>`:''}
+    </div></div>`);
+  try{Prefs.set('savesVisto',true);}catch(e){}
+  const on=(id,fn)=>{const b=$('#'+id);if(b)b.onclick=fn;};
+  on('svPasta',()=>{fechar();app?usarPastaDoApp(false):modalPasta();});
+  on('svAbrir',()=>Pasta.abrirNoPC());
+  on('svParar',async()=>{await Pasta.desligar();fechar();render();flash('O jogo parou de gravar na pasta. Os arquivos continuam lá.');});
+}
+async function usarPastaDoApp(trocar){
+  const r=await Pasta.escolher(trocar);
+  if(!r.ok){if(!r.cancelou)flash(r.erro);return;}
+  await depoisDaPasta(r);
+  flash('Salvando também em '+r.caminho+(r.vieram?' — '+r.vieram+' arquivo(s) carregado(s) da pasta':'')+'.');
 }
 /* o pedido de acesso, com o motivo dito antes do navegador perguntar */
 function modalPasta(){
+  if(Pasta.noApp())return usarPastaDoApp(false);
   abrir(`<div class="pst-modal"><div class="eyebrow">Pasta de saves</div><h2 class="sec">Salvar no seu computador</h2>
     <p>O VCT Manager não tem servidor: suas carreiras ficam só com você. Para guardá-las como arquivos, o navegador vai pedir que você
     escolha um lugar, como <b>Documentos</b>. O jogo cria ali uma pasta <b>${esc(PASTA_NOME)}</b> e só mexe dentro dela.</p>
@@ -32661,6 +32761,9 @@ function ligarEventos(){
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
   on('#runNova',()=>novaCarreira());
   on('#pastaEscolher',()=>modalPasta());
+  on('#pastaTrocar',()=>Pasta.noApp()?usarPastaDoApp(true):modalPasta());
+  on('#pastaAbrir',()=>Pasta.abrirNoPC());
+  on('[data-savesinfo]',()=>modalSaves());
   on('#pastaReconectar',()=>reconectarPasta());
   on('#pastaDesligar',async()=>{
     if(!await confirmar('Parar de salvar na pasta '+Pasta.nome+'? Os arquivos que já estão lá continuam; o jogo volta a salvar só no navegador.','Parar'))return;

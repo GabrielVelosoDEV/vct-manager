@@ -215,7 +215,10 @@ function vMenuPrincipal(){
         ${t?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
         ${item('mnRuns','disco','Partidas salvas',nSalvas?nSalvas+(nSalvas===1?' partida':' partidas'):'nenhuma ainda')}
         ${item('mnBanco','banco','Banco de dados',Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
-        ${typeof Pasta!=='undefined'&&Pasta.estado==='pendente'?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso'):''}
+        ${typeof Pasta!=='undefined'?(Pasta.estado==='pendente'
+          ?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso')
+          :item('mnSaves',Pasta.estado==='ligada'?'check':'alerta','Onde ficam seus saves',textoOndeSalva(),
+            Pasta.estado!=='ligada'&&!Prefs.get('savesVisto')?'mi-aviso':'')):''}
       </nav>
       ${typeof Pasta!=='undefined'&&Pasta.noApp()?'':`<a class="mn-app" href="${LINK_APP_PC}" target="_blank" rel="noopener">
         <span class="mn-app-ic">${ico('monitor')}</span><span class="mn-app-t"><b>Baixar o app de PC</b><span>Windows · grátis</span></span>${ico('externo')}</a>`}
@@ -252,6 +255,7 @@ function ligarMenuPrincipal(){
   liga('mnConfig',()=>{telaMenu='config';render();});
   liga('mnCreditos',()=>{telaMenu='creditos';render();});
   liga('mnPasta',()=>reconectarPasta());
+  liga('mnSaves',()=>modalSaves());
   document.querySelectorAll('[data-mn]').forEach(b=>b.onclick=()=>b.dataset.mn==='continuar'?continuar():novaCarreira());
   iniciarFxMenu();
 }

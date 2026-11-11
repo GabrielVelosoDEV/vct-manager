@@ -592,6 +592,9 @@ function ligarEventos(){
   on('#runBaixar',()=>{baixarRun();flash('Arquivo gerado.');});
   on('#runNova',()=>novaCarreira());
   on('#pastaEscolher',()=>modalPasta());
+  on('#pastaTrocar',()=>Pasta.noApp()?usarPastaDoApp(true):modalPasta());
+  on('#pastaAbrir',()=>Pasta.abrirNoPC());
+  on('[data-savesinfo]',()=>modalSaves());
   on('#pastaReconectar',()=>reconectarPasta());
   on('#pastaDesligar',async()=>{
     if(!await confirmar('Parar de salvar na pasta '+Pasta.nome+'? Os arquivos que já estão lá continuam; o jogo volta a salvar só no navegador.','Parar'))return;

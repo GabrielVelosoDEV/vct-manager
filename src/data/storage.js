@@ -111,11 +111,21 @@ const Storage={
    ============================================================ */
 const PASTA_NOME='VCT Manager';
 const Pasta={
-  handle:null, nome:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
-  /* no app de PC os saves já ficam no computador, no armazenamento do app */
-  suporta(){return typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||'');},
+  handle:null, nome:'', caminho:'', estado:'nenhuma',   /* nenhuma · ligada · pendente · sem-suporte */
+  /* No app de PC a pasta passa pela ponte do Electron (desktop/preload.js):
+     arquivos de verdade em Documentos\VCT Manager, sem o pedido de permissão
+     do navegador. No site, pela File System Access API do Chrome/Edge. */
+  app(){return typeof self.vctPasta==='object'&&self.vctPasta;},
+  suporta(){return !!this.app()||(typeof self.showDirectoryPicker==='function'&&!/Electron/i.test(navigator.userAgent||''));},
   noApp(){return /Electron/i.test(navigator.userAgent||'');},
   async iniciar(){
+    if(this.app()){
+      let e=null;try{e=await this.app().estado();}catch(x){}
+      this.caminho=(e&&(e.caminho||e.padrao))||'';this.nome=this.caminho.split(/[\\/]/).pop()||PASTA_NOME;
+      this.estado=e&&e.ligada?'ligada':'nenhuma';
+      if(this.estado==='ligada')await this.sincronizar();
+      return;
+    }
     if(!this.suporta()){this.estado='sem-suporte';return;}
     const h=await Storage.cfgLer('pasta');
     if(!h||typeof h.queryPermission!=='function'){this.estado='nenhuma';return;}
@@ -127,7 +137,14 @@ const Pasta={
   /* Escolhida pelo jogador (precisa vir de um clique). Se ele apontar para uma
      pasta qualquer (Documentos, por exemplo), o jogo cria "VCT Manager" dentro
      dela; se já for a pasta do jogo, usa ela mesma. */
-  async escolher(){
+  async escolher(trocar){
+    if(this.app()){
+      let r=null;try{r=await this.app().ligar(!!trocar);}catch(e){r={ok:false,erro:String(e&&e.message||e)};}
+      if(!r||!r.ok)return{ok:false,cancelou:r&&r.cancelou,erro:(r&&r.erro)||'Não deu para usar essa pasta.'};
+      this.caminho=r.caminho;this.nome=r.caminho.split(/[\\/]/).pop();this.estado='ligada';
+      const n=await this.sincronizar();
+      return{ok:true,caminho:r.caminho,...n};
+    }
     if(!this.suporta())return{ok:false,erro:'Este navegador não permite salvar numa pasta.'};
     let raiz;
     try{raiz=await self.showDirectoryPicker({id:'vctmanager',mode:'readwrite',startIn:'documents'});}
@@ -149,10 +166,13 @@ const Pasta={
     if(p!=='granted')return false;
     this.estado='ligada';await this.sincronizar();return true;
   },
-  async desligar(){await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
+  async desligar(){
+    if(this.app()){try{await this.app().desligar();}catch(e){}this.estado='nenhuma';return;}
+    await Storage.cfgApagar('pasta');this.handle=null;this.nome='';this.estado=this.suporta()?'nenhuma':'sem-suporte';},
   arquivo(id){return id===BASE_ID?'base-de-dados.vctbase.json':String(id).replace(/[^A-Za-z0-9_-]/g,'_')+'.vctrun.json';},
   async gravar(reg){
     if(this.estado!=='ligada'||!reg||!reg.id)return false;
+    if(this.app()){try{return await this.app().gravar(this.arquivo(reg.id),JSON.stringify(reg));}catch(e){return false;}}
     try{
       const fh=await this.handle.getFileHandle(this.arquivo(reg.id),{create:true});
       const w=await fh.createWritable();await w.write(JSON.stringify(reg));await w.close();
@@ -166,10 +186,16 @@ const Pasta={
   },
   async apagar(id){
     if(this.estado!=='ligada')return;
+    if(this.app()){try{await this.app().apagar(this.arquivo(id));}catch(e){}return;}
     try{await this.handle.removeEntry(this.arquivo(id));}catch(e){}
   },
   async lerTodos(){
     const out=[];
+    if(this.app()){
+      let l=[];try{l=await this.app().listar();}catch(e){}
+      for(const f of l||[]){try{const r=JSON.parse(f.texto);if(r&&r.id)out.push(r);}catch(e){}}
+      return out;
+    }
     if(!this.handle)return out;
     for await(const [n,h] of this.handle.entries()){
       if(h.kind!=='file'||!/\.vct(run|base)\.json$/.test(n))continue;
@@ -177,6 +203,8 @@ const Pasta={
     }
     return out;
   },
+  /* abre a pasta no Explorer (só no app; no site o navegador não deixa) */
+  async abrirNoPC(){if(this.app()){try{return await this.app().abrir();}catch(e){}}return false;},
   /* o mais novo de cada lado ganha; devolve quantos vieram e quantos foram */
   async sincronizar(){
     if(this.estado!=='ligada')return{vieram:0,foram:0};
