@@ -124,7 +124,7 @@ function noticiasDaAba(aba){
 function vNews(){
   garantirImprensa();
   const t=meu();
-  const abas=[['tudo','Para você','jornal'],['seguindo','Seguindo','estrela'],['clube','Meu clube','clube'],
+  const abas=[['tudo','Para você','jornal'],['seguindo','Seguindo','estrela'],['clube','Meu clube','clube'],['torcida','Torcida','balao'],
     ['mercado','Mercado','aperto'],['competicoes','Competições','trofeu'],['meta','Meta e mapas','mapa'],['carreira','Carreira','gravata']];
   const todas=noticiasDaAba(newsAba);
   const m=newsAba==='tudo'&&typeof manchete==='function'?manchete():null;
@@ -155,12 +155,13 @@ function vNews(){
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
   <div class="fd">
     <nav class="fd-nav">${abas.map(([k,n,ic])=>{
-      const q=k==='tudo'?0:noticiasDaAba(k).length;
+      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===G.meuTime).length:noticiasDaAba(k).length;
       return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${ico(ic)}<span>${n}</span>${q?`<i class="num">${q}</i>`:''}</button>`;}).join('')}</nav>
     <div class="fd-col">
+      ${newsAba==='torcida'&&typeof abaTorcidaHTML==='function'?abaTorcidaHTML():`
       ${m?postNoticia(m,{destaque:true}):''}
       ${lista.length?lista.map(n=>postNoticia(n)).join(''):vazio(vazioTxt,'jornal')}
-      ${todas.length>newsLimite+(m?1:0)?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite-(m?1:0)} restantes)</span></button></div>`:''}
+      ${todas.length>newsLimite+(m?1:0)?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite-(m?1:0)} restantes)</span></button></div>`:''}`}
     </div>
     <aside class="fd-lado">
       ${alta.length?`<div class="card fd-box"><div class="eyebrow">Em alta</div>${alta.map((x,i)=>`<button class="fd-alta" data-clube="${x.t.id}">

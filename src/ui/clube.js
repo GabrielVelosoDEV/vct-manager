@@ -176,6 +176,7 @@ function vClube(){
       ${temps.length?`<div class="card"><div class="eyebrow">Temporadas</div>${temps.map(linhaTemporadaClube).join('')}</div>`:''}
     </div>
     <div>
+      ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
       ${souEu?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
     </div>

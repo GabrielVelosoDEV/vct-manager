@@ -3139,6 +3139,65 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cr-autor p{line-height:1.6;margin:0 0 10px;color:var(--tx2)}
 .cr-autor p b{color:var(--tx)}
 
+/* ============================================================
+   TORCIDA (ui/torcida.js)
+   ============================================================ */
+.tc-bloco{margin-top:12px}
+.tc-cab{gap:10px;flex-wrap:wrap}
+.tc-jogo{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)}
+.tc-placar{font-family:'JetBrains Mono',monospace;padding:1px 6px;border:1px solid var(--line2)}
+.tc-placar.tc-v{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+.tc-placar.tc-d{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.tc-linha-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px;font-size:12px}
+.tc-humor{position:relative;display:inline-flex;align-items:center;gap:8px;min-width:190px;padding:4px 10px;border:1px solid var(--line2);overflow:hidden;font-size:12px}
+.tc-humor i{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--h) 22%,transparent)}
+.tc-humor b,.tc-humor span{position:relative}
+.tc-humor b{color:var(--h)}
+.tc-humor span{margin-left:auto;color:var(--tx2)}
+.tc-lista{display:flex;flex-direction:column}
+.tc-c{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:start}
+.tc-c:first-child{border-top:none}
+.tc-cc{min-width:0}
+.tc-quem{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:12.5px}
+.tc-quem .ps-arroba{font-size:12px}
+.tc-selo{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line2);padding:0 5px}
+.tc-txt{margin-top:2px;font-size:13.5px;color:var(--tx);overflow-wrap:anywhere}
+.tc-c.tc-pos .tc-txt{color:color-mix(in srgb,var(--teal) 30%,var(--tx))}
+.tc-c.tc-neg2 .tc-txt{color:color-mix(in srgb,var(--red) 35%,var(--tx))}
+.tc-like{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--dim);white-space:nowrap}
+.tc-like svg{width:13px;height:13px}
+.tc-clima{display:flex;flex-direction:column;gap:12px}
+.tc-medidores{display:flex;gap:18px;flex-wrap:wrap}
+.tc-medidores>div{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-size:12px;min-width:96px}
+.tc-medidores b{font-size:12.5px}
+.tc-ult{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:12px}
+.tc-ult .eyebrow{margin-right:4px}
+.tc-ult i{font-style:normal;font-family:'JetBrains Mono',monospace;font-size:11px;width:20px;height:20px;display:grid;place-items:center;border:1px solid var(--line2)}
+.tc-ult i.tc-v{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+.tc-ult i.tc-d{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.tc-pedidos{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tc-pedidos .eyebrow{width:100%}
+.tc-ped{font-size:12px;padding:3px 8px;border:1px solid var(--line2);background:var(--bg2);color:var(--tx2)}
+.tc-ped[data-p]{cursor:pointer}
+.tc-ped.tc-fora,.tc-ped.tc-tecnico{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent);background:var(--red-soft)}
+.tc-ped.tc-renova,.tc-ped.tc-titular{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 40%,transparent);background:var(--teal-soft)}
+.tc-ped.tc-contrata{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+.tc-card-g{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.4fr);gap:20px;margin-top:10px}
+.tc-card .tc-bloco{margin-top:0}
+@media (max-width:900px){.tc-card-g{grid-template-columns:1fr}}
+.tc-aps{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.tc-ap{display:grid;grid-template-columns:26px minmax(0,110px) 48px minmax(60px,1fr) 38px 64px;gap:8px;align-items:center;padding:4px 0;font-size:12.5px;cursor:pointer}
+.tc-ap>b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-ap-barra{position:relative;height:6px;background:var(--panel2)}
+.tc-ap-barra::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line2)}
+.tc-ap-barra i{position:absolute;top:0;bottom:0}
+.tc-ap-barra i.tc-pos{background:var(--teal)}
+.tc-ap-barra i.tc-neg{background:var(--red)}
+.tc-ap .num{text-align:right;font-size:12px}
+.tc-ap-rot{font-size:10.5px;padding:0 5px;border:1px solid var(--line2);color:var(--tx2);white-space:nowrap}
+.tc-ap-rot.tc-fora{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent)}
+.tc-ap-rot.tc-idolo,.tc-ap-rot.tc-renova{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 40%,transparent)}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -4729,6 +4788,68 @@ const FUNCOES_CORRIGIDAS={
   "Crws":["Iniciador","Controlador"],
   "GREEN":["Duelista","Iniciador"],
   "sanoj":["Flex","Duelista"]
+};
+
+
+/* ===== data/torcidas.js ===== */
+/* ============================================================
+   TORCIDAS — tamanho e temperamento de cada clube
+   ------------------------------------------------------------
+   porte      1 a 5: o tamanho do público do clube no Valorant,
+              além do que os títulos já dão (legado.js cuida disso).
+   fanatismo  0 a 1: o quanto a torcida oscila. Torcida fanática
+              comemora mais alto, xinga mais alto e pede cabeça mais
+              cedo; torcida fria só some.
+
+   PROVENIÊNCIA (pesquisa de 11/11/2026). Não existe um número único
+   e comparável de "tamanho de torcida" por time de Valorant, então
+   o porte é uma leitura de vários sinais públicos, e não medição:
+     - Liquipedia, times de Valorant mais vistos em 2025: Paper Rex,
+       FNATIC, Sentinels (1º em 2024), NRG, G2; EDG é o único chinês
+       no top 20; Vitality e RRQ entram no top 10.
+     - Esports Charts, organizações mais assistidas de 2025: T1, Team
+       Liquid, G2, Gen.G (o elenco de Valorant da Gen.G foi o 2º mais
+       popular do ano), Vitality, RRQ, NAVI. FURIA é top 5 no 1º
+       trimestre de 2026.
+     - As partidas mais vistas de 2025 (esports.gg): Paper Rex em
+       cinco delas, FNATIC em quatro. LOUD tem o pico histórico de
+       1,5 milhão (Champions 2022); MIBR, 681 mil (Champions 2025).
+     - LOUD é a organização com mais seguidores no Brasil e já foi a
+       segunda do mundo (ge.globo, 2022).
+     - O público em português segurou a audiência das Américas em
+       2025 enquanto o inglês caiu; a final da EMEA teve mais de 100
+       mil espectadores turcos ao vivo (BBL); o clássico japonês ZETA
+       x DFM bateu 153 mil só em japonês (Esports Charts).
+   O fanatismo segue a fama das torcidas: Brasil, Argentina, Turquia,
+   França (a KCorp), Indonésia e Filipinas no topo.
+
+   Clube fora da lista usa porte 3 no Tier 1 e porte 1 no Tier 2.
+   Editável à mão: é um arquivo de dados como os outros.
+   ============================================================ */
+const TORCIDAS={
+  /* ---- Américas ---- */
+  SEN:{porte:5,fanatismo:0.75}, NRG:{porte:4,fanatismo:0.55}, LEV:{porte:3,fanatismo:0.75},
+  G2:{porte:4,fanatismo:0.6},   LOUD:{porte:5,fanatismo:0.95},'100T':{porte:4,fanatismo:0.55},
+  C9:{porte:4,fanatismo:0.6},   MIBR:{porte:4,fanatismo:0.9}, FUR:{porte:4,fanatismo:0.9},
+  'KRÜ':{porte:3,fanatismo:0.85},EG:{porte:3,fanatismo:0.5}, ENVY:{porte:3,fanatismo:0.5},
+  FX:{porte:3,fanatismo:0.85},  RED:{porte:3,fanatismo:0.85}, '2G':{porte:2,fanatismo:0.75},
+  BST:{porte:2,fanatismo:0.8},  M80:{porte:2,fanatismo:0.6},  SRB:{porte:2,fanatismo:0.5},
+  /* ---- EMEA ---- */
+  TH:{porte:4,fanatismo:0.75},  FNC:{porte:5,fanatismo:0.8},  GX:{porte:3,fanatismo:0.65},
+  KC:{porte:5,fanatismo:0.95},  TL:{porte:4,fanatismo:0.6},   EF:{porte:4,fanatismo:0.9},
+  VIT:{porte:4,fanatismo:0.65}, FUT:{porte:4,fanatismo:0.9},  BBL:{porte:4,fanatismo:0.95},
+  M8:{porte:3,fanatismo:0.7},   NAVI:{porte:4,fanatismo:0.75},AUR:{porte:2,fanatismo:0.55},
+  /* ---- Pacífico ---- */
+  PRX:{porte:5,fanatismo:0.95}, T1:{porte:5,fanatismo:0.8},   GEN:{porte:4,fanatismo:0.7},
+  KRX:{porte:4,fanatismo:0.75}, GE:{porte:3,fanatismo:0.8},   NS:{porte:2,fanatismo:0.55},
+  RRQ:{porte:4,fanatismo:0.9},  DFM:{porte:3,fanatismo:0.75}, TS:{porte:3,fanatismo:0.8},
+  VL:{porte:2,fanatismo:0.6},   FS:{porte:3,fanatismo:0.75},  ZETA:{porte:4,fanatismo:0.85},
+  DK:{porte:3,fanatismo:0.7},
+  /* ---- China ---- */
+  EDG:{porte:5,fanatismo:0.85}, BLG:{porte:4,fanatismo:0.75}, FPX:{porte:4,fanatismo:0.7},
+  JDG:{porte:4,fanatismo:0.65}, TE:{porte:3,fanatismo:0.6},   XLG:{porte:3,fanatismo:0.6},
+  AG:{porte:3,fanatismo:0.6},   TEC:{porte:3,fanatismo:0.6},  DRG:{porte:3,fanatismo:0.65},
+  WOL:{porte:3,fanatismo:0.65}, NOVA:{porte:3,fanatismo:0.6}, TYL:{porte:3,fanatismo:0.6}
 };
 
 
@@ -7196,7 +7317,10 @@ function torcidaInicial(t){
   const base=t.tier===1?t.prestigio*0.82:t.prestigio*0.45;
   const pop=popularidadeDoClube(t);
   const peso=t.tier===1?1+(pop-1)*0.35:pop;
-  return clamp(Math.round(base*peso+gauss(0,4)),pisoTorcida(t),TORCIDA_MAX);
+  /* o porte da torcida (data/torcidas.js): LOUD e Paper Rex não nascem do
+     tamanho de um clube médio só porque 2026 foi um ano normal */
+  const porte=typeof bonusTorcidaPorte==='function'?bonusTorcidaPorte(t):0;
+  return clamp(Math.round(base*peso+porte+gauss(0,4)),pisoTorcida(t),TORCIDA_MAX);
 }
 /* Chamado na virada de temporada, depois de contabilizada a campanha. */
 function atualizarTorcida(t){
@@ -8123,7 +8247,10 @@ function criarMundo(seedVal){
              relevantes o bastante para hierarquizar a divisão, e o que
              diferencia um clube de Challengers do outro é a torcida, não a
              reputação herdada. */
-          prest = tier===1 ? clamp(Math.round(prest+gauss(0,1.5)),35,92) : PRESTIGIO_T2;
+          prest = tier===1 ? clamp(Math.round(prest+gauss(0,1.5)
+            /* grandeza: o clube de torcida enorme pesa no mercado mesmo
+               num ano fraco (data/torcidas.js) */
+            +(typeof bonusPrestigioPorte==='function'?bonusPrestigioPorte(tag,tier):0)),35,92) : PRESTIGIO_T2;
         }
         else{
           do{ nome = rnd()<.35 ? pick(TN1) : pick(TN1)+' '+pick(TN2); }while(usadosT.has(nome));
@@ -10722,6 +10849,9 @@ function fecharSerie(S,ctx){
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
   const decisiva=bo>=5||!!(st&&(st.tipo==='de'||st.tipo==='ko'));
   aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva);
+  /* a torcida dos dois lados reage (core/torcida.js); sem sorteio */
+  if(typeof torcidaPosSerie==='function')
+    torcidaPosSerie({aId,bId,bo,mapas:S.mapas,wa:S.wa,wb:S.wb,vencedor,agg,mvp,ctx:ctx||{}},decisiva);
   /* Afinidade é POR MAPA, então tem de ser aplicada mapa a mapa — a
      consolidação acima soma tudo e perderia justamente a informação que
      interessa aqui: em qual mapa cada um foi bem. */
@@ -11727,6 +11857,422 @@ function jornalistasDaRegiao(regiao,pais){
   return imp.jor.filter(j=>{const v=veiculo(j.veiculo);return v&&(pais&&v.paises.includes(pais)||v.regiao===regiao);})
     .sort((a,b)=>{const va=veiculo(a.veiculo),vb=veiculo(b.veiculo);
       return (pais&&vb.paises.includes(pais)?1:0)-(pais&&va.paises.includes(pais)?1:0)||(vb.alcance||1)-(va.alcance||1);});
+}
+
+
+/* ===== src/core/torcida.js ===== */
+/* ============================================================
+   A TORCIDA FALA
+   ------------------------------------------------------------
+   Cada clube tem um humor de torcida (0 a 100), uma aprovação do
+   head coach e uma nota de cada jogador na boca do torcedor. As
+   três mudam a cada série, pelo resultado CONTRA O ESPERADO: ganhar
+   de quem devia ganhar mexe pouco, perder para quem não devia mexe
+   muito. Torcida fanática (data/torcidas.js) oscila mais.
+
+   Do seu clube, cada série vira duas conversas: a de antes do jogo
+   e a de depois. O texto não é guardado — só o contexto. As frases
+   saem de um sorteio estável a partir dele, então redesenhar a
+   tela mostra sempre os mesmos comentários e nada aqui toca no
+   gerador do motor.
+
+   Os torcedores são genéricos e falam como torcedor fala: elogiam,
+   cobram, pedem cabeça e xingam. O xingamento é sobre o jogo
+   (desempenho, escolha, atitude em quadra) — nunca sobre a pessoa.
+   O palavrão pode ser censurado nas Configurações.
+   ============================================================ */
+
+const TORCIDA_FEED_MAX=60;
+const HUMOR_NEUTRO=55;
+
+function dadosTorcida(t){
+  return (t&&typeof TORCIDAS!=='undefined'&&TORCIDAS[t.tag])||null;
+}
+function porteTorcida(t){
+  const d=dadosTorcida(t);
+  if(d&&d.porte)return d.porte;
+  return t&&(t.tierInicial||t.tier)===1?3:1;
+}
+/* 0 a 1. Sem dado, cresce com o tamanho atual da torcida. */
+function fanatismoDe(t){
+  const d=dadosTorcida(t);
+  if(d&&typeof d.fanatismo==='number')return d.fanatismo;
+  return clamp(0.45+((t&&t.torcida)||30)/250,0.4,0.75);
+}
+function fasNova(){return{humor:HUMOR_NEUTRO,tecnico:55,jog:{},seq:0,ult:[]};}
+/* cria o estado: só o motor chama (depois de uma série) */
+function fasDe(t){
+  if(!t)return null;
+  if(!t.fas)t.fas=fasNova();
+  return t.fas;
+}
+/* leitura: a tela pergunta sem criar nada — render não muda o save */
+function fasLer(t){return (t&&t.fas)||fasNova();}
+
+/* ---------- o que a torcida esperava ----------
+   Over médio de quem jogou, dos dois lados. Dez pontos de diferença
+   valem 90% de favoritismo — a mesma régua que o torcedor usa de cabeça. */
+function overMedioDe(ids){
+  const ps=ids.map(id=>G.jogadores[id]).filter(Boolean);
+  return ps.length?ps.reduce((s,p)=>s+over(p),0)/ps.length:70;
+}
+function expectativaTorcida(ovEu,ovEle){
+  return 1/(1+Math.pow(10,(ovEle-ovEu)/10));
+}
+/* Nota de um jogador na série, de −1 a 1, relativa aos companheiros. */
+function notaNaSerie(st,mediaAcs){
+  if(!st||!st.maps)return 0;
+  const acs=st.acsSoma/Math.max(1,st.maps);
+  const kd=(st.k-st.d)/Math.max(1,st.maps);
+  return clamp((acs-mediaAcs)/120+kd/20+(st.cl||0)*0.03,-1,1);
+}
+
+/* ---------- depois de cada série (todos os clubes) ----------
+   Chamado em fecharSerie. Sem sorteio. */
+function torcidaPosSerie(res,decisiva){
+  if(!res||!G||!G.times)return;
+  const A=G.times[res.aId],B=G.times[res.bId];
+  if(!A||!B)return;
+  const idsDe=t=>Object.keys(res.agg||{}).filter(id=>G.jogadores[id]&&G.jogadores[id].timeId===t.id);
+  const ovA=overMedioDe(idsDe(A)),ovB=overMedioDe(idsDe(B));
+  for(const[t,adv,ovEu,ovEle,wEu,wEle]of[[A,B,ovA,ovB,res.wa,res.wb],[B,A,ovB,ovA,res.wb,res.wa]]){
+    const f=fasDe(t);
+    const fan=fanatismoDe(t);
+    const ganhou=res.vencedor===t.id;
+    const esp=expectativaTorcida(ovEu,ovEle);
+    const peso=(decisiva?1.5:1)*(res.bo>=5?1.2:1);
+    const amp=0.6+fan*0.8;
+    const surpresa=(ganhou?1:0)-esp;
+    const antes={humor:f.humor,tecnico:f.tecnico,seq:f.seq};
+    /* atropelo e virada contam: 2–0 vale mais que 2–1 */
+    const margem=(wEu-wEle)/Math.max(1,Math.max(wEu,wEle));
+    f.humor=clamp(f.humor+(surpresa*12+margem*4)*peso*amp,0,100);
+    f.humor+=(HUMOR_NEUTRO-f.humor)*0.05;
+    /* o técnico leva a culpa mais devagar, mas leva: sequência ruim pesa */
+    f.tecnico=clamp(f.tecnico+(surpresa*9+margem*2)*peso*amp+(f.seq<=-3&&!ganhou?-3*amp:0),0,100);
+    f.tecnico+=(55-f.tecnico)*0.03;
+    f.seq=ganhou?Math.max(1,f.seq+1):Math.min(-1,f.seq-1);
+    f.ult=[ganhou?'V':'D',...(f.ult||[])].slice(0,8);
+    /* jogadores: média móvel do que fizeram em quadra */
+    const ids=idsDe(t);
+    const media=ids.reduce((s,id)=>{const st=res.agg[id];return s+(st.acsSoma/Math.max(1,st.maps));},0)/Math.max(1,ids.length);
+    const notas={};
+    for(const id of ids){
+      const n=notaNaSerie(res.agg[id],media)+(id===res.mvp?0.25:0);
+      notas[id]=n;
+      const v=f.jog[id]||0;
+      /* memória curta, mas não de peixe: cinco ou seis séries fazem um
+         ídolo ou um #Fora. A vitória perdoa um pouco; a derrota cobra. */
+      /* na vitória a torcida perdoa: o pior em quadra de um time que ganhou
+         perde bem menos do que o pior de um time que perdeu */
+      f.jog[id]=clamp(v*0.8+n*(ganhou&&n<0?0.16:0.32)+(ganhou?0.03:-0.05)*amp,-1,1);
+    }
+    /* quem saiu do clube sai da boca da torcida */
+    for(const id in f.jog)if(!(t.elenco||[]).includes(id))delete f.jog[id];
+    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva});
+  }
+}
+
+/* Para a tela: o feed guarda só contexto, e o texto nasce na hora. */
+function registrarConversa(t,adv,res,x){
+  if(!G.torcidaFeed)G.torcidaFeed=[];
+  const f=fasDe(t);
+  const ids=Object.keys(x.notas);
+  const ord=ids.slice().sort((a,b)=>x.notas[b]-x.notas[a]);
+  /* o mapa que mais doeu e o que mais encheu de orgulho */
+  let pior=null,melhor=null;
+  for(const m of res.mapas||[]){
+    const eu=res.aId===t.id?m.sa:m.sb,ele=res.aId===t.id?m.sb:m.sa;
+    const d=eu-ele;
+    if(!pior||d<pior.d)pior={mapa:m.mapa,d};
+    if(!melhor||d>melhor.d)melhor={mapa:m.mapa,d};
+  }
+  const base={t:t.id,adv:adv.id,ano:G.ano,s:G.semana,evento:(res.ctx&&res.ctx.nome)||'',bo:res.bo,
+    esp:Math.round(x.esp*100)/100,decisiva:!!x.decisiva};
+  const id=(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-'+((G.torcidaFeed.length||0)%97);
+  const pos=Object.assign({},base,{id:id+'-pos',fase:'pos',venceu:x.ganhou,eu:x.wEu,ele:x.wEle,
+    humor:Math.round(f.humor),humorAntes:Math.round(x.antes.humor),tecnico:Math.round(f.tecnico),seq:f.seq,
+    melhor:ord[0]||null,pior:ord[ord.length-1]||null,mvp:res.mvp&&ids.includes(res.mvp)?res.mvp:null,
+    mapaPior:pior&&pior.d<0?pior.mapa:null,mapaMelhor:melhor&&melhor.d>0?melhor.mapa:null});
+  const pre=Object.assign({},base,{id:id+'-pre',fase:'pre',humor:Math.round(x.antes.humor),
+    tecnico:Math.round(x.antes.tecnico),seq:x.antes.seq});
+  G.torcidaFeed.unshift(pos,pre);
+  if(G.torcidaFeed.length>TORCIDA_FEED_MAX)G.torcidaFeed.length=TORCIDA_FEED_MAX;
+}
+
+/* ---------- o clima agora (pura) ---------- */
+function climaTorcida(t){
+  const f=fasLer(t);
+  const h=f.humor;
+  const rot=h>=78?'Em êxtase':h>=63?'Confiante':h>=47?'Dividida':h>=32?'Impaciente':h>=18?'Revoltada':'Em guerra com o clube';
+  const tec=f.tecnico;
+  const rotTec=tec>=72?'Ídolo':tec>=56?'Bancado':tec>=40?'Contestado':tec>=25?'Pressionado':'#Fora';
+  return{humor:Math.round(h),rotulo:rot,tecnico:Math.round(tec),rotuloTecnico:rotTec,seq:f.seq,ult:f.ult||[]};
+}
+/* Aprovação de cada jogador do elenco, de −100 a 100, e o que pedem dele. */
+function aprovacaoJogadores(t){
+  const f=fasLer(t);
+  return (t.elenco||[]).map(id=>G.jogadores[id]).filter(Boolean).map(p=>{
+    const v=Math.round((f.jog[p.id]||0)*100);
+    const titular=(t.titulares||[]).includes(p.id);
+    let pedido=null;
+    if(v<=-35&&titular)pedido='fora';
+    else if(v>=40&&(p.contrato||0)<=1)pedido='renova';
+    else if(!titular&&over(p)>=menorOverTitular(t)-1)pedido='titular';
+    else if(v>=45)pedido='idolo';
+    return{p,v,titular,pedido};
+  }).sort((a,b)=>b.v-a.v);
+}
+function menorOverTitular(t){
+  const ps=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean);
+  return ps.length?Math.min(...ps.map(p=>over(p))):0;
+}
+/* O que a torcida está pedindo, em ordem de barulho. */
+function pedidosTorcida(t){
+  const f=fasLer(t);const out=[];
+  const coach=membroDe(t,'tecnico');
+  for(const a of aprovacaoJogadores(t)){
+    if(a.pedido==='fora')out.push({tipo:'fora',p:a.p,txt:'#Fora'+semEspaco(a.p.nome),peso:-a.v});
+    if(a.pedido==='renova')out.push({tipo:'renova',p:a.p,txt:'Renova com '+a.p.nome,peso:a.v*0.7});
+    if(a.pedido==='titular')out.push({tipo:'titular',p:a.p,txt:'Põe o '+a.p.nome+' de titular',peso:30});
+  }
+  if(f.tecnico<32&&coach)out.push({tipo:'tecnico',txt:'#Fora'+semEspaco(coach.nome),peso:80-f.tecnico});
+  if(f.humor<42){
+    const alvo=alvoDaTorcida(t);
+    if(alvo)out.push({tipo:'contrata',p:alvo,txt:'Traz o '+alvo.nome,peso:45-f.humor});
+    else out.push({tipo:'contrata',txt:'Contrata alguém',peso:40-f.humor});
+  }
+  const mp=mapaQueDoi(t);
+  if(mp&&f.humor<60)out.push({tipo:'mapa',txt:'Treina '+mp,peso:25});
+  return out.sort((a,b)=>b.peso-a.peso).slice(0,6);
+}
+function semEspaco(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]/g,'');}
+/* O mapa das últimas conversas que mais apanhou. */
+function mapaQueDoi(t){
+  const c={};
+  for(const e of (G.torcidaFeed||[]).slice(0,16))if(e.t===t.id&&e.fase==='pos'&&e.mapaPior)c[e.mapaPior]=(c[e.mapaPior]||0)+1;
+  const o=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+  return o.length&&o[0][1]>=2?o[0][0]:null;
+}
+/* Quem a torcida quer no clube: o melhor sem contrato, senão um craque do
+   mesmo país que joga em outro lugar. Pura e estável na semana. */
+function alvoDaTorcida(t){
+  const pais=typeof paisDoClube==='function'?paisDoClube(t):null;
+  const livres=(G.livres||[]).map(id=>G.jogadores[id]).filter(p=>p&&over(p)>=menorOverTitular(t));
+  if(livres.length)return livres.sort((a,b)=>over(b)-over(a)||(a.id<b.id?-1:1))[0];
+  if(!pais)return null;
+  const fora=Object.values(G.jogadores).filter(p=>p&&p.pais===pais&&p.timeId&&p.timeId!==t.id
+    &&!p.aposentado&&over(p)>=menorOverTitular(t)+2);
+  return fora.sort((a,b)=>over(b)-over(a)||(a.id<b.id?-1:1))[0]||null;
+}
+
+/* ============================================================
+   AS FRASES
+   ------------------------------------------------------------
+   [nível, texto]. Nível 0 é o torcedor tranquilo, 1 o irritado,
+   2 o que xinga. Quanto mais fanática a torcida e pior o humor,
+   mais o nível 2 aparece. Marcadores: {tag} seu clube, {adv} o
+   adversário, {p} jogador, {coach} head coach, {mapa}, {alvo}
+   quem pedem para contratar, {res} reserva, {placar}, {n}.
+   ============================================================ */
+const FRASES_TORCIDA={
+  vitoria:[[0,'VAMOOO {tag}!!! Que time, que time'],[0,'{placar} e com autoridade. Esse é o {tag} que eu conheço'],
+    [0,'Ganhou e jogou bonito. Sigam assim'],[0,'Mais uma! O {tag} tá voando'],[0,'Que alívio, que alegria. Obrigado, rapaziada'],
+    [1,'ESSE É O {tag} PORRA'],[1,'Chupa {adv}, freguês demais'],[1,'Podem falar o que quiserem, hoje o {tag} amassou'],
+    [2,'Atropelo do caralho, {adv} nem viu a cor da bola'],[0,'Torcida tá on, rumo ao título 🏆']],
+  zebra:[[0,'NINGUÉM ACREDITAVA E A GENTE GANHOU'],[0,'Ganhar do {adv} assim? Tô sem palavras'],[1,'Cadê os analistas que davam o {adv} favorito? kkkkkk'],
+    [1,'Engole essa, {adv}!!!'],[2,'Que resultado do caralho, chorei aqui'],[0,'Jogo pra contar pros netos']],
+  vitoriaSemBrilho:[[0,'Ganhou, mas que sofrimento. Precisa melhorar muito'],[0,'Ganhou e só. Esse time não convence ninguém'],
+    [1,'Vitória contra o {adv} não é mais que obrigação'],[1,'Ganhamos apesar do {coach}, não por causa dele'],
+    [2,'Ganhou jogando um lixo, não me iludo']],
+  derrota:[[0,'Dia ruim. Bola pra frente'],[0,'Faltou pouco, mas faltou. Cabeça erguida'],[0,'Perdemos pro {adv}. Tem que rever muita coisa'],
+    [1,'Que jogo horroroso, meu Deus'],[1,'Essa comp tá fazendo o quê, {coach}?'],[1,'Toda semana a mesma história'],
+    [2,'Que vergonha, porra. Time sem alma'],[2,'Jogaram de olho fechado? Puta que pariu'],[2,'Desliguei no segundo mapa, não aguento mais essa merda']],
+  vexame:[[1,'Perder pro {adv}?? PERDER PRO {adv}???'],[1,'Vexame histórico. Quero explicação'],[1,'Elenco caro desses perdendo pro {adv}, é piada'],
+    [2,'Vergonha, vergonha, vergonha. Time de pijama'],[2,'Que merda foi essa, {tag}? Pede pra sair, porra'],[2,'Pipocaram de novo. Bando de mercenário'],
+    [0,'Inaceitável. Alguém precisa assumir isso']],
+  derrotaHonrosa:[[0,'Perdeu pro {adv}, mas brigou até o fim. Orgulho'],[0,'{placar} contra um time desses não é vergonha nenhuma'],
+    [0,'Deu pra ver evolução. Tamo junto'],[1,'Faltou detalhe. Mas esse time tem futuro']],
+  craque:[[0,'{p} jogou MUITO hoje'],[0,'{p} carregou nas costas, que monstro'],[0,'Coloca o {p} no all-star já'],
+    [1,'{p} É MUITO DIFERENCIADO'],[2,'{p} tá jogando um absurdo, puta que pariu'],[0,'Renova com o {p} até 2040']],
+  pior:[[0,'{p} não fez uma boa partida hoje'],[0,'Precisa cobrar o {p}, sumiu do jogo'],[1,'{p} jogando de olho fechado'],
+    [1,'Cadê o {p}? Alguém viu?'],[2,'{p} é um bagre, tira esse cara do time'],[2,'{p} tá jogando um lixo faz semanas, porra'],
+    [1,'Até minha vó acerta mais tiro que o {p}']],
+  fora:[[1,'#Fora{P} já deu o que tinha que dar'],[1,'Chega de {p}. #Fora{P}'],[2,'#Fora{P} mercenário, só pensa no salário'],
+    [0,'Com respeito, mas o ciclo do {p} acabou'],[2,'Se o {p} jogar o próximo, eu paro de assistir. #Fora{P}']],
+  tecnicoBom:[[0,'{coach} tá fazendo um trabalho absurdo'],[0,'Que leitura de jogo do {coach}, respeita'],[0,'Bancamos o {coach} até o fim'],
+    [1,'{coach} MITO']],
+  tecnicoRuim:[[0,'Com todo respeito, o trabalho do {coach} não está rendendo'],[1,'{coach}, troca essa comp pelo amor de Deus'],
+    [1,'O {coach} não sabe o que faz no veto'],[2,'#Fora{COACH} já, esse cara afundou o time'],[2,'{coach} é muito ruim, puta merda'],
+    [1,'Pausa tática pra quê, {coach}? Pra conversar sobre o tempo?']],
+  contrata:[[0,'Diretoria, traz o {alvo}. Precisamos de reforço'],[0,'Imagina o {alvo} nesse time...'],[1,'TRAZ O {alvo} PELO AMOR DE DEUS'],
+    [1,'Vende quem precisar e traz o {alvo}'],[2,'Diretoria pão-dura do caralho, contrata o {alvo} logo']],
+  contrataGenerico:[[0,'Precisa de reforço urgente'],[1,'Mercado aberto e a gente parado?'],[2,'Diretoria dormindo, porra. Contrata alguém!']],
+  reserva:[[0,'Por que o {res} não joga?'],[0,'Dá uma chance pro {res}'],[1,'Põe o {res} e tira esse time que tá aí'],
+    [2,'O {res} no banco e esse bagre jogando, só pode ser piada']],
+  mapa:[[0,'Precisa treinar {mapa}, tá feio'],[0,'De novo apanhando em {mapa}'],[1,'Banam {mapa} pelo amor de Deus'],
+    [2,'Esse time não sabe jogar {mapa}, que merda']],
+  renova:[[0,'Renova com o {p} AGORA'],[0,'Não deixa o {p} sair de graça, diretoria'],[1,'Se o {p} sair eu rasgo minha camisa']],
+  iglBom:[[0,'Calls do {p} hoje foram perfeitas'],[0,'{p} lendo o jogo como ninguém'],[1,'IGL DIFERENCIADO, {p} MONSTRO']],
+  iglRuim:[[0,'O {p} precisa repensar as calls'],[1,'IGL perdido. {p} não sabe o que pede'],[2,'{p} chamando strat de olho fechado, que porra é essa']],
+  seqBoa:[[0,'{n} vitórias seguidas, que fase'],[0,'Ninguém para o {tag}. {n} seguidas'],[1,'{n} SEGUIDAS, TREME LIGA']],
+  seqRuim:[[0,'{n} derrotas seguidas. Preocupante'],[1,'{n} derrotas seguidas e ninguém fala nada?'],[2,'{n} seguidas, que fase de merda']],
+  /* antes do jogo */
+  preHype:[[0,'Bora {tag}! Hoje é dia'],[0,'Tô confiante, o time tá jogando muito'],[0,'Quem vai assistir comigo? 🔥'],
+    [1,'O {adv} que se prepare'],[1,'{adv} vai sair daqui chorando'],[0,'Camisa vestida, live ligada. VAMO']],
+  preMedo:[[0,'Tô com medo desse jogo...'],[0,'Do jeito que estamos, não sei não'],[1,'Se perder hoje, alguém tem que cair'],
+    [1,'Só peço que não passem vergonha'],[2,'Vou assistir só pra passar raiva, aposto'],[0,'Jogo de seis pontos. Tem que ganhar']],
+  preAdv:[[0,'O {adv} vem forte, cuidado'],[0,'{adv} é favorito, mas clássico é clássico'],[1,'{adv} é freguês, sempre foi'],
+    [1,'Mete o pé no {adv} hoje']],
+  preFavorito:[[0,'Obrigação ganhar do {adv}'],[0,'Tem que ser 2–0 hoje, nada menos'],[1,'Se perder pro {adv} é bom nem voltar']],
+  prePedido:[[0,'Hoje tem que jogar o {res}'],[0,'Se o {p} começar jogando eu desligo'],[1,'Tira o {p} hoje pelo amor de Deus']]
+};
+
+/* Idioma do torcedor pelo país do clube: só para o selo de tradução. */
+const LINGUA_DO_PAIS={BR:'pt',PT:'pt',US:'en',CA:'en',GB:'en',AU:'en',SG:'en',PH:'sea',ID:'sea',TH:'sea',VN:'sea',MY:'sea',IN:'in',
+  ES:'es',MX:'es',AR:'es',CL:'es',CO:'es',PE:'es',UY:'es',FR:'fr',BE:'fr',DE:'de',AT:'de',TR:'tr',UA:'uk',RS:'uk',RU:'uk',KR:'ko',JP:'ja',CN:'zh',TW:'zh',HK:'zh'};
+function linguaDaTorcida(t){
+  const p=typeof paisDoClube==='function'?paisDoClube(t):null;
+  return (p&&LINGUA_DO_PAIS[p])||({AMER:'en',EMEA:'en',PAC:'en',CN:'zh'}[t&&t.regiao])||'en';
+}
+const APELIDOS_TORCEDOR=['eterno','raiz','fiel','doente','sofredor','apaixonado','ultras','oficial','4ever','nacao','loucura','army','main','fan','diehard','do_pix','sem_sono','da_live','mlk','guerreiro'];
+
+/* Um torcedor fictício estável por semente. */
+function torcedor(t,sem,i){
+  const lg=linguaDaTorcida(t);
+  const N=NOMES_IMPRENSA[lg]||NOMES_IMPRENSA.en;
+  const u=k=>sorteImp(sem+'|u'+i,k);
+  const fem=u(1)<0.22;
+  const pn=(fem?N.f:N.m)[Math.floor(u(2)*(fem?N.f:N.m).length)];
+  const tag=String(t.tag||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const ap=APELIDOS_TORCEDOR[Math.floor(u(3)*APELIDOS_TORCEDOR.length)];
+  const num=u(4)<0.5?String(Math.floor(u(5)*99)):'';
+  const forma=Math.floor(u(6)*3);
+  const arroba=(forma===0?tag+'_'+ap:forma===1?slugImp(pn).replace(/-/g,'')+'_'+tag:ap+tag)+num;
+  return{nome:forma===1?pn:(ap.replace(/_/g,' ')+' '+t.tag).replace(/^./,c=>c.toUpperCase()),arroba:arroba.slice(0,18),
+    lingua:lg};
+}
+
+function nomeCoach(t){const c=membroDe(t,'tecnico');return c?c.nome:'coach';}
+function trocar(txt,v){
+  return txt.replace(/\{(\w+)\}/g,(m,k)=>{
+    if(k==='P')return semEspaco(v.p);
+    if(k==='COACH')return semEspaco(v.coach);
+    return v[k]!=null?v[k]:m;
+  });
+}
+
+/* Os comentários de uma conversa. entrada = item de G.torcidaFeed ou o
+   contexto do próximo jogo (comentariosPreJogo). Pura e estável. */
+function comentariosTorcida(e,quantos){
+  const t=G.times[e.t],adv=G.times[e.adv];
+  if(!t)return [];
+  const fan=fanatismoDe(t);
+  const sem='torc|'+e.id;
+  const u=k=>sorteImp(sem,k);
+  const P=id=>id&&G.jogadores[id]?G.jogadores[id].nome:null;
+  const coach=nomeCoach(t);
+  const titulares=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean);
+  const reserva=(t.elenco||[]).filter(id=>!(t.titulares||[]).includes(id)).map(id=>G.jogadores[id]).filter(Boolean)
+    .sort((a,b)=>over(b)-over(a))[0]||null;
+  const f=fasLer(t);
+  const odiado=titulares.slice().sort((a,b)=>(f.jog[a.id]||0)-(f.jog[b.id]||0))[0]||null;
+  const igl=titulares.find(p=>p.igl)||null;
+  const alvo=e.humor<45?alvoDaTorcida(t):null;
+  const v={tag:t.tag,adv:adv?adv.tag:'adversário',coach,placar:e.eu!=null?e.eu+'–'+e.ele:'',
+    res:reserva?reserva.nome:null,alvo:alvo?alvo.nome:null,mapa:e.mapaPior||null,n:Math.abs(e.seq||0)};
+  /* o cardápio da conversa: [chave da lista, peso, jogador] */
+  const menu=[];
+  const h=e.humor;
+  if(e.fase==='pos'){
+    const zebra=e.venceu&&e.esp<0.38,vexame=!e.venceu&&e.esp>0.62,honra=!e.venceu&&e.esp<0.4&&e.eu>0;
+    if(e.venceu){
+      menu.push([zebra?'zebra':'vitoria',5]);
+      if(h<45&&!zebra)menu.push(['vitoriaSemBrilho',2.5]);
+    }else{
+      menu.push([vexame?'vexame':honra?'derrotaHonrosa':'derrota',5]);
+    }
+    if(e.mvp||e.melhor)menu.push(['craque',e.venceu?3:1.5,e.mvp||e.melhor]);
+    if(e.pior&&!e.venceu)menu.push(['pior',3,e.pior]);
+    if(e.pior&&e.venceu&&h<50)menu.push(['pior',1,e.pior]);
+    if(!e.venceu&&e.mapaPior)menu.push(['mapa',1.5]);
+    if(igl){const a=f.jog[igl.id]||0;
+      if(a>=0.15&&e.venceu)menu.push(['iglBom',0.9,igl.id]);
+      else if(a<=-0.15&&!e.venceu)menu.push(['iglRuim',1.2,igl.id]);}
+    if(e.seq>=3)menu.push(['seqBoa',2]);
+    if(e.seq<=-3)menu.push(['seqRuim',2.5]);
+  }else{
+    menu.push([h>=58?'preHype':h<=42?'preMedo':(u(90)<0.5?'preHype':'preMedo'),5]);
+    if(adv)menu.push([e.esp>0.62?'preFavorito':'preAdv',3]);
+    if(reserva&&odiado&&(f.jog[odiado.id]||0)<-0.2)menu.push(['prePedido',2,odiado.id]);
+  }
+  /* o que vale nas duas: técnico, contratação, reserva, #Fora, renovação */
+  if(e.tecnico<=38)menu.push(['tecnicoRuim',e.tecnico<25?3:1.8]);
+  else if(e.tecnico>=70)menu.push(['tecnicoBom',1.2]);
+  if(h<45)menu.push([alvo?'contrata':'contrataGenerico',1.5]);
+  if(reserva&&h<50&&over(reserva)>=menorOverTitular(t)-2)menu.push(['reserva',1]);
+  if(odiado&&(f.jog[odiado.id]||0)<=-0.35)menu.push(['fora',1.5,odiado.id]);
+  const amado=titulares.find(p=>(f.jog[p.id]||0)>=0.4&&(p.contrato||0)<=1);
+  if(amado)menu.push(['renova',1.2,amado.id]);
+
+  /* nível de agressividade: torcida fanática e humor ruim xingam mais */
+  const raiva=clamp((60-h)/50,0,1);
+  const pNivel2=clamp(raiva*fan*1.1,0,0.85);
+  const pNivel1=clamp(0.25+raiva*0.5+fan*0.15,0,0.9);
+  const n=quantos||(e.fase==='pos'?5:4);
+  const out=[],usadas=new Set();
+  for(let i=0;i<n*3&&out.length<n;i++){
+    const it=escolhePeso(menu.filter(m=>!usadas.has(m[0])||m[0]==='vitoria'||m[0]==='derrota'),m=>m[1],u(10+i));
+    if(!it)break;
+    const lista=FRASES_TORCIDA[it[0]];if(!lista)continue;
+    /* o tom da frase: positivo não precisa de raiva para gritar */
+    const positivo=/vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa/.test(it[0])&&!/SemBrilho/.test(it[0]);
+    const r=u(40+i);
+    const teto=positivo?(r<0.15+fan*0.35?2:1):(r<pNivel2?2:r<pNivel2+pNivel1?1:0);
+    const ok=lista.filter(x=>x[0]<=teto);
+    let pool=(ok.length?ok:lista).filter(x=>!out.some(o=>o.cru===x[1]));
+    /* torcida em guerra não fala manso: abaixo de 22 o "bola pra frente" some */
+    if(!positivo&&h<22&&pool.some(x=>x[0]>=1))pool=pool.filter(x=>x[0]>=1);
+    if(!pool.length){usadas.add(it[0]);continue;}
+    /* prefere o nível mais alto permitido: torcedor bravo não fala baixo */
+    const alvoNivel=pool.filter(x=>x[0]===teto);
+    const escolhida=(alvoNivel.length&&u(60+i)<0.6?alvoNivel:pool)[Math.floor(u(70+i)*(alvoNivel.length&&u(60+i)<0.6?alvoNivel:pool).length)];
+    const pNome=it[2]?P(it[2]):null;
+    if(/\{p\}|\{P\}/.test(escolhida[1])&&!pNome)continue;
+    if(/\{res\}/.test(escolhida[1])&&!v.res)continue;
+    if(/\{alvo\}/.test(escolhida[1])&&!v.alvo)continue;
+    if(/\{mapa\}/.test(escolhida[1])&&!v.mapa)continue;
+    if(/\{placar\}/.test(escolhida[1])&&!v.placar)continue;
+    usadas.add(it[0]);
+    const txt=trocar(escolhida[1],Object.assign({},v,{p:pNome}));
+    const autor=torcedor(t,sem,i);
+    const tamanho=(t.torcida||30)/40;
+    const curtidas=Math.round((8+u(80+i)*90)*tamanho*(escolhida[0]===2?1.6:1)*(1+fan));
+    out.push({autor,txt,cru:escolhida[1],nivel:escolhida[0],tom:positivo?1:escolhida[0]?-1:0,curtidas,chave:it[0]});
+  }
+  return out.sort((a,b)=>b.curtidas-a.curtidas);
+}
+
+/* A conversa de antes do PRÓXIMO jogo, montada na hora (pré-jogo e Central). */
+function conversaPreJogo(t,adv,evento){
+  if(!t||!adv)return null;
+  const f=fasLer(t);
+  const ovEu=overMedioDe(t.titulares||[]),ovEle=overMedioDe(adv.titulares||[]);
+  return{id:(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-prox',t:t.id,adv:adv.id,fase:'pre',ano:G.ano,s:G.semana,
+    evento:evento||'',esp:Math.round(expectativaTorcida(ovEu,ovEle)*100)/100,
+    humor:Math.round(f.humor),tecnico:Math.round(f.tecnico),seq:f.seq};
+}
+
+/* ---------- a torcida no tamanho e no prestígio ----------
+   O porte entra na torcida inicial e, no Tier 1, um pouco no prestígio:
+   jogador quer vestir a camisa do clube grande mesmo em ano ruim. */
+function bonusTorcidaPorte(t){
+  const p=porteTorcida(t);
+  return (t.tierInicial||t.tier)===1?(p-3)*7:(p-1)*6;
+}
+function bonusPrestigioPorte(tag,tier){
+  if(tier!==1||typeof TORCIDAS==='undefined'||!TORCIDAS[tag])return 0;
+  return (TORCIDAS[tag].porte-3)*2.5;
 }
 
 
@@ -19702,7 +20248,7 @@ const Prefs={
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
           prePartida:true, tempoTecnico:true, dicas:true, turnosNaJanela:true,
-          minigames:true, somMini:true},
+          minigames:true, somMini:true, palavroes:true},
   dados:null,
   iniciar(){
     this.dados=Object.assign({},this.padrao);
@@ -19957,6 +20503,7 @@ function baseAssinatura(){
     typeof TIMES_REAIS!=='undefined'?TIMES_REAIS:null,
     typeof ELENCOS_REAIS!=='undefined'?ELENCOS_REAIS:null,
     typeof AGENTES_REAIS!=='undefined'?AGENTES_REAIS:null,
+    typeof TORCIDAS!=='undefined'?TORCIDAS:null,
     typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL:null,
     typeof CLUBES_BASE!=='undefined'?CLUBES_BASE:null,
     typeof HISTORIA_REAL!=='undefined'?HISTORIA_REAL:null,
@@ -21177,6 +21724,9 @@ function vConfig(){
          'só durante a primeira temporada da carreira.')}
     ${G&&G.meuTime?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
       <span>${esc(dificuldade().resumo)} Escolhida na carreira nova e fixa até o fim dela.</span></div></div>`:''}
+    ${sw('palavroes','Palavrão nos comentários da torcida',
+         'A torcida fala como torcida: elogia, cobra e xinga. Desligado, os palavrões aparecem com asterisco '+
+         '(bom para streamar). O xingamento é sempre sobre o jogo, nunca sobre a pessoa.')}
     ${sw('animacoes','Animação de entrada dos painéis',
          'Painéis entram com um leve deslocamento. Desligue se preferir a tela estática.')}
     <div class="opt"><div class="txt"><b>Rostos gerados</b>
@@ -23228,7 +23778,8 @@ function vInicio(){
   <div class="grid g2 cx-linha">
     ${cardVestiario(t)}
     ${cardImprensa()}
-  </div>`;
+  </div>
+  ${typeof cardTorcida==='function'?cardTorcida(t,px):''}`;
 }
 
 
@@ -23571,7 +24122,7 @@ function noticiasDaAba(aba){
 function vNews(){
   garantirImprensa();
   const t=meu();
-  const abas=[['tudo','Para você','jornal'],['seguindo','Seguindo','estrela'],['clube','Meu clube','clube'],
+  const abas=[['tudo','Para você','jornal'],['seguindo','Seguindo','estrela'],['clube','Meu clube','clube'],['torcida','Torcida','balao'],
     ['mercado','Mercado','aperto'],['competicoes','Competições','trofeu'],['meta','Meta e mapas','mapa'],['carreira','Carreira','gravata']];
   const todas=noticiasDaAba(newsAba);
   const m=newsAba==='tudo'&&typeof manchete==='function'?manchete():null;
@@ -23602,12 +24153,13 @@ function vNews(){
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
   <div class="fd">
     <nav class="fd-nav">${abas.map(([k,n,ic])=>{
-      const q=k==='tudo'?0:noticiasDaAba(k).length;
+      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===G.meuTime).length:noticiasDaAba(k).length;
       return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${ico(ic)}<span>${n}</span>${q?`<i class="num">${q}</i>`:''}</button>`;}).join('')}</nav>
     <div class="fd-col">
+      ${newsAba==='torcida'&&typeof abaTorcidaHTML==='function'?abaTorcidaHTML():`
       ${m?postNoticia(m,{destaque:true}):''}
       ${lista.length?lista.map(n=>postNoticia(n)).join(''):vazio(vazioTxt,'jornal')}
-      ${todas.length>newsLimite+(m?1:0)?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite-(m?1:0)} restantes)</span></button></div>`:''}
+      ${todas.length>newsLimite+(m?1:0)?`<div class="nw-mais"><button class="btn ghost" data-newsmais>Carregar mais <span class="dim">(${todas.length-newsLimite-(m?1:0)} restantes)</span></button></div>`:''}`}
     </div>
     <aside class="fd-lado">
       ${alta.length?`<div class="card fd-box"><div class="eyebrow">Em alta</div>${alta.map((x,i)=>`<button class="fd-alta" data-clube="${x.t.id}">
@@ -23669,6 +24221,135 @@ function ligarImprensa(raiz){
     flash(agora?'Seguindo '+(p?p.nome:''):'Deixou de seguir '+(p?p.nome:''));
     if(raiz.id==='modal'||raiz.closest&&raiz.closest('#modal'))modalPerfilImprensa(id);
     render();});
+}
+
+
+/* ===== src/ui/torcida.js ===== */
+/* ============================================================
+   A TORCIDA NA TELA
+   ------------------------------------------------------------
+   O motor (core/torcida.js) guarda o humor e o contexto de cada
+   conversa; aqui ela vira comentário. Aparece no relatório de antes
+   do jogo, na ficha da partida, na Central, na página do clube e
+   numa aba própria das Notícias.
+   ============================================================ */
+
+/* palavrão some com asterisco quando a opção está desligada */
+const PALAVROES_RE=/\b(porra|caralho|merda|puta|pqp|bosta)\b/gi;
+function censurarTorcida(txt){
+  if(Prefs.get('palavroes')!==false)return txt;
+  return String(txt).replace(PALAVROES_RE,w=>w[0]+'*'.repeat(w.length-1));
+}
+function corHumor(h){return h>=63?'var(--teal)':h>=47?'var(--amber)':'var(--red)';}
+function chipHumor(h,rot){
+  return `<span class="tc-humor" style="--h:${corHumor(h)}"><i style="width:${clamp(h,2,100)}%"></i><b>${esc(rot)}</b><span class="num">${h}</span></span>`;
+}
+function comentarioTorcidaHTML(c,t){
+  const trad=c.autor.lingua&&c.autor.lingua!=='pt'?LINGUA_NOME[c.autor.lingua]:null;
+  return `<div class="tc-c ${c.tom>0?'tc-pos':c.nivel>=2?'tc-neg2':c.tom<0?'tc-neg':''}">
+    ${monogramaImprensa(c.autor.nome,corDoClube(t),34,true)}
+    <div class="tc-cc">
+      <div class="tc-quem"><b>${esc(c.autor.nome)}</b><span class="ps-arroba">@${esc(c.autor.arroba)}</span><span class="tc-selo">torcedor</span></div>
+      <div class="tc-txt">${esc(censurarTorcida(c.txt))}</div>
+      ${trad?`<div class="ps-trad">Traduzido do ${trad}</div>`:''}
+    </div>
+    <span class="tc-like">${ico('coracao')}${numCurto(c.curtidas)}</span>
+  </div>`;
+}
+/* Uma conversa inteira: cabeçalho com o jogo e o humor, depois os comentários. */
+function blocoTorcida(e,opc){
+  if(!e)return '';
+  opc=opc||{};
+  const t=G.times[e.t],adv=G.times[e.adv];
+  if(!t)return '';
+  const cs=comentariosTorcida(e,opc.quantos);
+  if(!cs.length)return '';
+  const fase=e.fase==='pre'?'Antes do jogo':'Depois do jogo';
+  const placar=e.fase==='pos'?`<b class="tc-placar ${e.venceu?'tc-v':'tc-d'}">${e.eu}–${e.ele}</b>`:'';
+  return `<div class="${opc.semCard?'':'card flat '}tc-bloco">
+    <div class="split tc-cab"><div class="eyebrow">${esc(opc.titulo||('Torcida do '+t.tag+' · '+fase))}</div>
+      ${adv?`<span class="tc-jogo">${fase.toLowerCase()} · vs ${escudo(adv,18)} ${esc(adv.tag)} ${placar}</span>`:''}</div>
+    ${opc.semHumor?'':`<div class="tc-linha-h">${chipHumor(e.humor,rotuloHumor(e.humor))}
+      <span class="dim">${e.esp>=0.62?'favorito':e.esp<=0.38?'azarão':'jogo parelho'} na cabeça da torcida</span></div>`}
+    <div class="tc-lista">${cs.map(c=>comentarioTorcidaHTML(c,t)).join('')}</div>
+  </div>`;
+}
+function rotuloHumor(h){
+  return h>=78?'Em êxtase':h>=63?'Confiante':h>=47?'Dividida':h>=32?'Impaciente':h>=18?'Revoltada':'Em guerra com o clube';
+}
+/* A conversa de depois de uma série do seu clube, se existir. */
+function conversaDaSerie(res){
+  if(!res||!G.torcidaFeed)return null;
+  const adv=res.aId===G.meuTime?res.bId:res.aId;
+  return G.torcidaFeed.find(e=>e.fase==='pos'&&e.adv===adv&&e.ano===G.ano)||null;
+}
+
+/* ---------- clima: humor, técnico, pedidos ---------- */
+function climaTorcidaHTML(t,opc){
+  opc=opc||{};
+  const c=climaTorcida(t);
+  const coach=membroDe(t,'tecnico');
+  const ped=pedidosTorcida(t);
+  const ult=(c.ult||[]).slice(0,6);
+  return `<div class="tc-clima">
+    <div class="tc-medidores">
+      <div>${medidor('<span class="dim">humor</span>',c.humor/100,opc.px||64)}<b>${esc(c.rotulo)}</b></div>
+      <div>${medidor('<span class="dim">com o coach</span>',c.tecnico/100,opc.px||64)}<b>${esc(c.rotuloTecnico)}</b>
+        ${coach?`<span class="dim">${esc(coach.nome)}</span>`:''}</div>
+    </div>
+    ${ult.length?`<div class="tc-ult"><span class="eyebrow">Últimas</span>${ult.map(x=>`<i class="${x==='V'?'tc-v':'tc-d'}">${x}</i>`).join('')}
+      ${Math.abs(c.seq)>=3?`<span class="dim">${Math.abs(c.seq)} ${c.seq>0?'vitórias':'derrotas'} seguidas</span>`:''}</div>`:''}
+    ${ped.length?`<div class="tc-pedidos"><span class="eyebrow">A torcida pede</span>${ped.map(p=>
+      `<span class="tc-ped tc-${p.tipo}" ${p.p?`data-p="${p.p.id}"`:''}>${esc(p.txt)}</span>`).join('')}</div>`
+      :'<div class="dim" style="font-size:12px">Ninguém pedindo nada por enquanto.</div>'}
+  </div>`;
+}
+/* Central: clima à esquerda, a conversa que interessa agora à direita
+   (antes do próximo jogo, ou a última depois de jogo). */
+function cardTorcida(t,px){
+  const advId=px&&px.adv;
+  const pre=advId?conversaPreJogo(t,G.times[advId],px.stage?px.stage.nome:''):null;
+  const ultima=(G.torcidaFeed||[]).find(e=>e.fase==='pos')||null;
+  const e=pre||ultima;
+  return `<div class="card tc-card"><div class="split"><div class="eyebrow">Torcida do ${esc(t.tag)}</div>
+      <button class="btn ghost sm" data-torcidafeed>Ver tudo ›</button></div>
+    <div class="tc-card-g">
+      ${climaTorcidaHTML(t,{px:58})}
+      <div>${e?blocoTorcida(e,{semCard:true,semHumor:true,quantos:4,
+        titulo:pre?'Antes do jogo':'Depois do último jogo'})
+        :'<div class="dim">A torcida começa a falar quando a bola rolar.</div>'}</div>
+    </div></div>`;
+}
+/* Página do clube: aprovação de cada jogador. */
+function painelTorcidaClube(t,souEu){
+  const ap=aprovacaoJogadores(t);
+  const linhas=ap.map(a=>{
+    const v=a.v,w=Math.abs(v)/2;
+    const rot={fora:'#Fora',renova:'renova!',titular:'quer de titular',idolo:'ídolo'}[a.pedido]||'';
+    return `<div class="tc-ap" data-p="${a.p.id}">${retrato(a.p,26)}<b>${esc(a.p.nome)}</b><span class="dim">${a.titular?'':'reserva'}</span>
+      <span class="tc-ap-barra"><i class="${v>=0?'tc-pos':'tc-neg'}" style="${v>=0?'left:50%':'right:50%'};width:${w}%"></i></span>
+      <span class="num ${v>=20?'up':v<=-20?'dn':''}">${v>0?'+':''}${v}</span><span>${rot?`<span class="tc-ap-rot tc-${a.pedido}">${rot}</span>`:''}</span></div>`;
+  }).join('');
+  const conv=souEu?(G.torcidaFeed||[]).find(e=>e.t===t.id):null;
+  return `<div class="card"><div class="eyebrow">Torcida · porte ${porteTorcida(t)} de 5 · fanatismo ${Math.round(fanatismoDe(t)*100)}</div>
+      ${climaTorcidaHTML(t)}
+      <div class="eyebrow" style="margin-top:14px">Moral com a torcida</div>
+      <div class="tc-aps">${linhas||'<div class="dim">Sem jogadores.</div>'}</div>
+      <p class="dim" style="font-size:11.5px;margin-top:8px">Sobe com atuação acima dos companheiros e com vitória; cai com
+        atuação apagada e derrota. Torcida fanática oscila mais — e cobra mais alto.</p></div>
+    ${conv?blocoTorcida(conv):''}`;
+}
+
+/* ---------- aba Torcida das Notícias ---------- */
+function abaTorcidaHTML(){
+  const t=meu();
+  const lista=(G.torcidaFeed||[]).filter(e=>e.t===t.id).slice(0,newsLimite);
+  return `<div class="card flat">${climaTorcidaHTML(t)}</div>
+    ${lista.length?lista.map(e=>blocoTorcida(e)).join('')
+      :vazio('<b>A torcida ainda não falou.</b> Ela comenta antes e depois de cada jogo do seu clube.','clube')}`;
+}
+function ligarTorcida(raiz){
+  (raiz||document).querySelectorAll('.tc-ped[data-p],.tc-ap[data-p]').forEach(b=>b.onclick=()=>modalJogador(b.dataset.p));
 }
 
 
@@ -27407,6 +28088,7 @@ function vClube(){
       ${temps.length?`<div class="card"><div class="eyebrow">Temporadas</div>${temps.map(linhaTemporadaClube).join('')}</div>`:''}
     </div>
     <div>
+      ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
       ${souEu?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
     </div>
@@ -28027,6 +28709,7 @@ function modalPartida(res){
       </div>
     </div>
     ${mvpBox}
+    ${typeof blocoTorcida==='function'?blocoTorcida(conversaDaSerie(res),{titulo:'A torcida reagiu'}):''}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     <div class="sr-abas">${abas}</div>
     <div class="card flat"><div class="split"><div class="eyebrow">Rounds em ${esc(mp.mapa)}</div>
@@ -29593,6 +30276,7 @@ function ppRelatorioHTML(){
       <div class="rel-mapas">${mapas}</div>
       ${nv<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
     </div>
+    ${typeof blocoTorcida==='function'?blocoTorcida(conversaPreJogo(meuT,advT,nomeStage(PP.comp.stage)),{titulo:'A torcida antes do jogo'}):''}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppPular">Deixar a comissão vetar</button>
       <button class="btn" id="ppVeto">Ir para o veto de mapas ›</button>
@@ -31153,6 +31837,8 @@ function ligarEventos(){
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=30;render();});
   on('[data-newsmais]',()=>{newsLimite+=30;render();});
+  on('[data-torcidafeed]',()=>{newsAba='torcida';newsLimite=30;irPara('news');});
+  if(typeof ligarTorcida==='function')ligarTorcida(v);
   if(typeof ligarImprensa==='function')ligarImprensa(v);
   /* a faixa do circuito abre no bloco de agora, não em janeiro; só uma vez por
      semana, para não brigar com quem rolou a faixa à mão */

@@ -488,6 +488,9 @@ function fecharSerie(S,ctx){
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
   const decisiva=bo>=5||!!(st&&(st.tipo==='de'||st.tipo==='ko'));
   aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva);
+  /* a torcida dos dois lados reage (core/torcida.js); sem sorteio */
+  if(typeof torcidaPosSerie==='function')
+    torcidaPosSerie({aId,bId,bo,mapas:S.mapas,wa:S.wa,wb:S.wb,vencedor,agg,mvp,ctx:ctx||{}},decisiva);
   /* Afinidade é POR MAPA, então tem de ser aplicada mapa a mapa — a
      consolidação acima soma tudo e perderia justamente a informação que
      interessa aqui: em qual mapa cada um foi bem. */

@@ -95,7 +95,10 @@ function torcidaInicial(t){
   const base=t.tier===1?t.prestigio*0.82:t.prestigio*0.45;
   const pop=popularidadeDoClube(t);
   const peso=t.tier===1?1+(pop-1)*0.35:pop;
-  return clamp(Math.round(base*peso+gauss(0,4)),pisoTorcida(t),TORCIDA_MAX);
+  /* o porte da torcida (data/torcidas.js): LOUD e Paper Rex não nascem do
+     tamanho de um clube médio só porque 2026 foi um ano normal */
+  const porte=typeof bonusTorcidaPorte==='function'?bonusTorcidaPorte(t):0;
+  return clamp(Math.round(base*peso+porte+gauss(0,4)),pisoTorcida(t),TORCIDA_MAX);
 }
 /* Chamado na virada de temporada, depois de contabilizada a campanha. */
 function atualizarTorcida(t){

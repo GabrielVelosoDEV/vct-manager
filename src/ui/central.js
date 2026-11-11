@@ -290,5 +290,6 @@ function vInicio(){
   <div class="grid g2 cx-linha">
     ${cardVestiario(t)}
     ${cardImprensa()}
-  </div>`;
+  </div>
+  ${typeof cardTorcida==='function'?cardTorcida(t,px):''}`;
 }

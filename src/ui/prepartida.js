@@ -205,6 +205,7 @@ function ppRelatorioHTML(){
       <div class="rel-mapas">${mapas}</div>
       ${nv<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
     </div>
+    ${typeof blocoTorcida==='function'?blocoTorcida(conversaPreJogo(meuT,advT,nomeStage(PP.comp.stage)),{titulo:'A torcida antes do jogo'}):''}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppPular">Deixar a comissão vetar</button>
       <button class="btn" id="ppVeto">Ir para o veto de mapas ›</button>

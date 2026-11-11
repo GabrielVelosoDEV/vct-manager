@@ -119,6 +119,9 @@ function vConfig(){
          'só durante a primeira temporada da carreira.')}
     ${G&&G.meuTime?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
       <span>${esc(dificuldade().resumo)} Escolhida na carreira nova e fixa até o fim dela.</span></div></div>`:''}
+    ${sw('palavroes','Palavrão nos comentários da torcida',
+         'A torcida fala como torcida: elogia, cobra e xinga. Desligado, os palavrões aparecem com asterisco '+
+         '(bom para streamar). O xingamento é sempre sobre o jogo, nunca sobre a pessoa.')}
     ${sw('animacoes','Animação de entrada dos painéis',
          'Painéis entram com um leve deslocamento. Desligue se preferir a tela estática.')}
     <div class="opt"><div class="txt"><b>Rostos gerados</b>

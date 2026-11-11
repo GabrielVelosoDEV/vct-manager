@@ -34,7 +34,10 @@ function criarMundo(seedVal){
              relevantes o bastante para hierarquizar a divisão, e o que
              diferencia um clube de Challengers do outro é a torcida, não a
              reputação herdada. */
-          prest = tier===1 ? clamp(Math.round(prest+gauss(0,1.5)),35,92) : PRESTIGIO_T2;
+          prest = tier===1 ? clamp(Math.round(prest+gauss(0,1.5)
+            /* grandeza: o clube de torcida enorme pesa no mercado mesmo
+               num ano fraco (data/torcidas.js) */
+            +(typeof bonusPrestigioPorte==='function'?bonusPrestigioPorte(tag,tier):0)),35,92) : PRESTIGIO_T2;
         }
         else{
           do{ nome = rnd()<.35 ? pick(TN1) : pick(TN1)+' '+pick(TN2); }while(usadosT.has(nome));

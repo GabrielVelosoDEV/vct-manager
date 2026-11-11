@@ -34,6 +34,8 @@ function ligarEventos(){
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
   on('[data-newsaba]',el=>{newsAba=el.dataset.newsaba;newsLimite=30;render();});
   on('[data-newsmais]',()=>{newsLimite+=30;render();});
+  on('[data-torcidafeed]',()=>{newsAba='torcida';newsLimite=30;irPara('news');});
+  if(typeof ligarTorcida==='function')ligarTorcida(v);
   if(typeof ligarImprensa==='function')ligarImprensa(v);
   /* a faixa do circuito abre no bloco de agora, não em janeiro; só uma vez por
      semana, para não brigar com quem rolou a faixa à mão */
