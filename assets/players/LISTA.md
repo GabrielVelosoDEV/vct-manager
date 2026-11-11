@@ -460,6 +460,11 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 - [x] `akame.png` — Akame (CR)
 - [x] `aace.png` — Aace (CR)
+- [x] `laz.png` — Laz (CR)
+- [x] `ptc.png` — PTC (CR)
+- [x] `kadoom.png` — Kadoom (CR)
+- [x] `apinya.png` — Apinya (CR)
+- [ ] `niz.png` — NIZ (CR)
 
 ## RC
 
@@ -665,11 +670,6 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [ ] `maofish.png` — maofish (VLG)
 - [ ] `ayu.png` — Ayu (VLG)
 - [ ] `yunni.png` — Yunni (VLG)
-- [x] `laz.png` — Laz (VLG)
-- [x] `ptc.png` — PTC (VLG)
-- [x] `kadoom.png` — Kadoom (VLG)
-- [x] `apinya.png` — Apinya (VLG)
-- [ ] `niz.png` — NIZ (VLG)
 - [x] `pancada.png` — pANcada (VLG)
 - [x] `canezerra.png` — canezerra (VLG)
 - [ ] `guardy.png` — Guardy (VLG)
