@@ -3,6 +3,23 @@
    ============================================================ */
 let listaRuns=[];
 async function atualizarRuns(){listaRuns=await Storage.listar();}
+/* Apagar some da tela NA HORA e grava depois. Antes o clique esperava o
+   armazenamento e a releitura de todas as carreiras para redesenhar; e se a
+   partida apagada era a que estava aberta, o salvamento automático (ao sair,
+   ao começar um jogo novo) a gravava de novo e ela "voltava". Agora ela é
+   fechada e fica marcada como apagada. */
+async function apagarPartidas(ids){
+  const set=new Set(ids);
+  listaRuns=listaRuns.filter(r=>!set.has(r.id));
+  if(G&&G.runId&&set.has(G.runId)){G=null;modo='menu';telaMenu='runs';}
+  /* a tela não pode impedir a exclusão: se desenhar falhar, apaga mesmo assim */
+  try{render();}catch(e){console.error(e);}
+  flash(ids.length>1?ids.length+' partidas apagadas.':'Partida apagada.');
+  try{for(const id of ids)await Storage.apagar(id);}
+  catch(e){flash('Não deu para apagar no armazenamento: '+(e&&e.message||e));}
+  await atualizarRuns();
+  if(modo==='menu')try{render();}catch(e){console.error(e);}
+}
 function dataBr(ts){
   if(!ts)return '—';
   const d=new Date(ts);

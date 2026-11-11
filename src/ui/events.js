@@ -40,7 +40,7 @@ function ligarEventos(){
   /* a faixa do circuito abre no bloco de agora, não em janeiro; só uma vez por
      semana, para não brigar com quem rolou a faixa à mão */
   const tl=v.querySelector('.tl');
-  const chaveTl=G.ano+'|'+G.semana+'|'+tela;
+  const chaveTl=G?G.ano+'|'+G.semana+'|'+tela:'';
   if(tl&&_tlRolada!==chaveTl){
     _tlRolada=chaveTl;
     const alvo=tl.querySelector('.tl-item.on')||tl.querySelector('.tl-item:not(.done)');
@@ -574,8 +574,7 @@ function ligarEventos(){
   on('#cfgApagarRuns',async()=>{
     if(!listaRuns.length){flash('Não há partidas salvas.');return;}
     if(!await confirmar('Apagar as '+listaRuns.length+' partidas salvas? Não tem desfazer.','Apagar'))return;
-    for(const r of listaRuns.slice())await Storage.apagar(r.id);
-    await atualizarRuns();render();flash('Partidas apagadas.');
+    apagarPartidas(listaRuns.map(r=>r.id));
   });
   on('#cfgLimparImgs',async()=>{
     if(!Imgs.quantos()){flash('O pacote já está vazio.');return;}
@@ -606,8 +605,12 @@ function ligarEventos(){
     tela='inicio';render();flash('Run carregada.');
   });
   on('[data-rundel]',async el=>{
-    if(!await confirmar('Apagar esta run definitivamente?','Apagar'))return;
-    await Storage.apagar(el.dataset.rundel);await atualizarRuns();render();
+    const id=el.dataset.rundel;
+    const r=listaRuns.find(x=>x.id===id);
+    const aberta=G&&G.runId===id;
+    if(!await confirmar('Apagar '+(r?'"'+r.nome+'"':'esta partida')+' definitivamente?'+
+      (aberta?' É a partida que está aberta agora: ela fecha junto.':''),'Apagar'))return;
+    apagarPartidas([id]);
   });
   const dz=v.querySelector('#runDrop'),fi=v.querySelector('#runFile');
   if(dz){
@@ -615,6 +618,8 @@ function ligarEventos(){
       try{
         const reg=await lerArquivoRun(file);
         if(!desempacotarRun(reg)){flash('Arquivo não parece uma run válida.');return;}
+        /* importar de novo uma partida apagada é de propósito: ela volta */
+        if(G.runId)await Storage._marcarApagado(G.runId,false);
         await salvarRun(G.runNome);await atualizarRuns();
         tela='inicio';render();flash('Run importada.');
       }catch(e){flash('Erro ao ler o arquivo.');}

@@ -53,11 +53,32 @@ const Storage={
   _lsTudo(){try{return JSON.parse(localStorage.getItem(RUNS_LS)||'{}');}catch(e){return{};}},
   _lsGravar(o){try{localStorage.setItem(RUNS_LS,JSON.stringify(o));return true;}catch(e){return false;}},
 
+  /* A lista de partidas lia TODAS as carreiras inteiras (alguns MB cada) só
+     para mostrar nome e data: com quatro ou cinco saves, apagar um e
+     redesenhar a lista levava segundos. Agora existe um índice pequeno
+     (id → nome, ano, clube, fase, data) no store de configurações, mantido a
+     cada gravação e exclusão; as carreiras só são lidas inteiras para montar
+     o índice na primeira vez. */
+  _meta(r){return{id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado};},
+  _indice:null,
+  async _lerIndice(){
+    if(this._indice)return this._indice;
+    let ix=this.modo==='indexeddb'?await this.cfgLer('indice'):null;
+    if(!ix||typeof ix!=='object'){
+      ix={};
+      for(const r of await this._todosLocal())if(r&&r.id&&r.id!==BASE_ID)ix[r.id]=this._meta(r);
+      if(this.modo==='indexeddb')await this.cfgGravar('indice',ix);
+    }
+    this._indice=ix;return ix;
+  },
+  async _mexerIndice(id,meta){
+    const ix=await this._lerIndice();
+    if(meta)ix[id]=meta;else delete ix[id];
+    if(this.modo==='indexeddb')await this.cfgGravar('indice',ix);
+  },
   async listar(){
-    const itens=await this._todosLocal();
-    /* o registro da base de dados mora no mesmo store, mas não é partida */
-    return itens.filter(r=>r&&r.id!==BASE_ID).map(r=>({id:r.id,nome:r.nome,ano:r.ano,clube:r.clube,fase:r.fase,atualizado:r.atualizado}))
-      .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
+    const ix=await this._lerIndice();
+    return Object.values(ix).sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
   },
   async _todosLocal(){
     if(this.modo==='indexeddb')return await this._idb(st=>st.getAll());
@@ -66,15 +87,27 @@ const Storage={
   },
   /* grava sem mexer no carimbo de hora: é o que a sincronização com a pasta usa */
   async _gravarLocal(reg){
-    if(this.modo==='indexeddb'){await this._idb(st=>st.put(reg),'readwrite');return true;}
-    if(this.modo==='localstorage'){const o=this._lsTudo();o[reg.id]=reg;return this._lsGravar(o);}
-    this._mem[reg.id]=reg;return true;
+    let ok=true;
+    if(this.modo==='indexeddb')await this._idb(st=>st.put(reg),'readwrite');
+    else if(this.modo==='localstorage'){const o=this._lsTudo();o[reg.id]=reg;ok=this._lsGravar(o);}
+    else this._mem[reg.id]=reg;
+    if(reg.id!==BASE_ID)await this._mexerIndice(reg.id,this._meta(reg));
+    return ok;
   },
   async gravar(reg){
+    /* partida apagada não volta: quem ainda a tiver em memória não regrava */
+    if(reg&&reg.id&&(await this.apagados()).includes(reg.id))return false;
     reg.atualizado=Date.now();
     const ok=await this._gravarLocal(reg);
     await Pasta.gravar(reg);
     return ok;
+  },
+  /* Lápides: ids apagados. Sem isso a pasta (que pode estar sem permissão no
+     momento) devolvia a partida na próxima sincronização. */
+  async apagados(){return (this.modo==='indexeddb'?await this.cfgLer('apagados'):this._mem.__apagados)||[];},
+  async _marcarApagado(id,sim){
+    let l=await this.apagados();l=l.filter(x=>x!==id);if(sim)l.push(id);l=l.slice(-200);
+    if(this.modo==='indexeddb')await this.cfgGravar('apagados',l);else this._mem.__apagados=l;
   },
   async ler(id){
     if(this.modo==='indexeddb')return await this._idb(st=>st.get(id));
@@ -82,11 +115,15 @@ const Storage={
     return this._mem[id]||null;
   },
   async apagar(id){
+    await this._marcarApagado(id,true);
+    await this._mexerIndice(id,null);
+    if(this.modo==='indexeddb')await this._idb(st=>st.delete(id),'readwrite');
+    else if(this.modo==='localstorage'){const o=this._lsTudo();delete o[id];this._lsGravar(o);}
+    else delete this._mem[id];
     await Pasta.apagar(id);
-    if(this.modo==='indexeddb'){await this._idb(st=>st.delete(id),'readwrite');return;}
-    if(this.modo==='localstorage'){const o=this._lsTudo();delete o[id];this._lsGravar(o);return;}
-    delete this._mem[id];
   },
+  /* importar de propósito um arquivo de uma partida apagada vale: tira a lápide */
+  async importar(reg){await this._marcarApagado(reg.id,false);return this.gravar(reg);},
   /* configurações pequenas do app no IndexedDB (a pasta escolhida mora aqui:
      o "endereço" dela só pode ser guardado ali, não no localStorage) */
   async cfgLer(k){try{const r=await this._store(CFG_STORE,st=>st.get(k));return r?r.v:null;}catch(e){return null;}},
@@ -210,7 +247,8 @@ const Pasta={
     if(this.estado!=='ligada')return{vieram:0,foram:0};
     let vieram=0,foram=0;
     try{
-      const daPasta=await this.lerTodos();
+      const mortos=new Set(await Storage.apagados());
+      const daPasta=(await this.lerTodos()).filter(r=>{if(mortos.has(r.id)){this.apagar(r.id);return false;}return true;});
       const naPasta=new Map(daPasta.map(r=>[r.id,r]));
       const locais=await Storage._todosLocal();
       const local=new Map(locais.map(r=>[r.id,r]));
