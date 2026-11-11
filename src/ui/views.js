@@ -712,7 +712,8 @@ function vMercado(){
   const t=meu();
   const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
   const venc=t.elenco.map(P).filter(p=>p&&p.contrato<=1).length;
-  const abas=`<div class="tabs">${[['central','Central'],['jogadores','Jogadores'],['comissao','Comissão técnica'],
+  const respPed=typeof pedidosReforco==='function'?pedidosReforco().filter(pedidoAtivo).reduce((s,x)=>s+x.respostas.length,0):0;
+  const abas=`<div class="tabs">${[['central','Central'],['jogadores','Jogadores'],['pedidos','Pedidos'+(respPed?' ('+respPed+')':'')],['comissao','Comissão técnica'],
       ['saidas','Saídas'+(pend?' ('+pend+')':'')],
       ['contratos','Contratos'+(venc?' ('+venc+')':'')]]
     .map(([k,n])=>`<button data-merc="${k}" class="${mercAba===k?'on':''}">${n}</button>`).join('')}</div>`;
@@ -732,8 +733,8 @@ function vMercado(){
         ${pend?` ${pend} proposta${pend>1?'s':''} por jogadores seus esperando resposta.`:''}
         Quem não fechar até lá só fecha na próxima janela.</div>`;
     })()}
-    <h2 class="sec">${mercAba==='central'?'Central de transferências':mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':'Scout'}</h2>${abas}${
-    mercAba==='central'?vMercadoCentral(t):mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
+    <h2 class="sec">${mercAba==='central'?'Central de transferências':mercAba==='saidas'?'Negociar saídas':mercAba==='contratos'?'Contratos e pré-contratos':mercAba==='pedidos'?'Pedidos e ofertas':'Scout'}</h2>${abas}${
+    mercAba==='central'?vMercadoCentral(t):mercAba==='pedidos'?vMercadoPedidos(t):mercAba==='comissao'?vMercadoStaff(t):mercAba==='contratos'?vMercadoContratos(t):mercAba==='saidas'?vMercadoSaidas(t):vMercadoJogadores(t)}`;
 }
 /* ---------- saídas: vender e emprestar ----------
    A tela é deliberadamente do lado de cá do balcão: você anuncia, e as
@@ -881,8 +882,7 @@ function vMercadoContratos(t){
     if(negociacaoAtivaDe(p.id))return '<span class="chip t">em negociação</span>';
     return p.contrato<=1?'<span class="dn">vence no fim da temporada</span>':'<span class="dim">—</span>';
   };
-  const ficar=p=>{const it=interesseEmFicar(p,t);
-    return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;};
+  const ficar=p=>chipChanceRenovar(p,t);
   const outros=Object.values(G.jogadores).filter(p=>p.timeId&&p.timeId!==t.id&&p.contrato<=1&&!p.base&&!p.emprestimo)
     .sort((a,b)=>over(b)-over(a)).slice(0,30);
   const aberto=janelaPreContrato();
@@ -890,10 +890,11 @@ function vMercadoContratos(t){
     <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
     pré-contrato com outro clube e sair de graça. Renove antes.</p>
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
-      <th class="c">Vontade de ficar</th><th>Situação</th><th></th></tr></thead>
+      <th>Traço</th><th class="c">Chance de renovar</th><th>Situação</th><th></th></tr></thead>
     <tbody>${meus.map(p=>`<tr><td class="jrow" data-p="${p.id}"><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="c">${ovTag(p)}</td><td class="r num">${money(p.salario)}</td>
-      <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td><td class="c">${ficar(p)}</td>
+      <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td>
+      <td><span class="chip" title="${esc(PERFIS[perfilDe(p)].desc)}">${esc(PERFIS[perfilDe(p)].nome)}</span></td><td class="c">${ficar(p)}</td>
       <td>${situacao(p)}</td>
       <td class="r"><button class="btn ghost sm" data-renov="${p.id}" ${p.preContrato?'disabled':''}>Renovar</button></td></tr>`).join('')}
     </tbody></table></div>
@@ -908,6 +909,35 @@ function vMercadoContratos(t){
       <td>${p.preContrato&&T(p.preContrato.clubeId)?'<span class="chip r">acertado com '+esc(T(p.preContrato.clubeId).tag)+'</span>':'<span class="dim">livre para conversar</span>'}</td>
       <td class="r">${p.preContrato?'':`<button class="btn-ic" data-prop="${p.id}" title="${aberto?'Pré-contrato':'Negociar'}">${ico(aberto?'contrato':'aperto')}<span>${aberto?'Pré-contrato':'Negociar'}</span></button>`}</td></tr>`).join('')}
     </tbody></table></div>`;
+}
+/* Chance de renovar: o número, clicável para o porquê. */
+function chipChanceRenovar(p,t){
+  const ch=chanceDeRenovar(p,t);
+  const cls=ch.pct>=70?'up':ch.pct>=40?'am':'dn';
+  return `<button class="rn-ch ${cls}" data-chrenov="${p.id}" title="Por que ${ch.pct}%?"><b class="num">${ch.pct}%</b>
+    <span class="rn-tr"><i style="width:${ch.pct}%"></i></span></button>`;
+}
+/* O porquê da chance, como o popup de humor do Basketball GM. */
+const RN_GRUPO={momento:'Momento no clube',minutos:'Tempo de jogo',esporte:'Nível e resultados do clube',historia:'Lealdade e história',
+  fama:'Tamanho do clube',lugar:'Região'};
+function modalChanceRenovar(pid){
+  const p=P(pid),t=meu();if(!p||!t)return;
+  const ch=chanceDeRenovar(p,t),pf=PERFIS[perfilDe(p)];
+  const grupos={};
+  for(const i of ch.itens)(grupos[i.tipo]=grupos[i.tipo]||[]).push(i);
+  const linhas=Object.keys(grupos).map(k=>{const soma=grupos[k].reduce((s,i)=>s+(i.pontos||0),0);
+    return `<div class="rn-gr"><div class="split"><b>${esc(RN_GRUPO[k]||k)}</b><b class="num ${soma>0?'up':soma<0?'dn':''}">${soma>0?'+':''}${soma}</b></div>
+      ${grupos[k].map(i=>`<div class="split dim"><span>${esc(i.rot)}</span><span class="num">${i.pontos>0?'+':''}${i.pontos}</span></div>`).join('')}</div>`;}).join('');
+  abrir(`<div class="eyebrow">Chance de renovar</div><h2 class="sec">${esc(p.nome)} · ${ch.pct}%</h2>
+    <p class="dim">Traço <b>${esc(pf.nome)}</b>: ${esc(pf.desc)}</p>
+    ${ch.duras.length?`<div class="card flat" style="border-left:4px solid var(--red);margin-top:10px">${esc(ch.duras.join(' '))}</div>`:''}
+    <div class="rn-lista">${linhas||'<p class="dim">Nada pesa nem a favor nem contra: ele está neutro.</p>'}</div>
+    <p class="dim" style="font-size:12px;margin-top:10px">É a chance de ele aceitar sentar para conversar. Se recusar, só dá para tentar de novo
+      em ${RENOV_RECUSA_ESPERA} semanas — e a chance muda com o momento dele: minutos, vitórias e moral sobem; banco e derrotas descem.
+      O salário que ele pede é outra conversa, na mesa.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="rnAbrir" ${ch.pct?'':'disabled'}>Tentar renovar</button><button class="btn ghost" data-close>Fechar</button></div>`);
+  const b=$('#rnAbrir');if(b)b.onclick=()=>{const r=document.querySelector('[data-renov="'+p.id+'"]');fechar();if(r)r.click();};
 }
 /* termômetro de bolso para a lista do mercado */
 function interesseMini(p,t){

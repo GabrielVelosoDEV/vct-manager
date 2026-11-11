@@ -445,6 +445,7 @@ function mercadoVivo(){
     if(!G.janela)return;
     propostasEspontaneas();
     mercadoNaJanela();
+    if(typeof rondaPedidosReforco==='function'){rondaPedidosReforco();responderOfertas();}
     return;
   }
   rondaPedidosSaida();
@@ -470,4 +471,7 @@ function mercadoVivo(){
   rondaRumores();
   propostasEspontaneas();
   mercadoNaJanela();
+  if(typeof rondaPedidosReforco==='function'){rondaPedidosReforco();responderOfertas();}
+  /* pedidos vencidos saem da lista depois de um tempo */
+  if(G.pedidosReforco)G.pedidosReforco=G.pedidosReforco.filter(x=>_semanaNeg()-x.ate<8).slice(0,8);
 }

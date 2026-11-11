@@ -307,6 +307,40 @@ function pedirTempo(M,ehA,opcao){
   }
   return{ehA,opcao:op.id,rot:op.rot,restam:ehA?M.temposA:M.temposB,rounds:TEMPO_ROUNDS};
 }
+/* ---------- a leitura do analista ----------
+   O que cada opção de tempo mudaria na força do seu time daqui até o fim do
+   mapa, contra a tática em vigor do adversário. Não sorteia nem mexe em
+   nada: lê forcaTime e vantagemTatica com a tática trocada por um instante,
+   do mesmo jeito que o preparo do mapa faz. A mudança vale até o fim do
+   mapa, então o ganho é pesado pelos rounds que ainda faltam em cada lado —
+   jogar travado na defesa cobra no ataque do segundo tempo. */
+function _ladoProximo(M){
+  const r1=M.r+1;
+  return (r1===13||r1>24)?(M.ladoA==='atk'?'def':'atk'):M.ladoA;
+}
+function leituraDoTempo(M,ehA){
+  if(!M||M.fim)return [];
+  const T=ehA?M.A:M.B, O=ehA?M.B:M.A;
+  const ladoA=_ladoProximo(M);
+  const lado=ehA?ladoA:(ladoA==='atk'?'def':'atk'), outro=lado==='atk'?'def':'atk';
+  const minha=Object.assign({},T.tatica,(ehA?M.tatA:M.tatB)||{});
+  const dela=Object.assign({},O.tatica,(ehA?M.tatB:M.tatA)||{});
+  const forca=(tat,ld)=>{const tT=T.tatica,tO=O.tatica;T.tatica=tat;O.tatica=dela;
+    try{return forcaTime(T,M.mapa,ld)+vantagemTatica(T,O);}finally{T.tatica=tT;O.tatica=tO;}};
+  /* rounds que faltam em cada lado (prorrogação: metade de cada) */
+  const r=M.r;
+  const restaEste=r<12?12-r:r<24?24-r:2, restaOutro=r<12?12:r>=24?2:0;
+  const base={a:forca(minha,lado),b:forca(minha,outro)};
+  return TEMPO_OPCOES.filter(o=>o.id!=='acalmar').map(o=>{
+    const mud=o.id==='agressivo'?{agres:clamp((minha.agres||3)+2,1,5)}
+             :o.id==='travado'?{agres:clamp((minha.agres||3)-2,1,5)}:{foco:o.id};
+    const nova=Object.assign({},minha,mud);
+    if(nova.agres===minha.agres&&nova.foco===minha.foco)return{id:o.id,rot:o.rot,ganho:0,agora:0,depois:0,lado};
+    const agora=forca(nova,lado)-base.a, depois=forca(nova,outro)-base.b;
+    const ganho=(agora*restaEste+depois*restaOutro)/Math.max(1,restaEste+restaOutro);
+    return{id:o.id,rot:o.rot,ganho,agora,depois,lado};
+  }).sort((x,y)=>y.ganho-x.ganho);
+}
 /* A comissão pede tempo sozinha quando o time sangra: quatro rounds
    perdidos em sequência. Vale para todo clube que não está sendo conduzido
    por você na tela. É a mesma regra para os dois lados, então não desloca a

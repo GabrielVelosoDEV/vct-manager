@@ -159,6 +159,13 @@ function abrirRenovacao(p,t){
   if(ja&&ja.tipo==='renovacao')return{ok:true,neg:ja};
   const duras=recusasRenovacao(p,t,anosPreferidos(p).faixa[0]);
   if(duras.length)return{ok:false,erro:duras.join(' ')};
+  /* ele precisa topar sentar: a chance que a tela mostra é a de verdade */
+  const ch=typeof chanceDeRenovar==='function'?chanceDeRenovar(p,t):null;
+  if(ch&&t.id===G.meuTime&&sorteRenovacao(p)>=ch.pct){
+    p.renovBloq=_semanaNeg()+RENOV_RECUSA_ESPERA;
+    return{ok:false,recusou:true,erro:p.nome+' não quer conversar sobre renovação agora ('+ch.pct+'% de chance). '+
+      'Melhore o momento dele — minutos, vitórias, moral — e tente de novo em '+RENOV_RECUSA_ESPERA+' semanas.'};
+  }
   const it=interesseEmFicar(p,t);
   const n={tipo:'renovacao',id:'rn'+G.ano+'_'+(_hashTxt(p.id+'|r|'+_semanaNeg()+'|'+negociacoes().length)%1e6).toString(36),
     jogadorId:p.id,origemId:t.id,destinoId:t.id,fase:'jogador',postura:'',

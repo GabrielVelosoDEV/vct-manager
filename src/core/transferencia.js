@@ -77,23 +77,34 @@ function nivelDoClube(t){
    dobro a queda de nível, o mercenário quase não sente, o patriota sofre para
    sair de casa. Sai do nome, então é estável entre saves e não depende da
    base; o Editor pode fixar outro em p.perfil. */
+/* Os nomes seguem os traços do Basketball GM (vitória, dinheiro, lealdade,
+   fama), mais as raízes de quem não quer sair da região. A chave interna
+   continua a antiga, para os saves e o Editor. */
 const PERFIS={
-  ambicioso:  {nome:'Ambicioso', desc:'Quer título. Clube forte vale mais que salário, e clube fraco ele recusa.',
+  ambicioso:  {nome:'Vitória',   desc:'Quer título. Clube forte vale mais que salário, e clube fraco ele recusa.',
                esporte:1.5, lugar:1},
-  mercenario: {nome:'Mercenário',desc:'Vai atrás do maior salário. O projeto pesa pouco, luvas pesam muito.',
+  mercenario: {nome:'Dinheiro',  desc:'Vai atrás do maior salário. O projeto pesa pouco, luvas pesam muito.',
                esporte:0.5, lugar:0.6, premio:1.08, luvas:1.5},
-  leal:       {nome:'Leal',      desc:'Apegado ao clube. Renova mais barato e é difícil de tirar de onde está.',
+  leal:       {nome:'Lealdade',  desc:'Apegado ao clube. Renova mais barato e é difícil de tirar de onde está.',
                esporte:1, lugar:1, saida:1.15, renova:0.93},
-  patriota:   {nome:'Patriota',  desc:'Quer jogar perto de casa. Sair da região custa o dobro.',
+  patriota:   {nome:'Raízes',    desc:'Quer jogar perto de casa. Sair da região custa o dobro.',
                esporte:1, lugar:2},
+  fama:       {nome:'Fama',      desc:'Quer palco: clube de torcida grande e jogar sempre. Banco e clube pequeno ele aceita mal.',
+               esporte:1, lugar:1, palco:true},
   equilibrado:{nome:'Equilibrado',desc:'Pesa tudo na mesma medida.',esporte:1, lugar:1}
 };
+/* O peso do palco para quem tem o traço Fama: torcida grande atrai, pequena afasta. */
+function fatorPalco(t){
+  const porte=typeof porteTorcida==='function'?porteTorcida(t):3;
+  return porte>=4?{rot:'Clube de torcida grande: o palco que ele quer',f:0.94}
+    :porte<=2?{rot:'Clube pequeno para quem quer holofote',f:1.10}:null;
+}
 function _hashTxt(s){let h=2166136261;s=String(s);
   for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function perfilDe(p){
   if(p&&p.perfil&&PERFIS[p.perfil])return p.perfil;
   const r=_hashTxt((p&&p.nome)+'|perfil')%100;
-  return r<20?'ambicioso':r<38?'mercenario':r<52?'leal':r<66?'patriota':'equilibrado';
+  return r<20?'ambicioso':r<38?'mercenario':r<52?'leal':r<66?'patriota':r<83?'fama':'equilibrado';
 }
 /* Temporadas seguidas no clube atual, contadas do histórico. */
 function temporadasNoClube(p){
@@ -229,10 +240,12 @@ function detalharPedido(p,destino,opts){
     f*=juntar('Titularidade prometida em contrato',pos>5?1.03:0.97,'minutos');
   }else if(pos>5){
     f*=juntar('Entraria como reserva ('+pos+'º do elenco)',
-              PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)],'minutos',jovem?1.3:1);
+              PREMIO_BANCO[Math.min(pos,PREMIO_BANCO.length-1)],'minutos',(jovem?1.3:1)*(pf.palco?1.4:1));
   }
   if(origem&&origem.id!==destino.id&&!(origem.titulares||[]).includes(p.id)&&(pos<=5||opts.promessa))
     f*=juntar('Ganharia a vaga de titular que não tem hoje',0.92,'minutos',jovem?1.3:1);
+
+  if(pf.palco){const pa=fatorPalco(destino);if(pa)f*=juntar(pa.rot,pa.f,'fama');}
 
   /* região */
   const pr=premioRegiao(p,destino);

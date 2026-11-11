@@ -87,6 +87,8 @@ function torcidaPosSerie(res,decisiva){
     /* atropelo e virada contam: 2–0 vale mais que 2–1 */
     const margem=(wEu-wEle)/Math.max(1,Math.max(wEu,wEle));
     f.humor=clamp(f.humor+(surpresa*12+margem*4)*peso*amp,0,100);
+    /* o projeto: elenco coerente com o que o clube prometeu acalma, incoerente irrita */
+    if(typeof alinhamentoProjeto==='function'&&t.id===G.meuTime)f.humor=clamp(f.humor+alinhamentoProjeto(t)*2*amp,0,100);
     f.humor+=(HUMOR_NEUTRO-f.humor)*0.05;
     /* o técnico leva a culpa mais devagar, mas leva: sequência ruim pesa */
     f.tecnico=clamp(f.tecnico+(surpresa*9+margem*2)*peso*amp+(f.seq<=-3&&!ganhou?-3*amp:0),0,100);
@@ -184,6 +186,8 @@ function pedidosTorcida(t){
   }
   const mp=mapaQueDoi(t);
   if(mp&&f.humor<60)out.push({tipo:'mapa',txt:'Treina '+mp,peso:25});
+  const pp=typeof pedidoDoProjeto==='function'?pedidoDoProjeto(t):null;
+  if(pp)out.push(pp);
   return out.sort((a,b)=>b.peso-a.peso).slice(0,6);
 }
 function semEspaco(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]/g,'');}
@@ -216,6 +220,19 @@ function alvoDaTorcida(t){
    quem pedem para contratar, {res} reserva, {placar}, {n}.
    ============================================================ */
 const FRASES_TORCIDA={
+  /* o projeto do clube (core/projeto.js) */
+  projetoRuim_jovens:[[0,'Projeto de jovens e o time cheio de veterano. Cadê a coerência?'],[1,'Prometeram revelar talento e escalam tiozão toda semana'],
+    [1,'Tem garoto de potencial no banco e o {coach} insiste nos mesmos'],[2,'Projeto de jovens é o caralho, esse time é um asilo']],
+  projetoBom_jovens:[[0,'Dá gosto ver a molecada jogando. Esse projeto vai longe'],[0,'Time jovem, com fome. É isso que a gente quer'],[1,'A base tá aparecendo, finalmente um projeto de verdade']],
+  projetoRuim_titulos:[[0,'Falaram em título e montaram esse elenco?'],[1,'Projeto de vencer agora com esse time? Contrata alguém, diretoria'],
+    [2,'Prometeram troféu e entregaram esse elenco de merda']],
+  projetoBom_titulos:[[0,'Esse elenco é pra ganhar tudo. Agora é cobrar troféu'],[1,'Time montado pra vencer, sem desculpa esse ano']],
+  projetoRuim_nacional:[[0,'Cadê os jogadores da casa? Era pra ser o nosso time'],[1,'Projeto de identidade e só tem estrangeiro em quadra'],[2,'Que identidade, porra? Nem parece o nosso clube']],
+  projetoBom_nacional:[[0,'Time com a nossa cara. Orgulho de torcer assim'],[0,'Jogador da casa vestindo a camisa, é disso que eu gosto']],
+  projetoRuim_sustentavel:[[0,'Falaram em arrumar as contas e o caixa só desce'],[1,'Gestão de planilha que nem a planilha fecha'],[2,'Projeto sustentável é o caralho, vão quebrar o clube']],
+  projetoBom_sustentavel:[[0,'Clube organizado, contas em dia. O futuro agradece'],[0,'Pode não ser o time mais caro, mas é o mais bem gerido']],
+  projetoRuim_acesso:[[0,'Assim não sobe nunca. Precisa de reforço'],[1,'Projeto de acesso brigando no meio da tabela? Sério?'],[2,'Esse time não sobe nem de elevador']],
+  projetoBom_acesso:[[0,'Tá cheirando a Tier 1! Vamo subir'],[1,'Ninguém segura esse time no Challengers']],
   vitoria:[[0,'VAMOOO {tag}!!! Que time, que time'],[0,'{placar} e com autoridade. Esse é o {tag} que eu conheço'],
     [0,'Ganhou e jogou bonito. Sigam assim'],[0,'Mais uma! O {tag} tá voando'],[0,'Que alívio, que alegria. Obrigado, rapaziada'],
     [1,'ESSE É O {tag} PORRA'],[1,'Chupa {adv}, freguês demais'],[1,'Podem falar o que quiserem, hoje o {tag} amassou'],
@@ -360,6 +377,12 @@ function comentariosTorcida(e,quantos){
   if(h<45)menu.push([alvo?'contrata':'contrataGenerico',1.5]);
   if(reserva&&h<50&&over(reserva)>=menorOverTitular(t)-2)menu.push(['reserva',1]);
   if(odiado&&(f.jog[odiado.id]||0)<=-0.35)menu.push(['fora',1.5,odiado.id]);
+  /* o projeto do clube na boca da torcida */
+  if(typeof alinhamentoProjeto==='function'&&projetoAtivo()&&t.id===G.meuTime){
+    const al=alinhamentoProjeto(t),pid=projetoAtivo().id;
+    if(al<=-0.3)menu.push(['projetoRuim_'+pid,2.2+(-al)]);
+    else if(al>=0.4)menu.push(['projetoBom_'+pid,1.2]);
+  }
   const amado=titulares.find(p=>(f.jog[p.id]||0)>=0.4&&(p.contrato||0)<=1);
   if(amado)menu.push(['renova',1.2,amado.id]);
 
@@ -374,7 +397,7 @@ function comentariosTorcida(e,quantos){
     if(!it)break;
     const lista=FRASES_TORCIDA[it[0]];if(!lista)continue;
     /* o tom da frase: positivo não precisa de raiva para gritar */
-    const positivo=/vitoria|Vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa|classicoPre/.test(it[0])&&!/SemBrilho/.test(it[0]);
+    const positivo=/vitoria|Vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa|classicoPre|projetoBom/.test(it[0])&&!/SemBrilho/.test(it[0]);
     const r=u(40+i);
     const teto=positivo?(r<0.15+fan*0.35?2:1):(r<pNivel2?2:r<pNivel2+pNivel1?1:0);
     const ok=lista.filter(x=>x[0]<=teto);

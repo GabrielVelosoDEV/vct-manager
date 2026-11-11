@@ -924,6 +924,7 @@ function modalVeredito(v){
       ${v.metas.map(x=>`<div class="ver-meta ${x.cumprida===null?'n':x.cumprida?'ok':'no'}">${icMeta(x)}
         <div><b>${esc(x.texto)}</b><div class="dim">${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}${x.resultado?' — '+esc(x.resultado):''}</div></div></div>`).join('')}
     </div>
+    ${typeof vereditoProjetoHTML==='function'?vereditoProjetoHTML(v.projeto):''}
     ${v.demitido?`
       <div class="card" style="margin-top:14px"><div class="eyebrow">Sua carreira continua</div>
         <p class="dim">Clubes dispostos a te contratar agora. Nenhum de topo chama quem

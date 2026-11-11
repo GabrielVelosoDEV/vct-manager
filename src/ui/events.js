@@ -10,6 +10,8 @@ function ligarEventos(){
   if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
   if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
   if(typeof ligarClube==='function'&&t)ligarClube(v,on);
+  if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
+  if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por
@@ -305,6 +307,7 @@ function ligarEventos(){
 
   /* ---------- comissão técnica ---------- */
   on('[data-merc]',el=>{mercAba=el.dataset.merc;render();});
+  on('[data-chrenov]',el=>modalChanceRenovar(el.dataset.chrenov));
   on('[data-ir-merc]',el=>{tela='mercado';mercAba=el.dataset.irMerc;render();window.scrollTo&&window.scrollTo(0,0);});
   on('[data-fichastaff]',el=>modalStaff(el.dataset.fichastaff));
   on('[data-propstaff]',el=>modalPropostaStaff(el.dataset.propstaff));

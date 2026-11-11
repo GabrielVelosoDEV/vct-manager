@@ -171,6 +171,63 @@ function avPedirTempo(opcao){
 }
 
 function avMapaAtual(){return AV.res.mapas[AV.mapaIdx];}
+
+/* ---------- o analista na transmissão ----------
+   Lê o mapa em andamento e diz uma coisa só: a mais útil agora. Quanto
+   melhor o analista, mais cedo ele lê o adversário, mais preciso ele é e
+   mais ele conta (o foco deles, quanto rende a mudança). Analista fraco só
+   fala quando a coisa é gritante. Só existe na partida conduzida, que é
+   onde o tempo pedido muda alguma coisa. */
+const FOCO_NOME={execucao:'execução',default:'default',retake:'retake'};
+function avConselho(){
+  if(!AV||!AV.conduzida||!AV.S||!AV.S.M||AV.fim)return null;
+  const M=AV.S.M, ehA=AV.souA, t=AV.meu;
+  const nivel=(t.staff&&t.staff.analista)||1;
+  const membro=typeof membroDe==='function'?membroDe(t,'analista'):null;
+  const quem=membro?membro.nome:'O analista';
+  const tempos=ehA?M.temposA:M.temposB;
+  const seq=ehA?(M.seqPerdaA||0):(M.seqPerdaB||0);
+  const r=M.r;
+  if(r<1)return{quem,membro,nivel,txt:'Primeiro round: vamos ver como eles chegam no pistol.',id:null};
+  /* 1. o time sangrando: tempo para acalmar */
+  if(seq>=3&&!(ehA?M.bonusA:M.bonusB))
+    return{quem,membro,nivel,txt:'Perdemos '+seq+' seguidos e o time está pilhado. Um tempo para acalmar corta a sequência.',id:'acalmar'};
+  /* 2. a tática: o analista precisa de rounds para ler o adversário */
+  const leitura=r>=Math.max(2,8-nivel)?leituraDoTempo(M,ehA):[];
+  const melhor=leitura[0];
+  const limiar=nivel>=4?0.45:nivel>=3?0.7:1.2;
+  if(melhor&&melhor.ganho>=limiar){
+    const adv=AV.adv, delaFoco=Object.assign({},adv.tatica,(ehA?M.tatB:M.tatA)||{}).foco||'default';
+    const quanto=nivel>=4?' (cerca de +'+melhor.ganho.toFixed(1)+' por round até o fim do mapa)':'';
+    const porque=/^(execucao|default|retake)$/.test(melhor.id)
+      ?(nivel>=3?'Eles estão jogando em '+FOCO_NOME[delaFoco]+'. ':'Eles parecem preparados para o nosso jeito de jogar. ')
+      :melhor.id==='travado'?(melhor.lado==='def'?'Agora é defesa: segurar o ímpeto rende mais aqui. ':'O nosso elenco rende mais esperando o erro deles. ')
+      :(melhor.lado==='atk'?'Agora é ataque: ir para cima rende mais aqui. ':'O nosso elenco tem mira para ganhar duelo. ');
+    return{quem,membro,nivel,txt:porque+'Sugiro: '+melhor.rot.toLowerCase()+quanto+'.',id:melhor.id};
+  }
+  /* 3. sem nada a mudar: uma leitura do mapa */
+  const h=M.hist||[];
+  const meus=h.filter(x=>(ehA?x.v:!x.v));
+  const pist=h.filter(x=>x.pistol);
+  const pistMeu=pist.filter(x=>(ehA?x.v:!x.v)).length;
+  const lado=ehA?M.ladoA:(M.ladoA==='atk'?'def':'atk');
+  const noLado=h.filter(x=>(ehA?x.lado:(x.lado==='atk'?'def':'atk'))===lado);
+  const ganhosLado=noLado.filter(x=>(ehA?x.v:!x.v)).length;
+  const frase=pist.length&&r<=3?(pistMeu?'Pistol nosso: é hora de aproveitar a vantagem de economia.':'Perdemos o pistol: o próximo é de economia, segurem a arma para o terceiro.')
+    :noLado.length>=4?(lado==='atk'?'No ataque: ':'Na defesa: ')+ganhosLado+' de '+noLado.length+' rounds. '+(ganhosLado/noLado.length>=0.5?'O plano está funcionando, sigam assim.':'Está difícil, mas a tática ainda é a melhor que temos.')
+    :'Por enquanto o plano está certo. Sigam assim.';
+  return{quem,membro,nivel,txt:frase,id:null,leve:true};
+}
+function avConselhoHTML(){
+  const c=avConselho();if(!c)return '';
+  const pode=c.id&&avPodePedirTempo();
+  return `<div class="av-analista ${c.leve?'leve':''}">
+    ${c.membro&&typeof retratoStaff==='function'?retratoStaff(c.membro,38):`<span class="av-an-ic">${icone('radar')}</span>`}
+    <div class="av-an-t"><span class="eyebrow">Analista${c.membro?' · '+esc(c.quem):''}</span><span>${esc(c.txt)}</span></div>
+    ${pode?`<button class="btn sm" data-tempo="${c.id}">Pedir tempo: ${esc((TEMPO_OPCOES.find(o=>o.id===c.id)||{}).rot||'')}</button>`
+      :c.id&&!avPodePedirTempo()?'<span class="dim" style="font-size:12px">sem tempo sobrando</span>':''}
+  </div>`;
+}
 /* O botão de tempo só aparece quando ele pode fazer alguma coisa: partida
    sendo conduzida, mapa em andamento, preferência ligada e tempo sobrando. */
 function avPodePedirTempo(){
@@ -345,6 +402,7 @@ function avPintar(fim){
     </div>
     ${trilha}
     ${destaque}
+    ${avConselhoHTML()}
     ${noIntervalo&&AV.mapasFeitos.length?`<div class="av-feed">
       ${AV.mapasFeitos.slice().reverse().map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
         <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}

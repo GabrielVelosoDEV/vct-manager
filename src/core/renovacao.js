@@ -44,7 +44,8 @@ function pedidoRenovacao(p,t,opts){
   if(p.moral<0.45)f*=juntar('Insatisfeito no clube (moral '+Math.round(p.moral*100)+'%)',1.15,'momento');
   else if(p.moral>=0.80)f*=juntar('Feliz no clube',0.95,'momento');
   if(opts.promessa)f*=juntar('Titularidade prometida em contrato',titular?0.98:1.0,'minutos');
-  else if(!titular)f*=juntar('Quer jogar mais do que joga',1.08,'minutos',p.idade<=21?1.3:1);
+  else if(!titular)f*=juntar('Quer jogar mais do que joga',1.08,'minutos',(p.idade<=21?1.3:1)*(pf.palco?1.4:1));
+  if(pf.palco){const pa=fatorPalco(t);if(pa)f*=juntar(pa.rot,pa.f,'fama');}
   /* promessa quebrada pesa por um ano */
   const pq=p.promessaQuebrada;
   if(pq&&((G.ano-pq.ano)*SEMANAS_ANO+((G.semana||1)-pq.semana))<SEMANAS_ANO)
@@ -84,6 +85,23 @@ function interesseEmFicar(p,t,opts){
   const nota=clamp(Math.round(pts),0,100);
   return{nota,faixa:faixaInteresse(nota),itens,perfil:d.perfil};
 }
+/* ---------- chance de renovar ----------
+   A vontade de ficar (0 a 100) vira a chance de ele SENTAR para conversar,
+   como no Basketball GM. Não é enfeite: abrirRenovacao confere contra um
+   número fixo do jogador por meia temporada — melhorar o momento dele
+   (minutos, vitórias, moral) faz a chance subir e a porta abrir. Recusa dura
+   (pré-contrato assinado, banco e infeliz) é zero. */
+const RENOV_CHANCE_MEIO=40, RENOV_CHANCE_ESCALA=8, RENOV_RECUSA_ESPERA=4;
+function chanceDeRenovar(p,t){
+  t=t||G.times[p.timeId];
+  if(!p||!t)return{pct:0,itens:[],perfil:'equilibrado',duras:[]};
+  const it=interesseEmFicar(p,t);
+  const duras=recusasRenovacao(p,t,anosPreferidos(p).faixa[0]).filter(x=>!/encerrou a conversa/.test(x));
+  const pct=duras.length?0:clamp(Math.round(100/(1+Math.exp(-(it.nota-RENOV_CHANCE_MEIO)/RENOV_CHANCE_ESCALA))),2,99);
+  return{pct,nota:it.nota,itens:it.itens,perfil:it.perfil,duras};
+}
+/* o número fixo de cada jogador na meia temporada (sem gastar o gerador) */
+function sorteRenovacao(p){return _hashTxt(p.id+'|renova|'+G.ano+'|'+((G.semana||1)<=26?1:2))%100;}
 /* O pedido para uma duração específica: cada ano fora do que ele quer custa. */
 function pedidoParaAnos(d,anos){
   const fora=anos<d.anos[0]?d.anos[0]-anos:anos>d.anos[1]?anos-d.anos[1]:0;

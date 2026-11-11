@@ -268,6 +268,8 @@ function vInicio(){
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
   ${typeof cardColetiva==='function'?cardColetiva():''}
+  ${typeof cardDesafio==='function'?cardDesafio():''}
+  ${typeof cardProjeto==='function'?cardProjeto(t):''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">
       <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();

@@ -258,6 +258,22 @@ function fimDeTemporada(){
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
     G.vereditoPendente=avaliarTemporada();
+  /* o projeto de três temporadas: balanço do ano e, no último, o veredito do
+     ciclo. Mexe na mesma confiança, então o veredito mostra a soma. */
+  if(typeof avaliarProjeto==='function'&&G.meuTime&&!(G.manager&&G.manager.demitido)){
+    const pr=avaliarProjeto();
+    if(pr){
+      G.projetoBalanco=pr;
+      const v=G.vereditoPendente;
+      if(v&&!v.demitido){
+        v.projeto=pr;v.delta+=pr.delta;v.confianca=G.manager.confianca;
+        if(G.manager.confianca<=CONF_MIN){demitirManager(G.times[G.meuTime]);v.demitido=true;}
+        else v.avisado=G.manager.confianca<=CONF_PISO_DEMISSAO;
+      }
+    }
+  }
+  /* cenário de desafio: se decide nesta virada? */
+  if(typeof avaliarDesafio==='function'&&G.desafio)avaliarDesafio();
   /* aporte dos donos e compras de vaga, com a temporada já avaliada e antes
      de o patrocínio do ano novo ser recalculado (core/organizacoes.js) */
   if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();

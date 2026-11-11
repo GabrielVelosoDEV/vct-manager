@@ -2,6 +2,8 @@
    NOVO JOGO
    ============================================================ */
 let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
+/* modo: carreira normal, ou um cenário de desafio (core/desafios.js) */
+let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
 let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
@@ -42,7 +44,11 @@ function telaNovoJogo(){
     $('#njValidar').onclick=()=>{edAba='validar';$('#modal').innerHTML='';modo='menu';telaMenu='banco';render();};
     return;
   }
-  const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].slice().sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
+  const cen=escCenario&&typeof desafioDef==='function'?desafioDef(escCenario):null;
+  /* o cenário escolhe a divisão quando só faz sentido numa */
+  if(cen&&G){const ok=tr=>G.regioes[escRegiao][tr===1?'t1':'t2'].some(id=>cen.filtro(T(id)));
+    if(!ok(escTier)&&ok(escTier===1?2:1))escTier=escTier===1?2:1;}
+  const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].filter(id=>!cen||cen.filtro(T(id))).sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
   /* clube em destaque na prévia: o escolhido, se ainda estiver na lista, ou o primeiro */
   const sel=times.includes(escSel)?escSel:times[0];
   const selT=sel?T(sel):null;
@@ -85,6 +91,14 @@ function telaNovoJogo(){
     <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:16px">Modo de jogo</div>
+    <div class="nj-papeis">
+      <button class="nj-papel ${!escCenario?'on':''}" data-cenario=""><b>Carreira</b><span>Escolha qualquer clube e escreva a sua história.</span></button>
+      <button class="nj-papel ${escCenario?'on':''}" data-cenario="${escCenario||DESAFIOS[0].id}"><b>Cenário de desafio</b><span>Um começo difícil, com objetivo e prazo. A carreira continua depois.</span></button>
+    </div>
+    ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
+        <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
+        <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}
     <h2 class="sec" style="margin-top:18px">Escolha seu clube</h2>
     <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
@@ -124,6 +138,7 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-cenario]').forEach(b=>b.onclick=()=>{guardaNome();escCenario=b.dataset.cenario||null;escSel=null;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-njsel]').forEach(b=>b.onclick=()=>{guardaNome();escSel=b.dataset.njsel;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{guardaNome();escTier=+b.dataset.tr;telaNovoJogo();});
@@ -137,6 +152,7 @@ function telaNovoJogo(){
     criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     iniciarBase(T(G.meuTime));
+    if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
