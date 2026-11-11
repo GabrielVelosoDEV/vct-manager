@@ -3198,6 +3198,33 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .tc-ap-rot.tc-fora{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent)}
 .tc-ap-rot.tc-idolo,.tc-ap-rot.tc-renova{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 40%,transparent)}
 
+/* ---------- clássico ---------- */
+.cl-selo{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#FFB347;border:1px solid rgba(255,140,40,.55);background:linear-gradient(90deg,rgba(255,90,30,.22),rgba(255,170,60,.08));
+  padding:3px 9px;white-space:nowrap}
+.cl-selo svg{width:14px;height:14px;color:#FF7A2E}
+.cl-selo.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.45);background:rgba(242,196,107,.08)}
+.cl-selo.cl-nacional svg{color:#F2C46B}
+.cl-selo.cl-rival{color:var(--tx2);border-color:var(--line2);background:var(--bg2)}
+.cl-selo.cl-rival svg{color:var(--red)}
+.cl-selo.cl-gd{font-size:12.5px;padding:5px 12px}
+.cl-selo.cl-gd svg{width:17px;height:17px}
+.cl-selo.cl-grande{animation:clPulso 2.4s ease-in-out infinite}
+@keyframes clPulso{0%,100%{box-shadow:0 0 0 rgba(255,110,40,0)}50%{box-shadow:0 0 18px rgba(255,110,40,.45)}}
+@media (prefers-reduced-motion:reduce){.cl-selo.cl-grande{animation:none}}
+.cx-classico{box-shadow:inset 0 0 0 1px rgba(255,130,40,.55),0 0 26px rgba(255,100,30,.16)}
+.cx-classico-faixa{margin:8px 0 2px}
+.sr-classico{margin:6px 0 2px;display:flex;justify-content:center}
+.av-numeros .cl-selo{margin:0 auto 4px}
+.ff-meio .cl-selo{margin-bottom:6px}
+.partida.classico{box-shadow:inset 0 0 0 1px rgba(255,130,40,.45)}
+.pt-classico{display:flex;justify-content:center;margin-top:8px}
+.bk-classico{position:absolute;right:-9px;top:-9px;width:18px;height:18px;display:grid;place-items:center;background:var(--bg);
+  border:1px solid rgba(255,130,40,.6);border-radius:50%;color:#FF7A2E}
+.bk-classico svg{width:11px;height:11px}
+.bk-classico.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.5)}
+.bk-classico.cl-rival{color:var(--red);border-color:var(--line2)}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -10694,9 +10721,15 @@ function passoRound(M){
   M.r++;
   const r=M.r;
   if(r===13)M.ladoA=M.ladoA==='atk'?'def':'atk';
-  if(r>24&&(r-25)%2===0)M.ladoA=M.ladoA==='atk'?'def':'atk';
+  /* Prorrogação (12–12): os lados trocam a CADA round, e ninguém joga de
+     pistola — cada jogador recebe créditos fixos e o time entra armado até o
+     fim. Antes os rounds 25, 27, 29… eram tratados como pistol: a tática de
+     pistol pesava neles e a economia sumia da conta. */
+  const prorrogacao=r>24;
+  if(prorrogacao)M.ladoA=M.ladoA==='atk'?'def':'atk';
+  if(prorrogacao){M.ecoA=2;M.ecoB=2;}
   const ladoA=M.ladoA, ladoB=ladoA==='atk'?'def':'atk';
-  const pistol=(r===1||r===13||(r>24&&(r-25)%2===0));
+  const pistol=(r===1||r===13);
   let dif=M.fA[ladoA]-M.fB[ladoB]+M.diaA-M.diaB;
   const ecoAntesA=M.ecoA, ecoAntesB=M.ecoB;
   if(!pistol)dif+=(M.ecoA-M.ecoB)*2.0;
@@ -11940,7 +11973,9 @@ function torcidaPosSerie(res,decisiva){
     const fan=fanatismoDe(t);
     const ganhou=res.vencedor===t.id;
     const esp=expectativaTorcida(ovEu,ovEle);
-    const peso=(decisiva?1.5:1)*(res.bo>=5?1.2:1);
+    const cl=typeof classicoEntre==='function'?classicoEntre(t,adv):null;
+    /* clássico vale dobrado na arquibancada: ganhar enlouquece, perder dói */
+    const peso=(decisiva?1.5:1)*(res.bo>=5?1.2:1)*(cl?1+cl.nota*0.6:1);
     const amp=0.6+fan*0.8;
     const surpresa=(ganhou?1:0)-esp;
     const antes={humor:f.humor,tecnico:f.tecnico,seq:f.seq};
@@ -11969,7 +12004,7 @@ function torcidaPosSerie(res,decisiva){
     }
     /* quem saiu do clube sai da boca da torcida */
     for(const id in f.jog)if(!(t.elenco||[]).includes(id))delete f.jog[id];
-    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva});
+    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
   }
 }
 
@@ -11988,7 +12023,7 @@ function registrarConversa(t,adv,res,x){
     if(!melhor||d>melhor.d)melhor={mapa:m.mapa,d};
   }
   const base={t:t.id,adv:adv.id,ano:G.ano,s:G.semana,evento:(res.ctx&&res.ctx.nome)||'',bo:res.bo,
-    esp:Math.round(x.esp*100)/100,decisiva:!!x.decisiva};
+    esp:Math.round(x.esp*100)/100,decisiva:!!x.decisiva,classico:x.classico||null};
   const id=(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-'+((G.torcidaFeed.length||0)%97);
   const pos=Object.assign({},base,{id:id+'-pos',fase:'pos',venceu:x.ganhou,eu:x.wEu,ele:x.wEle,
     humor:Math.round(f.humor),humorAntes:Math.round(x.antes.humor),tecnico:Math.round(f.tecnico),seq:f.seq,
@@ -12115,6 +12150,12 @@ const FRASES_TORCIDA={
   renova:[[0,'Renova com o {p} AGORA'],[0,'Não deixa o {p} sair de graça, diretoria'],[1,'Se o {p} sair eu rasgo minha camisa']],
   iglBom:[[0,'Calls do {p} hoje foram perfeitas'],[0,'{p} lendo o jogo como ninguém'],[1,'IGL DIFERENCIADO, {p} MONSTRO']],
   iglRuim:[[0,'O {p} precisa repensar as calls'],[1,'IGL perdido. {p} não sabe o que pede'],[2,'{p} chamando strat de olho fechado, que porra é essa']],
+  classicoVitoria:[[0,'CLÁSSICO É NOSSO!!! {adv} freguês'],[0,'Ganhar o {classico} tem outro gosto'],[1,'Chora, torcida do {adv} kkkkkk'],
+    [1,'Quem manda nesse país é o {tag}, acostumem'],[2,'Calamos a boca do {adv}, porra!'],[0,'Semana inteira zoando os amigos do {adv} 😂']],
+  classicoDerrota:[[0,'Perder clássico é o pior que tem'],[1,'Vou ter que aguentar a zoeira do {adv} a semana inteira'],
+    [1,'Perder pro {adv}?? Em clássico??'],[2,'Perder clássico pro {adv} é inadmissível, porra'],[2,'Que vergonha do caralho, perder o {classico}']],
+  classicoPre:[[0,'É {classico}! Não é jogo normal'],[0,'Clássico é clássico. Vale mais que três jogos'],[1,'Hoje não pode perder pro {adv} de jeito nenhum'],
+    [1,'Semana de clássico, já tô sem dormir'],[2,'Se perder pro {adv} hoje eu quebro tudo, porra'],[0,'Torcida do {adv} tá muito confiante, vamos calar']],
   seqBoa:[[0,'{n} vitórias seguidas, que fase'],[0,'Ninguém para o {tag}. {n} seguidas'],[1,'{n} SEGUIDAS, TREME LIGA']],
   seqRuim:[[0,'{n} derrotas seguidas. Preocupante'],[1,'{n} derrotas seguidas e ninguém fala nada?'],[2,'{n} seguidas, que fase de merda']],
   /* antes do jogo */
@@ -12179,7 +12220,7 @@ function comentariosTorcida(e,quantos){
   const odiado=titulares.slice().sort((a,b)=>(f.jog[a.id]||0)-(f.jog[b.id]||0))[0]||null;
   const igl=titulares.find(p=>p.igl)||null;
   const alvo=e.humor<45?alvoDaTorcida(t):null;
-  const v={tag:t.tag,adv:adv?adv.tag:'adversário',coach,placar:e.eu!=null?e.eu+'–'+e.ele:'',
+  const v={tag:t.tag,adv:adv?adv.tag:'adversário',coach,classico:e.classico?e.classico.toLowerCase():'clássico',placar:e.eu!=null?e.eu+'–'+e.ele:'',
     res:reserva?reserva.nome:null,alvo:alvo?alvo.nome:null,mapa:e.mapaPior||null,n:Math.abs(e.seq||0)};
   /* o cardápio da conversa: [chave da lista, peso, jogador] */
   const menu=[];
@@ -12192,6 +12233,7 @@ function comentariosTorcida(e,quantos){
     }else{
       menu.push([vexame?'vexame':honra?'derrotaHonrosa':'derrota',5]);
     }
+    if(e.classico)menu.push([e.venceu?'classicoVitoria':'classicoDerrota',6]);
     if(e.mvp||e.melhor)menu.push(['craque',e.venceu?3:1.5,e.mvp||e.melhor]);
     if(e.pior&&!e.venceu)menu.push(['pior',3,e.pior]);
     if(e.pior&&e.venceu&&h<50)menu.push(['pior',1,e.pior]);
@@ -12203,6 +12245,7 @@ function comentariosTorcida(e,quantos){
     if(e.seq<=-3)menu.push(['seqRuim',2.5]);
   }else{
     menu.push([h>=58?'preHype':h<=42?'preMedo':(u(90)<0.5?'preHype':'preMedo'),5]);
+    if(e.classico)menu.push(['classicoPre',6]);
     if(adv)menu.push([e.esp>0.62?'preFavorito':'preAdv',3]);
     if(reserva&&odiado&&(f.jog[odiado.id]||0)<-0.2)menu.push(['prePedido',2,odiado.id]);
   }
@@ -12226,7 +12269,7 @@ function comentariosTorcida(e,quantos){
     if(!it)break;
     const lista=FRASES_TORCIDA[it[0]];if(!lista)continue;
     /* o tom da frase: positivo não precisa de raiva para gritar */
-    const positivo=/vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa/.test(it[0])&&!/SemBrilho/.test(it[0]);
+    const positivo=/vitoria|Vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa|classicoPre/.test(it[0])&&!/SemBrilho/.test(it[0]);
     const r=u(40+i);
     const teto=positivo?(r<0.15+fan*0.35?2:1):(r<pNivel2?2:r<pNivel2+pNivel1?1:0);
     const ok=lista.filter(x=>x[0]<=teto);
@@ -12260,7 +12303,8 @@ function conversaPreJogo(t,adv,evento){
   const ovEu=overMedioDe(t.titulares||[]),ovEle=overMedioDe(adv.titulares||[]);
   return{id:(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-prox',t:t.id,adv:adv.id,fase:'pre',ano:G.ano,s:G.semana,
     evento:evento||'',esp:Math.round(expectativaTorcida(ovEu,ovEle)*100)/100,
-    humor:Math.round(f.humor),tecnico:Math.round(f.tecnico),seq:f.seq};
+    humor:Math.round(f.humor),tecnico:Math.round(f.tecnico),seq:f.seq,
+    classico:(typeof classicoEntre==='function'&&(classicoEntre(t,adv)||{}).nome)||null};
 }
 
 /* ---------- a torcida no tamanho e no prestígio ----------
@@ -15456,11 +15500,46 @@ function notaRivalidade(t,c){
    clássico da liga mexe muito. A torcida é o que leva isso ao patrocínio
    (atratividade em economia.js). Nada sorteia. */
 const RIV_CLASSICO=0.28;   /* a mesma régua de rivaisDe */
+/* ---------- clássico nacional ----------
+   Dois clubes do mesmo país sempre fazem clássico: LOUD x FURIA, KC x
+   Gentle Mates, ZETA x DFM. A rivalidade de confronto (acima) continua
+   valendo para quem não é vizinho de país, e soma quando é.
+
+   Em liga onde o país é quase todo mundo (a China inteira, metade das
+   Américas é dos EUA) todo jogo seria clássico e a palavra perderia o
+   sentido: ali só conta o encontro de dois grandes (porte de torcida 4 ou 5,
+   data/torcidas.js) ou de rivais de confronto. */
+const ADJ_PAIS={BR:'brasileiro',US:'norte-americano',CA:'canadense',MX:'mexicano',AR:'argentino',CL:'chileno',CO:'colombiano',PE:'peruano',
+  KR:'coreano',JP:'japonês',CN:'chinês',TR:'turco',FR:'francês',ES:'espanhol',GB:'britânico',DE:'alemão',IT:'italiano',PT:'português',
+  RU:'russo',UA:'ucraniano',RS:'sérvio',PL:'polonês',SE:'sueco',DK:'dinamarquês',FI:'finlandês',NL:'holandês',
+  IN:'indiano',TH:'tailandês',PH:'filipino',ID:'indonésio',SG:'singapurense',MY:'malaio',VN:'vietnamita',AU:'australiano',TW:'taiwanês',HK:'de Hong Kong'};
+const CLASSICO_PAIS_DOMINANTE=0.4;
+function _paisClube(t){return typeof paisDoClube==='function'?paisDoClube(t):(t&&t.pais)||null;}
+function _porte(t){return typeof porteTorcida==='function'?porteTorcida(t):3;}
+function classicoEntre(a,b){
+  if(!a||!b||a.id===b.id)return null;
+  const riv=notaRivalidade(a,{...confronto(a.id,b.id),time:b});
+  const pa=_paisClube(a),pb=_paisClube(b);
+  if(pa&&pa===pb){
+    const liga=Object.values(G.times).filter(t=>t.regiao===a.regiao&&t.tier===a.tier);
+    const share=liga.length?liga.filter(t=>_paisClube(t)===pa).length/liga.length:0;
+    const grandes=_porte(a)>=4&&_porte(b)>=4;
+    const grande=grandes||riv>0.5;
+    if(share<=CLASSICO_PAIS_DOMINANTE||grandes||riv>RIV_CLASSICO){
+      const adj=ADJ_PAIS[pa]||'nacional';
+      return{tipo:grande?'grande':'nacional',pais:pa,nome:(grande?'Grande clássico ':'Clássico ')+adj,
+             nota:Math.max(riv,grande?0.55:0.38)};
+    }
+  }
+  if(riv>RIV_CLASSICO)return{tipo:'rival',pais:null,nome:riv>0.5?'Grande rivalidade':'Rivalidade',nota:riv};
+  return null;
+}
 function aplicarClassico(vencedorId,perdedorId){
   const V=G.times[vencedorId],P=G.times[perdedorId];
   if(!V||!P)return null;
-  const nota=notaRivalidade(V,{...confronto(V.id,P.id),time:P});
-  if(nota<=RIV_CLASSICO)return null;
+  const cl=classicoEntre(V,P);
+  if(!cl)return null;
+  const nota=cl.nota;
   const k=Math.min(1.6,nota/0.5);
   const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
     if(p)p.moral=clamp(p.moral+dm,0.15,1);});
@@ -15473,9 +15552,9 @@ function aplicarClassico(vencedorId,perdedorId){
   if(typeof V.torcida==='number')V.torcida=clamp(V.torcida+Math.round(2*k),piso(V),teto);
   if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
   if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
-    noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
+    noticia('🔥 '+cl.nome+': '+V.nome+' venceu '+P.nome+'. '+
       (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'),{c:'competicoes',t:[V.id,P.id],imp:2});
-  return{nota,k};
+  return{nota,k,nome:cl.nome};
 }
 function rivaisDe(id,quantos){
   const t=G.times[id];if(!t)return[];
@@ -23613,9 +23692,11 @@ function cardConfronto(t,px){
   const deles=typeof leituraPreparo==='function'?leituraPreparo(adv,nv).slice(0,2):[];
   const meus=mapasFortesMeus(t,2);
   const h2h=typeof confronto==='function'?confronto(t.id,adv.id):null;
-  return `<div class="card cx-prox cx-vs" ${sede?`style="${fundoCidade(sede.slug,0.74)}"`:''}>
+  const selo=typeof seloClassico==='function'?seloClassico(t,adv,{grande:true}):'';
+  return `<div class="card cx-prox cx-vs${selo?' cx-classico':''}" ${sede?`style="${fundoCidade(sede.slug,0.74)}"`:''}>
     <div class="split"><div class="eyebrow">Próximo jogo · ${esc(nomeStage(s))}</div>
       <span class="chip">MD${s.bo}</span></div>
+    ${selo?`<div class="cx-classico-faixa">${selo}</div>`:''}
     <div class="vs-linha">
       ${ladoConfronto(t,'você')}
       <div class="vs-meio"><span class="vs-vs">VS</span>
@@ -24350,6 +24431,15 @@ function abaTorcidaHTML(){
 }
 function ligarTorcida(raiz){
   (raiz||document).querySelectorAll('.tc-ped[data-p],.tc-ap[data-p]').forEach(b=>b.onclick=()=>modalJogador(b.dataset.p));
+}
+
+/* ---------- clássico (core/legado.js decide; aqui só o selo) ---------- */
+function classicoDe(a,b){return typeof classicoEntre==='function'&&a&&b?classicoEntre(a,b):null;}
+function seloClassico(a,b,opc){
+  const c=classicoDe(a,b);
+  if(!c)return '';
+  opc=opc||{};
+  return `<span class="cl-selo cl-${c.tipo}${opc.grande?' cl-gd':''}" title="${esc(c.nome)}: vale mais para o vestiário e para a torcida">${ico('fogo')}<span>${esc(c.nome)}</span></span>`;
 }
 
 
@@ -27158,13 +27248,15 @@ function cartaoPartida(s,r,t){
       <b>${esc(mp.m)}</b><span><i class="${mp.a>mp.b?'w':''}">${mp.a}</i>–<i class="${mp.b>mp.a?'w':''}">${mp.b}</i></span></span>`).join('')
     ||(r.mapa?`<span class="dim">${esc(r.mapa)}</span>`:'');
   const meu=t&&(r.a===t.id||r.b===t.id);
-  return `<button class="partida ${meu?'me':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
+  const selo=typeof seloClassico==='function'?seloClassico(A,B):'';
+  return `<button class="partida ${meu?'me':''}${selo?' classico':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
     <div class="pt-lados">
       <div class="pt-time ${vA?'w':'l'}">${escudo(A,40)}<b>${esc(A?A.tag:'—')}</b><span>${esc(A?A.nome:'')}</span></div>
       <div class="pt-placar"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
       <div class="pt-time ${vA?'l':'w'}">${escudo(B,40)}<b>${esc(B?B.tag:'—')}</b><span>${esc(B?B.nome:'')}</span></div>
     </div>
     <div class="pt-mapas">${mapas}</div>
+    ${selo?`<div class="pt-classico">${selo}</div>`:''}
   </button>`;
 }
 function jogosDoEvento(e){
@@ -27834,6 +27926,8 @@ function chaveDesenhada(s,opc){
       style="left:${p.x}px;top:${p.y}px"${abre}${titulo}>
       ${linhaTime(J.ta,wa,r&&r.v===J.ta,fim)}${linhaTime(J.tb,wb,r&&r.v===J.tb,fim)}
       ${J.prox?'<span class="bk-agora">a jogar</span>':''}
+      ${(()=>{const c=J.ta&&J.tb&&typeof classicoDe==='function'?classicoDe(G.times[J.ta],G.times[J.tb]):null;
+        return c?`<span class="bk-classico cl-${c.tipo}" title="${esc(c.nome)}">${ico('fogo')}</span>`:'';})()}
       ${R.fase==='gf'?'<span class="bk-md">MD5</span>':''}
       ${drop&&!opc.compacta?`<span class="bk-drop">perdedor → ${esc(drop)}</span>`:''}
     </div>`);
@@ -28701,6 +28795,7 @@ function modalPartida(res){
   abrir(`<div class="sr sr-minha ${venceu?'venceu':'perdeu'}">
     <div class="sr-cabeca">
       <div class="eyebrow">${esc((res.ctx&&res.ctx.nome)||'Partida')} · MD${res.bo}</div>
+      ${typeof seloClassico==='function'?`<div class="sr-classico">${seloClassico(A,B,{grande:true})}</div>`:''}
       <div class="sr-faixa">${venceu?'Vitória':'Derrota'}</div>
       <div class="sr-topo">
         <div class="sr-time ${venceu?'w':'l'}" style="--clube:${corDoClube(A)}">${escudo(A,72)}<div><b>${esc(A.nome)}</b><span class="dim">${esc(A.tag)}</span></div></div>
@@ -30261,7 +30356,7 @@ function ppRelatorioHTML(){
       <div class="rel-pal">${m.palavra?esc(m.palavra):'sem leitura'}</div>
       <div class="rel-comp">${m.comp?m.comp.map(c=>`<span title="${esc(c.nome)} · ${esc(c.ag)}">${retratoAgente(c.ag,30)}${c.nivel!==null?`<i class="num">${c.nivel}</i>`:''}</span>`).join('')
         :'<span class="dim">comp desconhecida</span>'}</div></div>`).join('');
-  const meio=`<span class="eyebrow">Relatório de scouting</span><b class="ff-vs">VS</b>
+  const meio=`${typeof seloClassico==='function'?seloClassico(meuT,advT,{grande:true}):''}<span class="eyebrow">Relatório de scouting</span><b class="ff-vs">VS</b>
     <span class="ff-sub">${esc(nomeStage(PP.comp.stage))} · MD${PP.comp.bo}</span>${estrelas}
     <span class="ff-sub dim">analista ${(meuT.staff.analista||1).toFixed(1)} · olheiro ${(meuT.staff.olheiro||1).toFixed(1)}</span>`;
   return `<div class="dj" ${ppCores()}>
@@ -30699,6 +30794,7 @@ function avPintar(fim){
         ${chipLado(meuLado)}</div>
       </div>
       <div class="av-numeros">
+        ${typeof seloClassico==='function'?seloClassico(AV.meu,AV.adv):''}
         <div class="av-mapanome">${fim?'Série encerrada':esc(mapa.mapa||'—')}</div>
         ${fim?`<div class="av-rounds"><span class="${mapasMeu>mapasDel?'up':''}">${mapasMeu}</span>
           <i>:</i><span class="${mapasDel>mapasMeu?'dn':''}">${mapasDel}</span></div>`

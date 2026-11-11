@@ -333,9 +333,15 @@ function passoRound(M){
   M.r++;
   const r=M.r;
   if(r===13)M.ladoA=M.ladoA==='atk'?'def':'atk';
-  if(r>24&&(r-25)%2===0)M.ladoA=M.ladoA==='atk'?'def':'atk';
+  /* Prorrogação (12–12): os lados trocam a CADA round, e ninguém joga de
+     pistola — cada jogador recebe créditos fixos e o time entra armado até o
+     fim. Antes os rounds 25, 27, 29… eram tratados como pistol: a tática de
+     pistol pesava neles e a economia sumia da conta. */
+  const prorrogacao=r>24;
+  if(prorrogacao)M.ladoA=M.ladoA==='atk'?'def':'atk';
+  if(prorrogacao){M.ecoA=2;M.ecoB=2;}
   const ladoA=M.ladoA, ladoB=ladoA==='atk'?'def':'atk';
-  const pistol=(r===1||r===13||(r>24&&(r-25)%2===0));
+  const pistol=(r===1||r===13);
   let dif=M.fA[ladoA]-M.fB[ladoB]+M.diaA-M.diaB;
   const ecoAntesA=M.ecoA, ecoAntesB=M.ecoB;
   if(!pistol)dif+=(M.ecoA-M.ecoB)*2.0;

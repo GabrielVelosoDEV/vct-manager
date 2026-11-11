@@ -125,9 +125,11 @@ function cardConfronto(t,px){
   const deles=typeof leituraPreparo==='function'?leituraPreparo(adv,nv).slice(0,2):[];
   const meus=mapasFortesMeus(t,2);
   const h2h=typeof confronto==='function'?confronto(t.id,adv.id):null;
-  return `<div class="card cx-prox cx-vs" ${sede?`style="${fundoCidade(sede.slug,0.74)}"`:''}>
+  const selo=typeof seloClassico==='function'?seloClassico(t,adv,{grande:true}):'';
+  return `<div class="card cx-prox cx-vs${selo?' cx-classico':''}" ${sede?`style="${fundoCidade(sede.slug,0.74)}"`:''}>
     <div class="split"><div class="eyebrow">Próximo jogo · ${esc(nomeStage(s))}</div>
       <span class="chip">MD${s.bo}</span></div>
+    ${selo?`<div class="cx-classico-faixa">${selo}</div>`:''}
     <div class="vs-linha">
       ${ladoConfronto(t,'você')}
       <div class="vs-meio"><span class="vs-vs">VS</span>

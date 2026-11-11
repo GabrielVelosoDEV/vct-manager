@@ -282,6 +282,7 @@ function avPintar(fim){
         ${chipLado(meuLado)}</div>
       </div>
       <div class="av-numeros">
+        ${typeof seloClassico==='function'?seloClassico(AV.meu,AV.adv):''}
         <div class="av-mapanome">${fim?'Série encerrada':esc(mapa.mapa||'—')}</div>
         ${fim?`<div class="av-rounds"><span class="${mapasMeu>mapasDel?'up':''}">${mapasMeu}</span>
           <i>:</i><span class="${mapasDel>mapasMeu?'dn':''}">${mapasDel}</span></div>`

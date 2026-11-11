@@ -200,13 +200,15 @@ function cartaoPartida(s,r,t){
       <b>${esc(mp.m)}</b><span><i class="${mp.a>mp.b?'w':''}">${mp.a}</i>–<i class="${mp.b>mp.a?'w':''}">${mp.b}</i></span></span>`).join('')
     ||(r.mapa?`<span class="dim">${esc(r.mapa)}</span>`:'');
   const meu=t&&(r.a===t.id||r.b===t.id);
-  return `<button class="partida ${meu?'me':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
+  const selo=typeof seloClassico==='function'?seloClassico(A,B):'';
+  return `<button class="partida ${meu?'me':''}${selo?' classico':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
     <div class="pt-lados">
       <div class="pt-time ${vA?'w':'l'}">${escudo(A,40)}<b>${esc(A?A.tag:'—')}</b><span>${esc(A?A.nome:'')}</span></div>
       <div class="pt-placar"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
       <div class="pt-time ${vA?'l':'w'}">${escudo(B,40)}<b>${esc(B?B.tag:'—')}</b><span>${esc(B?B.nome:'')}</span></div>
     </div>
     <div class="pt-mapas">${mapas}</div>
+    ${selo?`<div class="pt-classico">${selo}</div>`:''}
   </button>`;
 }
 function jogosDoEvento(e){

@@ -124,3 +124,12 @@ function abaTorcidaHTML(){
 function ligarTorcida(raiz){
   (raiz||document).querySelectorAll('.tc-ped[data-p],.tc-ap[data-p]').forEach(b=>b.onclick=()=>modalJogador(b.dataset.p));
 }
+
+/* ---------- clássico (core/legado.js decide; aqui só o selo) ---------- */
+function classicoDe(a,b){return typeof classicoEntre==='function'&&a&&b?classicoEntre(a,b):null;}
+function seloClassico(a,b,opc){
+  const c=classicoDe(a,b);
+  if(!c)return '';
+  opc=opc||{};
+  return `<span class="cl-selo cl-${c.tipo}${opc.grande?' cl-gd':''}" title="${esc(c.nome)}: vale mais para o vestiário e para a torcida">${ico('fogo')}<span>${esc(c.nome)}</span></span>`;
+}

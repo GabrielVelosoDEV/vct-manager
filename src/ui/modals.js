@@ -421,6 +421,7 @@ function modalPartida(res){
   abrir(`<div class="sr sr-minha ${venceu?'venceu':'perdeu'}">
     <div class="sr-cabeca">
       <div class="eyebrow">${esc((res.ctx&&res.ctx.nome)||'Partida')} · MD${res.bo}</div>
+      ${typeof seloClassico==='function'?`<div class="sr-classico">${seloClassico(A,B,{grande:true})}</div>`:''}
       <div class="sr-faixa">${venceu?'Vitória':'Derrota'}</div>
       <div class="sr-topo">
         <div class="sr-time ${venceu?'w':'l'}" style="--clube:${corDoClube(A)}">${escudo(A,72)}<div><b>${esc(A.nome)}</b><span class="dim">${esc(A.tag)}</span></div></div>

@@ -3163,3 +3163,30 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .tc-ap-rot{font-size:10.5px;padding:0 5px;border:1px solid var(--line2);color:var(--tx2);white-space:nowrap}
 .tc-ap-rot.tc-fora{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent)}
 .tc-ap-rot.tc-idolo,.tc-ap-rot.tc-renova{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 40%,transparent)}
+
+/* ---------- clássico ---------- */
+.cl-selo{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#FFB347;border:1px solid rgba(255,140,40,.55);background:linear-gradient(90deg,rgba(255,90,30,.22),rgba(255,170,60,.08));
+  padding:3px 9px;white-space:nowrap}
+.cl-selo svg{width:14px;height:14px;color:#FF7A2E}
+.cl-selo.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.45);background:rgba(242,196,107,.08)}
+.cl-selo.cl-nacional svg{color:#F2C46B}
+.cl-selo.cl-rival{color:var(--tx2);border-color:var(--line2);background:var(--bg2)}
+.cl-selo.cl-rival svg{color:var(--red)}
+.cl-selo.cl-gd{font-size:12.5px;padding:5px 12px}
+.cl-selo.cl-gd svg{width:17px;height:17px}
+.cl-selo.cl-grande{animation:clPulso 2.4s ease-in-out infinite}
+@keyframes clPulso{0%,100%{box-shadow:0 0 0 rgba(255,110,40,0)}50%{box-shadow:0 0 18px rgba(255,110,40,.45)}}
+@media (prefers-reduced-motion:reduce){.cl-selo.cl-grande{animation:none}}
+.cx-classico{box-shadow:inset 0 0 0 1px rgba(255,130,40,.55),0 0 26px rgba(255,100,30,.16)}
+.cx-classico-faixa{margin:8px 0 2px}
+.sr-classico{margin:6px 0 2px;display:flex;justify-content:center}
+.av-numeros .cl-selo{margin:0 auto 4px}
+.ff-meio .cl-selo{margin-bottom:6px}
+.partida.classico{box-shadow:inset 0 0 0 1px rgba(255,130,40,.45)}
+.pt-classico{display:flex;justify-content:center;margin-top:8px}
+.bk-classico{position:absolute;right:-9px;top:-9px;width:18px;height:18px;display:grid;place-items:center;background:var(--bg);
+  border:1px solid rgba(255,130,40,.6);border-radius:50%;color:#FF7A2E}
+.bk-classico svg{width:11px;height:11px}
+.bk-classico.cl-nacional{color:#F2C46B;border-color:rgba(242,196,107,.5)}
+.bk-classico.cl-rival{color:var(--red);border-color:var(--line2)}

@@ -190,7 +190,7 @@ function ppRelatorioHTML(){
       <div class="rel-pal">${m.palavra?esc(m.palavra):'sem leitura'}</div>
       <div class="rel-comp">${m.comp?m.comp.map(c=>`<span title="${esc(c.nome)} · ${esc(c.ag)}">${retratoAgente(c.ag,30)}${c.nivel!==null?`<i class="num">${c.nivel}</i>`:''}</span>`).join('')
         :'<span class="dim">comp desconhecida</span>'}</div></div>`).join('');
-  const meio=`<span class="eyebrow">Relatório de scouting</span><b class="ff-vs">VS</b>
+  const meio=`${typeof seloClassico==='function'?seloClassico(meuT,advT,{grande:true}):''}<span class="eyebrow">Relatório de scouting</span><b class="ff-vs">VS</b>
     <span class="ff-sub">${esc(nomeStage(PP.comp.stage))} · MD${PP.comp.bo}</span>${estrelas}
     <span class="ff-sub dim">analista ${(meuT.staff.analista||1).toFixed(1)} · olheiro ${(meuT.staff.olheiro||1).toFixed(1)}</span>`;
   return `<div class="dj" ${ppCores()}>

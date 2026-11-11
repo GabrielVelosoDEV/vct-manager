@@ -77,7 +77,9 @@ function torcidaPosSerie(res,decisiva){
     const fan=fanatismoDe(t);
     const ganhou=res.vencedor===t.id;
     const esp=expectativaTorcida(ovEu,ovEle);
-    const peso=(decisiva?1.5:1)*(res.bo>=5?1.2:1);
+    const cl=typeof classicoEntre==='function'?classicoEntre(t,adv):null;
+    /* clássico vale dobrado na arquibancada: ganhar enlouquece, perder dói */
+    const peso=(decisiva?1.5:1)*(res.bo>=5?1.2:1)*(cl?1+cl.nota*0.6:1);
     const amp=0.6+fan*0.8;
     const surpresa=(ganhou?1:0)-esp;
     const antes={humor:f.humor,tecnico:f.tecnico,seq:f.seq};
@@ -106,7 +108,7 @@ function torcidaPosSerie(res,decisiva){
     }
     /* quem saiu do clube sai da boca da torcida */
     for(const id in f.jog)if(!(t.elenco||[]).includes(id))delete f.jog[id];
-    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva});
+    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
   }
 }
 
@@ -125,7 +127,7 @@ function registrarConversa(t,adv,res,x){
     if(!melhor||d>melhor.d)melhor={mapa:m.mapa,d};
   }
   const base={t:t.id,adv:adv.id,ano:G.ano,s:G.semana,evento:(res.ctx&&res.ctx.nome)||'',bo:res.bo,
-    esp:Math.round(x.esp*100)/100,decisiva:!!x.decisiva};
+    esp:Math.round(x.esp*100)/100,decisiva:!!x.decisiva,classico:x.classico||null};
   const id=(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-'+((G.torcidaFeed.length||0)%97);
   const pos=Object.assign({},base,{id:id+'-pos',fase:'pos',venceu:x.ganhou,eu:x.wEu,ele:x.wEle,
     humor:Math.round(f.humor),humorAntes:Math.round(x.antes.humor),tecnico:Math.round(f.tecnico),seq:f.seq,
@@ -252,6 +254,12 @@ const FRASES_TORCIDA={
   renova:[[0,'Renova com o {p} AGORA'],[0,'Não deixa o {p} sair de graça, diretoria'],[1,'Se o {p} sair eu rasgo minha camisa']],
   iglBom:[[0,'Calls do {p} hoje foram perfeitas'],[0,'{p} lendo o jogo como ninguém'],[1,'IGL DIFERENCIADO, {p} MONSTRO']],
   iglRuim:[[0,'O {p} precisa repensar as calls'],[1,'IGL perdido. {p} não sabe o que pede'],[2,'{p} chamando strat de olho fechado, que porra é essa']],
+  classicoVitoria:[[0,'CLÁSSICO É NOSSO!!! {adv} freguês'],[0,'Ganhar o {classico} tem outro gosto'],[1,'Chora, torcida do {adv} kkkkkk'],
+    [1,'Quem manda nesse país é o {tag}, acostumem'],[2,'Calamos a boca do {adv}, porra!'],[0,'Semana inteira zoando os amigos do {adv} 😂']],
+  classicoDerrota:[[0,'Perder clássico é o pior que tem'],[1,'Vou ter que aguentar a zoeira do {adv} a semana inteira'],
+    [1,'Perder pro {adv}?? Em clássico??'],[2,'Perder clássico pro {adv} é inadmissível, porra'],[2,'Que vergonha do caralho, perder o {classico}']],
+  classicoPre:[[0,'É {classico}! Não é jogo normal'],[0,'Clássico é clássico. Vale mais que três jogos'],[1,'Hoje não pode perder pro {adv} de jeito nenhum'],
+    [1,'Semana de clássico, já tô sem dormir'],[2,'Se perder pro {adv} hoje eu quebro tudo, porra'],[0,'Torcida do {adv} tá muito confiante, vamos calar']],
   seqBoa:[[0,'{n} vitórias seguidas, que fase'],[0,'Ninguém para o {tag}. {n} seguidas'],[1,'{n} SEGUIDAS, TREME LIGA']],
   seqRuim:[[0,'{n} derrotas seguidas. Preocupante'],[1,'{n} derrotas seguidas e ninguém fala nada?'],[2,'{n} seguidas, que fase de merda']],
   /* antes do jogo */
@@ -316,7 +324,7 @@ function comentariosTorcida(e,quantos){
   const odiado=titulares.slice().sort((a,b)=>(f.jog[a.id]||0)-(f.jog[b.id]||0))[0]||null;
   const igl=titulares.find(p=>p.igl)||null;
   const alvo=e.humor<45?alvoDaTorcida(t):null;
-  const v={tag:t.tag,adv:adv?adv.tag:'adversário',coach,placar:e.eu!=null?e.eu+'–'+e.ele:'',
+  const v={tag:t.tag,adv:adv?adv.tag:'adversário',coach,classico:e.classico?e.classico.toLowerCase():'clássico',placar:e.eu!=null?e.eu+'–'+e.ele:'',
     res:reserva?reserva.nome:null,alvo:alvo?alvo.nome:null,mapa:e.mapaPior||null,n:Math.abs(e.seq||0)};
   /* o cardápio da conversa: [chave da lista, peso, jogador] */
   const menu=[];
@@ -329,6 +337,7 @@ function comentariosTorcida(e,quantos){
     }else{
       menu.push([vexame?'vexame':honra?'derrotaHonrosa':'derrota',5]);
     }
+    if(e.classico)menu.push([e.venceu?'classicoVitoria':'classicoDerrota',6]);
     if(e.mvp||e.melhor)menu.push(['craque',e.venceu?3:1.5,e.mvp||e.melhor]);
     if(e.pior&&!e.venceu)menu.push(['pior',3,e.pior]);
     if(e.pior&&e.venceu&&h<50)menu.push(['pior',1,e.pior]);
@@ -340,6 +349,7 @@ function comentariosTorcida(e,quantos){
     if(e.seq<=-3)menu.push(['seqRuim',2.5]);
   }else{
     menu.push([h>=58?'preHype':h<=42?'preMedo':(u(90)<0.5?'preHype':'preMedo'),5]);
+    if(e.classico)menu.push(['classicoPre',6]);
     if(adv)menu.push([e.esp>0.62?'preFavorito':'preAdv',3]);
     if(reserva&&odiado&&(f.jog[odiado.id]||0)<-0.2)menu.push(['prePedido',2,odiado.id]);
   }
@@ -363,7 +373,7 @@ function comentariosTorcida(e,quantos){
     if(!it)break;
     const lista=FRASES_TORCIDA[it[0]];if(!lista)continue;
     /* o tom da frase: positivo não precisa de raiva para gritar */
-    const positivo=/vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa/.test(it[0])&&!/SemBrilho/.test(it[0]);
+    const positivo=/vitoria|Vitoria|zebra|craque|tecnicoBom|iglBom|renova|seqBoa|preHype|derrotaHonrosa|classicoPre/.test(it[0])&&!/SemBrilho/.test(it[0]);
     const r=u(40+i);
     const teto=positivo?(r<0.15+fan*0.35?2:1):(r<pNivel2?2:r<pNivel2+pNivel1?1:0);
     const ok=lista.filter(x=>x[0]<=teto);
@@ -397,7 +407,8 @@ function conversaPreJogo(t,adv,evento){
   const ovEu=overMedioDe(t.titulares||[]),ovEle=overMedioDe(adv.titulares||[]);
   return{id:(G.ano||0)+'-'+(G.semana||0)+'-'+adv.tag+'-prox',t:t.id,adv:adv.id,fase:'pre',ano:G.ano,s:G.semana,
     evento:evento||'',esp:Math.round(expectativaTorcida(ovEu,ovEle)*100)/100,
-    humor:Math.round(f.humor),tecnico:Math.round(f.tecnico),seq:f.seq};
+    humor:Math.round(f.humor),tecnico:Math.round(f.tecnico),seq:f.seq,
+    classico:(typeof classicoEntre==='function'&&(classicoEntre(t,adv)||{}).nome)||null};
 }
 
 /* ---------- a torcida no tamanho e no prestígio ----------

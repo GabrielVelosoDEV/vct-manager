@@ -135,11 +135,46 @@ function notaRivalidade(t,c){
    clássico da liga mexe muito. A torcida é o que leva isso ao patrocínio
    (atratividade em economia.js). Nada sorteia. */
 const RIV_CLASSICO=0.28;   /* a mesma régua de rivaisDe */
+/* ---------- clássico nacional ----------
+   Dois clubes do mesmo país sempre fazem clássico: LOUD x FURIA, KC x
+   Gentle Mates, ZETA x DFM. A rivalidade de confronto (acima) continua
+   valendo para quem não é vizinho de país, e soma quando é.
+
+   Em liga onde o país é quase todo mundo (a China inteira, metade das
+   Américas é dos EUA) todo jogo seria clássico e a palavra perderia o
+   sentido: ali só conta o encontro de dois grandes (porte de torcida 4 ou 5,
+   data/torcidas.js) ou de rivais de confronto. */
+const ADJ_PAIS={BR:'brasileiro',US:'norte-americano',CA:'canadense',MX:'mexicano',AR:'argentino',CL:'chileno',CO:'colombiano',PE:'peruano',
+  KR:'coreano',JP:'japonês',CN:'chinês',TR:'turco',FR:'francês',ES:'espanhol',GB:'britânico',DE:'alemão',IT:'italiano',PT:'português',
+  RU:'russo',UA:'ucraniano',RS:'sérvio',PL:'polonês',SE:'sueco',DK:'dinamarquês',FI:'finlandês',NL:'holandês',
+  IN:'indiano',TH:'tailandês',PH:'filipino',ID:'indonésio',SG:'singapurense',MY:'malaio',VN:'vietnamita',AU:'australiano',TW:'taiwanês',HK:'de Hong Kong'};
+const CLASSICO_PAIS_DOMINANTE=0.4;
+function _paisClube(t){return typeof paisDoClube==='function'?paisDoClube(t):(t&&t.pais)||null;}
+function _porte(t){return typeof porteTorcida==='function'?porteTorcida(t):3;}
+function classicoEntre(a,b){
+  if(!a||!b||a.id===b.id)return null;
+  const riv=notaRivalidade(a,{...confronto(a.id,b.id),time:b});
+  const pa=_paisClube(a),pb=_paisClube(b);
+  if(pa&&pa===pb){
+    const liga=Object.values(G.times).filter(t=>t.regiao===a.regiao&&t.tier===a.tier);
+    const share=liga.length?liga.filter(t=>_paisClube(t)===pa).length/liga.length:0;
+    const grandes=_porte(a)>=4&&_porte(b)>=4;
+    const grande=grandes||riv>0.5;
+    if(share<=CLASSICO_PAIS_DOMINANTE||grandes||riv>RIV_CLASSICO){
+      const adj=ADJ_PAIS[pa]||'nacional';
+      return{tipo:grande?'grande':'nacional',pais:pa,nome:(grande?'Grande clássico ':'Clássico ')+adj,
+             nota:Math.max(riv,grande?0.55:0.38)};
+    }
+  }
+  if(riv>RIV_CLASSICO)return{tipo:'rival',pais:null,nome:riv>0.5?'Grande rivalidade':'Rivalidade',nota:riv};
+  return null;
+}
 function aplicarClassico(vencedorId,perdedorId){
   const V=G.times[vencedorId],P=G.times[perdedorId];
   if(!V||!P)return null;
-  const nota=notaRivalidade(V,{...confronto(V.id,P.id),time:P});
-  if(nota<=RIV_CLASSICO)return null;
+  const cl=classicoEntre(V,P);
+  if(!cl)return null;
+  const nota=cl.nota;
   const k=Math.min(1.6,nota/0.5);
   const mexer=(t,dm)=>(t.titulares||[]).forEach(id=>{const p=G.jogadores[id];
     if(p)p.moral=clamp(p.moral+dm,0.15,1);});
@@ -152,9 +187,9 @@ function aplicarClassico(vencedorId,perdedorId){
   if(typeof V.torcida==='number')V.torcida=clamp(V.torcida+Math.round(2*k),piso(V),teto);
   if(typeof P.torcida==='number')P.torcida=clamp(P.torcida-Math.round(1.5*k),piso(P),teto);
   if((V.id===G.meuTime||P.id===G.meuTime)&&typeof noticia==='function')
-    noticia('🔥 Clássico: '+V.nome+' venceu '+P.nome+'. '+
+    noticia('🔥 '+cl.nome+': '+V.nome+' venceu '+P.nome+'. '+
       (V.id===G.meuTime?'A torcida foi à loucura e o vestiário cresceu.':'Derrota que dói: o vestiário sentiu e a torcida cobrou.'),{c:'competicoes',t:[V.id,P.id],imp:2});
-  return{nota,k};
+  return{nota,k,nome:cl.nome};
 }
 function rivaisDe(id,quantos){
   const t=G.times[id];if(!t)return[];

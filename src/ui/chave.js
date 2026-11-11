@@ -175,6 +175,8 @@ function chaveDesenhada(s,opc){
       style="left:${p.x}px;top:${p.y}px"${abre}${titulo}>
       ${linhaTime(J.ta,wa,r&&r.v===J.ta,fim)}${linhaTime(J.tb,wb,r&&r.v===J.tb,fim)}
       ${J.prox?'<span class="bk-agora">a jogar</span>':''}
+      ${(()=>{const c=J.ta&&J.tb&&typeof classicoDe==='function'?classicoDe(G.times[J.ta],G.times[J.tb]):null;
+        return c?`<span class="bk-classico cl-${c.tipo}" title="${esc(c.nome)}">${ico('fogo')}</span>`:'';})()}
       ${R.fase==='gf'?'<span class="bk-md">MD5</span>':''}
       ${drop&&!opc.compacta?`<span class="bk-drop">perdedor → ${esc(drop)}</span>`:''}
     </div>`);
