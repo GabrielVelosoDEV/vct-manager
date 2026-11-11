@@ -55,7 +55,7 @@ const CLUBES_BASE={
   "ZETA":{pais:"JP"},   /* ZETA DIVISION · Tier 1 */
   "2G":{pais:"BR"},   /* 2Game Esports · Tier 2 */
   "AQ":{pais:"CN"},   /* Any Questions Gaming · Tier 2 */
-  "ART":{pais:"KR"},   /* ARETE · Tier 2 */
+  "GAM":{pais:"VN"},   /* GAM Esports · Tier 2 */
   "AT":{pais:"CN"},   /* A Team · Tier 2 */
   "BST":{pais:"CL"},   /* BESTIA · Tier 2 */
   "DK":{pais:"KR"},   /* Dplus Esports · Tier 2 */
@@ -79,7 +79,7 @@ const CLUBES_BASE={
   "RED":{pais:"BR"},   /* RED Canids · Tier 2 */
   "SAD":{pais:"US"},   /* SaD Esports · Tier 2 */
   "SGE":{pais:"DE"},   /* Eintracht Frankfurt · Tier 2 */
-  "SP":{pais:"TH"},   /* Sharper Esports · Tier 2 */
+  "CR":{pais:"JP"},   /* Crazy Raccoon · Tier 1 */
   "SRB":{pais:"US"},   /* Shopify Rebellion Black · Tier 2 */
   "VLG":{pais:"CN"},   /* Victory No Limits Gaming · Tier 2 */
   "WBG":{pais:"CN"},   /* Weibo Gaming · Tier 2 */

@@ -183,6 +183,8 @@ function criarMundo(seedVal){
   /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
      saem os garotos da base e as marcas nacionais (ver paisDoClube) */
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
+  /* dono de bolso fundo e compras de vaga marcadas (data/organizacoes.js) */
+  if(typeof aplicarOrganizacoesIniciais==='function')aplicarOrganizacoesIniciais();
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e

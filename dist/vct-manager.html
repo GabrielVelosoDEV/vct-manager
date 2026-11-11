@@ -3737,6 +3737,14 @@ const PATROCINADORES=(()=>{
    no Tier 1 EMEA, com o elenco e a comissão que eram da NAVI Junior; a
    PCIFIC desce para o Challengers no lugar da NAVI Junior, levando o
    próprio elenco.                                                      */
+/* Mudanças pedidas em 11/11/2026, com a temporada 2027 já desenhada:
+   - Crazy Raccoon entra no Tier 1 do Pacífico no lugar da DetonatioN
+     FocusMe, que cai para o Challengers no lugar da Sharper Esports
+     (a CR foi anunciada como parceira do VCT Pacific 2027–28);
+   - GAM Esports entra no Challengers do Pacífico no lugar da ARETE,
+     com o elenco que era da ARETE;
+   - Weibo Gaming sobe para o Tier 1 da China e a Wolves cai.
+   Outras compras de vaga acontecem durante a carreira: data/organizacoes.js. */
 const TIMES_REAIS={
  AMER:{
    t1:[['Sentinels','SEN',65],['NRG','NRG',85],
@@ -3764,12 +3772,12 @@ const TIMES_REAIS={
    t1:[['Paper Rex','PRX',73],['T1','T1',76],
      ['Gen.G','GEN',81],['KIWOOM DRX','KRX',66],
      ['Global Esports','GE',78],['Nongshim RedForce','NS',76],
-     ['Rex Regum Qeon','RRQ',63],['DetonatioN FocusMe','DFM',72],
+     ['Rex Regum Qeon','RRQ',63],['Crazy Raccoon','CR',70],
      ['Team Secret','TS',61],['VARREL','VL',73],
      ['FULL SENSE','FS',64],['ZETA DIVISION','ZETA',65]],
    t2:[['ONSIDE GAMING','ONG',58],['Dplus Esports','DK',56],
      ['FENNEL','FL',54],['REJECT','RC',53],
-     ['ARETE','ART',51],['Sharper Esports','SP',50],
+     ['GAM Esports','GAM',51],['DetonatioN FocusMe','DFM',50],
      ['QT DIG∞','QTD',48],['Xipto Esports','XIP',46]]},
  CN:{
    t1:[['Nova Esports','NOVA',82],['TYLOO','TYL',78],
@@ -3777,8 +3785,8 @@ const TIMES_REAIS={
      ['Trace Esports','TE',70],['All Gamers','AG',70],
      ['Wuxi Titan Esports Club','TEC',70],['Xi Lai Gaming','XLG',72],
      ['EDward Gaming','EDG',72],['FunPlus Phoenix','FPX',68],
-     ['Dragon Ranger Gaming','DRG',66],['Wolves Esports','WOL',64]],
-   t2:[['Rare Atom','RA',55],['Weibo Gaming','WBG',54],
+     ['Dragon Ranger Gaming','DRG',66],['Weibo Gaming','WBG',66]],
+   t2:[['Rare Atom','RA',55],['Wolves Esports','WOL',54],
      ['KeepBest Gaming','KBG',53],['A Team','AT',52],
      ['Any Questions Gaming','AQ',50],['World Sports Invictus Gaming','WSIG',49],
      ['Octagonal Disposition Gaming','ODG',47],['Victory No Limits Gaming','VLG',45]]}
@@ -4052,7 +4060,6 @@ PRX:[['f0rsakeN','Controlador',91,22,'ID'],
 DFM:[['Caedye','Sentinela',85,19,'JP'],
      ['yatsuka','Duelista',84,19,'JP'],
      ['SSeeS','Controlador',81,20,'JP'],
-     ['Akame','Iniciador',85,20,'JP'],
      ['Meiy','Duelista',80,23,'JP']],
 VL:[['Klaus','Duelista',82,25,'KR'],
     ['oonzmlp','Sentinela',81,24,'KR'],
@@ -4099,20 +4106,18 @@ DK:[['Kally','Iniciador',80,18,'KR'],
 FL:[['Hals','Flex',79,20,'PH'],
     ['CLZ','Controlador',78,24,'SG'],
     ['GangPin','Controlador',78,22,'TH'],
-    ['Anthem','Iniciador',76,24,'JP'],
+    ['Anthem','Iniciador',76,24,'JP']],
+/* Crazy Raccoon: Akame (ex-DFM) e Aace (ex-FENNEL) foram os nomes noticiados
+   para 2027; o resto do elenco nasce gerado até sair o anúncio oficial */
+CR:[['Akame','Iniciador',85,20,'JP'],
     ['Aace','Duelista',75,19,'MY']],
-SP:[['Laz','Sentinela',78,23,'JP'],
-    ['PTC','Controlador',76,28,'KR'],
-    ['Kadoom','Duelista',75,21,'KR'],
-    ['Apinya','Flex',75,22,'KR'],
-    ['NIZ','Iniciador',74,23,'TH']],
 RC:[['Jremy','Duelista',78,21,'KR'],
     ['Persia','Controlador',77,22,'PH'],
     ['BRIAN','Iniciador',76,21,'VN'],
     ['Yoshiii','Sentinela',74,22,'IN'],
     ['hiroronn','Sentinela',74,20,'MY'],
     ['Dep','Duelista',73,25,'SG']],
-ART:[['RedLight','Iniciador',76,23,'KR'],
+GAM:[['RedLight','Iniciador',76,23,'KR'],
      ['Rico','Controlador',73,20,'JP'],
      ['ANNYEON','Duelista',72,20,'KR'],
      ['JaebiN','Flex',72,22,'MY'],
@@ -4240,14 +4245,27 @@ VLG:[['Nana','Duelista',75,26,'KR'],
      ['p1katong','Controlador',72,23,'KR'],
      ['maofish','Sentinela',71,20,'CN'],
      ['Ayu','Iniciador',69,25,'KR'],
-     ['Yunni','Flex',69,20,'CN']],
+     ['Yunni','Flex',69,20,'CN'],
+       /* ---- ex-Sharper Esports: a vaga foi para a DFM ---- */
+       ['Laz','Sentinela',78,23,'JP'],
+       ['PTC','Controlador',76,28,'KR'],
+       ['Kadoom','Duelista',75,21,'KR'],
+       ['Apinya','Flex',75,22,'KR'],
+       ['NIZ','Iniciador',74,23,'TH'],
+       /* ---- adicionados à mão (11/11/2026), com o perfil anotado na LISTA ---- */
+       ['pANcada','Controlador',82,27,'BR',84],
+       ['canezerra','Duelista',72,18,'US',92],
+       ['Guardy','Iniciador',72,22,'ES',90],
+       ['WanZeru','Duelista',72,19,'CZ',91],
+       ['B1SK','Duelista',67,20,'ES',85] /* idade estimada */,
+       ['netin','Duelista',68,19,'BR',85] /* idade estimada */,
+       ['raised','Duelista',70,20,'BR',90] /* idade estimada */],
 
 /* ---------------- Sem clube ---------------- */
-LIVRE:[['TenZ','Duelista',86,25,'CA'],
-       ['Sacy','Iniciador',84,29,'BR'],
-       ['eeiu','Iniciador',83,25,'US'],
+LIVRE:[['TenZ','Duelista',86,25,'CA',89],
+       ['eeiu','Iniciador',83,25,'US',87],
        ['cauanzin','Iniciador',80,21,'BR'],
-       ['GSR','Sentinela',75,26,'SE'],
+       ['GSR','Sentinela',75,26,'SE',88],
        ['sheydos','Controlador',75,25,'RU'],
        ['Shao','Iniciador',74,26,'RU'],
        ['Eggsterr','Controlador',69,21,'PE'],
@@ -4265,14 +4283,14 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['niffy','Duelista',73,25,'TH'],
        ['MiniBoo','Duelista',74,21,'LT'],
        ['FT','Controlador',73,26,'CN'],
-       ['MiradaNinja','Sentinela',72,20,'CL',89],
+       ['MiradaNinja','Sentinela',72,20,'CL',91],
        ['wayne','Controlador',72,19,'SG',89],
        ['suyjing','Flex',72,20,'CN',88],
        ['Tiyosta','Sentinela',71,19,'TR',88],
-       ['aztex','Controlador',71,18,'BR',90],
-       ['peixeh','Controlador',70,18,'BR',89],
-       ['Luid','Duelista',71,18,'BR',91],
-       ['turkish','Sentinela',70,18,'BR',88],
+       ['aztex','Controlador',71,18,'BR',92],
+       ['peixeh','Controlador',70,18,'BR',92],
+       ['Luid','Duelista',71,18,'BR',92],
+       ['turkish','Sentinela',70,18,'BR',92],
        ['sanoj','Duelista',69,17,'BR',92],
        ['znajder','Duelista',69,17,'BR',93],
        /* ---- promessas e destaques do Challengers 2026 (VLR) ---- */
@@ -4285,7 +4303,7 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['oroni','Duelista',72,21,'TR',87] /* idade estimada */,
        ['Askia','Controlador',71,25,'BR',76],
        ['Kring','Iniciador',71,19,'BR',92] /* idade estimada */,
-       ['havoc','Duelista',71,20,'BR',88],
+       ['havoc','Duelista',74,20,'BR',80],
        ['Yohpa','Iniciador',71,19,'FR',93],
        ['poeth','Controlador',71,22,'FR',83],
        ['Gwangboong','Duelista',71,21,'JP',88] /* idade estimada */,
@@ -4310,7 +4328,7 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['maestr0','Duelista',69,22,'BR',80],
        ['above','Controlador',69,21,'BR',83] /* idade estimada */,
        ['gbz','Duelista',69,21,'BR',82] /* idade estimada */,
-       ['lowz','Duelista',69,21,'BR',82] /* idade estimada */,
+       ['lowz','Duelista',69,21,'BR',85] /* idade estimada */,
        ['Amcar','Sentinela',69,21,'DE',84] /* idade estimada */,
        ['Vince','Controlador',69,22,'DE',81],
        ['Wolfen','Flex',69,23,'DE',77],
@@ -4332,17 +4350,17 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['LaFlame','Duelista',69,21,'IN',84] /* idade estimada */,
        ['Envy2K','Duelista',69,23,'IN',78],
        ['QutionerX','Duelista',69,25,'TR',73],
-       ['liazzi','Flex',68,21,'BR',82] /* idade estimada */,
+       ['liazzi','Flex',68,21,'BR',85] /* idade estimada */,
        ['snw','Duelista',68,23,'BR',75],
        ['deyten','Controlador',68,21,'DE',82] /* idade estimada */,
        ['disisjohn','Duelista',68,21,'DE',82] /* idade estimada */,
        ['Hassan','Duelista',68,21,'ES',82] /* idade estimada */,
-       ['Only1','Duelista',68,21,'JP',82] /* idade estimada */,
+       ['Only1','Duelista',68,21,'JP',91] /* idade estimada */,
        ['vaiZ','Sentinela',68,23,'AR',77],
        ['beeb','Iniciador',68,21,'US',83] /* idade estimada */,
        ['jakee','Controlador',68,23,'US',76],
        ['gMd','Controlador',68,21,'US',82] /* idade estimada */,
-       ['ion','Duelista',68,19,'US',88] /* idade estimada */,
+       ['ion','Duelista',68,19,'US',85] /* idade estimada */,
        ['dynamic','Sentinela',68,21,'US',81] /* idade estimada */,
        ['resistance','Flex',68,21,null,84] /* idade estimada */,
        ['qu1ckz','Iniciador',68,21,null,83] /* idade estimada */,
@@ -4353,7 +4371,7 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['Nexi','Sentinela',68,21,'PH',83] /* idade estimada */,
        ['Georggyyy','Duelista',68,21,'PH',82] /* idade estimada */,
        ['Burzzy','Controlador',68,22,'TR',79],
-       ['florescent','Duelista',67,20,'CA',84],
+       ['florescent','Duelista',76,20,'CA',88],
        ['Impact','Duelista',65,19,'KR',83] /* idade estimada */,
        ['DarK','Controlador',64,19,'KR',82] /* idade estimada */],
 };
@@ -4854,7 +4872,15 @@ const AGENTES_REAIS={
   "Burzzy":["Omen","Viper","Astra"],
   "florescent":["Jett","Neon","Raze"],
   "Impact":["Phoenix","Raze","Neon"],
-  "DarK":["Omen","Astra","Harbor"]
+  "DarK":["Omen","Astra","Harbor"],
+  /* adicionados à mão */
+  "pANcada":["Omen","Astra","Sage","Brimstone","Viper"],
+  "canezerra":["Reyna","Iso","Jett","Raze","Neon"],
+  "Guardy":["Breach","Skye","KAY/O","Viper","Tejo"],
+  "WanZeru":["Raze","Neon","Jett","Yoru","Waylay"],
+  "B1SK":["Neon","Chamber","Raze"],
+  "netin":["Phoenix","Raze","Neon","Chamber","Jett"],
+  "raised":["Neon","Raze","Jett","Waylay"]
 };
 /* Funções corrigidas pelo mesmo levantamento: [como estava, como ficou].
    Serve à migração de saves antigos — só troca quem ainda está na função
@@ -5053,13 +5079,56 @@ const TORCIDAS={
   KRX:{porte:4,fanatismo:0.75}, GE:{porte:3,fanatismo:0.8},   NS:{porte:2,fanatismo:0.55},
   RRQ:{porte:4,fanatismo:0.9},  DFM:{porte:3,fanatismo:0.75}, TS:{porte:3,fanatismo:0.8},
   VL:{porte:2,fanatismo:0.6},   FS:{porte:3,fanatismo:0.75},  ZETA:{porte:4,fanatismo:0.85},
-  DK:{porte:3,fanatismo:0.7},
+  DK:{porte:3,fanatismo:0.7},   CR:{porte:4,fanatismo:0.85},  GAM:{porte:3,fanatismo:0.65},
   /* ---- China ---- */
   EDG:{porte:5,fanatismo:0.85}, BLG:{porte:4,fanatismo:0.75}, FPX:{porte:4,fanatismo:0.7},
   JDG:{porte:4,fanatismo:0.65}, TE:{porte:3,fanatismo:0.6},   XLG:{porte:3,fanatismo:0.6},
   AG:{porte:3,fanatismo:0.6},   TEC:{porte:3,fanatismo:0.6},  DRG:{porte:3,fanatismo:0.65},
-  WOL:{porte:3,fanatismo:0.65}, NOVA:{porte:3,fanatismo:0.6}, TYL:{porte:3,fanatismo:0.6}
+  WOL:{porte:3,fanatismo:0.65}, NOVA:{porte:3,fanatismo:0.6}, TYL:{porte:3,fanatismo:0.6},
+  WBG:{porte:3,fanatismo:0.65}
 };
+
+
+/* ===== data/organizacoes.js ===== */
+/* ============================================================
+   ORGANIZAÇÕES — dinheiro do dono e quem chega durante a carreira
+   ------------------------------------------------------------
+   Anotado por você na LISTA de escudos (11/11/2026).
+
+   BOLSO: o quanto o dono põe no clube. 1 é o normal da divisão.
+     pouco 0,75 · médio 1 · acima da média 1,3 · muito 1,7 ·
+     muito, muito, muito 2,6
+   Entra no caixa de largada e num aporte do dono a cada virada de
+   temporada (core/organizacoes.js). Caixa maior é mercado maior: a
+   IA contrata pelo caixa (core/market.js).
+
+   ENTRANTES: organizações que compram a vaga de um clube (ou se
+   fundem com ele) em algum momento da carreira. O clube continua o
+   mesmo — elenco, títulos, histórico —, muda nome, sigla, escudo,
+   dono, dinheiro e torcida. Cada uma acontece numa virada de
+   temporada dentro da janela; até o último ano dela, com certeza.
+   `logo` é o nome do arquivo em assets/logos (sem extensão).
+   ============================================================ */
+const BOLSO={pouco:0.75,medio:1,acima:1.3,muito:1.7,muitissimo:2.6};
+const TORCIDA_PERFIL={pouca:{porte:2,fanatismo:0.45},media:{porte:3,fanatismo:0.65},muita:{porte:4,fanatismo:0.85}};
+
+/* clubes que já nascem na base com dono de bolso diferente */
+const ORGANIZACOES={
+  WBG:{bolso:'muito'},
+  CR:{bolso:'muito',torcida:'muita',logo:'crc',cor:'#D00D17'},
+  GAM:{bolso:'medio',torcida:'media',cor:'#FEBF10'}
+};
+
+const ENTRANTES=[
+  {de:'2G',  tipo:'fusao', nome:'paiN Gaming',         tag:'PAIN', logo:'paingaming',       pais:'BR', bolso:'medio', torcida:'muita', janela:[2027,2030]},
+  {de:'SAD', tipo:'compra',nome:'9z Team',             tag:'9Z',   logo:'9zteam',           pais:'AR', bolso:'medio', torcida:'media', janela:[2027,2030]},
+  {de:'NBG', tipo:'compra',nome:'Lyon Gaming',         tag:'LNS',  logo:'lns',              pais:'MX', bolso:'acima', torcida:'muita', janela:[2027,2030]},
+  {de:'JL',  tipo:'compra',nome:'Ninjas in Pyjamas',   tag:'NIP',  logo:'ninjasinpyjamas',  pais:'SE', bolso:'pouco', torcida:'muita', janela:[2027,2030]},
+  {de:'MISA',tipo:'compra',nome:'Team Falcons',        tag:'FLC',  logo:'falcons',          pais:'SA', bolso:'muitissimo',torcida:'pouca',janela:[2027,2030]},
+  {de:'MDR', tipo:'fusao', nome:'FaZe Clan',           tag:'FAZE', logo:'fazeclan',         pais:'US', bolso:'medio', torcida:'muita', janela:[2027,2030]},
+  {de:'MIR', tipo:'compra',nome:'Team Spirit',         tag:'SPT',  logo:'spirit',           pais:'RU', bolso:'acima', torcida:'muita', janela:[2027,2030]},
+  {de:'FL',  tipo:'compra',nome:'Hanwha Life Esports', tag:'HLE',  logo:'hanwhalife',       pais:'KR', bolso:'muito', torcida:'pouca', janela:[2027,2030]}
+];
 
 
 /* ===== data/comissao.js ===== */
@@ -5269,14 +5338,11 @@ FL:[['Euler','Head Coach','Kazuki Kubota','JP'],
 RC:[['Egi','Head Coach','','JP'],
     ['Bullco','Coach','','KR'],
     ['shuu','Assistant Coach','','JP']],
-SP:[['Leaf','Head Coach','Leaf Thammarongseri','TH'],
-    ['MYM','Assistant Coach','Piyangoon Kitisin','TH'],
-    ['Psychopath','Analyst','','TH']],
 QTD:[['Relife','Head Coach','','JP']],
 XIP:[['ASI','Coach','','TH'],
      ['PoomOneLove','Assistant Coach','Rujipoom Changkrut','TH'],
      ['bnwgiggs','Staff','','TH']],
-ART:[['termi','Head Coach','Pyeon Seon-ho','KR']],
+GAM:[['termi','Head Coach','Pyeon Seon-ho','KR']],
 /* ---------------- VCT China — vlr.gg ---------------- */
 NOVA:[['24K','Head Coach','Shao Yubo','CN'],
       ['OnbusH','Coach','Kim Taek-soo','KR']],
@@ -5337,7 +5403,11 @@ WBG:[['Milan','Head Coach','Milan de Meij','NL'],
      ['Scott Currie','Assistant Coach','Scott Currie','IE']],
 KBG:[['Naint','Coach','Mingiyan Goldaev','RU']],
 AT:[['Malix','Head Coach','Yoon Kyung-ho','KR']],
-ODG:[['Oi','Coach','Liu Zhiwei','CN']]
+ODG:[['Oi','Coach','Liu Zhiwei','CN']],
+/* Sem clube. Sacy deixou de jogar e virou técnico (anotado na LISTA de
+   11/11/2026): entra no mercado de comissão, não no de jogadores.
+   Quinto campo opcional, só aqui: o over de largada. */
+LIVRE:[['Sacy','Head Coach','Gustavo Rossi','BR',86]]
 };
 
 
@@ -5399,7 +5469,7 @@ const CLUBES_BASE={
   "ZETA":{pais:"JP"},   /* ZETA DIVISION · Tier 1 */
   "2G":{pais:"BR"},   /* 2Game Esports · Tier 2 */
   "AQ":{pais:"CN"},   /* Any Questions Gaming · Tier 2 */
-  "ART":{pais:"KR"},   /* ARETE · Tier 2 */
+  "GAM":{pais:"VN"},   /* GAM Esports · Tier 2 */
   "AT":{pais:"CN"},   /* A Team · Tier 2 */
   "BST":{pais:"CL"},   /* BESTIA · Tier 2 */
   "DK":{pais:"KR"},   /* Dplus Esports · Tier 2 */
@@ -5423,7 +5493,7 @@ const CLUBES_BASE={
   "RED":{pais:"BR"},   /* RED Canids · Tier 2 */
   "SAD":{pais:"US"},   /* SaD Esports · Tier 2 */
   "SGE":{pais:"DE"},   /* Eintracht Frankfurt · Tier 2 */
-  "SP":{pais:"TH"},   /* Sharper Esports · Tier 2 */
+  "CR":{pais:"JP"},   /* Crazy Raccoon · Tier 1 */
   "SRB":{pais:"US"},   /* Shopify Rebellion Black · Tier 2 */
   "VLG":{pais:"CN"},   /* Victory No Limits Gaming · Tier 2 */
   "WBG":{pais:"CN"},   /* Weibo Gaming · Tier 2 */
@@ -5794,6 +5864,7 @@ const MIDIA={
     'imprensa/xarola':'webp',
     'logos/100t':'png',
     'logos/2g':'png',
+    'logos/9zteam':'png',
     'logos/ag':'png',
     'logos/aq':'png',
     'logos/art':'png',
@@ -5812,6 +5883,8 @@ const MIDIA={
     'logos/eg':'png',
     'logos/envy':'png',
     'logos/ep':'png',
+    'logos/falcons':'png',
+    'logos/fazeclan':'png',
     'logos/ff':'png',
     'logos/fl':'png',
     'logos/fnc':'png',
@@ -5825,6 +5898,7 @@ const MIDIA={
     'logos/ge':'png',
     'logos/gen':'png',
     'logos/gx':'png',
+    'logos/hanwhalife':'png',
     'logos/jdg':'png',
     'logos/jl':'png',
     'logos/kbg':'png',
@@ -5842,12 +5916,14 @@ const MIDIA={
     'logos/misa':'png',
     'logos/navi':'png',
     'logos/nbg':'png',
+    'logos/ninjasinpyjamas':'png',
     'logos/nova':'png',
     'logos/nrg':'png',
     'logos/ns':'png',
     'logos/nvj':'png',
     'logos/odg':'png',
     'logos/ong':'png',
+    'logos/paingaming':'png',
     'logos/pcf':'png',
     'logos/prx':'png',
     'logos/qtd':'png',
@@ -5858,6 +5934,8 @@ const MIDIA={
     'logos/sad':'png',
     'logos/sen':'png',
     'logos/sge':'png',
+    'logos/sp':'png',
+    'logos/spirit':'png',
     'logos/srb':'png',
     'logos/t1':'png',
     'logos/te':'png',
@@ -6138,6 +6216,7 @@ const MIDIA={
     'players/aaaay':'png',
     'players/aace':'png',
     'players/abo':'png',
+    'players/above':'png',
     'players/absol':'png',
     'players/acme':'png',
     'players/akame':'png',
@@ -6145,20 +6224,25 @@ const MIDIA={
     'players/alert':'png',
     'players/alfajer':'png',
     'players/aluba':'png',
+    'players/anq':'png',
     'players/anthem':'png',
     'players/apinya':'png',
     'players/artzin':'png',
+    'players/askia':'png',
     'players/aspas':'png',
     'players/asuna':'png',
+    'players/athan':'png',
     'players/audaz':'png',
     'players/autumn':'png',
     'players/avey':'png',
     'players/avez':'png',
     'players/aztex':'png',
     'players/azury':'png',
+    'players/b1sk':'png',
     'players/babybay':'png',
     'players/bai':'png',
     'players/bang':'png',
+    'players/banger':'png',
     'players/basic':'png',
     'players/batujnax':'png',
     'players/benjyfishy':'png',
@@ -6171,10 +6255,12 @@ const MIDIA={
     'players/boo':'png',
     'players/brawk':'png',
     'players/brinks':'png',
+    'players/burzzy':'png',
     'players/buzz':'png',
     'players/c0m':'png',
     'players/c1nder':'png',
     'players/caedye':'png',
+    'players/canezerra':'png',
     'players/cauanzin':'png',
     'players/cb':'png',
     'players/chichoo':'png',
@@ -6191,6 +6277,7 @@ const MIDIA={
     'players/crashies':'png',
     'players/crazyguy':'png',
     'players/crewen':'png',
+    'players/crunch':'png',
     'players/crws':'png',
     'players/cryocells':'png',
     'players/cyvoph':'png',
@@ -6206,10 +6293,13 @@ const MIDIA={
     'players/demon1':'png',
     'players/dep':'png',
     'players/derke':'png',
+    'players/derrek':'png',
     'players/deryeon':'png',
+    'players/deyten':'png',
     'players/dgzin':'png',
     'players/dh':'png',
     'players/dingwei':'png',
+    'players/disisjohn':'png',
     'players/doma':'png',
     'players/dos9':'png',
     'players/dynamite':'png',
@@ -6217,6 +6307,8 @@ const MIDIA={
     'players/eeiu':'png',
     'players/efina':'png',
     'players/eko':'png',
+    'players/elite':'png',
+    'players/envy2k':'png',
     'players/erde':'png',
     'players/eren':'png',
     'players/ethan':'png',
@@ -6224,12 +6316,14 @@ const MIDIA={
     'players/ezeir':'png',
     'players/f0rsaken':'png',
     'players/favian':'png',
+    'players/felix':'png',
     'players/fengf':'png',
     'players/filu':'png',
     'players/fireballops':'png',
     'players/fizzy':'png',
     'players/flex1n':'png',
     'players/flickless':'png',
+    'players/florescent':'png',
     'players/forbanz':'png',
     'players/fortres':'png',
     'players/foxy9':'png',
@@ -6238,15 +6332,21 @@ const MIDIA={
     'players/frz':'png',
     'players/ft':'png',
     'players/gangpin':'png',
+    'players/georggyyy':'png',
+    'players/globex':'png',
     'players/glyph':'png',
+    'players/gmd':'png',
     'players/gobera':'png',
     'players/green':'png',
     'players/guang':'png',
     'players/guran':'png',
+    'players/gwangboong':'png',
     'players/h1ber':'png',
     'players/hals':'png',
     'players/haodong':'png',
     'players/happywei':'png',
+    'players/hassan':'png',
+    'players/havoc':'png',
     'players/heat':'png',
     'players/heybay':'png',
     'players/hezacoil':'png',
@@ -6254,6 +6354,7 @@ const MIDIA={
     'players/hiroronn':'png',
     'players/hyunmin':'png',
     'players/iluri':'png',
+    'players/impact':'png',
     'players/invy':'png',
     'players/ivy':'png',
     'players/izu':'png',
@@ -6283,6 +6384,7 @@ const MIDIA={
     'players/kamo':'png',
     'players/kamyk':'png',
     'players/karon':'png',
+    'players/kassiels':'png',
     'players/keiko':'png',
     'players/kellys':'png',
     'players/keznit':'png',
@@ -6294,9 +6396,11 @@ const MIDIA={
     'players/kolosha':'png',
     'players/kozzy':'png',
     'players/kr1stal':'png',
+    'players/kring':'png',
     'players/krostaly':'png',
     'players/kushy':'png',
     'players/kyu':'png',
+    'players/laflame':'png',
     'players/lar0k':'png',
     'players/layla':'png',
     'players/laz':'png',
@@ -6305,16 +6409,19 @@ const MIDIA={
     'players/leviathan':'png',
     'players/levius':'png',
     'players/lewn':'png',
+    'players/liazzi':'png',
     'players/life':'png',
     'players/lime':'png',
     'players/loita':'png',
     'players/loss':'png',
     'players/lovers-rock':'png',
+    'players/lowz':'png',
     'players/luid':'png',
     'players/lukxo':'png',
     'players/luok1ng':'png',
     'players/lysoar':'png',
     'players/mada':'png',
+    'players/maestr0':'png',
     'players/magnum':'png',
     'players/mako':'png',
     'players/marteen':'png',
@@ -6329,11 +6436,14 @@ const MIDIA={
     'players/minny':'png',
     'players/miradaninja':'png',
     'players/monk':'png',
+    'players/monokson':'png',
     'players/monsteerr':'png',
     'players/monyet':'png',
     'players/moves':'png',
+    'players/mrtenzouez':'png',
     'players/munchkin':'png',
     'players/musashi':'png',
+    'players/musz3kk':'png',
     'players/mwzera':'png',
     'players/n4rrate':'png',
     'players/natank':'png',
@@ -6344,16 +6454,19 @@ const MIDIA={
     'players/neon':'png',
     'players/nephh':'png',
     'players/net':'png',
+    'players/nexi':'png',
     'players/nicc':'png',
     'players/niffy':'png',
     'players/nightz':'png',
     'players/ninja':'png',
     'players/nismo':'png',
     'players/nobody':'png',
+    'players/nrk':'png',
     'players/oxy':'png',
     'players/pa1ze':'png',
     'players/paincakes':'png',
     'players/palla':'png',
+    'players/pancada':'png',
     'players/patitek':'png',
     'players/patmen':'png',
     'players/pawn1':'png',
@@ -6368,6 +6481,9 @@ const MIDIA={
     'players/qck':'png',
     'players/qiutian':'png',
     'players/qpert':'png',
+    'players/qu1ckz':'png',
+    'players/qutionerx':'png',
+    'players/raised':'png',
     'players/rarga':'png',
     'players/raxcal':'png',
     'players/raz':'png',
@@ -6376,6 +6492,7 @@ const MIDIA={
     'players/redgar':'png',
     'players/redlight':'png',
     'players/reduxx':'png',
+    'players/resistance':'png',
     'players/rglmeister':'png',
     'players/riens':'png',
     'players/ronniee':'png',
@@ -6387,13 +6504,16 @@ const MIDIA={
     'players/s1mon':'png',
     'players/saadhak':'png',
     'players/sacy':'png',
+    'players/samed':'png',
     'players/sanoj':'png',
     'players/satellite':'png',
     'players/sato':'png',
     'players/satoshi':'png',
     'players/sayonara':'png',
     'players/scales':'png',
+    'players/seoldam':'png',
     'players/seph1roth':'png',
+    'players/serial':'png',
     'players/seven':'png',
     'players/sevire':'png',
     'players/sh1n':'png',
@@ -6408,6 +6528,7 @@ const MIDIA={
     'players/skuba':'png',
     'players/slowly':'png',
     'players/smoggy':'png',
+    'players/snw':'png',
     'players/sociablee':'png',
     'players/something':'png',
     'players/spear':'png',
@@ -6446,9 +6567,13 @@ const MIDIA={
     'players/unfake':'png',
     'players/urango':'png',
     'players/v1c':'png',
+    'players/vaiz':'png',
     'players/valyn':'png',
+    'players/vasek':'png',
+    'players/venka':'png',
     'players/veqaj':'png',
     'players/verno':'png',
+    'players/vince':'png',
     'players/vo0kashu':'png',
     'players/vora':'png',
     'players/waddle':'png',
@@ -6457,6 +6582,7 @@ const MIDIA={
     'players/westside':'png',
     'players/whzy':'png',
     'players/wo0t':'png',
+    'players/wolfen':'png',
     'players/wsleo':'png',
     'players/xavi8k':'png',
     'players/xdll':'png',
@@ -6467,6 +6593,7 @@ const MIDIA={
     'players/xyus':'png',
     'players/yatsuka':'png',
     'players/yetujey':'png',
+    'players/yohpa':'png',
     'players/yosemite':'png',
     'players/yoshiii':'png',
     'players/yoyo':'png',
@@ -8605,6 +8732,8 @@ function criarMundo(seedVal){
   /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
      saem os garotos da base e as marcas nacionais (ver paisDoClube) */
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
+  /* dono de bolso fundo e compras de vaga marcadas (data/organizacoes.js) */
+  if(typeof aplicarOrganizacoesIniciais==='function')aplicarOrganizacoesIniciais();
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e
@@ -12101,6 +12230,7 @@ const TORCIDA_FEED_MAX=60;
 const HUMOR_NEUTRO=55;
 
 function dadosTorcida(t){
+  if(t&&t.torcidaPerfil)return t.torcidaPerfil;
   return (t&&typeof TORCIDAS!=='undefined'&&TORCIDAS[t.tag])||null;
 }
 function porteTorcida(t){
@@ -12499,6 +12629,92 @@ function bonusTorcidaPorte(t){
 function bonusPrestigioPorte(tag,tier){
   if(tier!==1||typeof TORCIDAS==='undefined'||!TORCIDAS[tag])return 0;
   return (TORCIDAS[tag].porte-3)*2.5;
+}
+
+
+/* ===== src/core/organizacoes.js ===== */
+/* ============================================================
+   DONOS E COMPRAS DE VAGA (data/organizacoes.js)
+   ------------------------------------------------------------
+   Bolso: o dinheiro do dono. Multiplica o caixa de largada e paga
+   um aporte a cada virada de temporada — clube de dono rico vai ao
+   mercado com mais força, porque a IA contrata pelo caixa.
+
+   Compra de vaga: numa virada de temporada dentro da janela, a
+   organização assume o clube. O clube é o mesmo (elenco, títulos,
+   confrontos, quem você é se for o seu); mudam nome, sigla, escudo,
+   país, dono, dinheiro e torcida. Sorteia pelo gerador do motor,
+   porque é parte da simulação: a mesma semente, a mesma história.
+   ============================================================ */
+const APORTE_DONO={1:1200000,2:450000};     /* por ponto de bolso acima de 1, por ano */
+const INJECAO_COMPRA={1:2500000,2:900000};  /* na compra, vezes o bolso */
+const CHANCE_COMPRA=0.3;                    /* por virada, dentro da janela */
+
+function bolsoDe(t){return t&&typeof t.bolso==='number'?t.bolso:1;}
+function perfilTorcida(id){return (typeof TORCIDA_PERFIL!=='undefined'&&TORCIDA_PERFIL[id])||null;}
+
+/* na criação do mundo, depois de os clubes existirem e antes do caixa
+   ser usado por qualquer um */
+function aplicarOrganizacoesIniciais(){
+  if(typeof ORGANIZACOES!=='undefined')for(const id in G.times){
+    const t=G.times[id];t.tagOriginal=t.tag;
+    const o=ORGANIZACOES[t.tag];if(!o)continue;
+    if(o.bolso){t.bolso=BOLSO[o.bolso]||1;t.caixa=Math.round(t.caixa*t.bolso);}
+    if(o.logo)t.logoArq=o.logo;
+    if(o.cor&&!t.cor)t.cor=o.cor;
+  }
+  else for(const id in G.times)G.times[id].tagOriginal=G.times[id].tag;
+  G.aquisicoes=(typeof ENTRANTES!=='undefined'?ENTRANTES:[]).map(e=>({...e,feita:null}));
+}
+
+/* virada de temporada: aporte dos donos e, talvez, uma compra */
+function viradaDasOrganizacoes(){
+  for(const id in G.times){
+    const t=G.times[id],b=bolsoDe(t);
+    if(b>1)t.caixa=Math.round((t.caixa||0)+(b-1)*(APORTE_DONO[t.tier]||APORTE_DONO[2]));
+  }
+  if(!Array.isArray(G.aquisicoes))return [];
+  const feitas=[];
+  for(const e of G.aquisicoes){
+    if(e.feita)continue;
+    const[ini,fim]=e.janela||[G.ano,G.ano];
+    if(G.ano<ini)continue;
+    if(G.ano<fim&&rnd()>=CHANCE_COMPRA)continue;
+    const t=Object.values(G.times).find(x=>(x.tagOriginal||x.tag)===e.de);
+    if(!t){e.feita={ano:G.ano,sem:true};continue;}
+    aplicarAquisicao(t,e);feitas.push(e);
+  }
+  return feitas;
+}
+function aplicarAquisicao(t,e){
+  const antes={nome:t.nome,tag:t.tag,ate:G.ano};
+  (t.nomesAntigos=t.nomesAntigos||[]).push(antes);
+  t.nome=e.nome;t.tag=e.tag;t.logoArq=e.logo||null;t.logo=null;
+  t.cor=(typeof CORES_CLUBES!=='undefined'&&(CORES_CLUBES[e.tag]||CORES_CLUBES[String(e.logo||'').toUpperCase()]))||e.cor||t.cor||null;
+  if(e.pais){t.pais=e.pais;t.paisSede=e.pais;}
+  t.bolso=BOLSO[e.bolso]||1;
+  t.caixa=Math.round((t.caixa||0)+(INJECAO_COMPRA[t.tier]||INJECAO_COMPRA[2])*t.bolso);
+  const pf=perfilTorcida(e.torcida);
+  if(pf){
+    t.torcidaPerfil={...pf};
+    /* a torcida da marca nova chega junto, mas não de um dia para o outro */
+    const alvo=t.tier===1?55+(pf.porte-3)*10:22+(pf.porte-1)*8;
+    t.torcida=clamp(Math.round((t.torcida||0)*0.5+alvo*0.5),typeof pisoTorcida==='function'?pisoTorcida(t):0,TORCIDA_MAX);
+  }
+  if(t.tier===1&&pf)t.prestigio=clamp(t.prestigio+(pf.porte-3)*2,20,99);
+  e.feita={ano:G.ano,clube:t.id};
+  const meu=t.id===G.meuTime;
+  const txt=e.tipo==='fusao'
+    ?'🏢 '+antes.nome+' se funde com a '+e.nome+': a partir da próxima temporada o clube joga como '+e.nome+' ('+e.tag+').'
+    :'🏢 A '+e.nome+' comprou a vaga do '+antes.nome+': o clube passa a se chamar '+e.nome+' ('+e.tag+').';
+  if(typeof noticia==='function')noticia(txt+(meu?' O elenco e a comissão continuam, e o caixa ganhou reforço do dono novo.':''),{c:'mercado',t:[t.id],imp:3,meu});
+  return t;
+}
+/* save de antes das compras: entra a lista, e só as que ainda cabem */
+function migrarOrganizacoes(){
+  for(const id in G.times){const t=G.times[id];if(!t.tagOriginal)t.tagOriginal=t.tag;}
+  if(!Array.isArray(G.aquisicoes))
+    G.aquisicoes=(typeof ENTRANTES!=='undefined'?ENTRANTES:[]).map(e=>({...e,janela:[Math.max(e.janela[0],G.ano),Math.max(e.janela[1],G.ano+2)],feita:null}));
 }
 
 
@@ -18123,6 +18339,9 @@ function fimDeTemporada(){
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
     G.vereditoPendente=avaliarTemporada();
+  /* aporte dos donos e compras de vaga, com a temporada já avaliada e antes
+     de o patrocínio do ano novo ser recalculado (core/organizacoes.js) */
+  if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};
@@ -19002,6 +19221,17 @@ function montarStaff(){
     criarStaffLivre({over:paraT1?overAlvo('comissao',1,ri(58,74),4)
                                 :overAlvo('comissao',2,ri(45,58),4)});
   }
+  /* comissão real sem clube (COMISSAO_REAL.LIVRE): ex-jogador que virou
+     técnico e ainda não tem time, por exemplo. Entra no mercado com o over
+     do arquivo (quinto campo) ou um de Tier 1. */
+  if(typeof COMISSAO_REAL!=='undefined'&&COMISSAO_REAL.LIVRE)
+    for(const [nick,funcao,nomeReal,pais,ov] of COMISSAO_REAL.LIVRE){
+      if(!nick)continue;
+      const alvo=ov||overAlvo('comissao',1,70,3);
+      const r=criarStaffLivre({cargo:cargoDeFuncao(funcao)||'tecnico',over:alvo,pais:pais||null,nome:String(nick).trim(),idade:29});
+      const m=G.staff[r.id];
+      if(m){m.nomeReal=nomeReal||'';m.funcao=funcao||'';m.real=true;aplicarOverStaff(m,alvo);m.pot=potencialStaffDe(alvo,m.idade,1);}
+    }
   promoverComissaoAoTopo();
   return G.staff;
 }
@@ -20024,7 +20254,7 @@ const ASSETS={
      o que o usuário acabou de subir. */
   logo(t){
     const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+this.slug(t.tag));
-    return up || t.logo || this.arq('logos',t.tag);
+    return up || t.logo || this.arq('logos',t.logoArq||t.tag);
   },
   foto(p){
     const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+this.slug(p.nome));
@@ -20057,7 +20287,7 @@ function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+ASSETS.slug(t.tag));
-  const src=up||t.logo||ASSETS.talvez('logos',t.tag)||fb;
+  const src=up||t.logo||ASSETS.talvez('logos',t.logoArq||t.tag)||fb;
   return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${src}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
@@ -20069,8 +20299,8 @@ function escudo(t,px){
 const COR_CLUBE_PADRAO='#D6DCE2';
 function corDoEscudo(t){
   if(!t)return COR_CLUBE_PADRAO;
-  const k=String(t.tag||'').toUpperCase();
-  return (typeof CORES_CLUBES!=='undefined'&&CORES_CLUBES[k])||COR_CLUBE_PADRAO;
+  const k=String(t.tag||'').toUpperCase(),k2=String(t.logoArq||'').toUpperCase();
+  return (typeof CORES_CLUBES!=='undefined'&&(CORES_CLUBES[k]||CORES_CLUBES[k2]))||COR_CLUBE_PADRAO;
 }
 function corDoClube(t){
   if(!t)return COR_CLUBE_PADRAO.toLowerCase();
@@ -20591,7 +20821,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=12;
+const RUN_VERSAO=13;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -20745,6 +20975,8 @@ function migrarRun(reg){
     if(typeof remarcarReais==='function')remarcarReais();
     /* v12: mains reais do VLR, piso de familiaridade e funções corrigidas */
     if(de<12&&typeof migrarMainsReais==='function')migrarMainsReais();
+    /* v13: donos e compras de vaga durante a carreira */
+    if(de<13&&typeof migrarOrganizacoes==='function')migrarOrganizacoes();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;
@@ -20831,6 +21063,7 @@ function baseAssinatura(){
     typeof ELENCOS_REAIS!=='undefined'?ELENCOS_REAIS:null,
     typeof AGENTES_REAIS!=='undefined'?AGENTES_REAIS:null,
     typeof TORCIDAS!=='undefined'?TORCIDAS:null,
+    typeof ORGANIZACOES!=='undefined'?[ORGANIZACOES,ENTRANTES]:null,
     typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL:null,
     typeof CLUBES_BASE!=='undefined'?CLUBES_BASE:null,
     typeof HISTORIA_REAL!=='undefined'?HISTORIA_REAL:null,

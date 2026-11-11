@@ -204,14 +204,11 @@ FL:[['Euler','Head Coach','Kazuki Kubota','JP'],
 RC:[['Egi','Head Coach','','JP'],
     ['Bullco','Coach','','KR'],
     ['shuu','Assistant Coach','','JP']],
-SP:[['Leaf','Head Coach','Leaf Thammarongseri','TH'],
-    ['MYM','Assistant Coach','Piyangoon Kitisin','TH'],
-    ['Psychopath','Analyst','','TH']],
 QTD:[['Relife','Head Coach','','JP']],
 XIP:[['ASI','Coach','','TH'],
      ['PoomOneLove','Assistant Coach','Rujipoom Changkrut','TH'],
      ['bnwgiggs','Staff','','TH']],
-ART:[['termi','Head Coach','Pyeon Seon-ho','KR']],
+GAM:[['termi','Head Coach','Pyeon Seon-ho','KR']],
 /* ---------------- VCT China — vlr.gg ---------------- */
 NOVA:[['24K','Head Coach','Shao Yubo','CN'],
       ['OnbusH','Coach','Kim Taek-soo','KR']],
@@ -272,5 +269,9 @@ WBG:[['Milan','Head Coach','Milan de Meij','NL'],
      ['Scott Currie','Assistant Coach','Scott Currie','IE']],
 KBG:[['Naint','Coach','Mingiyan Goldaev','RU']],
 AT:[['Malix','Head Coach','Yoon Kyung-ho','KR']],
-ODG:[['Oi','Coach','Liu Zhiwei','CN']]
+ODG:[['Oi','Coach','Liu Zhiwei','CN']],
+/* Sem clube. Sacy deixou de jogar e virou técnico (anotado na LISTA de
+   11/11/2026): entra no mercado de comissão, não no de jogadores.
+   Quinto campo opcional, só aqui: o over de largada. */
+LIVRE:[['Sacy','Head Coach','Gustavo Rossi','BR',86]]
 };

@@ -445,6 +445,17 @@ function montarStaff(){
     criarStaffLivre({over:paraT1?overAlvo('comissao',1,ri(58,74),4)
                                 :overAlvo('comissao',2,ri(45,58),4)});
   }
+  /* comissão real sem clube (COMISSAO_REAL.LIVRE): ex-jogador que virou
+     técnico e ainda não tem time, por exemplo. Entra no mercado com o over
+     do arquivo (quinto campo) ou um de Tier 1. */
+  if(typeof COMISSAO_REAL!=='undefined'&&COMISSAO_REAL.LIVRE)
+    for(const [nick,funcao,nomeReal,pais,ov] of COMISSAO_REAL.LIVRE){
+      if(!nick)continue;
+      const alvo=ov||overAlvo('comissao',1,70,3);
+      const r=criarStaffLivre({cargo:cargoDeFuncao(funcao)||'tecnico',over:alvo,pais:pais||null,nome:String(nick).trim(),idade:29});
+      const m=G.staff[r.id];
+      if(m){m.nomeReal=nomeReal||'';m.funcao=funcao||'';m.real=true;aplicarOverStaff(m,alvo);m.pot=potencialStaffDe(alvo,m.idade,1);}
+    }
   promoverComissaoAoTopo();
   return G.staff;
 }

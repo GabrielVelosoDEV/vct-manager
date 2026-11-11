@@ -20,6 +20,14 @@
    no Tier 1 EMEA, com o elenco e a comissão que eram da NAVI Junior; a
    PCIFIC desce para o Challengers no lugar da NAVI Junior, levando o
    próprio elenco.                                                      */
+/* Mudanças pedidas em 11/11/2026, com a temporada 2027 já desenhada:
+   - Crazy Raccoon entra no Tier 1 do Pacífico no lugar da DetonatioN
+     FocusMe, que cai para o Challengers no lugar da Sharper Esports
+     (a CR foi anunciada como parceira do VCT Pacific 2027–28);
+   - GAM Esports entra no Challengers do Pacífico no lugar da ARETE,
+     com o elenco que era da ARETE;
+   - Weibo Gaming sobe para o Tier 1 da China e a Wolves cai.
+   Outras compras de vaga acontecem durante a carreira: data/organizacoes.js. */
 const TIMES_REAIS={
  AMER:{
    t1:[['Sentinels','SEN',65],['NRG','NRG',85],
@@ -47,12 +55,12 @@ const TIMES_REAIS={
    t1:[['Paper Rex','PRX',73],['T1','T1',76],
      ['Gen.G','GEN',81],['KIWOOM DRX','KRX',66],
      ['Global Esports','GE',78],['Nongshim RedForce','NS',76],
-     ['Rex Regum Qeon','RRQ',63],['DetonatioN FocusMe','DFM',72],
+     ['Rex Regum Qeon','RRQ',63],['Crazy Raccoon','CR',70],
      ['Team Secret','TS',61],['VARREL','VL',73],
      ['FULL SENSE','FS',64],['ZETA DIVISION','ZETA',65]],
    t2:[['ONSIDE GAMING','ONG',58],['Dplus Esports','DK',56],
      ['FENNEL','FL',54],['REJECT','RC',53],
-     ['ARETE','ART',51],['Sharper Esports','SP',50],
+     ['GAM Esports','GAM',51],['DetonatioN FocusMe','DFM',50],
      ['QT DIG∞','QTD',48],['Xipto Esports','XIP',46]]},
  CN:{
    t1:[['Nova Esports','NOVA',82],['TYLOO','TYL',78],
@@ -60,8 +68,8 @@ const TIMES_REAIS={
      ['Trace Esports','TE',70],['All Gamers','AG',70],
      ['Wuxi Titan Esports Club','TEC',70],['Xi Lai Gaming','XLG',72],
      ['EDward Gaming','EDG',72],['FunPlus Phoenix','FPX',68],
-     ['Dragon Ranger Gaming','DRG',66],['Wolves Esports','WOL',64]],
-   t2:[['Rare Atom','RA',55],['Weibo Gaming','WBG',54],
+     ['Dragon Ranger Gaming','DRG',66],['Weibo Gaming','WBG',66]],
+   t2:[['Rare Atom','RA',55],['Wolves Esports','WOL',54],
      ['KeepBest Gaming','KBG',53],['A Team','AT',52],
      ['Any Questions Gaming','AQ',50],['World Sports Invictus Gaming','WSIG',49],
      ['Octagonal Disposition Gaming','ODG',47],['Victory No Limits Gaming','VLG',45]]}

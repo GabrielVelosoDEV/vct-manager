@@ -492,7 +492,15 @@ const AGENTES_REAIS={
   "Burzzy":["Omen","Viper","Astra"],
   "florescent":["Jett","Neon","Raze"],
   "Impact":["Phoenix","Raze","Neon"],
-  "DarK":["Omen","Astra","Harbor"]
+  "DarK":["Omen","Astra","Harbor"],
+  /* adicionados à mão */
+  "pANcada":["Omen","Astra","Sage","Brimstone","Viper"],
+  "canezerra":["Reyna","Iso","Jett","Raze","Neon"],
+  "Guardy":["Breach","Skye","KAY/O","Viper","Tejo"],
+  "WanZeru":["Raze","Neon","Jett","Yoru","Waylay"],
+  "B1SK":["Neon","Chamber","Raze"],
+  "netin":["Phoenix","Raze","Neon","Chamber","Jett"],
+  "raised":["Neon","Raze","Jett","Waylay"]
 };
 /* Funções corrigidas pelo mesmo levantamento: [como estava, como ficou].
    Serve à migração de saves antigos — só troca quem ainda está na função

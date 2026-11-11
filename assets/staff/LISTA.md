@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/staff/` com o nome exato da lista. O nome é o
 nick da pessoa em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-156/222 com imagem.
+153/220 com imagem.
 
 ## SEN
 
@@ -335,12 +335,6 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `bullco.png` — Bullco (RC, Coach)
 - [ ] `shuu.png` — shuu (RC, Assistant Coach)
 
-## SP
-
-- [x] `leaf.png` — Leaf (SP, Head Coach)
-- [x] `mym.png` — MYM (SP, Assistant Coach)
-- [x] `psychopath.png` — Psychopath (SP, Analyst)
-
 ## QTD
 
 - [ ] `relife.png` — Relife (QTD, Head Coach)
@@ -351,9 +345,9 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `poomonelove.png` — PoomOneLove (XIP, Assistant Coach)
 - [ ] `bnwgiggs.png` — bnwgiggs (XIP, Staff)
 
-## ART
+## GAM
 
-- [x] `termi.png` — termi (ART, Head Coach)
+- [x] `termi.png` — termi (GAM, Head Coach)
 
 ## NOVA
 
@@ -457,3 +451,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## ODG
 
 - [x] `oi.png` — Oi (ODG, Coach)
+
+## LIVRE
+
+- [ ] `sacy.png` — Sacy (LIVRE, Head Coach)

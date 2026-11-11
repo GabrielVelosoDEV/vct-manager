@@ -284,7 +284,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=12;
+const RUN_VERSAO=13;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -438,6 +438,8 @@ function migrarRun(reg){
     if(typeof remarcarReais==='function')remarcarReais();
     /* v12: mains reais do VLR, piso de familiaridade e funções corrigidas */
     if(de<12&&typeof migrarMainsReais==='function')migrarMainsReais();
+    /* v13: donos e compras de vaga durante a carreira */
+    if(de<13&&typeof migrarOrganizacoes==='function')migrarOrganizacoes();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;

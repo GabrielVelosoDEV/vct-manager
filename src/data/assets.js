@@ -39,7 +39,7 @@ const ASSETS={
      o que o usuário acabou de subir. */
   logo(t){
     const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+this.slug(t.tag));
-    return up || t.logo || this.arq('logos',t.tag);
+    return up || t.logo || this.arq('logos',t.logoArq||t.tag);
   },
   foto(p){
     const up=typeof Imgs!=='undefined'&&Imgs.get('foto:'+this.slug(p.nome));
@@ -72,7 +72,7 @@ function escudo(t,px){
   px=px||22;if(!t)return '';
   const fb=monogramaTime(t.tag,px);
   const up=typeof Imgs!=='undefined'&&Imgs.get('logo:'+ASSETS.slug(t.tag));
-  const src=up||t.logo||ASSETS.talvez('logos',t.tag)||fb;
+  const src=up||t.logo||ASSETS.talvez('logos',t.logoArq||t.tag)||fb;
   return `<img class="logo-t" width="${px}" height="${px}" loading="lazy" alt="" ${t.id?`data-tid="${t.id}"`:''} src="${src}"
     onerror="this.onerror=null;this.src='${fb}'">`;
 }
@@ -84,8 +84,8 @@ function escudo(t,px){
 const COR_CLUBE_PADRAO='#D6DCE2';
 function corDoEscudo(t){
   if(!t)return COR_CLUBE_PADRAO;
-  const k=String(t.tag||'').toUpperCase();
-  return (typeof CORES_CLUBES!=='undefined'&&CORES_CLUBES[k])||COR_CLUBE_PADRAO;
+  const k=String(t.tag||'').toUpperCase(),k2=String(t.logoArq||'').toUpperCase();
+  return (typeof CORES_CLUBES!=='undefined'&&(CORES_CLUBES[k]||CORES_CLUBES[k2]))||COR_CLUBE_PADRAO;
 }
 function corDoClube(t){
   if(!t)return COR_CLUBE_PADRAO.toLowerCase();

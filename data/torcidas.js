@@ -50,10 +50,11 @@ const TORCIDAS={
   KRX:{porte:4,fanatismo:0.75}, GE:{porte:3,fanatismo:0.8},   NS:{porte:2,fanatismo:0.55},
   RRQ:{porte:4,fanatismo:0.9},  DFM:{porte:3,fanatismo:0.75}, TS:{porte:3,fanatismo:0.8},
   VL:{porte:2,fanatismo:0.6},   FS:{porte:3,fanatismo:0.75},  ZETA:{porte:4,fanatismo:0.85},
-  DK:{porte:3,fanatismo:0.7},
+  DK:{porte:3,fanatismo:0.7},   CR:{porte:4,fanatismo:0.85},  GAM:{porte:3,fanatismo:0.65},
   /* ---- China ---- */
   EDG:{porte:5,fanatismo:0.85}, BLG:{porte:4,fanatismo:0.75}, FPX:{porte:4,fanatismo:0.7},
   JDG:{porte:4,fanatismo:0.65}, TE:{porte:3,fanatismo:0.6},   XLG:{porte:3,fanatismo:0.6},
   AG:{porte:3,fanatismo:0.6},   TEC:{porte:3,fanatismo:0.6},  DRG:{porte:3,fanatismo:0.65},
-  WOL:{porte:3,fanatismo:0.65}, NOVA:{porte:3,fanatismo:0.6}, TYL:{porte:3,fanatismo:0.6}
+  WOL:{porte:3,fanatismo:0.65}, NOVA:{porte:3,fanatismo:0.6}, TYL:{porte:3,fanatismo:0.6},
+  WBG:{porte:3,fanatismo:0.65}
 };

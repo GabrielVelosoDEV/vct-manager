@@ -258,6 +258,9 @@ function fimDeTemporada(){
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
     G.vereditoPendente=avaliarTemporada();
+  /* aporte dos donos e compras de vaga, com a temporada já avaliada e antes
+     de o patrocínio do ano novo ser recalculado (core/organizacoes.js) */
+  if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};

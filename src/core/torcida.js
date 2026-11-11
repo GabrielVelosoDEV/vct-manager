@@ -23,6 +23,7 @@ const TORCIDA_FEED_MAX=60;
 const HUMOR_NEUTRO=55;
 
 function dadosTorcida(t){
+  if(t&&t.torcidaPerfil)return t.torcidaPerfil;
   return (t&&typeof TORCIDAS!=='undefined'&&TORCIDAS[t.tag])||null;
 }
 function porteTorcida(t){

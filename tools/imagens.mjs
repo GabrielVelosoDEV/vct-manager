@@ -41,11 +41,13 @@ const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','c
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);
-for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/elencos.js','data/comissao.js','data/sedes.js','data/imprensa.js','src/core/torneios.js']){
+for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/organizacoes.js','data/elencos.js','data/comissao.js','data/sedes.js','data/imprensa.js','src/core/torneios.js']){
   const p=resolve(raiz,f);
   if(existsSync(p))vm.runInContext(readFileSync(p,'utf8')+
     ';this.TIMES_REAIS=typeof TIMES_REAIS!=="undefined"?TIMES_REAIS:this.TIMES_REAIS;'+
     'this.ELENCOS_REAIS=typeof ELENCOS_REAIS!=="undefined"?ELENCOS_REAIS:this.ELENCOS_REAIS;'+
+    'this.ORGANIZACOES=typeof ORGANIZACOES!=="undefined"?ORGANIZACOES:this.ORGANIZACOES;'+
+    'this.ENTRANTES=typeof ENTRANTES!=="undefined"?ENTRANTES:this.ENTRANTES;'+
     'this.COMISSAO_REAL=typeof COMISSAO_REAL!=="undefined"?COMISSAO_REAL:this.COMISSAO_REAL;'+
     'this.DEPTOS=typeof DEPTOS!=="undefined"?DEPTOS:this.DEPTOS;'+
     'this.AGENTS=typeof AGENTS!=="undefined"?AGENTS:this.AGENTS;'+
@@ -66,8 +68,14 @@ const base=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 const grupo=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 for(const r in ctx.TIMES_REAIS||{})for(const d of ['t1','t2'])
   for(const [nome,tag] of ctx.TIMES_REAIS[r][d]||[]){
-    base.logos.set(slug(tag),tag+' ('+nome+')');grupo.logos.set(slug(tag),r+(d==='t1'?' · Tier 1':' · Challengers'));
+    /* escudo com nome de arquivo próprio (data/organizacoes.js), ex.: CR → crc */
+    const arq=(ctx.ORGANIZACOES&&ctx.ORGANIZACOES[tag]&&ctx.ORGANIZACOES[tag].logo)||tag;
+    base.logos.set(slug(arq),tag+' ('+nome+')');grupo.logos.set(slug(arq),r+(d==='t1'?' · Tier 1':' · Challengers'));
   }
+/* quem compra vaga durante a carreira: o escudo já precisa existir */
+for(const e of ctx.ENTRANTES||[]){
+  base.logos.set(slug(e.logo||e.tag),e.tag+' ('+e.nome+', compra a vaga de '+e.de+')');grupo.logos.set(slug(e.logo||e.tag),'Chegam durante a carreira');
+}
 for(const tag in ctx.ELENCOS_REAIS||{})for(const l of ctx.ELENCOS_REAIS[tag])
   if(l&&l[0]){base.players.set(slug(l[0]),l[0]+' ('+tag+')');grupo.players.set(slug(l[0]),tag==='LIVRE'?'Sem clube':tag);}
 for(const tag in ctx.COMISSAO_REAL||{})for(const l of ctx.COMISSAO_REAL[tag])
