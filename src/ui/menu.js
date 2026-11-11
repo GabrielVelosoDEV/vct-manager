@@ -86,6 +86,10 @@ function vConfig(){
     <div class="ctl"><button class="sw ${Prefs.get(k)?'on':''}" data-pref="${k}"
       role="switch" aria-checked="${!!Prefs.get(k)}" aria-label="${esc(rot)}"></button></div></div>`;
   return `
+  <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('disco')} Seus saves</span><span class="dim">${esc(typeof textoOndeSalva==='function'?textoOndeSalva():'')}</span></summary>
+    ${typeof cartaoPasta==='function'?cartaoPasta():''}
+  </details>
+
   <details class="card cfg-sec" open><summary><span class="eyebrow">${icone('jogar')} Partida</span><span class="dim">relatório, veto, ao vivo, salvamento</span></summary>
     ${sw('prePartida','Relatório e veto antes da partida',
          'Nas suas partidas, abre o relatório de scouting do adversário e passa o veto de mapas '+
