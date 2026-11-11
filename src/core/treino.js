@@ -183,22 +183,141 @@ function semearAgentes(p){
   /* O sorteio nasce limitado pelo teto da função. Sem isso metade do mundo
      nascia ACIMA do próprio teto — o jogador de Tier 2 começava com 90 num
      boneco cujo teto era 60 — e aí o teto não significava nada na largada e,
-     depois de enferrujar, ele nunca mais voltava ao nível de origem. */
+     depois de enferrujar, ele nunca mais voltava ao nível de origem.
+     Main de jogador real (data/agentes-reais.js) vem em ordem de uso: o
+     primeiro é o boneco da carreira, e o nível desce pela lista sem nunca sair
+     do domínio. */
+  const real=mainsReais(p);
   (p.agentes||[]).forEach((ag,i)=>{
-    const bruto=ri(72,95)-i*ri(0,6);
+    const bruto=real?nivelDeMainReal(p.nome,ag,i):ri(72,95)-i*ri(0,6);
     p.agenteNivel[ag]=clamp(Math.min(bruto,tetoAgente(p,ag)),0,100);
   });
   return p.agenteNivel;
+}
+/* ---------- mains de verdade ----------
+   Os jogadores reais jogam o que jogam no VLR, não o que o sorteio deu. */
+function mainsReais(p){
+  if(!p||!p.real||typeof AGENTES_REAIS==='undefined')return null;
+  const l=AGENTES_REAIS[p.nome];
+  if(!l||!l.length)return null;
+  const ok=l.filter(a=>funcaoConhece(a));
+  return ok.length?ok:null;
+}
+/* Os mains com que o jogador começa: os reais, ou três sorteados da função. */
+function agentesIniciais(p){
+  return (mainsReais(p)||sortearAgentes(p.role)).slice();
+}
+/* Troca os mains sorteados pelos reais e re-semeia. Chamado logo depois de o
+   jogador ganhar o nick, que é quando se sabe quem ele é. */
+function darMainsReais(p){
+  const l=mainsReais(p);
+  if(!l)return false;
+  p.agentes=l.slice();
+  semearAgentes(p);
+  return true;
+}
+/* Save antigo: os mains reais entram por cima dos sorteados, a familiaridade
+   que já foi treinada fica (nunca desce), e a função corrigida pelo
+   levantamento só é aplicada a quem ainda está na função antiga — se você
+   mudou a função no Editor, a sua escolha vale. O over não se mexe: troca de
+   função recalcula o peso dos atributos, então o over antigo é reaplicado. */
+function migrarMainsReais(){
+  let n=0;
+  for(const id in G.jogadores){
+    const p=G.jogadores[id];
+    if(!p||!p.real)continue;
+    const fc=typeof FUNCOES_CORRIGIDAS!=='undefined'&&FUNCOES_CORRIGIDAS[p.nome];
+    if(fc&&p.role===fc[0]){
+      const ov=over(p);
+      const eraAtual=p.roleAtual===p.role;
+      p.role=fc[1];
+      if(eraAtual)p.roleAtual=p.role;
+      if(over(p)!==ov)aplicarOver(p,ov);
+      p.role2=null;ajustarSecundaria(p);
+    }
+    const l=mainsReais(p);
+    if(!l)continue;
+    const antes=p.agenteNivel||{};
+    p.agentes=l.slice();
+    const novo=semearAgentes(p);
+    for(const ag in antes)novo[ag]=Math.max(antes[ag],novo[ag]||0);
+    n++;
+  }
+  /* funções e domínios mudaram: redistribui quem faz o quê nos titulares,
+     sem mexer em QUEM é titular */
+  for(const id in G.times){
+    const t=G.times[id];
+    const rs=(t&&t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+    if(rs.length===5){const d=distribuirFuncoes(rs);rs.forEach((p,i)=>{p.roleAtual=d.atrib[i];});}
+  }
+  return n;
+}
+/* Nível de um main real pela posição dele na lista. SEM sorteio: a migração
+   de save antigo também passa por aqui, e ela não pode empurrar o gerador do
+   motor. A variação entre jogadores sai de um hash do nick. */
+function nivelDeMainReal(nick,ag,i){
+  let h=7;const s=String(nick)+'|'+ag;
+  for(let k=0;k<s.length;k++)h=(h*31+s.charCodeAt(k))>>>0;
+  const topo=[93,86,80,75,72][Math.min(i,4)];
+  return topo-(h%5);
 }
 /* Leitura PURA: nunca sorteia, nunca cria. Agente que ninguém treinou vale 0,
    e main de save antigo cai num valor derivado do próprio jogador — sem
    aleatoriedade, para poder ser chamado de dentro do render. */
 function nivelAgente(p,ag){
-  if(!p)return 0;
+  if(!p||!ag)return 0;
+  const base=familiaridadeBase(p,ag);
   const n=p.agenteNivel&&p.agenteNivel[ag];
-  if(typeof n==='number')return n;
-  if((p.agentes||[]).includes(ag))return 78;
-  return 0;
+  if(typeof n==='number')return Math.max(n,base);
+  if((p.agentes||[]).includes(ag))return Math.max(78,base);
+  return base;
+}
+/* ---------- o piso de familiaridade ----------
+   Regra do Gabriel: todo jogador sabe o básico de TODO boneco da própria
+   função — 50 — e quanto mais longe a função do boneco, menos ele sabe.
+
+   A distância não é opinião: saiu do mesmo levantamento do VLR, contando que
+   função cada jogador joga quando sai da dele. Controlador e Sentinela são
+   vizinhos de porta (Viper e Cypher no mesmo jogador é comum); Iniciador e
+   Sentinela quase nunca se cruzam. Flex de fato sabe um pouco de tudo, e a
+   função secundária conta como meia casa.
+
+   É um PISO: treino sobe acima dele, ferrugem nunca desce abaixo dele. */
+const FAMILIAR_FUNCAO=50, FAMILIAR_FLEX=45, FAMILIAR_SECUNDARIA=40;
+const PROXIMIDADE_FUNCAO={
+  'Controlador|Sentinela':38,
+  'Duelista|Sentinela':32, 'Controlador|Duelista':32, 'Controlador|Iniciador':32,
+  'Duelista|Iniciador':28,
+  'Iniciador|Sentinela':22
+};
+function familiaridadeBase(p,ag){
+  const fun=funcaoDoAgente(ag);
+  if(fun==='Flex'||!p.role)return FAMILIAR_FLEX;
+  let b;
+  if(p.role==='Flex')b=FAMILIAR_FLEX;
+  else if(p.role===fun)b=FAMILIAR_FUNCAO;
+  else{
+    b=PROXIMIDADE_FUNCAO[[p.role,fun].sort().join('|')]||22;
+    if(p.role2===fun)b=Math.max(b,FAMILIAR_SECUNDARIA);
+  }
+  /* o piso não fura o teto: quem não tem atributo para o boneco não
+     "sabe o básico" acima do que conseguiria aprender */
+  return p.at?Math.min(b,tetoAgente(p,ag)):b;
+}
+/* ---------- domínio ----------
+   Boneco dominado entra em qualquer mapa sem contar como desvio de função:
+   o duelista que é main de Chamber joga de Chamber, e ninguém chama isso de
+   improviso. */
+const DOMINIO_AGENTE=70;
+function dominaAgente(p,ag){return !!(p&&ag)&&nivelAgente(p,ag)>=DOMINIO_AGENTE;}
+/* Funções que o jogador cobre por domínio de boneco, fora as da ficha. */
+function funcoesPorDominio(p){
+  const out=[];
+  for(const ag of (p&&p.agentes)||[]){
+    const f=funcaoDoAgente(ag);
+    if(f!=='Flex'&&!out.includes(f)&&dominaAgente(p,ag))out.push(f);
+  }
+  return out;
 }
 /* Teto de aprendizado: o agente cobra atributos, e quem não tem não chega ao
    fim. É isso que impede "todo mundo aprende tudo" — e é por isso que um clube
@@ -210,8 +329,9 @@ function tetoAgente(p,ag){
   let soma=0,peso=0;
   for(const k in w){soma+=(p.at[k]||0)*w[k];peso+=w[k];}
   const aptidao=peso?soma/peso:60;
-  /* própria função é casa: aprende mais alto. Fora da função, teto menor. */
-  const casa=p.role===fun||p.role==='Flex'||fun==='Flex';
+  /* própria função é casa: aprende mais alto. Fora da função, teto menor —
+     a não ser que o boneco seja main dele: aí ele já provou que aprende. */
+  const casa=p.role===fun||p.role==='Flex'||fun==='Flex'||(p.agentes||[]).includes(ag);
   return clamp(Math.round(aptidao*(casa?1.02:0.86)),35,99);
 }
 function funcaoDoAgente(ag){
@@ -244,7 +364,8 @@ function enferrujarAgentes(p,usados){
     if(usados&&usados.includes(ag))continue;
     const main=(p.agentes||[]).includes(ag);
     const passo=AGENTE_ENFERRUJA*(main?0.4:1);
-    p.agenteNivel[ag]=Math.max(0,p.agenteNivel[ag]-passo);
+    /* nunca abaixo do piso da função: o básico não se desaprende */
+    p.agenteNivel[ag]=Math.max(familiaridadeBase(p,ag),p.agenteNivel[ag]-passo);
   }
 }
 

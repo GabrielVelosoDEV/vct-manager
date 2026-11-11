@@ -38,7 +38,7 @@ function distribuirFuncoes(rs){
       return;
     }
     const p=rs[i];
-    const opcoes=p.role==='Flex'?FUNCOES_BASE:[p.role,...(p.role2&&p.role2!==p.role?[p.role2]:[])];
+    const opcoes=funcoesNaEscalacao(p);
     for(const r of opcoes){
       atrib[i]=r;
       const nova=usadas.has(r);
@@ -51,6 +51,17 @@ function distribuirFuncoes(rs){
   return melhor||{nota:rs.reduce((s,p)=>s+over(p),0),atrib:rs.map(p=>p.role)};
 }
 
+/* O que um jogador pode fazer na escalação: a função dele, a secundária e
+   toda função em que ele DOMINA um boneco — o duelista main de Chamber cobre a
+   vaga de Sentinela, pagando a diferença de over que a conta já cobra. */
+function funcoesNaEscalacao(p){
+  if(p.role==='Flex')return FUNCOES_BASE;
+  const out=[p.role];
+  if(p.role2&&!out.includes(p.role2))out.push(p.role2);
+  if(typeof funcoesPorDominio==='function')
+    for(const f of funcoesPorDominio(p))if(!out.includes(f))out.push(f);
+  return out;
+}
 /* Nota de um conjunto de cinco. É esta função que decide tudo: mexer no peso
    da cobertura aqui muda o comportamento de todos os 80 clubes de uma vez. */
 function notaEscalacao(ids){

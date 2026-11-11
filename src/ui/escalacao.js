@@ -20,7 +20,10 @@ function miniBarra(rot,v,cls){
 function slotTitular(t,p,editavel){
   const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
   const fun=p.roleAtual||p.role;
-  const fora=fun!==p.role&&p.role!=='Flex';
+  /* fora de posição é jogar numa função que ele não cobre: a secundária e a
+     função de um boneco que ele domina não contam */
+  const fora=fun!==p.role&&p.role!=='Flex'&&fun!==p.role2
+    &&!(typeof funcoesPorDominio==='function'&&funcoesPorDominio(p).includes(fun));
   return `<div class="esc-slot" ${editavel?`data-alvo="${p.id}"`:''}>
     <div class="esc-carta" ${editavel?`draggable="true" data-arrasta="${p.id}"`:''}>${cartaJogador(p,{w:150,clique:true})}
       ${p.id===t.igl?'<span class="esc-igl" title="Capitão (IGL)">IGL</span>':''}

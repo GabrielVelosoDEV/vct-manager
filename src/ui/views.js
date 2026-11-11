@@ -303,7 +303,9 @@ function vComps(){
     const escolhido=((t.comps&&t.comps[mapa])||{})[p.id];
     const pool2=agentesParaComp(p);
     const fx=faixaMeta(ag);
-    const foraDaFuncao=fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
+    const foraDaFuncao=desvioDeFuncao(p,ag,fun);
+    /* fora da função, mas dominado: não é desvio, e a tela diz por quê */
+    const dominado=!foraDaFuncao&&fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
     return `<tr>
       <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
         <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></span></span></td>
@@ -318,7 +320,9 @@ function vComps(){
       <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
       <td class="c"><span class="pill ${fx.id==='topo'||fx.id==='forte'?'g':fx.id==='esq'?'r':''}"
         >${forcaMeta(ag)}</span></td>
-      <td class="dim">${foraDaFuncao?'<span class="chip r">fora da função</span>':esc(fx.rot)}</td>
+      <td class="dim">${foraDaFuncao?'<span class="chip r">fora da função</span>'
+        :dominado?`<span class="chip g" title="Domina o boneco (${DOMINIO_AGENTE}+): joga em qualquer mapa sem contar como desvio">domínio</span>`
+        :esc(fx.rot)}</td>
     </tr>`;
   }).join('');
 
@@ -361,9 +365,10 @@ function vComps(){
     <tbody>${linhas}</tbody></table>
     ${alertas.length?`<p class="dim" style="margin-top:8px;color:var(--red)">⚠ ${alertas.map(esc).join(' · ')}</p>`:''}
     <p class="dim" style="margin-top:8px"><b>Sabe</b> é a familiaridade do jogador com aquele agente
-    (sobe treinando em <b>Treino</b>, cai com abandono). <b>Meta</b> é o quanto o boneco vale hoje —
-    e muda a cada patch. Escalar alguém num agente que ele nunca treinou custa caro; treinar antes
-    é o caminho. Fugir do meta perde força de round e ganha <b>surpresa</b>, que corta a vantagem
+    (sobe treinando em <b>Treino</b>, cai com abandono, mas nunca abaixo do básico: 50 em todo
+    boneco da própria função, menos quanto mais longe dela). Com ${DOMINIO_AGENTE} ou mais é
+    <b>domínio</b>: o boneco entra em qualquer mapa sem contar como desvio de função.
+    <b>Meta</b> é o quanto o boneco vale hoje — e muda a cada patch. Fugir do meta perde força de round e ganha <b>surpresa</b>, que corta a vantagem
     do analista adversário no relatório sobre você.</p>
   </div>
 

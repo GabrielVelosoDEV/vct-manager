@@ -12,7 +12,7 @@ const ordem=[...readFileSync(resolve(raiz,'index.html'),'utf8')
   .filter(p=>!p.includes('/ui/')&&!p.includes('storage')&&!p.includes('assets')&&!p.endsWith('main.js'));
 const bundle=ordem.map(p=>readFileSync(resolve(raiz,p),'utf8')).join('\n')
   +'\nmodule.exports={criarMundo,over,overStaff,aplicarOver,padronizarBase,gerarElencosJS,'
-  +'FAIXAS,CARGOS,REGIONS,get G(){return G;}};';
+  +'FAIXAS,CARGOS,REGIONS,AGENTES_REAIS,get G(){return G;}};';
 const tmp=resolve(raiz,'.pt.tmp.cjs');
 writeFileSync(tmp,bundle);const m=createRequire(import.meta.url)(tmp);unlinkSync(tmp);
 m.criarMundo(20260828);const G=m.G;
@@ -36,7 +36,10 @@ console.log('\npadronizarBase:',JSON.stringify(conta));
 const ovT2=[],ovT1=[],ovSt1=[],ovSt2=[],ags=[];
 for(const t of Object.values(G.times)){
   for(const id of t.elenco){const p=G.jogadores[id];
-    (t.tier===1?ovT1:ovT2).push(m.over(p));ags.push((p.agentes||[]).length);}
+    (t.tier===1?ovT1:ovT2).push(m.over(p));
+    /* jogador real joga os mains do VLR (1 a 5); o resto, três da função */
+    const real=p.real&&m.AGENTES_REAIS[p.nome];
+    ags.push(real?((p.agentes||[]).join()===real.join()?3:-1):(p.agentes||[]).length);}
   for(const c of m.CARGOS){const s=G.staff[t.comissao[c.id]];
     if(s)(t.tier===1?ovSt1:ovSt2).push(m.overStaff(s));}
 }
@@ -46,7 +49,7 @@ ok(dentro(ovT2,m.FAIXAS.jogador[2]),`jogadores T2 em ${m.FAIXAS.jogador[2]} (ach
 ok(dentro(ovT1,m.FAIXAS.jogador[1]),`jogadores T1 em ${m.FAIXAS.jogador[1]} (achado ${Math.min(...ovT1)}–${Math.max(...ovT1)})`);
 ok(dentro(ovSt1,m.FAIXAS.comissao[1]),`comissão T1 em ${m.FAIXAS.comissao[1]} (achado ${Math.min(...ovSt1)}–${Math.max(...ovSt1)})`);
 ok(dentro(ovSt2,m.FAIXAS.comissao[2]),`comissão T2 em ${m.FAIXAS.comissao[2]} (achado ${Math.min(...ovSt2)}–${Math.max(...ovSt2)})`);
-ok(ags.every(n=>n===3),'todo jogador com exatamente 3 agentes');
+ok(ags.every(n=>n===3),'todo jogador com os mains reais ou exatamente 3 agentes');
 const n99=ovSt1.filter(x=>x>=99).length;
 ok(n99<=2,`no máximo 2 na comissão com 99 (achado ${n99})`);
 

@@ -2005,6 +2005,7 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .mj-agentes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
 .mj-ag{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--tx2)}
 .mj-ag img{width:56px;height:64px;object-fit:cover;object-position:top;border:1px solid var(--line2);background:var(--bg2)}
+.mj-ag small{font-size:10px;line-height:1}
 .mj-ag.pri img{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 14px rgba(226,180,90,.25)}
 
 /* página de clube */
@@ -3697,6 +3698,9 @@ const TIMES_REAIS={
 
    Este arquivo foi gerado a partir de uma base editada no jogo, então
    função, over, idade e país são as SUAS escolhas, não estimativa.
+   As funções foram revistas em 2026-11-11 contra o histórico de
+   agentes do VLR (ver data/agentes-reais.js): quem joga outra função
+   de fato mudou, e Flex ficou só para quem joga três funções.
    Reservas gerados ficaram de fora de propósito: eles voltam a ser
    sorteados a cada run, que é o que mantém os elencos variados.
    ============================================================ */
@@ -3704,13 +3708,13 @@ const ELENCOS_REAIS={
 /* ---------------- VCT Americas ---------------- */
 NRG:[['keiko','Flex',90,23,'GB'],
      ['skuba','Sentinela',84,23,'US'],
-     ['Ethan','Controlador',86,28,'US'],
+     ['Ethan','Iniciador',86,28,'US'],
      ['mada','Duelista',86,22,'CA'],
      ['brawk','Iniciador',91,24,'US']],
-LEV:[['Neon','Controlador',95,18,'AR'],
+LEV:[['Neon','Flex',95,18,'AR'],
      ['spike','Duelista',90,19,'BR'],
      ['Sato','Duelista',89,19,'BR'],
-     ['kiNgg','Flex',87,23,'CL'],
+     ['kiNgg','Controlador',87,23,'CL'],
      ['blowz','Iniciador',86,19,'BR']],
 '100T':[['Cryocells','Sentinela',91,23,'US'],
         ['Asuna','Flex',86,23,'US'],
@@ -3722,40 +3726,40 @@ G2:[['trent','Iniciador',92,23,'US'],
     ['BABYBAY','Sentinela',84,27,'US'],
     ['leaf','Flex',83,23,'US'],
     ['jawgemo','Duelista',83,25,'US']],
-LOUD:[['lukxo','Sentinela',96,20,'BR'],
+LOUD:[['lukxo','Flex',96,20,'BR'],
       ['tkzin','Duelista',91,21,'BR'],
-      ['erde','Flex',97,19,'CL'],
+      ['erde','Controlador',97,19,'CL'],
       ['Darker','Controlador',88,22,'CO'],
       ['DaviH','Iniciador',87,24,'PT']],
 MIBR:[['aspas','Duelista',95,23,'BR'],
-      ['zekken','Flex',91,22,'US'],
-      ['Verno','Duelista',88,23,'US'],
-      ['Mazino','Sentinela',83,24,'CL'],
-      ['tex','Iniciador',82,22,'GE']],
+      ['zekken','Duelista',91,22,'US'],
+      ['Verno','Iniciador',88,23,'US'],
+      ['Mazino','Controlador',83,24,'CL'],
+      ['tex','Sentinela',82,22,'GE']],
 EG:[['dgzin','Duelista',89,22,'BR'],
-    ['zerona','Flex',83,21,'US'],
+    ['zerona','Duelista',83,21,'US'],
     ['Paincakes','Iniciador',81,25,'US'],
-    ['supamen','Sentinela',80,23,'US'],
+    ['supamen','Controlador',80,23,'US'],
     ['bao','Controlador',80,23,'US']],
 'KRÜ':[['Less','Sentinela',91,23,'BR'],
        ['saadhak','Controlador',85,27,'AR'],
-       ['heat','Flex',85,25,'BR'],
+       ['heat','Duelista',85,25,'BR'],
        ['mwzera','Iniciador',84,23,'BR'],
        ['Dantedeu5','Duelista',81,18,'CL']],
 C9:[['OXY','Duelista',88,22,'US'],
-    ['Zellsis','Iniciador',82,28,'US'],
+    ['Zellsis','Flex',82,28,'US'],
     ['FireBallOps','Sentinela',82,19,'US'],
-    ['v1c','Flex',82,25,'US'],
+    ['v1c','Controlador',82,25,'US'],
     ['Jackk','Iniciador',80,18,'US']],
 ENVY:[['keznit','Duelista',84,24,'CL'],
-      ['nightz','Flex',84,23,'US'],
-      ['Demon1','Flex',83,23,'US'],
-      ['Rossy','Sentinela',80,25,'US'],
+      ['nightz','Duelista',84,23,'US'],
+      ['Demon1','Sentinela',83,23,'US'],
+      ['Rossy','Controlador',80,25,'US'],
       ['GLYPH','Controlador',80,25,'US']],
-SEN:[['johnqt','Sentinela',88,25,'MA'],
+SEN:[['johnqt','Controlador',88,25,'MA'],
      ['cortezia','Sentinela',86,22,'BR'],
      ['Jerrwin','Duelista',79,24,'IN'],
-     ['Reduxx','Flex',82,21,'US'],
+     ['Reduxx','Duelista',82,21,'US'],
      ['JonahP','Iniciador',81,23,'CA'],
      ['Marved','Controlador',80,27,'CA']],
 FUR:[['basic','Flex',86,18,'BR'],
@@ -3776,40 +3780,40 @@ M80:[['Kyu','Iniciador',80,25,'CA'],
 SRB:[['zander','Controlador',80,24,'BR'],
      ['satellite','Duelista',79,23,'CN'],
      ['exa','Sentinela',79,19,'KR'],
-     ['Smoke','Flex',77,23,'US'],
+     ['Smoke','Duelista',77,23,'US'],
      ['NaturE','Iniciador',76,20,'US']],
 SAD:[['payne','Controlador',75,26,'CO'],
-     ['zaj','Sentinela',74,20,'BR'],
+     ['zaj','Flex',74,20,'BR'],
      ['welyy','Iniciador',73,19,'CA'],
-     ['Pa1nt','Flex',73,24,'AR'],
+     ['Pa1nt','Duelista',73,24,'AR'],
      ['vita','Duelista',73,25,'US']],
 RED:[['forbanz','Duelista',77,25,'BR'],
      ['prozin','Flex',76,22,'BR'],
      ['RgLMeister','Controlador',76,26,'BR'],
      ['sw','Sentinela',75,24,'BR'],
      ['Urango','Iniciador',69,25,'BR']],
-FX:[['Zanatsu','Flex',75,26,'BR'],
+FX:[['Zanatsu','Duelista',75,26,'BR'],
     ['tuyz','Controlador',74,22,'BR'],
     ['jzz','Sentinela',73,22,'BR'],
     ['Palla','Duelista',73,23,'BR'],
     ['mazin','Iniciador',70,26,'BR']],
 NBG:[['toozy','Controlador',75,25,'BR'],
      ['sonofcar','Duelista',74,26,'US'],
-     ['zeek','Flex',74,25,'US'],
-     ['stellar','Iniciador',73,25,'US'],
-     ['stunna','Sentinela',72,19,'BR'],
+     ['zeek','Iniciador',74,25,'US'],
+     ['stellar','Sentinela',73,25,'US'],
+     ['stunna','Controlador',72,19,'BR'],
      ['mas','Sentinela',72,26,'BR']],
 BST:[['Loss','Duelista',78,18,'BR'],
      ['Melser','Controlador',72,26,'CL'],
      ['Tacolilla','Duelista',70,23,'CL'],
      ['chubizin','Iniciador',69,25,'CL'],
-     ['david','Sentinela',69,22,'CL']],
+     ['david','Flex',69,22,'CL']],
 
 /* ---------------- VCT EMEA ---------------- */
 FUT:[['xeus','Duelista',85,25,'TR'],
      ['s0pp','Duelista',85,23,'TR'],
      ['yetujey','Sentinela',85,22,'TR'],
-     ['sociablEE','Flex',83,22,'TR'],
+     ['sociablEE','Controlador',83,22,'TR'],
      ['KROSTALY','Iniciador',81,26,'TR']],
 KC:[['SUYGETSU','Sentinela',86,20,'RU'],
     ['N4RRATE','Flex',86,21,'US'],
@@ -3817,33 +3821,33 @@ KC:[['SUYGETSU','Sentinela',86,20,'RU'],
     ['LewN','Duelista',83,22,'TR'],
     ['Avez','Iniciador',82,21,'EG']],
 TL:[['nAts','Sentinela',88,22,'RU'],
-    ['kamo','Flex',83,23,'PL'],
+    ['kamo','Duelista',83,23,'PL'],
     ['trexx','Iniciador',83,22,'RU'],
-    ['purp0','Duelista',82,21,'RU'],
-    ['Kicks','Flex',81,25,'SV']],
-BBL:[['Lar0k','Flex',87,25,'TR'],
+    ['purp0','Flex',82,21,'RU'],
+    ['Kicks','Controlador',81,25,'SV']],
+BBL:[['Lar0k','Duelista',87,25,'TR'],
      ['Crewen','Sentinela',82,26,'TR'],
      ['Loita','Controlador',81,23,'TR'],
      ['lovers rock','Duelista',81,25,'TR'],
      ['Rosé','Iniciador',80,24,'TR']],
 VIT:[['Derke','Duelista',89,24,'FI'],
      ['Chronicle','Sentinela',93,26,'RU'],
-     ['Jamppi','Flex',89,25,'FI'],
+     ['Jamppi','Iniciador',89,25,'FI'],
      ['PROFEK','Controlador',86,23,'PL'],
      ['Sayonara','Iniciador',89,20,'MD']],
 TH:[['RieNs','Iniciador',90,26,'TR'],
     ['Wo0t','Duelista',87,23,'TR'],
     ['Boo','Controlador',84,27,'LT'],
-    ['koshmaras','Flex',79,20,'LT'],
+    ['koshmaras','Duelista',79,20,'LT'],
     ['benjyfishy','Sentinela',83,22,'GB']],
 FNC:[['Alfajer','Sentinela',92,22,'TR'],
      ['kaajak','Duelista',90,22,'PL'],
      ['crashies','Iniciador',83,28,'US'],
-     ['Cloud','Flex',82,20,'RU'],
-     ['Veqaj','Flex',76,26,'FR'],
+     ['Cloud','Iniciador',82,20,'RU'],
+     ['Veqaj','Controlador',76,26,'FR'],
      ['Boaster','Controlador',80,26,'GB']],
-EF:[['Spear','Flex',83,26,'TR'],
-    ['Izzy','Flex',83,23,'TR'],
+EF:[['Spear','Duelista',83,26,'TR'],
+    ['Izzy','Duelista',83,23,'TR'],
     ['Favian','Duelista',82,21,'TR'],
     ['echo','Sentinela',81,23,'TR'],
     ['nekky','Iniciador',80,21,'TR'],
@@ -3857,14 +3861,14 @@ M8:[['marteen','Duelista',86,19,'CZ'],
     ['starxo','Iniciador',80,24,'PL'],
     ['Proxh','Controlador',80,25,'TR'],
     ['H1ber','Sentinela',80,22,'FI'],
-    ['Minny','Flex',80,25,'CZ']],
+    ['Minny','Duelista',80,25,'CZ']],
 GX:[['neT','Iniciador',81,24,'US'],
     ['westside','Sentinela',81,25,'PL'],
-    ['Flickless','Flex',80,20,'BE'],
+    ['Flickless','Controlador',80,20,'BE'],
     ['ara','Duelista',80,26,'RO'],
     ['Jesse','Controlador',80,23,'TH']],
-AUR:[['Javelin','Duelista',82,23,'SE'],
-     ['Darxcioo','Iniciador',81,24,'DE'],
+AUR:[['Javelin','Iniciador',82,23,'SE'],
+     ['Darxcioo','Duelista',81,24,'DE'],
      ['sizo','Sentinela',80,20,'FR'],
      ['avey','Controlador',80,26,'UA']],
 EP:[['paTiTek','Controlador',80,19,'PL'],
@@ -3873,23 +3877,23 @@ EP:[['paTiTek','Controlador',80,19,'PL'],
     ['Lime','Duelista',79,21,'FI'],
     ['iluri','Iniciador',77,22,'FI']],
 FF:[['batujnax','Iniciador',80,24,'TR'],
-    ['hezacoil','Sentinela',80,24,'TR'],
+    ['hezacoil','Controlador',80,24,'TR'],
     ['Kachoww','Duelista',80,20,'TR'],
     ['DeadInk','Duelista',80,22,'TR'],
     ['reazy','Controlador',80,22,'TR'],
     ['b1squw1','Flex',78,26,'TR']],
-JL:[['UNFAKE','Duelista',80,23,'NL'],
-    ['kamyk','Iniciador',80,24,'FI'],
+JL:[['UNFAKE','Iniciador',80,23,'NL'],
+    ['kamyk','Controlador',80,24,'FI'],
     ['chiwa','Sentinela',80,21,'DE'],
-    ['runneR','Flex',77,23,'IT'],
+    ['runneR','Duelista',77,23,'IT'],
     ['doma','Controlador',76,21,'TR'],
-    ['Pa1ze','Sentinela',76,25,'PL']],
+    ['Pa1ze','Duelista',76,25,'PL']],
 SGE:[['azury','Iniciador',76,22,'PL'],
-     ['Fizzy','Sentinela',76,26,'ES'],
-     ['MONSTEERR','Flex',75,26,'DK'],
-     ['musashi','Duelista',73,19,'FR'],
+     ['Fizzy','Controlador',76,26,'ES'],
+     ['MONSTEERR','Duelista',75,26,'DK'],
+     ['musashi','Iniciador',73,19,'FR'],
      ['kendo','Controlador',72,26,'ES'],
-     ['Jamelinho213','Controlador',70,20,'IT']],
+     ['Jamelinho213','Duelista',70,20,'IT']],
 MISA:[['sh1va','Controlador',74,25,'GB'],
       ['Ronniee','Sentinela',74,25,'DE'],
       ['MERZ','Flex',73,26,'TR'],
@@ -3897,44 +3901,44 @@ MISA:[['sh1va','Controlador',74,25,'GB'],
       ['Fortres','Duelista',72,26,'DK'],
       ['pAwn1','Iniciador',71,20,'FR']],
 MDR:[['Kada','Iniciador',74,24,'TR'],
-     ['Sevire','Sentinela',74,22,'FR'],
-     ['nataNk','Duelista',72,19,'ES'],
+     ['Sevire','Iniciador',74,22,'FR'],
+     ['nataNk','Sentinela',72,19,'ES'],
      ['sh1n','Controlador',72,19,'IT'],
-     ['TakaS','Flex',71,19,'TR']],
-MIR:[['Bishepss','Sentinela',73,21,'SE'],
-     ['Redgar','Duelista',70,20,'FR'],
-     ['Raz','Flex',70,21,'SE'],
-     ['reblyik','Iniciador',69,19,'NL'],
-     ['kospa1n','Controlador',69,26,'DK']],
+     ['TakaS','Duelista',71,19,'TR']],
+MIR:[['Bishepss','Controlador',73,21,'SE'],
+     ['Redgar','Iniciador',70,20,'FR'],
+     ['Raz','Duelista',70,21,'SE'],
+     ['reblyik','Sentinela',69,19,'NL'],
+     ['kospa1n','Duelista',69,26,'DK']],
 PCF:[['qpert','Controlador',80,22,'SV'],
-     ['al0rante','Flex',80,22,'GE'],
+     ['al0rante','Sentinela',80,22,'GE'],
      ['NINJA','Sentinela',80,22,'PL'],
      ['seven','Duelista',80,21,'MX'],
      ['waddle','Iniciador',80,20,'GB']],
 
 /* ---------------- VCT Pacific ---------------- */
-GEN:[['t3xture','Flex',93,22,'KR'],
+GEN:[['t3xture','Duelista',93,22,'KR'],
      ['Karon','Controlador',87,22,'KR'],
      ['Ash','Duelista',84,24,'KR'],
      ['Efina','Iniciador',84,26,'KR'],
      ['Raxcal','Sentinela',84,19,'KR']],
 NS:[['Dambi','Duelista',89,24,'KR'],
     ['Rb','Controlador',85,24,'KR'],
-    ['Francis','Duelista',85,26,'PH'],
+    ['Francis','Flex',85,26,'PH'],
     ['Xross','Iniciador',84,22,'SG'],
     ['Ivy','Sentinela',81,23,'TH']],
-GE:[['PatMen','Flex',89,24,'PH'],
+GE:[['PatMen','Controlador',89,24,'PH'],
     ['UdoTan','Duelista',82,21,'PH'],
-    ['Autumn','Duelista',82,22,'MY'],
+    ['Autumn','Sentinela',82,22,'MY'],
     ['xavi8k','Controlador',81,22,'TH'],
     ['Kr1stal','Iniciador',80,26,'KR']],
 T1:[['Meteor','Flex',87,24,'KR'],
     ['BuZz','Duelista',86,25,'KR'],
     ['Munchkin','Controlador',86,28,'KR'],
     ['DH','Sentinela',86,19,'AU'],
-    ['stax','Sentinela',84,27,'KR'],
-    ['iZu','Iniciador',82,24,'KR']],
-PRX:[['f0rsakeN','Flex',91,23,'ID'],
+    ['stax','Controlador',84,27,'KR'],
+    ['iZu','Flex',82,24,'KR']],
+PRX:[['f0rsakeN','Controlador',91,23,'ID'],
      ['Jinggg','Duelista',88,22,'SG'],
      ['something','Duelista',90,24,'RU'],
      ['d4v41','Sentinela',86,24,'ID'],
@@ -3944,9 +3948,9 @@ DFM:[['Caedye','Sentinela',85,19,'JP'],
      ['SSeeS','Controlador',81,20,'JP'],
      ['Akame','Iniciador',85,20,'JP'],
      ['Meiy','Duelista',80,23,'JP']],
-VL:[['Klaus','Controlador',82,21,'KR'],
+VL:[['Klaus','Duelista',82,21,'KR'],
     ['oonzmlp','Sentinela',81,24,'KR'],
-    ['Foxy9','Flex',80,24,'KR'],
+    ['Foxy9','Controlador',80,24,'KR'],
     ['C1ndeR','Controlador',80,19,'KR'],
     ['XuNa','Iniciador',80,23,'KR'],
     ['Zexy','Duelista',80,20,'KR']],
@@ -3954,8 +3958,8 @@ KRX:[['MaKo','Controlador',88,25,'KR'],
      ['HYUNMIN','Duelista',86,26,'KR'],
      ['BeYN','Iniciador',85,22,'KR'],
      ['yong','Sentinela',83,20,'KR'],
-     ['free1ng','Flex',80,22,'KR']],
-ZETA:[['eKo','Flex',83,22,'KR'],
+     ['free1ng','Duelista',80,22,'KR']],
+ZETA:[['eKo','Duelista',83,22,'KR'],
       ['SugarZ3ro','Controlador',82,24,'JP'],
       ['Absol','Duelista',82,24,'JP'],
       ['SyouTa','Sentinela',80,23,'JP'],
@@ -3966,105 +3970,105 @@ FS:[['primmie','Duelista',89,20,'TH'],
     ['JitBoyS','Duelista',80,19,'TH']],
 RRQ:[['Monyet','Controlador',86,19,'ID'],
      ['xffero','Sentinela',82,23,'ID'],
-     ['crazyguy','Iniciador',82,24,'VN'],
+     ['crazyguy','Flex',82,24,'VN'],
      ['Xan','Duelista',81,26,'MY'],
-     ['Jemkin','Flex',80,26,'RU'],
-     ['Kushy','Controlador',80,21,'MY']],
+     ['Jemkin','Duelista',80,26,'RU'],
+     ['Kushy','Iniciador',80,21,'MY']],
 TS:[['Sylvan','Controlador',81,25,'KR'],
     ['kellyS','Flex',80,22,'PH'],
     ['natz','Sentinela',80,24,'IN'],
     ['STYRON','Iniciador',80,23,'SG'],
     ['Zeus','Duelista',80,19,'PH']],
-ONG:[['Ray','Iniciador',83,19,'KR'],
-     ['Cloudy','Controlador',80,23,'TH'],
-     ['Wolverine','Sentinela',80,24,'JP'],
+ONG:[['Ray','Duelista',83,19,'KR'],
+     ['Cloudy','Iniciador',80,23,'TH'],
+     ['Wolverine','Flex',80,24,'JP'],
      ['Faither','Flex',80,20,'PH'],
      ['Mobugi','Controlador',80,25,'AU'],
-     ['Hermes','Duelista',77,19,'IN']],
-DK:[['Kally','Duelista',80,19,'KR'],
+     ['Hermes','Sentinela',77,19,'IN']],
+DK:[['Kally','Iniciador',80,19,'KR'],
     ['shu','Controlador',79,22,'KR'],
-    ['JaXe','Sentinela',78,22,'AU'],
-    ['CabezA','Flex',76,25,'PH'],
-    ['Ramgi','Iniciador',75,22,'AU']],
-FL:[['Hals','Iniciador',79,19,'PH'],
+    ['JaXe','Iniciador',78,22,'AU'],
+    ['CabezA','Sentinela',76,25,'PH'],
+    ['Ramgi','Duelista',75,22,'AU']],
+FL:[['Hals','Flex',79,19,'PH'],
     ['CLZ','Controlador',78,19,'SG'],
-    ['GangPin','Flex',78,26,'TH'],
-    ['Anthem','Sentinela',76,25,'JP'],
+    ['GangPin','Controlador',78,26,'TH'],
+    ['Anthem','Iniciador',76,25,'JP'],
     ['Aace','Duelista',75,19,'MY']],
 SP:[['Laz','Sentinela',78,23,'JP'],
-    ['PTC','Duelista',76,22,'KR'],
-    ['Kadoom','Iniciador',75,23,'KR'],
-    ['Apinya','Controlador',75,26,'KR'],
-    ['NIZ','Flex',74,20,'TH']],
-RC:[['Jremy','Flex',78,24,'KR'],
+    ['PTC','Controlador',76,22,'KR'],
+    ['Kadoom','Duelista',75,23,'KR'],
+    ['Apinya','Flex',75,26,'KR'],
+    ['NIZ','Iniciador',74,20,'TH']],
+RC:[['Jremy','Duelista',78,24,'KR'],
     ['Persia','Controlador',77,22,'PH'],
-    ['BRIAN','Sentinela',76,23,'VN'],
-    ['Yoshiii','Duelista',74,21,'IN'],
+    ['BRIAN','Iniciador',76,23,'VN'],
+    ['Yoshiii','Sentinela',74,21,'IN'],
     ['hiroronn','Sentinela',74,20,'MY'],
-    ['Dep','Iniciador',73,20,'SG']],
-ART:[['RedLight','Flex',76,22,'KR'],
-     ['Rico','Sentinela',73,20,'JP'],
-     ['ANNYEON','Iniciador',72,20,'KR'],
-     ['JaebiN','Controlador',72,25,'MY'],
+    ['Dep','Duelista',73,20,'SG']],
+ART:[['RedLight','Iniciador',76,22,'KR'],
+     ['Rico','Controlador',73,20,'JP'],
+     ['ANNYEON','Duelista',72,20,'KR'],
+     ['JaebiN','Flex',72,25,'MY'],
      ['XIV','Duelista',71,25,'ID']],
-XIP:[['canady','Duelista',73,19,'PH'],
-     ['endoist','Flex',73,24,'KR'],
+XIP:[['canady','Iniciador',73,19,'PH'],
+     ['endoist','Duelista',73,24,'KR'],
      ['aLerT','Controlador',71,24,'ID'],
-     ['doffy','Iniciador',70,26,'KR'],
+     ['doffy','Duelista',70,26,'KR'],
      ['Surf','Sentinela',70,25,'KR'],
      ['bnwgiggs','Sentinela',70,24,'AU']],
 QTD:[['Misaya','Iniciador',73,19,'KR'],
-     ['yuran','Controlador',72,22,'KR'],
-     ['Kippei','Duelista',69,24,'KR'],
-     ['Pkm','Sentinela',69,23,'MY'],
-     ['margaret','Flex',69,19,'KR']],
+     ['yuran','Duelista',72,22,'KR'],
+     ['Kippei','Controlador',69,24,'KR'],
+     ['Pkm','Duelista',69,23,'MY'],
+     ['margaret','Sentinela',69,19,'KR']],
 
 /* ---------------- VCT China ---------------- */
 NOVA:[['Ezeir','Controlador',81,25,'CN'],
       ['qiutiaN','Iniciador',80,19,'CN'],
-      ['cb','Duelista',80,25,'CN'],
+      ['cb','Flex',80,25,'CN'],
       ['GuanG','Sentinela',80,19,'CN'],
       ['swagzor','Duelista',80,25,'RU'],
       ['kodeth','Duelista',80,23,'CN']],
 TYL:[['SiuFatBB','Iniciador',83,23,'HK'],
-     ['Scales','Flex',83,20,'CN'],
-     ['slowly','Duelista',83,20,'CN'],
-     ['Erv','Controlador',82,24,'CN'],
+     ['Scales','Sentinela',83,20,'CN'],
+     ['slowly','Flex',83,20,'CN'],
+     ['Erv','Flex',82,24,'CN'],
      ['splash','Duelista',80,20,'ID'],
      ['xihe','Controlador',80,22,'CN']],
 BLG:[['yilai','Sentinela',84,25,'CN'],
      ['rushia','Flex',82,19,'CN'],
      ['nephh','Iniciador',82,22,'SG'],
-     ['Knight','Flex',82,22,'CN'],
+     ['Knight','Iniciador',82,22,'CN'],
      ['whzy','Duelista',81,22,'CN']],
-JDG:[['zhe','Flex',84,26,'CN'],
+JDG:[['zhe','Duelista',84,26,'CN'],
      ['BerLIN','Iniciador',83,21,'TW'],
      ['jkuro','Duelista',80,22,'CN'],
-     ['Yuicaw','Sentinela',80,23,'TW'],
+     ['Yuicaw','Flex',80,23,'TW'],
      ['crownfisher','Controlador',80,25,'CN']],
 EDG:[['ZmjjKK','Duelista',90,23,'CN'],
-     ['CHICHOO','Sentinela',89,26,'CN'],
+     ['CHICHOO','Flex',89,26,'CN'],
      ['nobody','Iniciador',84,25,'CN'],
      ['Smoggy','Controlador',83,25,'CN'],
-     ['stew','Sentinela',83,23,'KR'],
+     ['stew','Controlador',83,23,'KR'],
      ['Jieni7','Flex',81,20,'KR']],
 XLG:[['happywei','Sentinela',85,26,'TW'],
      ['WsLeo','Iniciador',83,21,'TW'],
      ['Lysoar','Controlador',83,26,'CN'],
-     ['Sharks','Iniciador',82,20,'CN'],
+     ['Sharks','Duelista',82,20,'CN'],
      ['NoMan','Duelista',81,24,'HK'],
      ['Rarga','Duelista',80,22,'RU']],
 TE:[['deLb','Sentinela',84,20,'ID'],
     ['LuoK1ng','Controlador',83,23,'CN'],
-    ['Kai','Iniciador',83,25,'CN'],
+    ['Kai','Duelista',83,25,'CN'],
     ['FKEY','Iniciador',83,20,'CN'],
-    ['Abo','Iniciador',81,26,'CN'],
+    ['Abo','Sentinela',81,26,'CN'],
     ['FengF','Duelista',80,21,'CN']],
 TEC:[['Dynamite','Duelista',84,26,'CN'],
      ['ra1ny','Duelista',84,23,'CN'],
      ['Haodong','Sentinela',83,24,'CN'],
      ['Coco','Controlador',83,24,'CN'],
-     ['Spitfires','Flex',81,20,'CN'],
+     ['Spitfires','Duelista',81,20,'CN'],
      ['lucas','Iniciador',80,22,'CN']],
 WOL:[['Spring','Controlador',85,21,'TW'],
      ['aluba','Iniciador',85,26,'CN'],
@@ -4072,13 +4076,13 @@ WOL:[['Spring','Controlador',85,21,'TW'],
      ['yosemite','Sentinela',81,23,'CN'],
      ['glacier','Duelista',80,23,'TW'],
      ['nothing','Iniciador',80,23,'CN']],
-AG:[['Bai','Sentinela',84,23,'CN'],
+AG:[['Bai','Flex',84,23,'CN'],
     ['Shr1mp','Iniciador',83,20,'CN'],
     ['K1ra','Flex',83,19,'CN'],
     ['f4ngeer','Duelista',81,19,'RU'],
-    ['iamgrq','Controlador',80,25,'CN']],
+    ['iamgrq','Flex',80,25,'CN']],
 FPX:[['Xlele','Duelista',84,23,'KR'],
-     ['Setrod','Flex',84,20,'CN'],
+     ['Setrod','Duelista',84,20,'CN'],
      ['coconut','Iniciador',83,20,'KR'],
      ['AAAAY','Sentinela',82,22,'KR'],
      ['PHO','Controlador',82,23,'CN']],
@@ -4086,7 +4090,7 @@ DRG:[['vo0kashu','Sentinela',85,20,'CN'],
      ['Nicc','Iniciador',83,23,'TW'],
      ['SpiritZ1','Duelista',83,23,'CN'],
      ['Life','Duelista',82,25,'KR'],
-     ['Flex1n','Iniciador',80,26,'CN'],
+     ['Flex1n','Controlador',80,26,'CN'],
      ['Verse','Controlador',80,20,'CN']],
 WBG:[['AcMe','Duelista',80,22,'CN'],
      ['Satoshi','Controlador',80,22,'CN'],
@@ -4098,18 +4102,18 @@ RA:[['Guran','Duelista',79,20,'CN'],
     ['Potter','Iniciador',77,22,'KR'],
     ['Z1yan','Sentinela',77,23,'CN'],
     ['nnono','Controlador',75,21,'CN'],
-    ['Ben1Ley','Flex',75,21,'CN']],
+    ['Ben1Ley','Duelista',75,21,'CN']],
 KBG:[['sibeastw0w','Iniciador',80,25,'KR'],
      ['Akeman','Duelista',78,23,'KR'],
      ['coldfish','Flex',78,19,'CN'],
      ['Tonk','Controlador',77,24,'CN'],
-     ['Ying','Sentinela',76,20,'CN'],
-     ['Krst1Ng','Flex',75,23,'CN']],
-AT:[['Dingwei','Sentinela',78,19,'KR'],
-    ['Layla','Flex',76,23,'CN'],
-    ['Folykiki','Controlador',75,21,'CN'],
-    ['monk','Duelista',73,25,'CN'],
-    ['Eren','Iniciador',73,25,'CN'],
+     ['Ying','Flex',76,20,'CN'],
+     ['Krst1Ng','Controlador',75,23,'CN']],
+AT:[['Dingwei','Iniciador',78,19,'KR'],
+    ['Layla','Sentinela',76,23,'CN'],
+    ['Folykiki','Duelista',75,21,'CN'],
+    ['monk','Controlador',73,25,'CN'],
+    ['Eren','Flex',73,25,'CN'],
     ['Pink','Iniciador',72,20,'CN']],
 AQ:[['Juicy','Duelista',76,19,'CN'],
     ['S1Mon','Iniciador',75,25,'CN'],
@@ -4118,7 +4122,7 @@ AQ:[['Juicy','Duelista',76,19,'CN'],
     ['FFs','Sentinela',73,26,'CN']],
 WSIG:[['M1ng929','Duelista',74,19,'CN'],
       ['Ye','Controlador',74,26,'CN'],
-      ['jowa','Flex',73,20,'CN'],
+      ['jowa','Iniciador',73,20,'CN'],
       ['Levius','Sentinela',71,25,'KR'],
       ['Apathy','Iniciador',70,22,'CN'],
       ['Ugly','Flex',70,24,'CN']],
@@ -4136,22 +4140,22 @@ VLG:[['Nana','Duelista',75,26,'KR'],
 LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['Sacy','Iniciador',84,29,'BR'],
        ['eeiu','Iniciador',83,24,'US'],
-       ['cauanzin','Duelista',80,21,'BR'],
-       ['GSR','Flex',75,26,'SE'],
+       ['cauanzin','Iniciador',80,21,'BR'],
+       ['GSR','Sentinela',75,26,'SE'],
        ['sheydos','Controlador',75,26,'RU'],
        ['Shao','Iniciador',74,25,'RU'],
        ['Eggsterr','Controlador',69,21,'PE'],
        ['tomaszy','Iniciador',69,24,'GB'],
-       ['bipo','Controlador',69,21,'IT'],
+       ['bipo','Flex',69,21,'IT'],
        ['Flicker','Duelista',69,24,'KR'],
        ['thyy','Flex',69,22,'AU'],
-       ['Leviathan','Flex',69,24,'PH'],
-       ['Crws','Iniciador',75,29,'TH'],
+       ['Leviathan','Controlador',69,24,'PH'],
+       ['Crws','Controlador',75,29,'TH'],
        ['CyvOph','Flex',76,27,'FR'],
        ['Filu','Duelista',75,27,'PL'],
        ['Moves','Iniciador',74,27,'KR'],
        ['zjc','Iniciador',74,26,'CN'],
-       ['GREEN','Duelista',73,27,'TW'],
+       ['GREEN','Iniciador',73,27,'TW'],
        ['niffy','Duelista',73,26,'TH'],
        ['MiniBoo','Duelista',74,26,'LT'],
        ['FT','Controlador',73,26,'CN'],
@@ -4163,8 +4167,568 @@ LIVRE:[['TenZ','Duelista',86,25,'CA'],
        ['peixeh','Controlador',70,18,'BR',89],
        ['Luid','Duelista',71,18,'BR',91],
        ['turkish','Sentinela',70,18,'BR',88],
-       ['sanoj','Flex',69,17,'BR',92],
+       ['sanoj','Duelista',69,17,'BR',92],
        ['znajder','Duelista',69,17,'BR',93]],
+};
+
+
+/* ===== data/agentes-reais.js ===== */
+/* ============================================================
+   MAINS REAIS — o que cada jogador de verdade joga
+   ------------------------------------------------------------
+   Tirado das tabelas de estatística por evento do VLR.gg (VCT 2026:
+   Kickoff, Stage 1, Stage 2 das quatro ligas e os Challengers),
+   somando os eventos com mais peso para os mais recentes. A ordem é
+   a de uso: o primeiro é o boneco que ele mais jogou.
+
+   Um main daqui nasce com DOMÍNIO (familiaridade 70 ou mais), e
+   boneco dominado pode entrar em qualquer mapa sem contar como
+   desvio de função — é o Chamber do duelista, o Viper do sentinela.
+
+   Quem não está aqui (pouco jogo registrado) recebe mains sorteados
+   da própria função, como qualquer jogador gerado.
+   ============================================================ */
+const AGENTES_REAIS={
+  "keiko":["Omen","Jett","Chamber","Phoenix"],
+  "skuba":["Viper","Cypher","Astra","Omen"],
+  "Ethan":["KAY/O","Phoenix","Tejo","Fade","Omen"],
+  "mada":["Neon","Harbor","Phoenix","Waylay"],
+  "brawk":["Sova","Vyse","Brimstone"],
+  "Neon":["Chamber","Omen","Jett","Brimstone"],
+  "spike":["Neon","Omen","Viper"],
+  "Sato":["Phoenix","Omen","Yoru","Waylay"],
+  "kiNgg":["Viper","Astra","Omen","Breach"],
+  "blowz":["Fade","Sova","Skye"],
+  "Cryocells":["Cypher","Viper","Chamber"],
+  "Asuna":["Phoenix","Omen","Sage","Neon"],
+  "vora":["Fade","Sova","Skye"],
+  "Timotino":["Neon","Jett","Phoenix","Raze"],
+  "bang":["Omen","Harbor","Viper","Astra"],
+  "trent":["Fade","Sova","Skye"],
+  "valyn":["Astra","Omen","Harbor"],
+  "BABYBAY":["Chamber","Vyse","Waylay"],
+  "leaf":["Viper","Sage","Phoenix","Yoru","Astra"],
+  "jawgemo":["Neon","Raze","Phoenix","Yoru"],
+  "lukxo":["Chamber","Viper","Yoru","Harbor"],
+  "tkzin":["Neon","Waylay","Raze"],
+  "erde":["Omen","Astra","Sage","KAY/O"],
+  "Darker":["Viper","Omen","Phoenix","Astra","Vyse"],
+  "DaviH":["Sova","Fade"],
+  "aspas":["Jett","Raze","Neon"],
+  "zekken":["Phoenix","Neon","Omen","Sova"],
+  "Verno":["Fade","Sova","Omen","Skye","Sage"],
+  "Mazino":["Omen","Harbor","Astra","Vyse"],
+  "tex":["Vyse","Cypher","Viper","Astra","Chamber"],
+  "dgzin":["Neon","Jett","Raze","Chamber"],
+  "zerona":["Phoenix","Viper","Yoru"],
+  "Paincakes":["Sova","Fade","Skye"],
+  "supamen":["Viper","Omen","Astra"],
+  "bao":["Vyse","Omen","Killjoy","Cypher","Brimstone"],
+  "Less":["Viper","Cypher","Omen"],
+  "saadhak":["Omen","Harbor","KAY/O","Brimstone"],
+  "heat":["Chamber","Phoenix","Raze"],
+  "mwzera":["Fade","Sova"],
+  "Dantedeu5":["Neon","Waylay","Phoenix"],
+  "OXY":["Neon","Raze","Yoru"],
+  "Zellsis":["Viper","KAY/O","Sage","Tejo","Killjoy"],
+  "FireBallOps":["Cypher","Vyse","Viper"],
+  "v1c":["Omen","Viper","Astra","Harbor"],
+  "Jackk":["Sova","Fade","Skye"],
+  "keznit":["Neon","Raze","Jett","Waylay"],
+  "nightz":["Phoenix","Omen","Yoru"],
+  "Demon1":["Chamber","Omen","Jett","Killjoy","Veto"],
+  "Rossy":["Viper","Astra","Omen","Tejo"],
+  "GLYPH":["Sova","Fade","Omen","KAY/O","Astra"],
+  "johnqt":["Harbor","Omen","Viper","Phoenix","Sage"],
+  "cortezia":["Viper","Vyse","Killjoy","Cypher","Veto"],
+  "Jerrwin":["Neon","Waylay","Raze"],
+  "Reduxx":["Omen","Phoenix","Jett","Iso","Raze"],
+  "JonahP":["Sova","Fade","Skye"],
+  "Marved":["Harbor","Omen","Viper"],
+  "basic":["Phoenix","Harbor","KAY/O"],
+  "artzin":["Omen","Astra","Vyse","Harbor","Killjoy"],
+  "Shyy":["Cypher","Viper","Chamber","Killjoy"],
+  "koalanoob":["Jett","Neon","Yoru","Omen","Phoenix"],
+  "C0M":["Sova","Fade","Skye"],
+  "Kyu":["Sova","Fade","Breach"],
+  "Boni":["Neon","Waylay","Raze"],
+  "NiSMO":["Raze","Deadlock","KAY/O","Phoenix","Omen"],
+  "alvinboy":["Cypher","Omen","Vyse","Chamber"],
+  "Spaz":["Viper","Omen","Harbor","Brimstone","Astra"],
+  "gobera":["Neon","Jett","Raze"],
+  "qck":["Phoenix","Jett","Killjoy"],
+  "xenom":["Viper","Omen","Astra","Brimstone"],
+  "frz":["Sova","Skye","Fade"],
+  "Brinks":["Omen","Cypher","Killjoy"],
+  "zander":["Astra","Omen","Harbor"],
+  "satellite":["Phoenix","Raze","Tejo"],
+  "exa":["Viper","Cypher","Harbor"],
+  "Smoke":["Jett","Chamber"],
+  "NaturE":["Fade","Sova","Skye"],
+  "payne":["Omen","Brimstone","Astra"],
+  "zaj":["Cypher","Viper","Yoru"],
+  "welyy":["Fade","Sova","Skye"],
+  "Pa1nt":["Phoenix","Raze","Neon"],
+  "vita":["Neon","Jett","Chamber"],
+  "forbanz":["Jett","Neon","Waylay"],
+  "prozin":["Phoenix","KAY/O","Viper"],
+  "RgLMeister":["Omen","Harbor","Astra"],
+  "sw":["Viper","Cypher","Vyse"],
+  "Urango":["Sova","Fade","Tejo"],
+  "Zanatsu":["Neon","Sova","Raze"],
+  "tuyz":["Omen","Harbor","Astra"],
+  "jzz":["Vyse","Viper","Cypher"],
+  "Palla":["Waylay","Jett","Neon"],
+  "mazin":["Fade","Skye","Omen","KAY/O"],
+  "toozy":["Omen","Viper","Cypher"],
+  "sonofcar":["Jett","Raze","Neon"],
+  "zeek":["Sova","Fade","Viper"],
+  "stellar":["Cypher","Vyse","Breach"],
+  "stunna":["Phoenix","Omen","Brimstone"],
+  "Loss":["Jett","Chamber","Sage"],
+  "Melser":["Omen","Sova","Fade"],
+  "Tacolilla":["Neon","Raze","Waylay","Viper"],
+  "chubizin":["Harbor","Fade","Sova","Omen","Astra"],
+  "david":["Cypher","Viper","Phoenix"],
+  "xeus":["Raze","Waylay","Phoenix"],
+  "s0pp":["Neon","Jett"],
+  "yetujey":["Cypher","Viper","Astra","Killjoy"],
+  "sociablEE":["Omen","Breach","Phoenix","Brimstone","Astra"],
+  "KROSTALY":["Sova","Skye","Fade"],
+  "SUYGETSU":["Cypher","Astra","Viper","Vyse"],
+  "N4RRATE":["Chamber","Phoenix","Fade","Sage","Veto"],
+  "dos9":["Omen","Harbor","Astra","Neon"],
+  "LewN":["Neon","Raze","Waylay","Jett"],
+  "Avez":["Fade","Sova","Omen","Phoenix","Tejo"],
+  "nAts":["Cypher","Viper","Killjoy","Vyse"],
+  "kamo":["Phoenix","Raze","Yoru","KAY/O"],
+  "trexx":["Sova","Fade","Skye"],
+  "purp0":["Jett","Neon","Fade","Chamber","Skye"],
+  "Kicks":["Omen","Harbor","Tejo"],
+  "Lar0k":["Raze","Waylay","Deadlock","Neon","Breach"],
+  "Crewen":["Cypher","Vyse","Viper"],
+  "Loita":["Omen","Astra","Brimstone"],
+  "lovers rock":["Neon","Yoru","Jett","Waylay"],
+  "Rosé":["Sova","Fade","Skye"],
+  "Derke":["Jett","Neon","Raze"],
+  "Chronicle":["Chamber","Vyse","Viper"],
+  "Jamppi":["Fade","Phoenix","Yoru","KAY/O","Sova"],
+  "PROFEK":["Omen","Astra","Harbor"],
+  "Sayonara":["Sova","Viper","Fade","Phoenix"],
+  "RieNs":["Sova","Fade","Viper","Skye"],
+  "Wo0t":["Jett","Chamber","Raze","Yoru","Neon"],
+  "Boo":["Omen","Astra","Fade","Brimstone"],
+  "koshmaras":["Neon","Phoenix","Omen","Chamber"],
+  "benjyfishy":["Cypher","Vyse","Sage","Viper"],
+  "Alfajer":["Cypher","Neon","Chamber","Viper","Killjoy"],
+  "kaajak":["Neon","Yoru","Raze","Jett","Waylay"],
+  "crashies":["Fade","Viper","Sova","Cypher","Skye"],
+  "Cloud":["Sova","Viper","Fade","Tejo","Skye"],
+  "Veqaj":["Viper","KAY/O"],
+  "Boaster":["Omen","Harbor","Astra","Brimstone"],
+  "Spear":["Neon","Phoenix","Jett"],
+  "Izzy":["Neon","Jett","Waylay"],
+  "Favian":["Neon","Veto","Raze","Waylay","Phoenix"],
+  "echo":["Viper","Cypher","Vyse","Veto"],
+  "nekky":["Fade","Sova","Tejo"],
+  "audaz":["Omen","Astra","Brimstone"],
+  "chloric":["Sova","Fade","Skye"],
+  "hiro":["Viper","Cypher","Chamber","Vyse","Tejo"],
+  "ExiT":["Neon","Waylay","Phoenix"],
+  "Ruxic":["Omen","Astra","Harbor","Viper"],
+  "Kolosha":["Neon","Waylay"],
+  "marteen":["Phoenix","Raze","Yoru","Veto"],
+  "starxo":["Sova","Fade","Skye"],
+  "Proxh":["Omen"],
+  "H1ber":["Cypher","Viper"],
+  "Minny":["Neon","Jett","Cypher","Waylay","Viper"],
+  "neT":["Sova","Fade","Omen","Viper","Astra"],
+  "westside":["Phoenix","Cypher","Waylay"],
+  "Flickless":["Viper","Phoenix","Omen","Cypher","Fade"],
+  "ara":["Neon","Jett","Raze","Waylay"],
+  "Jesse":["Omen","Phoenix","Brimstone"],
+  "Javelin":["Sova","Skye","Fade"],
+  "Darxcioo":["Neon","Jett","Raze"],
+  "sizo":["Viper","Veto","Cypher"],
+  "avey":["Omen","Astra"],
+  "paTiTek":["Omen","Harbor","Brimstone"],
+  "kozzy":["Neon","Raze","Jett"],
+  "MAGNUM":["Vyse","Cypher","Astra"],
+  "Lime":["Phoenix","Neon","Yoru"],
+  "iluri":["Sova","Skye","Fade"],
+  "batujnax":["Fade","Sova","Skye"],
+  "hezacoil":["Astra","Omen","Vyse"],
+  "Kachoww":["Neon","Omen","Yoru"],
+  "DeadInk":["Waylay","Chamber","Raze"],
+  "reazy":["Viper","Omen","Sova"],
+  "UNFAKE":["Sova","Fade","Skye"],
+  "kamyk":["Omen","Viper","Astra"],
+  "chiwa":["Cypher","Viper","Vyse"],
+  "runneR":["Raze","KAY/O","Jett"],
+  "doma":["Cypher","Omen","Viper"],
+  "Pa1ze":["Neon","Jett"],
+  "azury":["Viper","Fade","Omen"],
+  "Fizzy":["Astra","Omen","Cypher"],
+  "MONSTEERR":["Vyse","Phoenix","Waylay"],
+  "musashi":["Sova","Fade","Raze"],
+  "Jamelinho213":["Neon","Raze","Jett"],
+  "Kada":["Sova","Omen","Skye"],
+  "Sevire":["Omen","Fade","Tejo"],
+  "nataNk":["Cypher","Killjoy","Viper"],
+  "sh1n":["Viper","Phoenix","Astra"],
+  "TakaS":["Neon","Waylay","Jett"],
+  "Bishepss":["Omen","Astra","Brimstone"],
+  "Redgar":["Fade","Sova","Skye"],
+  "Raz":["Neon"],
+  "reblyik":["Vyse","Viper","Cypher"],
+  "kospa1n":["Phoenix","Jett","Raze"],
+  "qpert":["Omen","Harbor","Astra"],
+  "al0rante":["Viper","Cypher","Veto","Vyse"],
+  "NINJA":["Chamber","Deadlock","Fade","Sage","Sova"],
+  "seven":["Neon","Raze","Phoenix","KAY/O"],
+  "waddle":["Fade","Sova","Phoenix"],
+  "t3xture":["Chamber","Raze","Neon","Phoenix"],
+  "Karon":["Omen","Astra","Viper","Harbor","Phoenix"],
+  "Ash":["Neon","Omen","Brimstone"],
+  "Efina":["Fade","Sova"],
+  "Raxcal":["Sage","Vyse","Phoenix"],
+  "Dambi":["Neon","Waylay","Jett","Phoenix","Raze"],
+  "Rb":["Omen","Yoru","Harbor","Brimstone","Astra"],
+  "Francis":["Yoru","Sova","Neon","Omen","Breach"],
+  "Xross":["Sova","Fade","Phoenix","Tejo"],
+  "Ivy":["Viper","Cypher","Killjoy","Chamber"],
+  "PatMen":["Omen","Viper","Skye","Fade"],
+  "UdoTan":["Raze","Neon","Waylay","Sage"],
+  "Autumn":["Chamber","Yoru","Veto","Brimstone","Cypher"],
+  "xavi8k":["Omen","Astra","Sova","Sage"],
+  "Kr1stal":["Sova","Tejo","Deadlock","Killjoy","Fade"],
+  "Meteor":["Yoru","Chamber","Viper","Jett","Killjoy"],
+  "BuZz":["Neon","Phoenix","Raze","Jett"],
+  "Munchkin":["Viper","Cypher","Omen","Sova","Astra"],
+  "DH":["Omen","Cypher","Viper"],
+  "stax":["Omen","Harbor","Skye","Fade","Sova"],
+  "iZu":["Sova","Fade","Chamber","Neon","Killjoy"],
+  "f0rsakeN":["Omen","Harbor","Mix","Neon","Astra"],
+  "Jinggg":["Raze","Harbor","Waylay","Phoenix","Omen"],
+  "something":["Yoru","Sage","Jett","Viper","Neon"],
+  "d4v41":["Viper","Chamber","Vyse","Sage","Killjoy"],
+  "invy":["Sova","Fade","Skye","Harbor"],
+  "Caedye":["Cypher","Omen","Viper","Vyse","Killjoy"],
+  "yatsuka":["Neon","Raze","Skye","Phoenix","Fade"],
+  "SSeeS":["Omen","Viper","Vyse","Brimstone","Tejo"],
+  "Akame":["Sova","Skye","Neon","Fade","Tejo"],
+  "Meiy":["Neon","Waylay","Jett","Raze"],
+  "Klaus":["Omen","Raze","Neon","Waylay","Killjoy"],
+  "oonzmlp":["Sage","Phoenix","Viper","Vyse","Cypher"],
+  "Foxy9":["Viper","Cypher","Brimstone","Chamber","Omen"],
+  "C1ndeR":["Omen","Astra","Brimstone"],
+  "XuNa":["Fade","Sova","Skye","Tejo"],
+  "Zexy":["Raze","Jett","Neon"],
+  "MaKo":["Omen","Viper","Astra","Brimstone"],
+  "HYUNMIN":["Phoenix","Raze","Jett","Yoru"],
+  "BeYN":["Fade","Skye","Sova","Breach"],
+  "yong":["Cypher","Chamber","Vyse"],
+  "free1ng":["Neon","Chamber","Cypher","Tejo","Raze"],
+  "eKo":["Yoru","Fade","Waylay","Sova","Skye"],
+  "SugarZ3ro":["Omen","Harbor","Brimstone"],
+  "Absol":["Neon","Waylay","Yoru"],
+  "SyouTa":["Viper","Cypher","Vyse","Raze","Veto"],
+  "Xdll":["Skye","Sova","Sage","Breach"],
+  "primmie":["Jett","Waylay","Deadlock","Phoenix"],
+  "seph1roth":["Cypher","Omen","Killjoy"],
+  "Killua":["Skye","Sova","Fade"],
+  "JitBoyS":["Neon","Raze","Phoenix","Cypher"],
+  "Monyet":["Omen","Harbor","Astra","Neon"],
+  "xffero":["Cypher","Veto","Sage","Viper"],
+  "crazyguy":["Sova","Fade","Omen","Sage","Brimstone"],
+  "Xan":["Neon","Raze"],
+  "Jemkin":["Waylay","Chamber","Yoru","Raze"],
+  "Kushy":["Fade","Phoenix","Sova","Sage","Skye"],
+  "Sylvan":["Omen","Astra","Brimstone"],
+  "kellyS":["Viper","KAY/O","Phoenix","Chamber"],
+  "natz":["Cypher","Vyse","Waylay"],
+  "STYRON":["Sova","Fade","Skye"],
+  "Zeus":["Neon","Jett","Raze"],
+  "Ray":["Omen","Neon","Waylay"],
+  "Cloudy":["Sova","Fade","Skye"],
+  "Wolverine":["Phoenix","Cypher","Viper"],
+  "Hermes":["Cypher","Omen","Vyse","Yoru"],
+  "Kally":["KAY/O","Sova","Skye"],
+  "shu":["Omen","Harbor","Astra"],
+  "JaXe":["Sova","Jett","Skye"],
+  "CabezA":["Viper","Cypher","Vyse"],
+  "Ramgi":["Raze","Jett","Waylay"],
+  "Hals":["Viper","Sage","Raze"],
+  "CLZ":["Viper","Vyse","Cypher"],
+  "GangPin":["Omen","Harbor"],
+  "Anthem":["Fade","Sova","KAY/O"],
+  "Aace":["Jett","Raze","Sage"],
+  "Laz":["Cypher","Killjoy","Viper"],
+  "PTC":["Omen","Harbor","Yoru"],
+  "Kadoom":["Neon"],
+  "Apinya":["Sage","Phoenix","Sova"],
+  "NIZ":["Sova","Omen"],
+  "Jremy":["Phoenix","Raze","Jett"],
+  "Persia":["Omen","Harbor","Astra"],
+  "BRIAN":["Sova","Fade","Skye"],
+  "Yoshiii":["Viper","Killjoy","Cypher"],
+  "Dep":["Neon","Jett","Chamber"],
+  "RedLight":["Fade","Sova","Skye"],
+  "Rico":["Omen","Viper","Astra"],
+  "ANNYEON":["Raze","Waylay","Neon"],
+  "JaebiN":["Chamber","Jett","Skye"],
+  "XIV":["Phoenix","Cypher","Killjoy"],
+  "canady":["Fade","Sova","Skye"],
+  "endoist":["Phoenix","Raze","Neon"],
+  "aLerT":["Omen"],
+  "doffy":["Neon","Yoru","Jett"],
+  "Surf":["Cypher","Killjoy","Viper"],
+  "Misaya":["Skye","Fade","Sova"],
+  "yuran":["Raze","Phoenix"],
+  "Kippei":["Omen","Astra","Harbor"],
+  "Pkm":["Neon","Jett"],
+  "margaret":["Cypher","Viper","Chamber"],
+  "Ezeir":["Omen","Astra","Harbor","Brimstone"],
+  "qiutiaN":["Fade","Sova","Deadlock","Tejo"],
+  "cb":["Phoenix","Skye","Killjoy"],
+  "GuanG":["Cypher","Viper","Chamber","Jett","Killjoy"],
+  "swagzor":["Neon","Raze","Waylay","Chamber"],
+  "SiuFatBB":["Fade","Sova","Skye"],
+  "Scales":["Cypher","Viper","Sage","Chamber"],
+  "slowly":["Waylay","Jett","Brimstone","Chamber","Astra"],
+  "Erv":["Waylay","KAY/O","Omen","Phoenix"],
+  "splash":["Neon","Raze","Phoenix","Jett"],
+  "yilai":["Neon","Killjoy","Waylay"],
+  "rushia":["Cypher","Viper","Neon","Killjoy"],
+  "nephh":["Omen","Fade","Astra","Skye","Brimstone"],
+  "Knight":["Fade","Omen","Tejo","Sova","Skye"],
+  "whzy":["Raze","Yoru","Waylay","Chamber","Phoenix"],
+  "zhe":["Neon","Chamber","Phoenix","Viper","Vyse"],
+  "BerLIN":["Sova","Fade","Omen","Skye","Astra"],
+  "jkuro":["Raze","Jett","Cypher","Waylay","Omen"],
+  "Yuicaw":["Cypher","Viper","Waylay","Vyse","Killjoy"],
+  "crownfisher":["Omen","Harbor","Jett"],
+  "ZmjjKK":["Jett","Neon","Chamber","Waylay","Raze"],
+  "CHICHOO":["Cypher","Viper","Phoenix","Omen"],
+  "nobody":["Skye","Sova","Fade"],
+  "Smoggy":["Harbor","Omen","Phoenix","Raze","Brimstone"],
+  "stew":["Omen","Raze","Brimstone"],
+  "Jieni7":["KAY/O","Omen","Neon","Vyse"],
+  "happywei":["Viper","Cypher","Omen","Chamber"],
+  "WsLeo":["Fade","Sova","Skye"],
+  "Lysoar":["Omen","Harbor","Vyse","Brimstone","Astra"],
+  "Sharks":["Jett","Raze"],
+  "NoMan":["Waylay","Raze","Jett","KAY/O","Killjoy"],
+  "Rarga":["Neon","Phoenix","Jett","Sage","Chamber"],
+  "deLb":["Cypher","Viper","Omen","Vyse","Brimstone"],
+  "LuoK1ng":["Omen","Harbor"],
+  "Kai":["Jett","Neon","Waylay","Raze"],
+  "FKEY":["Fade","KAY/O","Sage"],
+  "Abo":["Viper","Vyse","Killjoy"],
+  "FengF":["Sova","Raze","Neon"],
+  "Dynamite":["Neon","Phoenix","Waylay","Raze"],
+  "ra1ny":["Neon","Raze"],
+  "Haodong":["Cypher","Omen","Astra"],
+  "Coco":["Viper","Omen","Astra","Brimstone","Cypher"],
+  "Spitfires":["Waylay","Phoenix","Sage","Neon"],
+  "lucas":["Sova","Fade","Skye","Tejo"],
+  "Spring":["Viper","Omen","Astra","Brimstone"],
+  "aluba":["Sova","Fade","Skye"],
+  "Deryeon":["Omen","KAY/O","Raze"],
+  "yosemite":["Cypher","Killjoy","Vyse","Brimstone"],
+  "glacier":["Neon","Jett","Raze","Waylay"],
+  "Bai":["Viper","Neon","Cypher"],
+  "Shr1mp":["Sova","Fade","Skye"],
+  "K1ra":["Raze","Omen","Cypher","Phoenix","Viper"],
+  "f4ngeer":["Jett","Chamber","Neon","Waylay"],
+  "iamgrq":["Omen","Phoenix","KAY/O","Brimstone","Neon"],
+  "Xlele":["Neon","Jett","Waylay","Raze","Omen"],
+  "Setrod":["Neon","Chamber","Vyse"],
+  "coconut":["Sova","Fade","Tejo","Skye"],
+  "AAAAY":["Viper","Cypher","Clove","Killjoy","Sage"],
+  "vo0kashu":["Cypher","Viper","Omen"],
+  "Nicc":["Skye","Fade","Sova"],
+  "SpiritZ1":["Waylay","Jett","Yoru"],
+  "Life":["Neon","Jett","Waylay"],
+  "Flex1n":["Omen","Astra","Mix"],
+  "Verse":["Omen","Harbor"],
+  "Ben1Ley":["Waylay"],
+  "sibeastw0w":["Sova","KAY/O"],
+  "Akeman":["Neon","Jett"],
+  "Tonk":["Cypher","Viper"],
+  "Ying":["Viper","Breach","Phoenix"],
+  "Krst1Ng":["Omen","Harbor"],
+  "Dingwei":["Fade","Sova"],
+  "Layla":["Sage","Vyse","Cypher"],
+  "Folykiki":["Neon","Waylay"],
+  "monk":["Omen"],
+  "Eren":["Cypher","Viper","Waylay"],
+  "jowa":["Omen","Tejo","Breach"],
+  "eeiu":["Sova","Fade","Skye"],
+  "cauanzin":["Sova","Fade","Skye"],
+  "GSR":["Vyse","Sage","Raze"],
+  "Eggsterr":["Omen","Phoenix","Brimstone","Yoru"],
+  "bipo":["Cypher","Viper","Neon","Jett","Raze"],
+  "Flicker":["Waylay","Neon"],
+  "Leviathan":["Omen","Cypher","Viper"],
+  "Crws":["Astra","Omen","Brimstone","Harbor","Vyse"],
+  "CyvOph":["Phoenix","KAY/O","Sage","Viper"],
+  "Filu":["Chamber","Raze","Neon"],
+  "GREEN":["Viper","Breach","Skye"],
+  "MiniBoo":["Neon"],
+  "FT":["Waylay","Omen","Phoenix"],
+  "MiradaNinja":["Cypher","Harbor","Omen"],
+  "wayne":["Omen","Astra","Brimstone"],
+  "aztex":["Omen","Harbor","Astra"],
+  "peixeh":["Omen","Astra","Brimstone"],
+  "Luid":["Phoenix","Jett","Raze"],
+  "turkish":["Cypher","Viper","Omen"],
+  "sanoj":["Neon","Waylay","Killjoy"],
+  "znajder":["Vyse","Neon","Waylay"],
+  "TenZ":["Jett","Raze","Yoru","Omen"],
+  "Sacy":["Sova","Fade","Skye","Breach"]
+};
+/* Funções corrigidas pelo mesmo levantamento: [como estava, como ficou].
+   Serve à migração de saves antigos — só troca quem ainda está na função
+   antiga, para não desfazer uma edição sua. */
+const FUNCOES_CORRIGIDAS={
+  "Ethan":["Controlador","Iniciador"],
+  "Neon":["Controlador","Flex"],
+  "kiNgg":["Flex","Controlador"],
+  "lukxo":["Sentinela","Flex"],
+  "erde":["Flex","Controlador"],
+  "zekken":["Flex","Duelista"],
+  "Verno":["Duelista","Iniciador"],
+  "Mazino":["Sentinela","Controlador"],
+  "tex":["Iniciador","Sentinela"],
+  "zerona":["Flex","Duelista"],
+  "supamen":["Sentinela","Controlador"],
+  "heat":["Flex","Duelista"],
+  "Zellsis":["Iniciador","Flex"],
+  "v1c":["Flex","Controlador"],
+  "nightz":["Flex","Duelista"],
+  "Demon1":["Flex","Sentinela"],
+  "Rossy":["Sentinela","Controlador"],
+  "johnqt":["Sentinela","Controlador"],
+  "Reduxx":["Flex","Duelista"],
+  "Smoke":["Flex","Duelista"],
+  "zaj":["Sentinela","Flex"],
+  "Pa1nt":["Flex","Duelista"],
+  "Zanatsu":["Flex","Duelista"],
+  "zeek":["Flex","Iniciador"],
+  "stellar":["Iniciador","Sentinela"],
+  "stunna":["Sentinela","Controlador"],
+  "david":["Sentinela","Flex"],
+  "sociablEE":["Flex","Controlador"],
+  "kamo":["Flex","Duelista"],
+  "purp0":["Duelista","Flex"],
+  "Kicks":["Flex","Controlador"],
+  "Lar0k":["Flex","Duelista"],
+  "Jamppi":["Flex","Iniciador"],
+  "koshmaras":["Flex","Duelista"],
+  "Cloud":["Flex","Iniciador"],
+  "Veqaj":["Flex","Controlador"],
+  "Spear":["Flex","Duelista"],
+  "Izzy":["Flex","Duelista"],
+  "Minny":["Flex","Duelista"],
+  "Flickless":["Flex","Controlador"],
+  "Javelin":["Duelista","Iniciador"],
+  "Darxcioo":["Iniciador","Duelista"],
+  "hezacoil":["Sentinela","Controlador"],
+  "UNFAKE":["Duelista","Iniciador"],
+  "kamyk":["Iniciador","Controlador"],
+  "runneR":["Flex","Duelista"],
+  "Pa1ze":["Sentinela","Duelista"],
+  "Fizzy":["Sentinela","Controlador"],
+  "MONSTEERR":["Flex","Duelista"],
+  "musashi":["Duelista","Iniciador"],
+  "Jamelinho213":["Controlador","Duelista"],
+  "Sevire":["Sentinela","Iniciador"],
+  "nataNk":["Duelista","Sentinela"],
+  "TakaS":["Flex","Duelista"],
+  "Bishepss":["Sentinela","Controlador"],
+  "Redgar":["Duelista","Iniciador"],
+  "Raz":["Flex","Duelista"],
+  "reblyik":["Iniciador","Sentinela"],
+  "kospa1n":["Controlador","Duelista"],
+  "al0rante":["Flex","Sentinela"],
+  "t3xture":["Flex","Duelista"],
+  "Francis":["Duelista","Flex"],
+  "PatMen":["Flex","Controlador"],
+  "Autumn":["Duelista","Sentinela"],
+  "stax":["Sentinela","Controlador"],
+  "iZu":["Iniciador","Flex"],
+  "f0rsakeN":["Flex","Controlador"],
+  "Klaus":["Controlador","Duelista"],
+  "Foxy9":["Flex","Controlador"],
+  "free1ng":["Flex","Duelista"],
+  "eKo":["Flex","Duelista"],
+  "crazyguy":["Iniciador","Flex"],
+  "Jemkin":["Flex","Duelista"],
+  "Kushy":["Controlador","Iniciador"],
+  "Ray":["Iniciador","Duelista"],
+  "Cloudy":["Controlador","Iniciador"],
+  "Wolverine":["Sentinela","Flex"],
+  "Hermes":["Duelista","Sentinela"],
+  "Kally":["Duelista","Iniciador"],
+  "JaXe":["Sentinela","Iniciador"],
+  "CabezA":["Flex","Sentinela"],
+  "Ramgi":["Iniciador","Duelista"],
+  "Hals":["Iniciador","Flex"],
+  "GangPin":["Flex","Controlador"],
+  "Anthem":["Sentinela","Iniciador"],
+  "PTC":["Duelista","Controlador"],
+  "Kadoom":["Iniciador","Duelista"],
+  "Apinya":["Controlador","Flex"],
+  "NIZ":["Flex","Iniciador"],
+  "Jremy":["Flex","Duelista"],
+  "BRIAN":["Sentinela","Iniciador"],
+  "Yoshiii":["Duelista","Sentinela"],
+  "Dep":["Iniciador","Duelista"],
+  "RedLight":["Flex","Iniciador"],
+  "Rico":["Sentinela","Controlador"],
+  "ANNYEON":["Iniciador","Duelista"],
+  "JaebiN":["Controlador","Flex"],
+  "canady":["Duelista","Iniciador"],
+  "endoist":["Flex","Duelista"],
+  "doffy":["Iniciador","Duelista"],
+  "yuran":["Controlador","Duelista"],
+  "Kippei":["Duelista","Controlador"],
+  "Pkm":["Sentinela","Duelista"],
+  "margaret":["Flex","Sentinela"],
+  "cb":["Duelista","Flex"],
+  "Scales":["Flex","Sentinela"],
+  "slowly":["Duelista","Flex"],
+  "Erv":["Controlador","Flex"],
+  "Knight":["Flex","Iniciador"],
+  "zhe":["Flex","Duelista"],
+  "Yuicaw":["Sentinela","Flex"],
+  "CHICHOO":["Sentinela","Flex"],
+  "stew":["Sentinela","Controlador"],
+  "Sharks":["Iniciador","Duelista"],
+  "Kai":["Iniciador","Duelista"],
+  "Abo":["Iniciador","Sentinela"],
+  "Spitfires":["Flex","Duelista"],
+  "Bai":["Sentinela","Flex"],
+  "iamgrq":["Controlador","Flex"],
+  "Setrod":["Flex","Duelista"],
+  "Flex1n":["Iniciador","Controlador"],
+  "Ben1Ley":["Flex","Duelista"],
+  "Ying":["Sentinela","Flex"],
+  "Krst1Ng":["Flex","Controlador"],
+  "Dingwei":["Sentinela","Iniciador"],
+  "Layla":["Flex","Sentinela"],
+  "Folykiki":["Controlador","Duelista"],
+  "monk":["Duelista","Controlador"],
+  "Eren":["Iniciador","Flex"],
+  "jowa":["Flex","Iniciador"],
+  "cauanzin":["Duelista","Iniciador"],
+  "GSR":["Flex","Sentinela"],
+  "bipo":["Controlador","Flex"],
+  "Leviathan":["Flex","Controlador"],
+  "Crws":["Iniciador","Controlador"],
+  "GREEN":["Duelista","Iniciador"],
+  "sanoj":["Flex","Duelista"]
 };
 
 
@@ -6364,7 +6928,7 @@ function padronizarBase(opts){
     for(const p of elenco){
       const novo=potencialDe(over(p),p.idade,t.tier);
       if(novo!==p.pot){p.pot=novo;conta.potencial++;}
-      const ag=sortearAgentes(p.role);
+      const ag=agentesIniciais(p);
       if((p.agentes||[]).length!==ag.length){conta.agentes++;}
       const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
       p.agentes=ag;
@@ -6386,7 +6950,7 @@ function padronizarBase(opts){
     t.patroc=patrocinioDe(t);
     /* garotos da categoria de base só acompanham o catálogo de agentes */
     for(const p of (t.base||[]).map(pid=>G.jogadores[pid]).filter(Boolean)){
-      const ag=sortearAgentes(p.role);
+      const ag=agentesIniciais(p);
       const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
       p.agentes=ag;
       if(trocou&&typeof semearAgentes==='function')semearAgentes(p);
@@ -6403,7 +6967,7 @@ function padronizarBase(opts){
     if(p.real)aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
     else if(over(p)>TETO_LIVRE_GERADO)aplicarOver(p,TETO_LIVRE_GERADO);
     if(!p.potFixo)p.pot=potencialDe(over(p),p.idade,tier);
-    const agL=sortearAgentes(p.role);
+    const agL=agentesIniciais(p);
     const trocouL=agL.some(a=>!(p.agentes||[]).includes(a));
     p.agentes=agL;
     if(trocouL&&typeof semearAgentes==='function')semearAgentes(p);
@@ -7622,6 +8186,7 @@ function criarMundo(seedVal){
             /* marca quem carrega nome de pessoa real: rosto sintético
                fotorrealista ao lado de um nome real se lê como foto dela */
             p.real=true;
+            darMainsReais(p);
             /* País VEIO DO ARQUIVO, não foi sorteado. A distinção importa: sem
                ela, um nick sem país recebia um país da região e o clube passava
                a "ter sede" naquele país por acaso — dado inventado com cara de
@@ -7678,6 +8243,7 @@ function criarMundo(seedVal){
       const ov=ovDado||overAlvo('jogador',2,ri(45,58),3);
       const p=makePlayer(ov,role,paisDado||pick(R.paises),idade,usadosP,ovDado>=FAIXAS.jogador[1][0]?1:2);
       p.nome=nick;usadosP.add(nick);p.real=true;
+      darMainsReais(p);
       if(paisDado)p.paisReal=true;
       aplicarOver(p,ov);if(ovDado)p.overFixo=true;
       /* potencial escrito no arquivo manda: é o que separa a promessa do
@@ -8257,22 +8823,141 @@ function semearAgentes(p){
   /* O sorteio nasce limitado pelo teto da função. Sem isso metade do mundo
      nascia ACIMA do próprio teto — o jogador de Tier 2 começava com 90 num
      boneco cujo teto era 60 — e aí o teto não significava nada na largada e,
-     depois de enferrujar, ele nunca mais voltava ao nível de origem. */
+     depois de enferrujar, ele nunca mais voltava ao nível de origem.
+     Main de jogador real (data/agentes-reais.js) vem em ordem de uso: o
+     primeiro é o boneco da carreira, e o nível desce pela lista sem nunca sair
+     do domínio. */
+  const real=mainsReais(p);
   (p.agentes||[]).forEach((ag,i)=>{
-    const bruto=ri(72,95)-i*ri(0,6);
+    const bruto=real?nivelDeMainReal(p.nome,ag,i):ri(72,95)-i*ri(0,6);
     p.agenteNivel[ag]=clamp(Math.min(bruto,tetoAgente(p,ag)),0,100);
   });
   return p.agenteNivel;
+}
+/* ---------- mains de verdade ----------
+   Os jogadores reais jogam o que jogam no VLR, não o que o sorteio deu. */
+function mainsReais(p){
+  if(!p||!p.real||typeof AGENTES_REAIS==='undefined')return null;
+  const l=AGENTES_REAIS[p.nome];
+  if(!l||!l.length)return null;
+  const ok=l.filter(a=>funcaoConhece(a));
+  return ok.length?ok:null;
+}
+/* Os mains com que o jogador começa: os reais, ou três sorteados da função. */
+function agentesIniciais(p){
+  return (mainsReais(p)||sortearAgentes(p.role)).slice();
+}
+/* Troca os mains sorteados pelos reais e re-semeia. Chamado logo depois de o
+   jogador ganhar o nick, que é quando se sabe quem ele é. */
+function darMainsReais(p){
+  const l=mainsReais(p);
+  if(!l)return false;
+  p.agentes=l.slice();
+  semearAgentes(p);
+  return true;
+}
+/* Save antigo: os mains reais entram por cima dos sorteados, a familiaridade
+   que já foi treinada fica (nunca desce), e a função corrigida pelo
+   levantamento só é aplicada a quem ainda está na função antiga — se você
+   mudou a função no Editor, a sua escolha vale. O over não se mexe: troca de
+   função recalcula o peso dos atributos, então o over antigo é reaplicado. */
+function migrarMainsReais(){
+  let n=0;
+  for(const id in G.jogadores){
+    const p=G.jogadores[id];
+    if(!p||!p.real)continue;
+    const fc=typeof FUNCOES_CORRIGIDAS!=='undefined'&&FUNCOES_CORRIGIDAS[p.nome];
+    if(fc&&p.role===fc[0]){
+      const ov=over(p);
+      const eraAtual=p.roleAtual===p.role;
+      p.role=fc[1];
+      if(eraAtual)p.roleAtual=p.role;
+      if(over(p)!==ov)aplicarOver(p,ov);
+      p.role2=null;ajustarSecundaria(p);
+    }
+    const l=mainsReais(p);
+    if(!l)continue;
+    const antes=p.agenteNivel||{};
+    p.agentes=l.slice();
+    const novo=semearAgentes(p);
+    for(const ag in antes)novo[ag]=Math.max(antes[ag],novo[ag]||0);
+    n++;
+  }
+  /* funções e domínios mudaram: redistribui quem faz o quê nos titulares,
+     sem mexer em QUEM é titular */
+  for(const id in G.times){
+    const t=G.times[id];
+    const rs=(t&&t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+    if(rs.length===5){const d=distribuirFuncoes(rs);rs.forEach((p,i)=>{p.roleAtual=d.atrib[i];});}
+  }
+  return n;
+}
+/* Nível de um main real pela posição dele na lista. SEM sorteio: a migração
+   de save antigo também passa por aqui, e ela não pode empurrar o gerador do
+   motor. A variação entre jogadores sai de um hash do nick. */
+function nivelDeMainReal(nick,ag,i){
+  let h=7;const s=String(nick)+'|'+ag;
+  for(let k=0;k<s.length;k++)h=(h*31+s.charCodeAt(k))>>>0;
+  const topo=[93,86,80,75,72][Math.min(i,4)];
+  return topo-(h%5);
 }
 /* Leitura PURA: nunca sorteia, nunca cria. Agente que ninguém treinou vale 0,
    e main de save antigo cai num valor derivado do próprio jogador — sem
    aleatoriedade, para poder ser chamado de dentro do render. */
 function nivelAgente(p,ag){
-  if(!p)return 0;
+  if(!p||!ag)return 0;
+  const base=familiaridadeBase(p,ag);
   const n=p.agenteNivel&&p.agenteNivel[ag];
-  if(typeof n==='number')return n;
-  if((p.agentes||[]).includes(ag))return 78;
-  return 0;
+  if(typeof n==='number')return Math.max(n,base);
+  if((p.agentes||[]).includes(ag))return Math.max(78,base);
+  return base;
+}
+/* ---------- o piso de familiaridade ----------
+   Regra do Gabriel: todo jogador sabe o básico de TODO boneco da própria
+   função — 50 — e quanto mais longe a função do boneco, menos ele sabe.
+
+   A distância não é opinião: saiu do mesmo levantamento do VLR, contando que
+   função cada jogador joga quando sai da dele. Controlador e Sentinela são
+   vizinhos de porta (Viper e Cypher no mesmo jogador é comum); Iniciador e
+   Sentinela quase nunca se cruzam. Flex de fato sabe um pouco de tudo, e a
+   função secundária conta como meia casa.
+
+   É um PISO: treino sobe acima dele, ferrugem nunca desce abaixo dele. */
+const FAMILIAR_FUNCAO=50, FAMILIAR_FLEX=45, FAMILIAR_SECUNDARIA=40;
+const PROXIMIDADE_FUNCAO={
+  'Controlador|Sentinela':38,
+  'Duelista|Sentinela':32, 'Controlador|Duelista':32, 'Controlador|Iniciador':32,
+  'Duelista|Iniciador':28,
+  'Iniciador|Sentinela':22
+};
+function familiaridadeBase(p,ag){
+  const fun=funcaoDoAgente(ag);
+  if(fun==='Flex'||!p.role)return FAMILIAR_FLEX;
+  let b;
+  if(p.role==='Flex')b=FAMILIAR_FLEX;
+  else if(p.role===fun)b=FAMILIAR_FUNCAO;
+  else{
+    b=PROXIMIDADE_FUNCAO[[p.role,fun].sort().join('|')]||22;
+    if(p.role2===fun)b=Math.max(b,FAMILIAR_SECUNDARIA);
+  }
+  /* o piso não fura o teto: quem não tem atributo para o boneco não
+     "sabe o básico" acima do que conseguiria aprender */
+  return p.at?Math.min(b,tetoAgente(p,ag)):b;
+}
+/* ---------- domínio ----------
+   Boneco dominado entra em qualquer mapa sem contar como desvio de função:
+   o duelista que é main de Chamber joga de Chamber, e ninguém chama isso de
+   improviso. */
+const DOMINIO_AGENTE=70;
+function dominaAgente(p,ag){return !!(p&&ag)&&nivelAgente(p,ag)>=DOMINIO_AGENTE;}
+/* Funções que o jogador cobre por domínio de boneco, fora as da ficha. */
+function funcoesPorDominio(p){
+  const out=[];
+  for(const ag of (p&&p.agentes)||[]){
+    const f=funcaoDoAgente(ag);
+    if(f!=='Flex'&&!out.includes(f)&&dominaAgente(p,ag))out.push(f);
+  }
+  return out;
 }
 /* Teto de aprendizado: o agente cobra atributos, e quem não tem não chega ao
    fim. É isso que impede "todo mundo aprende tudo" — e é por isso que um clube
@@ -8284,8 +8969,9 @@ function tetoAgente(p,ag){
   let soma=0,peso=0;
   for(const k in w){soma+=(p.at[k]||0)*w[k];peso+=w[k];}
   const aptidao=peso?soma/peso:60;
-  /* própria função é casa: aprende mais alto. Fora da função, teto menor. */
-  const casa=p.role===fun||p.role==='Flex'||fun==='Flex';
+  /* própria função é casa: aprende mais alto. Fora da função, teto menor —
+     a não ser que o boneco seja main dele: aí ele já provou que aprende. */
+  const casa=p.role===fun||p.role==='Flex'||fun==='Flex'||(p.agentes||[]).includes(ag);
   return clamp(Math.round(aptidao*(casa?1.02:0.86)),35,99);
 }
 function funcaoDoAgente(ag){
@@ -8318,7 +9004,8 @@ function enferrujarAgentes(p,usados){
     if(usados&&usados.includes(ag))continue;
     const main=(p.agentes||[]).includes(ag);
     const passo=AGENTE_ENFERRUJA*(main?0.4:1);
-    p.agenteNivel[ag]=Math.max(0,p.agenteNivel[ag]-passo);
+    /* nunca abaixo do piso da função: o básico não se desaprende */
+    p.agenteNivel[ag]=Math.max(familiaridadeBase(p,ag),p.agenteNivel[ag]-passo);
   }
 }
 
@@ -8636,11 +9323,21 @@ function surpresaDaComp(t,mapa){
     if(!l.ag)continue;
     const topo=topoDoMeta(l.fun,3);
     if(!topo.includes(l.ag))fora++;
-    if(l.p.role!==l.fun&&l.fun!=='Flex'&&l.p.role!=='Flex')fora+=0.5;
+    if(desvioDeFuncao(l.p,l.ag,l.fun))fora+=0.5;
   }
   return clamp(fora/(linhas.length*1.5),0,1);
 }
 
+/* Boneco fora da função do jogador E que ele não domina. Main de Chamber
+   jogando de Chamber não é desvio, em mapa nenhum. */
+function desvioDeFuncao(p,ag,fun){
+  if(!p||!ag)return false;
+  fun=fun||funcaoDoAgente(ag);
+  const r=p.roleAtual||p.role;
+  if(fun==='Flex'||r==='Flex'||p.role==='Flex')return false;
+  if(fun===r||fun===p.role)return false;
+  return !dominaAgente(p,ag);
+}
 /* ---------- presets ----------
    Gabriel pediu presets, e presets fixos por mapa envelheceriam no primeiro
    patch. Estes são calculados na hora, a partir do meta de hoje e do elenco
@@ -8887,7 +9584,7 @@ function distribuirFuncoes(rs){
       return;
     }
     const p=rs[i];
-    const opcoes=p.role==='Flex'?FUNCOES_BASE:[p.role,...(p.role2&&p.role2!==p.role?[p.role2]:[])];
+    const opcoes=funcoesNaEscalacao(p);
     for(const r of opcoes){
       atrib[i]=r;
       const nova=usadas.has(r);
@@ -8900,6 +9597,17 @@ function distribuirFuncoes(rs){
   return melhor||{nota:rs.reduce((s,p)=>s+over(p),0),atrib:rs.map(p=>p.role)};
 }
 
+/* O que um jogador pode fazer na escalação: a função dele, a secundária e
+   toda função em que ele DOMINA um boneco — o duelista main de Chamber cobre a
+   vaga de Sentinela, pagando a diferença de over que a conta já cobra. */
+function funcoesNaEscalacao(p){
+  if(p.role==='Flex')return FUNCOES_BASE;
+  const out=[p.role];
+  if(p.role2&&!out.includes(p.role2))out.push(p.role2);
+  if(typeof funcoesPorDominio==='function')
+    for(const f of funcoesPorDominio(p))if(!out.includes(f))out.push(f);
+  return out;
+}
 /* Nota de um conjunto de cinco. É esta função que decide tudo: mexer no peso
    da cobertura aqui muda o comportamento de todos os 80 clubes de uma vez. */
 function notaEscalacao(ids){
@@ -19010,7 +19718,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=11;
+const RUN_VERSAO=12;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -19162,6 +19870,8 @@ function migrarRun(reg){
     /* Saves anteriores à marcação de nome real não sabem quem é real, e sem
        isso a exportação de elencos sai vazia. Remarcar pelo nick cura. */
     if(typeof remarcarReais==='function')remarcarReais();
+    /* v12: mains reais do VLR, piso de familiaridade e funções corrigidas */
+    if(de<12&&typeof migrarMainsReais==='function')migrarMainsReais();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;
@@ -19246,6 +19956,7 @@ function baseAssinatura(){
     typeof REGIONS!=='undefined'?REGIONS:null,
     typeof TIMES_REAIS!=='undefined'?TIMES_REAIS:null,
     typeof ELENCOS_REAIS!=='undefined'?ELENCOS_REAIS:null,
+    typeof AGENTES_REAIS!=='undefined'?AGENTES_REAIS:null,
     typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL:null,
     typeof CLUBES_BASE!=='undefined'?CLUBES_BASE:null,
     typeof HISTORIA_REAL!=='undefined'?HISTORIA_REAL:null,
@@ -21189,7 +21900,9 @@ function vComps(){
     const escolhido=((t.comps&&t.comps[mapa])||{})[p.id];
     const pool2=agentesParaComp(p);
     const fx=faixaMeta(ag);
-    const foraDaFuncao=fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
+    const foraDaFuncao=desvioDeFuncao(p,ag,fun);
+    /* fora da função, mas dominado: não é desvio, e a tela diz por quê */
+    const dominado=!foraDaFuncao&&fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
     return `<tr>
       <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
         <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></span></span></td>
@@ -21204,7 +21917,9 @@ function vComps(){
       <td class="c"><span class="num ${nivel>=75?'up':nivel<=45?'dn':'am'}">${Math.round(nivel)}</span></td>
       <td class="c"><span class="pill ${fx.id==='topo'||fx.id==='forte'?'g':fx.id==='esq'?'r':''}"
         >${forcaMeta(ag)}</span></td>
-      <td class="dim">${foraDaFuncao?'<span class="chip r">fora da função</span>':esc(fx.rot)}</td>
+      <td class="dim">${foraDaFuncao?'<span class="chip r">fora da função</span>'
+        :dominado?`<span class="chip g" title="Domina o boneco (${DOMINIO_AGENTE}+): joga em qualquer mapa sem contar como desvio">domínio</span>`
+        :esc(fx.rot)}</td>
     </tr>`;
   }).join('');
 
@@ -21247,9 +21962,10 @@ function vComps(){
     <tbody>${linhas}</tbody></table>
     ${alertas.length?`<p class="dim" style="margin-top:8px;color:var(--red)">⚠ ${alertas.map(esc).join(' · ')}</p>`:''}
     <p class="dim" style="margin-top:8px"><b>Sabe</b> é a familiaridade do jogador com aquele agente
-    (sobe treinando em <b>Treino</b>, cai com abandono). <b>Meta</b> é o quanto o boneco vale hoje —
-    e muda a cada patch. Escalar alguém num agente que ele nunca treinou custa caro; treinar antes
-    é o caminho. Fugir do meta perde força de round e ganha <b>surpresa</b>, que corta a vantagem
+    (sobe treinando em <b>Treino</b>, cai com abandono, mas nunca abaixo do básico: 50 em todo
+    boneco da própria função, menos quanto mais longe dela). Com ${DOMINIO_AGENTE} ou mais é
+    <b>domínio</b>: o boneco entra em qualquer mapa sem contar como desvio de função.
+    <b>Meta</b> é o quanto o boneco vale hoje — e muda a cada patch. Fugir do meta perde força de round e ganha <b>surpresa</b>, que corta a vantagem
     do analista adversário no relatório sobre você.</p>
   </div>
 
@@ -22539,7 +23255,10 @@ function miniBarra(rot,v,cls){
 function slotTitular(t,p,editavel){
   const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
   const fun=p.roleAtual||p.role;
-  const fora=fun!==p.role&&p.role!=='Flex';
+  /* fora de posição é jogar numa função que ele não cobre: a secundária e a
+     função de um boneco que ele domina não contam */
+  const fora=fun!==p.role&&p.role!=='Flex'&&fun!==p.role2
+    &&!(typeof funcoesPorDominio==='function'&&funcoesPorDominio(p).includes(fun));
   return `<div class="esc-slot" ${editavel?`data-alvo="${p.id}"`:''}>
     <div class="esc-carta" ${editavel?`draggable="true" data-arrasta="${p.id}"`:''}>${cartaJogador(p,{w:150,clique:true})}
       ${p.id===t.igl?'<span class="esc-igl" title="Capitão (IGL)">IGL</span>':''}
@@ -27060,7 +27779,13 @@ function modalJogador(id){
       ${radar([['Mira',p.at.mira],['Util.',p.at.util],['Visão',p.at.visao],
                ['Clutch',p.at.clutch],['Cons.',p.at.consist]],210)}
       <div class="eyebrow" style="margin-top:10px">Agentes</div>
-      <div class="mj-agentes">${p.agentes.map((a,i)=>`<div class="mj-ag ${i===0?'pri':''}">${retratoAgente(a,56)}<span>${esc(a)}</span></div>`).join('')}</div>
+      <div class="mj-agentes">${p.agentes.map((a,i)=>{
+        const nv=Math.round(nivelAgente(p,a)),fa=funcaoDoAgente(a);
+        const fora=p.role!=='Flex'&&fa!==p.role;
+        return `<div class="mj-ag ${i===0?'pri':''}" title="${esc(a)} · ${esc(fa)} · familiaridade ${nv}${nv>=DOMINIO_AGENTE?' (domínio)':''}">${retratoAgente(a,56)}<span>${esc(a)}</span>
+          <small class="num ${nv>=DOMINIO_AGENTE?'up':nv<=45?'dn':'am'}">${nv}${fora?` · ${esc(fa.slice(0,3))}`:''}</small></div>`;}).join('')}</div>
+      ${(()=>{const ex=funcoesPorDominio(p).filter(f=>f!==p.role&&f!==p.role2&&p.role!=='Flex');
+        return ex.length?`<div class="dim" style="font-size:11.5px;margin-top:4px">Cobre também ${ex.map(esc).join(' e ')} pelo domínio de boneco, sem contar como desvio de função.</div>`:'';})()}
     </div>
     <div class="card flat"><div class="eyebrow">Condição</div>
       <div class="gauges" style="justify-content:space-around;margin:4px 0 14px">

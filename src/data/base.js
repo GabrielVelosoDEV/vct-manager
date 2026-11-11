@@ -37,6 +37,7 @@ function baseAssinatura(){
     typeof REGIONS!=='undefined'?REGIONS:null,
     typeof TIMES_REAIS!=='undefined'?TIMES_REAIS:null,
     typeof ELENCOS_REAIS!=='undefined'?ELENCOS_REAIS:null,
+    typeof AGENTES_REAIS!=='undefined'?AGENTES_REAIS:null,
     typeof COMISSAO_REAL!=='undefined'?COMISSAO_REAL:null,
     typeof CLUBES_BASE!=='undefined'?CLUBES_BASE:null,
     typeof HISTORIA_REAL!=='undefined'?HISTORIA_REAL:null,

@@ -218,7 +218,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=11;
+const RUN_VERSAO=12;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -370,6 +370,8 @@ function migrarRun(reg){
     /* Saves anteriores à marcação de nome real não sabem quem é real, e sem
        isso a exportação de elencos sai vazia. Remarcar pelo nick cura. */
     if(typeof remarcarReais==='function')remarcarReais();
+    /* v12: mains reais do VLR, piso de familiaridade e funções corrigidas */
+    if(de<12&&typeof migrarMainsReais==='function')migrarMainsReais();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;

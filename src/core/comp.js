@@ -147,11 +147,21 @@ function surpresaDaComp(t,mapa){
     if(!l.ag)continue;
     const topo=topoDoMeta(l.fun,3);
     if(!topo.includes(l.ag))fora++;
-    if(l.p.role!==l.fun&&l.fun!=='Flex'&&l.p.role!=='Flex')fora+=0.5;
+    if(desvioDeFuncao(l.p,l.ag,l.fun))fora+=0.5;
   }
   return clamp(fora/(linhas.length*1.5),0,1);
 }
 
+/* Boneco fora da função do jogador E que ele não domina. Main de Chamber
+   jogando de Chamber não é desvio, em mapa nenhum. */
+function desvioDeFuncao(p,ag,fun){
+  if(!p||!ag)return false;
+  fun=fun||funcaoDoAgente(ag);
+  const r=p.roleAtual||p.role;
+  if(fun==='Flex'||r==='Flex'||p.role==='Flex')return false;
+  if(fun===r||fun===p.role)return false;
+  return !dominaAgente(p,ag);
+}
 /* ---------- presets ----------
    Gabriel pediu presets, e presets fixos por mapa envelheceriam no primeiro
    patch. Estes são calculados na hora, a partir do meta de hoje e do elenco

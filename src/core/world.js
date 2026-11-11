@@ -97,6 +97,7 @@ function criarMundo(seedVal){
             /* marca quem carrega nome de pessoa real: rosto sintético
                fotorrealista ao lado de um nome real se lê como foto dela */
             p.real=true;
+            darMainsReais(p);
             /* País VEIO DO ARQUIVO, não foi sorteado. A distinção importa: sem
                ela, um nick sem país recebia um país da região e o clube passava
                a "ter sede" naquele país por acaso — dado inventado com cara de
@@ -153,6 +154,7 @@ function criarMundo(seedVal){
       const ov=ovDado||overAlvo('jogador',2,ri(45,58),3);
       const p=makePlayer(ov,role,paisDado||pick(R.paises),idade,usadosP,ovDado>=FAIXAS.jogador[1][0]?1:2);
       p.nome=nick;usadosP.add(nick);p.real=true;
+      darMainsReais(p);
       if(paisDado)p.paisReal=true;
       aplicarOver(p,ov);if(ovDado)p.overFixo=true;
       /* potencial escrito no arquivo manda: é o que separa a promessa do

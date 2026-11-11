@@ -1971,6 +1971,7 @@ tr.pr-1 .trofeu{height:26px;width:auto;vertical-align:middle}
 .mj-agentes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
 .mj-ag{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--tx2)}
 .mj-ag img{width:56px;height:64px;object-fit:cover;object-position:top;border:1px solid var(--line2);background:var(--bg2)}
+.mj-ag small{font-size:10px;line-height:1}
 .mj-ag.pri img{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 14px rgba(226,180,90,.25)}
 
 /* página de clube */

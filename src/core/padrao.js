@@ -240,7 +240,7 @@ function padronizarBase(opts){
     for(const p of elenco){
       const novo=potencialDe(over(p),p.idade,t.tier);
       if(novo!==p.pot){p.pot=novo;conta.potencial++;}
-      const ag=sortearAgentes(p.role);
+      const ag=agentesIniciais(p);
       if((p.agentes||[]).length!==ag.length){conta.agentes++;}
       const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
       p.agentes=ag;
@@ -262,7 +262,7 @@ function padronizarBase(opts){
     t.patroc=patrocinioDe(t);
     /* garotos da categoria de base só acompanham o catálogo de agentes */
     for(const p of (t.base||[]).map(pid=>G.jogadores[pid]).filter(Boolean)){
-      const ag=sortearAgentes(p.role);
+      const ag=agentesIniciais(p);
       const trocou=ag.some(a=>!(p.agentes||[]).includes(a));
       p.agentes=ag;
       if(trocou&&typeof semearAgentes==='function')semearAgentes(p);
@@ -279,7 +279,7 @@ function padronizarBase(opts){
     if(p.real)aplicarOver(p,clamp(over(p),FAIXAS.jogador[tier][0],FAIXAS.jogador[tier][1]));
     else if(over(p)>TETO_LIVRE_GERADO)aplicarOver(p,TETO_LIVRE_GERADO);
     if(!p.potFixo)p.pot=potencialDe(over(p),p.idade,tier);
-    const agL=sortearAgentes(p.role);
+    const agL=agentesIniciais(p);
     const trocouL=agL.some(a=>!(p.agentes||[]).includes(a));
     p.agentes=agL;
     if(trocouL&&typeof semearAgentes==='function')semearAgentes(p);

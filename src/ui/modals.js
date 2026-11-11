@@ -181,7 +181,13 @@ function modalJogador(id){
       ${radar([['Mira',p.at.mira],['Util.',p.at.util],['Visão',p.at.visao],
                ['Clutch',p.at.clutch],['Cons.',p.at.consist]],210)}
       <div class="eyebrow" style="margin-top:10px">Agentes</div>
-      <div class="mj-agentes">${p.agentes.map((a,i)=>`<div class="mj-ag ${i===0?'pri':''}">${retratoAgente(a,56)}<span>${esc(a)}</span></div>`).join('')}</div>
+      <div class="mj-agentes">${p.agentes.map((a,i)=>{
+        const nv=Math.round(nivelAgente(p,a)),fa=funcaoDoAgente(a);
+        const fora=p.role!=='Flex'&&fa!==p.role;
+        return `<div class="mj-ag ${i===0?'pri':''}" title="${esc(a)} · ${esc(fa)} · familiaridade ${nv}${nv>=DOMINIO_AGENTE?' (domínio)':''}">${retratoAgente(a,56)}<span>${esc(a)}</span>
+          <small class="num ${nv>=DOMINIO_AGENTE?'up':nv<=45?'dn':'am'}">${nv}${fora?` · ${esc(fa.slice(0,3))}`:''}</small></div>`;}).join('')}</div>
+      ${(()=>{const ex=funcoesPorDominio(p).filter(f=>f!==p.role&&f!==p.role2&&p.role!=='Flex');
+        return ex.length?`<div class="dim" style="font-size:11.5px;margin-top:4px">Cobre também ${ex.map(esc).join(' e ')} pelo domínio de boneco, sem contar como desvio de função.</div>`:'';})()}
     </div>
     <div class="card flat"><div class="eyebrow">Condição</div>
       <div class="gauges" style="justify-content:space-around;margin:4px 0 14px">
