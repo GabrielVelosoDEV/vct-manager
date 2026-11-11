@@ -29,10 +29,10 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `srb.png` — SRB (Shopify Rebellion Black)
 - [x] `red.png` — RED (RED Canids)
 - [x] `fx.png` — FX (Fluxo W7M)
-- [x] `2g.png` — 2G (2Game Esports)
+- [x] `2g.png` — 2G (2Game Esports) (vai se fundir e virar a Pain Gaming eventualmente)
 - [x] `bst.png` — BST (BESTIA)
-- [x] `sad.png` — SAD (SaD Esports)
-- [x] `nbg.png` — NBG (Nightblood Gaming)
+- [x] `sad.png` — SAD (SaD Esports) (vai ter a vaga comprada pela 9z eventualmente)
+- [x] `nbg.png` — NBG (Nightblood Gaming) (vai ter a vaga comprada pela Lyons eventualmente)
 
 ## EMEA · Tier 1
 
@@ -53,11 +53,11 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 - [x] `ep.png` — EP (Enterprise Esports)
 - [x] `ff.png` — FF (Fire Flux Esports)
-- [x] `jl.png` — JL (Joblife)
+- [x] `jl.png` — JL (Joblife) (Vai ter a vaga comprada e virar a NIP eventualmente)
 - [x] `sge.png` — SGE (Eintracht Frankfurt)
-- [x] `misa.png` — MISA (Misa Esports)
-- [x] `mdr.png` — MDR (Mandatory)
-- [x] `mir.png` — MIR (MIR)
+- [x] `misa.png` — MISA (Misa Esports) (vai ser comprada e virar a falcons eventualmente)
+- [x] `mdr.png` — MDR (Mandatory) (vai se fundir e virar a Faze Clan eventualmente)
+- [x] `mir.png` — MIR (MIR) (vai ter a vaga comprada eventualmente pela Spirit)
 - [x] `pcf.png` — PCF (PCIFIC Esports)
 
 ## PAC · Tier 1
@@ -79,12 +79,12 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 - [x] `ong.png` — ONG (ONSIDE GAMING)
 - [x] `dk.png` — DK (Dplus Esports)
-- [x] `fl.png` — FL (FENNEL)
-- [x] `rc.png` — RC (REJECT)
-- [x] `art.png` — ART (ARETE)
-- [ ] `sp.png` — SP (Sharper Esports)
+- [x] `fl.png` — FL (FENNEL) (vai ter a vaga comprada pela hanwha life) (acontecera eventualmente durante a simulação)
+- [x] `rc.png` — RC (REJECT) 
+- [x] `art.png` — ART (ARETE)  (adicionar a gam esports no lugar e substituir no tier 1 pela dfm) 
+- [ ] `sp.png` — SP (Sharper Esports) (adicionar a crazy raccon no lugar e substituir no tier pela dfm) 
 - [x] `qtd.png` — QTD (QT DIG∞)
-- [x] `xip.png` — XIP (Xipto Esports)
+- [x] `xip.png` — XIP (Xipto Esports) 
 
 ## CN · Tier 1
 
@@ -104,10 +104,23 @@ PNG, JPG ou WebP servem: troque só a extensão.
 ## CN · Challengers
 
 - [x] `ra.png` — RA (Rare Atom)
-- [x] `wbg.png` — WBG (Weibo Gaming)
+- [x] `wbg.png` — WBG (Weibo Gaming) (muito dinheiro) (subir pro tier 1 e rebaixar a wolves)
 - [x] `kbg.png` — KBG (KeepBest Gaming)
 - [x] `at.png` — AT (A Team)
 - [x] `aq.png` — AQ (Any Questions Gaming)
 - [x] `wsig.png` — WSIG (World Sports Invictus Gaming)
 - [x] `odg.png` — ODG (Octagonal Disposition Gaming)
-- [x] `vlg.png` — VLG (Victory No Limits Gaming)
+- [x] `vlg.png` — VLG (Victory No Limits Gaming) 
+
+## RD · Randons
+
+- [ ] `falcons.png` — FLC (Team Falcons) (organização saudita, muito muito muito dinheiro, pouca torcida)
+- [ ] `hanwhalife.png` — HWL (Hanwha Life Gaming) (organização coreana, muito dinheiro, pouca torcida)
+- [ ] `fazeclan.png` — FAZE (Faze Clan) (organização americana, dinheiro médio, muita torcida)
+- [ ] `spirit.png` — SPT (Team Spirit) (organização russa, dinheiro acima da média, muita torcida)
+- [ ] `9zteam.png` — 9ZG (9z Team) (organização argentina, dinheiro médio, torcida média)
+- [ ] `paingaming.png` — PAIN (Pain Gaming) (organização brasileira, dinheiro médio, muita torcida)
+- [ ] `ninjasinpyjamas.png` — NIP (Ninjas In Pyjamas) (organização sueca, pouco dinheiro, muita torcida)
+- [ ] `lns.png` — LNS (Lyons) (organização mexicana, dinheiro acima da média, muita torcida)
+- [ ] `gam.png` — GAM (GAM Esports) (organização vietnamita, dinheiro médio, torcida média)
+- [ ] `crc.png` — CR (Crazy Raccoon) (organização japonesa, muito dinheiro, muita torcida)
