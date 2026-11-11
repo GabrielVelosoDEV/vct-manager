@@ -32048,8 +32048,8 @@ function cartaoPasta(){
   const app=Pasta.noApp();
   const mais=`<button class="btn ghost sm" data-savesinfo>Vantagens e desvantagens</button>`;
   if(Pasta.estado==='sem-suporte')return `<div class="card flat pst"><div class="pst-ic">${ico('disco')}</div><div><div class="eyebrow">Salvar numa pasta do PC</div>
-    <p class="dim">Este navegador não deixa sites gravarem numa pasta (só Chrome, Edge e Opera no computador deixam, ou o app de PC). Suas carreiras
-    continuam salvas no navegador; se você limpar os dados de navegação, elas vão junto. Use <b>Exportar .json</b> de vez em quando para ter uma cópia.</p>
+    <p class="dim">${motivoSemPasta()} Enquanto isso, suas carreiras continuam salvas ${app?'no app':'no navegador'}${app?'':'; se você limpar os dados de navegação, elas vão junto'}.
+    Use <b>Exportar .json</b> de vez em quando para ter uma cópia.</p>
     <div class="pst-bts">${mais}</div></div></div>`;
   if(Pasta.estado==='ligada')return `<div class="card pst ok"><div class="pst-ic">${ico('check')}</div><div><div class="eyebrow">Salvando também numa pasta do seu PC</div>
     <p class="dim">Pasta <b>${esc(Pasta.caminho||Pasta.nome)}</b>: cada carreira é um arquivo <code>.vctrun.json</code> e a sua versão do Banco de dados é
@@ -32066,6 +32066,18 @@ function cartaoPasta(){
     <p class="dim">Por enquanto elas estão só ${app?'dentro do app':'no navegador'}. Com uma pasta, cada carreira vira um arquivo no seu computador:
     ${app?'dá para abrir, copiar, fazer backup e levar para o site ou para outro PC.':'não some se você limpar os dados do navegador, dá para fazer backup e levar para o app de PC.'}</p>
     <div class="pst-bts"><button class="btn sm" id="pastaEscolher">${app?'Salvar em Documentos\\VCT Manager':'Escolher a pasta'}</button>${mais}</div></div></div>`;
+}
+/* Por que a pasta não está disponível aqui, dito de um jeito que o jogador
+   consiga resolver: cada caso tem uma saída diferente. */
+function motivoSemPasta(){
+  const ua=navigator.userAgent||'';
+  if(Pasta.noApp())return 'Esta instalação do app de PC é de antes da pasta de saves. Instale a versão mais nova (Releases no GitHub) por cima desta: as carreiras continuam.';
+  if(!self.isSecureContext)return 'O jogo foi aberto por um endereço sem HTTPS, e o navegador só libera pastas em páginas seguras. Abra pelo endereço oficial (https://).';
+  if(navigator.brave)return 'O Brave desliga esse recurso por padrão. Para ligar: abra <code>brave://flags/#file-system-access-api</code>, mude para <b>Enabled</b> e reinicie o Brave. Ou use o Chrome, o Edge ou o app de PC.';
+  if(/Firefox\//.test(ua))return 'O Firefox não deixa sites gravarem numa pasta. Use o Chrome, o Edge ou o Opera no computador, ou o app de PC.';
+  if(/Safari\//.test(ua)&&!/Chrome|Chromium|Edg\//.test(ua))return 'O Safari não deixa sites gravarem numa pasta. Use o Chrome ou o Edge, ou o app de PC.';
+  if(/Android|iPhone|iPad|Mobile/.test(ua))return 'No celular nenhum navegador deixa sites gravarem numa pasta.';
+  return 'Este navegador não deixa sites gravarem numa pasta (só Chrome, Edge e Opera no computador deixam, ou o app de PC).';
 }
 /* Onde as carreiras ficam, com prós e contras de cada jeito. Abre do menu
    principal e da tela de partidas salvas: o jogador tem de saber disso antes
@@ -32096,7 +32108,7 @@ function modalSaves(){
      app?'a mesma pasta serve para o site (no Chrome ou no Edge): o mais novo de cada lado vale':'não some ao limpar o navegador, e serve também para o app de PC'],
     app?['os arquivos são seus: se apagar a pasta, apaga a cópia (o app ainda guarda a dele)']
        :['só Chrome, Edge e Opera no computador deixam (Firefox, Safari e celular não)','o navegador pode pedir para você confirmar o acesso de novo em algumas visitas','os arquivos são seus: se apagar a pasta, apaga a cópia'],
-    !pode?'<p class="dim" style="font-size:12px">Este navegador não deixa. Use o Chrome ou o Edge no computador, ou o app de PC.</p>':'');
+    !pode?`<p class="dim" style="font-size:12px">${motivoSemPasta()}</p>`:'');
   abrir(`<div class="sv-modal"><div class="eyebrow">Seus saves</div><h2 class="sec">Onde ficam suas carreiras</h2>
     <p>O VCT Manager não tem servidor: nada do que você joga sai do seu computador. Agora suas carreiras estão
       <b>${esc(textoOndeSalva())}</b>.</p>
