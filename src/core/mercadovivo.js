@@ -120,6 +120,9 @@ function rondaPedidosSaida(){
 function chanceEspontanea(p){
   let c=ESPONTANEA_BASE+Math.max(0,over(p)-75)*ESPONTANEA_POR_OVER;
   if(p.rumor&&_semanaNeg()<=p.rumor.ate)c*=1.6;
+  /* recém-contratado e contrato longo: o telefone toca bem menos */
+  if(chegouHaPouco(p))c*=0.25;
+  if((p.contrato||0)>=3)c*=0.6;
   if(p.pedidoSaida&&!p.pedidoSaida.negado)c*=2.5;
   if(ultimoDiaDaJanela())c*=2;
   return Math.min(ESPONTANEA_MAX,c);
@@ -132,6 +135,7 @@ function propostasEspontaneas(){
   for(const pid of eu.elenco){
     const p=G.jogadores[pid];
     if(!p||p.anuncio||p.emprestimo||p.preContrato||p.base)continue;
+    if(recemChegado(p))continue;                 /* assinou nesta janela: ninguém liga */
     if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR)continue;
     if(rnd()>chanceEspontanea(p)*fracaoMercado())continue;
     const cand=Object.values(G.times).filter(t=>t.id!==eu.id)
@@ -172,7 +176,7 @@ function rondaRumores(){
   const eu=G.times[G.meuTime];if(!eu)return;
   for(const pid of eu.elenco){
     const p=G.jogadores[pid];
-    if(!p||p.anuncio||p.emprestimo||p.base||over(p)<75)continue;
+    if(!p||p.anuncio||p.emprestimo||p.base||over(p)<75||chegouHaPouco(p))continue;
     if(p.rumor&&_semanaNeg()<=p.rumor.ate)continue;
     if(rnd()>RUMOR_CHANCE*(1+Math.max(0,over(p)-80)*0.06))continue;
     const cand=Object.values(G.times).filter(t=>t.id!==eu.id).map(t=>({t,n:interesseDe(t,p)})).filter(x=>x.n>0)
@@ -192,7 +196,8 @@ function montarEspontanea(p,alvo,ganho){
   /* multa: o salto precisa ser grande, o caixa precisa aguentar, e o jogador
      precisa preferir ir */
   /* metade das vezes o clube tenta antes negociar: multa é o último recurso */
-  if(ganho>=MULTA_IA_GANHO&&rnd()<MULTA_IA_CHANCE&&alvo.caixa*MULTA_IA_CAIXA>=multa
+  /* quem acabou de escolher o seu clube não sai pela multa no primeiro ano */
+  if(!chegouHaPouco(p)&&ganho>=MULTA_IA_GANHO&&rnd()<MULTA_IA_CHANCE&&alvo.caixa*MULTA_IA_CAIXA>=multa
      &&interessePor(p,alvo).nota>=interesseEmFicar(p,eu).nota+5){
     return{id:novoIdProposta(),jogadorId:p.id,clubeId:alvo.id,tipo:'multa',taxa:multa,
            salario:Math.round(sal),anos:ri(2,4),opcaoCompra:0,prazo:PRAZO_MULTA,espontanea:true};
@@ -318,6 +323,7 @@ function avaliarEmprestimoPedido(n,oferta){
   const titular=dono.titulares.includes(p.id);
   const erros=[];
   if(p.emprestimo)erros.push('Ele já está emprestado.');
+  if(recemChegado(p))erros.push(p.nome+' acabou de chegar ao '+dono.nome+': não sai de novo nesta janela.');
   if(titular&&rank<5)erros.push('Ele é titular do '+dono.nome+': não sai emprestado.');
   if(dono.elenco.length<=ELENCO_MIN)erros.push('O '+dono.nome+' está com o elenco no mínimo.');
   if(eu.elenco.length>=ELENCO_MAX)erros.push('Seu elenco está cheio.');
@@ -416,7 +422,7 @@ function mercadoNaJanela(){
   const chance=ultimoDiaDaJanela()?IA_PRAZO_FINAL:IA_JANELA_CHANCE;
   const ocupados=new Set(negociacoes().filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca').map(n=>n.jogadorId));
   const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.base&&!p.lesao&&!p.emprestimo
-    &&!p.preContrato&&!ocupados.has(p.id)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
+    &&!p.preContrato&&!ocupados.has(p.id)&&!recemChegado(p)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){
     if(t.id===G.meuTime||rnd()>chance*fracaoMercado())continue;

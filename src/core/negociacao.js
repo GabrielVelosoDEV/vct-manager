@@ -99,6 +99,8 @@ function abrirNegociacao(p,dest){
   if(conversaFechada(p))
     return{ok:false,erro:'A conversa por '+p.nome+' está fechada. Tente de novo em '+semanasAteNegociar(p)+' semana(s).'};
   const origem=p.timeId?G.times[p.timeId]:null;
+  const lib=origem&&typeof liberadoEm==='function'?liberadoEm(p):null;
+  if(lib)return{ok:false,erro:p.nome+' acabou de assinar com o '+origem.nome+'. Não sai de novo nesta janela: volta a ser negociável daqui a '+lib.falta+' semana'+(lib.falta===1?'':'s')+'.'};
   if(!G.janela&&!podePreContrato(p,dest)&&!(!origem&&inscricaoEmergencia(dest)))
     return{ok:false,erro:'A janela está fechada.'};
   const ps=posturaDoClube(p);
@@ -410,6 +412,7 @@ function rondaPreContratos(){
   for(const id of (eu.elenco||[]).slice()){
     const p=G.jogadores[id];
     if(!p||p.contrato>1||p.preContrato||p.emprestimo||p.base)continue;
+    if(recemChegado(p))continue;               /* acabou de chegar: ninguém sonda ainda */
     if(p.sondado&&!G.times[p.sondado.clubeId])delete p.sondado;
     if(!p.sondado){
       const cand=Object.values(G.times).filter(t=>t.id!==eu.id&&(t.elenco||[]).length<ELENCO_MAX)

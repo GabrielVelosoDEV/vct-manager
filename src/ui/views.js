@@ -835,6 +835,7 @@ function vMercadoSaidas(t){
         :'<span class="dim">—</span>'}</td>
       <td class="r">${p.anuncio
         ?`<button class="btn ghost sm" data-desanunciar="${p.id}">Retirar</button>`
+        :recemChegado(p)?`<span class="dim" title="Chegou há ${semanasNoClube(p)} semana(s)">chegou agora · só na próxima janela</span>`
         :`<button class="btn ghost sm" data-anunciar="${p.id}">Anunciar</button>`}</td>
     </tr>`).join('')}</tbody></table></div>`;
 }
@@ -939,7 +940,8 @@ function vMercadoJogadores(t){
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
       <td class="c">${interesseMini(p,t)}</td>
-      <td class="r num">${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?' <span class="chip r" title="Só pela multa">multa</span>':''}</td>
+      <td class="r num">${p.timeId&&recemChegado(p)?`<span class="chip" title="Assinou há ${semanasNoClube(p)} semana(s): não sai de novo nesta janela">recém-chegado</span>`
+        :`${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?` <span class="chip r" title="${esc(posturaDoClube(p).motivo)}">multa</span>`:''}`}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
       <td class="r"><button class="btn-ic ${mesa?'on':''}" data-prop="${p.id}" title="${mesa?'Voltar à mesa':'Negociar'}">${ico(mesa?'balao':'aperto')}<span>${mesa?'Mesa':'Negociar'}</span></button></td></tr>`;}).join('')}
     </tbody></table></div>`;

@@ -425,6 +425,9 @@ function contratar(p,time,anos,sal){
   G.livres=G.livres.filter(x=>x!==p.id);
   delete p.semLivre;
   p.timeId=time.id;p.contrato=anos;p.salario=sal;p.moral=clamp(p.moral+.08,.2,1);
+  /* a data em que chegou: quem acabou de assinar não sai de novo na mesma
+     janela, e clube nenhum revende reforço recém-contratado (transferencia.js) */
+  if(typeof _semanaNeg==='function')p.chegouSem=_semanaNeg();
   /* contrato novo, multa nova: quem fecha pela mesa fixa o valor logo depois */
   delete p.multa;delete p.sondado;delete p.pedidoSaida;delete p.semInfeliz;delete p.rumor;
   if(p.preContrato&&p.preContrato.clubeId!==time.id)delete p.preContrato;

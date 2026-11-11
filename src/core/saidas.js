@@ -35,6 +35,8 @@ function anunciarJogador(p,modo,opcao,pedido){
   if(!p||!p.timeId)return{ok:false,erro:'Jogador sem clube.'};
   if(p.emprestimo)return{ok:false,erro:'Jogador emprestado não pode ser anunciado.'};
   if(p.preContrato)return{ok:false,erro:p.nome+' já assinou pré-contrato e sai no fim da temporada.'};
+  const lib=typeof liberadoEm==='function'?liberadoEm(p):null;
+  if(lib)return{ok:false,erro:p.nome+' acabou de chegar: só pode ser negociado daqui a '+lib.falta+' semana'+(lib.falta===1?'':'s')+' (semana '+lib.semana+'/'+lib.ano+').'};
   /* Sem trava de elenco mínimo: vender um titular para depois contratar o
      substituto com o dinheiro é gestão. Quem chega a um jogo sem cinco toma
      W.O. (core/match.js) — essa é a punição, não um botão bloqueado. */
@@ -80,6 +82,7 @@ function ritmoPropostas(p,viaveis){
 /* Clubes que podem fazer proposta por ele agora: precisam da função, cabem
    na folha e ainda não fizeram uma. */
 function clubesInteressados(p){
+  if(recemChegado(p))return [];
   return Object.values(G.times)
     .filter(t=>t.id!==G.meuTime&&t.id!==p.timeId&&!propostasDe(p.id).some(y=>y.clubeId===t.id))
     .map(t=>({t,n:interesseDe(t,p)}))
@@ -276,11 +279,11 @@ function executarEmprestimo(p,destino,pr){
   const dono=G.times[p.timeId];
   if(!dono)return false;
   destino.caixa-=pr.taxa;dono.caixa+=pr.taxa;
-  const contratoOriginal=p.contrato, salarioOriginal=p.salario;
+  const contratoOriginal=p.contrato, salarioOriginal=p.salario, chegouAntes=p.chegouSem;
   contratar(p,destino,1,pr.salario);
   p.emprestimo={donoId:dono.id,fim:(G.ano||0),opcaoCompra:pr.opcaoCompra||0,
                 contrato:contratoOriginal,salario:salarioOriginal,
-                over:over(p),
+                over:over(p),chegouAntes:chegouAntes!=null?chegouAntes:null,
                 parteDono:Math.max(0,salarioOriginal-pr.salario)};
   noticia('🔁 '+p.nome+' foi emprestado ao '+destino.nome+' por uma temporada'+
           (pr.opcaoCompra?' com opção de compra de '+money(pr.opcaoCompra):'')+'.',{c:'mercado',p:[p.id],t:[destino.id]});
@@ -311,7 +314,9 @@ function resolverEmprestimos(){
       compras++;continue;
     }
     if(atual&&atual.id!==dono.id){
+      const chegou=e.chegouAntes;
       contratar(p,dono,Math.max(1,e.contrato),e.salario);
+      if(chegou!=null)p.chegouSem=chegou;else delete p.chegouSem;
       noticia('↩ '+p.nome+' voltou ao '+dono.nome+' após o empréstimo.',{c:'mercado',p:[p.id],t:[dono.id]});
     }
     delete p.emprestimo;voltas++;

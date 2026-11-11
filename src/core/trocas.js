@@ -68,6 +68,8 @@ function avaliarTroca(eu,outro,tr){
   const erros=[];
   if(!envia.length||!recebe.length)erros.push('Escolha ao menos um jogador de cada lado.');
   if(envia.length>TROCA_MAX_LADO||recebe.length>TROCA_MAX_LADO)erros.push('No máximo dois jogadores de cada lado.');
+  for(const p of [...envia,...recebe])
+    if(recemChegado(p))erros.push(p.nome+' acabou de chegar ao clube: não sai de novo nesta janela.');
   for(const p of envia){
     if(p.timeId!==eu.id)erros.push(p.nome+' não é do seu elenco.');
     if(p.emprestimo)erros.push(p.nome+' está emprestado.');
@@ -204,7 +206,7 @@ function executarTroca(n,a){
    dele é longo, às vezes entram dois. */
 function montarTrocaIA(p,alvo,ganho){
   const eu=G.times[p.timeId];
-  if(!eu||p.preContrato||p.emprestimo||p.base)return null;
+  if(!eu||p.preContrato||p.emprestimo||p.base||recemChegado(p))return null;
   if(!reacaoNaTroca(p,alvo).ok)return null;
   if(ganho==null)ganho=interesseDe(alvo,p);
   /* o quanto ele vale para quem oferece */
@@ -212,7 +214,8 @@ function montarTrocaIA(p,alvo,ganho){
   const funcao=p.roleAtual||p.role;
   /* o que o clube aceita soltar: menos o melhor dele e quem não quer ir */
   const ordem=(alvo.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
-  const cand=ordem.slice(1).filter(q=>!q.emprestimo&&!q.preContrato&&!q.base&&!q.lesao
+  /* quem o clube acabou de contratar não entra na conversa */
+  const cand=ordem.slice(1).filter(q=>!q.emprestimo&&!q.preContrato&&!q.base&&!q.lesao&&!chegouHaPouco(q)
     &&precoNaTroca(q)<vale*0.92&&precoNaTroca(q)>=vale*0.2&&reacaoNaTroca(q,eu).ok);
   if(!cand.length)return null;
   /* mesma função vale mais na escolha: é a peça que você perde */

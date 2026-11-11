@@ -102,6 +102,69 @@ function temporadasNoClube(p){
   for(let i=(p.hist||[]).length-1;i>=0;i--){if(p.hist[i].time===t.nome)n++;else break;}
   return n;
 }
+/* ---------- quem pode sair agora ----------
+   O mercado é quente, mas tem lógica:
+   - quem acabou de assinar não sai de novo na mesma janela (TRAVA_RECEM
+     cobre a janela mais longa, a de novembro a janeiro);
+   - reforço recém-contratado não é revendido no ano (TRAVA_ADAPTACAO): o
+     clube só solta pela multa, ou se estiver em crise, ou se ele pedir;
+   - contrato longo e salário entre os maiores do elenco seguram o jogador:
+     o clube montou o time em volta dele. */
+const TRAVA_RECEM=16, TRAVA_ADAPTACAO=40;
+/* salto de over que faz a IA pagar a multa de quem o dono não vende */
+const MULTA_SALTO=8;
+function semanasNoClube(p){
+  return p&&p.timeId&&p.chegouSem!=null&&typeof _semanaNeg==='function'?_semanaNeg()-p.chegouSem:999;
+}
+function recemChegado(p){return semanasNoClube(p)<TRAVA_RECEM;}
+function chegouHaPouco(p){return semanasNoClube(p)<TRAVA_ADAPTACAO;}
+/* semana (do ano) a partir da qual ele volta a poder ser negociado */
+function liberadoEm(p){
+  if(!recemChegado(p))return null;
+  const alvo=p.chegouSem+TRAVA_RECEM;
+  const ano=Math.floor((alvo-1)/SEMANAS_ANO), sem=alvo-ano*SEMANAS_ANO;
+  return{ano,semana:sem,falta:alvo-_semanaNeg()};
+}
+/* Saves de antes da v15: a chegada vem da última transferência para o
+   clube em que ele está. Quem não aparece no registro está lá há tempo. */
+function migrarChegadas(){
+  for(const x of (G.transferencias||[])){
+    const p=G.jogadores[x.jogadorId];
+    if(!p||!p.timeId||x.para!==p.timeId)continue;
+    const sem=(x.ano||0)*SEMANAS_ANO+(x.semana||1);
+    if(p.chegouSem==null||sem>p.chegouSem)p.chegouSem=sem;
+  }
+}
+function contratoPesado(p){
+  const t=p&&p.timeId?G.times[p.timeId]:null;if(!t)return false;
+  if((p.contrato||0)>=3)return true;
+  if((p.contrato||0)<2)return false;
+  const sal=(t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).map(x=>x.salario||0).sort((a,b)=>b-a);
+  return sal.length>1&&(p.salario||0)>=sal[1];      /* um dos dois maiores salários */
+}
+/* O quanto o clube dono topa vender agora, de 0 a 1. É a régua da IA
+   vendendo para a IA. A decisão é do DONO, uma por jogador e por mês — se
+   cada comprador sorteasse a sua, com oitenta clubes alguém sempre ouvia
+   sim. Sorteio fixo (não gasta o gerador do motor). */
+function disposicaoDeVender(p){
+  const t=p&&p.timeId?G.times[p.timeId]:null;if(!t)return 1;
+  if(recemChegado(p))return 0;
+  if((typeof emCrise==='function'&&emCrise(t))||(p.pedidoSaida&&!p.pedidoSaida.negado))return 1;
+  if(chegouHaPouco(p))return 0;
+  let d=1;
+  if((t.titulares||[]).includes(p.id))d*=0.55;
+  d*=(p.contrato||0)>=3?0.25:(p.contrato===2?0.65:1);
+  if(contratoPesado(p))d*=0.6;
+  return d;
+}
+function topaVender(t,p){
+  if(!p.timeId)return true;
+  const d=disposicaoDeVender(p);
+  if(d<=0)return false;if(d>=1)return true;
+  const mes=Math.floor((typeof _semanaNeg==='function'?_semanaNeg():0)/4);
+  return (_hashTxt(p.id+'|vende|'+mes)%1000)/1000<d;
+}
+
 /* Rival de verdade, pela mesma régua do clássico (legado.js). Olha só o
    confronto direto entre os dois: varrer todos os rivais do clube a cada
    pedido custaria caro, porque a IA pede preço de centenas de jogadores. */
@@ -310,10 +373,15 @@ function posturaDoClube(p){
   const r=(id,motivo)=>({id,...POSTURAS[id],motivo});
   if(p.anuncio)return r('avenda','O próprio clube colocou o jogador no mercado.');
   if(p.emprestimo)return r('intransferivel','Está emprestado: o clube dono decide no fim do empréstimo.');
+  if(recemChegado(p))return r('intransferivel','Acabou de chegar: não sai de novo nesta janela.');
+  if(chegouHaPouco(p)&&!(typeof emCrise==='function'&&emCrise(t))&&!(p.pedidoSaida&&!p.pedidoSaida.negado))
+    return r('intransferivel','Reforço recém-contratado: o clube não revende no primeiro ano. Só pela multa.');
   if(typeof emCrise==='function'&&emCrise(t))return r('avenda','Clube em crise ('+t.crise.motivo+'): liquidação do elenco.');
   if(p.pedidoSaida&&!p.pedidoSaida.negado)return r('avenda','Pediu para ser negociado.');
   if(titular&&rank>=0&&rank<2&&p.contrato>=2&&!apertado)
     return r('intransferivel','Um dos dois melhores do elenco, com contrato longo.');
+  if(titular&&p.contrato>=3&&!apertado)
+    return r('intransferivel','Titular com contrato longo: o time foi montado em volta dele.');
   if(apertado)return r('avenda','O clube precisa de caixa e aceita menos.');
   if(!titular&&rank>=6)return r('avenda','Sem espaço no elenco.');
   if(p.moral<0.40)return r('avenda','O jogador está insatisfeito e quer sair.');
@@ -486,9 +554,16 @@ function tentarReforco(t,candidatos){
     /* só interessa quem melhora a escalação de verdade */
     const ganho=Math.max(overComo(p,car.role),over(p))-car.alvo;
     if(ganho<2)continue;
+    /* o dono não quer vender agora (contrato, salário, adaptação): sobra a
+       multa, e só para um salto grande — nunca para quem chegou neste ano */
+    let forcaMulta=false;
+    if(p.timeId&&!topaVender(t,p)){
+      if(chegouHaPouco(p)||ganho<MULTA_SALTO)continue;
+      forcaMulta=true;
+    }
     const d=detalharPedido(p,t);
     if(d.pedido>folga)continue;
-    const taxa=p.timeId?precoPedido(p):0;
+    const taxa=p.timeId?(forcaMulta?multaDe(p):precoPedido(p)):0;
     /* salto grande justifica esticar o caixa (capacidadeDeCompra) */
     if(taxa>capacidadeDeCompra(t,ganho).agora)continue;
     /* intransferível só sai pela multa, e a IA só paga multa por salto grande */
@@ -510,7 +585,6 @@ function tentarReforco(t,candidatos){
     const titular=(origem.titulares||[]).includes(esc.p.id);
     const apertado=origem.caixa<origem.patroc*0.2||(typeof emCrise==='function'&&emCrise(origem));
     if(titular&&!apertado&&origem.elenco.length<=5)return null;
-    if(titular&&!apertado&&rnd()<0.45)return null;
   }
   executarProposta(esc.p,t,esc.taxa,esc.d.pedido,ri(2,3));
   /* jovem vendido entre clubes da IA às vezes leva revenda junto */
@@ -535,6 +609,7 @@ function mercadoTransferencias(){
         if(p.base)return false;                   /* garoto de base não é mercado */
         if(p.lesao)return false;
         if(p.timeId&&p.contrato>2)return false;   /* contrato longo não sai */
+        if(recemChegado(p))return false;          /* assinou nesta janela */
         return true;
       });
       const feito=tentarReforco(t,cand);

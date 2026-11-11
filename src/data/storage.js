@@ -284,7 +284,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=14;
+const RUN_VERSAO=15;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -442,6 +442,9 @@ function migrarRun(reg){
     if(de<13&&typeof migrarOrganizacoes==='function')migrarOrganizacoes();
     /* v14: a janela anda dia a dia; o turno de dois dias vira o primeiro dia dele */
     if(de<14&&G.turno)G.turno=[0,2,4][G.turno]||0;
+    /* v15: a chegada de cada um ao clube atual, tirada do registro de
+       transferências (quem já trocou duas vezes na janela para de trocar) */
+    if(de<15&&typeof migrarChegadas==='function')migrarChegadas();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;
