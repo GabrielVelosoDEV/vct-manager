@@ -73,5 +73,10 @@ const nicks=new Set();let dup=0;
 for(const k of tags)for(const r of ctx.__e[k]){if(nicks.has(r[0]))dup++;nicks.add(r[0]);}
 ok(dup===0,`sem nick duplicado (${nicks.size} únicos)`);
 unlinkSync(resolve(raiz,'.elencos-teste.js'));
+/* --- o arquivo de origem: potencial só na lista de sem clube, elenco cabe no limite --- */
+{const c2={};vm.createContext(c2);
+ vm.runInContext(readFileSync(resolve(raiz,'data/elencos.js'),'utf8')+';globalThis.__e=ELENCOS_REAIS;',c2);
+ const fora=Object.entries(c2.__e).filter(([k,l])=>k!=='LIVRE'&&(l.length>9||l.some(r=>r.length!==5)));
+ ok(!fora.length,`data/elencos.js: nenhum clube com linha de sem clube ou mais de 9 jogadores${fora.length?' — '+fora.map(([k,l])=>k+'('+l.length+')').join(', '):''}`);}
 console.log(falhas?`\n${falhas} FALHA(S)`:'\nTODOS OK');
 process.exit(falhas?1:0);
