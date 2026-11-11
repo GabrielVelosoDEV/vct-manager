@@ -394,7 +394,8 @@ function avPintar(fim){
     <div class="card flat"><div class="eyebrow">Como foi</div>
       ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
         <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
-    </div>`
+    </div>
+    ${typeof relatorioAnalistaHTML==='function'?relatorioAnalistaHTML(AV.res&&AV.res.analise):''}`
    :`
     <div class="av-mapa"><span class="eyebrow">Mapa ${Math.min(AV.mapaIdx+1,totalMapas)} de ${totalMapas}</span>
       ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`:''}

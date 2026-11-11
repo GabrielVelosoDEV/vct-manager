@@ -148,6 +148,8 @@ function avancar(plano){
           const ctx={stage:s.id,nome:s.nome,semana:G.semana};
           if(meuJogo&&plano&&plano.veto&&plano.veto.mapas&&plano.veto.mapas.length
              &&plano.stageId===s.id)ctx.veto=plano.veto;
+          /* plano de jogo: o estilo escolhido para esta série */
+          if(meuJogo&&plano&&plano.tatica&&plano.stageId===s.id)ctx.taticas={[G.meuTime]:plano.tatica};
           /* A SUA partida pode ter sido CONDUZIDA pela tela, round a round,
              para o pedido de tempo valer alguma coisa: nesse caso ela já
              aconteceu e chega aqui pronta, em vez de ser simulada.
@@ -266,6 +268,10 @@ function semana(){
     else t.sinergia=clamp(t.sinergia+(t.tatica.scrim-3)*0.30,0,100);
     /* A IA escolhe o plano da semana antes de a semana ser aplicada; o seu
        clube usa o que VOCÊ deixou marcado na tela de Treino. */
+    /* o seu clube: o auxiliar monta a semana pelo modo escolhido (core/plano.js),
+       e a foto de antes vira o relatório da semana de treino */
+    const fotoAntes=id===G.meuTime&&typeof fotoTreino==='function'?fotoTreino(t):null;
+    if(id===G.meuTime&&typeof aplicarModoSemana==='function')aplicarModoSemana(t);
     if(typeof planoIA==='function')planoIA(t);
     if(typeof aplicarTreinoSemanal==='function')aplicarTreinoSemanal(t);
     if(typeof aplicarMiniMapa==='function')aplicarMiniMapa(t);
@@ -274,9 +280,11 @@ function semana(){
     if(typeof limparComps==='function')limparComps(t);
     if(typeof compIA==='function')compIA(t);
     if(typeof taticaIA==='function')taticaIA(t);
+    if(id===G.meuTime&&typeof atualizarEstilo==='function')atualizarEstilo(t);
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
+    if(fotoAntes)G.relatorioSemana=relatorioDaSemana(t,fotoAntes);
     /* o que os minigames deram valia só para esta semana (core/minigames.js) */
     if(typeof encerrarMiniSemana==='function')encerrarMiniSemana(t);
     if(typeof conferirCartas==='function')conferirCartas(t);

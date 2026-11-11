@@ -25,7 +25,9 @@ function prePartidaDisponivel(){
 function abrirPrePartida(comp,depois){
   const meu=G.times[G.meuTime], adv=G.times[comp.advId];
   if(typeof guiaMarcar==='function')guiaMarcar('partida');
-  PP={comp,adv,meu,depois,etapa:'relatorio',
+  /* adaptável relê o adversário na hora do jogo */
+  if(typeof atualizarEstilo==='function')atualizarEstilo(meu,adv);
+  PP={comp,adv,meu,depois,etapa:'relatorio',tatica:null,
       V:iniciarVeto(G.meuTime,comp.advId,comp.bo,comp.euSouA)};
   vetoAvancarAteMim(PP.V);
   ppPintar();
@@ -61,7 +63,7 @@ function ppConfirmar(){
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
   ppCompsAutomaticas();
   const comp=PP.comp;
-  const plano={stageId:comp.stage.id,veto:vetoResultado(V)};
+  const plano={stageId:comp.stage.id,veto:vetoResultado(V),tatica:PP.tatica||null};
   const d=PP.depois;PP=null;
   const m=$('#modal');if(m)m.innerHTML='';
   /* Com tempo técnico e transmissão ao vivo ligados, a SUA série é jogada
@@ -70,7 +72,7 @@ function ppConfirmar(){
      semana em cima dele. */
   if(Prefs.get('tempoTecnico')&&Prefs.get('aoVivo')&&typeof partidaConduzida==='function'){
     const ctx={stage:comp.stage.id,nome:comp.stage.nome,semana:G.semana};
-    const S=abrirSerie(comp.aId,comp.bId,comp.bo,plano.veto);
+    const S=abrirSerie(comp.aId,comp.bId,comp.bo,plano.veto,plano.tatica?{[G.meuTime]:plano.tatica}:null);
     partidaConduzida(S,ctx,res=>{
       res.semana=G.semana;
       plano.serieFeita=res;
@@ -133,6 +135,8 @@ function ppPintar(){
   const lvv=M.querySelector('#ppVoltarVeto');if(lvv)lvv.onclick=()=>{PP.etapa='veto';ppPintar();};
   const li=M.querySelector('#ppVeto');if(li)li.onclick=ppIrParaVeto;
   const lp=M.querySelector('#ppPular');if(lp)lp.onclick=ppPular;
+  M.querySelectorAll('[data-ppplano]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.ppplano;PP.tatica=id&&ESTILOS[id]?taticaDoEstilo(PP.meu,id,PP.adv):null;ppPintar();});
   const lc=M.querySelector('#ppOk');if(lc)lc.onclick=ppConfirmar;
   const lv=M.querySelector('#ppVoltar');if(lv)lv.onclick=()=>{PP.etapa='relatorio';ppPintar();};
 }
@@ -207,6 +211,7 @@ function ppRelatorioHTML(){
       <div class="rel-mapas">${mapas}</div>
       ${nv<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
     </div>
+    ${typeof ppPlanoJogoHTML==='function'?ppPlanoJogoHTML():''}
     ${typeof blocoTorcida==='function'?blocoTorcida(conversaPreJogo(meuT,advT,nomeStage(PP.comp.stage)),{titulo:'A torcida antes do jogo'}):''}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppPular">Deixar a comissão vetar</button>

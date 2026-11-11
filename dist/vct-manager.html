@@ -3325,6 +3325,34 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .dsf-card{border-left:4px solid var(--gold)}
 .dsf-card.vencido{border-left-color:var(--teal)}.dsf-card.perdido{border-left-color:var(--red)}
 
+/* ---------- plano de jogo ---------- */
+.prep-tabs .prep-av{color:var(--tx2);margin-left:12px;border-left:1px solid var(--line2)}
+.pl-tit{margin:16px 0 8px}
+.pl-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pl-card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px;border:1px solid var(--line2);background:var(--panel);color:var(--tx);cursor:pointer}
+.pl-card:hover{border-color:var(--tx2)}
+.pl-card.on{border-color:var(--gold);background:rgba(200,148,58,.08)}
+.pl-card b{font-size:15px}
+.pl-desc{font-size:12.5px;color:var(--tx2);line-height:1.45}
+.pl-rps,.pl-prev{font-size:12px;color:var(--tx2)}
+.pl-hist{font-size:12px;color:var(--tx2);margin-top:auto;padding-top:4px;border-top:1px solid var(--line)}
+.pl-ic{width:28px;height:28px;display:grid;place-items:center}
+.pl-est{display:inline-flex;gap:2px}.pl-est i{width:9px;height:9px;background:var(--line2);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.pl-est i.on{background:var(--gold)}
+.pl-aviso{border-left:4px solid var(--amber)}
+.pl-prox-l{display:flex;gap:10px;align-items:flex-start}
+.ra .ra-meta{font-size:12px}
+.ra-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:8px}
+.ra-col{border-left:3px solid var(--line2);padding-left:10px}
+.ra-col p{font-size:13px;margin:4px 0}
+.ra-col.ok{border-left-color:var(--teal)}.ra-col.no{border-left-color:var(--red)}.ra-col.mud{border-left-color:var(--gold)}
+.rs-linha{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin-top:8px;font-size:13px}
+.rs-linha .eyebrow{min-width:150px}
+.rs-it{white-space:nowrap}
+.pp-plano{border-left:4px solid var(--teal)}
+.pp-plano p{margin:6px 0}
+.pp-plano-bts{display:flex;gap:8px;flex-wrap:wrap}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -10894,7 +10922,7 @@ function forcaTime(t,mapa,lado){
       chute. É o mesmo motivo pelo qual existe analista no jogo. */
 const TATICA_AGRES=0.85;      /* por ponto acima ou abaixo de 3, no lado */
 const TATICA_PERFIL=0.035;    /* o quanto o perfil do elenco decide o resto */
-const TATICA_LEITURA=0.8;     /* o que vale acertar o contra-foco */
+const TATICA_LEITURA=1.3;     /* o que vale acertar o contra-foco (era 0,8: abaixo do ruído, a escolha não se sentia) */
 /* Agressividade não pode ter resposta certa fixa, e a primeira tentativa ainda
    tinha: o lado que ela ajudava rendia mais do que o lado que ela cobrava, e
    agressividade 5 era de graça. Agora o efeito de LADO é simétrico — some no
@@ -11047,7 +11075,10 @@ function abrirMapa(A,B,mapa,ladoInicialA){
     if(tmA)M.tatA=Object.assign({},tmA);
     if(tmB)M.tatB=Object.assign({},tmB);
     _recalcularMapa(M);
-  }
+  }else if(typeof bonusEstudo==='function'&&(bonusEstudo(A,B)||bonusEstudo(B,A)))_recalcularMapa(M);
+  /* o preparo do seu clube neste mapa, para o relatório do analista */
+  if(G.meuTime&&(A.id===G.meuTime||B.id===G.meuTime)&&typeof preparoDoMapa==='function')
+    M.prep=preparoDoMapa(A.id===G.meuTime?A:B,mapa).nota;
   return M;
 }
 const TEMPOS_POR_MAPA=2;
@@ -11080,8 +11111,10 @@ function _recalcularMapa(M){
   B.tatica=Object.assign({},tB,M.tatB||{});
   try{
     const vA=vantagemTatica(A,B), vB=-vA;
-    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA,def:forcaTime(A,M.mapa,'def')+vA};
-    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB,def:forcaTime(B,M.mapa,'def')+vB};
+    /* o estudo do adversário (core/plano.js) entra junto com a leitura tática */
+    const eA=typeof bonusEstudo==='function'?bonusEstudo(A,B):0, eB=typeof bonusEstudo==='function'?bonusEstudo(B,A):0;
+    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA+eA,def:forcaTime(A,M.mapa,'def')+vA+eA};
+    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB+eB,def:forcaTime(B,M.mapa,'def')+vB+eB};
   }finally{A.tatica=tA;B.tatica=tB;}
 }
 /* Devolve o que aconteceu, para a narração ter o que dizer. */
@@ -11231,7 +11264,13 @@ function fecharMapa(M){
   /* empate só acontece no corte de 60 rounds; decidir sempre para o B era um
      viés silencioso a mais */
   const vencedor = M.sa===M.sb ? (rnd()<0.5?M.A.id:M.B.id) : (M.sa>M.sb?M.A.id:M.B.id);
-  return{mapa:M.mapa,sa:M.sa,sb:M.sb,hist:M.hist,st:M.st,vencedor};
+  /* a tática que cada lado terminou usando e o preparo: o relatório do analista lê */
+  const r={mapa:M.mapa,sa:M.sa,sb:M.sb,hist:M.hist,st:M.st,vencedor};
+  if(M.prep!=null){
+    r.prep=M.prep;
+    r.tat={A:Object.assign({},M.A.tatica,M.tatA||{}),B:Object.assign({},M.B.tatica,M.tatB||{})};
+  }
+  return r;
 }
 function simMapa(A,B,mapa){
   const M=abrirMapa(A,B,mapa);
@@ -11271,7 +11310,7 @@ function acsDe(s){
 /* ---------- a série, também em passos ----------
    Mesmo motivo do mapa: para a tela poder conduzir em vez de só reproduzir.
    simPartida() continua sendo o laço completo, escrito em cima destas peças. */
-function abrirSerie(aId,bId,bo,vetoPronto){
+function abrirSerie(aId,bId,bo,vetoPronto,taticas){
   const A=G.times[aId],B=G.times[bId];
   /* Veto pronto vindo de fora é o veto que VOCÊ fez na tela. Chega por aqui
      para o motor continuar sendo o único dono do sorteio: a tela escolhe os
@@ -11280,13 +11319,21 @@ function abrirSerie(aId,bId,bo,vetoPronto){
     ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice(),lados:(vetoPronto.lados||[]).slice()}
     :veto(A,B,bo);
   return{A,B,aId,bId,bo,veto:v,need:Math.ceil(bo/2),
-         mapas:[],wa:0,wb:0,idx:0,M:null,fim:false};
+         mapas:[],wa:0,wb:0,idx:0,M:null,fim:false,
+         /* plano de jogo: a tática escolhida para esta série (core/plano.js) */
+         tat:taticas||null};
 }
 function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas.length;}
 /* Abre o próximo mapa da série, ou devolve null quando não há mais. */
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
   S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
+  if(S.tat&&(S.tat[S.A.id]||S.tat[S.B.id])){
+    if(S.tat[S.A.id])S.M.tatA=Object.assign({},S.M.tatA||{},S.tat[S.A.id]);
+    if(S.tat[S.B.id])S.M.tatB=Object.assign({},S.M.tatB||{},S.tat[S.B.id]);
+    _recalcularMapa(S.M);
+    if(S.M.prep!=null)S.M.prep=preparoDoMapa(S.A.id===G.meuTime?S.A:S.B,S.M.mapa).nota;
+  }
   /* o lado conduzido na tela pede o próprio tempo; o outro é da comissão */
   S.M.manualA=!!S.manualA;S.M.manualB=!!S.manualB;
   return S.M;
@@ -11322,6 +11369,8 @@ function fecharSerie(S,ctx){
      confiança de quem joga */
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
   const decisiva=bo>=5||!!(st&&(st.tipo==='de'||st.tipo==='ko'));
+  /* o relatório do analista, antes de o cansaço da série entrar na conta */
+  const analise=G.meuTime&&(aId===G.meuTime||bId===G.meuTime)&&typeof analisarSerie==='function'?analisarSerie(S,ctx):null;
   aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva);
   /* a torcida dos dois lados reage (core/torcida.js); sem sorteio */
   if(typeof torcidaPosSerie==='function')
@@ -11336,8 +11385,10 @@ function fecharSerie(S,ctx){
       evoluirAfinidade(p,mp.mapa,acsDe(st));
     }
   });
-  return{aId,bId,bo,veto:S.veto.seq,mapas:S.mapas,wa:S.wa,wb:S.wb,
+  const res={aId,bId,bo,veto:S.veto.seq,mapas:S.mapas,wa:S.wa,wb:S.wb,
          vencedor,perdedor,agg,mvp,ctx:ctx||{}};
+  if(analise){res.analise=analise;registrarRelatorio(res,analise);}
+  return res;
 }
 /* ---------- W.O. ----------
    Clube que chega ao jogo sem cinco jogadores perde sem jogar: a série vai
@@ -11371,7 +11422,7 @@ function woDaSerie(aId,bId,bo,ctx){
 function simPartida(aId,bId,bo,ctx){
   const wo=woDaSerie(aId,bId,bo,ctx);
   if(wo)return wo;
-  const S=abrirSerie(aId,bId,bo,ctx&&ctx.veto);
+  const S=abrirSerie(aId,bId,bo,ctx&&ctx.veto,ctx&&ctx.taticas);
   while(!S.fim){
     if(!serieAbrirMapa(S))break;
     while(!S.M.fim)passoRound(S.M);
@@ -13268,6 +13319,360 @@ function avaliarDesafio(){
 }
 
 
+/* ===== src/core/plano.js ===== */
+/* ============================================================
+   O PLANO DE JOGO — três decisões simples e o retorno de cada uma
+   ------------------------------------------------------------
+   Táticas e treino tinham controle demais e retorno de menos:
+   agressividade de 1 a 5, foco, intensidade de scrim, bloco de
+   treino, tática por mapa, plano individual, mapa da semana — e
+   nenhuma resposta depois do jogo dizendo o que funcionou.
+
+   Agora o caminho principal é:
+   1. ESTILO DO TIME — quatro jeitos de jogar. Cada um é a mesma
+      agressividade e o mesmo foco de sempre por baixo (o motor não
+      mudou), escolhidos de um jeito que se entende: forte contra
+      quem, fraco contra quem, e o quanto combina com o elenco.
+   2. A SEMANA — Recuperar, Equilibrada, Intensa ou Estudar o
+      adversário. O auxiliar monta o plano de cada jogador e o
+      treino de mapa a partir dela, toda semana, com o cansaço do
+      momento. Quem quiser mexer jogador por jogador continua
+      podendo (Avançado), e a semana vira "personalizada".
+   3. O RETORNO — depois de cada série, o analista diz o que
+      funcionou, o que custou e o que mudar, com números tirados do
+      próprio motor; depois de cada semana, quem evoluiu e em quê.
+      E cada estilo guarda o próprio retrospecto.
+
+   Nada aqui sorteia: o motor continua dono do gerador.
+   ============================================================ */
+
+/* ---------- 1. estilos ---------- */
+const ESTILOS={
+  agressivo:{nome:'Agressivo',ic:'fogo',tatica:{agres:4,foco:'execucao'},forte:'controle',fraco:'defensivo',
+    desc:'Entra rápido e decide no duelo. Rende no ataque e em mapa que favorece o ataque; cobra na defesa.'},
+  controle:{nome:'Controle de mapa',ic:'mapa',tatica:{agres:3,foco:'default'},forte:'defensivo',fraco:'agressivo',
+    desc:'Toma espaço com utilidade e espera o erro. Sólido nos dois lados, sem pico.'},
+  defensivo:{nome:'Defensivo',ic:'escudo2',tatica:{agres:2,foco:'retake'},forte:'agressivo',fraco:'controle',
+    desc:'Segura o bomb e retoma o site. Rende na defesa e contra quem ataca rápido.'},
+  adaptavel:{nome:'Adaptável',ic:'radar',tatica:null,forte:null,fraco:null,
+    desc:'Lê o próximo adversário e joga o contra-estilo dele. Depende do analista: sem leitura, joga o natural do elenco.'}
+};
+const ESTILO_DO_FOCO={execucao:'agressivo',default:'controle',retake:'defensivo'};
+const CONTRA_FOCO={default:'execucao',retake:'default',execucao:'retake'};
+function nomeEstilo(id){return id==='personalizado'?'Personalizado':(ESTILOS[id]||{}).nome||id;}
+/* O estilo em vigor. Save antigo não tem: sai da tática, ou é personalizado. */
+function estiloDe(t){
+  if(!t)return 'controle';
+  if(t.estilo&&(ESTILOS[t.estilo]||t.estilo==='personalizado'))return t.estilo;
+  for(const k of ['agressivo','controle','defensivo'])
+    if(t.tatica&&t.tatica.agres===ESTILOS[k].tatica.agres&&t.tatica.foco===ESTILOS[k].tatica.foco)return k;
+  return 'personalizado';
+}
+/* Estilo que a tática atual de um clube parece (para o relatório falar do adversário). */
+function estiloAparente(tat){return ESTILO_DO_FOCO[(tat&&tat.foco)||'default']||'controle';}
+/* A tática que o estilo escolhe, contra um adversário (ou o próximo). */
+function taticaDoEstilo(t,id,adv){
+  if(ESTILOS[id]&&ESTILOS[id].tatica)return Object.assign({},ESTILOS[id].tatica);
+  /* adaptável: agressividade do elenco, foco contra o do adversário se houver leitura */
+  const perfil=typeof perfilAgressivo==='function'?perfilAgressivo(t):0;
+  const agres=clamp(3+Math.round(perfil/5),1,5);
+  adv=adv||(typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null);
+  const nv=adv?(typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):nivelScout(t)):0;
+  const foco=adv&&nv>=3?CONTRA_FOCO[(adv.tatica&&adv.tatica.foco)||'default']:(typeof focoNatural==='function'?focoNatural(t):'default');
+  return{agres,foco};
+}
+function definirEstilo(t,id){
+  if(!t||!ESTILOS[id])return{ok:false,erro:'Estilo inválido.'};
+  t.estilo=id;
+  Object.assign(t.tatica,taticaDoEstilo(t,id));
+  return{ok:true,msg:'Estilo: '+ESTILOS[id].nome+'.'};
+}
+/* Clube novo nas suas mãos: o estilo que mais rende para o elenco e a semana
+   equilibrada, os dois no automático. */
+function iniciarPlano(t){
+  if(!t)return;
+  const enc=encaixeEstilos(t);
+  const melhor=['agressivo','controle','defensivo'].sort((a,b)=>enc[b].ganho-enc[a].ganho)[0];
+  definirEstilo(t,melhor);
+  t.semanaModo='equilibrada';
+  aplicarModoSemana(t);
+}
+/* Mexeu nos controles finos: o estilo vira personalizado. */
+function marcarEstiloPersonalizado(t){if(t)t.estilo='personalizado';}
+/* Adaptável relê o adversário toda semana (e antes do jogo). */
+function atualizarEstilo(t,adv){
+  if(t&&estiloDe(t)==='adaptavel')Object.assign(t.tatica,taticaDoEstilo(t,'adaptavel',adv));
+}
+
+/* Força média de uma tática nos mapas da rotação, dos dois lados, contra uma
+   tática de adversário. Lê forcaTime e vantagemTatica com a tática trocada
+   por um instante, como o preparo do mapa já faz. */
+function _forcaComTatica(t,tat,mapas,advTat){
+  const guarda=t.tatica;
+  const falso={tatica:Object.assign({},advTat||{agres:3,foco:'default'})};
+  let s=0,n=0;
+  try{
+    t.tatica=Object.assign({},guarda,tat);
+    for(const mp of mapas){
+      const v=vantagemTatica(t,falso);
+      s+=forcaTime(t,mp,'atk')+v+forcaTime(t,mp,'def')+v;n+=2;
+    }
+  }finally{t.tatica=guarda;}
+  return n?s/n:0;
+}
+/* Quanto cada estilo rende para este elenco, contra a liga como ela joga
+   hoje (o foco de cada adversário da liga), em pontos de força por round.
+   É o que vira as estrelas de encaixe. */
+function encaixeEstilos(t){
+  const mapas=(G.mapasAtivos||[]).slice(0,7);
+  const liga=((G.regioes[t.regiao]||{})[t.tier===1?'t1':'t2']||[]).filter(i=>i!==t.id).map(i=>G.times[i]).filter(Boolean);
+  const advs=liga.length?liga.map(x=>x.tatica):[{agres:3,foco:'default'}];
+  const media=tat=>advs.reduce((s,a)=>s+_forcaComTatica(t,tat,mapas,a),0)/advs.length;
+  const v={};
+  for(const k of ['agressivo','controle','defensivo'])v[k]=media(ESTILOS[k].tatica);
+  /* adaptável: o natural do elenco, mais a leitura quando o analista enxerga */
+  const nat=taticaDoEstilo(t,'adaptavel',{tatica:{foco:'__'}});
+  const nv=typeof nivelScout==='function'?nivelScout(t):1;
+  v.adaptavel=nv>=3
+    ?advs.reduce((s,a)=>s+_forcaComTatica(t,{agres:nat.agres,foco:CONTRA_FOCO[a.foco||'default']},mapas,a),0)/advs.length
+    :media({agres:nat.agres,foco:typeof focoNatural==='function'?focoNatural(t):'default'});
+  const base=v.controle;
+  const out={};
+  for(const k in v){
+    const d=v[k]-base;
+    out[k]={ganho:d,estrelas:clamp(Math.round(3+d/0.35),1,5)};
+  }
+  return out;
+}
+
+/* ---------- 2. a semana ---------- */
+const MODOS_SEMANA={
+  recuperar:{nome:'Recuperar',ic:'relogio',scrim:1,
+    desc:'Todo mundo descansa. Limpa o cansaço; ninguém evolui.'},
+  equilibrada:{nome:'Equilibrada',ic:'controle',scrim:3,
+    desc:'Treino normal e dois mapas. O auxiliar põe para descansar quem está cansado.'},
+  intensa:{nome:'Intensa',ic:'fogo',scrim:5,
+    desc:'Todo mundo treina forte e três mapas. Evolui mais, cansa mais.'},
+  estudar:{nome:'Estudar o adversário',ic:'olho',scrim:2,
+    desc:'Vídeo do próximo adversário: o analista lê o estilo deles e o time entra com vantagem. Treina menos.'}
+};
+/* limite de cansaço acima do qual o auxiliar põe para descansar */
+const DESCANSO_ACIMA={recuperar:-1,equilibrada:0.6,intensa:0.78,estudar:0.6};
+/* o que vale o estudo: perto do contra-estilo (TATICA_LEITURA 1,3) */
+const ESTUDO_BONUS=1.0;
+function semanaModoDe(t){
+  if(!t)return 'equilibrada';
+  if(t.semanaModo&&(MODOS_SEMANA[t.semanaModo]||t.semanaModo==='personalizada'))return t.semanaModo;
+  return Object.keys(((t.treino||{}).individual)||{}).length?'personalizada':'equilibrada';
+}
+function nomeModoSemana(id){return id==='personalizada'?'Personalizada':(MODOS_SEMANA[id]||{}).nome||id;}
+function _proximoAdv(t){
+  if(typeof proximoAdversarioDe==='function'){const a=proximoAdversarioDe(t);if(a)return a;}
+  if(t.id===G.meuTime&&typeof proximoConfronto==='function'){
+    try{const px=proximoConfronto();if(px&&px.adv)return G.times[px.adv]||null;}catch(e){}
+  }
+  return null;
+}
+function definirModoSemana(t,id){
+  if(!t||!MODOS_SEMANA[id])return{ok:false,erro:'Semana inválida.'};
+  t.semanaModo=id;
+  aplicarModoSemana(t);
+  return{ok:true,msg:'Semana: '+MODOS_SEMANA[id].nome+'.'};
+}
+function marcarSemanaPersonalizada(t){if(t)t.semanaModo='personalizada';}
+/* O auxiliar monta a semana: scrim, plano de cada um e mapas. */
+function aplicarModoSemana(t){
+  const modo=semanaModoDe(t);
+  if(!t||modo==='personalizada'||!MODOS_SEMANA[modo])return null;
+  t.tatica.scrim=MODOS_SEMANA[modo].scrim;
+  const adv=_proximoAdv(t);
+  t.estudoAdv=modo==='estudar'&&adv?adv.id:null;
+  const pl=planoDe(t);
+  pl.individual={};
+  const limite=DESCANSO_ACIMA[modo];
+  for(const id of (t.elenco||[])){
+    const p=G.jogadores[id];if(!p)continue;
+    if(modo==='recuperar'||p.lesao||p.fadiga>limite||((p.pot||0)-over(p)<=1&&modo!=='intensa')){
+      pl.individual[id]={tipo:'descanso',alvo:null};continue;}
+    const w=ROLE_W[p.role]||ROLE_W.Flex;
+    const alvo=Object.keys(w).sort((a,b)=>w[b]*(99-(p.at[b]||0))-w[a]*(99-(p.at[a]||0)))[0]||'mira';
+    pl.individual[id]={tipo:'atributo',alvo};
+  }
+  let mapas=[];
+  if(modo==='equilibrada')mapas=mapasDaSemanaIA(t).slice(0,2);
+  else if(modo==='intensa')mapas=mapasDaSemanaIA(t);
+  else if(modo==='estudar'){
+    const pool=G.mapasAtivos||[];
+    const pk=adv&&typeof ordemDeVetoProvavel==='function'?ordemDeVetoProvavel(adv,pool).picks:[];
+    mapas=pk.slice(0,2).map((m,i)=>({mapa:m,prio:i?'media':'alta'}));
+  }
+  definirMapasTreino(t,mapas);
+  return pl;
+}
+/* A vantagem do estudo, só contra quem foi estudado. */
+function bonusEstudo(t,adv){
+  return t&&adv&&t.id===G.meuTime&&semanaModoDe(t)==='estudar'&&t.estudoAdv===adv.id?ESTUDO_BONUS:0;
+}
+/* O que a semana deve fazer, antes de confirmar — mesmas contas do relógio. */
+function previsaoSemana(t,id){
+  const m=MODOS_SEMANA[id];if(!m||!t)return null;
+  const neutro=typeof NIVEL_NEUTRO!=='undefined'?NIVEL_NEUTRO:3;
+  const tit=(t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  const nMapas=id==='recuperar'?0:id==='equilibrada'?2:id==='intensa'?3:2;
+  const limite=DESCANSO_ACIMA[id];
+  let soma=0,treinam=0;
+  for(const p of tit){
+    const descansa=id==='recuperar'||p.lesao||p.fadiga>limite;
+    if(!descansa)treinam++;
+    const custo=descansa?FADIGA_DESCANSO:FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(nMapas);
+    const novo=clamp(p.fadiga-0.035-recuperacaoEst(t)+(m.scrim-2)*0.008-((t.staff.fisio||neutro)-neutro)*0.0027+custo,0,1);
+    soma+=novo-p.fadiga;
+  }
+  const fad=tit.length?Math.round(soma/tit.length*100):0;
+  /* evolução relativa à semana equilibrada com todos treinando */
+  const ritmo=(0.85+m.scrim*0.05)/(0.85+3*0.05);
+  const evol=tit.length?ritmo*treinam/tit.length:0;
+  const adv=id==='estudar'?_proximoAdv(t):null;
+  return{fadiga:fad,evolucao:evol,treinam,de:tit.length,mapas:nMapas,adv:adv?adv.nome:null};
+}
+
+/* ---------- 3a. o relatório do analista, depois de cada série ---------- */
+const RELATORIOS_MAX=8, ESTILO_HIST_MAX=60;
+function _ladoDoA(h){return h.lado;}  /* o lado do time A no round */
+function analisarSerie(S,ctx){
+  const euA=S.aId===G.meuTime, eu=euA?S.A:S.B, ele=euA?S.B:S.A;
+  const ladoMeu=h=>euA?h.lado:(h.lado==='atk'?'def':'atk');
+  const venci=h=>euA?h.v:!h.v;
+  const lados={atk:[0,0],def:[0,0]};let pist=[0,0];const tempos=[];
+  const mapas=[];
+  for(const mp of S.mapas){
+    const hist=mp.hist||[];
+    hist.forEach((h,i)=>{
+      const l=ladoMeu(h),w=venci(h);
+      if(h.r<=24){lados[l][w?0:1]++;}
+      if(h.pistol){pist[1]++;if(w)pist[0]++;}
+      if(h.tempoPedido&&(h.tempoPedido==='A')===euA){
+        const dep=hist.slice(i+1,i+3);tempos.push({ganhou:dep.filter(venci).length,de:dep.length});}
+    });
+    const tatEu=mp.tat?(euA?mp.tat.A:mp.tat.B):eu.tatica, tatEle=mp.tat?(euA?mp.tat.B:mp.tat.A):ele.tatica;
+    const meus=euA?mp.sa:mp.sb, deles=euA?mp.sb:mp.sa;
+    mapas.push({mapa:mp.mapa,eu:meus,ele:deles,venceu:meus>deles,prep:mp.prep!=null?mp.prep:null,
+      treinado:mapasDoTreino(planoDe(eu)).some(x=>x.mapa===mp.mapa),
+      estilo:ESTILO_DO_FOCO[tatEu.foco||'default'],estiloAdv:ESTILO_DO_FOCO[tatEle.foco||'default'],
+      rps:FOCO_VENCE[tatEu.foco||'default']===(tatEle.foco||'default')?1:FOCO_VENCE[tatEle.foco||'default']===(tatEu.foco||'default')?-1:0});
+  }
+  /* cansaço: o ACS de quem chegou cansado contra a média dele na temporada */
+  const cansados=[];
+  for(const id of eu.titulares||[]){
+    const p=G.jogadores[id];if(!p||p.fadiga<0.6)continue;
+    let k=0,mps=0,acs=0;
+    for(const mp of S.mapas){const s=mp.st&&mp.st[id];if(s&&s.rounds){mps++;acs+=typeof acsDe==='function'?acsDe(s):0;}}
+    const media=p.temp&&p.temp.maps?p.temp.acs/p.temp.maps:null;
+    if(mps&&media)cansados.push({nome:p.nome,fad:Math.round(p.fadiga*100),acs:Math.round(acs/mps),media:Math.round(media),
+      queda:Math.round((1-(acs/mps)/media)*100)});
+  }
+  /* o estilo que teria rendido mais nesses mapas, contra a tática deles */
+  const nomesMapas=S.mapas.map(m=>m.mapa);
+  const tatDeles=(S.mapas[0]&&S.mapas[0].tat)?(euA?S.mapas[0].tat.B:S.mapas[0].tat.A):ele.tatica;
+  const usado=(S.mapas[0]&&S.mapas[0].tat)?(euA?S.mapas[0].tat.A:S.mapas[0].tat.B):eu.tatica;
+  const fUsado=_forcaComTatica(eu,usado,nomesMapas,tatDeles);
+  let ideal=null;
+  for(const k of ['agressivo','controle','defensivo']){
+    const g=_forcaComTatica(eu,ESTILOS[k].tatica,nomesMapas,tatDeles)-fUsado;
+    if(!ideal||g>ideal.ganho)ideal={estilo:k,ganho:g};
+  }
+  const r={adv:ele.id,estilo:ESTILO_DO_FOCO[usado.foco||'default'],estiloAdv:ESTILO_DO_FOCO[tatDeles.foco||'default'],
+    lados,pistol:pist,tempos,mapas,cansados,ideal,estudou:bonusEstudo(eu,ele)>0,modoSemana:semanaModoDe(eu),
+    funcionou:[],custou:[],mudar:[]};
+  _textosDoRelatorio(r,eu,ele);
+  return r;
+}
+function _pctRel(a,b){return b?Math.round(a/b*100):0;}
+function _textosDoRelatorio(r,eu,ele){
+  const E=k=>nomeEstilo(k), F=r.funcionou, C=r.custou, M=r.mudar;
+  const rpsTot=r.mapas.reduce((s,m)=>s+m.rps,0);
+  if(rpsTot>0)F.push('O estilo '+E(r.estilo)+' bateu o '+E(r.estiloAdv)+' deles: vantagem tática em '+r.mapas.filter(m=>m.rps>0).length+' mapa(s).');
+  if(rpsTot<0)C.push('O '+E(r.estiloAdv)+' deles leva vantagem sobre o nosso '+E(r.estilo)+'.');
+  const[aw,al]=r.lados.atk,[dw,dl]=r.lados.def;
+  if(aw+al>=6&&_pctRel(aw,aw+al)>=58)F.push('Ataque forte: '+aw+' de '+(aw+al)+' rounds ('+_pctRel(aw,aw+al)+'%).');
+  if(dw+dl>=6&&_pctRel(dw,dw+dl)>=58)F.push('Defesa sólida: segurou '+dw+' de '+(dw+dl)+' rounds ('+_pctRel(dw,dw+dl)+'%).');
+  if(aw+al>=6&&_pctRel(aw,aw+al)<=40)C.push('O ataque não andou: '+aw+' de '+(aw+al)+' rounds.');
+  if(dw+dl>=6&&_pctRel(dw,dw+dl)<=40)C.push('A defesa cedeu: '+dw+' de '+(dw+dl)+' rounds.');
+  if(r.pistol[1]){if(r.pistol[0]===r.pistol[1])F.push('Todos os pistols: '+r.pistol[0]+' de '+r.pistol[1]+'.');
+    else if(r.pistol[0]===0)C.push('Nenhum pistol ganho em '+r.pistol[1]+'.');}
+  for(const m of r.mapas){
+    if(m.treinado&&m.venceu)F.push('O '+m.mapa+' que vocês treinaram rendeu '+m.eu+'–'+m.ele+'.');
+    else if(m.prep!=null&&m.prep>=65&&m.venceu)F.push('Preparo alto no '+m.mapa+' ('+m.prep+') virou '+m.eu+'–'+m.ele+'.');
+    if(!m.venceu&&m.prep!=null&&m.prep<45)C.push('Preparo baixo no '+m.mapa+' ('+m.prep+'): '+m.eu+'–'+m.ele+'.');
+  }
+  if(r.estudou)F.push('O estudo do adversário deu vantagem nos mapas (+'+ESTUDO_BONUS.toFixed(1)+' por round).');
+  const tg=r.tempos.reduce((s,x)=>s+x.ganhou,0),td=r.tempos.reduce((s,x)=>s+x.de,0);
+  if(td>=2)(tg/td>=0.5?F:C).push('Depois dos tempos pedidos: '+tg+' de '+td+' rounds.');
+  const quedas=r.cansados.filter(c=>c.queda>=8);
+  if(quedas.length)C.push(quedas.length===1?quedas[0].nome+' chegou cansado ('+quedas[0].fad+'%) e rendeu '+quedas[0].queda+'% abaixo da média dele.'
+    :quedas.length+' titulares chegaram cansados e renderam em média '+Math.round(quedas.reduce((s,c)=>s+c.queda,0)/quedas.length)+'% abaixo.');
+  /* o que mudar: no máximo dois, os mais concretos */
+  if(r.ideal&&r.ideal.ganho>=0.5&&r.ideal.estilo!==r.estilo)
+    M.push('Contra o '+E(r.estiloAdv)+' deles, o '+E(r.ideal.estilo)+' teria rendido mais nesses mapas (+'+r.ideal.ganho.toFixed(1)+' por round).');
+  if(quedas.length)M.push('Uma semana de Recuperar antes do próximo jogo devolve a perna de quem está cansado.');
+  const fraco=r.mapas.find(m=>!m.venceu&&m.prep!=null&&m.prep<45);
+  if(fraco&&M.length<2)M.push('Treine o '+fraco.mapa+' ou tire ele no veto.');
+  if(!M.length&&r.pistol[1]&&r.pistol[0]===0)M.push('Pistol é sorteio de agressividade: no Agressivo o time entra mais forte nele.');
+  if(!F.length)F.push('Pouca coisa deu certo de forma clara — o resultado veio mais do nível dos elencos.');
+  r.mudar=M.slice(0,2);
+}
+function registrarRelatorio(res,r){
+  if(!r)return;
+  const ele=G.times[r.adv];
+  const euA=res.aId===G.meuTime;
+  (G.relatorios=G.relatorios||[]).unshift({ano:G.ano,semana:G.semana,adv:r.adv,advTag:ele?ele.tag:'',
+    eu:euA?res.wa:res.wb,ele:euA?res.wb:res.wa,venceu:res.vencedor===G.meuTime,r});
+  if(G.relatorios.length>RELATORIOS_MAX)G.relatorios.length=RELATORIOS_MAX;
+  for(const m of r.mapas){
+    (G.estiloHist=G.estiloHist||[]).unshift({e:m.estilo,v:m.venceu,a:G.ano});
+  }
+  if(G.estiloHist&&G.estiloHist.length>ESTILO_HIST_MAX)G.estiloHist.length=ESTILO_HIST_MAX;
+}
+/* Retrospecto de um estilo nos últimos mapas jogados com ele. */
+function retrospectoEstilo(id,n){
+  const l=(G.estiloHist||[]).filter(x=>x.e===id).slice(0,n||10);
+  return{v:l.filter(x=>x.v).length,d:l.filter(x=>!x.v).length};
+}
+
+/* ---------- 3b. o relatório da semana de treino ---------- */
+function fotoTreino(t){
+  const f={jog:{},mapas:{},fad:0};
+  for(const id of t.elenco||[]){const p=G.jogadores[id];if(!p)continue;
+    f.jog[id]={over:over(p),at:Object.assign({},p.at),fad:p.fadiga,ag:Object.assign({},p.agenteNivel||{})};}
+  for(const mp of G.mapasAtivos||[])f.mapas[mp]=preparoDoMapa(t,mp).nota;
+  return f;
+}
+const NOME_ATRIBUTO={mira:'mira',reflexo:'reflexo',mov:'movimentação',util:'utilidade',visao:'visão de jogo',clutch:'clutch',consist:'consistência',lider:'liderança'};
+function relatorioDaSemana(t,antes){
+  const pl=planoDe(t);
+  const evolucoes=[],agentes=[],mapas=[];let descansaram=0;
+  let fadAntes=0,fadDepois=0,n=0;
+  for(const id of t.elenco||[]){
+    const p=G.jogadores[id],a=antes.jog[id];if(!p||!a)continue;
+    const plano=pl.individual[id]||{};
+    if(plano.tipo==='descanso')descansaram++;
+    if((t.titulares||[]).includes(id)){fadAntes+=a.fad;fadDepois+=p.fadiga;n++;}
+    let melhor=null;
+    for(const k in p.at){const d=p.at[k]-(a.at[k]||0);if(d>0.05&&(!melhor||d>melhor.d))melhor={k,d};}
+    const dOver=over(p)-a.over;
+    if(melhor)evolucoes.push({nome:p.nome,id,attr:NOME_ATRIBUTO[melhor.k]||melhor.k,d:melhor.d,dOver});
+    if(plano.tipo==='agente'&&plano.alvo){
+      const de=a.ag[plano.alvo]||0,ate=(p.agenteNivel||{})[plano.alvo]||0;
+      if(ate>de)agentes.push({nome:p.nome,agente:plano.alvo,de:Math.round(de),ate:Math.round(ate)});
+    }
+  }
+  for(const mp in antes.mapas){const ate=preparoDoMapa(t,mp).nota;if(ate!==antes.mapas[mp])mapas.push({mapa:mp,de:antes.mapas[mp],ate});}
+  evolucoes.sort((x,y)=>y.d-x.d);mapas.sort((x,y)=>(y.ate-y.de)-(x.ate-x.de));
+  return{ano:G.ano,semana:G.semana,modo:semanaModoDe(t),evolucoes:evolucoes.slice(0,5),agentes,mapas:mapas.slice(0,4),
+    descansaram,fadAntes:n?Math.round(fadAntes/n*100):0,fadDepois:n?Math.round(fadDepois/n*100):0};
+}
+
+
 /* ===== src/core/calendar.js ===== */
 /* ---------- Calendário da temporada ----------
    As semanas saem do calendário real da VCT 2026, conferido no vlr.gg: os
@@ -13653,6 +14058,8 @@ function avancar(plano){
           const ctx={stage:s.id,nome:s.nome,semana:G.semana};
           if(meuJogo&&plano&&plano.veto&&plano.veto.mapas&&plano.veto.mapas.length
              &&plano.stageId===s.id)ctx.veto=plano.veto;
+          /* plano de jogo: o estilo escolhido para esta série */
+          if(meuJogo&&plano&&plano.tatica&&plano.stageId===s.id)ctx.taticas={[G.meuTime]:plano.tatica};
           /* A SUA partida pode ter sido CONDUZIDA pela tela, round a round,
              para o pedido de tempo valer alguma coisa: nesse caso ela já
              aconteceu e chega aqui pronta, em vez de ser simulada.
@@ -13771,6 +14178,10 @@ function semana(){
     else t.sinergia=clamp(t.sinergia+(t.tatica.scrim-3)*0.30,0,100);
     /* A IA escolhe o plano da semana antes de a semana ser aplicada; o seu
        clube usa o que VOCÊ deixou marcado na tela de Treino. */
+    /* o seu clube: o auxiliar monta a semana pelo modo escolhido (core/plano.js),
+       e a foto de antes vira o relatório da semana de treino */
+    const fotoAntes=id===G.meuTime&&typeof fotoTreino==='function'?fotoTreino(t):null;
+    if(id===G.meuTime&&typeof aplicarModoSemana==='function')aplicarModoSemana(t);
     if(typeof planoIA==='function')planoIA(t);
     if(typeof aplicarTreinoSemanal==='function')aplicarTreinoSemanal(t);
     if(typeof aplicarMiniMapa==='function')aplicarMiniMapa(t);
@@ -13779,9 +14190,11 @@ function semana(){
     if(typeof limparComps==='function')limparComps(t);
     if(typeof compIA==='function')compIA(t);
     if(typeof taticaIA==='function')taticaIA(t);
+    if(id===G.meuTime&&typeof atualizarEstilo==='function')atualizarEstilo(t);
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
+    if(fotoAntes)G.relatorioSemana=relatorioDaSemana(t,fotoAntes);
     /* o que os minigames deram valia só para esta semana (core/minigames.js) */
     if(typeof encerrarMiniSemana==='function')encerrarMiniSemana(t);
     if(typeof conferirCartas==='function')conferirCartas(t);
@@ -19102,6 +19515,7 @@ function assumirClube(id){
   instalarManagerNoClube(t);
   montarMetas();
   if(typeof projetoTrocouDeClube==='function')projetoTrocouDeClube();
+  if(typeof iniciarPlano==='function')iniciarPlano(t);
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
 }
@@ -20826,7 +21240,9 @@ function bonusVOD(t,adv){
 /* o nível de leitura contra um adversário específico (core/scout.js lê) */
 function nivelScoutContra(t,adv){
   const base=typeof nivelScout==='function'?nivelScout(t):1;
-  return clamp(base+bonusVOD(t,adv),1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
+  /* a semana de estudo do adversário vale um nível de leitura contra ele */
+  const estudo=typeof bonusEstudo==='function'&&bonusEstudo(t,adv)?1:0;
+  return clamp(base+bonusVOD(t,adv)+estudo,1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
 }
 const VOD_BASE_MAX=5;
 function vodBaseDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniBaseVOD;}
@@ -28677,8 +29093,10 @@ function ligarVestiario(v,on){
    de preparo sai de core/treino.js (preparoDoMapa) e é feito dos
    mesmos termos que o motor de partida usa.
    ============================================================ */
-let prepAba='mapas';
-const PREP_ABAS=[['mapas','Preparo por mapa'],['semana','Plano da semana'],['taticas','Táticas'],['comps','Comps']];
+let prepAba='plano', prepAvancado=false;
+/* "Plano" é o caminho principal (ui/plano.js); o resto é o Avançado, que
+   começa fechado: ninguém precisa abrir para jogar bem. */
+const PREP_ABAS=[['mapas','Preparo por mapa'],['semana','Plano detalhado'],['taticas','Táticas'],['comps','Comps']];
 
 function sparkPreparo(vals,w,h){
   if(!vals||vals.length<2)return '';
@@ -28768,10 +29186,12 @@ function vTaticasPorMapa(){
 }
 
 function vPreparacao(){
-  const abas=`<div class="tabs">${PREP_ABAS.map(([k,n])=>
-    `<button data-prepaba="${k}" class="${prepAba===k?'on':''}">${n}</button>`).join('')}</div>`;
-  if(typeof guiaMarcar==='function'&&prepAba!=='mapas')guiaMarcar(prepAba==='semana'?'treino':prepAba);
-  const corpo=prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas():prepAba==='comps'?vComps():vPreparo();
+  const aberto=prepAvancado||prepAba!=='plano';
+  const abas=`<div class="tabs prep-tabs"><button data-prepaba="plano" class="${prepAba==='plano'?'on':''}">Plano</button>
+    <button class="prep-av ${aberto?'on':''}" data-prepav="1">Avançado ${aberto?'▾':'▸'}</button>
+    ${aberto?PREP_ABAS.map(([k,n])=>`<button data-prepaba="${k}" class="${prepAba===k?'on':''}">${n}</button>`).join(''):''}</div>`;
+  if(typeof guiaMarcar==='function'&&prepAba!=='mapas'&&prepAba!=='plano')guiaMarcar(prepAba==='semana'?'treino':prepAba);
+  const corpo=prepAba==='plano'&&typeof vPlano==='function'?vPlano():prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas():prepAba==='comps'?vComps():vPreparo();
   return `<div class="eyebrow">Clube</div><h2 class="sec">Treinamento & Preparação</h2>${abas}
     <div class="prep-corpo">${corpo}</div>`;
 }
@@ -30561,6 +30981,7 @@ function modalPartida(res){
       </div>
     </div>
     ${mvpBox}
+    ${typeof relatorioAnalistaHTML==='function'?relatorioAnalistaHTML(res.analise):''}
     ${typeof blocoTorcida==='function'?blocoTorcida(conversaDaSerie(res),{titulo:'A torcida reagiu'}):''}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     <div class="sr-abas">${abas}</div>
@@ -31981,6 +32402,128 @@ function cardDesafio(){
 }
 
 
+/* ===== src/ui/plano.js ===== */
+/* ============================================================
+   O PLANO NA TELA (o motor mora em core/plano.js)
+   Aba "Plano" da Preparação: estilo, semana, próximo jogo e os
+   relatórios. A pré-partida ganha o "Plano para o jogo"; a ficha
+   da partida ganha o relatório do analista.
+   ============================================================ */
+function estrelasHTML(n){return `<span class="pl-est">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
+
+/* ---------- relatório do analista ---------- */
+function relatorioAnalistaHTML(a,opc){
+  if(!a)return '';
+  opc=opc||{};
+  const lista=(rot,cls,itens)=>itens.length?`<div class="ra-col ${cls}"><div class="eyebrow">${rot}</div>${itens.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:'';
+  const[aw,al]=a.lados.atk,[dw,dl]=a.lados.def;
+  return `<div class="card flat ra"><div class="split"><div class="eyebrow">${icone('radar')} Relatório do analista${opc.titulo?' · '+esc(opc.titulo):''}</div>
+      <span class="dim ra-meta">${esc(nomeEstilo(a.estilo))} contra ${esc(nomeEstilo(a.estiloAdv))} · ataque ${aw}–${al} · defesa ${dw}–${dl}${a.pistol[1]?' · pistols '+a.pistol[0]+'/'+a.pistol[1]:''}</span></div>
+    <div class="ra-grade">${lista('O que funcionou','ok',a.funcionou)}${lista('O que custou','no',a.custou)}${lista('O que mudar','mud',a.mudar)}</div>
+  </div>`;
+}
+/* ---------- relatório da semana de treino ---------- */
+function relatorioSemanaHTML(rs){
+  if(!rs)return '';
+  const ev=rs.evolucoes.map(e=>`<span class="rs-it">${esc(e.nome)} <b class="up">+${e.d.toFixed(1)}</b> ${esc(e.attr)}${Math.abs(e.dOver)>=0.05?` <span class="dim">(over ${e.dOver>0?'+':''}${e.dOver.toFixed(1)})</span>`:''}</span>`).join('');
+  const ag=rs.agentes.map(a=>`<span class="rs-it">${esc(a.nome)} · ${esc(a.agente)} <b>${a.de}% → ${a.ate}%</b></span>`).join('');
+  const mp=rs.mapas.map(m=>`<span class="rs-it">${esc(m.mapa)} <b class="${m.ate>=m.de?'up':'dn'}">${m.de} → ${m.ate}</b></span>`).join('');
+  const df=rs.fadDepois-rs.fadAntes;
+  return `<div class="card flat rs"><div class="split"><div class="eyebrow">${icone('controle')} A semana de treino · ${esc(nomeModoSemana(rs.modo))}</div>
+      <span class="dim">semana ${rs.semana}</span></div>
+    <div class="rs-linha"><span class="eyebrow">Evoluíram</span>${ev||'<span class="dim">ninguém — semana de descanso ou elenco no teto</span>'}</div>
+    ${ag?`<div class="rs-linha"><span class="eyebrow">Agentes</span>${ag}</div>`:''}
+    ${mp?`<div class="rs-linha"><span class="eyebrow">Preparo</span>${mp}</div>`:''}
+    <div class="rs-linha"><span class="eyebrow">Cansaço dos titulares</span><b>${rs.fadAntes}% → ${rs.fadDepois}%</b>
+      <span class="${df>0?'dn':'up'}">${df>0?'+':''}${df} pts</span>${rs.descansaram?`<span class="dim">· ${rs.descansaram} descansaram</span>`:''}</div>
+  </div>`;
+}
+
+/* ---------- a aba Plano ---------- */
+function vPlano(){
+  const t=meu();
+  const est=estiloDe(t),modo=semanaModoDe(t);
+  const enc=encaixeEstilos(t);
+  const px=proximoConfronto();
+  const adv=px&&px.adv?T(px.adv):null;
+  const leitura=adv?(typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):nivelScout(t)):0;
+  const cartaoEstilo=k=>{
+    const e=ESTILOS[k],rt=retrospectoEstilo(k,10),ad=k==='adaptavel'?taticaDoEstilo(t,'adaptavel',adv):null;
+    return `<button class="pl-card ${est===k?'on':''}" data-estilo="${k}">
+      <div class="split"><span class="pl-ic">${icone(e.ic,est===k?'ouro':'')}</span>${estrelasHTML(enc[k].estrelas)}</div>
+      <b>${esc(e.nome)}</b><span class="pl-desc">${esc(e.desc)}</span>
+      ${e.forte?`<span class="pl-rps"><span class="up">forte contra ${esc(ESTILOS[e.forte].nome)}</span> · <span class="dn">fraco contra ${esc(ESTILOS[e.fraco].nome)}</span></span>`
+        :`<span class="pl-rps">${ad?'hoje: '+esc(nomeEstilo(ESTILO_DO_FOCO[ad.foco]))+(adv&&leitura>=3?' contra o '+esc(adv.tag):' (sem leitura do adversário)'):''}</span>`}
+      <span class="pl-hist">${rt.v+rt.d?`<b class="num">${rt.v}V ${rt.d}D</b> nos últimos ${rt.v+rt.d} mapas`:'ainda sem mapas com ele'}</span>
+    </button>`;
+  };
+  const cartaoSemana=k=>{
+    const m=MODOS_SEMANA[k],pv=previsaoSemana(t,k);
+    const evol=pv.evolucao<=0.01?'evolução parada':pv.evolucao>=1.08?'evolução alta (×'+pv.evolucao.toFixed(1)+')':pv.evolucao<=0.85?'evolução menor (×'+pv.evolucao.toFixed(1)+')':'evolução normal';
+    return `<button class="pl-card pl-sem ${modo===k?'on':''}" data-semana="${k}">
+      <div class="split"><span class="pl-ic">${icone(m.ic,modo===k?'ouro':'')}</span><span class="dim num">scrim ${m.scrim}</span></div>
+      <b>${esc(m.nome)}</b><span class="pl-desc">${esc(m.desc)}</span>
+      <span class="pl-prev"><span class="${pv.fadiga>0?'dn':'up'}">cansaço ${pv.fadiga>0?'+':''}${pv.fadiga} pts</span> · ${evol}
+        ${pv.mapas?' · '+pv.mapas+' mapa'+(pv.mapas>1?'s':''):''}${k==='estudar'?(pv.adv?' · contra o '+esc(pv.adv):' · sem adversário à vista'):''}</span>
+    </button>`;
+  };
+  const ult=(G.relatorios||[])[0];
+  const proximo=adv?(()=>{
+    const tatEle=adv.tatica||{};
+    const sabe=leitura>=3;
+    const sug=sabe?ESTILO_DO_FOCO[CONTRA_FOCO[tatEle.foco||'default']]:null;
+    return `<div class="card flat pl-prox"><div class="eyebrow">Próximo jogo</div>
+      <div class="pl-prox-l">${escudo(adv,40)}<div><b>${esc(adv.nome)}</b>
+        <div class="dim">${sabe?'O analista lê: eles jogam <b>'+esc(nomeEstilo(estiloAparente(tatEle)))+'</b>. Contra isso, o <b>'+esc(nomeEstilo(sug))+'</b> leva vantagem.'
+          :'Ainda sem leitura do estilo deles. Uma semana de <b>Estudar o adversário</b> ou um analista melhor resolve.'}</div></div></div>
+      <p class="dim" style="font-size:12px;margin-top:6px">No relatório antes do jogo você confirma o plano para a partida: manter o seu estilo ou usar o que o analista sugerir só naquele jogo.</p></div>`;
+  })():'';
+  const personal=est==='personalizado'||modo==='personalizada';
+  return `<div class="pl-intro">${explica(`Três decisões: o <b>estilo</b> do time, a <b>semana</b> de treino e, antes de cada jogo, o <b>plano para a partida</b>.
+      As estrelas dizem o quanto cada estilo rende para o seu elenco contra a sua liga, com as contas do próprio motor.
+      Depois de cada jogo o analista diz o que funcionou e o que mudar; depois de cada semana, quem evoluiu.
+      Os controles finos (tática por mapa, plano de cada jogador, comps) continuam em <b>Avançado</b>.`,'Como funciona')}</div>
+    ${personal?`<div class="card flat pl-aviso">Você está usando ajustes do Avançado (${est==='personalizado'?'tática personalizada':''}${est==='personalizado'&&modo==='personalizada'?' e ':''}${modo==='personalizada'?'semana personalizada':''}).
+      Escolher um estilo ou uma semana aqui volta para o automático.</div>`:''}
+    <div class="eyebrow pl-tit">Estilo do time</div>
+    <div class="pl-grade">${['agressivo','controle','defensivo','adaptavel'].map(cartaoEstilo).join('')}</div>
+    <div class="eyebrow pl-tit">A semana</div>
+    <div class="pl-grade">${Object.keys(MODOS_SEMANA).map(cartaoSemana).join('')}</div>
+    <div class="grid g2" style="margin-top:14px">${proximo}${relatorioSemanaHTML(G.relatorioSemana)||'<div class="card flat"><div class="eyebrow">A semana de treino</div><p class="dim">O relatório aparece depois da primeira semana.</p></div>'}</div>
+    ${ult?relatorioAnalistaHTML(ult.r,{titulo:(ult.venceu?'vitória ':'derrota ')+ult.eu+'–'+ult.ele+' contra o '+ult.advTag})
+      :'<div class="card flat"><div class="eyebrow">Relatório do analista</div><p class="dim">Depois do primeiro jogo, o analista conta aqui o que funcionou e o que mudar.</p></div>'}`;
+}
+function ligarPlano(v,on){
+  on('[data-estilo]',el=>{const r=definirEstilo(meu(),el.dataset.estilo);render();flash(r.ok?r.msg:r.erro);});
+  on('[data-semana]',el=>{const r=definirModoSemana(meu(),el.dataset.semana);render();flash(r.ok?r.msg:r.erro);});
+}
+
+/* ---------- pré-partida: plano para o jogo ---------- */
+function ppPlanoJogoHTML(){
+  if(!PP)return '';
+  const t=PP.meu,adv=PP.adv;
+  const est=estiloDe(t);
+  const leitura=typeof nivelScoutContra==='function'?nivelScoutContra(t,adv):nivelScout(t);
+  const tatEle=adv.tatica||{};
+  const sabe=leitura>=3;
+  const sug=sabe?ESTILO_DO_FOCO[CONTRA_FOCO[tatEle.foco||'default']]:null;
+  const atual=PP.tatica?ESTILO_DO_FOCO[PP.tatica.foco]:null;
+  const mapas=G.mapasAtivos||[];
+  const ganho=sug&&leitura>=4?_forcaComTatica(t,ESTILOS[sug].tatica,mapas,tatEle)-_forcaComTatica(t,t.tatica,mapas,tatEle):null;
+  const meuEf=ESTILO_DO_FOCO[(t.tatica||{}).foco||'default'];
+  const igual=sug&&sug===meuEf;
+  return `<div class="card flat pp-plano"><div class="eyebrow">${icone('radar')} Plano para o jogo</div>
+    <p>${sabe?`O ${esc(adv.tag)} vem jogando <b>${esc(nomeEstilo(estiloAparente(tatEle)))}</b>. `
+      +(igual?`O seu ${esc(nomeEstilo(est))} já é o contra-estilo: mantenha.`
+        :`O analista sugere <b>${esc(nomeEstilo(sug))}</b> neste jogo${ganho!=null?` (cerca de ${ganho>=0?'+':''}${ganho.toFixed(1)} por round)`:''}.`)
+      :`Sem leitura do estilo do ${esc(adv.tag)} — o time entra com o seu ${esc(nomeEstilo(est))}. Estudar o adversário na semana ou um analista melhor mostraria o estilo deles.`}</p>
+    ${sabe&&!igual?`<div class="pp-plano-bts">
+      <button class="btn ${atual===sug?'':'ghost'} sm" data-ppplano="${sug}">${atual===sug?'✓ ':''}Usar ${esc(nomeEstilo(sug))} neste jogo</button>
+      <button class="btn ${!PP.tatica?'':'ghost'} sm" data-ppplano="">${!PP.tatica?'✓ ':''}Manter ${esc(nomeEstilo(est))}</button></div>`:''}
+  </div>`;
+}
+
+
 /* ===== src/ui/cartas.js ===== */
 /* ============================================================
    CARTA DO JOGADOR — desenho
@@ -32114,7 +32657,9 @@ function prePartidaDisponivel(){
 function abrirPrePartida(comp,depois){
   const meu=G.times[G.meuTime], adv=G.times[comp.advId];
   if(typeof guiaMarcar==='function')guiaMarcar('partida');
-  PP={comp,adv,meu,depois,etapa:'relatorio',
+  /* adaptável relê o adversário na hora do jogo */
+  if(typeof atualizarEstilo==='function')atualizarEstilo(meu,adv);
+  PP={comp,adv,meu,depois,etapa:'relatorio',tatica:null,
       V:iniciarVeto(G.meuTime,comp.advId,comp.bo,comp.euSouA)};
   vetoAvancarAteMim(PP.V);
   ppPintar();
@@ -32150,7 +32695,7 @@ function ppConfirmar(){
   while(!V.fim&&voltas++<40)vetoEscolher(V,null);
   ppCompsAutomaticas();
   const comp=PP.comp;
-  const plano={stageId:comp.stage.id,veto:vetoResultado(V)};
+  const plano={stageId:comp.stage.id,veto:vetoResultado(V),tatica:PP.tatica||null};
   const d=PP.depois;PP=null;
   const m=$('#modal');if(m)m.innerHTML='';
   /* Com tempo técnico e transmissão ao vivo ligados, a SUA série é jogada
@@ -32159,7 +32704,7 @@ function ppConfirmar(){
      semana em cima dele. */
   if(Prefs.get('tempoTecnico')&&Prefs.get('aoVivo')&&typeof partidaConduzida==='function'){
     const ctx={stage:comp.stage.id,nome:comp.stage.nome,semana:G.semana};
-    const S=abrirSerie(comp.aId,comp.bId,comp.bo,plano.veto);
+    const S=abrirSerie(comp.aId,comp.bId,comp.bo,plano.veto,plano.tatica?{[G.meuTime]:plano.tatica}:null);
     partidaConduzida(S,ctx,res=>{
       res.semana=G.semana;
       plano.serieFeita=res;
@@ -32222,6 +32767,8 @@ function ppPintar(){
   const lvv=M.querySelector('#ppVoltarVeto');if(lvv)lvv.onclick=()=>{PP.etapa='veto';ppPintar();};
   const li=M.querySelector('#ppVeto');if(li)li.onclick=ppIrParaVeto;
   const lp=M.querySelector('#ppPular');if(lp)lp.onclick=ppPular;
+  M.querySelectorAll('[data-ppplano]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.ppplano;PP.tatica=id&&ESTILOS[id]?taticaDoEstilo(PP.meu,id,PP.adv):null;ppPintar();});
   const lc=M.querySelector('#ppOk');if(lc)lc.onclick=ppConfirmar;
   const lv=M.querySelector('#ppVoltar');if(lv)lv.onclick=()=>{PP.etapa='relatorio';ppPintar();};
 }
@@ -32296,6 +32843,7 @@ function ppRelatorioHTML(){
       <div class="rel-mapas">${mapas}</div>
       ${nv<3?'<p class="dim" style="margin-top:8px">Com analista e olheiro melhores, este relatório traz números em vez de palavras — e, no nível 5, a ordem de veto deles.</p>':''}
     </div>
+    ${typeof ppPlanoJogoHTML==='function'?ppPlanoJogoHTML():''}
     ${typeof blocoTorcida==='function'?blocoTorcida(conversaPreJogo(meuT,advT,nomeStage(PP.comp.stage)),{titulo:'A torcida antes do jogo'}):''}
     <div class="split" style="margin-top:14px">
       <button class="btn ghost" id="ppPular">Deixar a comissão vetar</button>
@@ -32831,7 +33379,8 @@ function avPintar(fim){
     <div class="card flat"><div class="eyebrow">Como foi</div>
       ${AV.mapasFeitos.map(m=>`<div class="av-linha ${m.fecho.tom}">${mapaMini(m)}
         <span class="num">${m.meu}–${m.dele}</span> ${esc(m.fecho.texto)}</div>`).join('')}
-    </div>`
+    </div>
+    ${typeof relatorioAnalistaHTML==='function'?relatorioAnalistaHTML(AV.res&&AV.res.analise):''}`
    :`
     <div class="av-mapa"><span class="eyebrow">Mapa ${Math.min(AV.mapaIdx+1,totalMapas)} de ${totalMapas}</span>
       ${noIntervalo&&proximoMapa?`<span class="chip">a seguir · ${esc(proximoMapa)}</span>`:''}
@@ -33979,6 +34528,7 @@ function ligarEventos(){
   if(typeof ligarClube==='function'&&t)ligarClube(v,on);
   if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
+  if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por
@@ -34059,11 +34609,13 @@ function ligarEventos(){
   on('[data-treinomapa]',el=>{
     const mp=el.dataset.treinomapa||null;
     const r=mp?alternarMapaTreino(t,mp):(definirMapasTreino(t,[]),{ok:true});
+    if(r.ok)marcarSemanaPersonalizada(t);
     render();if(!r.ok)flash(r.erro);
   });
-  v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);render();});
-  on('[data-prioset]',el=>{const [mp,pr]=el.dataset.prioset.split('|');definirPrioridadeMapa(t,mp,pr);render();});
-  on('[data-focotat]',el=>{t.tatica.foco=el.dataset.focotat;render();});
+  v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);marcarSemanaPersonalizada(t);render();});
+  on('[data-prioset]',el=>{const [mp,pr]=el.dataset.prioset.split('|');definirPrioridadeMapa(t,mp,pr);marcarSemanaPersonalizada(t);render();});
+  on('[data-focotat]',el=>{t.tatica.foco=el.dataset.focotat;marcarEstiloPersonalizado(t);render();});
+  on('[data-prepav]',()=>{prepAvancado=!(prepAvancado||prepAba!=='plano');if(!prepAvancado)prepAba='plano';else if(prepAba==='plano')prepAba='mapas';render();});
   on('[data-blocotreino]',el=>{t.tatica.treino=el.dataset.blocotreino;render();});
   on('[data-prepaba]',el=>{prepAba=el.dataset.prepaba;render();});
   v.querySelectorAll('[data-tmagres],[data-tmfoco]').forEach(el=>el.onchange=()=>{
@@ -34140,20 +34692,21 @@ function ligarEventos(){
   v.querySelectorAll('[data-plano]').forEach(el=>el.onchange=()=>{
     const [tipo,alvo]=String(el.value).split(':');
     definirPlano(t,el.dataset.plano,tipo,alvo||null);
+    marcarSemanaPersonalizada(t);
     render();
   });
   const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)ouvir(el,ev,f);};
-  bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;
+  bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;marcarSemanaPersonalizada(t);
     const l=v.querySelector('#lbScrim');if(l)l.textContent=e.target.value;});
   v.querySelectorAll('.sl [data-marca]').forEach(m=>m.onclick=()=>{const inp=m.closest('.sl').querySelector('input');
     if(inp){inp.value=m.dataset.marca;inp.dispatchEvent(new Event('input'));}});
   /* sliders da tática: número, marca acesa e prévia mudam enquanto arrasta */
   const marca=(el,val)=>{const m=el.closest('.sl');if(m)m.querySelectorAll('[data-marca]').forEach(x=>x.classList.toggle('on',+x.dataset.marca===val));};
-  bind('#agres','input',e=>{const n=+e.target.value;t.tatica.agres=n;const l=v.querySelector('#lbAg');if(l)l.textContent=n;
+  bind('#agres','input',e=>{const n=+e.target.value;t.tatica.agres=n;marcarEstiloPersonalizado(t);const l=v.querySelector('#lbAg');if(l)l.textContent=n;
     marca(e.target,n);const pv=v.querySelector('#pvAg');if(pv&&typeof previewAgres==='function')pv.innerHTML=previewAgres(n);});
-  bind('#scrim','input',e=>{const n=+e.target.value;t.tatica.scrim=n;const l=v.querySelector('#lbSc');if(l)l.textContent=n;
+  bind('#scrim','input',e=>{const n=+e.target.value;t.tatica.scrim=n;marcarSemanaPersonalizada(t);const l=v.querySelector('#lbSc');if(l)l.textContent=n;
     marca(e.target,n);const pv=v.querySelector('#pvSc');if(pv&&typeof previewScrim==='function')pv.innerHTML=previewScrim(n);});
-  bind('#foco','change',e=>{t.tatica.foco=e.target.value;});
+  bind('#foco','change',e=>{t.tatica.foco=e.target.value;marcarEstiloPersonalizado(t);});
   bind('#treino','change',e=>{t.tatica.treino=e.target.value;});
   bind('#fBusca','input',e=>{mFiltro.busca=e.target.value;const p=e.target.selectionStart;render();
     const n=$('#fBusca');if(n){n.focus();n.setSelectionRange(p,p);}});
@@ -34760,6 +35313,7 @@ function telaNovoJogo(){
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     iniciarBase(T(G.meuTime));
     if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
+    if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+

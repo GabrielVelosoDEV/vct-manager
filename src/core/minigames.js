@@ -128,7 +128,9 @@ function bonusVOD(t,adv){
 /* o nível de leitura contra um adversário específico (core/scout.js lê) */
 function nivelScoutContra(t,adv){
   const base=typeof nivelScout==='function'?nivelScout(t):1;
-  return clamp(base+bonusVOD(t,adv),1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
+  /* a semana de estudo do adversário vale um nível de leitura contra ele */
+  const estudo=typeof bonusEstudo==='function'&&bonusEstudo(t,adv)?1:0;
+  return clamp(base+bonusVOD(t,adv)+estudo,1,typeof SCOUT_MAX!=='undefined'?SCOUT_MAX:5);
 }
 const VOD_BASE_MAX=5;
 function vodBaseDisponivel(t){return !!t&&t.id===G.meuTime&&!t.miniBaseVOD;}

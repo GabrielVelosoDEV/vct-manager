@@ -455,6 +455,7 @@ function modalPartida(res){
       </div>
     </div>
     ${mvpBox}
+    ${typeof relatorioAnalistaHTML==='function'?relatorioAnalistaHTML(res.analise):''}
     ${typeof blocoTorcida==='function'?blocoTorcida(conversaDaSerie(res),{titulo:'A torcida reagiu'}):''}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     <div class="sr-abas">${abas}</div>

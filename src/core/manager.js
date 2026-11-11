@@ -385,6 +385,7 @@ function assumirClube(id){
   instalarManagerNoClube(t);
   montarMetas();
   if(typeof projetoTrocouDeClube==='function')projetoTrocouDeClube();
+  if(typeof iniciarPlano==='function')iniciarPlano(t);
   noticia('✍ '+m.nome+' assume o comando do '+t.nome+'.',{c:'clube',t:[t.id],imp:2});
   return{ok:true,msg:'Você assumiu o '+t.nome+'.'};
 }

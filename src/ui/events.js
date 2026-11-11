@@ -12,6 +12,7 @@ function ligarEventos(){
   if(typeof ligarClube==='function'&&t)ligarClube(v,on);
   if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
+  if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por
@@ -92,11 +93,13 @@ function ligarEventos(){
   on('[data-treinomapa]',el=>{
     const mp=el.dataset.treinomapa||null;
     const r=mp?alternarMapaTreino(t,mp):(definirMapasTreino(t,[]),{ok:true});
+    if(r.ok)marcarSemanaPersonalizada(t);
     render();if(!r.ok)flash(r.erro);
   });
-  v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);render();});
-  on('[data-prioset]',el=>{const [mp,pr]=el.dataset.prioset.split('|');definirPrioridadeMapa(t,mp,pr);render();});
-  on('[data-focotat]',el=>{t.tatica.foco=el.dataset.focotat;render();});
+  v.querySelectorAll('[data-prio]').forEach(el=>el.onchange=()=>{definirPrioridadeMapa(t,el.dataset.prio,el.value);marcarSemanaPersonalizada(t);render();});
+  on('[data-prioset]',el=>{const [mp,pr]=el.dataset.prioset.split('|');definirPrioridadeMapa(t,mp,pr);marcarSemanaPersonalizada(t);render();});
+  on('[data-focotat]',el=>{t.tatica.foco=el.dataset.focotat;marcarEstiloPersonalizado(t);render();});
+  on('[data-prepav]',()=>{prepAvancado=!(prepAvancado||prepAba!=='plano');if(!prepAvancado)prepAba='plano';else if(prepAba==='plano')prepAba='mapas';render();});
   on('[data-blocotreino]',el=>{t.tatica.treino=el.dataset.blocotreino;render();});
   on('[data-prepaba]',el=>{prepAba=el.dataset.prepaba;render();});
   v.querySelectorAll('[data-tmagres],[data-tmfoco]').forEach(el=>el.onchange=()=>{
@@ -173,20 +176,21 @@ function ligarEventos(){
   v.querySelectorAll('[data-plano]').forEach(el=>el.onchange=()=>{
     const [tipo,alvo]=String(el.value).split(':');
     definirPlano(t,el.dataset.plano,tipo,alvo||null);
+    marcarSemanaPersonalizada(t);
     render();
   });
   const bind=(sel,ev,f)=>{const el=v.querySelector(sel);if(el)ouvir(el,ev,f);};
-  bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;
+  bind('#trScrim','input',e=>{t.tatica.scrim=+e.target.value;marcarSemanaPersonalizada(t);
     const l=v.querySelector('#lbScrim');if(l)l.textContent=e.target.value;});
   v.querySelectorAll('.sl [data-marca]').forEach(m=>m.onclick=()=>{const inp=m.closest('.sl').querySelector('input');
     if(inp){inp.value=m.dataset.marca;inp.dispatchEvent(new Event('input'));}});
   /* sliders da tática: número, marca acesa e prévia mudam enquanto arrasta */
   const marca=(el,val)=>{const m=el.closest('.sl');if(m)m.querySelectorAll('[data-marca]').forEach(x=>x.classList.toggle('on',+x.dataset.marca===val));};
-  bind('#agres','input',e=>{const n=+e.target.value;t.tatica.agres=n;const l=v.querySelector('#lbAg');if(l)l.textContent=n;
+  bind('#agres','input',e=>{const n=+e.target.value;t.tatica.agres=n;marcarEstiloPersonalizado(t);const l=v.querySelector('#lbAg');if(l)l.textContent=n;
     marca(e.target,n);const pv=v.querySelector('#pvAg');if(pv&&typeof previewAgres==='function')pv.innerHTML=previewAgres(n);});
-  bind('#scrim','input',e=>{const n=+e.target.value;t.tatica.scrim=n;const l=v.querySelector('#lbSc');if(l)l.textContent=n;
+  bind('#scrim','input',e=>{const n=+e.target.value;t.tatica.scrim=n;marcarSemanaPersonalizada(t);const l=v.querySelector('#lbSc');if(l)l.textContent=n;
     marca(e.target,n);const pv=v.querySelector('#pvSc');if(pv&&typeof previewScrim==='function')pv.innerHTML=previewScrim(n);});
-  bind('#foco','change',e=>{t.tatica.foco=e.target.value;});
+  bind('#foco','change',e=>{t.tatica.foco=e.target.value;marcarEstiloPersonalizado(t);});
   bind('#treino','change',e=>{t.tatica.treino=e.target.value;});
   bind('#fBusca','input',e=>{mFiltro.busca=e.target.value;const p=e.target.selectionStart;render();
     const n=$('#fBusca');if(n){n.focus();n.setSelectionRange(p,p);}});

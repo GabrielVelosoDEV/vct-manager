@@ -7,8 +7,10 @@
    de preparo sai de core/treino.js (preparoDoMapa) e é feito dos
    mesmos termos que o motor de partida usa.
    ============================================================ */
-let prepAba='mapas';
-const PREP_ABAS=[['mapas','Preparo por mapa'],['semana','Plano da semana'],['taticas','Táticas'],['comps','Comps']];
+let prepAba='plano', prepAvancado=false;
+/* "Plano" é o caminho principal (ui/plano.js); o resto é o Avançado, que
+   começa fechado: ninguém precisa abrir para jogar bem. */
+const PREP_ABAS=[['mapas','Preparo por mapa'],['semana','Plano detalhado'],['taticas','Táticas'],['comps','Comps']];
 
 function sparkPreparo(vals,w,h){
   if(!vals||vals.length<2)return '';
@@ -98,10 +100,12 @@ function vTaticasPorMapa(){
 }
 
 function vPreparacao(){
-  const abas=`<div class="tabs">${PREP_ABAS.map(([k,n])=>
-    `<button data-prepaba="${k}" class="${prepAba===k?'on':''}">${n}</button>`).join('')}</div>`;
-  if(typeof guiaMarcar==='function'&&prepAba!=='mapas')guiaMarcar(prepAba==='semana'?'treino':prepAba);
-  const corpo=prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas():prepAba==='comps'?vComps():vPreparo();
+  const aberto=prepAvancado||prepAba!=='plano';
+  const abas=`<div class="tabs prep-tabs"><button data-prepaba="plano" class="${prepAba==='plano'?'on':''}">Plano</button>
+    <button class="prep-av ${aberto?'on':''}" data-prepav="1">Avançado ${aberto?'▾':'▸'}</button>
+    ${aberto?PREP_ABAS.map(([k,n])=>`<button data-prepaba="${k}" class="${prepAba===k?'on':''}">${n}</button>`).join(''):''}</div>`;
+  if(typeof guiaMarcar==='function'&&prepAba!=='mapas'&&prepAba!=='plano')guiaMarcar(prepAba==='semana'?'treino':prepAba);
+  const corpo=prepAba==='plano'&&typeof vPlano==='function'?vPlano():prepAba==='semana'?vTreino():prepAba==='taticas'?vTaticas():prepAba==='comps'?vComps():vPreparo();
   return `<div class="eyebrow">Clube</div><h2 class="sec">Treinamento & Preparação</h2>${abas}
     <div class="prep-corpo">${corpo}</div>`;
 }

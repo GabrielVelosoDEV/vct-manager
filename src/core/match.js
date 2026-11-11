@@ -99,7 +99,7 @@ function forcaTime(t,mapa,lado){
       chute. É o mesmo motivo pelo qual existe analista no jogo. */
 const TATICA_AGRES=0.85;      /* por ponto acima ou abaixo de 3, no lado */
 const TATICA_PERFIL=0.035;    /* o quanto o perfil do elenco decide o resto */
-const TATICA_LEITURA=0.8;     /* o que vale acertar o contra-foco */
+const TATICA_LEITURA=1.3;     /* o que vale acertar o contra-foco (era 0,8: abaixo do ruído, a escolha não se sentia) */
 /* Agressividade não pode ter resposta certa fixa, e a primeira tentativa ainda
    tinha: o lado que ela ajudava rendia mais do que o lado que ela cobrava, e
    agressividade 5 era de graça. Agora o efeito de LADO é simétrico — some no
@@ -252,7 +252,10 @@ function abrirMapa(A,B,mapa,ladoInicialA){
     if(tmA)M.tatA=Object.assign({},tmA);
     if(tmB)M.tatB=Object.assign({},tmB);
     _recalcularMapa(M);
-  }
+  }else if(typeof bonusEstudo==='function'&&(bonusEstudo(A,B)||bonusEstudo(B,A)))_recalcularMapa(M);
+  /* o preparo do seu clube neste mapa, para o relatório do analista */
+  if(G.meuTime&&(A.id===G.meuTime||B.id===G.meuTime)&&typeof preparoDoMapa==='function')
+    M.prep=preparoDoMapa(A.id===G.meuTime?A:B,mapa).nota;
   return M;
 }
 const TEMPOS_POR_MAPA=2;
@@ -285,8 +288,10 @@ function _recalcularMapa(M){
   B.tatica=Object.assign({},tB,M.tatB||{});
   try{
     const vA=vantagemTatica(A,B), vB=-vA;
-    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA,def:forcaTime(A,M.mapa,'def')+vA};
-    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB,def:forcaTime(B,M.mapa,'def')+vB};
+    /* o estudo do adversário (core/plano.js) entra junto com a leitura tática */
+    const eA=typeof bonusEstudo==='function'?bonusEstudo(A,B):0, eB=typeof bonusEstudo==='function'?bonusEstudo(B,A):0;
+    M.fA={atk:forcaTime(A,M.mapa,'atk')+vA+eA,def:forcaTime(A,M.mapa,'def')+vA+eA};
+    M.fB={atk:forcaTime(B,M.mapa,'atk')+vB+eB,def:forcaTime(B,M.mapa,'def')+vB+eB};
   }finally{A.tatica=tA;B.tatica=tB;}
 }
 /* Devolve o que aconteceu, para a narração ter o que dizer. */
@@ -436,7 +441,13 @@ function fecharMapa(M){
   /* empate só acontece no corte de 60 rounds; decidir sempre para o B era um
      viés silencioso a mais */
   const vencedor = M.sa===M.sb ? (rnd()<0.5?M.A.id:M.B.id) : (M.sa>M.sb?M.A.id:M.B.id);
-  return{mapa:M.mapa,sa:M.sa,sb:M.sb,hist:M.hist,st:M.st,vencedor};
+  /* a tática que cada lado terminou usando e o preparo: o relatório do analista lê */
+  const r={mapa:M.mapa,sa:M.sa,sb:M.sb,hist:M.hist,st:M.st,vencedor};
+  if(M.prep!=null){
+    r.prep=M.prep;
+    r.tat={A:Object.assign({},M.A.tatica,M.tatA||{}),B:Object.assign({},M.B.tatica,M.tatB||{})};
+  }
+  return r;
 }
 function simMapa(A,B,mapa){
   const M=abrirMapa(A,B,mapa);
@@ -476,7 +487,7 @@ function acsDe(s){
 /* ---------- a série, também em passos ----------
    Mesmo motivo do mapa: para a tela poder conduzir em vez de só reproduzir.
    simPartida() continua sendo o laço completo, escrito em cima destas peças. */
-function abrirSerie(aId,bId,bo,vetoPronto){
+function abrirSerie(aId,bId,bo,vetoPronto,taticas){
   const A=G.times[aId],B=G.times[bId];
   /* Veto pronto vindo de fora é o veto que VOCÊ fez na tela. Chega por aqui
      para o motor continuar sendo o único dono do sorteio: a tela escolhe os
@@ -485,13 +496,21 @@ function abrirSerie(aId,bId,bo,vetoPronto){
     ?{seq:vetoPronto.seq||[],mapas:vetoPronto.mapas.slice(),lados:(vetoPronto.lados||[]).slice()}
     :veto(A,B,bo);
   return{A,B,aId,bId,bo,veto:v,need:Math.ceil(bo/2),
-         mapas:[],wa:0,wb:0,idx:0,M:null,fim:false};
+         mapas:[],wa:0,wb:0,idx:0,M:null,fim:false,
+         /* plano de jogo: a tática escolhida para esta série (core/plano.js) */
+         tat:taticas||null};
 }
 function serieAcabou(S){return S.wa===S.need||S.wb===S.need||S.idx>=S.veto.mapas.length;}
 /* Abre o próximo mapa da série, ou devolve null quando não há mais. */
 function serieAbrirMapa(S){
   if(serieAcabou(S)){S.fim=true;S.M=null;return null;}
   S.M=abrirMapa(S.A,S.B,S.veto.mapas[S.idx],(S.veto.lados||[])[S.idx]);
+  if(S.tat&&(S.tat[S.A.id]||S.tat[S.B.id])){
+    if(S.tat[S.A.id])S.M.tatA=Object.assign({},S.M.tatA||{},S.tat[S.A.id]);
+    if(S.tat[S.B.id])S.M.tatB=Object.assign({},S.M.tatB||{},S.tat[S.B.id]);
+    _recalcularMapa(S.M);
+    if(S.M.prep!=null)S.M.prep=preparoDoMapa(S.A.id===G.meuTime?S.A:S.B,S.M.mapa).nota;
+  }
   /* o lado conduzido na tela pede o próprio tempo; o outro é da comissão */
   S.M.manualA=!!S.manualA;S.M.manualB=!!S.manualB;
   return S.M;
@@ -527,6 +546,8 @@ function fecharSerie(S,ctx){
      confiança de quem joga */
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
   const decisiva=bo>=5||!!(st&&(st.tipo==='de'||st.tipo==='ko'));
+  /* o relatório do analista, antes de o cansaço da série entrar na conta */
+  const analise=G.meuTime&&(aId===G.meuTime||bId===G.meuTime)&&typeof analisarSerie==='function'?analisarSerie(S,ctx):null;
   aplicarPos(A,B,vencedor,agg,mvp,ctx,decisiva);
   /* a torcida dos dois lados reage (core/torcida.js); sem sorteio */
   if(typeof torcidaPosSerie==='function')
@@ -541,8 +562,10 @@ function fecharSerie(S,ctx){
       evoluirAfinidade(p,mp.mapa,acsDe(st));
     }
   });
-  return{aId,bId,bo,veto:S.veto.seq,mapas:S.mapas,wa:S.wa,wb:S.wb,
+  const res={aId,bId,bo,veto:S.veto.seq,mapas:S.mapas,wa:S.wa,wb:S.wb,
          vencedor,perdedor,agg,mvp,ctx:ctx||{}};
+  if(analise){res.analise=analise;registrarRelatorio(res,analise);}
+  return res;
 }
 /* ---------- W.O. ----------
    Clube que chega ao jogo sem cinco jogadores perde sem jogar: a série vai
@@ -576,7 +599,7 @@ function woDaSerie(aId,bId,bo,ctx){
 function simPartida(aId,bId,bo,ctx){
   const wo=woDaSerie(aId,bId,bo,ctx);
   if(wo)return wo;
-  const S=abrirSerie(aId,bId,bo,ctx&&ctx.veto);
+  const S=abrirSerie(aId,bId,bo,ctx&&ctx.veto,ctx&&ctx.taticas);
   while(!S.fim){
     if(!serieAbrirMapa(S))break;
     while(!S.M.fim)passoRound(S.M);

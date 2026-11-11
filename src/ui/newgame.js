@@ -153,6 +153,7 @@ function telaNovoJogo(){
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     iniciarBase(T(G.meuTime));
     if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
+    if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
     noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
