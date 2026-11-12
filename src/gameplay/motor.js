@@ -47,7 +47,7 @@ GP.criarAgente = function (o) {
   const p = GP.parametros(o.atrib);
   const arma = id => ({id, municao: GP.ARMAS[id].pente, reserva: GP.ARMAS[id].reserva});
   return {
-    id: o.id, nome: o.nome || o.id, time: o.time, bot: !!o.bot, passivo: !!o.passivo,
+    id: o.id, nome: o.nome || o.id, time: o.time, bot: !!o.bot, passivo: !!o.passivo, agente: o.agente || null,
     atrib: o.atrib || {}, p,
     x: 0, y: 0, vx: 0, vy: 0, ang: 0, raio: GP.RAIO_CORPO,
     hp: 100, escudo: GP.ESCUDOS[o.escudo || 'pesado'], vivo: true,
@@ -360,12 +360,13 @@ GP._pontoDePatrulha = function (J, e) {
    ============================================================ */
 GP.montarDuelo = function (o) {
   const J = GP.novoJogo(o);
-  const eu = GP.criarAgente({id: 'eu', nome: o.nome || 'Você', time: 'eu', atrib: o.atribEu,
+  const eu = GP.criarAgente({id: 'eu', nome: o.nome || 'Você', time: 'eu', atrib: o.atribEu, agente: o.agenteEu,
     primaria: o.arma === 'classic' ? null : o.arma, secundaria: 'classic', escudo: o.escudo || 'pesado'});
   const n = o.modo === 'alvos' ? 4 : 1;
   for (let i = 0; i < n; i++) {
     J.ents.push(GP.criarAgente({id: 'bot' + i, nome: o.nomesBot ? o.nomesBot[i] : 'Bot ' + (i + 1), time: 'eles', bot: true,
       passivo: o.modo === 'alvos', atrib: o.atribBot, primaria: o.armaBot || o.arma, secundaria: 'classic',
+      agente: o.agentesBot ? o.agentesBot[i % o.agentesBot.length] : null,
       escudo: o.modo === 'alvos' ? 'nenhum' : (o.escudo || 'pesado'), agressivo: o.agressivo}));
   }
   J.ents.unshift(eu);

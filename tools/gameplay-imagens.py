@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""
+IMAGENS DO MODO JOGADOR — pastas, lista do que falta e preparo.
+
+Uso: python3 -I tools/gameplay-imagens.py
+
+1. Cria as pastas de envio em assets/gameplay/ (agentes/<agente>, armas,
+   efeitos, objetos, texturas) e escreve em cada uma um LISTA.md com o nome
+   exato de cada arquivo e se ele já chegou.
+2. Prepara o que chegou em assets/gameplay/pronto/ (é isso que o jogo lê):
+   - fundo verde #00FF00 vira transparente;
+   - corta a sobra transparente e reduz para o tamanho que o jogo usa;
+   - nos quadros do boneco, separa a faixa magenta #FF00FF numa máscara
+     (<quadro>.mascara.webp): o jogo pinta a máscara com a cor do time.
+3. Grava data/gameplay/imagens.js, o manifesto que o jogo consulta
+   (.js e não .json: fetch de JSON é bloqueado em file://).
+
+Formatos aceitos no envio: PNG, JPG ou WebP, nome em minúsculas ou não.
+"""
+import json, os, sys
+import numpy as np
+from PIL import Image
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.join(RAIZ, 'assets', 'gameplay')
+PRONTO = os.path.join(BASE, 'pronto')
+MANIFESTO = os.path.join(RAIZ, 'data', 'gameplay', 'imagens.js')
+EXTS = ('.png', '.webp', '.jpg', '.jpeg')
+
+AGENTES = {
+    'duelista': ['jett', 'phoenix', 'reyna', 'raze', 'yoru', 'neon', 'iso', 'waylay', 'hush'],
+    'iniciador': ['sova', 'breach', 'skye', 'kayo', 'fade', 'gekko', 'tejo'],
+    'controlador': ['brimstone', 'viper', 'omen', 'astra', 'harbor', 'clove', 'miks'],
+    'sentinela': ['sage', 'cypher', 'killjoy', 'chamber', 'deadlock', 'vyse', 'veto'],
+}
+NOME = {'kayo': 'KAY/O'}
+QUADROS = ['parado', 'passo1', 'passo2', 'tiro', 'caido']
+ICONES = ['c', 'q', 'e', 'x']
+ARMAS = ['classic', 'ghost', 'sheriff', 'spectre', 'phantom', 'vandal', 'operator']
+EFEITOS = ['fumaca', 'fogo', 'explosao', 'flash']
+OBJETOS = ['spike', 'caixa', 'caixa2', 'conteiner', 'barreira', 'sacos', 'barreira_compra']
+MAPAS = ['abyss', 'ascent', 'bind', 'breeze', 'corrode', 'fracture', 'haven', 'icebox', 'lotus', 'pearl', 'split', 'summit', 'sunset']
+
+DESC_QUADRO = {'retrato': 'retrato (1024×1024)', 'parado': 'boneco parado', 'passo1': 'boneco, passo 1',
+               'passo2': 'boneco, passo 2', 'tiro': 'boneco atirando', 'caido': 'boneco caído',
+               'c': 'ícone da habilidade C', 'q': 'ícone da habilidade Q', 'e': 'ícone da habilidade E',
+               'x': 'ícone da ultimate (X)'}
+
+
+# ---------- leitura e limpeza ----------
+def achar(pasta, nome):
+    """O arquivo enviado com esse nome (qualquer extensão, qualquer caixa)."""
+    if not os.path.isdir(pasta):
+        return None
+    for f in sorted(os.listdir(pasta)):
+        b, ext = os.path.splitext(f)
+        if ext.lower() in EXTS and b.lower() == nome:
+            return os.path.join(pasta, f)
+    return None
+
+
+def abrir(caminho):
+    im = Image.open(caminho).convert('RGBA')
+    a = np.array(im).astype(np.int16)
+    r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
+    # fundo verde-chave: transparente, com borda suave e sem o verde vazando
+    verde = (g - np.maximum(r, b))
+    chave = (verde > 90) & (g > 150)
+    borda = (verde > 40) & (g > 110) & ~chave
+    al = np.where(chave, 0, al)
+    al = np.where(borda, np.minimum(al, 255 - (verde - 40) * 5).clip(0, 255), al)
+    g = np.where(borda | chave, np.minimum(g, np.maximum(r, b)), g)
+    a[..., 1], a[..., 3] = g, al
+    return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
+
+
+def cortar(im, folga=6):
+    al = np.array(im)[..., 3]
+    ys, xs = np.where(al > 12)
+    if not len(ys):
+        return im
+    x0, x1 = max(0, xs.min() - folga), min(im.width, xs.max() + 1 + folga)
+    y0, y1 = max(0, ys.min() - folga), min(im.height, ys.max() + 1 + folga)
+    return im.crop((x0, y0, x1, y1))
+
+
+def reduzir(im, lado):
+    k = lado / max(im.width, im.height)
+    if k < 1:
+        im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+    return im
+
+
+def salvar(im, rel, qualidade=88):
+    caminho = os.path.join(PRONTO, rel)
+    os.makedirs(os.path.dirname(caminho), exist_ok=True)
+    im.save(caminho, 'WEBP', quality=qualidade, method=6)
+    return 'assets/gameplay/pronto/' + rel.replace(os.sep, '/')
+
+
+def quadro_boneco(caminho, rel):
+    """Boneco visto de cima: corta, reduz, separa a faixa magenta numa máscara
+    e acha o centro do corpo (o centro de massa do que não é transparente)."""
+    # reduz a imagem inteira antes de cortar: todos os quadros do agente ficam
+    # na mesma escala (o boneco não "pulsa" de tamanho ao andar)
+    im = cortar(reduzir(abrir(caminho), 256))
+    a = np.array(im).astype(np.int16)
+    r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
+    mag = (r > 150) & (b > 150) & (g < 110) & (np.abs(r - b) < 90) & (al > 0)
+    base = a.copy()
+    # a faixa vira um cinza claro com o mesmo sombreado; a cor vem da máscara
+    lum = ((r + b) / 2).clip(0, 255)
+    for i in range(3):
+        base[..., i] = np.where(mag, lum * 0.85, base[..., i])
+    masc = np.zeros_like(a)
+    masc[..., 0] = masc[..., 1] = masc[..., 2] = 255
+    masc[..., 3] = np.where(mag, (lum / 255 * al).clip(0, 255), 0)
+    ys, xs = np.where(al > 60)
+    w = al[ys, xs].astype(float)
+    cx, cy = float((xs * w).sum() / w.sum()), float((ys * w).sum() / w.sum())
+    src = salvar(Image.fromarray(base.astype(np.uint8), 'RGBA'), rel + '.webp')
+    out = {'src': src, 'w': im.width, 'h': im.height, 'cx': round(cx, 1), 'cy': round(cy, 1)}
+    if mag.sum() > 30:
+        out['mascara'] = salvar(Image.fromarray(masc.astype(np.uint8), 'RGBA'), rel + '.mascara.webp')
+    return out
+
+
+def simples(caminho, rel, lado, cortar_sobra=True):
+    im = abrir(caminho)
+    if cortar_sobra:
+        im = cortar(im)
+    im = reduzir(im, lado)
+    return {'src': salvar(im, rel + '.webp'), 'w': im.width, 'h': im.height}
+
+
+def textura(caminho, rel):
+    im = Image.open(caminho).convert('RGB')
+    if im.width != 512 or im.height != 512:
+        im = im.resize((512, 512), Image.LANCZOS)
+    caminho_s = os.path.join(PRONTO, rel + '.webp')
+    os.makedirs(os.path.dirname(caminho_s), exist_ok=True)
+    im.save(caminho_s, 'WEBP', quality=86, method=6)
+    return {'src': 'assets/gameplay/pronto/' + rel + '.webp', 'w': 512, 'h': 512}
+
+
+# ---------- listas ----------
+def lista(pasta, titulo, itens, extra=''):
+    os.makedirs(pasta, exist_ok=True)
+    tem = sum(1 for n, _ in itens if achar(pasta, n))
+    linhas = [f'# {titulo} — nomes que o jogo procura', '',
+              'Gerado por `python3 -I tools/gameplay-imagens.py`. Não edite à mão.', '',
+              'Salve cada imagem nesta pasta com o nome exato da lista. PNG, JPG ou WebP',
+              'servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.', '']
+    if extra:
+        linhas += [extra, '']
+    linhas += [f'{tem}/{len(itens)} com imagem.', '']
+    for n, d in itens:
+        linhas.append(f"- [{'x' if achar(pasta, n) else ' '}] `{n}.png` — {d}")
+    with open(os.path.join(pasta, 'LISTA.md'), 'w') as f:
+        f.write('\n'.join(linhas) + '\n')
+    return tem, len(itens)
+
+
+def main():
+    # refaz o pronto/ do zero: imagem apagada do envio some do jogo também
+    if os.path.isdir(PRONTO):
+        import shutil
+        shutil.rmtree(PRONTO)
+    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}}
+    placar = []
+    estranhos = []
+
+    def conferir_sobras(pasta, nomes):
+        if not os.path.isdir(pasta):
+            return
+        for f in os.listdir(pasta):
+            b, ext = os.path.splitext(f)
+            if ext.lower() in EXTS and b.lower() not in nomes:
+                estranhos.append(os.path.relpath(os.path.join(pasta, f), RAIZ))
+
+    # agentes
+    for papel, nomes in AGENTES.items():
+        for ag in nomes:
+            pasta = os.path.join(BASE, 'agentes', ag)
+            itens = [(n, DESC_QUADRO[n]) for n in ['retrato'] + QUADROS + ICONES]
+            placar.append((f'agentes/{ag}',) + lista(pasta, f'{NOME.get(ag, ag.capitalize())} ({papel})', itens,
+                          'O boneco (parado, passo1, passo2, tiro, caido) é visto de cima, virado para a direita,\n'
+                          'com a faixa magenta #FF00FF nos ombros: o jogo troca pela cor do time.'))
+            conferir_sobras(pasta, {n for n, _ in itens})
+            ent = {}
+            c = achar(pasta, 'retrato')
+            if c:
+                ent['retrato'] = simples(c, f'agentes/{ag}/retrato', 512, cortar_sobra=False)
+            for q in QUADROS:
+                c = achar(pasta, q)
+                if c:
+                    ent[q] = quadro_boneco(c, f'agentes/{ag}/{q}')
+            for k in ICONES:
+                c = achar(pasta, k)
+                if c:
+                    ent[k] = simples(c, f'agentes/{ag}/{k}', 128, cortar_sobra=False)
+            if ent:
+                man['agentes'][ag] = ent
+    # armas, efeitos, objetos, texturas
+    grupos = [
+        ('armas', 'Armas', [(n, 'silhueta de lado, cano para a direita') for n in ARMAS], 384, True),
+        ('efeitos', 'Efeitos', [(n, 'efeito visto de cima, 512×512') for n in EFEITOS], 256, False),
+        ('objetos', 'Spike e objetos', [(n, 'visto de cima') for n in OBJETOS], 256, True),
+    ]
+    for chave, titulo, itens, lado, corta in grupos:
+        pasta = os.path.join(BASE, chave)
+        placar.append((chave,) + lista(pasta, titulo, itens))
+        conferir_sobras(pasta, {n for n, _ in itens})
+        for n, _ in itens:
+            c = achar(pasta, n)
+            if c:
+                man[chave][n] = simples(c, f'{chave}/{n}', lado, cortar_sobra=corta)
+    pasta = os.path.join(BASE, 'texturas')
+    itens = [(f'{m}_{t}', f'{m.capitalize()}: {"piso" if t == "piso" else "topo de parede"}, repetível, 512×512')
+             for m in MAPAS for t in ('piso', 'parede')]
+    placar.append(('texturas',) + lista(pasta, 'Texturas dos mapas', itens))
+    conferir_sobras(pasta, {n for n, _ in itens})
+    for n, _ in itens:
+        c = achar(pasta, n)
+        if c:
+            man['texturas'][n] = textura(c, f'texturas/{n}')
+
+    os.makedirs(os.path.dirname(MANIFESTO), exist_ok=True)
+    with open(MANIFESTO, 'w') as f:
+        f.write('/* GERADO por tools/gameplay-imagens.py — não editar à mão.\n'
+                '   O que já chegou de imagem para o modo jogador, já preparado em\n'
+                '   assets/gameplay/pronto/. Boneco: w/h em px, cx/cy = centro do corpo. */\n')
+        f.write('const IMAGENS_GAMEPLAY=' + json.dumps(man, ensure_ascii=False, separators=(',', ':')) + ';\n')
+
+    total = sum(t for _, t, _ in placar), sum(n for _, _, n in placar)
+    for nome, t, n in placar:
+        if t:
+            print(f'  {nome:22s} {t}/{n}')
+    print(f'imagens do modo jogador: {total[0]}/{total[1]} enviadas')
+    if estranhos:
+        print('arquivos com nome que o jogo não procura (renomeie):')
+        for e in estranhos:
+            print('  ', e)
+
+
+if __name__ == '__main__':
+    main()

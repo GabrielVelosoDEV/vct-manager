@@ -9,6 +9,9 @@ const raiz=resolve(aqui,'..');
 const web=resolve(aqui,'web');
 if(existsSync(web))rmSync(web,{recursive:true,force:true});
 const fora=new Set(['LISTA.md','LEIAME.md']);
+/* das imagens do modo jogador só vai o que já foi preparado (assets/gameplay/pronto);
+   os originais enviados ficam de fora do app */
+const original=f=>{const r=f.replace(/\\/g,'/');return r.includes('/assets/gameplay/')&&!r.includes('/assets/gameplay/pronto')&&/\.(png|jpe?g|webp)$/i.test(r);};
 for(const p of ['index.html','gameplay.html','src','data','assets'])
-  cpSync(resolve(raiz,p),resolve(web,p),{recursive:true,filter:f=>!fora.has(basename(f))});
+  cpSync(resolve(raiz,p),resolve(web,p),{recursive:true,filter:f=>!fora.has(basename(f))&&!original(f)});
 console.log('jogo copiado para desktop/web');

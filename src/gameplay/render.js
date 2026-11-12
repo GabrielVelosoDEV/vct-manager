@@ -160,16 +160,16 @@ GP.render = function (R, J, cam, ui) {
   /* agentes */
   for (const o of J.ents) {
     if (o === eu) continue;
-    if (o.vivo && o._visivel) GP._agente(g, o, '#ff4655', 1);
+    if (o.vivo && o._visivel) GP._agente(g, o, '#ff4655', 1, J.t);
     else if (o.vivo && o._vistoEm && J.t - o._vistoEm < 1.1) {
       /* último lugar em que você o viu */
       g.globalAlpha = 0.35 * (1 - (J.t - o._vistoEm) / 1.1);
       g.strokeStyle = '#ff4655'; g.lineWidth = 0.08; g.setLineDash([0.2, 0.15]);
       g.beginPath(); g.arc(o._vistoX, o._vistoY, o.raio, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
       g.globalAlpha = 1;
-    } else if (!o.vivo && o._morreuEm && J.t - o._morreuEm < 4 && GP.linhaLivre(J.m, eu.x, eu.y, o.x, o.y)) GP._corpo(g, o);
+    } else if (!o.vivo && o._morreuEm && J.t - o._morreuEm < 4 && GP.linhaLivre(J.m, eu.x, eu.y, o.x, o.y)) GP._corpo(g, o, J.t);
   }
-  if (eu.vivo) GP._agente(g, eu, '#18e5b4', 1); else GP._corpo(g, eu);
+  if (eu.vivo) GP._agente(g, eu, '#18e5b4', 1, J.t); else GP._corpo(g, eu, J.t);
 
   /* névoa: escurece o que o cone não vê */
   if (eu.vivo) {
@@ -239,8 +239,25 @@ GP.render = function (R, J, cam, ui) {
   GP._minimapa(R, J);
 };
 
-GP._agente = function (g, o, cor, alfa) {
-  /* o desenho é um pouco maior que o corpo de verdade, para ler de longe */
+/* boneco com imagem (se o agente já tem): quadro do momento, faixa na cor do time */
+GP._sprite = function (g, o, cor, t, quadro) {
+  if (!o.agente) return false;
+  const ent = GP.agenteImg(o.agente, quadro) || (quadro !== 'caido' ? GP.agenteImg(o.agente, 'parado') : null);
+  if (!ent) return false;
+  const img = GP.quadroTingido(ent, cor);
+  if (!img) return false;
+  /* a escala sai do quadro parado: todos os quadros do agente com o mesmo tamanho */
+  const ref = GP.agenteImg(o.agente, 'parado') || ent;
+  const k = GP.BONECO_OMBROS_M / Math.min(ref.w, ref.h);
+  g.save(); g.translate(o.x, o.y); g.rotate(o.ang);
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0.1, 0.12, 0.5, 0.5, 0, 0, Math.PI * 2); g.fill();
+  g.drawImage(img, -ent.cx * k, -ent.cy * k, ent.w * k, ent.h * k);
+  g.restore();
+  return true;
+};
+GP._agente = function (g, o, cor, alfa, t) {
+  if (GP._sprite(g, o, cor, t, GP.quadroDoAgente(o, t))) { GP._vidaInimigo(g, o); return; }
+  /* sem imagem: o boneco simples, um pouco maior que o corpo de verdade */
   g.save(); g.translate(o.x, o.y); g.rotate(o.ang); g.scale(1.35, 1.35);
   g.globalAlpha = alfa;
   /* sombra, ombros, cabeça e arma */
@@ -250,13 +267,16 @@ GP._agente = function (g, o, cor, alfa) {
   g.fillStyle = 'rgba(255,255,255,.92)'; g.beginPath(); g.arc(0.02, 0, o.raio * 0.42, 0, Math.PI * 2); g.fill();
   g.fillStyle = cor; g.beginPath(); g.arc(0.02, 0, o.raio * 0.3, 0, Math.PI * 2); g.fill();
   g.restore();
-  /* barra de vida curta para o inimigo */
-  if (o.time !== 'eu' && o.hp < 100) {
-    g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(o.x - 0.5, o.y - 0.85, 1, 0.12);
-    g.fillStyle = '#ff4655'; g.fillRect(o.x - 0.5, o.y - 0.85, o.hp / 100, 0.12);
-  }
+  GP._vidaInimigo(g, o);
 };
-GP._corpo = function (g, o) {
+/* barra de vida curta para o inimigo */
+GP._vidaInimigo = function (g, o) {
+  if (o.time === 'eu' || o.hp >= 100) return;
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(o.x - 0.5, o.y - 0.95, 1, 0.12);
+  g.fillStyle = '#ff4655'; g.fillRect(o.x - 0.5, o.y - 0.95, o.hp / 100, 0.12);
+};
+GP._corpo = function (g, o, t) {
+  if (GP._sprite(g, o, o.time === 'eu' ? '#18e5b4' : '#ff4655', t, 'caido')) return;
   g.save(); g.globalAlpha = 0.55; g.strokeStyle = o.time === 'eu' ? '#18e5b4' : '#ff4655'; g.lineWidth = 0.1;
   g.beginPath(); g.moveTo(o.x - 0.3, o.y - 0.3); g.lineTo(o.x + 0.3, o.y + 0.3); g.moveTo(o.x + 0.3, o.y - 0.3); g.lineTo(o.x - 0.3, o.y + 0.3); g.stroke();
   g.restore();

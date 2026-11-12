@@ -16,17 +16,39 @@ GP.ATRIB_EFEITO = {
   visao: 'abertura do cone', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
 
 GP.UI = {
-  opc: {mapa: 'ascent', modo: 'duelo', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5},
+  opc: {mapa: 'ascent', modo: 'duelo', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
   atribEu: null,
 };
 GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu})); } catch (e) { /* sem armazenamento */ } };
 GP._lerOpc = function () {
   try { const s = JSON.parse(localStorage.getItem('vct-gameplay-opc') || 'null'); if (s) { Object.assign(GP.UI.opc, s.opc || {}); GP.UI.atribEu = s.atribEu || null; } } catch (e) { /* ignora */ }
   if (!GP.NIVEIS[GP.UI.opc.nivelBot]) GP.UI.opc.nivelBot = 'tier2';
+  if (!GP.AGENTES[GP.UI.opc.agenteEu]) GP.UI.opc.agenteEu = 'jett';
+  if (GP.UI.opc.agenteBot !== 'aleatorio' && !GP.AGENTES[GP.UI.opc.agenteBot]) GP.UI.opc.agenteBot = 'aleatorio';
   if (!GP.UI.atribEu) GP.UI.atribEu = {...GP.NIVEIS[GP.UI.opc.nivelEu in GP.NIVEIS ? GP.UI.opc.nivelEu : 'tier2'].a};
 };
 const $gp = s => document.querySelector(s);
 const escGP = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
+/* ---------- agentes no menu ---------- */
+GP._rostoAgente = function (id, cls) {
+  const r = GP.agenteImg(id, 'retrato'), A = GP.AGENTES[id];
+  return r ? `<img class="${cls || ''}" src="${r.src}" alt="">` : `<span class="${cls || ''} gp-ini">${escGP(A.nome.slice(0, 2).toUpperCase())}</span>`;
+};
+GP._gradeAgentes = function (sel) {
+  return Object.keys(GP.PAPEIS).map(papel => `<div class="gp-pap"><span class="gp-pap-n">${GP.PAPEIS[papel]}</span><div class="gp-ags">
+    ${Object.values(GP.AGENTES).filter(a => a.papel === papel).map(a => `<button class="gp-ag ${sel === a.id ? 'on' : ''} ${GP.temImagem('agentes', a.id, 'parado') ? 'img' : ''}" data-op="agenteEu" data-val="${a.id}" title="${escGP(a.nome)}">
+      ${GP._rostoAgente(a.id, 'gp-ag-r')}<b>${escGP(a.nome)}</b></button>`).join('')}</div></div>`).join('');
+};
+/* o rival: o escolhido, ou um duelista sorteado (de preferência um que já tem boneco) */
+GP._agenteDoRival = function () {
+  const o = GP.UI.opc;
+  if (o.agenteBot !== 'aleatorio') return o.agenteBot;
+  const duel = Object.values(GP.AGENTES).filter(a => a.papel === 'duelista' && a.id !== o.agenteEu);
+  const comImg = duel.filter(a => GP.temImagem('agentes', a.id, 'parado'));
+  const pool = comImg.length ? comImg : duel;
+  return pool[Math.floor(Math.random() * pool.length)].id;
+};
 
 /* ---------- menu ---------- */
 GP.menu = function () {
@@ -57,7 +79,11 @@ GP.menu = function () {
         <div class="gp-eyebrow" style="margin-top:14px">Vence quem fizer</div><div class="gp-ops gp-ops3">
         ${bt('rounds', 3, '3 rounds')}${bt('rounds', 5, '5 rounds')}${bt('rounds', 7, '7 rounds')}</div>` : ''}
       </div>
-      <div class="gp-sec"><div class="gp-eyebrow">O seu jogador</div><div class="gp-ops gp-ops3">
+      <div class="gp-sec"><div class="gp-eyebrow">O seu agente</div>${GP._gradeAgentes(o.agenteEu)}
+        <p class="gp-dim gp-nota">Com contorno verde: já tem boneco. As habilidades entram na próxima fase; por enquanto o agente muda só o visual.</p>
+        <label class="gp-rival">Agente do rival <select id="gpAgBot"><option value="aleatorio">um duelista sorteado</option>
+          ${Object.values(GP.AGENTES).map(a => `<option value="${a.id}" ${o.agenteBot === a.id ? 'selected' : ''}>${escGP(a.nome)} · ${GP.PAPEIS[a.papel]}</option>`).join('')}</select></label>
+        <div class="gp-eyebrow" style="margin-top:16px">O seu jogador</div><div class="gp-ops gp-ops3">
         ${Object.keys(GP.NIVEIS).map(k => bt('nivelEu', k, GP.NIVEIS[k].nome, 'atributos de ' + GP.NIVEIS[k].nome)).join('')}</div>
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
@@ -80,6 +106,7 @@ GP.menu = function () {
     document.querySelectorAll('#gpMenu [data-op="nivelEu"]').forEach(b => b.classList.remove('on'));
     GP._salvarOpc();
   });
+  $gp('#gpAgBot').onchange = e => { o.agenteBot = e.target.value; GP._salvarOpc(); };
   $gp('#gpJogar').onclick = GP.comecar;
 };
 
@@ -88,15 +115,19 @@ GP.S = null;   /* a sessão em andamento */
 
 GP.comecar = function () {
   const o = GP.UI.opc;
+  for (const id of Object.keys(GP.AGENTES)) GP.precarregarAgente(id);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
   const J = GP.montarDuelo({
     mapa: o.mapa, modo: o.modo, arma: o.arma, armaBot: o.arma === 'operator' ? 'vandal' : o.arma,
     atribEu: GP.UI.atribEu, atribBot: GP.NIVEIS[o.nivelBot].a, spawns: o.spawns, rounds: o.rounds,
-    semente: (Date.now() & 0xffffff) || 1, nome: 'Você', nomesBot: ['Rival', 'Alvo 2', 'Alvo 3', 'Alvo 4'],
+    semente: (Date.now() & 0xffffff) || 1, agenteEu: o.agenteEu, agentesBot: [GP._agenteDoRival()],
+    nome: GP.AGENTES[o.agenteEu].nome, nomesBot: ['Rival', 'Alvo 2', 'Alvo 3', 'Alvo 4'],
     agressivo: 0.5,
   });
   const cv = $gp('#gpTela');
   const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte: GP.desenharMapa(J.m)};
   R.fg = R.fog.getContext('2d');
+  for (const b of J.ents) if (b.bot && b.agente && J.modo === 'duelo') b.nome = GP.AGENTES[b.agente].nome;
   GP.S = {J, R, cam: {x: J.eu.x, y: J.eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
     ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: 0, feed: []};
   GP._ajustarTela();
@@ -189,12 +220,20 @@ GP._hud = function () {
   $gp('#gpPlacar').innerHTML = alvos
     ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`
     : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
-  $gp('#gpVida').innerHTML = `<div class="gp-hp"><b class="num">${Math.ceil(eu.hp)}</b><span>vida</span></div>
+  $gp('#gpVida').innerHTML = `${eu.agente ? GP._rostoAgente(eu.agente, 'gp-hud-r') : ''}<div class="gp-hp"><b class="num">${Math.ceil(eu.hp)}</b><span>vida</span></div>
     <div class="gp-esc"><b class="num">${Math.ceil(eu.escudo)}</b><span>escudo</span></div>
     <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 3 ? ' · <em>tiro aberto</em>' : ''}</div>`;
-  $gp('#gpArma').innerHTML = `<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
+  const silh = GP.temImagem('armas', arm.id) ? `<img class="gp-arma-img" src="${GP.manifesto().armas[arm.id].src}" alt="">` : '';
+  $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
+  if (eu.agente && S.habDe !== eu.agente) {
+    S.habDe = eu.agente;
+    $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
+      const ic = GP.agenteImg(eu.agente, k);
+      return `<div class="gp-hab">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}<kbd>${k.toUpperCase()}</kbd></div>`;
+    }).join('') + '<span class="gp-hab-nota">habilidades na próxima fase</span>';
+  }
   $gp('#gpArea').textContent = [GP.NOME_MAPA[J.m.nome], GP.areaEm(J.m, eu.x, eu.y), GP.sitioEm(J.m, eu.x, eu.y) ? 'bomb ' + GP.sitioEm(J.m, eu.x, eu.y).toUpperCase() : ''].filter(Boolean).join(' · ');
   const agora = performance.now();
   $gp('#gpFeed').innerHTML = S.feed.filter(f => agora - f.t < 6000).map(f => `<div class="gp-kf ${f.meu ? 'meu' : ''} ${f.morri ? 'morri' : ''}">
