@@ -215,6 +215,7 @@ function vMenuPrincipal(){
         ${t?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
         ${item('mnRuns','disco','Partidas salvas',nSalvas?nSalvas+(nSalvas===1?' partida':' partidas'):'nenhuma ainda')}
         ${item('mnBanco','banco','Banco de dados',Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
+        ${item('mnGameplay','controle','Modo jogador · protótipo','gameplay de cima, nos 13 mapas')}
         ${typeof Pasta!=='undefined'?(Pasta.estado==='pendente'
           ?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso')
           :item('mnSaves',Pasta.estado==='ligada'?'check':'alerta','Onde ficam seus saves',textoOndeSalva(),
@@ -252,6 +253,7 @@ function ligarMenuPrincipal(){
   liga('mnNovo',()=>novaCarreira());
   liga('mnRuns',()=>{telaMenu='runs';render();});
   liga('mnBanco',()=>{telaMenu='banco';render();});
+  liga('mnGameplay',()=>{location.href='gameplay.html';});
   liga('mnConfig',()=>{telaMenu='config';render();});
   liga('mnCreditos',()=>{telaMenu='creditos';render();});
   liga('mnPasta',()=>reconectarPasta());

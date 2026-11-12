@@ -26,5 +26,18 @@ let saida=html
 
 const dist=resolve(raiz,'dist');
 if(!existsSync(dist))mkdirSync(dist);
+/* o menu abre o laboratório de gameplay pelo nome do arquivo; no dist ele
+   também vira um HTML único, e o "voltar" dele aponta para vct-manager.html */
 writeFileSync(resolve(dist,'vct-manager.html'),saida);
 console.log('dist/vct-manager.html gerado —',scripts.length,'módulos,',(saida.length/1024).toFixed(1),'KB');
+
+const gp=readFileSync(resolve(raiz,'gameplay.html'),'utf8');
+const gpFolhas=[...gp.matchAll(/<link rel="stylesheet" href="([^"]+)">/g)].map(m=>m[1]);
+const gpScripts=[...gp.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
+const gpSaida=gp
+  .replace(/<link rel="stylesheet" href="[^"]+">\s*/g,'')
+  .replace('</head>',()=>`<style>\n${gpFolhas.map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')}\n</style>\n</head>`)
+  .replace(/<!-- ORDEM IMPORTA[\s\S]*<\/script>/,()=>`<script>\n${gpScripts.map(f=>`\n/* ===== ${f} ===== */\n`+readFileSync(resolve(raiz,f),'utf8')).join('\n')}\n</script>`)
+  .replace(/href="index\.html"/g,'href="vct-manager.html"');
+writeFileSync(resolve(dist,'gameplay.html'),gpSaida);
+console.log('dist/gameplay.html gerado —',gpScripts.length,'módulos,',(gpSaida.length/1024).toFixed(1),'KB');
