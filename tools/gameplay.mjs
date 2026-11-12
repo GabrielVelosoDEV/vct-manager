@@ -23,9 +23,14 @@ for(const nome of nomes){
   ok(m.spawn,nome+': sem spawn');
   const cam=m.spawn&&GP.caminho(m,m.spawn.atk.x,m.spawn.atk.y,m.spawn.def.x,m.spawn.def.y);
   ok(cam,nome+': spawns sem caminho');
-  for(const L of Object.keys(m.sitios)){
-    const c=GP.caminho(m,m.spawn.atk.x,m.spawn.atk.y,m.sitios[L].x,m.sitios[L].y);
-    ok(c,nome+': sem caminho até o bomb '+L);
+  /* os dois spawns chegam nos bombs, e sem volta absurda (caminho quebrado
+     na extração aparece como um caminho 2× maior que a reta) */
+  const compr=c=>c.reduce((s,p,i)=>i?s+Math.hypot(p.x-c[i-1].x,p.y-c[i-1].y):0,0);
+  for(const lado of ['atk','def'])for(const L of Object.keys(m.sitios)){
+    const a=m.spawn[lado],b=m.sitios[L];
+    const c=GP.caminho(m,a.x,a.y,b.x,b.y);
+    ok(c,nome+': '+lado+' sem caminho até o bomb '+L);
+    if(c){const r=compr(c)/Math.hypot(a.x-b.x,a.y-b.y);ok(r<2.2,nome+': '+lado+'→'+L+' dá volta demais ('+r.toFixed(1)+'×): caminho quebrado?');}
   }
   ok(Object.keys(m.sitios).length===(nome==='haven'||nome==='lotus'?3:2),nome+': bombs '+Object.keys(m.sitios).join(''));
   const comp=cam?cam.reduce((s,p,i)=>i?s+Math.hypot(p.x-cam[i-1].x,p.y-cam[i-1].y):0,0):0;

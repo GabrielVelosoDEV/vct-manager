@@ -55,8 +55,10 @@ GP.coberturas = function (m) {
 };
 GP._objetosDeCobertura = function (g, m, S) {
   const ob = GP.manifesto ? GP.manifesto().objetos || {} : {};
+  const dec = GP.manifesto ? (GP.manifesto().decoracao || {})[m.nome] || {} : {};
   for (const o of GP.coberturas(m)) {
-    const ent = ob[o.tipo] || ob.caixa; if (!ent) continue;
+    /* a caixa com a cara do mapa, se já chegou; senão a genérica */
+    const ent = (Math.max(o.w, o.h) >= 2.6 ? dec.caixa_grande : null) || dec.caixa || ob[o.tipo] || ob.caixa; if (!ent) continue;
     const im = GP.imagem(ent.src); if (!im) continue;
     const f = 0.12;
     g.save(); g.translate((o.x + o.w / 2) * S, (o.y + o.h / 2) * S);
@@ -65,6 +67,46 @@ GP._objetosDeCobertura = function (g, m, S) {
     const w = (o.deitado ? o.h : o.w) + f, h = (o.deitado ? o.w : o.h) + f;
     g.drawImage(im, -w / 2 * S, -h / 2 * S, w * S, h * S);
     g.restore();
+  }
+};
+
+/* Decoração encostada nas paredes (vaso, barril, poste…): não bloqueia nada.
+   Vai só onde o espaço é largo (não estreita corredor), fora dos bombs, com
+   uns 7 m entre uma e outra. Posições fixas por mapa (sorteio com semente). */
+GP.pontosDeEnfeite = function (m) {
+  if (m._enf) return m._enf;
+  const {W, H} = m, c = m.cel, out = [];
+  const livre = (x, y) => !GP.celSolida(m, x, y);
+  const cands = [];
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
+    if (!livre(x, y) || m.sitio[y * W + x]) continue;
+    /* encostado numa parede ao norte (fica "na frente" dela) ou dos lados */
+    const n = !livre(x, y - 1), l = !livre(x - 1, y), r = !livre(x + 1, y);
+    if (!n && !l && !r) continue;
+    /* largo: 4 m de chão livre para dentro */
+    const dx = l ? 1 : r ? -1 : 0, dy = n ? 1 : 0;
+    let ok = true;
+    for (let k = 1; k <= 8 && ok; k++) if (!livre(x + dx * k, y + dy * k)) ok = false;
+    if (ok) cands.push([x, y, GP._hash(x * 7 + 3, y * 13 + 1)]);
+  }
+  cands.sort((a, b) => a[2] - b[2]);
+  const longe = 7 / c;
+  for (const [x, y] of cands) {
+    if (out.some(p => (p.cx - x) ** 2 + (p.cy - y) ** 2 < longe * longe)) continue;
+    out.push({cx: x, cy: y, x: (x + 0.5) * c, y: (y + 0.5) * c, k: out.length});
+    if (out.length >= 60) break;
+  }
+  return (m._enf = out);
+};
+GP._enfeites = function (g, m, S) {
+  const dec = GP.manifesto ? (GP.manifesto().decoracao || {})[m.nome] || {} : {};
+  const tipos = ['enfeite1', 'enfeite2', 'enfeite3', 'enfeite4'].filter(k => dec[k]);
+  if (!tipos.length) return;
+  for (const p of GP.pontosDeEnfeite(m)) {
+    const ent = dec[tipos[p.k % tipos.length]], im = GP.imagem(ent.src); if (!im) continue;
+    const alt = 1.5, k = alt / Math.max(ent.w, ent.h), w = ent.w * k, h = ent.h * k;
+    g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(p.x * S, (p.y + 0.35) * S, w * 0.45 * S, w * 0.18 * S, 0, 0, Math.PI * 2); g.fill();
+    g.drawImage(im, (p.x - w / 2) * S, (p.y + 0.45 - h) * S, w * S, h * S);
   }
 };
 
@@ -173,6 +215,7 @@ GP.desenharMapa = function (m) {
     g.drawImage(camada(ov), 0, 0);
   }
   GP._objetosDeCobertura(g, m, S);
+  GP._enfeites(g, m, S);
   /* minimapa: uma célula por pixel */
   const mini = document.createElement('canvas'); mini.width = W; mini.height = H;
   const mg = mini.getContext('2d'), mi = mg.createImageData(W, H);
@@ -187,8 +230,13 @@ GP.desenharMapa = function (m) {
     g.save();
     g.font = `${Math.round(9 * S)}px "Bebas Neue", Impact, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = tema.sitio; g.globalAlpha = 0.22;
+    const marca = GP.manifesto ? (GP.manifesto().marcas || {})['letra_' + L] : null;
+    const mim = marca && GP.imagem(marca.src);
+    if (mim) { const t = 7 * S; g.globalAlpha = 0.85; g.drawImage(mim, st.x * S - t / 2, st.y * S - t / 2, t, t); g.restore(); continue; }
+    g.fillStyle = tema.sitio; g.globalAlpha = 0.34;
     g.fillText(L.toUpperCase(), st.x * S, st.y * S);
+    g.globalAlpha = 0.6; g.lineWidth = Math.max(2, S * 0.12); g.strokeStyle = 'rgba(0,0,0,.55)';
+    g.strokeText(L.toUpperCase(), st.x * S, st.y * S);
     g.restore();
   }
   /* spawns */

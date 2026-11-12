@@ -118,6 +118,8 @@ GP._carregarImagensDoMapa = function (mapa) {
   const man = GP.manifesto(), srcs = [];
   for (const k of [mapa + '_piso', mapa + '_parede']) if ((man.texturas || {})[k]) srcs.push(man.texturas[k].src);
   for (const k in (man.objetos || {})) srcs.push(man.objetos[k].src);
+  for (const k in ((man.decoracao || {})[mapa] || {})) srcs.push(man.decoracao[mapa][k].src);
+  for (const k in (man.marcas || {})) srcs.push(man.marcas[k].src);
   const esperas = srcs.map(src => new Promise(ok => {
     const im = GP.imagem(src) || GP.IMG.cache[src];
     if (!im || (im.complete && im.naturalWidth)) return ok();

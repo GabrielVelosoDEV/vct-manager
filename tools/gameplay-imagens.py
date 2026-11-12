@@ -41,6 +41,15 @@ ICONES = ['c', 'q', 'e', 'x']
 ARMAS = ['classic', 'ghost', 'sheriff', 'spectre', 'phantom', 'vandal', 'operator']
 EFEITOS = ['fumaca', 'fogo', 'explosao', 'flash']
 OBJETOS = ['spike', 'caixa', 'caixa2', 'conteiner', 'barreira', 'sacos', 'barreira_compra']
+# decoração e cobertura com a cara de cada mapa (os prompts estão no documento)
+DECOR = {
+    'caixa': 'cobertura pequena do mapa (~1,5 m), vista de cima e um pouco de frente',
+    'caixa_grande': 'cobertura grande do mapa (~3 m)',
+    'enfeite1': 'decoração 1 (não bloqueia: vai encostada nas paredes)',
+    'enfeite2': 'decoração 2', 'enfeite3': 'decoração 3', 'enfeite4': 'decoração 4',
+}
+MARCAS = {'letra_a': 'letra A pintada no chão do bomb', 'letra_b': 'letra B pintada no chão',
+          'letra_c': 'letra C pintada no chão (Haven e Lotus)'}
 MAPAS = ['abyss', 'ascent', 'bind', 'breeze', 'corrode', 'fracture', 'haven', 'icebox', 'lotus', 'pearl', 'split', 'summit', 'sunset']
 
 DESC_QUADRO = {'retrato': 'retrato (1024×1024)', 'parado': 'boneco parado', 'passo1': 'boneco, passo 1',
@@ -206,7 +215,7 @@ def main():
     if os.path.isdir(PRONTO):
         import shutil
         shutil.rmtree(PRONTO)
-    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}}
+    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}}
     placar = []
     estranhos = []
 
@@ -267,6 +276,24 @@ def main():
             c = achar(pasta, n)
             if c:
                 man[chave][n] = simples(c, f'{chave}/{n}', lado, cortar_sobra=corta)
+    for mp in MAPAS:
+        pasta = os.path.join(BASE, 'decoracao', mp)
+        itens = list(DECOR.items())
+        placar.append((f'decoracao/{mp}',) + lista(pasta, f'Decoração de {mp.capitalize()}', itens,
+                      'Vista de cima com a câmera um pouco inclinada (como os bonecos), luz de baixo à direita.'))
+        conferir_sobras(pasta, {n for n, _ in itens})
+        for n, _ in itens:
+            c = achar(pasta, n)
+            if c:
+                man['decoracao'].setdefault(mp, {})[n] = simples(c, f'decoracao/{mp}/{n}', 256)
+    pasta = os.path.join(BASE, 'marcas')
+    itens = list(MARCAS.items())
+    placar.append(('marcas',) + lista(pasta, 'Marcas do bomb', itens))
+    conferir_sobras(pasta, {n for n, _ in itens})
+    for n, _ in itens:
+        c = achar(pasta, n)
+        if c:
+            man['marcas'][n] = simples(c, f'marcas/{n}', 512)
     pasta = os.path.join(BASE, 'texturas')
     itens = [(f'{m}_{t}', f'{m.capitalize()}: {"piso" if t == "piso" else "topo de parede"}, repetível, 512×512')
              for m in MAPAS for t in ('piso', 'parede')]

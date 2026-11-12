@@ -25,8 +25,12 @@ from scipy import ndimage as nd
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ORIG = os.path.join(RAIZ, 'tools', 'mapas', 'minimapas')
 PREVIA = os.path.join(RAIZ, 'tools', 'mapas', 'previa')
-LADO_CELULAS = 220          # o lado maior do mapa, em células
+LADO_CELULAS = 220          # o lado maior do mapa, em células (antes da calibração)
+# Visto de cima, o mapa no tamanho real parece enorme: o jogo usa 78% dele.
+# As proporções entre os mapas continuam as reais.
+ESCALA_JOGO = 0.78
 PAREDE, CHAO, DESC = 0, 1, 2
+CAIXA = 6        # obstáculo dentro do chão (caixa, pilar): vira parede na grade
 SITIO = {3: 'a', 4: 'b', 5: 'c'}
 
 
@@ -132,6 +136,9 @@ def extrair(nome, ordem_sitios=None, lado=LADO_CELULAS):
     im = np.array(Image.open(os.path.join(ORIG, nome + '.webp')).convert('RGB'))
     cls, tom = classificar(im)
     cls = preencher(cls)
+    # correções à mão: passagens que a etiqueta ou o pino taparam no minimapa
+    for tipo, x0, y0, x1, y1 in CORRECOES.get(nome, []):
+        cls[y0:y1, x0:x1] = CHAO if tipo == 'chao' else PAREDE
     # andável = chão ou bomb; fica só a maior região conectada (sem ilhas do fundo)
     andavel = (cls == CHAO) | (cls == 3)
     andavel = nd.binary_closing(andavel, iterations=1)
@@ -172,7 +179,7 @@ def extrair(nome, ordem_sitios=None, lado=LADO_CELULAS):
         lb, nb = nd.label(m)
         return lb == (1 + int(np.argmax(nd.sum(m, lb, range(1, nb + 1)))))
     antes = chao_c.sum()
-    for lado in (3, 2):
+    for lado in (2,):   # 3×3 fechava corredor estreito depois da escala do jogo
         limpo = limpa(chao_c, lado)
         if limpo.sum() >= 0.93 * antes:   # a limpeza não pode cortar o mapa
             break
@@ -198,6 +205,7 @@ def extrair(nome, ordem_sitios=None, lado=LADO_CELULAS):
     for k, (mx, my, i) in enumerate(manchas[:3]):
         grade[lab == i] = letras[k]
         centros[letras[k]] = (float(mx), float(my))
+    caixas_do_bomb(grade, nome)
     linhas = [''.join(row) for row in grade]
     # marcadores de área (pontinho vermelho dentro de um quadrado) → células de chão
     chao_g = grade != '#'
@@ -223,6 +231,93 @@ def extrair(nome, ordem_sitios=None, lado=LADO_CELULAS):
             continue
         d['areas'].append({'nome': nm or '', 'c': celula(mx, my)})
     return d
+
+
+def caixas_do_bomb(grade, nome):
+    """Bomb de Valorant tem caixas: cobertura para plantar e para segurar.
+    O minimapa com etiquetas não mostra as caixas direito, então cada bomb
+    ganha uma caixa grande (2 m) no ponto mais aberto e até duas menores
+    (1,5 m), longe das paredes (não fecham passagem) e longe uma da outra.
+    Depois confere que o chão continua todo ligado; se não, desfaz."""
+    rnd = np.random.RandomState(sum(map(ord, nome)))
+    chao = grade != '#'
+    for letra in 'abc':
+        sit = grade == letra
+        if sit.sum() < 60:
+            continue
+        colocadas = []
+        for lado, minimo in ((4, 6.0), (3, 5.0), (3, 5.0)):
+            folga = nd.distance_transform_edt(grade != '#')
+            cand = sit & (folga >= minimo)
+            for (cy, cx) in colocadas:
+                yy, xx = np.ogrid[:grade.shape[0], :grade.shape[1]]
+                cand &= (yy - cy) ** 2 + (xx - cx) ** 2 > 12 ** 2
+            ys, xs = np.where(cand)
+            if not len(ys):
+                break
+            # a primeira no mais aberto; as outras sorteadas entre os bons lugares
+            if not colocadas:
+                k = np.argmax(folga[ys, xs])
+            else:
+                bons = np.argsort(-folga[ys, xs])[:max(1, len(ys) // 3)]
+                k = bons[rnd.randint(len(bons))]
+            cy, cx = int(ys[k]), int(xs[k])
+            antes = grade[cy - lado // 2:cy - lado // 2 + lado, cx - lado // 2:cx - lado // 2 + lado].copy()
+            grade[cy - lado // 2:cy - lado // 2 + lado, cx - lado // 2:cx - lado // 2 + lado] = '#'
+            lb, n = nd.label(grade != '#')
+            if n > nd.label(chao)[1]:
+                grade[cy - lado // 2:cy - lado // 2 + lado, cx - lado // 2:cx - lado // 2 + lado] = antes
+                continue
+            colocadas.append((cy, cx))
+
+
+def spawns_pela_referencia(d, r):
+    """Põe os spawns onde o jogo diz (valorant-api): acha a transformação
+    jogo → grade pelos bombs (escala, giro, talvez espelho) e leva os pontos
+    de spawn por ela. Fica com o espelho que cai mais perto dos spawns lidos
+    no minimapa, e encosta cada um no chão mais próximo."""
+    c = d['_centros']
+    L = [k for k in 'abc' if k in c and k in r]
+    if len(L) < 2:
+        return
+    G = np.array([r[k] for k in L], float)          # jogo
+    P = np.array([c[k] for k in L], float)          # grade (células)
+    grade = np.array([list(l) for l in d['grade']])
+    chao = grade != '#'
+    # só o pedaço principal conta, e o spawn vai para o lugar mais aberto por
+    # perto (sala de spawn), não para dentro de um corredor
+    lab, _ = nd.label(chao)
+    chao = lab == np.bincount(lab[chao]).argmax()
+    folga = nd.distance_transform_edt(chao)
+    _, (iy, ix) = nd.distance_transform_edt(~chao, return_indices=True)
+    melhor = None
+    for espelho in (1, -1):
+        g = G * np.array([1, espelho])
+        gc, pc = g.mean(0), P.mean(0)
+        A, B = g - gc, P - pc
+        # semelhança por mínimos quadrados (Umeyama sem reflexão)
+        U, S, Vt = np.linalg.svd(B.T @ A)
+        R = U @ Vt
+        if np.linalg.det(R) < 0:
+            U[:, -1] *= -1; R = U @ Vt
+        esc = S.sum() / (A ** 2).sum()
+        def leva(q):
+            v = esc * (R @ (np.array(q, float) * np.array([1, espelho]) - gc)) + pc
+            x = int(min(d['largura'] - 1, max(0, round(v[0])))); y = int(min(d['altura'] - 1, max(0, round(v[1]))))
+            x, y = int(ix[y, x]), int(iy[y, x])
+            R_ = 14   # ~7 m em volta
+            y0, y1, x0, x1 = max(0, y - R_), y + R_ + 1, max(0, x - R_), x + R_ + 1
+            jan = folga[y0:y1, x0:x1].copy()
+            yy, xx = np.mgrid[y0:y0 + jan.shape[0], x0:x0 + jan.shape[1]]
+            jan[(yy - y) ** 2 + (xx - x) ** 2 > R_ * R_] = 0
+            k = np.unravel_index(np.argmax(jan), jan.shape)
+            return [int(x0 + k[1]), int(y0 + k[0])]
+        novos = {k: leva(r[k]) for k in ('atk', 'def') if k in r}
+        antigos = d.get('spawn') or {}
+        erro = sum(np.hypot(novos[k][0] - antigos[k][0], novos[k][1] - antigos[k][1]) for k in novos if k in antigos)
+        if melhor is None or erro < melhor[0]:
+            melhor = (erro, novos)
+    d['spawn'] = melhor[1]
 
 
 def marcadores(im):
@@ -259,7 +354,7 @@ def gerar_js(todos):
            '   spawn e areas em [coluna, linha]. */\n')
     corpo = {}
     for d in todos:
-        corpo[d['mapa']] = {k: d[k] for k in ('largura', 'altura', 'celula_m', 'spawn', 'areas') if k in d}
+        corpo[d['mapa']] = {k: d[k] for k in ('largura', 'altura', 'celula_m', 'spawn', 'areas', 'origem', 'escala_ref') if k in d}
         corpo[d['mapa']]['grade'] = [rle(l) for l in d['grade']]
     with open(os.path.join(RAIZ, 'data', 'gameplay', 'mapas.js'), 'w') as f:
         f.write(cab + 'const MAPAS_GAMEPLAY=' + json.dumps(corpo, ensure_ascii=False, separators=(',', ':')) + ';\n')
@@ -276,6 +371,15 @@ def previa(d):
 
 
 TRES_SITIOS = {'haven': 3, 'lotus': 3}
+
+# Passagens que o pino do bomb ou uma etiqueta tapou no minimapa e a extração
+# fechou. (tipo, x0, y0, x1, y1) em pixels do minimapa original. Conferido com
+# tools/mapas/sobrepor.py e com o teste de caminho (spawn → bomb) do gameplay.mjs.
+CORRECOES = {
+    'bind': [('chao', 340, 149, 476, 166)],      # A Tower: spawn da defesa → bomb A
+    'corrode': [('chao', 80, 104, 118, 166)],     # Arco B → bomb B (debaixo do pino)
+    'breeze': [('chao', 343, 140, 373, 180)],     # spawn da defesa → Ponte A → bomb A
+}
 
 # Ordem dos bombs quando a esquerda-para-a-direita do minimapa não bate com a letra.
 ORDEM = {
@@ -331,8 +435,9 @@ if __name__ == '__main__':
         if pares:
             f = np.mean([np.hypot(r[p][0] - r[q][0], r[p][1] - r[q][1]) / 100
                          / (np.hypot(c[p][0] - c[q][0], c[p][1] - c[q][1]) * 0.5) for p, q in pares])
-            d = extrair(n, ORDEM.get(n), lado=round(LADO_CELULAS * f))
+            d = extrair(n, ORDEM.get(n), lado=round(LADO_CELULAS * f * ESCALA_JOGO))
             d['escala_ref'] = round(float(f), 3)
+            spawns_pela_referencia(d, r)
         del d['_centros']
         todos.append(d)
         previa(d)
