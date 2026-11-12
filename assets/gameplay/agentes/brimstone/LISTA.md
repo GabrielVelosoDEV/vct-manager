@@ -10,7 +10,7 @@ com a faixa magenta #FF00FF nos ombros: o jogo troca pela cor do time.
 
 0/10 com imagem.
 
-- [ ] `retrato.png` — retrato (1024×1024)
+- [ ] `retrato.png` — retrato (1024×1024) — opcional: sem ele, o jogo usa a foto de assets/agentes
 - [ ] `parado.png` — boneco parado
 - [ ] `passo1.png` — boneco, passo 1
 - [ ] `passo2.png` — boneco, passo 2

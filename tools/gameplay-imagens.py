@@ -34,6 +34,8 @@ AGENTES = {
     'sentinela': ['sage', 'cypher', 'killjoy', 'chamber', 'deadlock', 'vyse', 'veto'],
 }
 NOME = {'kayo': 'KAY/O'}
+# nome da foto em assets/agentes quando não é o mesmo id
+FOTO = {'kayo': 'kay-o', 'miks': 'mix'}
 QUADROS = ['parado', 'passo1', 'passo2', 'tiro', 'caido']
 ICONES = ['c', 'q', 'e', 'x']
 ARMAS = ['classic', 'ghost', 'sheriff', 'spectre', 'phantom', 'vandal', 'operator']
@@ -182,7 +184,9 @@ def main():
     for papel, nomes in AGENTES.items():
         for ag in nomes:
             pasta = os.path.join(BASE, 'agentes', ag)
-            itens = [(n, DESC_QUADRO[n]) for n in ['retrato'] + QUADROS + ICONES]
+            tem_foto = achar(os.path.join(RAIZ, 'assets', 'agentes'), FOTO.get(ag, ag))
+            itens = [(n, DESC_QUADRO[n] + (' — opcional: sem ele, o jogo usa a foto de assets/agentes'
+                                           if n == 'retrato' and tem_foto else '')) for n in ['retrato'] + QUADROS + ICONES]
             placar.append((f'agentes/{ag}',) + lista(pasta, f'{NOME.get(ag, ag.capitalize())} ({papel})', itens,
                           'O boneco (parado, passo1, passo2, tiro, caido) é visto de cima, virado para a direita,\n'
                           'com a faixa magenta #FF00FF nos ombros: o jogo troca pela cor do time.'))
@@ -191,6 +195,13 @@ def main():
             c = achar(pasta, 'retrato')
             if c:
                 ent['retrato'] = simples(c, f'agentes/{ag}/retrato', 512, cortar_sobra=False)
+            else:
+                # sem retrato próprio: usa a foto do agente que o modo gestão já tem
+                foto = achar(os.path.join(RAIZ, 'assets', 'agentes'), FOTO.get(ag, ag))
+                if foto:
+                    with Image.open(foto) as f:
+                        w, h = f.size
+                    ent['retrato'] = {'src': os.path.relpath(foto, RAIZ).replace(os.sep, '/'), 'w': w, 'h': h}
             for q in QUADROS:
                 c = achar(pasta, q)
                 if c:
