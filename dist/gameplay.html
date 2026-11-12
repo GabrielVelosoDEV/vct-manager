@@ -432,13 +432,13 @@ GP.ARMAS = {
     erro: {base: 0.6, mov: 1.6, rajada: 0.35, max: 4.5, recupera: 0.3}, auto: true, velMult: 1.0},
   phantom: {nome: 'Phantom', tipo: 'rifle', preco: 2900, cadencia: 11, pente: 30, reserva: 60, recarga: 2.5, equipa: 1.0,
     dano: [{ate: 15, v: [156, 39, 33]}, {ate: 30, v: [140, 35, 29]}, {ate: 999, v: [124, 31, 26]}],
-    erro: {base: 0.28, mov: 4.0, rajada: 0.38, max: 5, recupera: 0.4}, auto: true, velMult: 0.95},
+    erro: {base: 0.28, mov: 4.0, rajada: 0.38, max: 5, recupera: 0.4}, auto: true, velMult: 1.0},
   vandal: {nome: 'Vandal', tipo: 'rifle', preco: 2900, cadencia: 9.75, pente: 25, reserva: 50, recarga: 2.5, equipa: 1.0,
     dano: [{ate: 999, v: [160, 40, 34]}],
-    erro: {base: 0.3, mov: 4.4, rajada: 0.48, max: 5.5, recupera: 0.42}, auto: true, velMult: 0.95},
+    erro: {base: 0.3, mov: 4.4, rajada: 0.48, max: 5.5, recupera: 0.42}, auto: true, velMult: 1.0},
   operator: {nome: 'Operator', tipo: 'sniper', preco: 4700, cadencia: 0.6, pente: 5, reserva: 10, recarga: 3.7, equipa: 1.5,
     dano: [{ate: 999, v: [255, 150, 127]}],
-    erro: {base: 3.5, mov: 9, rajada: 0, max: 9, recupera: 1.2, mira: 0.05}, auto: false, velMult: 0.85, luneta: true},
+    erro: {base: 3.5, mov: 9, rajada: 0, max: 9, recupera: 1.2, mira: 0.05}, auto: false, velMult: 0.92, luneta: true},
 };
 GP.ORDEM_ARMAS = ['classic', 'ghost', 'sheriff', 'spectre', 'phantom', 'vandal', 'operator'];
 
@@ -447,10 +447,10 @@ GP.danoArma = function (arma, dist, parte) {
   return faixa.v[parte];
 };
 
-/* Velocidades (m/s) do Valorant, mais ou menos: corrida com faca 6,75;
-   armas pesadas ~5,4. Andar (Shift) é silencioso; agachar é mais lento e
-   mais preciso. */
-GP.VEL = {corre: 5.4, anda: 2.95, agacha: 2.0};
+/* Velocidades (m/s): a corrida do Valorant com faca é 6,75 — aqui vale para
+   todas as armas, porque visto de cima a corrida mais lenta parecia arrastada.
+   Andar (Shift) é silencioso; agachar é mais lento e mais preciso. */
+GP.VEL = {corre: 6.75, anda: 3.6, agacha: 2.4};
 GP.ESCUDOS = {nenhum: 0, leve: 25, pesado: 50};
 
 
@@ -549,7 +549,7 @@ GP.ve = function (J, a, b) {
 /* ---------- erro do próximo tiro (graus) ---------- */
 GP.erroAtual = function (e, t) {
   const A = GP.defArma(e), er = A.erro;
-  const vel = Math.hypot(e.vx, e.vy), frac = Math.min(1, vel / GP.VEL.corre);
+  const vel = Math.hypot(e.vx, e.vy), frac = Math.min(1, vel / 5.4);
   let base = (A.luneta && e.luneta) ? er.mira : er.base;
   /* andando devagar pesa pouco; correndo, tudo */
   let erro = base + er.mov * Math.pow(frac, 1.6) + e.spray;
@@ -591,7 +591,7 @@ GP._aplicarComando = function (J, e, dt) {
   if (!e.bot) e.ang = c.ang;
   /* passos: correndo faz barulho */
   const vel = Math.hypot(e.vx, e.vy);
-  if (e.modo === 'corre' && vel > 3.2 && J.t - e.passoEm > 0.36) {
+  if (e.modo === 'corre' && vel > 4 && J.t - e.passoEm > 0.32) {
     e.passoEm = J.t;
     J.sons.push({x: e.x, y: e.y, t: J.t, dono: e.id, time: e.time, r: GP.ALCANCE_SOM});
   }
@@ -640,7 +640,7 @@ GP._atirar = function (J, e) {
   }
   /* primeiro tiro depois de ver o inimigo: mede a reação de quem atira */
   if (e._viuEm && !e._reagiu) { e.st.reacoes.push(J.t - e._viuEm); e._reagiu = true; }
-  if (Math.hypot(e.vx, e.vy) > 2.6) e.st.tirosCorrendo = (e.st.tirosCorrendo || 0) + 1;
+  if (Math.hypot(e.vx, e.vy) > 3) e.st.tirosCorrendo = (e.st.tirosCorrendo || 0) + 1;
   if (e.spray > Ad.erro.max * 0.6) e.st.tirosAbertos = (e.st.tirosAbertos || 0) + 1;
   J.tiros.push({x0: ox, y0: oy, x1: ox + dx * tAlvo, y1: oy + dy * tAlvo, t: J.t, dono: e.id, time: e.time, acertou: !!alvo});
   J.eventos.push({tipo: 'tiro', t: J.t, dono: e.id, x: e.x, y: e.y});
@@ -1233,7 +1233,8 @@ GP.render = function (R, J, cam, ui) {
 };
 
 GP._agente = function (g, o, cor, alfa) {
-  g.save(); g.translate(o.x, o.y); g.rotate(o.ang);
+  /* o desenho é um pouco maior que o corpo de verdade, para ler de longe */
+  g.save(); g.translate(o.x, o.y); g.rotate(o.ang); g.scale(1.35, 1.35);
   g.globalAlpha = alfa;
   /* sombra, ombros, cabeça e arma */
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0.08, 0.1, o.raio * 1.05, o.raio * 1.05, 0, 0, Math.PI * 2); g.fill();
@@ -1337,7 +1338,7 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>Esc</kbd> pausa</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
           <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve.</p></div>
       </div>
     </div>
@@ -1387,8 +1388,9 @@ GP._ajustarTela = function () {
   R.cv.width = Math.round(w * R.dpr); R.cv.height = Math.round(h * R.dpr);
   R.cv.style.width = w + 'px'; R.cv.style.height = h + 'px';
   R.fog.width = R.cv.width; R.fog.height = R.cv.height;
-  /* a tela mostra ~40 m na largura (menos em tela estreita) */
-  S.metrosLargura = Math.max(26, Math.min(44, 40 * Math.sqrt(w / 1400)));
+  /* a tela mostra ~68 m na largura (menos em tela estreita); a roda do mouse
+     aproxima ou afasta (fica guardado) */
+  S.metrosLargura = Math.max(40, Math.min(84, 68 * Math.sqrt(w / 1400))) * (GP.UI.opc.zoom || 1);
 };
 
 GP._comando = function () {
@@ -1465,7 +1467,7 @@ GP._hud = function () {
     : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
   $gp('#gpVida').innerHTML = `<div class="gp-hp"><b class="num">${Math.ceil(eu.hp)}</b><span>vida</span></div>
     <div class="gp-esc"><b class="num">${Math.ceil(eu.escudo)}</b><span>escudo</span></div>
-    <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 2.6 ? ' · <em>tiro aberto</em>' : ''}</div>`;
+    <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 3 ? ' · <em>tiro aberto</em>' : ''}</div>`;
   $gp('#gpArma').innerHTML = `<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
@@ -1548,6 +1550,12 @@ GP.ligar = function () {
   });
   window.addEventListener('mouseup', e => { if (!GP.S) return; if (e.button === 0) GP.S.ui.botao = false; if (e.button === 2) GP.S.ui.direito = false; });
   cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('wheel', e => {
+    if (!GP.S) return;
+    e.preventDefault();
+    GP.UI.opc.zoom = Math.max(0.65, Math.min(1.5, (GP.UI.opc.zoom || 1) * (e.deltaY > 0 ? 1.08 : 1 / 1.08)));
+    GP._salvarOpc(); GP._ajustarTela();
+  }, {passive: false});
   /* no navegador, Ctrl+W fecha a aba: pergunta antes, no meio da partida */
   window.addEventListener('beforeunload', e => { if (GP.S && !GP.S.J.fim) { e.preventDefault(); e.returnValue = ''; } });
   GP.menu();

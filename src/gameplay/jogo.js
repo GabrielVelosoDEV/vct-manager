@@ -62,7 +62,7 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>Esc</kbd> pausa</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
           <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve.</p></div>
       </div>
     </div>
@@ -112,8 +112,9 @@ GP._ajustarTela = function () {
   R.cv.width = Math.round(w * R.dpr); R.cv.height = Math.round(h * R.dpr);
   R.cv.style.width = w + 'px'; R.cv.style.height = h + 'px';
   R.fog.width = R.cv.width; R.fog.height = R.cv.height;
-  /* a tela mostra ~40 m na largura (menos em tela estreita) */
-  S.metrosLargura = Math.max(26, Math.min(44, 40 * Math.sqrt(w / 1400)));
+  /* a tela mostra ~68 m na largura (menos em tela estreita); a roda do mouse
+     aproxima ou afasta (fica guardado) */
+  S.metrosLargura = Math.max(40, Math.min(84, 68 * Math.sqrt(w / 1400))) * (GP.UI.opc.zoom || 1);
 };
 
 GP._comando = function () {
@@ -190,7 +191,7 @@ GP._hud = function () {
     : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
   $gp('#gpVida').innerHTML = `<div class="gp-hp"><b class="num">${Math.ceil(eu.hp)}</b><span>vida</span></div>
     <div class="gp-esc"><b class="num">${Math.ceil(eu.escudo)}</b><span>escudo</span></div>
-    <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 2.6 ? ' · <em>tiro aberto</em>' : ''}</div>`;
+    <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 3 ? ' · <em>tiro aberto</em>' : ''}</div>`;
   $gp('#gpArma').innerHTML = `<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
@@ -273,6 +274,12 @@ GP.ligar = function () {
   });
   window.addEventListener('mouseup', e => { if (!GP.S) return; if (e.button === 0) GP.S.ui.botao = false; if (e.button === 2) GP.S.ui.direito = false; });
   cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('wheel', e => {
+    if (!GP.S) return;
+    e.preventDefault();
+    GP.UI.opc.zoom = Math.max(0.65, Math.min(1.5, (GP.UI.opc.zoom || 1) * (e.deltaY > 0 ? 1.08 : 1 / 1.08)));
+    GP._salvarOpc(); GP._ajustarTela();
+  }, {passive: false});
   /* no navegador, Ctrl+W fecha a aba: pergunta antes, no meio da partida */
   window.addEventListener('beforeunload', e => { if (GP.S && !GP.S.J.fim) { e.preventDefault(); e.returnValue = ''; } });
   GP.menu();

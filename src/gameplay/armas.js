@@ -25,13 +25,13 @@ GP.ARMAS = {
     erro: {base: 0.6, mov: 1.6, rajada: 0.35, max: 4.5, recupera: 0.3}, auto: true, velMult: 1.0},
   phantom: {nome: 'Phantom', tipo: 'rifle', preco: 2900, cadencia: 11, pente: 30, reserva: 60, recarga: 2.5, equipa: 1.0,
     dano: [{ate: 15, v: [156, 39, 33]}, {ate: 30, v: [140, 35, 29]}, {ate: 999, v: [124, 31, 26]}],
-    erro: {base: 0.28, mov: 4.0, rajada: 0.38, max: 5, recupera: 0.4}, auto: true, velMult: 0.95},
+    erro: {base: 0.28, mov: 4.0, rajada: 0.38, max: 5, recupera: 0.4}, auto: true, velMult: 1.0},
   vandal: {nome: 'Vandal', tipo: 'rifle', preco: 2900, cadencia: 9.75, pente: 25, reserva: 50, recarga: 2.5, equipa: 1.0,
     dano: [{ate: 999, v: [160, 40, 34]}],
-    erro: {base: 0.3, mov: 4.4, rajada: 0.48, max: 5.5, recupera: 0.42}, auto: true, velMult: 0.95},
+    erro: {base: 0.3, mov: 4.4, rajada: 0.48, max: 5.5, recupera: 0.42}, auto: true, velMult: 1.0},
   operator: {nome: 'Operator', tipo: 'sniper', preco: 4700, cadencia: 0.6, pente: 5, reserva: 10, recarga: 3.7, equipa: 1.5,
     dano: [{ate: 999, v: [255, 150, 127]}],
-    erro: {base: 3.5, mov: 9, rajada: 0, max: 9, recupera: 1.2, mira: 0.05}, auto: false, velMult: 0.85, luneta: true},
+    erro: {base: 3.5, mov: 9, rajada: 0, max: 9, recupera: 1.2, mira: 0.05}, auto: false, velMult: 0.92, luneta: true},
 };
 GP.ORDEM_ARMAS = ['classic', 'ghost', 'sheriff', 'spectre', 'phantom', 'vandal', 'operator'];
 
@@ -40,8 +40,8 @@ GP.danoArma = function (arma, dist, parte) {
   return faixa.v[parte];
 };
 
-/* Velocidades (m/s) do Valorant, mais ou menos: corrida com faca 6,75;
-   armas pesadas ~5,4. Andar (Shift) é silencioso; agachar é mais lento e
-   mais preciso. */
-GP.VEL = {corre: 5.4, anda: 2.95, agacha: 2.0};
+/* Velocidades (m/s): a corrida do Valorant com faca é 6,75 — aqui vale para
+   todas as armas, porque visto de cima a corrida mais lenta parecia arrastada.
+   Andar (Shift) é silencioso; agachar é mais lento e mais preciso. */
+GP.VEL = {corre: 6.75, anda: 3.6, agacha: 2.4};
 GP.ESCUDOS = {nenhum: 0, leve: 25, pesado: 50};

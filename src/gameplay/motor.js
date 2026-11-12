@@ -92,7 +92,7 @@ GP.ve = function (J, a, b) {
 /* ---------- erro do próximo tiro (graus) ---------- */
 GP.erroAtual = function (e, t) {
   const A = GP.defArma(e), er = A.erro;
-  const vel = Math.hypot(e.vx, e.vy), frac = Math.min(1, vel / GP.VEL.corre);
+  const vel = Math.hypot(e.vx, e.vy), frac = Math.min(1, vel / 5.4);
   let base = (A.luneta && e.luneta) ? er.mira : er.base;
   /* andando devagar pesa pouco; correndo, tudo */
   let erro = base + er.mov * Math.pow(frac, 1.6) + e.spray;
@@ -134,7 +134,7 @@ GP._aplicarComando = function (J, e, dt) {
   if (!e.bot) e.ang = c.ang;
   /* passos: correndo faz barulho */
   const vel = Math.hypot(e.vx, e.vy);
-  if (e.modo === 'corre' && vel > 3.2 && J.t - e.passoEm > 0.36) {
+  if (e.modo === 'corre' && vel > 4 && J.t - e.passoEm > 0.32) {
     e.passoEm = J.t;
     J.sons.push({x: e.x, y: e.y, t: J.t, dono: e.id, time: e.time, r: GP.ALCANCE_SOM});
   }
@@ -183,7 +183,7 @@ GP._atirar = function (J, e) {
   }
   /* primeiro tiro depois de ver o inimigo: mede a reação de quem atira */
   if (e._viuEm && !e._reagiu) { e.st.reacoes.push(J.t - e._viuEm); e._reagiu = true; }
-  if (Math.hypot(e.vx, e.vy) > 2.6) e.st.tirosCorrendo = (e.st.tirosCorrendo || 0) + 1;
+  if (Math.hypot(e.vx, e.vy) > 3) e.st.tirosCorrendo = (e.st.tirosCorrendo || 0) + 1;
   if (e.spray > Ad.erro.max * 0.6) e.st.tirosAbertos = (e.st.tirosAbertos || 0) + 1;
   J.tiros.push({x0: ox, y0: oy, x1: ox + dx * tAlvo, y1: oy + dy * tAlvo, t: J.t, dono: e.id, time: e.time, acertou: !!alvo});
   J.eventos.push({tipo: 'tiro', t: J.t, dono: e.id, x: e.x, y: e.y});

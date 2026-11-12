@@ -240,7 +240,8 @@ GP.render = function (R, J, cam, ui) {
 };
 
 GP._agente = function (g, o, cor, alfa) {
-  g.save(); g.translate(o.x, o.y); g.rotate(o.ang);
+  /* o desenho é um pouco maior que o corpo de verdade, para ler de longe */
+  g.save(); g.translate(o.x, o.y); g.rotate(o.ang); g.scale(1.35, 1.35);
   g.globalAlpha = alfa;
   /* sombra, ombros, cabeça e arma */
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0.08, 0.1, o.raio * 1.05, o.raio * 1.05, 0, 0, Math.PI * 2); g.fill();
