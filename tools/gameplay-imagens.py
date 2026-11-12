@@ -69,7 +69,9 @@ def _nomes_validos(pasta, nome):
     'ascent_topo_parede'."""
     pref = os.path.basename(pasta).lower()
     base = [nome]
-    if '_' in nome:   # textura: <mapa>_<tipo>
+    if nome.startswith('letra_'):   # marca do bomb: também vale só a letra (A.png)
+        base += [nome[6:]]
+    elif '_' in nome:   # textura: <mapa>_<tipo>
         m, t = nome.split('_', 1)
         base += [m + '_' + a for a in APELIDOS.get(t, [])]
     else:
@@ -101,6 +103,21 @@ def abrir(caminho):
     al = np.where(borda, np.minimum(al, 255 - (verde - 40) * 5).clip(0, 255), al)
     g = np.where(borda | chave, np.minimum(g, np.maximum(r, b)), g)
     a[..., 1], a[..., 3] = g, al
+    # fundo liso de outra cor (cinza escuro, branco…): se a imagem veio sem
+    # transparência e as bordas têm uma cor só, tudo dessa cor ligado à borda some
+    if (al > 250).mean() > 0.98:
+        from scipy import ndimage as nd
+        borda_px = np.concatenate([a[0, :, :3], a[-1, :, :3], a[:, 0, :3], a[:, -1, :3]])
+        cor = np.median(borda_px, axis=0)
+        if np.abs(borda_px - cor).max(axis=1).mean() < 10:
+            dist = np.abs(a[..., :3] - cor).max(axis=2)
+            perto = dist < 14
+            lab, _ = nd.label(perto)
+            toca = np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
+            fundo = np.isin(lab, toca[toca > 0])
+            # borda suave: 1 px em volta ganha meia transparência
+            meio = nd.binary_dilation(fundo, iterations=1) & ~fundo & (dist < 40)
+            a[..., 3] = np.where(fundo, 0, np.where(meio, 128, a[..., 3]))
     return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
 
 
@@ -174,12 +191,34 @@ def fator_do_agente(pasta):
     return ALTURA_PX / im.height
 
 
-def simples(caminho, rel, lado, cortar_sobra=True):
+def simples(caminho, rel, lado, cortar_sobra=True, fiapos=None):
     im = abrir(caminho)
+    if fiapos:
+        im = sem_fiapos(im, fiapos)
     if cortar_sobra:
         im = cortar(im)
     im = reduzir(im, lado)
     return {'src': salvar(im, rel + '.webp'), 'w': im.width, 'h': im.height}
+
+
+def problema_de_recorte(caminho):
+    """Imagem que não dá para usar: objeto minúsculo (sobrou só um pedaço do
+    recorte) ou cortado na borda da imagem."""
+    from scipy import ndimage as nd
+    im = abrir(caminho)
+    a = np.array(im)[..., 3] > 20
+    lab, n = nd.label(a)
+    if not n:
+        return 'vazia (só fundo)'
+    tam = nd.sum(a, lab, range(1, n + 1))
+    k = int(np.argmax(tam)) + 1
+    ys, xs = np.where(lab == k)
+    lado = max(ys.max() - ys.min(), xs.max() - xs.min()) + 1
+    if lado < 45:
+        return f'o objeto tem só {lado} px — parece um pedaço do recorte'
+    if xs.min() == 0 or ys.min() == 0 or xs.max() == im.width - 1 or ys.max() == im.height - 1:
+        return 'o objeto está cortado na borda da imagem'
+    return None
 
 
 def textura(caminho, rel):
@@ -218,6 +257,7 @@ def main():
     man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}}
     placar = []
     estranhos = []
+    refazer = []
 
     def conferir_sobras(pasta, nomes):
         if not os.path.isdir(pasta):
@@ -285,7 +325,13 @@ def main():
         for n, _ in itens:
             c = achar(pasta, n)
             if c:
-                man['decoracao'].setdefault(mp, {})[n] = simples(c, f'decoracao/{mp}/{n}', 256)
+                prob = problema_de_recorte(c)
+                if prob:
+                    refazer.append(f'decoracao/{mp}/{n}: {prob}')
+                    continue
+                # recorte de folha com vários objetos: fica o principal (e quem
+                # tiver tamanho parecido), sem os pedaços do vizinho na borda
+                man['decoracao'].setdefault(mp, {})[n] = simples(c, f'decoracao/{mp}/{n}', 256, fiapos=0.3)
     pasta = os.path.join(BASE, 'marcas')
     itens = list(MARCAS.items())
     placar.append(('marcas',) + lista(pasta, 'Marcas do bomb', itens))
@@ -316,6 +362,10 @@ def main():
         if t:
             print(f'  {nome:22s} {t}/{n}')
     print(f'imagens do modo jogador: {total[0]}/{total[1]} enviadas')
+    if refazer:
+        print('imagens que precisam ser refeitas (ficaram de fora do jogo):')
+        for r in refazer:
+            print('  ', r)
     if estranhos:
         print('arquivos com nome que o jogo não procura (renomeie):')
         for e in estranhos:
