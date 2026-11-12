@@ -12,6 +12,58 @@ GP.PX_M = 20;            /* resolução da tela do mapa: pixels por metro */
 GP._hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 GP._hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
+/* tamanho de uma repetição da textura, em metros */
+GP.TEXTURA_PISO_M = 3.5;
+GP.TEXTURA_PAREDE_M = 3;
+/* texturas com desenho grande (faixas de pedestre, marcas no chão) pedem repetição maior */
+GP.TEXTURA_ESCALA = {split: {piso: 9}};
+/* as duas texturas do mapa, se já chegaram e carregaram */
+GP.texturasDoMapa = function (nome) {
+  const t = GP.manifesto ? GP.manifesto().texturas || {} : {};
+  const a = t[nome + '_piso'], b = t[nome + '_parede'];
+  const ia = a && GP.imagem(a.src), ib = b && GP.imagem(b.src);
+  return ia && ib ? {piso: ia, parede: ib} : null;
+};
+/* Os blocos de parede soltos no meio do chão (as caixas do minimapa) viram
+   objetos de cobertura com imagem: caixa, caixas, contêiner, mureta ou sacos.
+   Só o desenho muda: a colisão e a visão continuam as da grade. */
+GP.coberturas = function (m) {
+  if (m._cob) return m._cob;
+  const {W, H} = m, visto = new Uint8Array(W * H), out = [];
+  for (let i = 0; i < W * H; i++) {
+    if (!m.solido[i] || visto[i]) continue;
+    const fila = [i]; visto[i] = 1; let borda = false, n = 0, x0 = W, x1 = 0, y0 = H, y1 = 0;
+    while (fila.length) {
+      const k = fila.pop(), x = k % W, y = (k / W) | 0; n++;
+      if (x === 0 || y === 0 || x === W - 1 || y === H - 1) borda = true;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      if (n > 400) borda = true;
+      for (const j of [k - 1, k + 1, k - W, k + W]) if (j >= 0 && j < W * H && m.solido[j] && !visto[j] && Math.abs((j % W) - x) <= 1) { visto[j] = 1; fila.push(j); }
+    }
+    if (borda || n < 3 || n > 220) continue;
+    const c = m.cel, w = (x1 - x0 + 1) * c, h = (y1 - y0 + 1) * c;
+    const longo = Math.max(w, h), curto = Math.min(w, h), razao = longo / curto;
+    let tipo = razao >= 1.8 ? (longo >= 5 ? 'conteiner' : curto <= 1.2 ? (GP._hash(x0, y0) < 0.5 ? 'barreira' : 'sacos') : 'caixa2')
+      : (n <= 20 ? 'caixa' : 'caixa2');
+    out.push({tipo, x: x0 * c, y: y0 * c, w, h, deitado: h > w * 1.15});
+  }
+  return (m._cob = out);
+};
+GP._objetosDeCobertura = function (g, m, S) {
+  const ob = GP.manifesto ? GP.manifesto().objetos || {} : {};
+  for (const o of GP.coberturas(m)) {
+    const ent = ob[o.tipo] || ob.caixa; if (!ent) continue;
+    const im = GP.imagem(ent.src); if (!im) continue;
+    const f = 0.12;
+    g.save(); g.translate((o.x + o.w / 2) * S, (o.y + o.h / 2) * S);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect((-o.w / 2 + 0.25) * S, (-o.h / 2 + 0.3) * S, o.w * S, o.h * S);
+    if (o.deitado) g.rotate(Math.PI / 2);
+    const w = (o.deitado ? o.h : o.w) + f, h = (o.deitado ? o.w : o.h) + f;
+    g.drawImage(im, -w / 2 * S, -h / 2 * S, w * S, h * S);
+    g.restore();
+  }
+};
+
 GP.desenharMapa = function (m) {
   const tema = GP.TEMAS[m.nome] || GP.TEMAS.ascent;
   const {W, H} = m, S = GP.PX_M, c = m.cel;
@@ -36,6 +88,12 @@ GP.desenharMapa = function (m) {
   const tela = document.createElement('canvas');
   const TW = tela.width = Math.round(W * c * S), TH = tela.height = Math.round(H * c * S);
   const g = tela.getContext('2d'), img = g.createImageData(TW, TH), d = img.data;
+  /* Com textura do mapa: o piso e o topo da parede vêm das imagens, e por cima
+     vai uma camada nossa com sombra, fundo escuro, tinta do bomb e contornos.
+     A imagem é só desenhada (nunca lida de volta): funciona em file://. */
+  const tx = GP.texturasDoMapa(m.nome);
+  const ov = tx ? g.createImageData(TW, TH) : null, od = ov && ov.data;
+  const mk = tx ? g.createImageData(TW, TH) : null, md = mk && mk.data;
   const kc = 1 / (c * S);
   for (let py = 0; py < TH; py++) for (let px = 0; px < TW; px++) {
     const u = (px + 0.5) * kc, v = (py + 0.5) * kc, wx = (px + 0.5) / S, wy = (py + 0.5) / S;
@@ -47,28 +105,55 @@ GP.desenharMapa = function (m) {
       const n = 0.94 + 0.1 * GP._hash(Math.floor(wx), Math.floor(wy));
       if (dd < 1.25) { r = to[0]; gg = to[1]; b = to[2]; const l = dd < 0.55 ? 1.12 : 1; r *= l; gg *= l; b *= l; }
       else { const t = Math.min(1, (dd - 1.25) / 4); r = (pa[0] * (1 - t) + fu[0] * t) * n; gg = (pa[1] * (1 - t) + fu[1] * t) * n; b = (pa[2] * (1 - t) + fu[2] * t) * n; }
+      if (ov) {
+        md[o + 3] = 255;
+        /* a textura do topo vale na beirada (~1,5 m); mais fundo, escurece até o fundo */
+        const t = Math.max(0, Math.min(1, (dd - 2.2) / 3));
+        if (dd < 0.45) { od[o] = od[o + 1] = od[o + 2] = 255; od[o + 3] = 55; }
+        else { od[o] = fu[0]; od[o + 1] = fu[1]; od[o + 2] = fu[2]; od[o + 3] = Math.round(255 * (0.12 + 0.88 * t)); }
+      }
     } else {
       /* piso em lajotas de 2 m */
-      const tx = Math.floor(wx / 2), ty = Math.floor(wy / 2);
-      const base = (tx + ty) & 1 ? c1 : c2;
-      let k = 0.97 + 0.07 * GP._hash(tx, ty) + 0.025 * (GP._hash(Math.floor(wx * 2), Math.floor(wy * 2)) - 0.5);
-      const jx = wx - tx * 2, jy = wy - ty * 2;
+      const tx2 = Math.floor(wx / 2), ty2 = Math.floor(wy / 2);
+      const base = (tx2 + ty2) & 1 ? c1 : c2;
+      let k = 0.97 + 0.07 * GP._hash(tx2, ty2) + 0.025 * (GP._hash(Math.floor(wx * 2), Math.floor(wy * 2)) - 0.5);
+      const jx = wx - tx2 * 2, jy = wy - ty2 * 2;
       if (jx < 0.07 || jy < 0.07) k *= 0.9;
       /* canto escuro perto da parede e sombra projetada (luz de baixo à direita) */
-      k *= 1 - 0.32 * Math.min(1, s * 2) * Math.min(1, s * 2);
-      k *= 1 - 0.3 * Math.min(1, bil(sol, u - 0.55, v - 0.8));
+      const ao = 0.32 * Math.min(1, s * 2) * Math.min(1, s * 2), sombra = 0.3 * Math.min(1, bil(sol, u - 0.55, v - 0.8));
+      k *= (1 - ao) * (1 - sombra);
       r = base[0] * k; gg = base[1] * k; b = base[2] * k;
+      /* com textura: um véu escuro leve no piso todo, para o boneco destacar */
+      if (ov) { od[o + 3] = Math.round(255 * (1 - (1 - 0.14) * (1 - ao * 1.2) * (1 - sombra * 1.4))); }
       const st = bil(sit, u, v);
       if (st > 0.02) {
         const a = 0.3 * Math.min(1, st * 1.4);
         r = r * (1 - a) + si[0] * a; gg = gg * (1 - a) + si[1] * a; b = b * (1 - a) + si[2] * a;
+        if (ov) { const a0 = od[o + 3] / 255, a2 = a * 0.8, at = a0 + a2 * (1 - a0);
+          od[o] = si[0] * a2 / Math.max(.01, at); od[o + 1] = si[1] * a2 / Math.max(.01, at); od[o + 2] = si[2] * a2 / Math.max(.01, at); od[o + 3] = Math.round(at * 255); }
         /* contorno tracejado da área de planta */
-        if (st > 0.3 && st < 0.7 && ((wx + wy) * 1.6 % 1) < 0.55) { r = si[0]; gg = si[1]; b = si[2]; }
+        if (st > 0.3 && st < 0.7 && ((wx + wy) * 1.6 % 1) < 0.55) {
+          r = si[0]; gg = si[1]; b = si[2];
+          if (ov) { od[o] = si[0]; od[o + 1] = si[1]; od[o + 2] = si[2]; od[o + 3] = 230; }
+        }
       }
     }
     d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255;
   }
-  g.putImageData(img, 0, 0);
+  if (!tx) g.putImageData(img, 0, 0);
+  else {
+    const camada = dados => { const cv = document.createElement('canvas'); cv.width = TW; cv.height = TH; cv.getContext('2d').putImageData(dados, 0, 0); return cv; };
+    const padrao = (im, metros) => { const p = g.createPattern(im, 'repeat'); const k = metros * S / im.width; p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0])); return p; };
+    const esc = GP.TEXTURA_ESCALA[m.nome] || {};
+    g.fillStyle = padrao(tx.piso, esc.piso || GP.TEXTURA_PISO_M); g.fillRect(0, 0, TW, TH);
+    const pa2 = document.createElement('canvas'); pa2.width = TW; pa2.height = TH;
+    const pg = pa2.getContext('2d');
+    pg.fillStyle = padrao(tx.parede, esc.parede || GP.TEXTURA_PAREDE_M); pg.fillRect(0, 0, TW, TH);
+    pg.globalCompositeOperation = 'destination-in'; pg.drawImage(camada(mk), 0, 0);
+    g.drawImage(pa2, 0, 0);
+    g.drawImage(camada(ov), 0, 0);
+  }
+  GP._objetosDeCobertura(g, m, S);
   /* minimapa: uma célula por pixel */
   const mini = document.createElement('canvas'); mini.width = W; mini.height = H;
   const mg = mini.getContext('2d'), mi = mg.createImageData(W, H);
@@ -158,9 +243,12 @@ GP.render = function (R, J, cam, ui) {
     g.beginPath(); g.arc(k.x, k.y, 0.1 + (1 - a) * 0.25, 0, Math.PI * 2); g.fill();
   }
   /* agentes */
+  /* quem está de pé é desenhado de cima para baixo (quem está mais embaixo
+     na tela fica na frente) */
+  const vivos = J.ents.filter(o => o.vivo && (o === eu || o._visivel)).sort((a, b) => a.y - b.y);
   for (const o of J.ents) {
     if (o === eu) continue;
-    if (o.vivo && o._visivel) GP._agente(g, o, '#ff4655', 1, J.t);
+    if (o.vivo && o._visivel) continue;
     else if (o.vivo && o._vistoEm && J.t - o._vistoEm < 1.1) {
       /* último lugar em que você o viu */
       g.globalAlpha = 0.35 * (1 - (J.t - o._vistoEm) / 1.1);
@@ -169,7 +257,8 @@ GP.render = function (R, J, cam, ui) {
       g.globalAlpha = 1;
     } else if (!o.vivo && o._morreuEm && J.t - o._morreuEm < 4 && GP.linhaLivre(J.m, eu.x, eu.y, o.x, o.y)) GP._corpo(g, o, J.t);
   }
-  if (eu.vivo) GP._agente(g, eu, '#18e5b4', 1, J.t); else GP._corpo(g, eu, J.t);
+  if (!eu.vivo) GP._corpo(g, eu, J.t);
+  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', 1, J.t);
 
   /* névoa: escurece o que o cone não vê */
   if (eu.vivo) {
@@ -239,19 +328,37 @@ GP.render = function (R, J, cam, ui) {
   GP._minimapa(R, J);
 };
 
-/* boneco com imagem (se o agente já tem): quadro do momento, faixa na cor do time */
+/* Boneco com imagem (se o agente já tem): em pé, virado para o lado da mira
+   (espelha para a esquerda), pés numa sombra com a cor do time e uma setinha
+   mostrando para onde ele olha. */
 GP._sprite = function (g, o, cor, t, quadro) {
   if (!o.agente) return false;
   const ent = GP.agenteImg(o.agente, quadro) || (quadro !== 'caido' ? GP.agenteImg(o.agente, 'parado') : null);
   if (!ent) return false;
-  const img = GP.quadroTingido(ent, cor);
+  const img = GP.imagem(ent.src);
   if (!img) return false;
-  /* a escala sai do quadro parado: todos os quadros do agente com o mesmo tamanho */
   const ref = GP.agenteImg(o.agente, 'parado') || ent;
-  const k = GP.BONECO_OMBROS_M / Math.min(ref.w, ref.h);
-  g.save(); g.translate(o.x, o.y); g.rotate(o.ang);
-  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0.1, 0.12, 0.5, 0.5, 0, 0, Math.PI * 2); g.fill();
-  g.drawImage(img, -ent.cx * k, -ent.cy * k, ent.w * k, ent.h * k);
+  const k = GP.BONECO_ALTURA_M / ref.h;
+  const esq = Math.cos(o.ang) < 0;
+  const pesY = o.y + (quadro === 'caido' ? 0.25 : GP.BONECO_PES_M);
+  /* sombra e anel do time nos pés */
+  g.save();
+  g.fillStyle = 'rgba(0,0,0,.38)'; g.beginPath(); g.ellipse(o.x, pesY, 0.62, 0.26, 0, 0, Math.PI * 2); g.fill();
+  if (o.vivo) {
+    g.strokeStyle = cor; g.lineWidth = 0.09; g.globalAlpha = 0.9;
+    g.beginPath(); g.ellipse(o.x, pesY, 0.56, 0.22, 0, 0, Math.PI * 2); g.stroke();
+    const ax = o.x + Math.cos(o.ang) * 0.75, ay = pesY + Math.sin(o.ang) * 0.32;
+    g.fillStyle = cor; g.beginPath();
+    g.moveTo(ax + Math.cos(o.ang) * 0.22, ay + Math.sin(o.ang) * 0.1);
+    g.lineTo(ax + Math.cos(o.ang + 2.3) * 0.16, ay + Math.sin(o.ang + 2.3) * 0.08);
+    g.lineTo(ax + Math.cos(o.ang - 2.3) * 0.16, ay + Math.sin(o.ang - 2.3) * 0.08);
+    g.closePath(); g.fill();
+  }
+  g.restore();
+  g.save(); g.translate(o.x, pesY);
+  if (esq) g.scale(-1, 1);
+  if (quadro === 'caido') g.drawImage(img, -ent.cx * k, -ent.py * k, ent.w * k, ent.h * k);
+  else g.drawImage(img, -ent.px * k, -ent.py * k, ent.w * k, ent.h * k);
   g.restore();
   return true;
 };
@@ -272,8 +379,9 @@ GP._agente = function (g, o, cor, alfa, t) {
 /* barra de vida curta para o inimigo */
 GP._vidaInimigo = function (g, o) {
   if (o.time === 'eu' || o.hp >= 100) return;
-  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(o.x - 0.5, o.y - 0.95, 1, 0.12);
-  g.fillStyle = '#ff4655'; g.fillRect(o.x - 0.5, o.y - 0.95, o.hp / 100, 0.12);
+  const y = o.agente && GP.agenteImg(o.agente, 'parado') ? o.y + GP.BONECO_PES_M - GP.BONECO_ALTURA_M - 0.25 : o.y - 0.95;
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(o.x - 0.5, y, 1, 0.12);
+  g.fillStyle = '#ff4655'; g.fillRect(o.x - 0.5, y, o.hp / 100, 0.12);
 };
 GP._corpo = function (g, o, t) {
   if (GP._sprite(g, o, o.time === 'eu' ? '#18e5b4' : '#ff4655', t, 'caido')) return;
@@ -283,7 +391,7 @@ GP._corpo = function (g, o, t) {
 };
 GP._minimapa = function (R, J) {
   const g = R.g, m = J.m, lado = 170 * R.dpr, k = lado / Math.max(m.larguraM, m.alturaM);
-  const x0 = R.cv.width - lado - 14 * R.dpr, y0 = R.cv.height - lado * (m.alturaM / Math.max(m.larguraM, m.alturaM)) - 92 * R.dpr;
+  const x0 = R.cv.width - lado - 14 * R.dpr, y0 = R.cv.height - lado * (m.alturaM / Math.max(m.larguraM, m.alturaM)) - 126 * R.dpr;
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalAlpha = 0.85; g.imageSmoothingEnabled = false;
   g.drawImage(R.arte.mini, x0, y0, m.larguraM * k, m.alturaM * k);

@@ -113,8 +113,21 @@ GP.menu = function () {
 /* ---------- partida ---------- */
 GP.S = null;   /* a sessão em andamento */
 
-GP.comecar = function () {
+/* carrega as imagens do mapa escolhido (texturas e objetos) antes de montar a arte */
+GP._carregarImagensDoMapa = function (mapa) {
+  const man = GP.manifesto(), srcs = [];
+  for (const k of [mapa + '_piso', mapa + '_parede']) if ((man.texturas || {})[k]) srcs.push(man.texturas[k].src);
+  for (const k in (man.objetos || {})) srcs.push(man.objetos[k].src);
+  const esperas = srcs.map(src => new Promise(ok => {
+    const im = GP.imagem(src) || GP.IMG.cache[src];
+    if (!im || (im.complete && im.naturalWidth)) return ok();
+    im.addEventListener('load', ok, {once: true}); im.addEventListener('error', ok, {once: true});
+  }));
+  return Promise.race([Promise.all(esperas), new Promise(ok => setTimeout(ok, 4000))]);
+};
+GP.comecar = async function () {
   const o = GP.UI.opc;
+  await GP._carregarImagensDoMapa(o.mapa);
   for (const id of Object.keys(GP.AGENTES)) GP.precarregarAgente(id);
   for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
   const J = GP.montarDuelo({

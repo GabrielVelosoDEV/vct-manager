@@ -5,8 +5,9 @@ Gerado por `python3 -I tools/gameplay-imagens.py`. Não edite à mão.
 Salve cada imagem nesta pasta com o nome exato da lista. PNG, JPG ou WebP
 servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
-O boneco (parado, passo1, passo2, tiro, caido) é visto de cima, virado para a direita,
-com a faixa magenta #FF00FF nos ombros: o jogo troca pela cor do time.
+O boneco (parado, passo1, passo2, tiro, caido) é em pé, visto de cima e de lado, virado
+para a direita (o jogo espelha quando mira para a esquerda). Vale também o nome com o
+agente na frente (jett_parado.png) e atirando no lugar de tiro.
 
 0/10 com imagem.
 

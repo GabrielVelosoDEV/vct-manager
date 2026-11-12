@@ -10,8 +10,8 @@ Uso: python3 -I tools/gameplay-imagens.py
 2. Prepara o que chegou em assets/gameplay/pronto/ (é isso que o jogo lê):
    - fundo verde #00FF00 vira transparente;
    - corta a sobra transparente e reduz para o tamanho que o jogo usa;
-   - nos quadros do boneco, separa a faixa magenta #FF00FF numa máscara
-     (<quadro>.mascara.webp): o jogo pinta a máscara com a cor do time.
+   - nos quadros do boneco: mesma escala em todos os quadros do agente,
+     sem pedacinhos soltos, e o ponto dos pés marcado (é onde ele pisa).
 3. Grava data/gameplay/imagens.js, o manifesto que o jogo consulta
    (.js e não .json: fetch de JSON é bloqueado em file://).
 
@@ -28,7 +28,7 @@ MANIFESTO = os.path.join(RAIZ, 'data', 'gameplay', 'imagens.js')
 EXTS = ('.png', '.webp', '.jpg', '.jpeg')
 
 AGENTES = {
-    'duelista': ['jett', 'phoenix', 'reyna', 'raze', 'yoru', 'neon', 'iso', 'waylay', 'hush'],
+    'duelista': ['jett', 'phoenix', 'reyna', 'raze', 'yoru', 'neon', 'iso', 'waylay'],
     'iniciador': ['sova', 'breach', 'skye', 'kayo', 'fade', 'gekko', 'tejo'],
     'controlador': ['brimstone', 'viper', 'omen', 'astra', 'harbor', 'clove', 'miks'],
     'sentinela': ['sage', 'cypher', 'killjoy', 'chamber', 'deadlock', 'vyse', 'veto'],
@@ -50,13 +50,32 @@ DESC_QUADRO = {'retrato': 'retrato (1024×1024)', 'parado': 'boneco parado', 'pa
 
 
 # ---------- leitura e limpeza ----------
+# outros nomes que valem para o mesmo arquivo (o envio nem sempre segue a lista)
+APELIDOS = {'tiro': ['atirando'], 'parado': ['parada'], 'caido': ['caida'], 'retrato': ['perfil'],
+            'parede': ['topo_parede', 'topo-parede', 'topo']}
+
+
+def _nomes_validos(pasta, nome):
+    """'parado' também casa com 'jett_parado', 'parada'; 'ascent_parede' com
+    'ascent_topo_parede'."""
+    pref = os.path.basename(pasta).lower()
+    base = [nome]
+    if '_' in nome:   # textura: <mapa>_<tipo>
+        m, t = nome.split('_', 1)
+        base += [m + '_' + a for a in APELIDOS.get(t, [])]
+    else:
+        base += APELIDOS.get(nome, [])
+    return set(base) | {pref + '_' + n for n in base} | {pref + '-' + n for n in base}
+
+
 def achar(pasta, nome):
     """O arquivo enviado com esse nome (qualquer extensão, qualquer caixa)."""
     if not os.path.isdir(pasta):
         return None
+    ok = _nomes_validos(pasta, nome)
     for f in sorted(os.listdir(pasta)):
         b, ext = os.path.splitext(f)
-        if ext.lower() in EXTS and b.lower() == nome:
+        if ext.lower() in EXTS and b.lower().replace(' ', '_') in ok:
             return os.path.join(pasta, f)
     return None
 
@@ -100,31 +119,50 @@ def salvar(im, rel, qualidade=88):
     return 'assets/gameplay/pronto/' + rel.replace(os.sep, '/')
 
 
-def quadro_boneco(caminho, rel):
-    """Boneco visto de cima: corta, reduz, separa a faixa magenta numa máscara
-    e acha o centro do corpo (o centro de massa do que não é transparente)."""
-    # reduz a imagem inteira antes de cortar: todos os quadros do agente ficam
-    # na mesma escala (o boneco não "pulsa" de tamanho ao andar)
-    im = cortar(reduzir(abrir(caminho), 256))
-    a = np.array(im).astype(np.int16)
-    r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
-    mag = (r > 150) & (b > 150) & (g < 110) & (np.abs(r - b) < 90) & (al > 0)
-    base = a.copy()
-    # a faixa vira um cinza claro com o mesmo sombreado; a cor vem da máscara
-    lum = ((r + b) / 2).clip(0, 255)
-    for i in range(3):
-        base[..., i] = np.where(mag, lum * 0.85, base[..., i])
-    masc = np.zeros_like(a)
-    masc[..., 0] = masc[..., 1] = masc[..., 2] = 255
-    masc[..., 3] = np.where(mag, (lum / 255 * al).clip(0, 255), 0)
-    ys, xs = np.where(al > 60)
-    w = al[ys, xs].astype(float)
-    cx, cy = float((xs * w).sum() / w.sum()), float((ys * w).sum() / w.sum())
-    src = salvar(Image.fromarray(base.astype(np.uint8), 'RGBA'), rel + '.webp')
-    out = {'src': src, 'w': im.width, 'h': im.height, 'cx': round(cx, 1), 'cy': round(cy, 1)}
-    if mag.sum() > 30:
-        out['mascara'] = salvar(Image.fromarray(masc.astype(np.uint8), 'RGBA'), rel + '.mascara.webp')
-    return out
+def sem_fiapos(im, minimo=0.03):
+    """Tira pedacinhos soltos (restos do recorte), mantendo as partes grandes —
+    a arma caída ao lado do corpo, por exemplo."""
+    from scipy import ndimage as nd
+    a = np.array(im)
+    lab, n = nd.label(a[..., 3] > 20)
+    if n <= 1:
+        return im
+    tam = nd.sum(np.ones_like(lab), lab, range(1, n + 1))
+    manter = [i + 1 for i, t in enumerate(tam) if t >= minimo * tam.max()]
+    fora = ~np.isin(lab, manter) & (lab > 0)
+    a[..., 3] = np.where(fora, 0, a[..., 3])
+    return Image.fromarray(a, 'RGBA')
+
+
+ALTURA_PX = 200   # altura do quadro "parado" depois de preparado
+
+
+def quadro_boneco(caminho, rel, fator):
+    """Boneco em pé (vista de cima inclinada): todos os quadros do agente com o
+    mesmo fator de escala (vem do quadro parado), sem fiapos, e com o ponto
+    dos pés (px, py): é ali que o boneco pisa no mapa."""
+    # em pé, o boneco é uma peça só; caído, a arma solta ao lado também conta
+    im = cortar(sem_fiapos(abrir(caminho), 0.08 if rel.endswith('caido') else 0.5), folga=2)
+    im = im.resize((max(1, round(im.width * fator)), max(1, round(im.height * fator))), Image.LANCZOS)
+    al = np.array(im)[..., 3].astype(float)
+    linhas = np.where(al.max(axis=1) > 60)[0]
+    y_pe = int(linhas.max()) if len(linhas) else im.height - 1
+    faixa = al[max(0, y_pe - max(4, im.height // 7)):y_pe + 1]
+    xs = np.arange(im.width)
+    peso = faixa.sum(axis=0)
+    px = float((xs * peso).sum() / peso.sum()) if peso.sum() else im.width / 2
+    tot = al.sum(axis=0)
+    cx = float((xs * tot).sum() / tot.sum()) if tot.sum() else im.width / 2
+    return {'src': salvar(im, rel + '.webp'), 'w': im.width, 'h': im.height,
+            'px': round(px, 1), 'py': y_pe, 'cx': round(cx, 1)}
+
+
+def fator_do_agente(pasta):
+    c = achar(pasta, 'parado')
+    if not c:
+        return None
+    im = cortar(sem_fiapos(abrir(c), 0.5), folga=2)
+    return ALTURA_PX / im.height
 
 
 def simples(caminho, rel, lado, cortar_sobra=True):
@@ -175,10 +213,11 @@ def main():
     def conferir_sobras(pasta, nomes):
         if not os.path.isdir(pasta):
             return
+        usados = {achar(pasta, n) for n in nomes}
         for f in os.listdir(pasta):
-            b, ext = os.path.splitext(f)
-            if ext.lower() in EXTS and b.lower() not in nomes:
-                estranhos.append(os.path.relpath(os.path.join(pasta, f), RAIZ))
+            c = os.path.join(pasta, f)
+            if os.path.splitext(f)[1].lower() in EXTS and c not in usados:
+                estranhos.append(os.path.relpath(c, RAIZ))
 
     # agentes
     for papel, nomes in AGENTES.items():
@@ -188,8 +227,9 @@ def main():
             itens = [(n, DESC_QUADRO[n] + (' — opcional: sem ele, o jogo usa a foto de assets/agentes'
                                            if n == 'retrato' and tem_foto else '')) for n in ['retrato'] + QUADROS + ICONES]
             placar.append((f'agentes/{ag}',) + lista(pasta, f'{NOME.get(ag, ag.capitalize())} ({papel})', itens,
-                          'O boneco (parado, passo1, passo2, tiro, caido) é visto de cima, virado para a direita,\n'
-                          'com a faixa magenta #FF00FF nos ombros: o jogo troca pela cor do time.'))
+                          'O boneco (parado, passo1, passo2, tiro, caido) é em pé, visto de cima e de lado, virado\n'
+                          'para a direita (o jogo espelha quando mira para a esquerda). Vale também o nome com o\n'
+                          'agente na frente (jett_parado.png) e atirando no lugar de tiro.'))
             conferir_sobras(pasta, {n for n, _ in itens})
             ent = {}
             c = achar(pasta, 'retrato')
@@ -202,10 +242,11 @@ def main():
                     with Image.open(foto) as f:
                         w, h = f.size
                     ent['retrato'] = {'src': os.path.relpath(foto, RAIZ).replace(os.sep, '/'), 'w': w, 'h': h}
+            fator = fator_do_agente(pasta)
             for q in QUADROS:
                 c = achar(pasta, q)
-                if c:
-                    ent[q] = quadro_boneco(c, f'agentes/{ag}/{q}')
+                if c and fator:
+                    ent[q] = quadro_boneco(c, f'agentes/{ag}/{q}', fator)
             for k in ICONES:
                 c = achar(pasta, k)
                 if c:
@@ -240,7 +281,7 @@ def main():
     with open(MANIFESTO, 'w') as f:
         f.write('/* GERADO por tools/gameplay-imagens.py — não editar à mão.\n'
                 '   O que já chegou de imagem para o modo jogador, já preparado em\n'
-                '   assets/gameplay/pronto/. Boneco: w/h em px, cx/cy = centro do corpo. */\n')
+                '   assets/gameplay/pronto/. Boneco: w/h em px, px/py = os pés, cx = centro. */\n')
         f.write('const IMAGENS_GAMEPLAY=' + json.dumps(man, ensure_ascii=False, separators=(',', ':')) + ';\n')
 
     total = sum(t for _, t, _ in placar), sum(n for _, _, n in placar)
