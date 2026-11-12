@@ -12,8 +12,8 @@ GP.NIVEIS = {
 };
 GP.ATRIB_ROTULO = {mira: 'Mira', reflexo: 'Reflexo', movimento: 'Movimento', visao: 'Visão', clutch: 'Controle (clutch)', consistencia: 'Consistência'};
 GP.ATRIB_EFEITO = {
-  mira: 'erro do tiro', reflexo: 'a mão firma mais rápido quando o inimigo aparece', movimento: 'velocidade e parada',
-  visao: 'abertura do cone', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
+  mira: 'erro do tiro', reflexo: 'a mão treme menos quando o inimigo aparece', movimento: 'velocidade e parada',
+  visao: 'só no bot: percebe rápido quem surge pelo lado', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
 
 GP.UI = {
   opc: {mapa: 'ascent', modo: 'duelo', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
@@ -89,7 +89,7 @@ GP.menu = function () {
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
           <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
-          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve.</p></div>
+          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve. A parede esconde: o resto do mapa você vê inteiro.</p></div>
       </div>
     </div>
     <div class="gp-acoes"><button class="gp-jogar" id="gpJogar">Jogar</button></div>
@@ -158,7 +158,7 @@ GP._ajustarTela = function () {
   R.fog.width = R.cv.width; R.fog.height = R.cv.height;
   /* a tela mostra ~68 m na largura (menos em tela estreita); a roda do mouse
      aproxima ou afasta (fica guardado) */
-  S.metrosLargura = Math.max(40, Math.min(84, 68 * Math.sqrt(w / 1400))) * (GP.UI.opc.zoom || 1);
+  S.metrosLargura = Math.max(36, Math.min(76, 56 * Math.sqrt(w / 1400))) * (GP.UI.opc.zoom || 1);
 };
 
 GP._comando = function () {
@@ -204,7 +204,6 @@ GP._quadro = function (agora) {
   }
   const tx = eu.x + ox, ty = eu.y + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
-  S.ui.poligono = GP.poligonoVisao(J, eu, GP.ALCANCE_VISTA * (eu.luneta ? 1.4 : 1));
   GP.render(R, J, S.cam, S.ui);
   GP._lerEventos();
   if (agora - S.hudEm > 66) { S.hudEm = agora; GP._hud(); }

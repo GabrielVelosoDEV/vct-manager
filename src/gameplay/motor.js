@@ -9,7 +9,7 @@
      mira        → erro do tiro (e o erro de mira do bot)
      reflexo     → tempo de reação do bot e a velocidade de virar
      movimento   → velocidade e o quanto para rápido (contra-strafe)
-     visao       → abertura do cone de visão (90° a 120°)
+     visao       → o bot percebe mais rápido quem surge pelo lado ou por trás
      clutch      → controle da rajada
      consistencia→ o quanto o bot oscila de um duelo para outro
    ============================================================ */
@@ -28,14 +28,16 @@ GP.parametros = function (a) {
   const vis = GP._q(a.visao), clu = GP._q(a.clutch), con = GP._q(a.consistencia);
   return {
     erroMult: 1.3 - 0.55 * mira,
-    reacao: 0.33 - 0.23 * ref,
+    reacao: 0.46 - 0.26 * ref,             /* bot: do inimigo aparecer ao 1º tiro (s) */
     giro: 260 + 700 * ref,                 /* graus/s que o bot consegue virar */
     velMult: 0.96 + 0.08 * mov,
     acel: 26 + 26 * mov,                   /* m/s² para parar ou arrancar */
-    fov: 90 + 30 * vis,
+    fov: 360,                              /* sem cone: todo mundo enxerga em volta */
+    periferia: 0.28 - 0.22 * vis,          /* bot: atraso extra se o alvo surge fora da frente dele */
     rajadaMult: 1.25 - 0.5 * clu,
-    erroMira: 0.55 - 0.4 * mira,           /* bot: erro inicial (m) ao achar o alvo */
-    ajuste: 0.55 - 0.35 * mira,            /* bot: tempo para corrigir a mira (s) */
+    erroMira: 0.8 - 0.45 * mira,           /* bot: erro inicial (m) ao achar o alvo */
+    erroPiso: 0.07 + 0.16 * (1 - mira),    /* bot: tremida que nunca some (menos tiro na cabeça) */
+    ajuste: 0.75 - 0.4 * mira,             /* bot: tempo para corrigir a mira (s) */
     disciplina: 0.35 + 0.6 * clu,          /* bot: quanto segura a rajada */
     contraStrafe: 0.35 + 0.6 * mov,        /* bot: chance de parar antes de atirar */
     variacao: 0.35 - 0.3 * con,
@@ -75,14 +77,13 @@ GP.novoJogo = function (o) {
 };
 
 /* ---------- visão ----------
-   a enxerga b: dentro do alcance, com linha livre, e dentro do cone
-   (ou colado, a menos de 2,5 m: dá para sentir quem está do lado) */
+   a enxerga b: dentro do alcance e com linha livre, para qualquer lado
+   (sem cone de visão: o mapa é todo visível e a parede é que esconde) */
 GP.angDif = (a, b) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; return d; };
 GP.ve = function (J, a, b) {
   if (!a.vivo || !b.vivo) return false;
   const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
   if (d > GP.ALCANCE_VISTA * (a.luneta ? 1.4 : 1)) return false;
-  if (d > 2.5 && Math.abs(GP.angDif(a.ang, Math.atan2(dy, dx))) > (a.p.fov / 2) * Math.PI / 180) return false;
   /* linha livre até o centro ou até uma das bordas do corpo */
   if (GP.linhaLivre(J.m, a.x, a.y, b.x, b.y)) return true;
   const px = -dy / d * b.raio * 0.9, py = dx / d * b.raio * 0.9;
@@ -99,7 +100,7 @@ GP.erroAtual = function (e, t) {
   if (e.modo === 'agacha' && vel < 0.5) erro *= 0.82;
   /* susto: logo que um inimigo aparece, a mão ainda não firmou — passa no
      tempo de reação do atributo (reflexo alto = firma quase na hora) */
-  if (e._susto && t != null && t < e._susto.ini + e._susto.dur) erro += 2.6 * (1 - (t - e._susto.ini) / e._susto.dur);
+  if (e._susto && t != null && t < e._susto.ini + e._susto.dur) erro += e._susto.forca * (1 - (t - e._susto.ini) / e._susto.dur);
   return erro * e.p.erroMult;
 };
 
@@ -238,7 +239,9 @@ GP.iaPensar = function (J, e, dt) {
     if (novo) {
       /* achou agora: reação + erro de mira inicial (maior longe e se o alvo corre) */
       const var_ = 1 + GP._gauss(rnd) * p.variacao;
-      ia.reacaoAte = J.t + Math.max(0.06, p.reacao * var_ * (0.9 + 0.2 * rnd()));
+      /* aparecer pelas costas ou pelo lado demora mais para perceber */
+      const fora = Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) > 0.6;
+      ia.reacaoAte = J.t + Math.max(0.12, p.reacao * var_ * (0.9 + 0.2 * rnd())) + (fora ? p.periferia : 0);
       const mag = p.erroMira * (0.6 + dAlvo / 30) * Math.max(0.5, var_);
       const a = rnd() * Math.PI * 2;
       ia.errX = Math.cos(a) * mag; ia.errY = Math.sin(a) * mag;
@@ -263,7 +266,8 @@ GP.iaPensar = function (J, e, dt) {
     ia.errX *= k; ia.errY *= k;
     /* alvo andando pesa: o bot mira um pouco atrás */
     const lead = 0.12 * (1 - GP._q(e.atrib.mira));
-    const ax = alvo.x - alvo.vx * lead + ia.errX, ay = alvo.y - alvo.vy * lead + ia.errY;
+    const sem = (e.id.length * 1.7) % 6.28, tr = p.erroPiso;
+    const ax = alvo.x - alvo.vx * lead + ia.errX + Math.cos(J.t * 5.3 + sem) * tr, ay = alvo.y - alvo.vy * lead + ia.errY + Math.sin(J.t * 4.1 + sem * 2) * tr;
     GP._virarPara(e, Math.atan2(ay - e.y, ax - e.x), p.giro, dt);
     const mira = Math.abs(GP.angDif(e.ang, Math.atan2(ay - e.y, ax - e.x)));
     const podeAtirar = J.t >= ia.reacaoAte && mira < 0.12;
@@ -472,7 +476,7 @@ GP.atualizarVisaoDoJogador = function (J) {
     o._visivel = GP.ve(J, eu, o);
     if (o._visivel) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
   }
-  if (viu && !eu._viuEm) { eu._viuEm = J.t; eu._reagiu = false; eu._susto = {ini: J.t, dur: eu.p.reacao * 1.3}; }
+  if (viu && !eu._viuEm) { eu._viuEm = J.t; eu._reagiu = false; eu._susto = {ini: J.t, dur: 0.25, forca: 1.6 * (1 - GP._q(eu.atrib.reflexo))}; }
   if (!viu && eu._viuEm && J.t - eu._viuEm > 1.5) eu._viuEm = 0;
 };
 

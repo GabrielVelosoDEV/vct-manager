@@ -7,11 +7,13 @@
    ============================================================ */
 var GP = (typeof GP !== 'undefined' && GP) || {};
 
-GP.PX_M = 20;            /* resolução da tela do mapa: pixels por metro */
+GP.PX_M = 16;            /* resolução da tela do mapa: pixels por metro */
 
 GP._hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 GP._hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
+/* altura aparente da face das paredes (o lado que se vê de frente) */
+GP.PAREDE_FACE_M = 1.1;
 /* tamanho de uma repetição da textura, em metros */
 GP.TEXTURA_PISO_M = 3.5;
 GP.TEXTURA_PAREDE_M = 3;
@@ -40,11 +42,13 @@ GP.coberturas = function (m) {
       if (n > 400) borda = true;
       for (const j of [k - 1, k + 1, k - W, k + W]) if (j >= 0 && j < W * H && m.solido[j] && !visto[j] && Math.abs((j % W) - x) <= 1) { visto[j] = 1; fila.push(j); }
     }
-    if (borda || n < 3 || n > 220) continue;
+    if (borda || n < 3) continue;
     const c = m.cel, w = (x1 - x0 + 1) * c, h = (y1 - y0 + 1) * c;
     const longo = Math.max(w, h), curto = Math.min(w, h), razao = longo / curto;
-    let tipo = razao >= 1.8 ? (longo >= 5 ? 'conteiner' : curto <= 1.2 ? (GP._hash(x0, y0) < 0.5 ? 'barreira' : 'sacos') : 'caixa2')
-      : (n <= 20 ? 'caixa' : 'caixa2');
+    /* só o que tem tamanho e forma de caixa (até ~3 m, quase quadrado e
+       cheio); o resto é parede de verdade e fica com a cara de parede */
+    if (longo > 3.2 || razao > 1.6 || n < 0.7 * (x1 - x0 + 1) * (y1 - y0 + 1)) continue;
+    const tipo = razao > 1.3 ? 'caixa2' : 'caixa';
     out.push({tipo, x: x0 * c, y: y0 * c, w, h, deitado: h > w * 1.15});
   }
   return (m._cob = out);
@@ -95,36 +99,49 @@ GP.desenharMapa = function (m) {
   const ov = tx ? g.createImageData(TW, TH) : null, od = ov && ov.data;
   const mk = tx ? g.createImageData(TW, TH) : null, md = mk && mk.data;
   const kc = 1 / (c * S);
+  /* A parede tem altura: vista de cima e um pouco de frente, cada parede
+     mostra a FACE (o lado virado para baixo da tela, PAREDE_FACE_M de altura
+     aparente) e o TOPO escuro; longe do piso vira o vazio. Tudo dentro da
+     célula de parede: o desenho não invade o chão em que se anda. */
+  const F = GP.PAREDE_FACE_M / c;            /* altura da face, em células */
+  const topoCor = pa.map(v => v * 0.55), vazio = fu.map(v => v * 0.6);
   for (let py = 0; py < TH; py++) for (let px = 0; px < TW; px++) {
     const u = (px + 0.5) * kc, v = (py + 0.5) * kc, wx = (px + 0.5) / S, wy = (py + 0.5) / S;
     const s = bil(sol, u, v), o = (py * TW + px) * 4;
     let r, gg, b;
     if (s > 0.5) {
-      /* parede: beirada clara colada no piso, corpo escuro e o fundo */
       const dd = bil(dist, u, v);
-      const n = 0.94 + 0.1 * GP._hash(Math.floor(wx), Math.floor(wy));
-      if (dd < 1.25) { r = to[0]; gg = to[1]; b = to[2]; const l = dd < 0.55 ? 1.12 : 1; r *= l; gg *= l; b *= l; }
-      else { const t = Math.min(1, (dd - 1.25) / 4); r = (pa[0] * (1 - t) + fu[0] * t) * n; gg = (pa[1] * (1 - t) + fu[1] * t) * n; b = (pa[2] * (1 - t) + fu[2] * t) * n; }
-      if (ov) {
-        md[o + 3] = 255;
-        /* a textura do topo vale na beirada (~1,5 m); mais fundo, escurece até o fundo */
-        const t = Math.max(0, Math.min(1, (dd - 2.2) / 3));
-        if (dd < 0.45) { od[o] = od[o + 1] = od[o + 2] = 255; od[o + 3] = 55; }
-        else { od[o] = fu[0]; od[o + 1] = fu[1]; od[o + 2] = fu[2]; od[o + 3] = Math.round(255 * (0.12 + 0.88 * t)); }
+      /* face: tem chão logo abaixo (até F células) */
+      let face = -1;
+      for (let k = 1; k <= 4; k++) if (bil(sol, u, v + F * k / 4) <= 0.5) { face = k / 4; break; }
+      if (face >= 0) {
+        /* face: mais clara embaixo (perto do chão), escurece para cima */
+        const l = 0.42 + 0.38 * face;
+        r = to[0] * l; gg = to[1] * l; b = to[2] * l;
+        if (face <= 0.25) { r *= 0.8; gg *= 0.8; b *= 0.8; }   /* rodapé */
+        if (ov) { md[o + 3] = 255; od[o + 3] = Math.round(255 * (0.62 - 0.5 * face)); }
+      } else if (dd < 0.7) {
+        /* beirada do topo: a quina de cima da parede, clara */
+        r = to[0] * 1.15; gg = to[1] * 1.15; b = to[2] * 1.15;
+        if (ov) { od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = 255; }
+      } else {
+        const t = Math.max(0, Math.min(1, (dd - 1.5) / 5));
+        const n = 0.95 + 0.08 * GP._hash(Math.floor(wx), Math.floor(wy));
+        r = (topoCor[0] * (1 - t) + vazio[0] * t) * n; gg = (topoCor[1] * (1 - t) + vazio[1] * t) * n; b = (topoCor[2] * (1 - t) + vazio[2] * t) * n;
+        if (ov) { od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = 255; }
       }
     } else {
-      /* piso em lajotas de 2 m */
+      /* piso em lajotas de 2 m (sem textura) */
       const tx2 = Math.floor(wx / 2), ty2 = Math.floor(wy / 2);
       const base = (tx2 + ty2) & 1 ? c1 : c2;
       let k = 0.97 + 0.07 * GP._hash(tx2, ty2) + 0.025 * (GP._hash(Math.floor(wx * 2), Math.floor(wy * 2)) - 0.5);
       const jx = wx - tx2 * 2, jy = wy - ty2 * 2;
       if (jx < 0.07 || jy < 0.07) k *= 0.9;
-      /* canto escuro perto da parede e sombra projetada (luz de baixo à direita) */
-      const ao = 0.32 * Math.min(1, s * 2) * Math.min(1, s * 2), sombra = 0.3 * Math.min(1, bil(sol, u - 0.55, v - 0.8));
+      /* canto escuro colado na parede e a sombra que ela joga para baixo */
+      const ao = 0.34 * Math.min(1, s * 2) * Math.min(1, s * 2), sombra = 0.32 * Math.min(1, bil(sol, u - 0.3, v - 1.1));
       k *= (1 - ao) * (1 - sombra);
       r = base[0] * k; gg = base[1] * k; b = base[2] * k;
-      /* com textura: um véu escuro leve no piso todo, para o boneco destacar */
-      if (ov) { od[o + 3] = Math.round(255 * (1 - (1 - 0.14) * (1 - ao * 1.2) * (1 - sombra * 1.4))); }
+      if (ov) { od[o + 3] = Math.round(255 * (1 - (1 - 0.12) * (1 - ao * 1.2) * (1 - sombra * 1.3))); }
       const st = bil(sit, u, v);
       if (st > 0.02) {
         const a = 0.3 * Math.min(1, st * 1.4);
@@ -142,6 +159,8 @@ GP.desenharMapa = function (m) {
   }
   if (!tx) g.putImageData(img, 0, 0);
   else {
+    /* piso: textura do chão; face das paredes: textura de parede; por cima,
+       a nossa camada (topo escuro, vazio, sombras, bomb) */
     const camada = dados => { const cv = document.createElement('canvas'); cv.width = TW; cv.height = TH; cv.getContext('2d').putImageData(dados, 0, 0); return cv; };
     const padrao = (im, metros) => { const p = g.createPattern(im, 'repeat'); const k = metros * S / im.width; p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0])); return p; };
     const esc = GP.TEXTURA_ESCALA[m.nome] || {};
@@ -260,25 +279,6 @@ GP.render = function (R, J, cam, ui) {
   if (!eu.vivo) GP._corpo(g, eu, J.t);
   for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', 1, J.t);
 
-  /* névoa: escurece o que o cone não vê */
-  if (eu.vivo) {
-    const f = R.fog, fg = R.fg;
-    fg.setTransform(1, 0, 0, 1, 0, 0);
-    fg.globalCompositeOperation = 'source-over';
-    fg.clearRect(0, 0, Wc, Hc);
-    fg.fillStyle = 'rgba(4,7,10,.66)'; fg.fillRect(0, 0, Wc, Hc);
-    fg.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
-    fg.globalCompositeOperation = 'destination-out';
-    const pol = ui.poligono;
-    const gr = fg.createRadialGradient(eu.x, eu.y, 1, eu.x, eu.y, GP.ALCANCE_VISTA * (eu.luneta ? 1.4 : 1));
-    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.55, 'rgba(0,0,0,.95)'); gr.addColorStop(1, 'rgba(0,0,0,.6)');
-    fg.fillStyle = gr;
-    fg.beginPath(); fg.moveTo(pol[0][0], pol[0][1]); for (let i = 1; i < pol.length; i++) fg.lineTo(pol[i][0], pol[i][1]); fg.closePath(); fg.fill();
-    fg.fillStyle = 'rgba(0,0,0,.85)'; fg.beginPath(); fg.arc(eu.x, eu.y, 2.5, 0, Math.PI * 2); fg.fill();
-    g.setTransform(1, 0, 0, 1, 0, 0);
-    g.drawImage(f, 0, 0);
-    g.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
-  }
   /* números de dano e marcas de acerto (por cima da névoa) */
   for (const k of J.marcas) if (k.tipo === 'acerto' && (k.de === eu.id || k.em === eu.id)) {
     const a = 1 - (J.t - k.t) / 0.9;

@@ -128,7 +128,7 @@ def resolver_sitios(cls, im):
     return lab, grandes
 
 
-def extrair(nome, ordem_sitios=None):
+def extrair(nome, ordem_sitios=None, lado=LADO_CELULAS):
     im = np.array(Image.open(os.path.join(ORIG, nome + '.webp')).convert('RGB'))
     cls, tom = classificar(im)
     cls = preencher(cls)
@@ -158,7 +158,7 @@ def extrair(nome, ordem_sitios=None):
     principal = principal[y0:y1, x0:x1]
     sitio_px = sitio_px[y0:y1, x0:x1]
     h, w = principal.shape
-    esc = LADO_CELULAS / max(h, w)
+    esc = lado / max(h, w)
     W, H = max(1, round(w * esc)), max(1, round(h * esc))
     # reamostra pela maioria: a célula é chão se mais da metade dos pixels for
     def reamostra(mask):
@@ -194,8 +194,10 @@ def extrair(nome, ordem_sitios=None):
         manchas.sort()
     grade = np.where(chao_c, '.', '#').astype('<U1')
     letras = 'abc'
-    for k, (_, _, i) in enumerate(manchas[:3]):
+    centros = {}
+    for k, (mx, my, i) in enumerate(manchas[:3]):
         grade[lab == i] = letras[k]
+        centros[letras[k]] = (float(mx), float(my))
     linhas = [''.join(row) for row in grade]
     # marcadores de área (pontinho vermelho dentro de um quadrado) → células de chão
     chao_g = grade != '#'
@@ -205,7 +207,7 @@ def extrair(nome, ordem_sitios=None):
         cy = min(H - 1, max(0, int((py - y0) * esc)))
         return [int(gx[cy, cx]), int(gy[cy, cx])]
     marc = marcadores(im)
-    d = {'mapa': nome, 'largura': W, 'altura': H, 'celula_m': 0.5,
+    d = {'mapa': nome, 'largura': W, 'altura': H, 'celula_m': 0.5, '_centros': centros,
          'origem': {'arquivo': nome + '.webp', 'x0': int(x0), 'y0': int(y0), 'escala': esc},
          'grade': linhas}
     lado = im.shape[1]
@@ -319,13 +321,24 @@ if __name__ == '__main__':
     os.makedirs(PREVIA, exist_ok=True)
     nomes = sys.argv[1:] or sorted(f[:-5] for f in os.listdir(ORIG) if f.endswith('.webp'))
     todos = []
+    ref = json.load(open(os.path.join(RAIZ, 'tools', 'mapas', 'referencia.json')))
     for n in nomes:
         d = extrair(n, ORDEM.get(n))
+        # Escala de verdade: a distância entre os bombs no jogo (valorant-api,
+        # em cm) contra a distância na nossa grade. Refaz a grade no tamanho certo.
+        r, c = ref.get(n), d['_centros']
+        pares = [(p, q) for p in 'abc' for q in 'abc' if p < q and p in c and q in c and r and p in r and q in r]
+        if pares:
+            f = np.mean([np.hypot(r[p][0] - r[q][0], r[p][1] - r[q][1]) / 100
+                         / (np.hypot(c[p][0] - c[q][0], c[p][1] - c[q][1]) * 0.5) for p, q in pares])
+            d = extrair(n, ORDEM.get(n), lado=round(LADO_CELULAS * f))
+            d['escala_ref'] = round(float(f), 3)
+        del d['_centros']
         todos.append(d)
         previa(d)
         g = ''.join(d['grade'])
         print(f"{n:9s} {d['largura']}x{d['altura']}  chão {g.count('.')+g.count('a')+g.count('b')+g.count('c'):6d}  "
-              f"A {g.count('a'):4d} B {g.count('b'):4d} C {g.count('c'):4d}  spawn {d.get('spawn')}  áreas {len(d['areas'])}")
+              f"A {g.count('a'):4d} B {g.count('b'):4d} C {g.count('c'):4d}  escala ×{d.get('escala_ref')}  áreas {len(d['areas'])}")
     if not sys.argv[1:]:
         gerar_js(todos)
         print('data/gameplay/mapas.js', os.path.getsize(os.path.join(RAIZ, 'data', 'gameplay', 'mapas.js')) // 1024, 'KB')
