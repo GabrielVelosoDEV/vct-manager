@@ -7,7 +7,7 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima (como o mapa pintado), deitada na horizontal, sem sombra. Prompts no documento, aba "Mecânicas dos mapas".
 
-0/2 com imagem.
+2/2 com imagem.
 
-- [ ] `tirolesa_ponta.png` — ponta/poste da tirolesa
-- [ ] `tirolesa_trecho.png` — trecho de cabo que se repete (faixa 1024×256)
+- [x] `tirolesa_ponta.png` — ponta/poste da tirolesa
+- [x] `tirolesa_trecho.png` — trecho de cabo que se repete (faixa 1024×256)

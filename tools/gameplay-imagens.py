@@ -378,7 +378,20 @@ def main():
             if prob:
                 refazer.append(f'mecanicas/{mp}/{n}: {prob}')
                 continue
-            man['mecanicas'].setdefault(mp, {})[n] = simples(c, f'mecanicas/{mp}/{n}', 512, fiapos=0.3)
+            ent = simples(c, f'mecanicas/{mp}/{n}', 512, fiapos=0.3)
+            if n.endswith('_ponta'):
+                # onde fica o poste (a parte grossa) na imagem: é ele que vai na ponta do cabo
+                al = np.array(Image.open(os.path.join(PRONTO, f'mecanicas/{mp}/{n}.webp')).convert('RGBA'))[..., 3] > 40
+                alt = al.sum(0)
+                grosso = alt > alt.max() * 0.45
+                xs = np.where(grosso)[0]
+                # o pedaço contínuo maior
+                cortes = np.split(xs, np.where(np.diff(xs) > 2)[0] + 1)
+                run = max(cortes, key=len)
+                ys = np.where(al[:, run].any(1))[0]
+                ent.update(ax=round(float(run.mean() / al.shape[1]), 3), ay=round(float(ys.mean() / al.shape[0]), 3),
+                           pw=round(float(len(run) / al.shape[1]), 3))
+            man['mecanicas'].setdefault(mp, {})[n] = ent
     # o mapa pintado inteiro (gerado com a planta de tools/mapas/plantas/): o
     # encaixe no mundo vem do plantas.json — a pintura cobre o quadrado da planta
     pasta = os.path.join(BASE, 'mapas_arte')

@@ -115,6 +115,7 @@ GP.passo = function (J, dt) {
     if (e.bot) GP.iaPensar(J, e, dt);
     GP._aplicarComando(J, e, dt);
   }
+  if (GP.passoMecanicas) GP.passoMecanicas(J, dt);
   /* limpa o que já passou */
   J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
   J.sons = J.sons.filter(s => J.t - s.t < 1.2);
@@ -135,7 +136,7 @@ GP._aplicarComando = function (J, e, dt) {
   const dvx = tx - e.vx, dvy = ty - e.vy, dv = Math.hypot(dvx, dvy);
   const passo = e.p.acel * dt;
   if (dv <= passo) { e.vx = tx; e.vy = ty; } else { e.vx += dvx / dv * passo; e.vy += dvy / dv * passo; }
-  const bat = GP.mover(J.m, e, e.vx * dt, e.vy * dt);
+  const bat = e.viagem ? null : GP.mover(J.m, e, e.vx * dt, e.vy * dt);
   if (bat) {
     /* bateu: tira só a parte da velocidade que vai contra a parede; o resto
        continua (desliza na parede em vez de grudar) */
@@ -185,8 +186,9 @@ GP._atirar = function (J, e) {
   if (Ad.luneta) e.luneta = false;
   /* o tiro sai da frente do corpo */
   const ox = e.x + Math.cos(ang) * 0.3, oy = e.y + Math.sin(ang) * 0.3;
-  const dParede = GP.raio(J.m, ox, oy, ang, 120);
   const dx = Math.cos(ang), dy = Math.sin(ang);
+  let dParede = GP.raio(J.m, ox, oy, ang, 120);
+  if (GP.tiroEmMecanica) dParede = GP.tiroEmMecanica(J, ox, oy, dx, dy, dParede);
   let alvo = null, tAlvo = dParede, pAlvo = 0;
   for (const o of J.ents) {
     if (o === e || !o.vivo || o.time === e.time) continue;
@@ -203,7 +205,11 @@ GP._atirar = function (J, e) {
   J.eventos.push({tipo: 'tiro', t: J.t, dono: e.id, x: e.x, y: e.y});
   /* tiro faz barulho longe */
   J.sons.push({x: e.x, y: e.y, t: J.t, dono: e.id, time: e.time, r: 45, tiro: true});
-  if (!alvo) { J.marcas.push({x: ox + dx * tAlvo, y: oy + dy * tAlvo, t: J.t, tipo: 'parede'}); return; }
+  if (!alvo) {
+    J.marcas.push({x: ox + dx * tAlvo, y: oy + dy * tAlvo, t: J.t, tipo: 'parede'});
+    if (GP.tiroAcertou) GP.tiroAcertou(J, ox + dx * (tAlvo + 0.05), oy + dy * (tAlvo + 0.05), GP.danoArma(Ad, tAlvo, 1));
+    return;
+  }
   const parte = pAlvo < GP.ZONA_CABECA ? 0 : pAlvo < GP.ZONA_CORPO ? 1 : 2;
   const dano = GP.danoArma(Ad, tAlvo, parte);
   GP._dano(J, e, alvo, dano, parte, Ad);
@@ -417,11 +423,15 @@ GP._posicoesDoRound = function (J) {
 GP.novoRound = function (J) {
   J.round.n++;
   J.round.fase = 'pre'; J.round.ate = J.t + (J.round.n === 1 ? 1.5 : 2.2); J.round.vencedor = null;
-  J.tiros = []; J.sons = []; J.marcas = [];
+  J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];
+  if (GP.resetarMecanicas) GP.resetarMecanicas(J.m);
+  for (const e of J.ents) { e.viagem = null; e._tpCarga = 0; e._tpAte = 0; }
   const [pe, pb] = GP._posicoesDoRound(J);
   const pos = (e, p) => {
     const q = GP.navLivre(J.m, p.x, p.y) ? p : (() => { const i = GP._navPerto(J.m, p.x, p.y), n = J.m.nav; return {x: (i % n.W + 0.5) * n.passo, y: (((i / n.W) | 0) + 0.5) * n.passo}; })();
     e.x = q.x; e.y = q.y; e.vx = e.vy = 0;
+    /* nasceu em cima de uma porta (automática conta como livre na navegação): sai dela */
+    if (GP.colide(J.m, e.x, e.y, e.raioCol || GP.RAIO_COLISAO)) GP._empurrar(J.m, e, e.raioCol || GP.RAIO_COLISAO);
   };
   const bots = J.ents.filter(e => e.bot);
   pos(J.eu, pe);

@@ -88,7 +88,7 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>E</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
           <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve. A parede esconde: o resto do mapa você vê inteiro.</p></div>
       </div>
     </div>
@@ -121,6 +121,7 @@ GP._carregarImagensDoMapa = function (mapa) {
   for (const k in ((man.decoracao || {})[mapa] || {})) srcs.push(man.decoracao[mapa][k].src);
   for (const k in (man.marcas || {})) srcs.push(man.marcas[k].src);
   if ((man.mapas_arte || {})[mapa]) srcs.push(man.mapas_arte[mapa].src);
+  for (const k in ((man.mecanicas || {})[mapa] || {})) srcs.push(man.mecanicas[mapa][k].src);
   const esperas = srcs.map(src => new Promise(ok => {
     const im = GP.imagem(src) || GP.IMG.cache[src];
     if (!im || (im.complete && im.naturalWidth)) return ok();
@@ -237,7 +238,7 @@ GP._lerEventos = function () {
     const ev = J.eventos[S.eventosVistos];
     if (ev.tipo === 'morte') {
       const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
-      S.feed.unshift({t: performance.now(), de: de.nome, em: em.nome, arma: ev.arma, cabeca: ev.cabeca, meu: de === J.eu, morri: em === J.eu});
+      S.feed.unshift({t: performance.now(), de: de ? de.nome : 'Mapa', em: em.nome, arma: ev.arma, cabeca: ev.cabeca, meu: de === J.eu, morri: em === J.eu});
       S.feed = S.feed.slice(0, 5);
     }
   }
@@ -331,6 +332,7 @@ GP.ligar = function () {
     GP.S.ui.teclas[e.code] = true;
     const c = GP.S.J.eu.cmd;
     if (e.code === 'KeyR') c.recarregar = true;
+    if (e.code === 'KeyE' && !e.repeat) c.usar = true;
     if (e.code === 'Digit1') c.trocar = 'primaria';
     if (e.code === 'Digit2') c.trocar = 'secundaria';
     if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ControlLeft', 'ShiftLeft', 'Space', 'Tab'].includes(e.code)) e.preventDefault();

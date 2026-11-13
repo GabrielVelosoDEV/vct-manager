@@ -52,6 +52,7 @@ GP.carregarMapa = function (nome) {
     m.sitios[letra] = {x: (s.x / s.n + 0.5) * cel, y: (s.y / s.n + 0.5) * cel, celulas: s.n};
   }
   GP._prepararNav(m);
+  if (GP.montarMecanicas) GP.montarMecanicas(m);
   return m;
 };
 

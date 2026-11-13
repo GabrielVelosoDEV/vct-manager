@@ -388,6 +388,7 @@ GP.render = function (R, J, cam, ui) {
   g.imageSmoothingEnabled = true;
   g.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
 
+  if (GP.desenharMecanicas) GP.desenharMecanicas(g, J);
   /* sons que você ouve (passos e tiros de quem você não vê) */
   for (const s of J.sons) {
     if (s.time === eu.time) continue;
@@ -435,6 +436,7 @@ GP.render = function (R, J, cam, ui) {
   /* atrás da parede: aparece, mas meio apagado (dá para ver, não para acertar) */
   for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
 
+  if (GP.desenharDicaDeUso) GP.desenharDicaDeUso(g, J);
   /* números de dano e marcas de acerto (por cima da névoa) */
   for (const k of J.marcas) if (k.tipo === 'acerto' && (k.de === eu.id || k.em === eu.id)) {
     const a = 1 - (J.t - k.t) / 0.9;

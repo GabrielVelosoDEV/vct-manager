@@ -7,8 +7,8 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima (como o mapa pintado), deitada na horizontal, sem sombra. Prompts no documento, aba "Mecânicas dos mapas".
 
-0/3 com imagem.
+3/3 com imagem.
 
-- [ ] `teleporte_entrada.png` — teleporte: plataforma de entrada (~2,5 m)
-- [ ] `teleporte_saida.png` — teleporte: plataforma de saída
-- [ ] `teleporte_brilho.png` — brilho/flash de quem teleporta
+- [x] `teleporte_entrada.png` — teleporte: plataforma de entrada (~2,5 m)
+- [x] `teleporte_saida.png` — teleporte: plataforma de saída
+- [x] `teleporte_brilho.png` — brilho/flash de quem teleporta

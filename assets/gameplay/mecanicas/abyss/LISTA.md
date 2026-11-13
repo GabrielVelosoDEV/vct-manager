@@ -7,7 +7,7 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima (como o mapa pintado), deitada na horizontal, sem sombra. Prompts no documento, aba "Mecânicas dos mapas".
 
-0/2 com imagem.
+2/2 com imagem.
 
-- [ ] `porta_fechada.png` — porta destrutível, fechada (~4 m)
-- [ ] `porta_quebrada.png` — a mesma porta destruída
+- [x] `porta_fechada.png` — porta destrutível, fechada (~4 m)
+- [x] `porta_quebrada.png` — a mesma porta destruída

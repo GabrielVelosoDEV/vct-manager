@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -45,6 +45,44 @@ for(const nome of nomes){
       if(GP.colide(J.m,e.x,e.y,e.raioCol*0.95)||!isFinite(e.x))dentro++;
     }
     ok(!dentro,nome+': corpo dentro da parede em '+dentro+' quadros');
+  }
+  /* mecânicas: as peças ficam em chão, com porta fechada ainda dá para chegar
+     nos bombs, e cada uma funciona (teleporta, leva na tirolesa, quebra, gira) */
+  if(m.mec&&m.mec.length){
+    const J=GP.montarDuelo({mapa:nome,arma:'vandal',semente:3});const e=J.eu;J.ents=[e];J.round.fase='ativo';
+    const fechar=()=>{for(const p of J.m.mec)if(p.tipo==='porta'&&!p.auto&&p.fecha!=='derruba'){p.estado='fechada';GP._aplicarPorta(J.m,p,null);}};
+    fechar();
+    for(const L of Object.keys(m.sitios)){
+      const a=J.m.spawn.atk,b=J.m.sitios[L];
+      ok(GP.caminho(J.m,a.x,a.y,b.x,b.y),nome+': com as portas fechadas o ataque não chega no bomb '+L);
+    }
+    GP.resetarMecanicas(J.m);
+    const pos=(x,y)=>{e.x=x;e.y=y;e.vx=e.vy=0;e.viagem=null;e.cmd.mx=e.cmd.my=0;};
+    const rodar=s=>{for(let f=0;f<s*120;f++){GP._aplicarComando(J,e,1/120);GP.passoMecanicas(J,1/120);J.t+=1/120;}};
+    for(const p of J.m.mec){
+      if(p.tipo==='teleporte'){
+        pos(p.de[0],p.de[1]);rodar(0.7);
+        ok(Math.hypot(e.x-p.para[0],e.y-p.para[1])<1.2,nome+': '+p.id+' não teleportou');
+        ok(GP.navLivre(J.m,p.para[0],p.para[1])||GP._navPerto(J.m,p.para[0],p.para[1])>=0,nome+': saída do '+p.id+' fora do chão');
+        J.t+=3;
+      }else if(p.tipo==='tirolesa'||p.tipo==='corda'){
+        for(const [q,r] of [[p.a,p.b],[p.b,p.a]]){
+          pos(q[0],q[1]);e.cmd.usar=true;rodar(Math.hypot(r[0]-q[0],r[1]-q[1])/6+0.5);
+          ok(Math.hypot(e.x-r[0],e.y-r[1])<1.5&&!GP.colide(J.m,e.x,e.y,e.raioCol*0.95),nome+': '+p.id+' não levou até a outra ponta');
+        }
+      }else if(p.tipo==='porta'){
+        ok(p.celulas.length>=4,nome+': '+p.id+' não tapa nada ('+p.celulas.length+' células)');
+        if(p.hpMax){p.estado='fechada';GP._aplicarPorta(J.m,p,null);for(let k=0;k<30&&p.estado!=='quebrada';k++)GP.tiroAcertou(J,p.cx,p.cy,40);
+          ok(p.estado==='quebrada',nome+': '+p.id+' não quebra a tiro');}
+        if(p.fecha==='derruba'){for(let k=0;k<10&&p.estado!=='fechada';k++)GP.tiroAcertou(J,p.interruptor[0],p.interruptor[1],40);
+          ok(p.estado==='fechada',nome+': o interruptor do '+p.id+' não derruba o muro');}
+        if(p.giratoria){pos(p.botoes[0][0],p.botoes[0][1]);e.cmd.usar=true;rodar(0.1);
+          ok(p.estado==='aberta',nome+': o botão do '+p.id+' não gira a porta');}
+        if(p.auto){pos(p.cx+Math.sin(p.ang)*2,p.cy-Math.cos(p.ang)*2);rodar(0.2);
+          ok(p.estado==='aberta',nome+': a porta automática '+p.id+' não abre');}
+      }
+    }
+    GP.resetarMecanicas(J.m);
   }
   /* duelo: T1 (o "eu", mas pilotado pela IA) contra Ranked */
   let vEu=0,vEles=0,quadros=0,rounds=0,kd=[0,0];

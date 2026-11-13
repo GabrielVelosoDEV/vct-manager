@@ -7,9 +7,9 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima (como o mapa pintado), deitada na horizontal, sem sombra. Prompts no documento, aba "Mecânicas dos mapas".
 
-0/4 com imagem.
+4/4 com imagem.
 
-- [ ] `porta_fechada.png` — porta automática do Mid Hall, fechada (~4 m)
-- [ ] `porta_aberta.png` — a mesma porta aberta
-- [ ] `corda_ponta.png` — ponta da corda do A (onde se sobe)
-- [ ] `corda_trecho.png` — trecho de corda que se repete (faixa 1024×256)
+- [x] `porta_fechada.png` — porta automática do Mid Hall, fechada (~4 m)
+- [x] `porta_aberta.png` — a mesma porta aberta
+- [x] `corda_ponta.png` — ponta da corda do A (onde se sobe)
+- [x] `corda_trecho.png` — trecho de corda que se repete (faixa 1024×256)
