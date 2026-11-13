@@ -132,6 +132,17 @@ def abrir(caminho):
     al = np.where(borda, np.minimum(al, 255 - (verde - 40) * 5).clip(0, 255), al)
     g = np.where(borda | chave, np.minimum(g, np.maximum(r, b)), g)
     a[..., 1], a[..., 3] = g, al
+    # fundo magenta (agentes de efeito verde): mesma ideia, com o magenta
+    mag = np.minimum(r, b) - g
+    chave_m = (mag > 90) & (r > 150) & (b > 150)
+    if chave_m.mean() > 0.05:
+        borda_m = (mag > 40) & (np.minimum(r, b) > 110) & ~chave_m
+        al = np.where(chave_m, 0, al)
+        al = np.where(borda_m, np.minimum(al, 255 - (mag - 40) * 5).clip(0, 255), al)
+        mx = np.maximum(g, np.minimum(r, b) - 40)
+        a[..., 0] = np.where(borda_m | chave_m, np.minimum(r, mx + 40), r)
+        a[..., 2] = np.where(borda_m | chave_m, np.minimum(b, mx + 40), b)
+        a[..., 3] = al
     # fundo liso de outra cor (cinza escuro, branco…): se a imagem veio sem
     # transparência e as bordas têm uma cor só, tudo dessa cor ligado à borda some
     if (al > 250).mean() > 0.98:
