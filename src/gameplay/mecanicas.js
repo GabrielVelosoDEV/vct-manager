@@ -308,7 +308,7 @@ GP.desenharDicaDeUso = function (g, J) {
   const eu = J.eu, u = GP.usoPerto(J, eu);
   if (!u) return;
   g.save(); g.font = '700 0.55px Inter, sans-serif'; g.textAlign = 'center';
-  const txt = 'E  ' + u.texto, w = g.measureText(txt).width + 0.5;
+  const txt = 'F  ' + u.texto, w = g.measureText(txt).width + 0.5;
   g.fillStyle = 'rgba(10,14,20,.78)'; g.fillRect(eu.x - w / 2, eu.y - 2.3, w, 0.8);
   g.fillStyle = '#eafff9'; g.fillText(txt, eu.x, eu.y - 1.7);
   g.restore();

@@ -389,6 +389,7 @@ GP.render = function (R, J, cam, ui) {
   g.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
 
   if (GP.desenharMecanicas) GP.desenharMecanicas(g, J);
+  if (GP.desenharHabilidades) GP.desenharHabilidades(g, J);
   /* sons que você ouve (passos e tiros de quem você não vê) */
   for (const s of J.sons) {
     if (s.time === eu.time) continue;
@@ -482,6 +483,7 @@ GP.render = function (R, J, cam, ui) {
       g.stroke();
     }
   }
+  if (GP.desenharTelaHab) GP.desenharTelaHab(g, J, Wc, Hc);
   /* minimapa */
   GP._minimapa(R, J);
 };

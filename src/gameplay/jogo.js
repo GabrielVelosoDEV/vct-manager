@@ -88,7 +88,7 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>E</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
           <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve. A parede esconde: o resto do mapa você vê inteiro.</p></div>
       </div>
     </div>
@@ -176,6 +176,7 @@ GP._comando = function () {
     const wx = S.cam.x + (S.ui.mouse.x * R.dpr - R.cv.width / 2) / esc;
     const wy = S.cam.y + (S.ui.mouse.y * R.dpr - R.cv.height / 2) / esc;
     c.ang = Math.atan2(wy - eu.y, wx - eu.x);
+    c.mira = {x: wx, y: wy};
   }
   /* clique rápido (aperta e solta no mesmo quadro) ainda vale um tiro;
      arma automática atira enquanto o botão estiver apertado */
@@ -260,12 +261,18 @@ GP._hud = function () {
   $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
-  if (eu.agente && S.habDe !== eu.agente) {
-    S.habDe = eu.agente;
-    $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
-      const ic = GP.agenteImg(eu.agente, k);
-      return `<div class="gp-hab">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}<kbd>${k.toUpperCase()}</kbd></div>`;
-    }).join('') + '<span class="gp-hab-nota">habilidades na próxima fase</span>';
+  if (eu.agente) {
+    const HH = GP.HABS && GP.HABS[eu.agente];
+    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente;
+    if (S.habDe !== estado) {
+      S.habDe = estado;
+      $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
+        const ic = GP.agenteImg(eu.agente, k), h = HH && HH[k];
+        const n = eu.cargas ? eu.cargas[k] : 0, pode = GP.podeUsar && GP.podeUsar(J, eu, k);
+        const pontos = h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
+        return `<div class="gp-hab ${pode ? 'ok' : ''}" title="${h ? h.nome : ''}">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}${pontos}<kbd>${k.toUpperCase()}</kbd></div>`;
+      }).join('') + (HH ? '' : '<span class="gp-hab-nota">habilidades deste agente na próxima leva</span>');
+    }
   }
   $gp('#gpArea').textContent = [GP.NOME_MAPA[J.m.nome], GP.areaEm(J.m, eu.x, eu.y), GP.sitioEm(J.m, eu.x, eu.y) ? 'bomb ' + GP.sitioEm(J.m, eu.x, eu.y).toUpperCase() : ''].filter(Boolean).join(' · ');
   const agora = performance.now();
@@ -332,7 +339,9 @@ GP.ligar = function () {
     GP.S.ui.teclas[e.code] = true;
     const c = GP.S.J.eu.cmd;
     if (e.code === 'KeyR') c.recarregar = true;
-    if (e.code === 'KeyE' && !e.repeat) c.usar = true;
+    if (e.code === 'KeyF' && !e.repeat) c.usar = true;
+    const tecla = {KeyC: 'c', KeyQ: 'q', KeyE: 'e', KeyX: 'x'}[e.code];
+    if (tecla && !e.repeat) c.hab = tecla;
     if (e.code === 'Digit1') c.trocar = 'primaria';
     if (e.code === 'Digit2') c.trocar = 'secundaria';
     if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ControlLeft', 'ShiftLeft', 'Space', 'Tab'].includes(e.code)) e.preventDefault();

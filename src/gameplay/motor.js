@@ -86,6 +86,7 @@ GP.novoJogo = function (o) {
 GP.angDif = (a, b) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; return d; };
 GP.ve = function (J, a, b) {
   if (!a.vivo || !b.vivo) return false;
+  if (GP.vistaBloqueada && GP.vistaBloqueada(J, a, b)) return false;
   const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
   if (d > GP.ALCANCE_VISTA * (a.luneta ? 1.4 : 1)) return false;
   /* linha livre até o centro ou até uma das bordas do corpo */
@@ -105,6 +106,7 @@ GP.erroAtual = function (e, t) {
   /* susto: logo que um inimigo aparece, a mão ainda não firmou — passa no
      tempo de reação do atributo (reflexo alto = firma quase na hora) */
   if (e._susto && t != null && t < e._susto.ini + e._susto.dur) erro += e._susto.forca * (1 - (t - e._susto.ini) / e._susto.dur);
+  if (GP.erroExtra) erro += GP.erroExtra(e, t || 0);
   return erro * e.p.erroMult;
 };
 
@@ -116,6 +118,7 @@ GP.passo = function (J, dt) {
     GP._aplicarComando(J, e, dt);
   }
   if (GP.passoMecanicas) GP.passoMecanicas(J, dt);
+  if (GP.passoHabilidades) GP.passoHabilidades(J, dt);
   /* limpa o que já passou */
   J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
   J.sons = J.sons.filter(s => J.t - s.t < 1.2);
@@ -130,12 +133,14 @@ GP._aplicarComando = function (J, e, dt) {
   /* velocidade-alvo e aceleração (parar rápido = contra-strafe) */
   let mx = c.mx || 0, my = c.my || 0;
   const n = Math.hypot(mx, my); if (n > 1) { mx /= n; my /= n; }
-  let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult;
+  let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult * (GP.multVel ? GP.multVel(J, e) : 1);
   if (e.luneta) vmax = Math.min(vmax, GP.VEL.anda * 0.8);
   const tx = mx * vmax, ty = my * vmax;
   const dvx = tx - e.vx, dvy = ty - e.vy, dv = Math.hypot(dvx, dvy);
   const passo = e.p.acel * dt;
   if (dv <= passo) { e.vx = tx; e.vy = ty; } else { e.vx += dvx / dv * passo; e.vy += dvy / dv * passo; }
+  const dash = GP.velDash && GP.velDash(J, e);
+  if (dash) { e.vx = dash.vx; e.vy = dash.vy; }
   const bat = e.viagem ? null : GP.mover(J.m, e, e.vx * dt, e.vy * dt);
   if (bat) {
     /* bateu: tira só a parte da velocidade que vai contra a parede; o resto
@@ -169,7 +174,9 @@ GP._aplicarComando = function (J, e, dt) {
     e.recarregaAte = J.t + Ad.recarga; e.luneta = false;
   }
   c.recarregar = false;
-  if (c.atirar && J.t >= e.proxTiro && J.t >= e.equipaAte && !e.recarregaAte && arm.municao > 0 && !e.passivo) {
+  const habArma = GP.atirarHab && e.ef && (e.ef.facas > 0 && e.ef.facasAte > J.t || e.ef.overdrive > J.t);
+  if (c.atirar && J.t >= e.proxTiro && habArma && !e.passivo) { GP.atirarHab(J, e); }
+  else if (c.atirar && J.t >= e.proxTiro && J.t >= e.equipaAte && !e.recarregaAte && arm.municao > 0 && !e.passivo && !(GP.semTiro && GP.semTiro(J, e))) {
     GP._atirar(J, e);
     if (!Ad.auto) c.atirar = false;   /* semi: um clique, um tiro */
   }
@@ -182,6 +189,7 @@ GP._atirar = function (J, e) {
   const erro = GP.erroAtual(e, J.t);
   const ang = e.ang + GP._gauss(J.rnd) * (erro / 2) * Math.PI / 180;
   arm.municao--; e.proxTiro = J.t + 1 / Ad.cadencia; e.ultimoTiro = J.t; e.st.tiros++;
+  if (GP.posTiro) GP.posTiro(J, e);
   e.spray = Math.min(Ad.erro.max, e.spray + Ad.erro.rajada * e.p.rajadaMult);
   if (Ad.luneta) e.luneta = false;
   /* o tiro sai da frente do corpo */
@@ -189,6 +197,7 @@ GP._atirar = function (J, e) {
   const dx = Math.cos(ang), dy = Math.sin(ang);
   let dParede = GP.raio(J.m, ox, oy, ang, 120);
   if (GP.tiroEmMecanica) dParede = GP.tiroEmMecanica(J, ox, oy, dx, dy, dParede);
+  if (GP.tiroEmHab) dParede = GP.tiroEmHab(J, ox, oy, dx, dy, dParede);
   let alvo = null, tAlvo = dParede, pAlvo = 0;
   for (const o of J.ents) {
     if (o === e || !o.vivo || o.time === e.time) continue;
@@ -216,6 +225,8 @@ GP._atirar = function (J, e) {
 };
 
 GP._dano = function (J, de, alvo, dano, parte, Ad) {
+  if (GP.multDano) dano *= GP.multDano(J, alvo);
+  if (dano <= 0) return;
   /* o escudo segura 2/3 do dano enquanto durar */
   const antes = alvo.hp + alvo.escudo;
   const absorve = Math.min(alvo.escudo, dano * 0.66);
@@ -225,6 +236,7 @@ GP._dano = function (J, de, alvo, dano, parte, Ad) {
   de.st.dano += Math.round(Math.min(dano, antes));
   J.marcas.push({x: alvo.x, y: alvo.y, t: J.t, tipo: 'acerto', parte, dano: Math.round(dano), de: de.id, em: alvo.id});
   if (alvo.bot && alvo.ia) { alvo.ia.ouviu = {x: de.x, y: de.y, t: J.t}; }
+  if (alvo.hp <= 0 && GP.antesDeMorrer && GP.antesDeMorrer(J, alvo)) return;
   if (alvo.hp <= 0) {
     alvo.hp = 0; alvo.vivo = false; alvo.st.mortes++; de.st.kills++; alvo._morreuEm = J.t;
     J.eventos.push({tipo: 'morte', t: J.t, de: de.id, em: alvo.id, arma: Ad.nome, cabeca: parte === 0});
@@ -425,6 +437,7 @@ GP.novoRound = function (J) {
   J.round.fase = 'pre'; J.round.ate = J.t + (J.round.n === 1 ? 1.5 : 2.2); J.round.vencedor = null;
   J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];
   if (GP.resetarMecanicas) GP.resetarMecanicas(J.m);
+  if (GP.resetarHabilidades) GP.resetarHabilidades(J);
   for (const e of J.ents) { e.viagem = null; e._tpCarga = 0; e._tpAte = 0; }
   const [pe, pb] = GP._posicoesDoRound(J);
   const pos = (e, p) => {
@@ -500,6 +513,7 @@ GP.atualizarVisaoDoJogador = function (J) {
     o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha);
     if (o._naLinha) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
   }
+  for (const o of J.ents) if (o !== eu && o.ef && o.ef.invis > J.t) { o._visivel = false; o._naLinha = false; viu = viu && J.ents.some(x => x !== eu && x._naLinha); }
   if (viu && !eu._viuEm) { eu._viuEm = J.t; eu._reagiu = false; eu._susto = {ini: J.t, dur: 0.25, forca: 1.6 * (1 - GP._q(eu.atrib.reflexo))}; }
   if (!viu && eu._viuEm && J.t - eu._viuEm > 1.5) eu._viuEm = 0;
 };

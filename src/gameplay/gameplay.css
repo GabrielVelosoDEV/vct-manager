@@ -122,6 +122,9 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
 .gp-hab img{width:30px;height:30px}
 .gp-hab i{width:16px;height:16px;border:2px solid var(--line2);transform:rotate(45deg)}
 .gp-hab kbd{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:9px;padding:0 3px;min-width:0}
+.gp-hab.ok{opacity:1;border-color:var(--teal,#18e5b4)}
+.gp-hab em{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:12px;letter-spacing:1px;color:#eafff9;line-height:1}
+.gp-hab em s{text-decoration:none;opacity:.3}
 .gp-hab-nota{font-size:10px;color:var(--dim);margin-left:6px;align-self:center;max-width:90px;line-height:1.2}
 
 @media (max-width:820px){

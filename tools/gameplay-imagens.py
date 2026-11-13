@@ -167,8 +167,8 @@ def abrir_efeito(caminho):
     else:
         return abrir(caminho)
     # quanto o pixel se afasta do fundo no canal mais diferente: longe = opaco
-    al = (np.abs(a[..., :3] - fundo).max(axis=2) / 190).clip(0, 1)
-    al[al < 0.06] = 0
+    fundo = bg.astype(np.float32)          # a cor de fundo como veio (o verde da IA nunca é puro)
+    al = ((np.abs(a[..., :3] - fundo).max(axis=2) - 24) / 166).clip(0, 1)
     k = 1 - al
     cor = (a[..., :3] - k[..., None] * fundo) / np.maximum(al, 0.05)[..., None]
     out = np.dstack([cor.clip(0, 255), (al * 255).clip(0, 255)]).astype(np.uint8)

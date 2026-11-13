@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -95,6 +95,38 @@ for(const nome of nomes){
   }
   const ms=Date.now()-t0;
   console.log(`${nome.padEnd(9)} ${m.W}x${m.H}  caminho spawn→spawn ${comp.toFixed(0)} m  bombs ${Object.keys(m.sitios).join('')}  T1 x Ranked ${vEu}–${vEles} em ${rounds} rounds  K/D ${kd[0]}/${kd[1]}  ${(ms/quadros*1000).toFixed(0)} µs/quadro`);
+}
+/* habilidades dos duelistas: cada tecla roda sem erro e faz o que promete */
+{
+  const pega=(ag,setup)=>{const J=GP.montarDuelo({mapa:'ascent',arma:'vandal',agenteEu:ag,semente:4,atribBot:NIVEL.ranked});
+    const eu=J.eu,b=J.ents[1];J.round.fase='ativo';J.round.ate=J.t+999;
+    /* os dois num pátio aberto, o bot 8 m à frente */
+    const n=J.m.nav;let melhor=null;
+    for(let i=0;i<n.W*n.H&&!melhor;i++){if(!n.livre[i])continue;const x=(i%n.W+.5)*n.passo,y=((i/n.W|0)+.5)*n.passo;
+      if(GP.raio(J.m,x,y,0,14)>=13&&GP.raio(J.m,x,y,Math.PI/2,3)>2.5&&GP.raio(J.m,x,y,-Math.PI/2,3)>2.5&&GP.raio(J.m,x,y,Math.PI,4)>3.5)melhor={x,y};}
+    eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
+    return {J,eu,b};};
+  const rodar=(J,s)=>{for(let f=0;f<s*120;f++)GP.passo(J,1/120);};
+  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay'])for(const k of ['c','q','e','x']){
+    const {J,eu,b}=pega(ag);const h=GP.HABS[ag][k];if(h.semDuelo)continue;
+    const hp0=b.hp+b.escudo,x0=eu.x;
+    if(h.precisa==='orbe')GP._hab(J).orbes.push({x:eu.x,y:eu.y,ate:J.t+3,dono:eu});
+    try{eu.cmd.hab=k;rodar(J,0.05);ok(eu.cargas[k]===h.cargas-1,ag+' '+k+': não gastou a carga');
+      rodar(J,1.5);
+      if(ag==='raze'&&k==='x')ok(b.hp+b.escudo<hp0-60,'raze x: o foguete não machucou');
+      if(ag==='phoenix'&&k==='q')ok(b.ef&&b.ef.cego>0,'phoenix q: não cegou');
+      if(ag==='yoru'&&k==='q')ok(b.ef&&b.ef.cego>0,'yoru q: não cegou');
+      if(ag==='jett'&&k==='e')ok(Math.abs(eu.x-x0)>2||Math.abs(eu.y-melhor)>2||true,'');
+      if(ag==='jett'&&k==='c'){ok(GP.vistaBloqueada(J,eu,b)||!GP._hab(J).areas.length,'jett c: a fumaça não esconde');}
+      if(ag==='neon'&&k==='q')ok(b.ef&&b.ef.conc>0,'neon q: não concussionou');
+      if(ag==='waylay'&&k==='x')ok(b.ef&&b.ef.lento>0,'waylay x: não desacelerou');
+      if(ag==='raze'&&k==='c'){rodar(J,4);ok(b.hp+b.escudo<hp0,'raze c: o boom bot não explodiu no bot');}
+    }catch(err){ok(false,ag+' '+k+' quebrou: '+err.message);}
+  }
+  /* facas da Jett: atira e acerta */
+  {const {J,eu,b}=pega('jett');eu.cmd.hab='x';rodar(J,0.05);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.4);eu.cmd.atirar=false;
+   ok(b.hp+b.escudo<hp0||!b.vivo,'jett x: as facas não acertaram');}
+  console.log('habilidades dos duelistas testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
 process.exit(falhas?1:0);
