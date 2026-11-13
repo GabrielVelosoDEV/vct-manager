@@ -9,15 +9,15 @@ O boneco (parado, passo1, passo2, tiro, caido) é em pé, visto de cima e de lad
 para a direita (o jogo espelha quando mira para a esquerda). Vale também o nome com o
 agente na frente (jett_parado.png) e atirando no lugar de tiro.
 
-0/10 com imagem.
+9/10 com imagem.
 
 - [ ] `retrato.png` — retrato (1024×1024) — opcional: sem ele, o jogo usa a foto de assets/agentes
-- [ ] `parado.png` — boneco parado
-- [ ] `passo1.png` — boneco, passo 1
-- [ ] `passo2.png` — boneco, passo 2
-- [ ] `tiro.png` — boneco atirando
-- [ ] `caido.png` — boneco caído
-- [ ] `c.png` — ícone da habilidade C
-- [ ] `q.png` — ícone da habilidade Q
-- [ ] `e.png` — ícone da habilidade E
-- [ ] `x.png` — ícone da ultimate (X)
+- [x] `parado.png` — boneco parado
+- [x] `passo1.png` — boneco, passo 1
+- [x] `passo2.png` — boneco, passo 2
+- [x] `tiro.png` — boneco atirando
+- [x] `caido.png` — boneco caído
+- [x] `c.png` — ícone da habilidade C
+- [x] `q.png` — ícone da habilidade Q
+- [x] `e.png` — ícone da habilidade E
+- [x] `x.png` — ícone da ultimate (X)
