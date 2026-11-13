@@ -23,7 +23,28 @@ GP.ALCANCE_SOM = 15;        /* passos correndo se ouvem até aqui */
 GP.ALCANCE_VISTA = 40;       /* o bot só briga com quem cabe na tela de quem joga */
 /* Todo mundo aparece na tela, até atrás da parede (a parede ainda segura o
    tiro e a visão do bot). Habilidades de esconder vão usar o _naLinha. */
-GP.MOSTRAR_TODOS = true;
+GP.MOSTRAR_TODOS = false;
+/* regra da casa: o inimigo só aparece quando faz barulho (para quem ouve) ou
+   quando é revelado por habilidade (para o time todo). Bem perto e na linha
+   de visão também aparece (VISTA_PERTO m; 0 desliga). */
+GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
+GP.VISTA_PERTO = 3;
+GP.ouve = function (J, a, b) {
+  for (let i = J.sons.length - 1; i >= 0; i--) {
+    const s = J.sons[i];
+    if (s.dono !== b.id || J.t - s.t > GP.SOM_MOSTRA) continue;
+    if (Math.hypot(s.x - a.x, s.y - a.y) <= s.r) return true;
+  }
+  return false;
+};
+/* a percebe b no mapa (sem precisar de linha livre) */
+GP.percebe = function (J, a, b) {
+  if (!b.vivo) return false;
+  if (b.time === a.time) return true;
+  if (b.ef && b.ef.revelado > J.t) return true;
+  if (b.ef && b.ef.invis > J.t) return false;
+  return GP.ouve(J, a, b);
+};
 
 GP._q = v => Math.max(0, Math.min(1, ((v == null ? 60 : v) - 40) / 55));
 GP.parametros = function (a) {
@@ -87,6 +108,7 @@ GP.angDif = (a, b) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2
 GP.ve = function (J, a, b) {
   if (!a.vivo || !b.vivo) return false;
   if (GP.vistaBloqueada && GP.vistaBloqueada(J, a, b)) return false;
+  if (!GP.MOSTRAR_TODOS && a.time !== b.time && !GP.percebe(J, a, b) && Math.hypot(b.x - a.x, b.y - a.y) > GP.VISTA_PERTO) return false;
   const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
   if (d > GP.ALCANCE_VISTA * (a.luneta ? 1.4 : 1)) return false;
   /* linha livre até o centro ou até uma das bordas do corpo */
@@ -103,6 +125,8 @@ GP.erroAtual = function (e, t) {
   /* andando devagar pesa pouco; correndo, tudo */
   let erro = base + er.mov * Math.pow(frac, 1.6) + e.spray;
   if (e.modo === 'agacha' && vel < 0.5) erro *= 0.82;
+  /* andando no Shift: silencioso, mas a mira é pior do que parado */
+  if (e.modo === 'anda' && vel > 0.5) erro += er.mov * 0.45;
   /* susto: logo que um inimigo aparece, a mão ainda não firmou — passa no
      tempo de reação do atributo (reflexo alto = firma quase na hora) */
   if (e._susto && t != null && t < e._susto.ini + e._susto.dur) erro += e._susto.forca * (1 - (t - e._susto.ini) / e._susto.dur);
@@ -532,7 +556,7 @@ GP.atualizarVisaoDoJogador = function (J) {
   for (const o of J.ents) {
     if (o === eu) continue;
     o._naLinha = GP.ve(J, eu, o);
-    o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha);
+    o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha || GP.percebe(J, eu, o));
     if (o._naLinha) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
   }
   for (const o of J.ents) if (o !== eu && o.ef && o.ef.invis > J.t) { o._visivel = false; o._naLinha = false; viu = viu && J.ents.some(x => x !== eu && x._naLinha); }

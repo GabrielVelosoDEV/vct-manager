@@ -88,8 +88,8 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
-          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve. A parede esconde: o resto do mapa você vê inteiro.</p></div>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. O inimigo só aparece quando faz barulho (correndo, atirando, usando habilidade) ou quando é revelado. No Shift você não faz barulho, mas anda devagar e mira pior.</p></div>
       </div>
     </div>
     <div class="gp-acoes"><button class="gp-jogar" id="gpJogar">Jogar</button></div>
@@ -264,13 +264,15 @@ GP._hud = function () {
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
   if (eu.agente) {
     const HH = GP.HABS && GP.HABS[eu.agente];
-    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente;
+    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente + (eu.pontosUlt || 0);
     if (S.habDe !== estado) {
       S.habDe = estado;
       $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
         const ic = GP.agenteImg(eu.agente, k), h = HH && HH[k];
         const n = eu.cargas ? eu.cargas[k] : 0, pode = GP.podeUsar && GP.podeUsar(J, eu, k);
-        const pontos = h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
+        const pu = Math.min(GP.PONTOS_ULT || 5, eu.pontosUlt || 0), PU = GP.PONTOS_ULT || 5;
+        const pontos = k === 'x' ? `<em class="gp-ult${pu >= PU ? ' cheia' : ''}">${'<i class="on"></i>'.repeat(pu)}${'<i></i>'.repeat(PU - pu)}</em>`
+          : h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
         return `<div class="gp-hab ${pode ? 'ok' : ''}" title="${h ? h.nome : ''}">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}${pontos}<kbd>${k.toUpperCase()}</kbd></div>`;
       }).join('') + (HH ? '' : '<span class="gp-hab-nota">habilidades deste agente na próxima leva</span>');
     }

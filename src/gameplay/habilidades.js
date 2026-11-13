@@ -14,7 +14,8 @@
    ============================================================ */
 'use strict';
 
-GP.HAB_TESTE = true;      /* laboratório: cargas cheias e ultimate pronta todo round */
+GP.HAB_TESTE = true;      /* laboratório: C, Q e E com cargas cheias todo round */
+GP.PONTOS_ULT = 5;        /* regra da casa: 5 abates liberam a ultimate, para todos */
 
 /* ---------- utilitários ---------- */
 GP._hab = J => J.hab || (J.hab = {proj: [], areas: [], paredes: [], fx: [], orbes: [], robos: [], passos: [], bichos: [], drones: [], objs: [], muros: [], ev: 0});
@@ -269,7 +270,9 @@ GP.resetarHabilidades = function (J) {
     const H = GP.HABS[e.agente];
     e.cargas = {c: 0, q: 0, e: 0, x: 0};
     if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
-    if (!GP.HAB_TESTE) e.cargas.x = 0;
+    /* ultimate: só com 5 abates (os pontos ficam de um round para o outro) */
+    e.pontosUlt = e.pontosUlt || 0;
+    e.cargas.x = H && H.x && H.x.cargas && e.pontosUlt >= GP.PONTOS_ULT ? 1 : 0;
   }
 };
 
@@ -299,6 +302,7 @@ GP.passoHabilidades = function (J, dt) {
     const h = GP.HABS[e.agente][k];
     h.usar(J, e, h.precisa === 'orbe' ? GP._orbePerto(J, e) : null);
     e.cargas[k]--;
+    if (k === 'x') e.pontosUlt = 0;
     J.eventos.push({tipo: 'habilidade', t, dono: e.id, tecla: k, nome: h.nome});
   }
   /* abates: orbe de alma da Reyna, faca da Jett volta, ultimate do Neon renova */
@@ -307,6 +311,11 @@ GP.passoHabilidades = function (J, dt) {
     if (ev.tipo !== 'morte') continue;
     const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
     if (!de || !em) continue;
+    if (de.time !== em.time && de.pontosUlt != null && de.pontosUlt < GP.PONTOS_ULT) {
+      de.pontosUlt++;
+      const HH = GP.HABS[de.agente];
+      if (de.pontosUlt >= GP.PONTOS_ULT && HH && HH.x && HH.x.cargas) de.cargas.x = 1;
+    }
     if (GP._abateControlador) GP._abateControlador(J, de);
     if (de.agente === 'reyna') H.orbes.push({x: em.x, y: em.y, ate: t + 3, dono: de});
     const ef = GP._ef(de);

@@ -151,6 +151,10 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
 .gp-hab.ok{opacity:1;border-color:var(--teal,#18e5b4)}
 .gp-hab em{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:12px;letter-spacing:1px;color:#eafff9;line-height:1}
 .gp-hab em s{text-decoration:none;opacity:.3}
+.gp-hab em.gp-ult{display:flex;gap:3px;top:-10px}
+.gp-ult i{display:block;width:6px;height:6px;transform:rotate(45deg);border:1px solid rgba(234,255,249,.6);background:transparent}
+.gp-ult i.on{background:#ffd166;border-color:#ffd166}
+.gp-ult.cheia i{background:#18e5b4;border-color:#18e5b4;box-shadow:0 0 6px #18e5b4}
 .gp-hab-nota{font-size:10px;color:var(--dim);margin-left:6px;align-self:center;max-width:90px;line-height:1.2}
 
 @media (max-width:820px){
@@ -569,7 +573,28 @@ GP.ALCANCE_SOM = 15;        /* passos correndo se ouvem até aqui */
 GP.ALCANCE_VISTA = 40;       /* o bot só briga com quem cabe na tela de quem joga */
 /* Todo mundo aparece na tela, até atrás da parede (a parede ainda segura o
    tiro e a visão do bot). Habilidades de esconder vão usar o _naLinha. */
-GP.MOSTRAR_TODOS = true;
+GP.MOSTRAR_TODOS = false;
+/* regra da casa: o inimigo só aparece quando faz barulho (para quem ouve) ou
+   quando é revelado por habilidade (para o time todo). Bem perto e na linha
+   de visão também aparece (VISTA_PERTO m; 0 desliga). */
+GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
+GP.VISTA_PERTO = 3;
+GP.ouve = function (J, a, b) {
+  for (let i = J.sons.length - 1; i >= 0; i--) {
+    const s = J.sons[i];
+    if (s.dono !== b.id || J.t - s.t > GP.SOM_MOSTRA) continue;
+    if (Math.hypot(s.x - a.x, s.y - a.y) <= s.r) return true;
+  }
+  return false;
+};
+/* a percebe b no mapa (sem precisar de linha livre) */
+GP.percebe = function (J, a, b) {
+  if (!b.vivo) return false;
+  if (b.time === a.time) return true;
+  if (b.ef && b.ef.revelado > J.t) return true;
+  if (b.ef && b.ef.invis > J.t) return false;
+  return GP.ouve(J, a, b);
+};
 
 GP._q = v => Math.max(0, Math.min(1, ((v == null ? 60 : v) - 40) / 55));
 GP.parametros = function (a) {
@@ -633,6 +658,7 @@ GP.angDif = (a, b) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2
 GP.ve = function (J, a, b) {
   if (!a.vivo || !b.vivo) return false;
   if (GP.vistaBloqueada && GP.vistaBloqueada(J, a, b)) return false;
+  if (!GP.MOSTRAR_TODOS && a.time !== b.time && !GP.percebe(J, a, b) && Math.hypot(b.x - a.x, b.y - a.y) > GP.VISTA_PERTO) return false;
   const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
   if (d > GP.ALCANCE_VISTA * (a.luneta ? 1.4 : 1)) return false;
   /* linha livre até o centro ou até uma das bordas do corpo */
@@ -649,6 +675,8 @@ GP.erroAtual = function (e, t) {
   /* andando devagar pesa pouco; correndo, tudo */
   let erro = base + er.mov * Math.pow(frac, 1.6) + e.spray;
   if (e.modo === 'agacha' && vel < 0.5) erro *= 0.82;
+  /* andando no Shift: silencioso, mas a mira é pior do que parado */
+  if (e.modo === 'anda' && vel > 0.5) erro += er.mov * 0.45;
   /* susto: logo que um inimigo aparece, a mão ainda não firmou — passa no
      tempo de reação do atributo (reflexo alto = firma quase na hora) */
   if (e._susto && t != null && t < e._susto.ini + e._susto.dur) erro += e._susto.forca * (1 - (t - e._susto.ini) / e._susto.dur);
@@ -1078,7 +1106,7 @@ GP.atualizarVisaoDoJogador = function (J) {
   for (const o of J.ents) {
     if (o === eu) continue;
     o._naLinha = GP.ve(J, eu, o);
-    o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha);
+    o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha || GP.percebe(J, eu, o));
     if (o._naLinha) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
   }
   for (const o of J.ents) if (o !== eu && o.ef && o.ef.invis > J.t) { o._visivel = false; o._naLinha = false; viu = viu && J.ents.some(x => x !== eu && x._naLinha); }
@@ -1437,7 +1465,8 @@ GP.desenharDicaDeUso = function (g, J) {
    ============================================================ */
 'use strict';
 
-GP.HAB_TESTE = true;      /* laboratório: cargas cheias e ultimate pronta todo round */
+GP.HAB_TESTE = true;      /* laboratório: C, Q e E com cargas cheias todo round */
+GP.PONTOS_ULT = 5;        /* regra da casa: 5 abates liberam a ultimate, para todos */
 
 /* ---------- utilitários ---------- */
 GP._hab = J => J.hab || (J.hab = {proj: [], areas: [], paredes: [], fx: [], orbes: [], robos: [], passos: [], bichos: [], drones: [], objs: [], muros: [], ev: 0});
@@ -1692,7 +1721,9 @@ GP.resetarHabilidades = function (J) {
     const H = GP.HABS[e.agente];
     e.cargas = {c: 0, q: 0, e: 0, x: 0};
     if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
-    if (!GP.HAB_TESTE) e.cargas.x = 0;
+    /* ultimate: só com 5 abates (os pontos ficam de um round para o outro) */
+    e.pontosUlt = e.pontosUlt || 0;
+    e.cargas.x = H && H.x && H.x.cargas && e.pontosUlt >= GP.PONTOS_ULT ? 1 : 0;
   }
 };
 
@@ -1722,6 +1753,7 @@ GP.passoHabilidades = function (J, dt) {
     const h = GP.HABS[e.agente][k];
     h.usar(J, e, h.precisa === 'orbe' ? GP._orbePerto(J, e) : null);
     e.cargas[k]--;
+    if (k === 'x') e.pontosUlt = 0;
     J.eventos.push({tipo: 'habilidade', t, dono: e.id, tecla: k, nome: h.nome});
   }
   /* abates: orbe de alma da Reyna, faca da Jett volta, ultimate do Neon renova */
@@ -1730,6 +1762,11 @@ GP.passoHabilidades = function (J, dt) {
     if (ev.tipo !== 'morte') continue;
     const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
     if (!de || !em) continue;
+    if (de.time !== em.time && de.pontosUlt != null && de.pontosUlt < GP.PONTOS_ULT) {
+      de.pontosUlt++;
+      const HH = GP.HABS[de.agente];
+      if (de.pontosUlt >= GP.PONTOS_ULT && HH && HH.x && HH.x.cargas) de.cargas.x = 1;
+    }
     if (GP._abateControlador) GP._abateControlador(J, de);
     if (de.agente === 'reyna') H.orbes.push({x: em.x, y: em.y, ate: t + 3, dono: de});
     const ef = GP._ef(de);
@@ -3753,8 +3790,8 @@ GP.menu = function () {
         <div class="gp-sls">${sliders}</div>
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
-          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. Os círculos vermelhos são passos que você ouve. A parede esconde: o resto do mapa você vê inteiro.</p></div>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. O inimigo só aparece quando faz barulho (correndo, atirando, usando habilidade) ou quando é revelado. No Shift você não faz barulho, mas anda devagar e mira pior.</p></div>
       </div>
     </div>
     <div class="gp-acoes"><button class="gp-jogar" id="gpJogar">Jogar</button></div>
@@ -3929,13 +3966,15 @@ GP._hud = function () {
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
   if (eu.agente) {
     const HH = GP.HABS && GP.HABS[eu.agente];
-    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente;
+    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente + (eu.pontosUlt || 0);
     if (S.habDe !== estado) {
       S.habDe = estado;
       $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
         const ic = GP.agenteImg(eu.agente, k), h = HH && HH[k];
         const n = eu.cargas ? eu.cargas[k] : 0, pode = GP.podeUsar && GP.podeUsar(J, eu, k);
-        const pontos = h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
+        const pu = Math.min(GP.PONTOS_ULT || 5, eu.pontosUlt || 0), PU = GP.PONTOS_ULT || 5;
+        const pontos = k === 'x' ? `<em class="gp-ult${pu >= PU ? ' cheia' : ''}">${'<i class="on"></i>'.repeat(pu)}${'<i></i>'.repeat(PU - pu)}</em>`
+          : h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
         return `<div class="gp-hab ${pode ? 'ok' : ''}" title="${h ? h.nome : ''}">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}${pontos}<kbd>${k.toUpperCase()}</kbd></div>`;
       }).join('') + (HH ? '' : '<span class="gp-hab-nota">habilidades deste agente na próxima leva</span>');
     }

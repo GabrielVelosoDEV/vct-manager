@@ -125,6 +125,10 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
 .gp-hab.ok{opacity:1;border-color:var(--teal,#18e5b4)}
 .gp-hab em{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:12px;letter-spacing:1px;color:#eafff9;line-height:1}
 .gp-hab em s{text-decoration:none;opacity:.3}
+.gp-hab em.gp-ult{display:flex;gap:3px;top:-10px}
+.gp-ult i{display:block;width:6px;height:6px;transform:rotate(45deg);border:1px solid rgba(234,255,249,.6);background:transparent}
+.gp-ult i.on{background:#ffd166;border-color:#ffd166}
+.gp-ult.cheia i{background:#18e5b4;border-color:#18e5b4;box-shadow:0 0 6px #18e5b4}
 .gp-hab-nota{font-size:10px;color:var(--dim);margin-left:6px;align-self:center;max-width:90px;line-height:1.2}
 
 @media (max-width:820px){

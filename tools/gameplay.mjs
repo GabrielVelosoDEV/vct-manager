@@ -104,7 +104,7 @@ for(const nome of nomes){
     const n=J.m.nav;let melhor=null;
     for(let i=0;i<n.W*n.H&&!melhor;i++){if(!n.livre[i])continue;const x=(i%n.W+.5)*n.passo,y=((i/n.W|0)+.5)*n.passo;
       if(GP.raio(J.m,x,y,0,14)>=13&&GP.raio(J.m,x,y,Math.PI/2,3)>2.5&&GP.raio(J.m,x,y,-Math.PI/2,3)>2.5&&GP.raio(J.m,x,y,Math.PI,4)>3.5)melhor={x,y};}
-    eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
+    eu.pontosUlt=5;eu.cargas.x=GP.HABS[ag]&&GP.HABS[ag].x&&GP.HABS[ag].x.cargas?1:0;eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
     return {J,eu,b};};
   const rodar=(J,s)=>{for(let f=0;f<s*120;f++)GP.passo(J,1/120);};
   for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo','brimstone','viper','omen','astra','harbor','clove','miks','sage','cypher','killjoy','chamber','deadlock','vyse','veto'])for(const k of ['c','q','e','x']){
@@ -178,6 +178,22 @@ for(const nome of nomes){
   /* Interceptor apaga a granada inimiga */
   {const {J,eu,b}=pega('veto');eu.cmd.hab='e';rodar(J,0.1);const ob=J.hab.objs[0];GP._lancar(J,b,{vel:10,alcance:20,ang:Math.atan2(ob.y-b.y,ob.x-b.x),aoParar:()=>{J._explodiu=true;}});rodar(J,2);ok(!J._explodiu,'veto e: o interceptor não destruiu a granada');}
   {const {J,eu,b}=pega('iso');eu.cmd.hab='x';rodar(J,1);ok(J.hab.muros.length===4,'iso x: a arena não fechou');GP.novoRound(J);}
+  /* ultimate: só com 5 abates; usar zera */
+  {const J=GP.montarDuelo({mapa:'ascent',arma:'vandal',agenteEu:'jett',semente:4});const eu=J.eu,b=J.ents[1];J.round.fase='ativo';J.round.ate=J.t+999;
+   ok(eu.cargas.x===0,'ult: começou carregada');
+   for(let i=0;i<5;i++){J.eventos.push({tipo:'morte',t:J.t,de:eu.id,em:b.id});GP.passoHabilidades(J,1/120);}
+   ok(eu.pontosUlt===5&&eu.cargas.x===1,'ult: 5 abates não liberaram');
+   GP.novoRound(J);ok(eu.cargas.x===1,'ult: sumiu na troca de round');
+   J.round.fase='ativo';eu.cmd.hab='x';GP.passoHabilidades(J,1/120);ok(eu.pontosUlt===0&&eu.cargas.x===0,'ult: usar não zerou');}
+  /* só aparece quem faz barulho: parado e no Shift some; correndo ou atirando aparece */
+  {const J=GP.montarDuelo({mapa:'ascent',arma:'vandal',semente:4});const eu=J.eu,b=J.ents[1];J.round.fase='ativo';J.round.ate=J.t+999;b.bot=false;b.ia=null;
+   const n=J.m.nav;let p=null;for(let i=0;i<n.W*n.H&&!p;i++){if(!n.livre[i])continue;const x=(i%n.W+.5)*n.passo,y=((i/n.W|0)+.5)*n.passo;if(GP.raio(J.m,x,y,0,14)>=13)p={x,y};}
+   eu.x=p.x;eu.y=p.y;b.x=p.x+10;b.y=p.y;J.sons=[];
+   GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: parado e quieto apareceu');
+   b.cmd.mx=-1;b.cmd.modo='anda';for(let f=0;f<60;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;}GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: andando no Shift apareceu');
+   b.cmd.modo='corre';for(let f=0;f<90;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;}GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: correndo não apareceu');
+   J.t+=3;J.sons=[];GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: continuou aparecendo depois de parar');
+   GP._revelar(J,b,2);GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: revelado não apareceu');}
   console.log('habilidades dos 29 agentes testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
