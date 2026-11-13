@@ -117,6 +117,7 @@ GP.passo = function (J, dt) {
     if (e.bot) GP.iaPensar(J, e, dt);
     GP._aplicarComando(J, e, dt);
   }
+  GP._separarCorpos(J);
   if (GP.passoMecanicas) GP.passoMecanicas(J, dt);
   if (GP.passoHabilidades) GP.passoHabilidades(J, dt);
   /* limpa o que já passou */
@@ -124,6 +125,24 @@ GP.passo = function (J, dt) {
   J.sons = J.sons.filter(s => J.t - s.t < 1.2);
   J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
   GP._fluxoDoRound(J);
+};
+
+/* corpos não se atravessam: quem está colado é afastado devagar (meio a meio),
+   sem nunca ir para dentro da parede — com 10 no mapa, ninguém fica preso no
+   outro numa porta, só desliza */
+GP._separarCorpos = function (J) {
+  const v = J.ents.filter(e => e.vivo && !e.viagem);
+  for (let i = 0; i < v.length; i++) for (let j = i + 1; j < v.length; j++) {
+    const a = v[i], b = v[j], min = (a.raioCol || GP.RAIO_COLISAO) + (b.raioCol || GP.RAIO_COLISAO);
+    let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+    if (d >= min) continue;
+    if (d < 1e-4) { dx = 1; dy = 0; d = 1e-4; }
+    const s = Math.min(0.06, (min - d) / 2), nx = dx / d, ny = dy / d;
+    for (const [e, k] of [[a, -1], [b, 1]]) {
+      const x = e.x + nx * s * k, y = e.y + ny * s * k;
+      if (!GP.colide(J.m, x, y, e.raioCol || GP.RAIO_COLISAO)) { e.x = x; e.y = y; }
+    }
+  }
 };
 
 GP._aplicarComando = function (J, e, dt) {

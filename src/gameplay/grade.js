@@ -190,13 +190,21 @@ GP.navLivre = function (m, x, y) {
 /* o bloco livre mais perto de um ponto (o ponto pode cair numa quina) */
 GP._navPerto = function (m, x, y) {
   const n = m.nav, cx = Math.floor(x / n.passo), cy = Math.floor(y / n.passo);
-  for (let r = 0; r < 12; r++)
+  /* o mais perto que se alcança em linha reta (sem pular uma parede fina) */
+  let reserva = -1;
+  for (let r = 0; r < 12; r++) {
+    let melhor = -1, dm = 1e9;
     for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
       if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
       const X = cx + dx, Y = cy + dy;
-      if (X >= 0 && Y >= 0 && X < n.W && Y < n.H && n.livre[Y * n.W + X]) return Y * n.W + X;
+      if (X < 0 || Y < 0 || X >= n.W || Y >= n.H || !n.livre[Y * n.W + X]) continue;
+      const px = (X + 0.5) * n.passo, py = (Y + 0.5) * n.passo, d = Math.hypot(px - x, py - y);
+      if (reserva < 0) reserva = Y * n.W + X;
+      if (d < dm && GP.linhaLivre(m, x, y, px, py)) { dm = d; melhor = Y * n.W + X; }
     }
-  return -1;
+    if (melhor >= 0) return melhor;
+  }
+  return reserva;
 };
 GP.caminho = function (m, ax, ay, bx, by) {
   const n = m.nav, W = n.W;
