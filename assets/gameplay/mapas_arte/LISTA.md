@@ -7,7 +7,7 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão no documento, aba "Mapas pintados".
 
-10/13 com imagem.
+13/13 com imagem.
 
 - [x] `abyss.png` — Abyss pintado de cima (quadrado, com a planta tools/mapas/plantas/abyss.png)
 - [x] `ascent.png` — Ascent pintado de cima (quadrado, com a planta tools/mapas/plantas/ascent.png)
@@ -18,7 +18,7 @@ Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão 
 - [x] `haven.png` — Haven pintado de cima (quadrado, com a planta tools/mapas/plantas/haven.png)
 - [x] `icebox.png` — Icebox pintado de cima (quadrado, com a planta tools/mapas/plantas/icebox.png)
 - [x] `lotus.png` — Lotus pintado de cima (quadrado, com a planta tools/mapas/plantas/lotus.png)
-- [ ] `pearl.png` — Pearl pintado de cima (quadrado, com a planta tools/mapas/plantas/pearl.png)
-- [ ] `split.png` — Split pintado de cima (quadrado, com a planta tools/mapas/plantas/split.png)
+- [x] `pearl.png` — Pearl pintado de cima (quadrado, com a planta tools/mapas/plantas/pearl.png)
+- [x] `split.png` — Split pintado de cima (quadrado, com a planta tools/mapas/plantas/split.png)
 - [x] `summit.png` — Summit pintado de cima (quadrado, com a planta tools/mapas/plantas/summit.png)
-- [ ] `sunset.png` — Sunset pintado de cima (quadrado, com a planta tools/mapas/plantas/sunset.png)
+- [x] `sunset.png` — Sunset pintado de cima (quadrado, com a planta tools/mapas/plantas/sunset.png)
