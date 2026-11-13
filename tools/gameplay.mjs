@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js','src/gameplay/habilidades_controladores.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -107,10 +107,11 @@ for(const nome of nomes){
     eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
     return {J,eu,b};};
   const rodar=(J,s)=>{for(let f=0;f<s*120;f++)GP.passo(J,1/120);};
-  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo'])for(const k of ['c','q','e','x']){
+  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo','brimstone','viper','omen','astra','harbor','clove','miks'])for(const k of ['c','q','e','x']){
     const {J,eu,b}=pega(ag);const h=GP.HABS[ag][k];if(h.semDuelo)continue;
     const hp0=b.hp+b.escudo,x0=eu.x;
     if(h.precisa==='orbe')GP._hab(J).orbes.push({x:eu.x,y:eu.y,ate:J.t+3,dono:eu});
+    if(h.precisa==='abate')GP._ef(eu).ultimoAbate=J.t;
     try{eu.cmd.hab=k;rodar(J,0.05);ok(eu.cargas[k]===h.cargas-1,ag+' '+k+': não gastou a carga');
       rodar(J,1.5);
       if(ag==='raze'&&k==='x')ok(b.hp+b.escudo<hp0-60,'raze x: o foguete não machucou');
@@ -134,6 +135,14 @@ for(const nome of nomes){
       if(ag==='gekko'&&k==='e')ok(ef.cego>0,'gekko e: não cegou');
       if(ag==='tejo'&&k==='q')ok(ef.conc>0,'tejo q: não concussionou');
       if(ag==='tejo'&&k==='e')ok(b.hp+b.escudo<hp0,'tejo e: o míssil não machucou');
+      if(ag==='brimstone'&&k==='e')ok(GP.vistaBloqueada(J,eu,b),'brimstone e: a fumaça no cursor não esconde');
+      if(ag==='omen'&&k==='q')ok(ef.cego>0,'omen q: não cegou');
+      if(ag==='omen'&&k==='c')ok(Math.abs(eu.x-x0)>3,'omen c: não teleportou');
+      if(ag==='astra'&&k==='q')ok(ef.conc>0,'astra q: não concussionou');
+      if(ag==='viper'&&k==='e')ok(GP.vistaBloqueada(J,eu,b)||GP._hab(J).paredes.length===1,'viper e: sem parede');
+      if(ag==='clove'&&k==='q')ok(b.hp+b.escudo<hp0&&b.vivo,'clove q: o decaimento não tirou vida (ou matou)');
+      if(ag==='miks'&&k==='c')ok(ef.conc>0,'miks c: não concussionou');
+      if(ag==='miks'&&k==='x')ok(ef.conc>0,'miks x: não concussionou');
       if(ag==='raze'&&k==='c'){rodar(J,4);ok(b.hp+b.escudo<hp0,'raze c: o boom bot não explodiu no bot');}
     }catch(err){ok(false,ag+' '+k+' quebrou: '+err.message);}
   }
@@ -149,7 +158,12 @@ for(const nome of nomes){
    ok(b.hp+b.escudo<hp0,"sova x: o raio não acertou");}
   /* Seekers acham o alvo mesmo atrás da parede */
   {const {J,eu,b}=pega('skye');eu.cmd.hab='x';rodar(J,4);ok(b.ef&&b.ef.miope>0,'skye x: os seekers não chegaram');}
-  console.log('habilidades dos duelistas e iniciadores testadas');
+  /* Cove segura bala; Orbital mata; Clove volta da morte */
+  {const {J,eu,b}=pega('harbor');eu.cmd.mira={x:eu.x+4,y:eu.y};eu.cmd.hab='q';rodar(J,0.6);const hp0=b.hp+b.escudo;eu.cmd.mira={x:b.x,y:b.y};eu.cmd.atirar=true;rodar(J,0.5);eu.cmd.atirar=false;
+   ok(b.hp+b.escudo===hp0,'harbor q: a bolha não segurou a bala');}
+  {const {J,eu,b}=pega('brimstone');eu.cmd.hab='x';rodar(J,4);ok(!b.vivo||b.hp<50,'brimstone x: o orbital não machucou');}
+  {const {J,eu,b}=pega('clove');eu.cmd.hab='x';rodar(J,0.05);GP._dano(J,b,eu,500,1,{nome:'teste'});ok(eu.vivo&&eu.ef.ultimaChance>0,'clove x: não voltou');rodar(J,10.5);ok(!eu.vivo,'clove x: não morreu sem abate');}
+  console.log('habilidades dos duelistas, iniciadores e controladores testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
 process.exit(falhas?1:0);

@@ -7,11 +7,11 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima, fundo #FF00FF. Prompts em assets/gameplay/habilidades/PROMPTS.md.
 
-0/6 com imagem.
+6/6 com imagem.
 
-- [ ] `c_projetil.png` — projetil: um frasco de ácido verde-tóxico girando no ar (Snake Bite)
-- [ ] `c_area.png` — area: uma poça de ácido venenoso verde borbulhando no chão (Snake Bite)
-- [ ] `q_objeto.png` — objeto: um emissor de gás no chão: um cilindro metálico preto com válvula e luz verde (Poison Cloud)
-- [ ] `q_area.png` — area: uma nuvem de gás tóxico verde, grossa e redonda (Poison Cloud)
-- [ ] `e_parede.png` — parede: uma parede de gás venenoso verde subindo do chão, densa, com redemoinhos (Toxic Screen)
-- [ ] `x_area.png` — area: uma cúpula enorme de gás tóxico verde-escuro, com névoa densa e brilho ácido (Viper's Pit)
+- [x] `c_projetil.png` — projetil: um frasco de ácido verde-tóxico girando no ar (Snake Bite)
+- [x] `c_area.png` — area: uma poça de ácido venenoso verde borbulhando no chão (Snake Bite)
+- [x] `q_objeto.png` — objeto: um emissor de gás no chão: um cilindro metálico preto com válvula e luz verde (Poison Cloud)
+- [x] `q_area.png` — area: uma nuvem de gás tóxico verde, grossa e redonda (Poison Cloud)
+- [x] `e_parede.png` — parede: uma parede de gás venenoso verde subindo do chão, densa, com redemoinhos (Toxic Screen)
+- [x] `x_area.png` — area: uma cúpula enorme de gás tóxico verde-escuro, com névoa densa e brilho ácido (Viper's Pit)

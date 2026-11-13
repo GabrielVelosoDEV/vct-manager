@@ -266,6 +266,7 @@ GP.podeUsar = function (J, e, k) {
   if (!h || h.semDuelo || !e.vivo || J.round.fase !== 'ativo') return false;
   if (h.precisa === 'orbe' && !GP._orbePerto(J, e)) return false;
   if (e.ef && e.ef.supr > J.t) return false;
+  if (h.precisa === 'abate' && !(e.ef && e.ef.ultimoAbate > J.t - 3)) return false;
   return (e.cargas[k] || 0) > 0;
 };
 
@@ -291,6 +292,7 @@ GP.passoHabilidades = function (J, dt) {
     if (ev.tipo !== 'morte') continue;
     const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
     if (!de || !em) continue;
+    if (GP._abateControlador) GP._abateControlador(J, de);
     if (de.agente === 'reyna') H.orbes.push({x: em.x, y: em.y, ate: t + 3, dono: de});
     const ef = GP._ef(de);
     if (ef.facas != null && ef.facasAte > t) ef.facas = 5;
@@ -378,6 +380,7 @@ GP.passoHabilidades = function (J, dt) {
   H.passos = H.passos.filter(s => t < s.ate);
   H.orbes = H.orbes.filter(o => !o.usado && t < o.ate);
   if (GP.passoIniciadores) GP.passoIniciadores(J, dt);
+  if (GP.passoControladores) GP.passoControladores(J, dt);
   H.fx = H.fx.filter(f => t - f.t < f.dur);
   /* efeitos no corpo */
   for (const e of J.ents) {
@@ -412,7 +415,7 @@ GP.vistaBloqueada = function (J, a, b) {
   if (b.ef && b.ef.invis > t) return true;
   if (a.ef && a.ef.miope > t && Math.hypot(a.x - b.x, a.y - b.y) > 4.5) return true;
   if (!H) return false;
-  for (const ar of H.areas) if (ar.fumaca) {
+  for (const ar of H.areas) if (ar.fumaca && !(ar.donoVe && a === ar.dono)) {
     const d = GP._distSeg(ar.x, ar.y, [a.x, a.y], [b.x, b.y]);
     if (d < ar.r) return true;
   }
@@ -424,6 +427,7 @@ GP.multVel = function (J, e) {
   let k = 1;
   if (ef.rapido && t < ef.rapido.ate) k *= ef.rapido.k;
   if (ef.gear) k *= 1.45;
+  if (ef.estim > t) k *= 1.1;
   if (ef.preso > t || ef.drone) return 0;
   if (ef.lento > t) k *= 0.6;
   if (ef.conc > t) k *= 0.55;
@@ -447,6 +451,7 @@ GP.multDano = function (J, alvo) {
 };
 /* morreu com o Run It Back ligado: volta no marcador */
 GP.antesDeMorrer = function (J, e) {
+  if (GP._naoMorreClove && GP._naoMorreClove(J, e)) return true;
   const v = e.ef && e.ef.volta;
   if (!v || J.t > v.ate) return false;
   e.ef.volta = null; e.hp = 100; e.x = v.x; e.y = v.y; e.vx = e.vy = 0;
@@ -486,10 +491,11 @@ GP.atirarHab = function (J, e) {
   }
   return true;
 };
-GP.posTiro = function (J, e) { if (e.ef && e.ef.empress > J.t) e.proxTiro = J.t + (e.proxTiro - J.t) / 1.3; };
+GP.posTiro = function (J, e) { if (e.ef && (e.ef.empress > J.t || e.ef.estim > J.t)) e.proxTiro = J.t + (e.proxTiro - J.t) / 1.3; };
 /* Contingency do Iso segura bala */
 GP.tiroEmHab = function (J, ox, oy, dx, dy, tMax) {
   const H = J.hab; if (!H) return tMax;
+  if (GP.tiroEmBolha) tMax = GP.tiroEmBolha(J, ox, oy, dx, dy, tMax);
   for (const w of H.paredes) if (w.seguraBala) {
     const bx = ox + dx * tMax, by = oy + dy * tMax;
     if (!GP._cruza(ox, oy, bx, by, w.a, w.b)) continue;
@@ -567,6 +573,7 @@ GP.desenharHabilidades = function (g, J) {
     else { const d = f.r * 2 * (0.7 + 0.5 * k); spr(r, f.x, f.y, 0, d, d * r.e.h / r.e.w, 1 - k * k); }
   }
   if (GP.desenharIniciadores) GP.desenharIniciadores(g, J);
+  if (GP.desenharControladores) GP.desenharControladores(g, J);
   /* rastros das armas das ultimates */
   for (const tr of J.tiros) if (tr.hab === 'raio') {
     const r = GP._imgHab('neon', 'x_rastro'); if (!r) continue;

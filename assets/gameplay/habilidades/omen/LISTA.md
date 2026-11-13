@@ -7,9 +7,9 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima, fundo #00FF00. Prompts em assets/gameplay/habilidades/PROMPTS.md.
 
-0/4 com imagem.
+4/4 com imagem.
 
-- [ ] `c_area.png` — area: uma sombra no chão onde alguém vai aparecer: mancha escura roxa com fiapos de fumaça subindo (Shrouded Step)
-- [ ] `q_rastro.png` — rastro: uma onda de sombra reta avançando, roxa e preta, com olhos tênues de luz azulada (Paranoia)
-- [ ] `e_area.png` — area: uma esfera de fumaça escura grande e redonda, roxa-azulada quase preta (Dark Cover)
-- [ ] `x_area.png` — area: um redemoinho de sombra no chão, roxo e preto, onde alguém se teleporta (From the Shadows)
+- [x] `c_area.png` — area: uma sombra no chão onde alguém vai aparecer: mancha escura roxa com fiapos de fumaça subindo (Shrouded Step)
+- [x] `q_rastro.png` — rastro: uma onda de sombra reta avançando, roxa e preta, com olhos tênues de luz azulada (Paranoia)
+- [x] `e_area.png` — area: uma esfera de fumaça escura grande e redonda, roxa-azulada quase preta (Dark Cover)
+- [x] `x_area.png` — area: um redemoinho de sombra no chão, roxo e preto, onde alguém se teleporta (From the Shadows)
