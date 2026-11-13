@@ -1,0 +1,199 @@
+{
+ "abyss": {
+  "lado_px": 1536,
+  "lado_m": 110.0,
+  "x0_m": -10.0,
+  "y0_m": -15.75,
+  "metros_por_px": 0.0716,
+  "sitios": {
+   "a": "no meio, à esquerda",
+   "b": "no meio, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "ascent": {
+  "lado_px": 1536,
+  "lado_m": 116.5,
+  "x0_m": -13.0,
+  "y0_m": -10.0,
+  "metros_por_px": 0.0758,
+  "sitios": {
+   "a": "embaixo, à esquerda",
+   "b": "embaixo, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "bind": {
+  "lado_px": 1536,
+  "lado_m": 146.5,
+  "x0_m": -19.75,
+  "y0_m": -10.0,
+  "metros_por_px": 0.0954,
+  "sitios": {
+   "a": "no alto, à direita",
+   "b": "no alto, à esquerda"
+  },
+  "spawns": {
+   "atk": "embaixo, no centro",
+   "def": "no alto, no centro"
+  }
+ },
+ "breeze": {
+  "lado_px": 1536,
+  "lado_m": 148.0,
+  "x0_m": -10.0,
+  "y0_m": -16.5,
+  "metros_por_px": 0.0964,
+  "sitios": {
+   "a": "no meio, à direita",
+   "b": "no alto, à esquerda"
+  },
+  "spawns": {
+   "atk": "embaixo, no centro",
+   "def": "no alto, à direita"
+  }
+ },
+ "corrode": {
+  "lado_px": 1536,
+  "lado_m": 101.0,
+  "x0_m": -10.0,
+  "y0_m": -10.25,
+  "metros_por_px": 0.0658,
+  "sitios": {
+   "a": "no meio, à direita",
+   "b": "no meio, à esquerda"
+  },
+  "spawns": {
+   "atk": "embaixo, no centro",
+   "def": "no alto, no centro"
+  }
+ },
+ "fracture": {
+  "lado_px": 1536,
+  "lado_m": 106.0,
+  "x0_m": -10.0,
+  "y0_m": -13.0,
+  "metros_por_px": 0.069,
+  "sitios": {
+   "a": "no meio, à esquerda",
+   "b": "no meio, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "bem no centro"
+  }
+ },
+ "haven": {
+  "lado_px": 1536,
+  "lado_m": 111.0,
+  "x0_m": -14.25,
+  "y0_m": -10.0,
+  "metros_por_px": 0.0723,
+  "sitios": {
+   "a": "no meio, à esquerda",
+   "b": "bem no centro",
+   "c": "embaixo, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "icebox": {
+  "lado_px": 1536,
+  "lado_m": 119.0,
+  "x0_m": -12.0,
+  "y0_m": -10.0,
+  "metros_por_px": 0.0775,
+  "sitios": {
+   "a": "embaixo, à esquerda",
+   "b": "no meio, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, à esquerda",
+   "def": "embaixo, no centro"
+  }
+ },
+ "lotus": {
+  "lado_px": 1536,
+  "lado_m": 122.5,
+  "x0_m": -10.0,
+  "y0_m": -18.75,
+  "metros_por_px": 0.0798,
+  "sitios": {
+   "a": "embaixo, à esquerda",
+   "b": "bem no centro",
+   "c": "no meio, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "pearl": {
+  "lado_px": 1536,
+  "lado_m": 124.0,
+  "x0_m": -10.0,
+  "y0_m": -15.75,
+  "metros_por_px": 0.0807,
+  "sitios": {
+   "a": "embaixo, à esquerda",
+   "b": "no meio, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "split": {
+  "lado_px": 1536,
+  "lado_m": 108.5,
+  "x0_m": -10.0,
+  "y0_m": -12.75,
+  "metros_por_px": 0.0706,
+  "sitios": {
+   "a": "embaixo, à esquerda",
+   "b": "embaixo, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "summit": {
+  "lado_px": 1536,
+  "lado_m": 118.5,
+  "x0_m": -10.0,
+  "y0_m": -11.25,
+  "metros_por_px": 0.0771,
+  "sitios": {
+   "a": "no meio, à esquerda",
+   "b": "embaixo, à direita"
+  },
+  "spawns": {
+   "atk": "no alto, no centro",
+   "def": "embaixo, no centro"
+  }
+ },
+ "sunset": {
+  "lado_px": 1536,
+  "lado_m": 122.5,
+  "x0_m": -12.75,
+  "y0_m": -10.0,
+  "metros_por_px": 0.0798,
+  "sitios": {
+   "a": "no meio, à direita",
+   "b": "no meio, à esquerda"
+  },
+  "spawns": {
+   "atk": "embaixo, no centro",
+   "def": "no alto, no centro"
+  }
+ }
+}

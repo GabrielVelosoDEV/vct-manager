@@ -120,6 +120,7 @@ GP._carregarImagensDoMapa = function (mapa) {
   for (const k in (man.objetos || {})) srcs.push(man.objetos[k].src);
   for (const k in ((man.decoracao || {})[mapa] || {})) srcs.push(man.decoracao[mapa][k].src);
   for (const k in (man.marcas || {})) srcs.push(man.marcas[k].src);
+  if ((man.mapas_arte || {})[mapa]) srcs.push(man.mapas_arte[mapa].src);
   const esperas = srcs.map(src => new Promise(ok => {
     const im = GP.imagem(src) || GP.IMG.cache[src];
     if (!im || (im.complete && im.naturalWidth)) return ok();

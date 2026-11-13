@@ -408,6 +408,10 @@ SPAWNS = {
     'sunset':   {'atk': (0.40, 0.85), 'def': (0.40, 0.15)},
 }
 
+# Mapas em que o spawn lido no minimapa é melhor que o da referência (o ajuste
+# pelos bombs girou errado): Summit punha o ataque no Salão B.
+SPAWN_DO_MINIMAPA = {'summit'}
+
 # Nome de cada marcador, pela posição dele no minimapa (px). Por enquanto só Ascent.
 CALLOUTS = {
     'ascent': {
@@ -437,7 +441,8 @@ if __name__ == '__main__':
                          / (np.hypot(c[p][0] - c[q][0], c[p][1] - c[q][1]) * 0.5) for p, q in pares])
             d = extrair(n, ORDEM.get(n), lado=round(LADO_CELULAS * f * ESCALA_JOGO))
             d['escala_ref'] = round(float(f), 3)
-            spawns_pela_referencia(d, r)
+            if n not in SPAWN_DO_MINIMAPA:
+                spawns_pela_referencia(d, r)
         del d['_centros']
         todos.append(d)
         previa(d)

@@ -259,7 +259,7 @@ def main():
     if os.path.isdir(PRONTO):
         import shutil
         shutil.rmtree(PRONTO)
-    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}}
+    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}, 'mapas_arte': {}}
     placar = []
     estranhos = []
     refazer = []
@@ -337,6 +337,31 @@ def main():
                 # recorte de folha com vários objetos: fica o principal (e quem
                 # tiver tamanho parecido), sem os pedaços do vizinho na borda
                 man['decoracao'].setdefault(mp, {})[n] = simples(c, f'decoracao/{mp}/{n}', 256, fiapos=0.3)
+    # o mapa pintado inteiro (gerado com a planta de tools/mapas/plantas/): o
+    # encaixe no mundo vem do plantas.json — a pintura cobre o quadrado da planta
+    pasta = os.path.join(BASE, 'mapas_arte')
+    itens = [(mp, f'{mp.capitalize()} pintado de cima (quadrado, com a planta tools/mapas/plantas/{mp}.png)') for mp in MAPAS]
+    placar.append(('mapas_arte',) + lista(pasta, 'Mapas pintados', itens,
+                  'Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão no documento, aba "Mapas pintados".'))
+    conferir_sobras(pasta, {n for n, _ in itens})
+    try:
+        plantas = json.load(open(os.path.join(RAIZ, 'tools', 'mapas', 'plantas', 'plantas.json')))
+    except Exception:
+        plantas = {}
+    for n, _ in itens:
+        c = achar(pasta, n)
+        if c and n in plantas:
+            im = Image.open(c).convert('RGB')
+            if im.width != im.height:   # o gerador devolveu retângulo: corta o centro
+                l = min(im.size); im = im.crop(((im.width - l) // 2, (im.height - l) // 2, (im.width + l) // 2, (im.height + l) // 2))
+            if im.width > 3072:
+                im = im.resize((3072, 3072), Image.LANCZOS)
+            caminho = os.path.join(PRONTO, 'mapas_arte', n + '.webp')
+            os.makedirs(os.path.dirname(caminho), exist_ok=True)
+            im.save(caminho, 'WEBP', quality=90, method=6)
+            p = plantas[n]
+            man['mapas_arte'][n] = {'src': f'assets/gameplay/pronto/mapas_arte/{n}.webp', 'w': im.width, 'h': im.height,
+                                    'lado_m': p['lado_m'], 'x0_m': p['x0_m'], 'y0_m': p['y0_m']}
     pasta = os.path.join(BASE, 'marcas')
     itens = list(MARCAS.items())
     placar.append(('marcas',) + lista(pasta, 'Marcas do bomb', itens))

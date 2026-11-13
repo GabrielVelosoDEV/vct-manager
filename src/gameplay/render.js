@@ -110,6 +110,24 @@ GP._enfeites = function (g, m, S) {
   }
 };
 
+GP._miniDaGrade = function (m, tema) {
+  const {W, H} = m, [c1, to, fu, si] = [tema.chao, tema.topo, tema.fundo, tema.sitio].map(GP._hex);
+  const mini = document.createElement('canvas'); mini.width = W; mini.height = H;
+  const mg = mini.getContext('2d'), mi = mg.createImageData(W, H);
+  for (let i = 0; i < W * H; i++) {
+    const cor = m.solido[i] ? fu : m.sitio[i] ? si.map((x, j) => x * 0.5 + c1[j] * 0.5) : c1;
+    mi.data[i * 4] = cor[0]; mi.data[i * 4 + 1] = cor[1]; mi.data[i * 4 + 2] = cor[2]; mi.data[i * 4 + 3] = 255;
+  }
+  mg.putImageData(mi, 0, 0);
+  return mini;
+};
+/* o mapa pintado inteiro, se já chegou e carregou */
+GP.pinturaDoMapa = function (nome) {
+  const e = GP.manifesto ? (GP.manifesto().mapas_arte || {})[nome] : null;
+  const im = e && GP.imagem(e.src);
+  return im ? {img: im, x0: e.x0_m, y0: e.y0_m, lado: e.lado_m} : null;
+};
+
 GP.desenharMapa = function (m) {
   const tema = GP.TEMAS[m.nome] || GP.TEMAS.ascent;
   const {W, H} = m, S = GP.PX_M, c = m.cel;
@@ -133,7 +151,16 @@ GP.desenharMapa = function (m) {
   };
   const tela = document.createElement('canvas');
   const TW = tela.width = Math.round(W * c * S), TH = tela.height = Math.round(H * c * S);
-  const g = tela.getContext('2d'), img = g.createImageData(TW, TH), d = img.data;
+  const g = tela.getContext('2d');
+  /* Com o mapa pintado: a pintura é desenhada direto na tela a cada quadro (ela
+     cobre também a paisagem em volta); aqui só vão as caixas, que são as da
+     colisão. O minimapa continua saindo da grade. */
+  const pintura = GP.pinturaDoMapa(m.nome);
+  if (pintura) {
+    GP._objetosDeCobertura(g, m, S);
+    return {tela, mini: GP._miniDaGrade(m, tema), tema, pintura};
+  }
+  const img = g.createImageData(TW, TH), d = img.data;
   /* Com textura do mapa: o piso e o topo da parede vêm das imagens, e por cima
      vai uma camada nossa com sombra, fundo escuro, tinta do bomb e contornos.
      A imagem é só desenhada (nunca lida de volta): funciona em file://. */
@@ -277,6 +304,11 @@ GP.render = function (R, J, cam, ui) {
   const vw = Wc / esc, vh = Hc / esc;
   const sx = (cam.x - vw / 2) * S, sy = (cam.y - vh / 2) * S;
   g.imageSmoothingEnabled = true;
+  const pt = R.arte.pintura;
+  if (pt) {
+    const k = pt.lado / pt.img.width;   /* metros por pixel da pintura */
+    g.drawImage(pt.img, (pt.x0 - cam.x) * esc + Wc / 2, (pt.y0 - cam.y) * esc + Hc / 2, pt.lado * esc, pt.lado * esc);
+  }
   g.drawImage(R.arte.tela, sx, sy, vw * S, vh * S, 0, 0, Wc, Hc);
   g.imageSmoothingEnabled = true;
   g.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
