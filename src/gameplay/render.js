@@ -325,7 +325,8 @@ GP.render = function (R, J, cam, ui) {
     } else if (!o.vivo && o._morreuEm && J.t - o._morreuEm < 4 && GP.linhaLivre(J.m, eu.x, eu.y, o.x, o.y)) GP._corpo(g, o, J.t);
   }
   if (!eu.vivo) GP._corpo(g, eu, J.t);
-  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', 1, J.t);
+  /* atrás da parede: aparece, mas meio apagado (dá para ver, não para acertar) */
+  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
 
   /* números de dano e marcas de acerto (por cima da névoa) */
   for (const k of J.marcas) if (k.tipo === 'acerto' && (k.de === eu.id || k.em === eu.id)) {
@@ -411,7 +412,10 @@ GP._sprite = function (g, o, cor, t, quadro) {
   return true;
 };
 GP._agente = function (g, o, cor, alfa, t) {
-  if (GP._sprite(g, o, cor, t, GP.quadroDoAgente(o, t))) { GP._vidaInimigo(g, o); return; }
+  g.save(); g.globalAlpha = alfa;
+  const ok = GP._sprite(g, o, cor, t, GP.quadroDoAgente(o, t));
+  g.restore();
+  if (ok) { GP._vidaInimigo(g, o); return; }
   /* sem imagem: o boneco simples, um pouco maior que o corpo de verdade */
   g.save(); g.translate(o.x, o.y); g.rotate(o.ang); g.scale(1.35, 1.35);
   g.globalAlpha = alfa;

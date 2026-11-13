@@ -20,7 +20,10 @@ GP.RAIO_COLISAO = 0.32;      /* o que bate na parede: menor, passa nas portas se
 GP.ZONA_CABECA = 0.11;      /* distância do centro (m) que conta cabeça */
 GP.ZONA_CORPO = 0.31;
 GP.ALCANCE_SOM = 15;        /* passos correndo se ouvem até aqui */
-GP.ALCANCE_VISTA = 70;
+GP.ALCANCE_VISTA = 40;       /* o bot só briga com quem cabe na tela de quem joga */
+/* Todo mundo aparece na tela, até atrás da parede (a parede ainda segura o
+   tiro e a visão do bot). Habilidades de esconder vão usar o _naLinha. */
+GP.MOSTRAR_TODOS = true;
 
 GP._q = v => Math.max(0, Math.min(1, ((v == null ? 60 : v) - 40) / 55));
 GP.parametros = function (a) {
@@ -483,8 +486,9 @@ GP.atualizarVisaoDoJogador = function (J) {
   let viu = false;
   for (const o of J.ents) {
     if (o === eu) continue;
-    o._visivel = GP.ve(J, eu, o);
-    if (o._visivel) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
+    o._naLinha = GP.ve(J, eu, o);
+    o._visivel = o.vivo && (GP.MOSTRAR_TODOS || o._naLinha);
+    if (o._naLinha) { o._vistoEm = J.t; o._vistoX = o.x; o._vistoY = o.y; viu = true; }
   }
   if (viu && !eu._viuEm) { eu._viuEm = J.t; eu._reagiu = false; eu._susto = {ini: J.t, dur: 0.25, forca: 1.6 * (1 - GP._q(eu.atrib.reflexo))}; }
   if (!viu && eu._viuEm && J.t - eu._viuEm > 1.5) eu._viuEm = 0;
