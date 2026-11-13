@@ -150,6 +150,31 @@ def abrir(caminho):
     return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
 
 
+def abrir_efeito(caminho):
+    """Fumaça, fogo, clarão: a imagem vem sobre verde ou magenta liso e o
+    efeito é translúcido. Desfaz a mistura com a cor do fundo (alfa = o quanto
+    o pixel NÃO é fundo), em vez de só recortar — assim o brilho fica suave."""
+    im = Image.open(caminho).convert('RGBA')
+    a = np.array(im).astype(np.float32)
+    if (a[..., 3] < 250).mean() > 0.02:      # já veio com transparência
+        return im
+    borda = np.concatenate([a[0, :, :3], a[-1, :, :3], a[:, 0, :3], a[:, -1, :3]])
+    bg = np.median(borda, axis=0)
+    if bg[1] > 150 and bg[0] < 100 and bg[2] < 100:
+        fundo = np.array([0, 255, 0], np.float32)          # verde
+    elif bg[0] > 150 and bg[2] > 150 and bg[1] < 100:
+        fundo = np.array([255, 0, 255], np.float32)        # magenta
+    else:
+        return abrir(caminho)
+    # quanto o pixel se afasta do fundo no canal mais diferente: longe = opaco
+    al = (np.abs(a[..., :3] - fundo).max(axis=2) / 190).clip(0, 1)
+    al[al < 0.06] = 0
+    k = 1 - al
+    cor = (a[..., :3] - k[..., None] * fundo) / np.maximum(al, 0.05)[..., None]
+    out = np.dstack([cor.clip(0, 255), (al * 255).clip(0, 255)]).astype(np.uint8)
+    return Image.fromarray(out, 'RGBA')
+
+
 def cortar(im, folga=6):
     al = np.array(im)[..., 3]
     ys, xs = np.where(al > 12)
@@ -283,7 +308,7 @@ def main():
     if os.path.isdir(PRONTO):
         import shutil
         shutil.rmtree(PRONTO)
-    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}, 'mapas_arte': {}, 'mecanicas': {}}
+    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}, 'mapas_arte': {}, 'mecanicas': {}, 'habilidades': {}}
     placar = []
     estranhos = []
     refazer = []
@@ -392,6 +417,28 @@ def main():
                 ent.update(ax=round(float(run.mean() / al.shape[1]), 3), ay=round(float(ys.mean() / al.shape[0]), 3),
                            pw=round(float(len(run) / al.shape[1]), 3))
             man['mecanicas'].setdefault(mp, {})[n] = ent
+    # o que cada habilidade desenha no mapa (tools/habilidades.py tem a lista e os prompts)
+    sys.path.insert(0, os.path.join(RAIZ, 'tools'))
+    from habilidades import PECAS as HAB
+    for ag, (_, fundo, pecas) in HAB.items():
+        pasta = os.path.join(BASE, 'habilidades', ag)
+        itens = [(arq, f'{tipo}: {desc}') for arq, tipo, desc in pecas]
+        placar.append((f'habilidades/{ag}',) + lista(pasta, f'Habilidades de {NOME.get(ag, ag.capitalize())} no mapa', itens,
+                      f'Vista exatamente de cima, fundo {fundo}. Prompts em assets/gameplay/habilidades/PROMPTS.md.'))
+        conferir_sobras(pasta, {n for n, _ in itens})
+        for arq, tipo, _ in pecas:
+            c = achar(pasta, arq)
+            if not c:
+                continue
+            rel = f'habilidades/{ag}/{arq}'
+            if tipo in ('area', 'clarao', 'cone', 'rastro', 'parede'):
+                # efeito: sem cortar a sobra (o centro da imagem é o centro do efeito)
+                im = reduzir(abrir_efeito(c), 1024 if tipo in ('parede', 'rastro') else 512)
+                ent = {'src': salvar(im, rel + '.webp'), 'w': im.width, 'h': im.height}
+            else:
+                ent = simples(c, rel, 256, fiapos=0.3)
+            ent['tipo'] = tipo
+            man['habilidades'].setdefault(ag, {})[arq] = ent
     # o mapa pintado inteiro (gerado com a planta de tools/mapas/plantas/): o
     # encaixe no mundo vem do plantas.json — a pintura cobre o quadrado da planta
     pasta = os.path.join(BASE, 'mapas_arte')
