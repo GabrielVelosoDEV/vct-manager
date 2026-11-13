@@ -32,3 +32,4 @@ package-lock.json
 
 # prévias geradas por tools/mapas/extrair.py
 tools/mapas/previa/
+__pycache__/
