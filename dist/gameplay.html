@@ -574,11 +574,10 @@ GP.ALCANCE_VISTA = 40;       /* o bot só briga com quem cabe na tela de quem jo
 /* Todo mundo aparece na tela, até atrás da parede (a parede ainda segura o
    tiro e a visão do bot). Habilidades de esconder vão usar o _naLinha. */
 GP.MOSTRAR_TODOS = false;
-/* regra da casa: o inimigo só aparece quando faz barulho (para quem ouve) ou
-   quando é revelado por habilidade (para o time todo). Bem perto e na linha
-   de visão também aparece (VISTA_PERTO m; 0 desliga). */
+/* regra da casa: na linha de visão você vê o inimigo sempre (andando no Shift
+   também). Atrás da parede ele só aparece quando faz barulho (para quem ouve)
+   ou quando é revelado por habilidade (para o time todo). */
 GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
-GP.VISTA_PERTO = 3;
 GP.ouve = function (J, a, b) {
   for (let i = J.sons.length - 1; i >= 0; i--) {
     const s = J.sons[i];
@@ -658,7 +657,6 @@ GP.angDif = (a, b) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2
 GP.ve = function (J, a, b) {
   if (!a.vivo || !b.vivo) return false;
   if (GP.vistaBloqueada && GP.vistaBloqueada(J, a, b)) return false;
-  if (!GP.MOSTRAR_TODOS && a.time !== b.time && !GP.percebe(J, a, b) && Math.hypot(b.x - a.x, b.y - a.y) > GP.VISTA_PERTO) return false;
   const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
   if (d > GP.ALCANCE_VISTA * (a.luneta ? 1.4 : 1)) return false;
   /* linha livre até o centro ou até uma das bordas do corpo */

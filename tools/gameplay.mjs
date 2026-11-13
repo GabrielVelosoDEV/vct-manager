@@ -185,14 +185,18 @@ for(const nome of nomes){
    ok(eu.pontosUlt===5&&eu.cargas.x===1,'ult: 5 abates não liberaram');
    GP.novoRound(J);ok(eu.cargas.x===1,'ult: sumiu na troca de round');
    J.round.fase='ativo';eu.cmd.hab='x';GP.passoHabilidades(J,1/120);ok(eu.pontosUlt===0&&eu.cargas.x===0,'ult: usar não zerou');}
-  /* só aparece quem faz barulho: parado e no Shift some; correndo ou atirando aparece */
+  /* visão: na linha de visão aparece sempre; atrás da parede, só com barulho ou revelado */
   {const J=GP.montarDuelo({mapa:'ascent',arma:'vandal',semente:4});const eu=J.eu,b=J.ents[1];J.round.fase='ativo';J.round.ate=J.t+999;b.bot=false;b.ia=null;
-   const n=J.m.nav;let p=null;for(let i=0;i<n.W*n.H&&!p;i++){if(!n.livre[i])continue;const x=(i%n.W+.5)*n.passo,y=((i/n.W|0)+.5)*n.passo;if(GP.raio(J.m,x,y,0,14)>=13)p={x,y};}
-   eu.x=p.x;eu.y=p.y;b.x=p.x+10;b.y=p.y;J.sons=[];
-   GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: parado e quieto apareceu');
-   b.cmd.mx=-1;b.cmd.modo='anda';for(let f=0;f<60;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;}GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: andando no Shift apareceu');
-   b.cmd.modo='corre';for(let f=0;f<90;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;}GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: correndo não apareceu');
-   J.t+=3;J.sons=[];GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: continuou aparecendo depois de parar');
+   const n=J.m.nav,pts=[];for(let i=0;i<n.W*n.H;i++)if(n.livre[i])pts.push({x:(i%n.W+.5)*n.passo,y:((i/n.W|0)+.5)*n.passo});
+   let A=null,B=null;for(const p of pts){if(GP.raio(J.m,p.x,p.y,0,14)<13)continue;A=p;break;}
+   for(const p of pts){const d=Math.hypot(p.x-A.x,p.y-A.y);if(d>8&&d<12&&!GP.linhaLivre(J.m,A.x,A.y,p.x,p.y)){B=p;break;}}
+   const parar=()=>{b.cmd.mx=b.cmd.my=0;b.vx=b.vy=0;J.t+=3;J.sons=[];};
+   eu.x=A.x;eu.y=A.y;b.x=A.x+10;b.y=A.y;parar();
+   b.cmd.mx=-1;b.cmd.modo='anda';for(let f=0;f<60;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;}GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: no Shift na minha frente não apareceu');
+   b.x=B.x;b.y=B.y;parar();GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: parado atrás da parede apareceu');
+   b.cmd.mx=1;b.cmd.modo='anda';for(let f=0;f<30;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;b.x=B.x;b.y=B.y;}GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: no Shift atrás da parede apareceu');
+   b.cmd.modo='corre';for(let f=0;f<60;f++){GP._aplicarComando(J,b,1/120);J.t+=1/120;b.x=B.x;b.y=B.y;}GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: correndo atrás da parede não apareceu');
+   parar();GP.atualizarVisaoDoJogador(J);ok(!b._visivel,'visão: continuou aparecendo depois de parar');
    GP._revelar(J,b,2);GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: revelado não apareceu');}
   console.log('habilidades dos 29 agentes testadas');
 }
