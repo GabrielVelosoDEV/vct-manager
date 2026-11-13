@@ -17,7 +17,7 @@
 GP.HAB_TESTE = true;      /* laboratório: cargas cheias e ultimate pronta todo round */
 
 /* ---------- utilitários ---------- */
-GP._hab = J => J.hab || (J.hab = {proj: [], areas: [], paredes: [], fx: [], orbes: [], robos: [], passos: [], bichos: [], drones: [], ev: 0});
+GP._hab = J => J.hab || (J.hab = {proj: [], areas: [], paredes: [], fx: [], orbes: [], robos: [], passos: [], bichos: [], drones: [], objs: [], muros: [], ev: 0});
 GP._ef = e => e.ef || (e.ef = {});
 GP._dir = e => ({x: Math.cos(e.ang), y: Math.sin(e.ang)});
 GP._inimigosDe = (J, e) => J.ents.filter(o => o.vivo && o.time !== e.time);
@@ -248,6 +248,7 @@ GP._segundoToque = function (J, e, k) {
 };
 
 GP.resetarHabilidades = function (J) {
+  if (J.hab && GP._tirarMuro) for (const w of J.hab.muros || []) GP._tirarMuro(J, w);
   J.hab = null; GP._hab(J).ev = J.eventos.length;
   for (const e of J.ents) {
     e.ef = {};
@@ -381,6 +382,7 @@ GP.passoHabilidades = function (J, dt) {
   H.orbes = H.orbes.filter(o => !o.usado && t < o.ate);
   if (GP.passoIniciadores) GP.passoIniciadores(J, dt);
   if (GP.passoControladores) GP.passoControladores(J, dt);
+  if (GP.passoSentinelas) GP.passoSentinelas(J, dt);
   H.fx = H.fx.filter(f => t - f.t < f.dur);
   /* efeitos no corpo */
   for (const e of J.ents) {
@@ -530,10 +532,12 @@ GP.desenharHabilidades = function (g, J) {
     else circ(a.x, a.y, a.r, a.fumaca ? 'rgba(220,230,240,.85)' : 'rgba(255,140,60,.4)');
   }
   for (const w of H.paredes) {
+    if (w.semDesenho) continue;
     const r = w.img && GP._imgHab(w.ag, w.img), L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), ang = Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
     const some = Math.min(1, (w.ate - t) / 0.4);
     g.save(); g.translate(w.a[0], w.a[1]); g.rotate(ang); g.globalAlpha = some;
-    if (r) {
+    if (r && w.estica) { const h = w.alto || 0.5; g.drawImage(r.im, 0, -h / 2, L, h); }
+    else if (r) {
       const h = w.alto || 1, iw = r.im.naturalWidth || r.im.width, ih = r.im.naturalHeight || r.im.height, passo = h * iw / ih;
       for (let s = 0; s < L; s += passo) { const f = Math.min(1, (L - s) / passo); g.drawImage(r.im, 0, 0, iw * f, ih, s, -h / 2, passo * f, h); }
     } else { g.fillStyle = w.cor || 'rgba(255,120,40,.6)'; g.fillRect(0, -(w.alto || 0.6) / 2, L, w.alto || 0.6); }
@@ -574,6 +578,7 @@ GP.desenharHabilidades = function (g, J) {
   }
   if (GP.desenharIniciadores) GP.desenharIniciadores(g, J);
   if (GP.desenharControladores) GP.desenharControladores(g, J);
+  if (GP.desenharSentinelas) GP.desenharSentinelas(g, J);
   /* rastros das armas das ultimates */
   for (const tr of J.tiros) if (tr.hab === 'raio') {
     const r = GP._imgHab('neon', 'x_rastro'); if (!r) continue;

@@ -7,10 +7,10 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima, fundo #FF00FF. Prompts em assets/gameplay/habilidades/PROMPTS.md.
 
-0/5 com imagem.
+5/5 com imagem.
 
-- [ ] `c_parede.png` — parede: uma parede de blocos de gelo e cristal verde-jade, sólida e translúcida, com brilho nas arestas (Barrier Orb)
-- [ ] `q_projetil.png` — projetil: um orbe de gelo verde-jade com névoa fria em volta (Slow Orb)
-- [ ] `q_area.png` — area: um campo de lentidão: chão coberto de gelo verde-jade cristalizado com névoa fria (Slow Orb)
-- [ ] `e_clarao.png` — clarao: um brilho de cura: luz verde-jade suave com partículas subindo em espiral (Healing Orb)
-- [ ] `x_area.png` — area: um círculo de ressurreição: luz verde-jade e branca subindo do chão em pilar, com anel de energia (Resurrection)
+- [x] `c_parede.png` — parede: uma parede de blocos de gelo e cristal verde-jade, sólida e translúcida, com brilho nas arestas (Barrier Orb)
+- [x] `q_projetil.png` — projetil: um orbe de gelo verde-jade com névoa fria em volta (Slow Orb)
+- [x] `q_area.png` — area: um campo de lentidão: chão coberto de gelo verde-jade cristalizado com névoa fria (Slow Orb)
+- [x] `e_clarao.png` — clarao: um brilho de cura: luz verde-jade suave com partículas subindo em espiral (Healing Orb)
+- [x] `x_area.png` — area: um círculo de ressurreição: luz verde-jade e branca subindo do chão em pilar, com anel de energia (Resurrection)

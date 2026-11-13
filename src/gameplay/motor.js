@@ -195,6 +195,7 @@ GP._atirar = function (J, e) {
   /* o tiro sai da frente do corpo */
   const ox = e.x + Math.cos(ang) * 0.3, oy = e.y + Math.sin(ang) * 0.3;
   const dx = Math.cos(ang), dy = Math.sin(ang);
+  J._atirando = e;
   let dParede = GP.raio(J.m, ox, oy, ang, 120);
   if (GP.tiroEmMecanica) dParede = GP.tiroEmMecanica(J, ox, oy, dx, dy, dParede);
   if (GP.tiroEmHab) dParede = GP.tiroEmHab(J, ox, oy, dx, dy, dParede);
@@ -217,11 +218,13 @@ GP._atirar = function (J, e) {
   if (!alvo) {
     J.marcas.push({x: ox + dx * tAlvo, y: oy + dy * tAlvo, t: J.t, tipo: 'parede'});
     if (GP.tiroAcertou) GP.tiroAcertou(J, ox + dx * (tAlvo + 0.05), oy + dy * (tAlvo + 0.05), GP.danoArma(Ad, tAlvo, 1));
+    J._atirando = null;
     return;
   }
   const parte = pAlvo < GP.ZONA_CABECA ? 0 : pAlvo < GP.ZONA_CORPO ? 1 : 2;
   const dano = GP.danoArma(Ad, tAlvo, parte);
   GP._dano(J, e, alvo, dano, parte, Ad);
+  J._atirando = null;
 };
 
 GP._dano = function (J, de, alvo, dano, parte, Ad) {

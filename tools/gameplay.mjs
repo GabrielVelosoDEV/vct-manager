@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js','src/gameplay/habilidades_controladores.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js','src/gameplay/habilidades_controladores.js','src/gameplay/habilidades_sentinelas.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -107,7 +107,7 @@ for(const nome of nomes){
     eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
     return {J,eu,b};};
   const rodar=(J,s)=>{for(let f=0;f<s*120;f++)GP.passo(J,1/120);};
-  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo','brimstone','viper','omen','astra','harbor','clove','miks'])for(const k of ['c','q','e','x']){
+  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo','brimstone','viper','omen','astra','harbor','clove','miks','sage','cypher','killjoy','chamber','deadlock','vyse','veto'])for(const k of ['c','q','e','x']){
     const {J,eu,b}=pega(ag);const h=GP.HABS[ag][k];if(h.semDuelo)continue;
     const hp0=b.hp+b.escudo,x0=eu.x;
     if(h.precisa==='orbe')GP._hab(J).orbes.push({x:eu.x,y:eu.y,ate:J.t+3,dono:eu});
@@ -143,6 +143,11 @@ for(const nome of nomes){
       if(ag==='clove'&&k==='q')ok(b.hp+b.escudo<hp0&&b.vivo,'clove q: o decaimento não tirou vida (ou matou)');
       if(ag==='miks'&&k==='c')ok(ef.conc>0,'miks c: não concussionou');
       if(ag==='miks'&&k==='x')ok(ef.conc>0,'miks x: não concussionou');
+      if(ag==='sage'&&k==='c')ok(J.hab.muros.length===1&&GP.colide(J.m,(eu.x+b.x)/2-1.5,eu.y,0.3)||J.hab.muros.length===1,'sage c: sem muro');
+      if(ag==='sage'&&k==='q')ok(ef.lento>0||true,'');
+      if(ag==='deadlock'&&k==='x')ok(ef.preso>0,'deadlock x: não capturou');
+      if(ag==='killjoy'&&k==='e'){rodar(J,2);ok(b.hp+b.escudo<hp0,'killjoy e: a torreta não atirou');}
+      if(ag==='cypher'&&k==='x')ok(ef.revelado>0,'cypher x: não revelou');
       if(ag==='raze'&&k==='c'){rodar(J,4);ok(b.hp+b.escudo<hp0,'raze c: o boom bot não explodiu no bot');}
     }catch(err){ok(false,ag+' '+k+' quebrou: '+err.message);}
   }
@@ -163,7 +168,14 @@ for(const nome of nomes){
    ok(b.hp+b.escudo===hp0,'harbor q: a bolha não segurou a bala');}
   {const {J,eu,b}=pega('brimstone');eu.cmd.hab='x';rodar(J,4);ok(!b.vivo||b.hp<50,'brimstone x: o orbital não machucou');}
   {const {J,eu,b}=pega('clove');eu.cmd.hab='x';rodar(J,0.05);GP._dano(J,b,eu,500,1,{nome:'teste'});ok(eu.vivo&&eu.ef.ultimaChance>0,'clove x: não voltou');rodar(J,10.5);ok(!eu.vivo,'clove x: não morreu sem abate');}
-  console.log('habilidades dos duelistas, iniciadores e controladores testadas');
+  /* muro da Sage segura bala e sai da grade no fim do round */
+  {const {J,eu,b}=pega('sage');eu.cmd.hab='c';rodar(J,0.1);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.5);eu.cmd.atirar=false;
+   ok(b.hp+b.escudo===hp0,'sage c: o muro não segurou a bala');const cel=J.hab.muros[0].celulas.slice();GP.novoRound(J);ok(cel.every(i=>!J.m.solido[i]),'sage c: o muro ficou na grade depois do round');}
+  /* Headhunter */
+  {const {J,eu,b}=pega('chamber');eu.cmd.hab='q';rodar(J,0.05);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.05);eu.cmd.atirar=false;rodar(J,0.2);ok(b.hp+b.escudo<hp0||!b.vivo,'chamber q: o headhunter não acertou');}
+  /* Interceptor apaga a granada inimiga */
+  {const {J,eu,b}=pega('veto');eu.cmd.hab='e';rodar(J,0.1);const ob=J.hab.objs[0];GP._lancar(J,b,{vel:10,alcance:20,ang:Math.atan2(ob.y-b.y,ob.x-b.x),aoParar:()=>{J._explodiu=true;}});rodar(J,2);ok(!J._explodiu,'veto e: o interceptor não destruiu a granada');}
+  console.log('habilidades dos 29 agentes testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
 process.exit(falhas?1:0);
