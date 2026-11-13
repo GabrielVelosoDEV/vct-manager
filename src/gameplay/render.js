@@ -123,10 +123,81 @@ GP._miniDaGrade = function (m, tema) {
 };
 /* o mapa pintado inteiro, se já chegou e carregou */
 GP.CAIXAS_POR_CIMA = [];
-GP.pinturaDoMapa = function (nome) {
+GP.pinturaDoMapa = function (nome, m) {
   const e = GP.manifesto ? (GP.manifesto().mapas_arte || {})[nome] : null;
   const im = e && GP.imagem(e.src);
-  return im ? {img: im, x0: e.x0_m, y0: e.y0_m, lado: e.lado_m} : null;
+  if (!im) return null;
+  const pt = {img: im, x0: e.x0_m, y0: e.y0_m, lado: e.lado_m};
+  if (m) pt.img = GP._letrasNaPintura(pt, m);
+  return pt;
+};
+
+/* Onde pintar a letra do bomb: num pedaço de chão livre dentro da área, longe
+   das paredes e das caixas (que são sólidas na grade) e afastado do meio, onde
+   a pintura costuma ter o símbolo do bomb. Devolve o centro em metros e o
+   tamanho que cabe ali. */
+GP._lugarDaLetra = function (m, L) {
+  const {W, H, cel} = m, cod = GP.SITIO_COD[L], st = m.sitios[L];
+  /* distância (em células) até a borda da área: parede, caixa ou chão fora do
+     bomb (a tinta amarela da pintura acompanha a área, então a letra fica dentro dela) */
+  const d = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) d[i] = m.solido[i] || m.sitio[i] !== cod ? 0 : 1e9;
+  const D = Math.SQRT2;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (!d[i]) continue;
+    if (x > 0) d[i] = Math.min(d[i], d[i - 1] + 1);
+    if (y > 0) { d[i] = Math.min(d[i], d[i - W] + 1); if (x > 0) d[i] = Math.min(d[i], d[i - W - 1] + D); if (x < W - 1) d[i] = Math.min(d[i], d[i - W + 1] + D); }
+  }
+  for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
+    const i = y * W + x; if (!d[i]) continue;
+    if (x < W - 1) d[i] = Math.min(d[i], d[i + 1] + 1);
+    if (y < H - 1) { d[i] = Math.min(d[i], d[i + W] + 1); if (x < W - 1) d[i] = Math.min(d[i], d[i + W + 1] + D); if (x > 0) d[i] = Math.min(d[i], d[i + W - 1] + D); }
+  }
+  let melhor = null;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (m.sitio[i] !== cod) continue;
+    const livre = d[i] * cel, px = (x + 0.5) * cel, py = (y + 0.5) * cel;
+    const doMeio = Math.hypot(px - st.x, py - st.y);
+    if (livre < 1.2) continue;
+    const nota = Math.min(livre, 3) * 2 + Math.min(doMeio, 3.5) * 0.4 - (doMeio < 2.2 ? 2 : 0) - Math.max(0, doMeio - 5);
+    if (!melhor || nota > melhor.nota) melhor = {nota, x: px, y: py, livre};
+  }
+  if (!melhor) return {x: st.x, y: st.y, alto: 3.2};
+  return {x: melhor.x, y: melhor.y, alto: Math.max(2.6, Math.min(4.6, melhor.livre * 1.35))};
+};
+
+/* As letras do bomb pintadas no chão da pintura, como tinta gasta: entram por
+   multiplicação, então a pedra, as rachaduras e a luz continuam aparecendo
+   através da tinta. Feito uma vez, numa cópia da pintura (sem ler pixels, para
+   funcionar também abrindo o arquivo direto). */
+GP._letrasNaPintura = function (pt, m) {
+  const man = GP.manifesto ? GP.manifesto().marcas || {} : {};
+  const letras = Object.keys(m.sitios).filter(L => man['letra_' + L] && GP.imagem(man['letra_' + L].src));
+  if (!letras.length) return pt.img;
+  const cv = document.createElement('canvas');
+  cv.width = pt.img.naturalWidth || pt.img.width; cv.height = pt.img.naturalHeight || pt.img.height;
+  const g = cv.getContext('2d'), ppm = cv.width / pt.lado;
+  g.drawImage(pt.img, 0, 0);
+  for (const L of letras) {
+    const im = GP.imagem(man['letra_' + L].src), lug = GP._lugarDaLetra(m, L);
+    const h = lug.alto * ppm, w = h * im.width / im.height;
+    /* a letra em tinta escura, recortada no formato da imagem */
+    const tinta = document.createElement('canvas');
+    tinta.width = Math.ceil(w); tinta.height = Math.ceil(h);
+    const tg = tinta.getContext('2d');
+    tg.drawImage(im, 0, 0, w, h);
+    tg.globalCompositeOperation = 'source-in';
+    tg.fillStyle = '#3a2a1e'; tg.fillRect(0, 0, w, h);
+    const ang = ((L.charCodeAt(0) % 3) - 1) * 0.09;       /* levemente torta, como pintada à mão */
+    g.save();
+    g.translate((lug.x - pt.x0) * ppm, (lug.y - pt.y0) * ppm); g.rotate(ang);
+    g.globalCompositeOperation = 'multiply'; g.globalAlpha = 0.78;
+    g.drawImage(tinta, -w / 2, -h / 2);
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.12;
+    g.drawImage(tinta, -w / 2, -h / 2);
+    g.restore();
+  }
+  return cv;
 };
 
 GP.desenharMapa = function (m) {
@@ -157,7 +228,7 @@ GP.desenharMapa = function (m) {
      cobre também a paisagem em volta). As caixas já vêm pintadas no lugar das
      da colisão (conferido mapa a mapa contra a planta); só os mapas listados em
      GP.CAIXAS_POR_CIMA ganham as nossas por cima. O minimapa sai da grade. */
-  const pintura = GP.pinturaDoMapa(m.nome);
+  const pintura = GP.pinturaDoMapa(m.nome, m);
   if (pintura) {
     if (GP.CAIXAS_POR_CIMA.includes(m.nome)) GP._objetosDeCobertura(g, m, S);
     return {tela, mini: GP._miniDaGrade(m, tema), tema, pintura};
