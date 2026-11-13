@@ -34,6 +34,18 @@ for(const nome of nomes){
   }
   ok(Object.keys(m.sitios).length===(nome==='haven'||nome==='lotus'?3:2),nome+': bombs '+Object.keys(m.sitios).join(''));
   const comp=cam?cam.reduce((s,p,i)=>i?s+Math.hypot(p.x-cam[i-1].x,p.y-cam[i-1].y):0,0):0;
+  /* colisão: 30 s correndo em direções sorteadas contra as paredes — o corpo
+     nunca pode ficar dentro da parede (era o "fica preso") */
+  {
+    const J=GP.montarDuelo({mapa:nome,arma:'vandal',semente:5});const e=J.eu;J.ents=[e];J.round.fase='ativo';
+    const rnd=GP.rng(11);let dentro=0;
+    for(let f=0;f<120*30;f++){
+      if(f%45===0){const a=rnd()*6.28;e.cmd.mx=Math.cos(a);e.cmd.my=Math.sin(a);e.cmd.modo='corre';}
+      GP._aplicarComando(J,e,1/120);J.t+=1/120;
+      if(GP.colide(J.m,e.x,e.y,e.raioCol*0.95)||!isFinite(e.x))dentro++;
+    }
+    ok(!dentro,nome+': corpo dentro da parede em '+dentro+' quadros');
+  }
   /* duelo: T1 (o "eu", mas pilotado pela IA) contra Ranked */
   let vEu=0,vEles=0,quadros=0,rounds=0,kd=[0,0];
   for(let s=1;s<=3;s++){

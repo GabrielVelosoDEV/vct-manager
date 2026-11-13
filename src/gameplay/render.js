@@ -232,7 +232,7 @@ GP.desenharMapa = function (m) {
     g.textAlign = 'center'; g.textBaseline = 'middle';
     const marca = GP.manifesto ? (GP.manifesto().marcas || {})['letra_' + L] : null;
     const mim = marca && GP.imagem(marca.src);
-    if (mim) { const t = 7 * S; g.globalAlpha = 0.5; g.drawImage(mim, st.x * S - t / 2, st.y * S - t / 2, t, t); g.restore(); continue; }
+    if (mim) { const t = 7 * S; g.globalAlpha = 0.35; g.drawImage(mim, st.x * S - t / 2, st.y * S - t / 2, t, t); g.restore(); continue; }
     g.fillStyle = tema.sitio; g.globalAlpha = 0.34;
     g.fillText(L.toUpperCase(), st.x * S, st.y * S);
     g.globalAlpha = 0.6; g.lineWidth = Math.max(2, S * 0.12); g.strokeStyle = 'rgba(0,0,0,.55)';

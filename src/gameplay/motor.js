@@ -15,7 +15,8 @@
    ============================================================ */
 var GP = (typeof GP !== 'undefined' && GP) || {};
 
-GP.RAIO_CORPO = 0.42;
+GP.RAIO_CORPO = 0.42;        /* o que leva tiro */
+GP.RAIO_COLISAO = 0.32;      /* o que bate na parede: menor, passa nas portas sem enganchar */
 GP.ZONA_CABECA = 0.11;      /* distância do centro (m) que conta cabeça */
 GP.ZONA_CORPO = 0.31;
 GP.ALCANCE_SOM = 15;        /* passos correndo se ouvem até aqui */
@@ -51,7 +52,7 @@ GP.criarAgente = function (o) {
   return {
     id: o.id, nome: o.nome || o.id, time: o.time, bot: !!o.bot, passivo: !!o.passivo, agente: o.agente || null,
     atrib: o.atrib || {}, p,
-    x: 0, y: 0, vx: 0, vy: 0, ang: 0, raio: GP.RAIO_CORPO,
+    x: 0, y: 0, vx: 0, vy: 0, ang: 0, raio: GP.RAIO_CORPO, raioCol: GP.RAIO_COLISAO,
     hp: 100, escudo: GP.ESCUDOS[o.escudo || 'pesado'], vivo: true,
     armas: {primaria: o.primaria ? arma(o.primaria) : null, secundaria: arma(o.secundaria || 'classic')},
     slot: o.primaria ? 'primaria' : 'secundaria',
@@ -131,7 +132,16 @@ GP._aplicarComando = function (J, e, dt) {
   const dvx = tx - e.vx, dvy = ty - e.vy, dv = Math.hypot(dvx, dvy);
   const passo = e.p.acel * dt;
   if (dv <= passo) { e.vx = tx; e.vy = ty; } else { e.vx += dvx / dv * passo; e.vy += dvy / dv * passo; }
-  if (GP.mover(J.m, e, e.vx * dt, e.vy * dt)) { /* bateu: perde o componente contra a parede */ e.vx *= 0.6; e.vy *= 0.6; }
+  const bat = GP.mover(J.m, e, e.vx * dt, e.vy * dt);
+  if (bat) {
+    /* bateu: tira só a parte da velocidade que vai contra a parede; o resto
+       continua (desliza na parede em vez de grudar) */
+    const l = Math.hypot(bat.nx, bat.ny);
+    if (l > 1e-9) {
+      const nx = bat.nx / l, ny = bat.ny / l, vn = e.vx * nx + e.vy * ny;
+      if (vn < 0) { e.vx -= vn * nx; e.vy -= vn * ny; }
+    }
+  }
   if (!e.bot) e.ang = c.ang;
   /* passos: correndo faz barulho */
   const vel = Math.hypot(e.vx, e.vy);

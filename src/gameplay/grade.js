@@ -119,17 +119,57 @@ GP.colide = function (m, x, y, r) {
   }
   return false;
 };
-GP.mover = function (m, e, dx, dy) {
-  const r = e.raio;
-  /* passos curtos: nada atravessa parede fina em quadro lento */
-  const n = Math.max(1, Math.ceil(Math.hypot(dx, dy) / (m.cel * 0.45)));
-  const sx = dx / n, sy = dy / n;
-  let bateu = false;
-  for (let i = 0; i < n; i++) {
-    if (!GP.colide(m, e.x + sx, e.y, r)) e.x += sx; else bateu = true;
-    if (!GP.colide(m, e.x, e.y + sy, r)) e.y += sy; else bateu = true;
+/* Movimento com colisão por "empurrão": anda, e se o corpo entrou na parede
+   ele é empurrado para fora pela menor saída. Assim o boneco desliza nas
+   paredes e nas quinas em escada sem enganchar, e nunca fica preso dentro.
+   Devolve a normal da parede (para tirar só a parte da velocidade contra
+   ela) ou null se não bateu. */
+GP._empurrar = function (m, e, r) {
+  const c = m.cel;
+  let nx = 0, ny = 0, bateu = false;
+  for (let it = 0; it < 4; it++) {
+    let px = 0, py = 0, ok = true;
+    const x0 = Math.floor((e.x - r) / c), x1 = Math.floor((e.x + r) / c);
+    const y0 = Math.floor((e.y - r) / c), y1 = Math.floor((e.y + r) / c);
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+      if (!GP.celSolida(m, cx, cy)) continue;
+      const qx = Math.max(cx * c, Math.min(e.x, (cx + 1) * c));
+      const qy = Math.max(cy * c, Math.min(e.y, (cy + 1) * c));
+      let dx = e.x - qx, dy = e.y - qy;
+      const d = Math.hypot(dx, dy);
+      if (d >= r) continue;
+      ok = false;
+      if (d > 1e-6) { px += dx / d * (r - d); py += dy / d * (r - d); }
+      else {
+        /* o centro caiu dentro da célula: sai pelo lado mais perto */
+        const sx = [e.x - cx * c, (cx + 1) * c - e.x], sy = [e.y - cy * c, (cy + 1) * c - e.y];
+        const m2 = Math.min(sx[0], sx[1], sy[0], sy[1]);
+        if (m2 === sx[0]) px -= sx[0] + r; else if (m2 === sx[1]) px += sx[1] + r;
+        else if (m2 === sy[0]) py -= sy[0] + r; else py += sy[1] + r;
+      }
+    }
+    if (ok) break;
+    bateu = true;
+    e.x += px; e.y += py; nx += px; ny += py;
   }
-  return bateu;
+  /* ainda dentro (caso raro): volta para o chão livre mais perto */
+  if (bateu && GP.colide(m, e.x, e.y, r * 0.9)) {
+    const i = GP._navPerto(m, e.x, e.y);
+    if (i >= 0) { const n = m.nav; e.x = (i % n.W + 0.5) * n.passo; e.y = (((i / n.W) | 0) + 0.5) * n.passo; }
+  }
+  return bateu ? {nx, ny} : null;
+};
+GP.mover = function (m, e, dx, dy) {
+  const r = e.raioCol || e.raio;
+  /* passos curtos: nada atravessa parede fina em quadro lento */
+  const n = Math.max(1, Math.ceil(Math.hypot(dx, dy) / (m.cel * 0.4)));
+  let nx = 0, ny = 0, bateu = false;
+  for (let i = 0; i < n; i++) {
+    e.x += dx / n; e.y += dy / n;
+    const b = GP._empurrar(m, e, r);
+    if (b) { bateu = true; nx += b.nx; ny += b.ny; }
+  }
+  return bateu ? {nx, ny} : null;
 };
 
 /* ---------- navegação ----------

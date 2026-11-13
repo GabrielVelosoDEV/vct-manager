@@ -192,7 +192,10 @@ GP._quadro = function (agora) {
   if (!S.pausa && !J.fim) {
     S.acum += dt;
     const h = 1 / 120;
-    while (S.acum >= h) { GP._comando(); GP.passo(J, h); S.acum -= h; }
+    while (S.acum >= h) {
+      for (const e of J.ents) { e._ax = e.x; e._ay = e.y; }
+      GP._comando(); GP.passo(J, h); S.acum -= h;
+    }
     GP.atualizarVisaoDoJogador(J);
   }
   /* câmera: segue você e puxa um pouco para onde você mira */
@@ -206,7 +209,13 @@ GP._quadro = function (agora) {
   }
   const tx = eu.x + ox, ty = eu.y + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
+  /* desenha entre o passo anterior e o atual (o motor roda a 120/s e a tela
+     no ritmo do monitor): o movimento fica liso em qualquer taxa de quadros */
+  const al = S.pausa || J.fim ? 1 : Math.min(1, S.acum / (1 / 120));
+  const reais = J.ents.map(e => [e.x, e.y]);
+  for (const e of J.ents) if (e._ax != null && Math.hypot(e.x - e._ax, e.y - e._ay) < 2) { e.x = e._ax + (e.x - e._ax) * al; e.y = e._ay + (e.y - e._ay) * al; }
   GP.render(R, J, S.cam, S.ui);
+  J.ents.forEach((e, i) => { e.x = reais[i][0]; e.y = reais[i][1]; });
   GP._lerEventos();
   if (agora - S.hudEm > 66) { S.hudEm = agora; GP._hud(); }
   if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }

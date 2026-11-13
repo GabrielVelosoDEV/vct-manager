@@ -84,9 +84,14 @@ def achar(pasta, nome):
     if not os.path.isdir(pasta):
         return None
     ok = _nomes_validos(pasta, nome)
+    agente = os.path.basename(os.path.dirname(pasta)) == 'agentes'
     for f in sorted(os.listdir(pasta)):
         b, ext = os.path.splitext(f)
-        if ext.lower() in EXTS and b.lower().replace(' ', '_') in ok:
+        if ext.lower() not in EXTS:
+            continue
+        b = b.lower().replace(' ', '_')
+        # na pasta do agente vale qualquer prefixo: kayoh_parado, kay-o_parado…
+        if b in ok or (agente and '_' in b and b.split('_', 1)[1] in ok):
             return os.path.join(pasta, f)
     return None
 
