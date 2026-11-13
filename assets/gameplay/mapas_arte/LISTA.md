@@ -7,7 +7,7 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão no documento, aba "Mapas pintados".
 
-0/13 com imagem.
+1/13 com imagem.
 
 - [ ] `abyss.png` — Abyss pintado de cima (quadrado, com a planta tools/mapas/plantas/abyss.png)
 - [ ] `ascent.png` — Ascent pintado de cima (quadrado, com a planta tools/mapas/plantas/ascent.png)
@@ -20,5 +20,5 @@ Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão 
 - [ ] `lotus.png` — Lotus pintado de cima (quadrado, com a planta tools/mapas/plantas/lotus.png)
 - [ ] `pearl.png` — Pearl pintado de cima (quadrado, com a planta tools/mapas/plantas/pearl.png)
 - [ ] `split.png` — Split pintado de cima (quadrado, com a planta tools/mapas/plantas/split.png)
-- [ ] `summit.png` — Summit pintado de cima (quadrado, com a planta tools/mapas/plantas/summit.png)
+- [x] `summit.png` — Summit pintado de cima (quadrado, com a planta tools/mapas/plantas/summit.png)
 - [ ] `sunset.png` — Sunset pintado de cima (quadrado, com a planta tools/mapas/plantas/sunset.png)

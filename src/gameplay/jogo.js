@@ -210,6 +210,14 @@ GP._quadro = function (agora) {
   }
   const tx = eu.x + ox, ty = eu.y + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
+  /* mapa pintado: a câmera não passa da borda da pintura (fora dela não há nada) */
+  const pt = R.arte && R.arte.pintura;
+  if (pt) {
+    const meiaW = R.cv.width / S.cam.escala / 2, meiaH = R.cv.height / S.cam.escala / 2;
+    const prende = (v, a, b) => a > b ? (a + b) / 2 : Math.max(a, Math.min(b, v));
+    S.cam.x = prende(S.cam.x, pt.x0 + meiaW, pt.x0 + pt.lado - meiaW);
+    S.cam.y = prende(S.cam.y, pt.y0 + meiaH, pt.y0 + pt.lado - meiaH);
+  }
   /* desenha entre o passo anterior e o atual (o motor roda a 120/s e a tela
      no ritmo do monitor): o movimento fica liso em qualquer taxa de quadros */
   const al = S.pausa || J.fim ? 1 : Math.min(1, S.acum / (1 / 120));

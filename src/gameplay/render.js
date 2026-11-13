@@ -122,6 +122,7 @@ GP._miniDaGrade = function (m, tema) {
   return mini;
 };
 /* o mapa pintado inteiro, se já chegou e carregou */
+GP.CAIXAS_POR_CIMA = [];
 GP.pinturaDoMapa = function (nome) {
   const e = GP.manifesto ? (GP.manifesto().mapas_arte || {})[nome] : null;
   const im = e && GP.imagem(e.src);
@@ -153,11 +154,12 @@ GP.desenharMapa = function (m) {
   const TW = tela.width = Math.round(W * c * S), TH = tela.height = Math.round(H * c * S);
   const g = tela.getContext('2d');
   /* Com o mapa pintado: a pintura é desenhada direto na tela a cada quadro (ela
-     cobre também a paisagem em volta); aqui só vão as caixas, que são as da
-     colisão. O minimapa continua saindo da grade. */
+     cobre também a paisagem em volta). As caixas já vêm pintadas no lugar das
+     da colisão (conferido mapa a mapa contra a planta); só os mapas listados em
+     GP.CAIXAS_POR_CIMA ganham as nossas por cima. O minimapa sai da grade. */
   const pintura = GP.pinturaDoMapa(m.nome);
   if (pintura) {
-    GP._objetosDeCobertura(g, m, S);
+    if (GP.CAIXAS_POR_CIMA.includes(m.nome)) GP._objetosDeCobertura(g, m, S);
     return {tela, mini: GP._miniDaGrade(m, tema), tema, pintura};
   }
   const img = g.createImageData(TW, TH), d = img.data;
