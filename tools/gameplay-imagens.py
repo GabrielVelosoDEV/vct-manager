@@ -50,6 +50,30 @@ DECOR = {
 }
 MARCAS = {'letra_a': 'letra A pintada no chão do bomb', 'letra_b': 'letra B pintada no chão',
           'letra_c': 'letra C pintada no chão (Haven e Lotus)'}
+# peças que mudam durante a partida e vão por cima do mapa pintado (os prompts
+# estão no documento, aba "Mecânicas dos mapas"); Pearl e Corrode não têm nenhuma
+MECANICAS = {
+    'abyss': {'porta_fechada': 'porta destrutível, fechada (~4 m)', 'porta_quebrada': 'a mesma porta destruída'},
+    'ascent': {'porta_fechada': 'porta de segurança de metal, fechada (~4 m)', 'porta_aberta': 'a mesma porta recolhida/aberta',
+               'porta_quebrada': 'a mesma porta destruída', 'interruptor': 'interruptor na parede que fecha a porta'},
+    'bind': {'teleporte_entrada': 'teleporte: plataforma de entrada (~2,5 m)', 'teleporte_saida': 'teleporte: plataforma de saída',
+             'teleporte_brilho': 'brilho/flash de quem teleporta'},
+    'breeze': {'porta_fechada': 'porta automática do Mid Hall, fechada (~4 m)', 'porta_aberta': 'a mesma porta aberta',
+               'corda_ponta': 'ponta da corda do A (onde se sobe)', 'corda_trecho': 'trecho de corda que se repete (faixa 1024×256)'},
+    'fracture': {'porta_fechada': 'porta automática do A, fechada (~4 m)', 'porta_aberta': 'a mesma porta aberta',
+                 'tirolesa_ponta': 'ponta/poste da tirolesa', 'tirolesa_trecho': 'trecho de cabo que se repete (faixa 1024×256)'},
+    'haven': {'garagem_fechada': 'portão da garagem do C com chapas de metal (~5 m)', 'garagem_quebrada': 'o mesmo portão com as chapas arrancadas'},
+    'icebox': {'tirolesa_ponta': 'ponta/poste da tirolesa', 'tirolesa_trecho': 'trecho de cabo que se repete (faixa 1024×256)'},
+    'lotus': {'porta_giratoria_fechada': 'porta giratória de pedra, fechada (~4 m)', 'porta_giratoria_aberta': 'a mesma porta girada (aberta)',
+              'botao': 'botão que gira a porta', 'porta_fragil': 'porta pequena de madeira do A Link (~2,5 m)',
+              'porta_fragil_quebrada': 'a mesma porta quebrada', 'tirolesa_ponta': 'ponta da tirolesa do A',
+              'tirolesa_trecho': 'trecho de cabo que se repete (faixa 1024×256)'},
+    'split': {'corda_ponta': 'ponta da corda (Sewer, Vent, Rafters)', 'corda_trecho': 'trecho de corda que se repete (faixa 1024×256)'},
+    'summit': {'muro_em_pe': 'muro que cai, ainda em pé (~6 m)', 'muro_caido': 'o mesmo muro caído no chão',
+               'interruptor': 'interruptor que derruba o muro', 'interruptor_quebrado': 'o mesmo interruptor destruído'},
+    'sunset': {'porta_aberta': 'porta de enrolar do Market, aberta (~4 m)', 'porta_fechada': 'a mesma porta fechada',
+               'porta_quebrada': 'a mesma porta destruída'},
+}
 MAPAS = ['abyss', 'ascent', 'bind', 'breeze', 'corrode', 'fracture', 'haven', 'icebox', 'lotus', 'pearl', 'split', 'summit', 'sunset']
 
 DESC_QUADRO = {'retrato': 'retrato (1024×1024)', 'parado': 'boneco parado', 'passo1': 'boneco, passo 1',
@@ -259,7 +283,7 @@ def main():
     if os.path.isdir(PRONTO):
         import shutil
         shutil.rmtree(PRONTO)
-    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}, 'mapas_arte': {}}
+    man = {'agentes': {}, 'armas': {}, 'efeitos': {}, 'objetos': {}, 'texturas': {}, 'decoracao': {}, 'marcas': {}, 'mapas_arte': {}, 'mecanicas': {}}
     placar = []
     estranhos = []
     refazer = []
@@ -337,6 +361,24 @@ def main():
                 # recorte de folha com vários objetos: fica o principal (e quem
                 # tiver tamanho parecido), sem os pedaços do vizinho na borda
                 man['decoracao'].setdefault(mp, {})[n] = simples(c, f'decoracao/{mp}/{n}', 256, fiapos=0.3)
+    for mp, pecas in MECANICAS.items():
+        pasta = os.path.join(BASE, 'mecanicas', mp)
+        itens = list(pecas.items())
+        placar.append((f'mecanicas/{mp}',) + lista(pasta, f'Mecânicas de {mp.capitalize()}', itens,
+                      'Vista exatamente de cima (como o mapa pintado), deitada na horizontal, sem sombra. Prompts no documento, aba "Mecânicas dos mapas".'))
+        conferir_sobras(pasta, {n for n, _ in itens})
+        for n, _ in itens:
+            c = achar(pasta, n)
+            if not c:
+                continue
+            if n.endswith('_trecho'):     # faixa que se repete: não corta as pontas
+                man['mecanicas'].setdefault(mp, {})[n] = simples(c, f'mecanicas/{mp}/{n}', 1024, cortar_sobra=False)
+                continue
+            prob = problema_de_recorte(c)
+            if prob:
+                refazer.append(f'mecanicas/{mp}/{n}: {prob}')
+                continue
+            man['mecanicas'].setdefault(mp, {})[n] = simples(c, f'mecanicas/{mp}/{n}', 512, fiapos=0.3)
     # o mapa pintado inteiro (gerado com a planta de tools/mapas/plantas/): o
     # encaixe no mundo vem do plantas.json — a pintura cobre o quadrado da planta
     pasta = os.path.join(BASE, 'mapas_arte')
