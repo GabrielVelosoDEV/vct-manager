@@ -169,6 +169,7 @@ PECAS = {
     'harbor': ('azul-turquesa de água, branco de espuma e bronze antigo', VERDE, [
         ('c_projetil', 'projetil', 'uma esfera de água turquesa girando, com espuma em espiral (Storm Surge)'),
         ('c_area', 'area', 'um redemoinho de água turquesa explosivo no chão, girando para o centro, com espuma e gotas (Storm Surge)'),
+        ('c_clarao', 'clarao', 'o estouro do redemoinho: jatos de água turquesa e espuma subindo do centro (Storm Surge)'),
         ('q_parede', 'parede', 'uma parede alta de água turquesa correndo, com espuma e gotas (High Tide)'),
         ('e_area', 'area', 'uma cúpula esférica de água turquesa translúcida, com reflexos e espuma na borda (Cove)'),
         ('x_parede', 'parede', 'uma onda gigante de água turquesa avançando pelo chão, com espuma branca na crista (Reckoning)'),

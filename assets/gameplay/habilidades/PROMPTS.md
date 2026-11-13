@@ -1,6 +1,6 @@
 # Habilidades no mapa — prompts
 
-151 peças para os 29 agentes.
+152 peças para os 29 agentes.
 
 O que cada habilidade desenha no mapa, visto de cima: o que voa, o que fica no chão, a fumaça, o fogo e as paredes.
 Os ícones C/Q/E/X do HUD continuam como estão, nas pastas dos agentes.
@@ -703,6 +703,12 @@ Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 9
 
 ```
 Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Um redemoinho de água turquesa explosivo no chão, girando para o centro, com espuma e gotas (Storm Surge), visto de cima: um efeito redondo que cobre o chão, mais denso no meio e com a borda se desfazendo em partículas. O centro da imagem é o centro do efeito; ele ocupa quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
+```
+
+#### c_clarao
+
+```
+Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. O estouro do redemoinho: jatos de água turquesa e espuma subindo do centro (Storm Surge), visto de cima: uma explosão de luz e partículas saindo do centro da imagem, sem objeto sólido, ocupando quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
 ```
 
 #### q_parede

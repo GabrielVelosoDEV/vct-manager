@@ -106,7 +106,7 @@ Object.assign(GP.HABS, {
     c: {nome: 'Storm Surge', cargas: 1, usar(J, e) {
       const alvo = GP._pontoMirado(J, e, 18);
       GP._lancar(J, e, {vel: 18, alcance: alvo.d, img: 'c_projetil', ag: 'harbor', aoParar: (J, p) => GP._area(J, {x: p.x, y: p.y, r: 3.5, ate: J.t + 0.9, img: 'c_area', ag: 'harbor', alfa: 0.6, aoFim: J => {
-        GP._fx(J, {x: p.x, y: p.y, img: 'c_area', ag: 'harbor', r: 3.6, dur: 0.7});
+        GP._fx(J, {x: p.x, y: p.y, img: 'c_clarao', ag: 'harbor', r: 3.6, dur: 0.7});
         for (const o of GP._noRaio(J, e, p.x, p.y, 3.5, false)) { GP._miope(J, o, 3); GP._ef(o).lento = J.t + 3; }
       }})});
     }},
