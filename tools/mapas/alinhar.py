@@ -65,24 +65,30 @@ def _mascara_chao(rot, chao_p, k):
     return m.astype(bool)
 
 
-def _ecc_afim(chao_p, chao_a):
+def _ecc_afim(chao_p, chao_a, ret):
+    """refina o encaixe (pintura no retângulo ret da planta) por ECC, só
+    escala e posição. Devolve o retângulo novo."""
     s = 4
     a = cv2.GaussianBlur(cv2.resize(chao_p.astype(np.float32), (N // s, N // s)), (0, 0), 3)
     b = cv2.GaussianBlur(cv2.resize(chao_a.astype(np.float32), (N // s, N // s)), (0, 0), 3)
-    melhor = None
-    for sc in (0.85, 0.92, 1.0, 1.08):
-        w = np.array([[sc, 0, (1 - sc) * N / s / 2], [0, sc, (1 - sc) * N / s / 2]], np.float32)
-        try:
-            cc, w = cv2.findTransformECC(a, b, w, cv2.MOTION_AFFINE,
-                                         (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 300, 1e-6), None, 5)
-        except cv2.error:
-            continue
-        if melhor is None or cc > melhor[0]:
-            melhor = (cc, w.copy())
-    if melhor is None:
-        return np.array([[1, 0, 0], [0, 1, 0]], np.float32)
-    w = melhor[1]; w[:, 2] *= s
-    return w
+    x0, y0, w, h = ret
+    ax, ay = N / w, N / h            # src = a·dst + t
+    W = np.array([[ax, 0, -x0 * ax / s], [0, ay, -y0 * ay / s]], np.float32)
+    try:
+        _, W = cv2.findTransformECC(a, b, W, cv2.MOTION_AFFINE,
+                                    (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 300, 1e-6), None, 5)
+    except cv2.error:
+        return ret
+    ax, ay = float(W[0, 0]), float(W[1, 1])
+    return (-W[0, 2] * s / ax, -W[1, 2] * s / ay, N / ax, N / ay)
+
+
+def _para_pintura(m, ret):
+    """traz uma máscara da planta para o espaço da pintura (posta em ret)"""
+    x0, y0, w, h = ret
+    u, v = np.meshgrid(np.arange(N, dtype=np.float32), np.arange(N, dtype=np.float32))
+    mx = (x0 + (u + 0.5) * w / N - 0.5).astype(np.float32); my = (y0 + (v + 0.5) * h / N - 0.5).astype(np.float32)
+    return cv2.remap(m.astype(np.uint8), mx, my, cv2.INTER_NEAREST, borderValue=0).astype(bool)
 
 
 def _colocar(m, ret, n):
@@ -108,30 +114,58 @@ def alinhar(planta, im):
     A = np.array(im.convert('RGB').resize((N, N), Image.LANCZOS))
     k = 8
     rot = _grupos(A, k)
-    perto_do_mapa = cv2.dilate(chao_p.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=130).astype(bool)
-    chao_a = _mascara_chao(rot, chao_p, k) & perto_do_mapa
+    perto = cv2.dilate(chao_p.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=60).astype(bool)
+    q = 4; n = N // q
+    cp, pq = (cv2.resize(x.astype(np.uint8), (n, n), interpolation=cv2.INTER_NEAREST).astype(bool) for x in (chao_p, perto))
+    rq = cv2.resize(rot.astype(np.uint8), (n, n), interpolation=cv2.INTER_NEAREST)
+
+    def avalia(ret, lut=None):
+        """IoU do chão com a pintura posta em ret (os grupos de cor de chão
+        são os que caem mais em chão do que em parede, perto do mapa)"""
+        r = tuple(v / q for v in ret)
+        tela = np.full((n, n), 255, np.uint8)
+        x0, y0, w, h = r
+        w, h = max(1, int(round(w))), max(1, int(round(h)))
+        rr = cv2.resize(rq, (w, h), interpolation=cv2.INTER_NEAREST)
+        xi, yi = int(round(x0)), int(round(y0))
+        ax, ay, bx, by = max(0, xi), max(0, yi), min(n, xi + w), min(n, yi + h)
+        if bx <= ax or by <= ay:
+            return 0.0, np.zeros(k, bool)
+        tela[ay:by, ax:bx] = rr[ay - yi:by - yi, ax - xi:bx - xi]
+        if lut is None:
+            lut = np.zeros(k, bool)
+            for i in range(k):
+                g = (tela == i) & pq
+                lut[i] = g.sum() > 0 and (g & cp).sum() / g.sum() > 0.5
+        m = np.zeros((n, n), bool); val = tela < 255
+        m[val] = lut[tela[val]]
+        return _iou(cp, m & pq), lut
+
     ident = (0.0, 0.0, float(N), float(N))
-    antes = _iou(chao_p, chao_a)
-    def ret_de(w):
-        # src = A·dst + t  →  a pintura (src 0..N) cai em dst = (src − t)/a
-        ax, ay = float(w[0, 0]), float(w[1, 1])
-        return (-w[0, 2] / ax, -w[1, 2] / ay, N / ax, N / ay)
-    ret = ident
+    antes, _ = avalia(ident)
+    # 1) busca grossa: a IA às vezes desenha o mapa bem maior ou menor que a planta
+    melhor = (antes, ident)
+    for esc in np.linspace(0.75, 1.3, 23):
+        L = N * esc
+        for dx in range(-96, 97, 32):
+            for dy in range(-96, 97, 32):
+                r = ((N - L) / 2 + dx, (N - L) / 2 + dy, L, L)
+                v, _ = avalia(r)
+                if v > melhor[0]:
+                    melhor = (v, r)
+    ret = melhor[1]
+    # 2) ECC (escala separada em x e y + posição), com os grupos de chão já certos
     for _ in range(3):
-        w = _ecc_afim(chao_p, chao_a)
-        ret = ret_de(w)
-        # com o encaixe novo, os grupos de cor de chão saem mais certos
-        lut = np.zeros(k, bool)
-        for i in range(k):
-            g = _colocar(rot == i, ret, N)
-            lut[i] = g.sum() > 0 and (g & chao_p).sum() / g.sum() > 0.5
-        chao_a = lut[rot] & perto_do_mapa
-    # ajuste fino: procura em volta, mexendo um lado de cada vez
-    s = 2
-    cp = cv2.resize(chao_p.astype(np.uint8), (N // s, N // s), interpolation=cv2.INTER_NEAREST).astype(bool)
-    nota = lambda r: _iou(cp, _colocar(chao_a, tuple(v / s for v in r), N // s))
-    melhor = nota(ret)
-    for passo in (16, 8, 4, 2):
+        _, lut = avalia(ret)
+        chao_a = lut[rot] & _para_pintura(perto, ret)
+        r2 = _ecc_afim(chao_p, chao_a, ret)
+        if avalia(r2)[0] >= avalia(ret)[0]:
+            ret = r2
+    # 3) ajuste fino: mexe um lado de cada vez
+    _, lut = avalia(ret)
+    nota = lambda r: avalia(r, lut)[0]
+    atual = nota(ret)
+    for passo in (16, 8, 4):
         mudou = True
         while mudou:
             mudou = False
@@ -139,13 +173,13 @@ def alinhar(planta, im):
                 for d in (-passo, passo):
                     r2 = list(ret); r2[i] += d
                     v = nota(r2)
-                    if v > melhor + 1e-4:
-                        melhor, ret, mudou = v, tuple(r2), True
-    depois = _iou(chao_p, _colocar(chao_a, ret, N))
+                    if v > atual + 1e-4:
+                        atual, ret, mudou = v, tuple(r2), True
+    depois = avalia(ret)[0]
     if depois < antes + 0.02:
         ret, depois = ident, antes
     rel = {'antes': round(antes, 3), 'depois': round(depois, 3),
-           'ret_px': [round(v, 1) for v in ret],
+           'ret_px': [round(float(v), 1) for v in ret],
            'escala': [round(ret[2] / N, 3), round(ret[3] / N, 3)]}
     return ret, rel
 
