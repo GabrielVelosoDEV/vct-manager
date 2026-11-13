@@ -1,6 +1,6 @@
 # Habilidades no mapa — prompts
 
-150 peças para os 29 agentes.
+151 peças para os 29 agentes.
 
 O que cada habilidade desenha no mapa, visto de cima: o que voa, o que fica no chão, a fumaça, o fogo e as paredes.
 Os ícones C/Q/E/X do HUD continuam como estão, nas pastas dos agentes.
@@ -693,28 +693,34 @@ Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 9
 
 Cores: azul-turquesa de água, branco de espuma e bronze antigo. Fundo #00FF00.
 
-#### c_parede
+#### c_projetil
 
 ```
-Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma onda de água turquesa avançando pelo chão, com espuma branca na crista (Cascade), vista de cima como uma faixa reta e comprida da esquerda para a direita, no meio da imagem. A faixa emenda sem costura: a ponta esquerda continua exatamente na direita. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×256.
+Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma esfera de água turquesa girando, com espuma em espiral (Storm Surge), visto de cima, voando da esquerda para a direita, com um rastro curto e leve atrás. Pequeno e bem legível mesmo reduzido, ocupando o centro da imagem. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 512×512.
 ```
 
-#### q_area
+#### c_area
 
 ```
-Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma cúpula esférica de água turquesa translúcida, com reflexos e espuma na borda (Cove), visto de cima: um efeito redondo que cobre o chão, mais denso no meio e com a borda se desfazendo em partículas. O centro da imagem é o centro do efeito; ele ocupa quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
+Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Um redemoinho de água turquesa explosivo no chão, girando para o centro, com espuma e gotas (Storm Surge), visto de cima: um efeito redondo que cobre o chão, mais denso no meio e com a borda se desfazendo em partículas. O centro da imagem é o centro do efeito; ele ocupa quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
 ```
 
-#### e_parede
+#### q_parede
 
 ```
 Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma parede alta de água turquesa correndo, com espuma e gotas (High Tide), vista de cima como uma faixa reta e comprida da esquerda para a direita, no meio da imagem. A faixa emenda sem costura: a ponta esquerda continua exatamente na direita. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×256.
 ```
 
-#### x_area
+#### e_area
 
 ```
-Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Gêiseres de água saindo do chão: vários jatos de água turquesa e espuma em volta do centro (Reckoning), visto de cima: um efeito redondo que cobre o chão, mais denso no meio e com a borda se desfazendo em partículas. O centro da imagem é o centro do efeito; ele ocupa quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
+Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma cúpula esférica de água turquesa translúcida, com reflexos e espuma na borda (Cove), visto de cima: um efeito redondo que cobre o chão, mais denso no meio e com a borda se desfazendo em partículas. O centro da imagem é o centro do efeito; ele ocupa quase toda a imagem sem encostar na borda. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×1024.
+```
+
+#### x_parede
+
+```
+Sprite de efeito para jogo de tiro tático visto exatamente de cima (câmera a 90° apontando para baixo, sem perspectiva), em pixel art detalhada e limpa estilo jogo indie moderno, contorno escuro fino onde houver objeto sólido, cores vivas. Uma onda gigante de água turquesa avançando pelo chão, com espuma branca na crista (Reckoning), vista de cima como uma faixa reta e comprida da esquerda para a direita, no meio da imagem. A faixa emenda sem costura: a ponta esquerda continua exatamente na direita. Paleta: azul-turquesa de água, branco de espuma e bronze antigo. Fundo liso #00FF00 (verde puro, sem degradê), sem sombra no chão, sem texto, sem letras, sem personagens. Imagem 1024×256.
 ```
 
 ### Clove

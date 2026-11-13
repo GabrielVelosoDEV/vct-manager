@@ -68,7 +68,7 @@ Object.assign(GP.HABS, {
       const ang = e.ang, x = e.x, y = e.y, L = 30, a = [x, y], b = [x + Math.cos(ang) * L, y + Math.sin(ang) * L];
       GP._fx(J, {x, y, ang, img: 'q_rastro', ag: 'omen', rastro: L, dur: 1.2});
       GP._area(J, {x, y, r: 0, ate: J.t + 0.4, aoFim: J => {
-        for (const o of GP._inimigosDe(J, e)) if (GP._distSeg(o.x, o.y, a, b) < 1.8) { const ef = GP._ef(o); ef.cego = Math.max(ef.cego || 0, J.t + 2); ef.cegoDur = 2; }
+        for (const o of GP._inimigosDe(J, e)) if (GP._distSeg(o.x, o.y, a, b) < 1.8) GP._miope(J, o, 2);
       }});
     }},
     e: {nome: 'Dark Cover', cargas: 2, usar(J, e) { GP._fumaca(J, e, GP._noCursor(J, e, 40), 3.2, 15, 'e_area', 'omen'); }},
@@ -101,26 +101,23 @@ Object.assign(GP.HABS, {
       GP._paredeReta(J, e, {x: p.x - Math.cos(ang) * L / 2, y: p.y - Math.sin(ang) * L / 2}, ang, L, {ate: J.t + 20, esconde: true, seguraBala: true, img: 'x_parede', ag: 'astra', alto: 1.2, nome: 'Cosmic Divide'});
     }},
   },
+  /* kit novo (patch 11.10): C Storm Surge, Q High Tide, E Cove (assinatura), X Reckoning */
   harbor: {
-    c: {nome: 'Cascade', cargas: 1, usar(J, e) {
-      const nx = -Math.sin(e.ang), ny = Math.cos(e.ang), cx = e.x + Math.cos(e.ang), cy = e.y + Math.sin(e.ang);
-      GP._parede(J, {a: [cx - nx * 3.5, cy - ny * 3.5], b: [cx + nx * 3.5, cy + ny * 3.5], ate: J.t + 7, esconde: true, lentoToque: true,
-        anda: {vx: Math.cos(e.ang) * 6, vy: Math.sin(e.ang) * 6, ate: J.t + 2.2}, dono: e, img: 'c_parede', ag: 'harbor', alto: 1.1, nome: 'Cascade'});
+    c: {nome: 'Storm Surge', cargas: 1, usar(J, e) {
+      const alvo = GP._pontoMirado(J, e, 18);
+      GP._lancar(J, e, {vel: 18, alcance: alvo.d, img: 'c_projetil', ag: 'harbor', aoParar: (J, p) => GP._area(J, {x: p.x, y: p.y, r: 3.5, ate: J.t + 0.9, img: 'c_area', ag: 'harbor', alfa: 0.6, aoFim: J => {
+        GP._fx(J, {x: p.x, y: p.y, img: 'c_area', ag: 'harbor', r: 3.6, dur: 0.7});
+        for (const o of GP._noRaio(J, e, p.x, p.y, 3.5, false)) { GP._miope(J, o, 3); GP._ef(o).lento = J.t + 3; }
+      }})});
     }},
-    q: {nome: 'Cove', cargas: 1, usar(J, e) {
-      const alvo = GP._pontoMirado(J, e, 20);
-      GP._lancar(J, e, {vel: 18, alcance: alvo.d, img: null, aoParar: (J, p) => GP._fumaca(J, e, p, 3.2, 12, 'q_area', 'harbor', {seguraBala: true, hpBolha: 500})});
+    q: {nome: 'High Tide', cargas: 1, usar(J, e) {
+      GP._paredeReta(J, e, {x: e.x + Math.cos(e.ang), y: e.y + Math.sin(e.ang)}, e.ang, 32, {ate: J.t + 14, esconde: true, lentoToque: true, img: 'q_parede', ag: 'harbor', alto: 1.3, nome: 'High Tide'});
     }},
-    e: {nome: 'High Tide', cargas: 1, usar(J, e) {
-      GP._paredeReta(J, e, {x: e.x + Math.cos(e.ang), y: e.y + Math.sin(e.ang)}, e.ang, 32, {ate: J.t + 14, esconde: true, lentoToque: true, img: 'e_parede', ag: 'harbor', alto: 1.3, nome: 'High Tide'});
-    }},
+    e: {nome: 'Cove', cargas: 1, usar(J, e) { GP._ef(e).cove = GP._fumaca(J, e, GP._noCursor(J, e, 30), 3.2, 15, 'e_area', 'harbor'); }},
     x: {nome: 'Reckoning', cargas: 1, usar(J, e) {
-      for (let onda = 0; onda < 3; onda++) GP._area(J, {x: e.x, y: e.y, r: 0, ate: J.t + 0.6 + onda * 1.2, aoFim: J => {
-        for (const o of GP._noRaio(J, e, e.x, e.y, 28, false)) {
-          const x = o.x, y = o.y;
-          GP._area(J, {x, y, r: 1.8, ate: J.t + 1, img: 'x_area', ag: 'harbor', alfa: 0.6, aoFim: J => { for (const v of GP._noRaio(J, e, x, y, 1.8, false)) GP._concussao(J, v, 3); }});
-        }
-      }});
+      const nx = -Math.sin(e.ang), ny = Math.cos(e.ang), cx = e.x + Math.cos(e.ang), cy = e.y + Math.sin(e.ang);
+      GP._parede(J, {a: [cx - nx * 7, cy - ny * 7], b: [cx + nx * 7, cy + ny * 7], ate: J.t + 3.2, reckoning: new Set(),
+        anda: {vx: Math.cos(e.ang) * 10, vy: Math.sin(e.ang) * 10, ate: J.t + 3.2}, dono: e, img: 'x_parede', ag: 'harbor', alto: 1.4, nome: 'Reckoning'});
     }},
   },
   clove: {
@@ -180,6 +177,10 @@ GP.passoControladores = function (J, dt) {
         GP.mover(m, o, (a.x - o.x) / d * a.puxa * dt, (a.y - o.y) / d * a.puxa * dt);
       }
     }
+  }
+  for (const w of H.paredes) if (w.reckoning) for (const o of GP._inimigosDe(J, w.dono)) {
+    if (w.reckoning.has(o) || GP._distSeg(o.x, o.y, w.a, w.b) > 1.2) continue;
+    w.reckoning.add(o); GP._miope(J, o, 4); GP._ef(o).lento = t + 4;
   }
   for (const w of H.paredes) if (w.decai || w.lentoToque) for (const o of GP._inimigosDe(J, w.dono)) {
     if (GP._distSeg(o.x, o.y, w.a, w.b) > 1) continue;

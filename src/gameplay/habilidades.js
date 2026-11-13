@@ -328,7 +328,7 @@ GP.passoHabilidades = function (J, dt) {
   /* áreas */
   for (const a of H.areas) {
     if (a.olho && a.dono) for (const o of GP._inimigosDe(J, a.dono)) {
-      if (Math.hypot(o.x - a.x, o.y - a.y) < 22 && GP.linhaLivre(m, a.x, a.y, o.x, o.y)) { const ef = GP._ef(o); ef.cego = Math.max(ef.cego || 0, t + 0.25); ef.cegoDur = 0.5; }
+      if (Math.hypot(o.x - a.x, o.y - a.y) < 22 && GP.linhaLivre(m, a.x, a.y, o.x, o.y)) { const ef = GP._ef(o); ef.miope = Math.max(ef.miope || 0, t + 0.25); }
     }
     for (const o of J.ents) {
       if (!o.vivo) continue;

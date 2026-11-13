@@ -152,6 +152,7 @@ Object.assign(GP.HABS, {
         return true;
       }
     }
+    if (e.agente === 'harbor' && k === 'e' && ef.cove && J.t < ef.cove.ate && !ef.cove.seguraBala) { ef.cove.seguraBala = true; ef.cove.hpBolha = 500; return true; }
     if (e.agente === 'chamber' && k === 'q' && ef.hh > 0) { ef.hhOn = !ef.hhOn; if (ef.hhOn) ef.tdfOn = false; return true; }
     if (e.agente === 'chamber' && k === 'x' && ef.tdf > 0) { ef.tdfOn = !ef.tdfOn; if (ef.tdfOn) ef.hhOn = false; return true; }
     if (e.agente === 'chamber' && k === 'e' && ef.ancoraCh) {
@@ -184,7 +185,7 @@ GP.passoSentinelas = function (J, dt) {
   /* fios do Cypher */
   for (const w of H.paredes) if (w.fio) for (const o of GP._inimigosDe(J, w.dono)) {
     if (GP._distSeg(o.x, o.y, w.a, w.b) > 0.5) continue;
-    GP._prender(J, o, 3); GP._revelar(J, o, 3); GP._ef(o).conc = t + 4.5; w.ate = t;
+    GP._ef(o).lento = t + 3.5; GP._revelar(J, o, 3.5); w.ate = t;
     J.sons.push({x: o.x, y: o.y, t, dono: w.dono.id, time: w.dono.time, r: 40, tiro: true});
   }
   /* Razorvine: corta quem anda dentro */

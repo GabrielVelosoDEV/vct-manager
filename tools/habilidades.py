@@ -167,10 +167,11 @@ PECAS = {
         ('x_parede', 'parede', 'uma parede cósmica: uma cortina de energia roxa e azul com estrelas e brilho dourado (Cosmic Divide)'),
     ]),
     'harbor': ('azul-turquesa de água, branco de espuma e bronze antigo', VERDE, [
-        ('c_parede', 'parede', 'uma onda de água turquesa avançando pelo chão, com espuma branca na crista (Cascade)'),
-        ('q_area', 'area', 'uma cúpula esférica de água turquesa translúcida, com reflexos e espuma na borda (Cove)'),
-        ('e_parede', 'parede', 'uma parede alta de água turquesa correndo, com espuma e gotas (High Tide)'),
-        ('x_area', 'area', 'gêiseres de água saindo do chão: vários jatos de água turquesa e espuma em volta do centro (Reckoning)'),
+        ('c_projetil', 'projetil', 'uma esfera de água turquesa girando, com espuma em espiral (Storm Surge)'),
+        ('c_area', 'area', 'um redemoinho de água turquesa explosivo no chão, girando para o centro, com espuma e gotas (Storm Surge)'),
+        ('q_parede', 'parede', 'uma parede alta de água turquesa correndo, com espuma e gotas (High Tide)'),
+        ('e_area', 'area', 'uma cúpula esférica de água turquesa translúcida, com reflexos e espuma na borda (Cove)'),
+        ('x_parede', 'parede', 'uma onda gigante de água turquesa avançando pelo chão, com espuma branca na crista (Reckoning)'),
     ]),
     'clove': ('rosa, roxo e azul-claro, com borboletas de luz', VERDE, [
         ('c_clarao', 'clarao', 'um pulso de energia vital rosa e roxa, com pequenas borboletas de luz saindo (Pick-Me-Up)'),

@@ -136,7 +136,9 @@ for(const nome of nomes){
       if(ag==='tejo'&&k==='q')ok(ef.conc>0,'tejo q: não concussionou');
       if(ag==='tejo'&&k==='e')ok(b.hp+b.escudo<hp0,'tejo e: o míssil não machucou');
       if(ag==='brimstone'&&k==='e')ok(GP.vistaBloqueada(J,eu,b),'brimstone e: a fumaça no cursor não esconde');
-      if(ag==='omen'&&k==='q')ok(ef.cego>0,'omen q: não cegou');
+      if(ag==='omen'&&k==='q')ok(ef.miope>0,'omen q: não deixou míope');
+      if(ag==='harbor'&&k==='c')ok(ef.miope>0,'harbor c: o storm surge não pegou');
+      if(ag==='harbor'&&k==='x')ok(ef.miope>0,'harbor x: o reckoning não pegou');
       if(ag==='omen'&&k==='c')ok(Math.abs(eu.x-x0)>3,'omen c: não teleportou');
       if(ag==='astra'&&k==='q')ok(ef.conc>0,'astra q: não concussionou');
       if(ag==='viper'&&k==='e')ok(GP.vistaBloqueada(J,eu,b)||GP._hab(J).paredes.length===1,'viper e: sem parede');
@@ -164,7 +166,7 @@ for(const nome of nomes){
   /* Seekers acham o alvo mesmo atrás da parede */
   {const {J,eu,b}=pega('skye');eu.cmd.hab='x';rodar(J,4);ok(b.ef&&b.ef.miope>0,'skye x: os seekers não chegaram');}
   /* Cove segura bala; Orbital mata; Clove volta da morte */
-  {const {J,eu,b}=pega('harbor');eu.cmd.mira={x:eu.x+4,y:eu.y};eu.cmd.hab='q';rodar(J,0.6);const hp0=b.hp+b.escudo;eu.cmd.mira={x:b.x,y:b.y};eu.cmd.atirar=true;rodar(J,0.5);eu.cmd.atirar=false;
+  {const {J,eu,b}=pega('harbor');eu.cmd.mira={x:eu.x+4,y:eu.y};eu.cmd.hab='e';rodar(J,0.1);eu.cmd.hab='e';rodar(J,0.1);const hp0=b.hp+b.escudo;eu.cmd.mira={x:b.x,y:b.y};eu.cmd.atirar=true;rodar(J,0.5);eu.cmd.atirar=false;
    ok(b.hp+b.escudo===hp0,'harbor q: a bolha não segurou a bala');}
   {const {J,eu,b}=pega('brimstone');eu.cmd.hab='x';rodar(J,4);ok(!b.vivo||b.hp<50,'brimstone x: o orbital não machucou');}
   {const {J,eu,b}=pega('clove');eu.cmd.hab='x';rodar(J,0.05);GP._dano(J,b,eu,500,1,{nome:'teste'});ok(eu.vivo&&eu.ef.ultimaChance>0,'clove x: não voltou');rodar(J,10.5);ok(!eu.vivo,'clove x: não morreu sem abate');}
