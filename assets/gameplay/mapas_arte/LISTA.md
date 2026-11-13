@@ -7,11 +7,11 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Gere junto com a planta do mesmo nome (tools/mapas/plantas/). Os prompts estão no documento, aba "Mapas pintados".
 
-1/13 com imagem.
+2/13 com imagem.
 
 - [ ] `abyss.png` — Abyss pintado de cima (quadrado, com a planta tools/mapas/plantas/abyss.png)
 - [ ] `ascent.png` — Ascent pintado de cima (quadrado, com a planta tools/mapas/plantas/ascent.png)
-- [ ] `bind.png` — Bind pintado de cima (quadrado, com a planta tools/mapas/plantas/bind.png)
+- [x] `bind.png` — Bind pintado de cima (quadrado, com a planta tools/mapas/plantas/bind.png)
 - [ ] `breeze.png` — Breeze pintado de cima (quadrado, com a planta tools/mapas/plantas/breeze.png)
 - [ ] `corrode.png` — Corrode pintado de cima (quadrado, com a planta tools/mapas/plantas/corrode.png)
 - [ ] `fracture.png` — Fracture pintado de cima (quadrado, com a planta tools/mapas/plantas/fracture.png)

@@ -351,14 +351,24 @@ def main():
     for n, _ in itens:
         c = achar(pasta, n)
         if c and n in plantas:
-            im = Image.open(c).convert('RGB')
-            if im.width != im.height:   # o gerador devolveu retângulo: corta o centro
-                l = min(im.size); im = im.crop(((im.width - l) // 2, (im.height - l) // 2, (im.width + l) // 2, (im.height + l) // 2))
-            if im.width > 3072:
-                im = im.resize((3072, 3072), Image.LANCZOS)
             caminho = os.path.join(PRONTO, 'mapas_arte', n + '.webp')
-            os.makedirs(os.path.dirname(caminho), exist_ok=True)
-            im.save(caminho, 'WEBP', quality=90, method=6)
+            planta = os.path.join(RAIZ, 'tools', 'mapas', 'plantas', n + '.png')
+            fontes = [c, planta, os.path.join(RAIZ, 'tools', 'mapas', 'alinhar.py')]
+            if os.path.exists(caminho) and os.path.getmtime(caminho) > max(os.path.getmtime(f) for f in fontes):
+                im = Image.open(caminho)            # já preparado e nada mudou desde então
+            else:
+                im = Image.open(c).convert('RGB')
+                if im.width != im.height:   # o gerador devolveu retângulo: corta o centro
+                    l = min(im.size); im = im.crop(((im.width - l) // 2, (im.height - l) // 2, (im.width + l) // 2, (im.height + l) // 2))
+                # encaixa o desenho na planta (a IA costuma esticar ou deslocar um pouco)
+                sys.path.insert(0, os.path.join(RAIZ, 'tools', 'mapas'))
+                from alinhar import alinhar
+                im, rel = alinhar(planta, im)
+                print(f'  {n}: encaixe na planta {rel}')
+                if im.width > 3072:
+                    im = im.resize((3072, 3072), Image.LANCZOS)
+                os.makedirs(os.path.dirname(caminho), exist_ok=True)
+                im.save(caminho, 'WEBP', quality=90, method=6)
             p = plantas[n]
             man['mapas_arte'][n] = {'src': f'assets/gameplay/pronto/mapas_arte/{n}.webp', 'w': im.width, 'h': im.height,
                                     'lado_m': p['lado_m'], 'x0_m': p['x0_m'], 'y0_m': p['y0_m']}
