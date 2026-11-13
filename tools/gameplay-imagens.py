@@ -352,26 +352,32 @@ def main():
         c = achar(pasta, n)
         if c and n in plantas:
             caminho = os.path.join(PRONTO, 'mapas_arte', n + '.webp')
+            meta_c = os.path.join(PRONTO, 'mapas_arte', n + '.json')
             planta = os.path.join(RAIZ, 'tools', 'mapas', 'plantas', n + '.png')
             fontes = [c, planta, os.path.join(RAIZ, 'tools', 'mapas', 'alinhar.py')]
-            if os.path.exists(caminho) and os.path.getmtime(caminho) > max(os.path.getmtime(f) for f in fontes):
-                im = Image.open(caminho)            # já preparado e nada mudou desde então
+            if os.path.exists(meta_c) and os.path.getmtime(meta_c) > max(os.path.getmtime(f) for f in fontes):
+                ent = json.load(open(meta_c))            # já preparado e nada mudou desde então
             else:
+                # A pintura fica com os pixels que vieram (sem deformar nem
+                # reamostrar, só reduz se passar de 3072); o que se ajusta é
+                # onde ela cai no mundo: escala e posição que fazem o chão
+                # pintado bater com o chão da planta (a colisão).
                 im = Image.open(c).convert('RGB')
-                if im.width != im.height:   # o gerador devolveu retângulo: corta o centro
-                    l = min(im.size); im = im.crop(((im.width - l) // 2, (im.height - l) // 2, (im.width + l) // 2, (im.height + l) // 2))
-                # encaixa o desenho na planta (a IA costuma esticar ou deslocar um pouco)
                 sys.path.insert(0, os.path.join(RAIZ, 'tools', 'mapas'))
                 from alinhar import alinhar
-                im, rel = alinhar(planta, im)
+                ret, rel = alinhar(planta, im)
                 print(f'  {n}: encaixe na planta {rel}')
-                if im.width > 3072:
-                    im = im.resize((3072, 3072), Image.LANCZOS)
+                if max(im.size) > 3072:
+                    k = 3072 / max(im.size)
+                    im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
                 os.makedirs(os.path.dirname(caminho), exist_ok=True)
-                im.save(caminho, 'WEBP', quality=90, method=6)
-            p = plantas[n]
-            man['mapas_arte'][n] = {'src': f'assets/gameplay/pronto/mapas_arte/{n}.webp', 'w': im.width, 'h': im.height,
-                                    'lado_m': p['lado_m'], 'x0_m': p['x0_m'], 'y0_m': p['y0_m']}
+                im.save(caminho, 'WEBP', quality=92, method=6)
+                p = plantas[n]; mpp = p['lado_m'] / p['lado_px']
+                ent = {'src': f'assets/gameplay/pronto/mapas_arte/{n}.webp', 'w': im.width, 'h': im.height,
+                       'x0_m': round(p['x0_m'] + float(ret[0]) * mpp, 3), 'y0_m': round(p['y0_m'] + float(ret[1]) * mpp, 3),
+                       'larg_m': round(float(ret[2]) * mpp, 3), 'alt_m': round(float(ret[3]) * mpp, 3)}
+                json.dump(ent, open(meta_c, 'w'))
+            man['mapas_arte'][n] = ent
     pasta = os.path.join(BASE, 'marcas')
     itens = list(MARCAS.items())
     placar.append(('marcas',) + lista(pasta, 'Marcas do bomb', itens))

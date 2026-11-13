@@ -215,8 +215,8 @@ GP._quadro = function (agora) {
   if (pt) {
     const meiaW = R.cv.width / S.cam.escala / 2, meiaH = R.cv.height / S.cam.escala / 2;
     const prende = (v, a, b) => a > b ? (a + b) / 2 : Math.max(a, Math.min(b, v));
-    S.cam.x = prende(S.cam.x, pt.x0 + meiaW, pt.x0 + pt.lado - meiaW);
-    S.cam.y = prende(S.cam.y, pt.y0 + meiaH, pt.y0 + pt.lado - meiaH);
+    S.cam.x = prende(S.cam.x, pt.x0 + meiaW, pt.x0 + pt.larg - meiaW);
+    S.cam.y = prende(S.cam.y, pt.y0 + meiaH, pt.y0 + pt.alt - meiaH);
   }
   /* desenha entre o passo anterior e o atual (o motor roda a 120/s e a tela
      no ritmo do monitor): o movimento fica liso em qualquer taxa de quadros */

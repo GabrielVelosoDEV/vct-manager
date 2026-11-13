@@ -127,8 +127,9 @@ GP.pinturaDoMapa = function (nome, m) {
   const e = GP.manifesto ? (GP.manifesto().mapas_arte || {})[nome] : null;
   const im = e && GP.imagem(e.src);
   if (!im) return null;
-  const pt = {img: im, x0: e.x0_m, y0: e.y0_m, lado: e.lado_m};
-  if (m) pt.img = GP._letrasNaPintura(pt, m);
+  /* retângulo no mundo onde a pintura cai (larg/alt; mapas antigos: lado) */
+  const pt = {img: im, x0: e.x0_m, y0: e.y0_m, larg: e.larg_m || e.lado_m, alt: e.alt_m || e.lado_m};
+  pt.letras = m ? GP._letrasDaPintura(m) : [];
   return pt;
 };
 
@@ -166,38 +167,30 @@ GP._lugarDaLetra = function (m, L) {
   return {x: melhor.x, y: melhor.y, alto: Math.max(2.6, Math.min(4.6, melhor.livre * 1.35))};
 };
 
-/* As letras do bomb pintadas no chão da pintura, como tinta gasta: entram por
-   multiplicação, então a pedra, as rachaduras e a luz continuam aparecendo
-   através da tinta. Feito uma vez, numa cópia da pintura (sem ler pixels, para
-   funcionar também abrindo o arquivo direto). */
-GP._letrasNaPintura = function (pt, m) {
+/* As letras do bomb pintadas no chão, como tinta gasta: entram por
+   multiplicação, então a pedra, as rachaduras e a luz da pintura continuam
+   aparecendo através da tinta. Ficam numa camada própria em boa resolução
+   (desenhada por cima da pintura a cada quadro), para não perder nitidez nem
+   mexer nos pixels da pintura. */
+GP._letrasDaPintura = function (m) {
   const man = GP.manifesto ? GP.manifesto().marcas || {} : {};
-  const letras = Object.keys(m.sitios).filter(L => man['letra_' + L] && GP.imagem(man['letra_' + L].src));
-  if (!letras.length) return pt.img;
-  const cv = document.createElement('canvas');
-  cv.width = pt.img.naturalWidth || pt.img.width; cv.height = pt.img.naturalHeight || pt.img.height;
-  const g = cv.getContext('2d'), ppm = cv.width / pt.lado;
-  g.drawImage(pt.img, 0, 0);
-  for (const L of letras) {
-    const im = GP.imagem(man['letra_' + L].src), lug = GP._lugarDaLetra(m, L);
-    const h = lug.alto * ppm, w = h * im.width / im.height;
-    /* a letra em tinta escura, recortada no formato da imagem */
+  const out = [];
+  for (const L of Object.keys(m.sitios)) {
+    const mk = man['letra_' + L], im = mk && GP.imagem(mk.src);
+    if (!im) continue;
+    const lug = GP._lugarDaLetra(m, L);
+    const h = Math.min(256, im.naturalHeight || im.height), w = h * (im.naturalWidth || im.width) / (im.naturalHeight || im.height);
     const tinta = document.createElement('canvas');
     tinta.width = Math.ceil(w); tinta.height = Math.ceil(h);
     const tg = tinta.getContext('2d');
     tg.drawImage(im, 0, 0, w, h);
-    tg.globalCompositeOperation = 'source-in';
+    /* tinta escura por cima, deixando um pouco do desgaste da letra original */
+    tg.globalCompositeOperation = 'source-atop'; tg.globalAlpha = 0.86;
     tg.fillStyle = '#3a2a1e'; tg.fillRect(0, 0, w, h);
-    const ang = ((L.charCodeAt(0) % 3) - 1) * 0.09;       /* levemente torta, como pintada à mão */
-    g.save();
-    g.translate((lug.x - pt.x0) * ppm, (lug.y - pt.y0) * ppm); g.rotate(ang);
-    g.globalCompositeOperation = 'multiply'; g.globalAlpha = 0.78;
-    g.drawImage(tinta, -w / 2, -h / 2);
-    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.12;
-    g.drawImage(tinta, -w / 2, -h / 2);
-    g.restore();
+    out.push({tinta, x: lug.x, y: lug.y, alto: lug.alto, larg: lug.alto * w / h,
+              ang: ((L.charCodeAt(0) % 3) - 1) * 0.09});      /* levemente torta, como pintada à mão */
   }
-  return cv;
+  return out;
 };
 
 GP.desenharMapa = function (m) {
@@ -379,8 +372,17 @@ GP.render = function (R, J, cam, ui) {
   g.imageSmoothingEnabled = true;
   const pt = R.arte.pintura;
   if (pt) {
-    const k = pt.lado / pt.img.width;   /* metros por pixel da pintura */
-    g.drawImage(pt.img, (pt.x0 - cam.x) * esc + Wc / 2, (pt.y0 - cam.y) * esc + Hc / 2, pt.lado * esc, pt.lado * esc);
+    g.drawImage(pt.img, (pt.x0 - cam.x) * esc + Wc / 2, (pt.y0 - cam.y) * esc + Hc / 2, pt.larg * esc, pt.alt * esc);
+    for (const l of pt.letras) {
+      g.save();
+      g.translate((l.x - cam.x) * esc + Wc / 2, (l.y - cam.y) * esc + Hc / 2); g.rotate(l.ang);
+      const w = l.larg * esc, h = l.alto * esc;
+      g.globalCompositeOperation = 'multiply'; g.globalAlpha = 0.7;
+      g.drawImage(l.tinta, -w / 2, -h / 2, w, h);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.08;
+      g.drawImage(l.tinta, -w / 2, -h / 2, w, h);
+      g.restore();
+    }
   }
   g.drawImage(R.arte.tela, sx, sy, vw * S, vh * S, 0, 0, Wc, Hc);
   g.imageSmoothingEnabled = true;
