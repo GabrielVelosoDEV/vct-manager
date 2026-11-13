@@ -177,6 +177,7 @@ for(const nome of nomes){
   {const {J,eu,b}=pega('chamber');eu.cmd.hab='q';rodar(J,0.05);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.05);eu.cmd.atirar=false;rodar(J,0.2);ok(b.hp+b.escudo<hp0||!b.vivo,'chamber q: o headhunter não acertou');}
   /* Interceptor apaga a granada inimiga */
   {const {J,eu,b}=pega('veto');eu.cmd.hab='e';rodar(J,0.1);const ob=J.hab.objs[0];GP._lancar(J,b,{vel:10,alcance:20,ang:Math.atan2(ob.y-b.y,ob.x-b.x),aoParar:()=>{J._explodiu=true;}});rodar(J,2);ok(!J._explodiu,'veto e: o interceptor não destruiu a granada');}
+  {const {J,eu,b}=pega('iso');eu.cmd.hab='x';rodar(J,1);ok(J.hab.muros.length===4,'iso x: a arena não fechou');GP.novoRound(J);}
   console.log('habilidades dos 29 agentes testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');

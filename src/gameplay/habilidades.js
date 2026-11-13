@@ -201,7 +201,21 @@ GP.HABS = {
       GP._lancar(J, e, {vel: 32, alcance: 30, atravessa: true, acertaGente: true, img: 'q_projetil', aoParar: (J, p) => { if (p.acertou) GP._ef(p.acertou).fragil = J.t + 4; }});
     }},
     e: {nome: 'Double Tap', cargas: 1, usar(J, e) { GP._ef(e).escudoUm = J.t + 12; }},
-    x: {nome: 'Kill Contract', cargas: 0, semDuelo: true, usar() {}},
+    x: {nome: 'Kill Contract', cargas: 1, usar(J, e) {
+      /* a parede de energia vai reto; quem ela pega é puxado para uma arena
+         quadrada com o Iso: só os dois lá dentro, até um cair (ou 12 s) */
+      GP._lancar(J, e, {vel: 26, alcance: 36, atravessa: true, acertaGente: true, img: 'c_parede', escala: 3, aoParar: (J, p) => {
+        const o = p.acertou; if (!o || !e.vivo || !GP._muro) return;
+        const L = 12, h = L / 2, a = e.ang, ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+        const cx = e.x + ux * 4, cy = e.y + uy * 4;
+        o.x = cx + ux * 3; o.y = cy + uy * 3; o.vx = o.vy = 0; e.x = cx - ux * 3; e.y = cy - uy * 3; e.vx = e.vy = 0;
+        const c = (s, t) => [cx + ux * s * h + vx * t * h, cy + uy * s * h + vy * t * h];
+        const ate = J.t + 12, op = {ate, hp: 99999, semDesenho: true, nome: 'Kill Contract'};
+        for (const [p1, p2] of [[c(-1, -1), c(1, -1)], [c(1, -1), c(1, 1)], [c(1, 1), c(-1, 1)], [c(-1, 1), c(-1, -1)]]) GP._muro(J, e, p1, p2, op);
+        GP._area(J, {x: cx, y: cy, r: 0.01, desenho: L / 2.25 * 1.1, ate, img: 'x_area', ag: 'iso', alfa: 0.55, ang: a});
+        GP._empurrar(J.m, o, o.raioCol); GP._empurrar(J.m, e, e.raioCol);
+      }});
+    }},
   },
   waylay: {
     c: {nome: 'Saturate', cargas: 1, usar(J, e) {
@@ -528,7 +542,7 @@ GP.desenharHabilidades = function (g, J) {
     const nasce = Math.min(1, (t - a.t0) / 0.25), some = Math.min(1, (a.ate - t) / 0.4);
     if (a.objeto) { if (r) { const w = (a.escala || 1) * 1.2; spr(r, a.x, a.y, 0, w, w * r.e.h / r.e.w); } else circ(a.x, a.y, 0.4, '#ffb347'); continue; }
     const d = (a.desenho || a.r) * 2.25;
-    if (r) spr(r, a.x, a.y, a.fumaca ? t * 0.08 : 0, d, d * r.e.h / r.e.w, (a.alfa || (a.fumaca ? 0.95 : 0.85)) * nasce * some);
+    if (r) spr(r, a.x, a.y, a.fumaca ? t * 0.08 : (a.ang || 0), d, d * r.e.h / r.e.w, (a.alfa || (a.fumaca ? 0.95 : 0.85)) * nasce * some);
     else circ(a.x, a.y, a.r, a.fumaca ? 'rgba(220,230,240,.85)' : 'rgba(255,140,60,.4)');
   }
   for (const w of H.paredes) {
@@ -565,7 +579,7 @@ GP.desenharHabilidades = function (g, J) {
     if (e === J.eu || e._visivel) {
       if (ef.empress > t) { const r = GP._imgHab('reyna', 'x_area'); if (r) spr(r, e.x, e.y, 0, 2, 2 * r.e.h / r.e.w, 0.55); }
       if (ef.drift > t && e === J.eu) { const r = GP._imgHab('yoru', 'x_area'); if (r) spr(r, e.x, e.y, t, 2.2, 2.2 * r.e.h / r.e.w, 0.6); }
-      if (ef.escudoUm > t) circ(e.x, e.y, 0.8, 'rgba(170,120,255,.25)');
+      if (ef.escudoUm > t) { const r = GP._imgHab('iso', 'e_area'); if (r) spr(r, e.x, e.y, 0, 2, 2 * r.e.h / r.e.w, 0.55); else circ(e.x, e.y, 0.8, 'rgba(170,120,255,.25)'); }
       if (ef.gear) { const r = GP._imgHab('neon', 'e_rastro'); const a = Math.atan2(e.vy, e.vx); if (r && Math.hypot(e.vx, e.vy) > 2) spr(r, e.x - Math.cos(a) * 1.4, e.y - Math.sin(a) * 1.4, a, 2.6, 2.6 * r.e.h / r.e.w, 0.8); }
     }
   }
