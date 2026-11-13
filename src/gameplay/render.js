@@ -390,6 +390,7 @@ GP.render = function (R, J, cam, ui) {
 
   if (GP.desenharMecanicas) GP.desenharMecanicas(g, J);
   if (GP.desenharHabilidades) GP.desenharHabilidades(g, J);
+  if (GP.desenharSpike && J.spike) GP.desenharSpike(g, J);
   /* sons que você ouve (passos e tiros de quem você não vê) */
   for (const s of J.sons) {
     if (s.time === eu.time) continue;
@@ -435,7 +436,7 @@ GP.render = function (R, J, cam, ui) {
   }
   if (!eu.vivo) GP._corpo(g, eu, J.t);
   /* atrás da parede: aparece, mas meio apagado (dá para ver, não para acertar) */
-  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
+  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : o.time === eu.time ? '#5aa9ff' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
 
   if (GP.desenharDicaDeUso) GP.desenharDicaDeUso(g, J);
   /* números de dano e marcas de acerto (por cima da névoa) */
@@ -562,7 +563,7 @@ GP._minimapa = function (R, J) {
   g.strokeStyle = 'rgba(255,255,255,.15)'; g.strokeRect(x0 - 0.5, y0 - 0.5, m.larguraM * k + 1, m.alturaM * k + 1);
   for (const o of J.ents) {
     if (!o.vivo || (o !== J.eu && !o._visivel)) continue;
-    g.fillStyle = o === J.eu ? '#18e5b4' : '#ff4655';
+    g.fillStyle = o === J.eu ? '#18e5b4' : o.time === J.eu.time ? '#5aa9ff' : '#ff4655';
     g.beginPath(); g.arc(x0 + o.x * k, y0 + o.y * k, 3.2 * R.dpr, 0, Math.PI * 2); g.fill();
     if (o === J.eu) { g.strokeStyle = '#18e5b4'; g.lineWidth = 1.5 * R.dpr; g.beginPath(); g.moveTo(x0 + o.x * k, y0 + o.y * k);
       g.lineTo(x0 + (o.x + Math.cos(o.ang) * 9) * k, y0 + (o.y + Math.sin(o.ang) * 9) * k); g.stroke(); }

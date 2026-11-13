@@ -146,7 +146,7 @@ GP.passo = function (J, dt) {
   J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
   J.sons = J.sons.filter(s => J.t - s.t < 1.2);
   J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
-  GP._fluxoDoRound(J);
+  GP._fluxoDoRound(J, dt);
 };
 
 /* corpos não se atravessam: quem está colado é afastado devagar (meio a meio),
@@ -174,6 +174,7 @@ GP._aplicarComando = function (J, e, dt) {
   /* velocidade-alvo e aceleração (parar rápido = contra-strafe) */
   let mx = c.mx || 0, my = c.my || 0;
   const n = Math.hypot(mx, my); if (n > 1) { mx /= n; my /= n; }
+  if (e._acaoSpike) { mx = 0; my = 0; }   /* plantando ou desarmando: parado */
   let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult * (GP.multVel ? GP.multVel(J, e) : 1);
   if (e.luneta) vmax = Math.min(vmax, GP.VEL.anda * 0.8);
   const tx = mx * vmax, ty = my * vmax;
@@ -296,6 +297,7 @@ GP._inimigos = (J, e) => J.ents.filter(o => o.vivo && o.time !== e.time);
 
 GP.iaPensar = function (J, e, dt) {
   const ia = e.ia, c = e.cmd, rnd = J.rnd, p = e.p;
+  c.spike = false;
   if (J.round.fase !== 'ativo') { c.mx = c.my = 0; c.atirar = false; return; }
   /* percepção */
   let alvo = null, dAlvo = 1e9;
@@ -305,7 +307,7 @@ GP.iaPensar = function (J, e, dt) {
     if (d < dAlvo) { alvo = o; dAlvo = d; }
   }
   for (const s of J.sons) {
-    if (s.time === e.time || J.t - s.t > dt * 1.5) continue;
+    if (s.time === e.time || s.time == null || J.t - s.t > dt * 1.5) continue;   /* bip da spike e portas não são inimigo */
     const d = Math.hypot(s.x - e.x, s.y - e.y);
     if (d < s.r) ia.ouviu = {x: s.x + GP._gauss(rnd) * (s.tiro ? 1.5 : 2.5), y: s.y + GP._gauss(rnd) * (s.tiro ? 1.5 : 2.5), t: J.t};
   }
@@ -371,6 +373,16 @@ GP.iaPensar = function (J, e, dt) {
   }
   /* sem alvo à vista */
   let destino = null, modo = 'corre';
+  /* na partida o objetivo manda: quem planta, desarma ou pega a spike não para
+     por barulho; quem segura um ponto vira para o barulho; o resto segue o
+     plano andando (só o agressivo vai atrás de quem viu) */
+  if (J.modo === 'partida' && GP._objetivoPartida && (ia.estado === 'alerta' || (ia.estado === 'cacar' && ia.agressivo < 0.6))) {
+    const urgente = /plantar|desarmar|pegar|retake/.test(ia.ctx || '');
+    const ob = GP._objetivoPartida(J, e, dt);
+    const fonte = ia.estado === 'alerta' ? ia.ouviu : ia.vista;
+    if (ob === true) { if (!urgente && ia.obj && ia.obj.acao === 'segurar' && fonte) GP._virarPara(e, Math.atan2(fonte.y - e.y, fonte.x - e.x), p.giro * 0.6, dt); return; }
+    if (ob) { GP._irPara(J, e, ob.ponto, urgente ? ob.modo : 'anda', dt); return; }
+  }
   if (ia.estado === 'cacar') { destino = ia.vista; modo = 'anda'; }
   else if (ia.estado === 'alerta') {
     /* ouviu: o agressivo vai atrás andando, o cauteloso segura o ângulo */
@@ -381,6 +393,10 @@ GP.iaPensar = function (J, e, dt) {
       c.mx = c.my = 0; c.modo = 'agacha';
       return;
     }
+  } else if (J.modo === 'partida' && GP._objetivoPartida) {
+    const ob = GP._objetivoPartida(J, e, dt);
+    if (ob === true) return;
+    if (ob) { destino = ob.ponto; modo = ob.modo; }
   } else {
     if (!ia.alvoPonto || Math.hypot(ia.alvoPonto.x - e.x, ia.alvoPonto.y - e.y) < 2.5 || J.t > ia.repensa) {
       ia.alvoPonto = GP._pontoDePatrulha(J, e); ia.caminho = null; ia.repensa = J.t + 18;
@@ -477,6 +493,7 @@ GP._posicoesDoRound = function (J) {
 };
 
 GP.novoRound = function (J) {
+  if (J.modo === 'partida') return GP._novoRoundPartida(J);
   J.round.n++;
   J.round.fase = 'pre'; J.round.ate = J.t + (J.round.n === 1 ? 1.5 : 2.2); J.round.vencedor = null;
   J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];
@@ -516,7 +533,8 @@ GP.novoRound = function (J) {
   J.eu.cmd.ang = J.eu.ang;
 };
 
-GP._fluxoDoRound = function (J) {
+GP._fluxoDoRound = function (J, dt) {
+  if (J.modo === 'partida') return GP._fluxoPartida(J, dt);
   const R = J.round;
   if (J.fim) return;
   if (R.fase === 'pre' && J.t >= R.ate) { R.fase = 'ativo'; R.ate = J.t + J.duracaoRound; R.inicio = J.t; }

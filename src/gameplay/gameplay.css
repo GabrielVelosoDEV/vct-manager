@@ -138,3 +138,17 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
   .gp-sl{grid-template-columns:1fr 110px 28px}
   .gp-nums{grid-template-columns:repeat(3,1fr)}
 }
+
+/* partida 5v5 */
+.gp-pl-eu i,.gp-pl-ele i{display:block;font-size:9px;font-style:normal;color:var(--dim);letter-spacing:.04em}
+.gp-spike{color:#ff4655}
+.gp-cred{color:#ffd166;font-weight:700}
+.gp-rounds{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0 14px}
+.gp-rounds i{width:12px;height:12px;display:block;background:#33404a}
+.gp-rounds i.ok{background:#18e5b4}.gp-rounds i.no{background:#ff4655}
+.gp-tab{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
+.gp-tab th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;padding:4px 6px;border-bottom:1px solid var(--line2)}
+.gp-tab td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+.gp-tab td.num,.gp-tab th:not(:first-child){text-align:right}
+.gp-tab tr.eu td{color:#18e5b4}
+.gp-tab-r{width:22px;height:22px;vertical-align:middle;margin-right:6px;display:inline-block}

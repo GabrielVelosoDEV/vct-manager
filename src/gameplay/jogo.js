@@ -16,7 +16,7 @@ GP.ATRIB_EFEITO = {
   visao: 'só no bot: percebe rápido quem surge pelo lado', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
 
 GP.UI = {
-  opc: {mapa: 'ascent', modo: 'duelo', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
+  opc: {mapa: 'ascent', modo: 'partida', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
   atribEu: null,
 };
 GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu})); } catch (e) { /* sem armazenamento */ } };
@@ -70,9 +70,12 @@ GP.menu = function () {
       <p class="gp-dim gp-tema">${escGP(GP.NOME_MAPA[o.mapa])}: ${escGP(GP.TEMAS[o.mapa].clima)}.</p></div>
     <div class="gp-cols">
       <div class="gp-sec"><div class="gp-eyebrow">Modo</div><div class="gp-ops">
-        ${bt('modo', 'duelo', 'Duelo 1v1', 'round a round')}${bt('modo', 'alvos', 'Treino de alvos', '60 s, bots que não atiram')}</div>
-        <div class="gp-eyebrow" style="margin-top:14px">Arma</div><div class="gp-ops gp-ops3">${armas}</div>
-        <div class="gp-eyebrow" style="margin-top:14px">Rival</div><div class="gp-ops gp-ops3">
+        ${bt('modo', 'partida', 'Partida 5v5', 'primeiro a 13, com spike')}${bt('modo', 'duelo', 'Duelo 1v1', 'round a round')}${bt('modo', 'alvos', 'Treino de alvos', '60 s, bots que não atiram')}</div>
+        ${o.modo === 'partida' ? `<div class="gp-eyebrow" style="margin-top:14px">Fase de compra</div><div class="gp-ops">
+        ${bt('compra', '10', '10 s', 'a loja é automática')}${bt('compra', '30', '30 s', 'como no Valorant')}</div>
+        <p class="gp-dim">Você é um dos 5 do time A; o resto é bot. Armas, escudo e habilidades são comprados sozinhos pelo dinheiro do time. Segure <kbd>F</kbd> no bomb para plantar e na spike para desarmar.</p>` : ''}
+        ${o.modo === 'partida' ? '' : `<div class="gp-eyebrow" style="margin-top:14px">Arma</div><div class="gp-ops gp-ops3">${armas}</div>`}
+        <div class="gp-eyebrow" style="margin-top:14px">${o.modo === 'partida' ? 'Nível dos bots (aliados e rivais)' : 'Rival'}</div><div class="gp-ops gp-ops3">
         ${Object.keys(GP.NIVEIS).map(k => bt('nivelBot', k, GP.NIVEIS[k].nome, GP.NIVEIS[k].desc)).join('')}</div>
         ${o.modo === 'duelo' ? `<div class="gp-eyebrow" style="margin-top:14px">Onde nasce</div><div class="gp-ops">
         ${bt('spawns', 'rapido', 'Perto', '20–40 m, sem se ver')}${bt('spawns', 'oficiais', 'Spawns do mapa', 'ataque × defesa')}</div>
@@ -134,7 +137,11 @@ GP.comecar = async function () {
   await GP._carregarImagensDoMapa(o.mapa);
   for (const id of Object.keys(GP.AGENTES)) GP.precarregarAgente(id);
   for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
-  const J = GP.montarDuelo({
+  const J = o.modo === 'partida' ? GP.montarPartida({
+    mapa: o.mapa, jogador: true, nome: GP.AGENTES[o.agenteEu].nome, agentesA: [o.agenteEu],
+    atribA: [GP.UI.atribEu, ...Array(4).fill(GP.NIVEIS[o.nivelBot].a)], atribB: GP.NIVEIS[o.nivelBot].a,
+    semente: (Date.now() & 0xffffff) || 1, tempoCompra: +(o.compra || 10),
+  }) : GP.montarDuelo({
     mapa: o.mapa, modo: o.modo, arma: o.arma, armaBot: o.arma === 'operator' ? 'vandal' : o.arma,
     atribEu: GP.UI.atribEu, atribBot: GP.NIVEIS[o.nivelBot].a, spawns: o.spawns, rounds: o.rounds,
     semente: (Date.now() & 0xffffff) || 1, agenteEu: o.agenteEu, agentesBot: [GP._agenteDoRival()],
@@ -170,6 +177,7 @@ GP._comando = function () {
   c.mx = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
   c.my = (k.KeyS ? 1 : 0) - (k.KeyW ? 1 : 0);
   c.modo = k.ControlLeft || k.ControlRight ? 'agacha' : k.ShiftLeft || k.ShiftRight ? 'anda' : 'corre';
+  c.spike = !!k.KeyF;
   c.luneta = S.ui.direito;
   if (S.ui.mouse) {
     const R = S.R, esc = S.cam.escala;
@@ -211,7 +219,10 @@ GP._quadro = function (agora) {
     ox = fx * k; oy = fy * k;
   }
   const dr = eu.ef && eu.ef.drone;   /* pilotando drone: a câmera vai com ele */
-  const tx = (dr ? dr.x : eu.x) + ox, ty = (dr ? dr.y : eu.y) + oy;
+  /* morto na partida: assiste a um aliado vivo */
+  const viz = !eu.vivo && J.modo === 'partida' ? (J.ents.find(o => o.vivo && o.time === eu.time) || eu) : eu;
+  if (viz !== eu) { ox = oy = 0; }
+  const tx = (dr ? dr.x : viz.x) + ox, ty = (dr ? dr.y : viz.y) + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
   /* mapa pintado: a câmera não passa da borda da pintura (fora dela não há nada) */
   const pt = R.arte && R.arte.pintura;
@@ -251,7 +262,14 @@ GP._hud = function () {
   const arm = GP.armaDe(eu), A = GP.defArma(eu);
   const resta = R.fase === 'ativo' ? Math.max(0, R.ate - J.t) : R.fase === 'pre' ? Math.max(0, R.ate - J.t) : 0;
   const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const alvos = J.modo === 'alvos';
+  const alvos = J.modo === 'alvos', partida = J.modo === 'partida';
+  if (partida) {
+    const nos = eu.time, eles = nos === 'A' ? 'B' : 'A', lado = J.lados[nos] === 'atk' ? 'ataque' : 'defesa', sp = J.spike;
+    const plantada = sp && sp.estado === 'plantada';
+    const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
+    const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você no ${lado}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${vivos(eles)} vivos</i></span>`;
+  } else
   $gp('#gpPlacar').innerHTML = alvos
     ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`
     : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
@@ -261,7 +279,7 @@ GP._hud = function () {
   const silh = GP.temImagem('armas', arm.id) ? `<img class="gp-arma-img" src="${GP.manifesto().armas[arm.id].src}" alt="">` : '';
   $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
-    <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
+    <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}${J.modo === 'partida' ? ` · <b class="gp-cred">¤ ${eu.creditos}</b>` : ''}</div>`;
   if (eu.agente) {
     const HH = GP.HABS && GP.HABS[eu.agente];
     const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente + (eu.pontosUlt || 0);
@@ -282,6 +300,16 @@ GP._hud = function () {
   $gp('#gpFeed').innerHTML = S.feed.filter(f => agora - f.t < 6000).map(f => `<div class="gp-kf ${f.meu ? 'meu' : ''} ${f.morri ? 'morri' : ''}">
     <b>${escGP(f.de)}</b><span>${escGP(f.arma)}${f.cabeca ? ' ✦' : ''}</span><b>${escGP(f.em)}</b></div>`).join('');
   let faixa = '';
+  if (partida) {
+    const nos = eu.time, sp = J.spike;
+    if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
+    else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
+    else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
+    else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
+    const fx = $gp('#gpFaixa');
+    fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.fase === 'fim' ? (R.vencedor === nos ? ' ok' : ' no') : '');
+    return;
+  }
   if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
   else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
   const fx = $gp('#gpFaixa');
@@ -292,6 +320,7 @@ GP._hud = function () {
 GP._fim = function () {
   const S = GP.S; if (!S) return;
   const J = S.J, r = GP.resumo(J), alvos = J.modo === 'alvos';
+  if (J.modo === 'partida') return GP._fimPartida();
   const dicas = [];
   if (r.tiros >= 8 && r.correndo >= 30) dicas.push(`<b>${r.correndo}%</b> dos seus tiros saíram correndo. Correndo o tiro abre muito: solte as teclas (ou segure Shift) um instante antes de atirar.`);
   if (r.tiros >= 10 && r.abertos >= 35) dicas.push(`<b>${r.abertos}%</b> dos tiros com a rajada já aberta. Atire em rajadas de 3–5 e solte; de longe, tiro a tiro.`);
@@ -309,6 +338,21 @@ GP._fim = function () {
       <div><b class="num">${r.dano}</b><span>dano</span></div>
     </div>
     <div class="gp-eyebrow">O que treinar</div><ul class="gp-dicas">${dicas.map(d => `<li>${d}</li>`).join('')}</ul>
+    <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">Jogar de novo</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
+  $gp('#gpFim').hidden = false;
+  $gp('#gpDeNovo').onclick = GP.comecar;
+  $gp('#gpMenuBt').onclick = GP.sair;
+};
+GP._fimPartida = function () {
+  const J = GP.S.J, nos = J.eu.time, eles = nos === 'A' ? 'B' : 'A';
+  const linha = e => `<tr class="${e === J.eu ? 'eu' : ''}"><td>${GP._rostoAgente(e.agente, 'gp-tab-r')}${escGP(e.nome)}</td><td class="num">${e.st.kills}</td><td class="num">${e.st.mortes}</td>
+    <td class="num">${Math.round(e.st.dano / Math.max(1, J.historico.length))}</td><td class="num">${e.st.fb}</td><td class="num">${e.st.plants}</td><td class="num">${e.st.desarmes}</td></tr>`;
+  const tabela = t => `<table class="gp-tab"><thead><tr><th>${t === nos ? 'Seu time' : 'Rivais'}</th><th>K</th><th>D</th><th>ADR</th><th>FB</th><th>Plant</th><th>Desarme</th></tr></thead>
+    <tbody>${J.ents.filter(e => e.time === t).sort((a, b) => b.st.kills - a.st.kills).map(linha).join('')}</tbody></table>`;
+  const rounds = J.historico.map(h => `<i class="${h.vencedor === nos ? 'ok' : 'no'}" title="Round ${h.n}: ${h.vencedor === nos ? 'ganho' : 'perdido'} por ${h.como}${h.plant ? ' · plant ' + h.plant.toUpperCase() : ''}"></i>`).join('');
+  $gp('#gpFim').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">Partida 5v5 · ${GP.NOME_MAPA[J.m.nome]}</div>
+    <h2 class="${J.fim.venceu ? 'ok' : 'no'}">${J.fim.venceu ? 'Vitória' : 'Derrota'} ${J.placar[nos]}–${J.placar[eles]}</h2>
+    <div class="gp-rounds">${rounds}</div>${tabela(nos)}${tabela(eles)}
     <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">Jogar de novo</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
   $gp('#gpFim').hidden = false;
   $gp('#gpDeNovo').onclick = GP.comecar;

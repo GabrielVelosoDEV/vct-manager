@@ -268,8 +268,14 @@ GP.resetarHabilidades = function (J) {
   for (const e of J.ents) {
     e.ef = {};
     const H = GP.HABS[e.agente];
-    e.cargas = {c: 0, q: 0, e: 0, x: 0};
-    if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
+    if (J.modo === 'partida' && e.cargas) {
+      /* na partida as cargas ficam de um round para o outro (e se compram);
+         a assinatura (E) ganha uma de graça por round */
+      if (H && H.e && H.e.cargas && !H.e.semDuelo) e.cargas.e = Math.min(H.e.cargas, Math.max(e.cargas.e || 0, 1));
+    } else {
+      e.cargas = {c: 0, q: 0, e: 0, x: 0};
+      if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
+    }
     /* ultimate: só com 5 abates (os pontos ficam de um round para o outro) */
     e.pontosUlt = e.pontosUlt || 0;
     e.cargas.x = H && H.x && H.x.cargas && e.pontosUlt >= GP.PONTOS_ULT ? 1 : 0;

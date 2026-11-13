@@ -165,6 +165,20 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
   .gp-nums{grid-template-columns:repeat(3,1fr)}
 }
 
+/* partida 5v5 */
+.gp-pl-eu i,.gp-pl-ele i{display:block;font-size:9px;font-style:normal;color:var(--dim);letter-spacing:.04em}
+.gp-spike{color:#ff4655}
+.gp-cred{color:#ffd166;font-weight:700}
+.gp-rounds{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0 14px}
+.gp-rounds i{width:12px;height:12px;display:block;background:#33404a}
+.gp-rounds i.ok{background:#18e5b4}.gp-rounds i.no{background:#ff4655}
+.gp-tab{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
+.gp-tab th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;padding:4px 6px;border-bottom:1px solid var(--line2)}
+.gp-tab td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+.gp-tab td.num,.gp-tab th:not(:first-child){text-align:right}
+.gp-tab tr.eu td{color:#18e5b4}
+.gp-tab-r{width:22px;height:22px;vertical-align:middle;margin-right:6px;display:inline-block}
+
 </style>
 </head>
 <body>
@@ -696,7 +710,7 @@ GP.passo = function (J, dt) {
   J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
   J.sons = J.sons.filter(s => J.t - s.t < 1.2);
   J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
-  GP._fluxoDoRound(J);
+  GP._fluxoDoRound(J, dt);
 };
 
 /* corpos não se atravessam: quem está colado é afastado devagar (meio a meio),
@@ -724,6 +738,7 @@ GP._aplicarComando = function (J, e, dt) {
   /* velocidade-alvo e aceleração (parar rápido = contra-strafe) */
   let mx = c.mx || 0, my = c.my || 0;
   const n = Math.hypot(mx, my); if (n > 1) { mx /= n; my /= n; }
+  if (e._acaoSpike) { mx = 0; my = 0; }   /* plantando ou desarmando: parado */
   let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult * (GP.multVel ? GP.multVel(J, e) : 1);
   if (e.luneta) vmax = Math.min(vmax, GP.VEL.anda * 0.8);
   const tx = mx * vmax, ty = my * vmax;
@@ -846,6 +861,7 @@ GP._inimigos = (J, e) => J.ents.filter(o => o.vivo && o.time !== e.time);
 
 GP.iaPensar = function (J, e, dt) {
   const ia = e.ia, c = e.cmd, rnd = J.rnd, p = e.p;
+  c.spike = false;
   if (J.round.fase !== 'ativo') { c.mx = c.my = 0; c.atirar = false; return; }
   /* percepção */
   let alvo = null, dAlvo = 1e9;
@@ -855,7 +871,7 @@ GP.iaPensar = function (J, e, dt) {
     if (d < dAlvo) { alvo = o; dAlvo = d; }
   }
   for (const s of J.sons) {
-    if (s.time === e.time || J.t - s.t > dt * 1.5) continue;
+    if (s.time === e.time || s.time == null || J.t - s.t > dt * 1.5) continue;   /* bip da spike e portas não são inimigo */
     const d = Math.hypot(s.x - e.x, s.y - e.y);
     if (d < s.r) ia.ouviu = {x: s.x + GP._gauss(rnd) * (s.tiro ? 1.5 : 2.5), y: s.y + GP._gauss(rnd) * (s.tiro ? 1.5 : 2.5), t: J.t};
   }
@@ -921,6 +937,16 @@ GP.iaPensar = function (J, e, dt) {
   }
   /* sem alvo à vista */
   let destino = null, modo = 'corre';
+  /* na partida o objetivo manda: quem planta, desarma ou pega a spike não para
+     por barulho; quem segura um ponto vira para o barulho; o resto segue o
+     plano andando (só o agressivo vai atrás de quem viu) */
+  if (J.modo === 'partida' && GP._objetivoPartida && (ia.estado === 'alerta' || (ia.estado === 'cacar' && ia.agressivo < 0.6))) {
+    const urgente = /plantar|desarmar|pegar|retake/.test(ia.ctx || '');
+    const ob = GP._objetivoPartida(J, e, dt);
+    const fonte = ia.estado === 'alerta' ? ia.ouviu : ia.vista;
+    if (ob === true) { if (!urgente && ia.obj && ia.obj.acao === 'segurar' && fonte) GP._virarPara(e, Math.atan2(fonte.y - e.y, fonte.x - e.x), p.giro * 0.6, dt); return; }
+    if (ob) { GP._irPara(J, e, ob.ponto, urgente ? ob.modo : 'anda', dt); return; }
+  }
   if (ia.estado === 'cacar') { destino = ia.vista; modo = 'anda'; }
   else if (ia.estado === 'alerta') {
     /* ouviu: o agressivo vai atrás andando, o cauteloso segura o ângulo */
@@ -931,6 +957,10 @@ GP.iaPensar = function (J, e, dt) {
       c.mx = c.my = 0; c.modo = 'agacha';
       return;
     }
+  } else if (J.modo === 'partida' && GP._objetivoPartida) {
+    const ob = GP._objetivoPartida(J, e, dt);
+    if (ob === true) return;
+    if (ob) { destino = ob.ponto; modo = ob.modo; }
   } else {
     if (!ia.alvoPonto || Math.hypot(ia.alvoPonto.x - e.x, ia.alvoPonto.y - e.y) < 2.5 || J.t > ia.repensa) {
       ia.alvoPonto = GP._pontoDePatrulha(J, e); ia.caminho = null; ia.repensa = J.t + 18;
@@ -1027,6 +1057,7 @@ GP._posicoesDoRound = function (J) {
 };
 
 GP.novoRound = function (J) {
+  if (J.modo === 'partida') return GP._novoRoundPartida(J);
   J.round.n++;
   J.round.fase = 'pre'; J.round.ate = J.t + (J.round.n === 1 ? 1.5 : 2.2); J.round.vencedor = null;
   J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];
@@ -1066,7 +1097,8 @@ GP.novoRound = function (J) {
   J.eu.cmd.ang = J.eu.ang;
 };
 
-GP._fluxoDoRound = function (J) {
+GP._fluxoDoRound = function (J, dt) {
+  if (J.modo === 'partida') return GP._fluxoPartida(J, dt);
   const R = J.round;
   if (J.fim) return;
   if (R.fase === 'pre' && J.t >= R.ate) { R.fase = 'ativo'; R.ate = J.t + J.duracaoRound; R.inicio = J.t; }
@@ -1717,8 +1749,14 @@ GP.resetarHabilidades = function (J) {
   for (const e of J.ents) {
     e.ef = {};
     const H = GP.HABS[e.agente];
-    e.cargas = {c: 0, q: 0, e: 0, x: 0};
-    if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
+    if (J.modo === 'partida' && e.cargas) {
+      /* na partida as cargas ficam de um round para o outro (e se compram);
+         a assinatura (E) ganha uma de graça por round */
+      if (H && H.e && H.e.cargas && !H.e.semDuelo) e.cargas.e = Math.min(H.e.cargas, Math.max(e.cargas.e || 0, 1));
+    } else {
+      e.cargas = {c: 0, q: 0, e: 0, x: 0};
+      if (H) for (const k of ['c', 'q', 'e', 'x']) e.cargas[k] = H[k] ? H[k].cargas : 0;
+    }
     /* ultimate: só com 5 abates (os pontos ficam de um round para o outro) */
     e.pontosUlt = e.pontosUlt || 0;
     e.cargas.x = H && H.x && H.x.cargas && e.pontosUlt >= GP.PONTOS_ULT ? 1 : 0;
@@ -3023,6 +3061,428 @@ GP.desenharSentinelas = function (g, J) {
 };
 
 
+/* ===== src/gameplay/partida.js ===== */
+/* ============================================================
+   PARTIDA 5 CONTRA 5 (etapa 1)
+   Rounds com fase de compra, spike (plantar, explodir, desarmar),
+   economia, troca de lado no round 13, prorrogação e fim da partida.
+   Os dois times são 'A' e 'B'; J.lados diz quem ataca em cada round.
+   A loja é automática por função e pelo dinheiro do time. A tática
+   aqui é a base (ataque escolhe um bomb, defesa se divide e gira,
+   retake depois do plant); os planos de round entram na etapa 2.
+   ============================================================ */
+'use strict';
+
+GP.PARTIDA = {compra: 30, round: 100, fimRound: 4, vence: 13, meio: 12};
+GP.SPIKE = {planta: 4, pavio: 45, desarme: 7, marco: 3.5, raio: 13, alcance: 1.3};
+GP.ECON = {inicio: 800, max: 9000, abate: 200, vitoria: 3000, derrota: [1900, 2400, 2900], plant: 300, prorrogacao: 5000};
+GP.CUSTO_HAB = {c: 200, q: 250};      /* E é a assinatura: uma carga de graça por round */
+GP.PRECO_ESCUDO = {leve: 400, pesado: 1000};
+GP.AGRESSIVO_PAPEL = {duelista: 0.75, iniciador: 0.5, controlador: 0.4, sentinela: 0.3};
+
+/* ---------- montar ---------- */
+GP._comporTime = function (fixos, rnd) {
+  const usados = new Set(fixos.filter(Boolean)), time = fixos.filter(Boolean).slice(0, 5);
+  const papeis = time.map(a => GP.AGENTES[a].papel);
+  const falta = ['duelista', 'iniciador', 'controlador', 'sentinela'].filter(p => !papeis.includes(p));
+  while (time.length < 5) {
+    const papel = falta.shift() || (rnd() < 0.6 ? 'duelista' : 'iniciador');
+    const op = Object.values(GP.AGENTES).filter(a => a.papel === papel && !usados.has(a.id) && GP.HABS[a.id]);
+    if (!op.length) continue;
+    const a = op[Math.floor(rnd() * op.length)];
+    usados.add(a.id); time.push(a.id);
+  }
+  return time;
+};
+
+GP.montarPartida = function (o) {
+  const J = GP.novoJogo({...o, modo: 'partida'});
+  const comp = {A: GP._comporTime(o.agentesA || [], J.rnd), B: GP._comporTime(o.agentesB || [], J.rnd)};
+  for (const time of ['A', 'B']) comp[time].forEach((ag, i) => {
+    const jogador = time === 'A' && i === 0 && o.jogador;
+    const at = o['atrib' + time], atrib = (Array.isArray(at) ? at[i] : at) || {};
+    const papel = GP.AGENTES[ag].papel;
+    const e = GP.criarAgente({id: time + i, nome: jogador ? (o.nome || 'Você') : GP.AGENTES[ag].nome, time, bot: !jogador,
+      atrib, agente: ag, primaria: null, secundaria: 'classic', escudo: 'nenhum', agressivo: GP.AGRESSIVO_PAPEL[papel]});
+    Object.assign(e, {papel, creditos: GP.ECON.inicio, pontosUlt: 0, prefRifle: J.rnd() < 0.55 ? 'vandal' : 'phantom'});
+    Object.assign(e.st, {plants: 0, desarmes: 0, fb: 0, assist: 0});
+    J.ents.push(e);
+  });
+  J.eu = J.ents[0];
+  J.placar = {A: 0, B: 0}; J.lados = {A: 'atk', B: 'def'}; J.derrotas = {A: 0, B: 0};
+  J.historico = []; J.compra = {}; J.duracaoRound = GP.PARTIDA.round;
+  J.tempoCompra = o.tempoCompra != null ? o.tempoCompra : GP.PARTIDA.compra;
+  J._evEcon = 0;
+  GP._prepararPontos(J.m);
+  GP.novoRound(J);
+  return J;
+};
+
+GP._timeAtk = J => J.lados.A === 'atk' ? 'A' : 'B';
+GP._timeDef = J => J.lados.A === 'atk' ? 'B' : 'A';
+GP._ladoNoRound = function (n) {
+  const P = GP.PARTIDA;
+  if (n <= P.meio) return 'A';
+  if (n <= 2 * P.meio) return 'B';
+  return (n - 2 * P.meio) % 2 === 1 ? 'A' : 'B';   /* prorrogação: troca todo round */
+};
+
+/* pontos de navegação de cada bomb (para plantar e segurar) */
+GP._prepararPontos = function (m) {
+  if (m.pontosSitio) return;
+  const n = m.nav; m.pontosSitio = {};
+  for (const L of Object.keys(m.sitios)) {
+    const cod = GP.SITIO_COD[L], pts = [];
+    for (let i = 0; i < n.W * n.H; i++) {
+      if (!n.livre[i]) continue;
+      const x = (i % n.W + 0.5) * n.passo, y = ((i / n.W | 0) + 0.5) * n.passo;
+      if (m.sitio[Math.floor(y / m.cel) * m.W + Math.floor(x / m.cel)] === cod) pts.push({x, y});
+    }
+    m.pontosSitio[L] = pts.length ? pts : [{x: m.sitios[L].x, y: m.sitios[L].y}];
+  }
+};
+GP._pontoLivrePerto = function (m, x, y) {
+  if (GP.navLivre(m, x, y)) return {x, y};
+  const i = GP._navPerto(m, x, y), n = m.nav;
+  return i < 0 ? {x, y} : {x: (i % n.W + 0.5) * n.passo, y: ((i / n.W | 0) + 0.5) * n.passo};
+};
+/* para onde olhar segurando um ponto: o primeiro trecho do caminho até o inimigo */
+GP._olharPara = function (m, p, alvo) {
+  const cam = GP.caminho(m, p.x, p.y, alvo.x, alvo.y);
+  if (cam) for (const q of cam) if (Math.hypot(q.x - p.x, q.y - p.y) > 3) return Math.atan2(q.y - p.y, q.x - p.x);
+  return Math.atan2(alvo.y - p.y, alvo.x - p.x);
+};
+
+/* ---------- round ---------- */
+GP._novoRoundPartida = function (J) {
+  const R = J.round, P = GP.PARTIDA, m = J.m;
+  R.n++;
+  const atkAgora = GP._ladoNoRound(R.n), trocou = J.lados[atkAgora] !== 'atk';
+  J.lados = {A: atkAgora === 'A' ? 'atk' : 'def', B: atkAgora === 'B' ? 'atk' : 'def'};
+  const pistola = R.n === 1 || R.n === P.meio + 1, prorrog = R.n > 2 * P.meio;
+  J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];
+  if (GP.resetarMecanicas) GP.resetarMecanicas(m);
+  for (const e of J.ents) {
+    /* quem morreu perde as armas; quem sobreviveu fica com elas (e com o escudo) */
+    if (!e.vivo || pistola || (trocou && !prorrog)) { e.armas.primaria = null; e.armas.secundaria = {id: 'classic'}; e.escudo = 0; }
+    if (pistola) { e.creditos = GP.ECON.inicio; e.cargas = {c: 0, q: 0, e: 0, x: e.cargas ? e.cargas.x : 0}; }
+    if (prorrog) e.creditos = GP.ECON.prorrogacao;
+    for (const s of ['primaria', 'secundaria']) if (e.armas[s]) { const A = GP.ARMAS[e.armas[s].id]; e.armas[s].municao = A.pente; e.armas[s].reserva = A.reserva; }
+    e.slot = e.armas.primaria ? 'primaria' : 'secundaria';
+    e.hp = 100; e.vivo = true; e.spray = 0; e.recarregaAte = 0; e.equipaAte = 0; e._viuEm = 0; e._reagiu = false; e._susto = null; e._morreuEm = 0;
+    e.viagem = null; e._tpCarga = 0; e._tpAte = 0; e._acaoSpike = false; e.vx = e.vy = 0;
+    if (e.ia) Object.assign(e.ia, {estado: 'patrulha', caminho: null, alvoPonto: null, vista: null, ouviu: null, seguraAte: 0, pausaAte: 0, obj: null, objAte: 0, ctx: ''});
+  }
+  if (GP.resetarHabilidades) GP.resetarHabilidades(J);
+  /* nascem espalhados em volta do spawn do lado */
+  for (const time of ['A', 'B']) {
+    const sp = m.spawn[J.lados[time]];
+    J.ents.filter(e => e.time === time).forEach((e, i) => {
+      const a = i / 5 * Math.PI * 2, p = GP._pontoLivrePerto(m, sp.x + Math.cos(a) * 1.6 * (i ? 1 : 0), sp.y + Math.sin(a) * 1.6 * (i ? 1 : 0));
+      e.x = p.x; e.y = p.y;
+      e.ang = Math.atan2(m.alturaM / 2 - e.y, m.larguraM / 2 - e.x);
+      if (!e.bot) e.cmd.ang = e.ang;
+    });
+  }
+  GP._comprarTodos(J);
+  /* a spike vai para um atacante (de preferência quem não abre o bomb) */
+  const atk = J.ents.filter(e => e.time === GP._timeAtk(J));
+  const ordem = {sentinela: 0, controlador: 1, iniciador: 2, duelista: 3};
+  const dono = atk.filter(e => e.bot).sort((a, b) => ordem[a.papel] - ordem[b.papel])[0] || atk[0];
+  J.spike = {estado: 'carregada', dono: dono.id, x: dono.x, y: dono.y, progresso: 0, desarme: 0};
+  GP._planejarRound(J);
+  R.fase = 'compra'; R.ate = J.t + J.tempoCompra; R.vencedor = null; R.como = null; R.plantou = false; R.primeiroSangue = false;
+  J.eventos.push({tipo: 'inicio', t: J.t, n: R.n, lados: {...J.lados}, compra: {...J.compra}});
+};
+
+/* ---------- economia e loja ---------- */
+GP._darArma = function (e, id, slot) {
+  const A = GP.ARMAS[id];
+  e.armas[slot] = {id, municao: A.pente, reserva: A.reserva};
+  if (slot === 'primaria') e.slot = 'primaria';
+};
+GP._comprarTodos = function (J) {
+  const n = J.round.n, P = GP.PARTIDA;
+  for (const time of ['A', 'B']) {
+    const tm = J.ents.filter(e => e.time === time);
+    const media = tm.reduce((s, e) => s + e.creditos, 0) / tm.length;
+    let modo;
+    if (n === 1 || n === P.meio + 1) modo = 'pistola';
+    else if (n > 2 * P.meio) modo = 'cheia';
+    else if (media >= 3900) modo = 'cheia';
+    else if (media >= 3100 || (J.derrotas[time] >= 2 && media >= 2400)) modo = 'forca';
+    else modo = 'eco';
+    J.compra[time] = modo;
+    let operador = tm.some(e => e.armas.primaria && e.armas.primaria.id === 'operator');
+    /* quem compra primeiro é quem tem mais dinheiro */
+    for (const e of tm.slice().sort((a, b) => b.creditos - a.creditos)) {
+      const gasta = v => e.creditos >= v ? (e.creditos -= v, true) : false;
+      const prim = e.armas.primaria && e.armas.primaria.id;
+      if (modo === 'pistola') {
+        if (e.papel === 'duelista' && gasta(500)) GP._darArma(e, 'ghost', 'secundaria');
+        else if (gasta(GP.PRECO_ESCUDO.leve)) e.escudo = Math.max(e.escudo, GP.ESCUDOS.leve);
+      } else if (modo === 'cheia') {
+        if (!prim || GP.ARMAS[prim].tipo !== 'rifle' && prim !== 'operator') {
+          const querOp = !operador && (e.papel === 'sentinela' || (e.atrib.mira || 50) >= 82) && e.creditos >= 4700 + 1000;
+          if (querOp && gasta(4700)) { GP._darArma(e, 'operator', 'primaria'); operador = true; }
+          else if (gasta(2900)) GP._darArma(e, e.prefRifle, 'primaria');
+          else if (gasta(1600)) GP._darArma(e, 'spectre', 'primaria');
+        }
+        if (e.escudo < GP.ESCUDOS.pesado && gasta(GP.PRECO_ESCUDO.pesado)) e.escudo = GP.ESCUDOS.pesado;
+        else if (e.escudo < GP.ESCUDOS.leve && gasta(GP.PRECO_ESCUDO.leve)) e.escudo = GP.ESCUDOS.leve;
+      } else if (modo === 'forca') {
+        if (!prim) { if (gasta(1600)) GP._darArma(e, 'spectre', 'primaria'); else if (gasta(800)) GP._darArma(e, 'sheriff', 'secundaria'); }
+        if (e.escudo < GP.ESCUDOS.leve && gasta(GP.PRECO_ESCUDO.leve)) e.escudo = GP.ESCUDOS.leve;
+      }
+      /* habilidades: no eco só se sobrar para o round que vem */
+      const H = GP.HABS[e.agente];
+      if (H) for (const k of ['c', 'q']) {
+        const h = H[k]; if (!h || h.semDuelo || !h.cargas) continue;
+        while (e.cargas[k] < h.cargas && e.creditos >= GP.CUSTO_HAB[k] + (modo === 'eco' ? 2000 : 0)) { e.creditos -= GP.CUSTO_HAB[k]; e.cargas[k]++; }
+      }
+    }
+  }
+};
+GP._ganhar = (e, v) => { e.creditos = Math.min(GP.ECON.max, e.creditos + v); };
+
+/* ---------- a cada passo ---------- */
+GP._fluxoPartida = function (J, dt) {
+  const R = J.round, E = GP.ECON;
+  if (J.fim) return;
+  /* abates: crédito, primeiro sangue */
+  for (; J._evEcon < J.eventos.length; J._evEcon++) {
+    const ev = J.eventos[J._evEcon];
+    if (ev.tipo !== 'morte') continue;
+    const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
+    if (de && em && de.time !== em.time) {
+      GP._ganhar(de, E.abate);
+      if (!R.primeiroSangue) { R.primeiroSangue = true; de.st.fb++; }
+    }
+  }
+  if (R.fase === 'compra') {
+    if (J.t >= R.ate) { R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound; }
+    return;
+  }
+  if (R.fase === 'ativo') {
+    GP._passoSpike(J, dt || 1 / 120);
+    GP._contato(J);
+    const atk = GP._timeAtk(J), def = GP._timeDef(J), sp = J.spike;
+    const vivos = t => J.ents.some(e => e.vivo && e.time === t);
+    let venc = null, como = '';
+    if (sp.estado === 'desarmada') { venc = def; como = 'desarme'; }
+    else if (sp.estado === 'plantada' && J.t >= sp.explode) { GP._explodir(J); venc = atk; como = 'explosão'; }
+    else if (!vivos(def)) { venc = atk; como = 'eliminação'; }
+    else if (!vivos(atk) && sp.estado !== 'plantada') { venc = def; como = 'eliminação'; }
+    else if (sp.estado !== 'plantada' && J.t >= R.ate) { venc = def; como = 'tempo'; }
+    if (venc) GP._fimDoRound(J, venc, como);
+  } else if (R.fase === 'fim' && J.t >= R.ate) GP.novoRound(J);
+};
+
+GP._fimDoRound = function (J, venc, como) {
+  const R = J.round, E = GP.ECON, perd = venc === 'A' ? 'B' : 'A', atk = GP._timeAtk(J);
+  R.fase = 'fim'; R.vencedor = venc; R.como = como; R.ate = J.t + GP.PARTIDA.fimRound;
+  J.placar[venc]++;
+  J.derrotas[venc] = 0; J.derrotas[perd]++;
+  for (const e of J.ents) {
+    if (e.time === venc) GP._ganhar(e, E.vitoria);
+    else GP._ganhar(e, E.derrota[Math.min(J.derrotas[perd], 3) - 1]);
+    if (R.plantou && e.time === atk) GP._ganhar(e, E.plant);
+  }
+  J.historico.push({n: R.n, vencedor: venc, como, atk, plant: R.plantou ? J.spike.letra : null, compra: {...J.compra}, placar: {...J.placar},
+    duracao: Math.round(J.t - (R.inicio || J.t))});
+  J.eventos.push({tipo: 'round', t: J.t, vencedor: venc, como, n: R.n});
+  const a = J.placar.A, b = J.placar.B;
+  if (Math.max(a, b) >= GP.PARTIDA.vence && Math.abs(a - b) >= 2) {
+    const v = a > b ? 'A' : 'B';
+    J.fim = {modo: 'partida', vencedor: v, venceu: J.eu.time === v};
+  }
+};
+
+/* a spike: carregar, cair, pegar, plantar, desarmar */
+GP._passoSpike = function (J, dt) {
+  const sp = J.spike, S = GP.SPIKE, m = J.m, t = J.t, atk = GP._timeAtk(J), def = GP._timeDef(J);
+  for (const e of J.ents) e._acaoSpike = false;
+  const quieto = e => e.vivo && Math.hypot(e.vx, e.vy) < 0.6 && !e.cmd.atirar && !e.viagem;
+  if (sp.estado === 'carregada') {
+    const d = J.ents.find(e => e.id === sp.dono);
+    if (!d || !d.vivo) { sp.estado = 'chao'; sp.dono = null; sp.progresso = 0; J.eventos.push({tipo: 'spike', t, acao: 'caiu', x: sp.x, y: sp.y}); }
+    else {
+      sp.x = d.x; sp.y = d.y;
+      const letra = GP.sitioEm(m, d.x, d.y);
+      if (d.cmd.spike && letra && quieto(d)) {
+        d._acaoSpike = true; sp.progresso += dt;
+        if (t - (sp.som || 0) > 0.45) { sp.som = t; J.sons.push({x: d.x, y: d.y, t, dono: d.id, time: d.time, r: 14}); }
+        if (sp.progresso >= S.planta) {
+          Object.assign(sp, {estado: 'plantada', dono: null, letra, explode: t + S.pavio, desarme: 0, quem: d.id});
+          J.round.ate = sp.explode; J.round.plantou = true; d.st.plants++;
+          J.sons.push({x: d.x, y: d.y, t, dono: d.id, time: d.time, r: 60, tiro: true});
+          J.eventos.push({tipo: 'spike', t, acao: 'plantada', letra, de: d.id});
+        }
+      } else sp.progresso = 0;
+    }
+  }
+  if (sp.estado === 'chao') {
+    const p = J.ents.find(e => e.vivo && e.time === atk && Math.hypot(e.x - sp.x, e.y - sp.y) < 1);
+    if (p) { sp.estado = 'carregada'; sp.dono = p.id; J.eventos.push({tipo: 'spike', t, acao: 'pegou', de: p.id}); }
+  }
+  if (sp.estado === 'plantada') {
+    const q = J.ents.find(e => e.time === def && e.cmd.spike && quieto(e) && Math.hypot(e.x - sp.x, e.y - sp.y) < S.alcance);
+    if (q) {
+      q._acaoSpike = true; sp.desarme += dt; sp.desarmador = q.id;
+      if (t - (sp.som || 0) > 0.45) { sp.som = t; J.sons.push({x: q.x, y: q.y, t, dono: q.id, time: q.time, r: 16}); }
+      if (sp.desarme >= S.desarme) { sp.estado = 'desarmada'; q.st.desarmes++; J.eventos.push({tipo: 'spike', t, acao: 'desarmada', de: q.id}); }
+    } else { sp.desarme = sp.desarme >= S.marco ? S.marco : 0; sp.desarmador = null; }
+    /* o bip: todo mundo sabe onde está */
+    if (t - (sp.bip || 0) > Math.max(0.25, (sp.explode - t) / 45 * 1.2)) { sp.bip = t; J.sons.push({x: sp.x, y: sp.y, t, dono: 'spike', time: null, r: 30}); }
+  }
+};
+GP._explodir = function (J) {
+  const sp = J.spike;
+  sp.estado = 'explodiu';
+  for (const e of J.ents) if (e.vivo && Math.hypot(e.x - sp.x, e.y - sp.y) < GP.SPIKE.raio) {
+    e.hp = 0; e.vivo = false; e.st.mortes++; e._morreuEm = J.t;
+    J.eventos.push({tipo: 'morte', t: J.t, de: null, em: e.id, arma: 'Spike', cabeca: false});
+  }
+  (J.efx || (J.efx = [])).push({tipo: 'explosao', x: sp.x, y: sp.y, t: J.t});
+};
+
+/* quem da defesa viu ou ouviu o ataque perto de um bomb: o time gira */
+GP._contato = function (J) {
+  if (J.t - (J._contatoEm || 0) < 0.5) return;
+  J._contatoEm = J.t;
+  const atk = J.ents.filter(e => e.vivo && e.time === GP._timeAtk(J)), def = J.ents.filter(e => e.vivo && e.time === GP._timeDef(J));
+  for (const a of atk) {
+    if (!def.some(d => GP.ve(J, d, a) || (a.ef && a.ef.revelado > J.t))) continue;
+    let melhor = null;
+    for (const L in J.m.sitios) { const s = J.m.sitios[L], d = Math.hypot(a.x - s.x, a.y - s.y); if (d < 22 && (!melhor || d < melhor.d)) melhor = {L, d}; }
+    if (melhor) { J.plano.contato = {letra: melhor.L, t: J.t, n: (J.plano.contato && J.plano.contato.letra === melhor.L ? J.plano.contato.n : 0) + 1}; }
+  }
+};
+
+/* ---------- a tática base ---------- */
+GP._planejarRound = function (J) {
+  const m = J.m, letras = Object.keys(m.sitios), rnd = J.rnd;
+  const def = J.ents.filter(e => e.time === GP._timeDef(J));
+  const ordem = {sentinela: 0, controlador: 1, iniciador: 2, duelista: 3};
+  def.sort((a, b) => ordem[a.papel] - ordem[b.papel]);
+  const dist = letras.length === 3 ? ['a', 'b', 'c', 'b', 'a'] : ['a', 'b', 'a', 'b', 'meio'];
+  const deSitio = {};
+  def.forEach((e, i) => { const L = dist[i] in m.sitios || dist[i] === 'meio' ? dist[i] : letras[i % letras.length]; deSitio[e.id] = L; });
+  /* a âncora de cada bomb é o primeiro da lista nele: não gira */
+  const ancora = {};
+  for (const e of def) if (!ancora[deSitio[e.id]]) ancora[deSitio[e.id]] = e.id;
+  J.plano = {alvo: letras[Math.floor(rnd() * letras.length)], deSitio, ancora, contato: null};
+};
+GP._sortear = (J, lista) => lista[Math.floor(J.rnd() * lista.length)];
+
+GP._escolherObjetivo = function (J, e) {
+  const m = J.m, sp = J.spike, ia = e.ia, pl = J.plano, atk = e.time === GP._timeAtk(J);
+  const inimigoSpawn = m.spawn[atk ? 'def' : 'atk'];
+  let ctx, faz;
+  if (atk) {
+    if (sp.estado === 'chao') {
+      const perto = J.ents.filter(o => o.vivo && o.time === e.time).sort((a, b) => Math.hypot(a.x - sp.x, a.y - sp.y) - Math.hypot(b.x - sp.x, b.y - sp.y))[0];
+      if (perto === e) { ctx = 'pegar'; faz = () => ({x: sp.x, y: sp.y, acao: 'ir'}); }
+    }
+    if (!ctx && sp.estado === 'carregada' && sp.dono === e.id) {
+      ctx = 'plantar' + pl.alvo;
+      faz = () => ({...GP._sortear(J, m.pontosSitio[pl.alvo]), acao: 'plantar'});
+    }
+    if (!ctx && sp.estado === 'plantada') {
+      ctx = 'posplant';
+      faz = () => {
+        const cand = [];
+        for (let k = 0; k < 40; k++) {
+          const a = J.rnd() * Math.PI * 2, r = 6 + J.rnd() * 8, p = GP._pontoLivrePerto(m, sp.x + Math.cos(a) * r, sp.y + Math.sin(a) * r);
+          if (GP.linhaLivre(m, p.x, p.y, sp.x, sp.y)) cand.push(p);
+        }
+        const p = cand[0] || {x: sp.x, y: sp.y};
+        return {...p, acao: 'segurar', olhar: Math.atan2(sp.y - p.y, sp.x - p.x)};
+      };
+    }
+    if (!ctx) {
+      ctx = 'entrar' + pl.alvo;
+      faz = () => { const p = GP._sortear(J, m.pontosSitio[pl.alvo]); return {...p, acao: 'segurar', olhar: GP._olharPara(m, p, inimigoSpawn)}; };
+    }
+  } else {
+    if (sp.estado === 'plantada') {
+      const perto = J.ents.filter(o => o.vivo && o.time === e.time).sort((a, b) => Math.hypot(a.x - sp.x, a.y - sp.y) - Math.hypot(b.x - sp.x, b.y - sp.y))[0];
+      ctx = perto === e ? 'desarmar' : 'retake';
+      faz = perto === e ? () => ({x: sp.x, y: sp.y, acao: 'desarmar'})
+        : () => { const a = J.rnd() * Math.PI * 2, p = GP._pontoLivrePerto(m, sp.x + Math.cos(a) * 4, sp.y + Math.sin(a) * 4); return {...p, acao: 'segurar', olhar: Math.atan2(sp.y - p.y, sp.x - p.x)}; };
+    } else {
+      let L = pl.deSitio[e.id];
+      const c = pl.contato;
+      if (c && J.t - c.t < 12 && c.letra !== L && pl.ancora[L] !== e.id) L = c.letra;   /* gira */
+      ctx = 'segurar' + L;
+      faz = () => {
+        let p;
+        if (L === 'meio') {
+          const ls = Object.values(m.sitios);
+          p = GP._pontoLivrePerto(m, (ls[0].x + ls[1].x) / 2, (ls[0].y + ls[1].y) / 2);
+        } else p = GP._sortear(J, m.pontosSitio[L]);
+        return {...p, acao: 'segurar', olhar: GP._olharPara(m, p, inimigoSpawn)};
+      };
+    }
+  }
+  if (ia.ctx !== ctx || !ia.obj) { ia.ctx = ctx; ia.obj = faz(); ia.caminho = null; }
+  if (ia.obj && ia.obj.acao !== 'segurar' && (ctx === 'pegar' || ctx === 'desarmar')) { ia.obj.x = sp.x; ia.obj.y = sp.y; }
+};
+
+/* chamado pela IA quando não tem inimigo à vista: devolve true se já decidiu o comando */
+GP._objetivoPartida = function (J, e, dt) {
+  const ia = e.ia, c = e.cmd;
+  c.spike = false;
+  if (J.t >= (ia.objAte || 0)) { ia.objAte = J.t + 0.5; GP._escolherObjetivo(J, e); }
+  const ob = ia.obj; if (!ob) return null;
+  const d = Math.hypot(ob.x - e.x, ob.y - e.y);
+  if (ob.acao === 'plantar' && d < 2.5 && GP.sitioEm(J.m, e.x, e.y)) { c.mx = c.my = 0; c.spike = true; c.modo = 'agacha'; return true; }
+  if (ob.acao === 'desarmar' && d < GP.SPIKE.alcance * 0.8) { c.mx = c.my = 0; c.spike = true; c.modo = 'agacha'; return true; }
+  if (ob.acao === 'segurar' && d < 1.2) {
+    c.mx = c.my = 0; c.modo = 'anda';
+    if (ob.olhar != null) GP._virarPara(e, ob.olhar, e.p.giro * 0.5, dt);
+    return true;
+  }
+  /* entrando no bomb: perto, anda em silêncio (o duelista vai correndo) */
+  const sitio = ob.acao !== 'desarmar' && J.m.sitios[(ia.ctx.match(/[abc]$/) || [])[0]];
+  const modo = sitio && Math.hypot(sitio.x - e.x, sitio.y - e.y) < 20 && e.papel !== 'duelista' && J.spike.estado !== 'plantada' ? 'anda' : 'corre';
+  return {ponto: ob, modo};
+};
+
+/* ---------- desenho ---------- */
+GP.desenharSpike = function (g, J) {
+  const sp = J.spike;
+  if (!sp) return;
+  const man = GP.manifesto ? GP.manifesto().objetos || {} : {};
+  const im = man.spike && GP.imagem(man.spike.src);
+  const t = J.t;
+  const pinta = (x, y, w) => { if (im) g.drawImage(im, x - w / 2, y - w / 2, w, w * im.height / im.width); else { g.fillStyle = '#ff4655'; g.fillRect(x - 0.3, y - 0.3, 0.6, 0.6); } };
+  if (sp.estado === 'chao' || sp.estado === 'plantada') {
+    if (sp.estado === 'plantada') {
+      const k = Math.max(0, (sp.explode - t) / GP.SPIKE.pavio), pul = (t * (3 + (1 - k) * 8)) % 1;
+      g.save(); g.strokeStyle = `rgba(255,70,85,${0.7 * (1 - pul)})`; g.lineWidth = 0.12;
+      g.beginPath(); g.arc(sp.x, sp.y, 0.6 + pul * 2.5, 0, 7); g.stroke(); g.restore();
+    }
+    pinta(sp.x, sp.y, 0.9);
+  } else if (sp.estado === 'carregada') {
+    const d = J.ents.find(e => e.id === sp.dono);
+    if (d && d.time === J.eu.time) pinta(d.x + 0.55, d.y - 1.5, 0.5);
+  }
+  /* barra de plantar / desarmar em cima de quem está fazendo */
+  for (const e of J.ents) {
+    if (!e._acaoSpike || !(e.time === J.eu.time || e._visivel)) continue;
+    const plantando = sp.estado === 'carregada', f = plantando ? sp.progresso / GP.SPIKE.planta : sp.desarme / GP.SPIKE.desarme;
+    g.fillStyle = 'rgba(10,14,20,.8)'; g.fillRect(e.x - 0.8, e.y - 2.6, 1.6, 0.22);
+    g.fillStyle = plantando ? '#ff4655' : '#18e5b4'; g.fillRect(e.x - 0.8, e.y - 2.6, 1.6 * Math.min(1, f), 0.22);
+    if (!plantando) { g.fillStyle = '#ffffff'; g.fillRect(e.x - 0.8 + 1.6 * GP.SPIKE.marco / GP.SPIKE.desarme - 0.02, e.y - 2.65, 0.04, 0.32); }
+  }
+  for (const f of J.efx || []) if (f.tipo === 'explosao') {
+    const k = (t - f.t) / 1.2; if (k > 1) continue;
+    g.save(); g.globalAlpha = 1 - k; g.fillStyle = '#ffb36b'; g.beginPath(); g.arc(f.x, f.y, GP.SPIKE.raio * (0.3 + 0.7 * k), 0, 7); g.fill(); g.restore();
+  }
+};
+
+
 /* ===== src/gameplay/temas.js ===== */
 /* ============================================================
    GAMEPLAY · O VISUAL DE CADA MAPA
@@ -3516,6 +3976,7 @@ GP.render = function (R, J, cam, ui) {
 
   if (GP.desenharMecanicas) GP.desenharMecanicas(g, J);
   if (GP.desenharHabilidades) GP.desenharHabilidades(g, J);
+  if (GP.desenharSpike && J.spike) GP.desenharSpike(g, J);
   /* sons que você ouve (passos e tiros de quem você não vê) */
   for (const s of J.sons) {
     if (s.time === eu.time) continue;
@@ -3561,7 +4022,7 @@ GP.render = function (R, J, cam, ui) {
   }
   if (!eu.vivo) GP._corpo(g, eu, J.t);
   /* atrás da parede: aparece, mas meio apagado (dá para ver, não para acertar) */
-  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
+  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : o.time === eu.time ? '#5aa9ff' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
 
   if (GP.desenharDicaDeUso) GP.desenharDicaDeUso(g, J);
   /* números de dano e marcas de acerto (por cima da névoa) */
@@ -3688,7 +4149,7 @@ GP._minimapa = function (R, J) {
   g.strokeStyle = 'rgba(255,255,255,.15)'; g.strokeRect(x0 - 0.5, y0 - 0.5, m.larguraM * k + 1, m.alturaM * k + 1);
   for (const o of J.ents) {
     if (!o.vivo || (o !== J.eu && !o._visivel)) continue;
-    g.fillStyle = o === J.eu ? '#18e5b4' : '#ff4655';
+    g.fillStyle = o === J.eu ? '#18e5b4' : o.time === J.eu.time ? '#5aa9ff' : '#ff4655';
     g.beginPath(); g.arc(x0 + o.x * k, y0 + o.y * k, 3.2 * R.dpr, 0, Math.PI * 2); g.fill();
     if (o === J.eu) { g.strokeStyle = '#18e5b4'; g.lineWidth = 1.5 * R.dpr; g.beginPath(); g.moveTo(x0 + o.x * k, y0 + o.y * k);
       g.lineTo(x0 + (o.x + Math.cos(o.ang) * 9) * k, y0 + (o.y + Math.sin(o.ang) * 9) * k); g.stroke(); }
@@ -3716,7 +4177,7 @@ GP.ATRIB_EFEITO = {
   visao: 'só no bot: percebe rápido quem surge pelo lado', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
 
 GP.UI = {
-  opc: {mapa: 'ascent', modo: 'duelo', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
+  opc: {mapa: 'ascent', modo: 'partida', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio'},
   atribEu: null,
 };
 GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu})); } catch (e) { /* sem armazenamento */ } };
@@ -3770,9 +4231,12 @@ GP.menu = function () {
       <p class="gp-dim gp-tema">${escGP(GP.NOME_MAPA[o.mapa])}: ${escGP(GP.TEMAS[o.mapa].clima)}.</p></div>
     <div class="gp-cols">
       <div class="gp-sec"><div class="gp-eyebrow">Modo</div><div class="gp-ops">
-        ${bt('modo', 'duelo', 'Duelo 1v1', 'round a round')}${bt('modo', 'alvos', 'Treino de alvos', '60 s, bots que não atiram')}</div>
-        <div class="gp-eyebrow" style="margin-top:14px">Arma</div><div class="gp-ops gp-ops3">${armas}</div>
-        <div class="gp-eyebrow" style="margin-top:14px">Rival</div><div class="gp-ops gp-ops3">
+        ${bt('modo', 'partida', 'Partida 5v5', 'primeiro a 13, com spike')}${bt('modo', 'duelo', 'Duelo 1v1', 'round a round')}${bt('modo', 'alvos', 'Treino de alvos', '60 s, bots que não atiram')}</div>
+        ${o.modo === 'partida' ? `<div class="gp-eyebrow" style="margin-top:14px">Fase de compra</div><div class="gp-ops">
+        ${bt('compra', '10', '10 s', 'a loja é automática')}${bt('compra', '30', '30 s', 'como no Valorant')}</div>
+        <p class="gp-dim">Você é um dos 5 do time A; o resto é bot. Armas, escudo e habilidades são comprados sozinhos pelo dinheiro do time. Segure <kbd>F</kbd> no bomb para plantar e na spike para desarmar.</p>` : ''}
+        ${o.modo === 'partida' ? '' : `<div class="gp-eyebrow" style="margin-top:14px">Arma</div><div class="gp-ops gp-ops3">${armas}</div>`}
+        <div class="gp-eyebrow" style="margin-top:14px">${o.modo === 'partida' ? 'Nível dos bots (aliados e rivais)' : 'Rival'}</div><div class="gp-ops gp-ops3">
         ${Object.keys(GP.NIVEIS).map(k => bt('nivelBot', k, GP.NIVEIS[k].nome, GP.NIVEIS[k].desc)).join('')}</div>
         ${o.modo === 'duelo' ? `<div class="gp-eyebrow" style="margin-top:14px">Onde nasce</div><div class="gp-ops">
         ${bt('spawns', 'rapido', 'Perto', '20–40 m, sem se ver')}${bt('spawns', 'oficiais', 'Spawns do mapa', 'ataque × defesa')}</div>
@@ -3834,7 +4298,11 @@ GP.comecar = async function () {
   await GP._carregarImagensDoMapa(o.mapa);
   for (const id of Object.keys(GP.AGENTES)) GP.precarregarAgente(id);
   for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
-  const J = GP.montarDuelo({
+  const J = o.modo === 'partida' ? GP.montarPartida({
+    mapa: o.mapa, jogador: true, nome: GP.AGENTES[o.agenteEu].nome, agentesA: [o.agenteEu],
+    atribA: [GP.UI.atribEu, ...Array(4).fill(GP.NIVEIS[o.nivelBot].a)], atribB: GP.NIVEIS[o.nivelBot].a,
+    semente: (Date.now() & 0xffffff) || 1, tempoCompra: +(o.compra || 10),
+  }) : GP.montarDuelo({
     mapa: o.mapa, modo: o.modo, arma: o.arma, armaBot: o.arma === 'operator' ? 'vandal' : o.arma,
     atribEu: GP.UI.atribEu, atribBot: GP.NIVEIS[o.nivelBot].a, spawns: o.spawns, rounds: o.rounds,
     semente: (Date.now() & 0xffffff) || 1, agenteEu: o.agenteEu, agentesBot: [GP._agenteDoRival()],
@@ -3870,6 +4338,7 @@ GP._comando = function () {
   c.mx = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
   c.my = (k.KeyS ? 1 : 0) - (k.KeyW ? 1 : 0);
   c.modo = k.ControlLeft || k.ControlRight ? 'agacha' : k.ShiftLeft || k.ShiftRight ? 'anda' : 'corre';
+  c.spike = !!k.KeyF;
   c.luneta = S.ui.direito;
   if (S.ui.mouse) {
     const R = S.R, esc = S.cam.escala;
@@ -3911,7 +4380,10 @@ GP._quadro = function (agora) {
     ox = fx * k; oy = fy * k;
   }
   const dr = eu.ef && eu.ef.drone;   /* pilotando drone: a câmera vai com ele */
-  const tx = (dr ? dr.x : eu.x) + ox, ty = (dr ? dr.y : eu.y) + oy;
+  /* morto na partida: assiste a um aliado vivo */
+  const viz = !eu.vivo && J.modo === 'partida' ? (J.ents.find(o => o.vivo && o.time === eu.time) || eu) : eu;
+  if (viz !== eu) { ox = oy = 0; }
+  const tx = (dr ? dr.x : viz.x) + ox, ty = (dr ? dr.y : viz.y) + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
   /* mapa pintado: a câmera não passa da borda da pintura (fora dela não há nada) */
   const pt = R.arte && R.arte.pintura;
@@ -3951,7 +4423,14 @@ GP._hud = function () {
   const arm = GP.armaDe(eu), A = GP.defArma(eu);
   const resta = R.fase === 'ativo' ? Math.max(0, R.ate - J.t) : R.fase === 'pre' ? Math.max(0, R.ate - J.t) : 0;
   const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const alvos = J.modo === 'alvos';
+  const alvos = J.modo === 'alvos', partida = J.modo === 'partida';
+  if (partida) {
+    const nos = eu.time, eles = nos === 'A' ? 'B' : 'A', lado = J.lados[nos] === 'atk' ? 'ataque' : 'defesa', sp = J.spike;
+    const plantada = sp && sp.estado === 'plantada';
+    const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
+    const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você no ${lado}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${vivos(eles)} vivos</i></span>`;
+  } else
   $gp('#gpPlacar').innerHTML = alvos
     ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`
     : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
@@ -3961,7 +4440,7 @@ GP._hud = function () {
   const silh = GP.temImagem('armas', arm.id) ? `<img class="gp-arma-img" src="${GP.manifesto().armas[arm.id].src}" alt="">` : '';
   $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
     <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
-    <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}</div>`;
+    <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}${J.modo === 'partida' ? ` · <b class="gp-cred">¤ ${eu.creditos}</b>` : ''}</div>`;
   if (eu.agente) {
     const HH = GP.HABS && GP.HABS[eu.agente];
     const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente + (eu.pontosUlt || 0);
@@ -3982,6 +4461,16 @@ GP._hud = function () {
   $gp('#gpFeed').innerHTML = S.feed.filter(f => agora - f.t < 6000).map(f => `<div class="gp-kf ${f.meu ? 'meu' : ''} ${f.morri ? 'morri' : ''}">
     <b>${escGP(f.de)}</b><span>${escGP(f.arma)}${f.cabeca ? ' ✦' : ''}</span><b>${escGP(f.em)}</b></div>`).join('');
   let faixa = '';
+  if (partida) {
+    const nos = eu.time, sp = J.spike;
+    if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
+    else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
+    else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
+    else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
+    const fx = $gp('#gpFaixa');
+    fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.fase === 'fim' ? (R.vencedor === nos ? ' ok' : ' no') : '');
+    return;
+  }
   if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
   else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
   const fx = $gp('#gpFaixa');
@@ -3992,6 +4481,7 @@ GP._hud = function () {
 GP._fim = function () {
   const S = GP.S; if (!S) return;
   const J = S.J, r = GP.resumo(J), alvos = J.modo === 'alvos';
+  if (J.modo === 'partida') return GP._fimPartida();
   const dicas = [];
   if (r.tiros >= 8 && r.correndo >= 30) dicas.push(`<b>${r.correndo}%</b> dos seus tiros saíram correndo. Correndo o tiro abre muito: solte as teclas (ou segure Shift) um instante antes de atirar.`);
   if (r.tiros >= 10 && r.abertos >= 35) dicas.push(`<b>${r.abertos}%</b> dos tiros com a rajada já aberta. Atire em rajadas de 3–5 e solte; de longe, tiro a tiro.`);
@@ -4009,6 +4499,21 @@ GP._fim = function () {
       <div><b class="num">${r.dano}</b><span>dano</span></div>
     </div>
     <div class="gp-eyebrow">O que treinar</div><ul class="gp-dicas">${dicas.map(d => `<li>${d}</li>`).join('')}</ul>
+    <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">Jogar de novo</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
+  $gp('#gpFim').hidden = false;
+  $gp('#gpDeNovo').onclick = GP.comecar;
+  $gp('#gpMenuBt').onclick = GP.sair;
+};
+GP._fimPartida = function () {
+  const J = GP.S.J, nos = J.eu.time, eles = nos === 'A' ? 'B' : 'A';
+  const linha = e => `<tr class="${e === J.eu ? 'eu' : ''}"><td>${GP._rostoAgente(e.agente, 'gp-tab-r')}${escGP(e.nome)}</td><td class="num">${e.st.kills}</td><td class="num">${e.st.mortes}</td>
+    <td class="num">${Math.round(e.st.dano / Math.max(1, J.historico.length))}</td><td class="num">${e.st.fb}</td><td class="num">${e.st.plants}</td><td class="num">${e.st.desarmes}</td></tr>`;
+  const tabela = t => `<table class="gp-tab"><thead><tr><th>${t === nos ? 'Seu time' : 'Rivais'}</th><th>K</th><th>D</th><th>ADR</th><th>FB</th><th>Plant</th><th>Desarme</th></tr></thead>
+    <tbody>${J.ents.filter(e => e.time === t).sort((a, b) => b.st.kills - a.st.kills).map(linha).join('')}</tbody></table>`;
+  const rounds = J.historico.map(h => `<i class="${h.vencedor === nos ? 'ok' : 'no'}" title="Round ${h.n}: ${h.vencedor === nos ? 'ganho' : 'perdido'} por ${h.como}${h.plant ? ' · plant ' + h.plant.toUpperCase() : ''}"></i>`).join('');
+  $gp('#gpFim').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">Partida 5v5 · ${GP.NOME_MAPA[J.m.nome]}</div>
+    <h2 class="${J.fim.venceu ? 'ok' : 'no'}">${J.fim.venceu ? 'Vitória' : 'Derrota'} ${J.placar[nos]}–${J.placar[eles]}</h2>
+    <div class="gp-rounds">${rounds}</div>${tabela(nos)}${tabela(eles)}
     <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">Jogar de novo</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
   $gp('#gpFim').hidden = false;
   $gp('#gpDeNovo').onclick = GP.comecar;
