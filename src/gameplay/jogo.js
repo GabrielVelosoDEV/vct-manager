@@ -268,7 +268,7 @@ GP._hud = function () {
     const plantada = sp && sp.estado === 'plantada';
     const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
     const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
-    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você no ${lado}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${vivos(eles)} vivos</i></span>`;
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você no ${lado}${J.plano ? ' · ' + (lado === 'ataque' ? J.plano.nomeAtk : J.plano.nomeDef) : ''}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${vivos(eles)} vivos</i></span>`;
   } else
   $gp('#gpPlacar').innerHTML = alvos
     ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`

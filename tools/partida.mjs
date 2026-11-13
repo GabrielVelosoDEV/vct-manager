@@ -24,7 +24,7 @@ while(!J.fim&&J.t<60*60){
     const h=J.historico[ultimo++];
     const cred=J.ents.map(e=>e.creditos);
     ok(cred.every(c=>c>=0&&c<=9000),'créditos fora do limite no round '+h.n);
-    console.log(`R${String(h.n).padStart(2)} ataque ${h.atk} · vence ${h.vencedor} por ${h.como.padEnd(10)} ${h.plant?'plant '+h.plant.toUpperCase():'       '} · compra A ${h.compra.A.padEnd(7)} B ${h.compra.B.padEnd(7)} · ${h.duracao}s · ${h.placar.A}–${h.placar.B}`);
+    console.log(`R${String(h.n).padStart(2)} ataque ${h.atk} · vence ${h.vencedor} por ${h.como.padEnd(10)} ${h.plant?'plant '+h.plant.toUpperCase():'       '} · compra A ${h.compra.A.padEnd(7)} B ${h.compra.B.padEnd(7)} · ${h.duracao}s · ${h.placar.A}–${h.placar.B} · ${h.nomeAtk} × ${h.nomeDef}`);
   }
 }
 ok(J.fim,'a partida não terminou');

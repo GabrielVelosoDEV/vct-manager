@@ -224,7 +224,8 @@ GP._fimDoRound = function (J, venc, como) {
     else GP._ganhar(e, E.derrota[Math.min(J.derrotas[perd], 3) - 1]);
     if (R.plantou && e.time === atk) GP._ganhar(e, E.plant);
   }
-  J.historico.push({n: R.n, vencedor: venc, como, atk, plant: R.plantou ? J.spike.letra : null, compra: {...J.compra}, placar: {...J.placar},
+  const pl = J.plano || {};
+  J.historico.push({n: R.n, vencedor: venc, como, atk, planoAtk: pl.atk && pl.atk.tipo, alvo: pl.alvo, nomeAtk: pl.nomeAtk, nomeDef: pl.nomeDef, plant: R.plantou ? J.spike.letra : null, compra: {...J.compra}, placar: {...J.placar},
     duracao: Math.round(J.t - (R.inicio || J.t))});
   J.eventos.push({tipo: 'round', t: J.t, vencedor: venc, como, n: R.n});
   const a = J.placar.A, b = J.placar.B;
@@ -375,14 +376,14 @@ GP._objetivoPartida = function (J, e, dt) {
   if (ob.acao === 'plantar' && d < 2.5 && GP.sitioEm(J.m, e.x, e.y)) { c.mx = c.my = 0; c.spike = true; c.modo = 'agacha'; return true; }
   if (ob.acao === 'desarmar' && d < GP.SPIKE.alcance * 0.8) { c.mx = c.my = 0; c.spike = true; c.modo = 'agacha'; return true; }
   if (ob.acao === 'segurar' && d < 1.2) {
-    c.mx = c.my = 0; c.modo = 'anda';
+    c.mx = c.my = 0; c.modo = 'anda'; ia.segurando = J.t;
     if (ob.olhar != null) GP._virarPara(e, ob.olhar, e.p.giro * 0.5, dt);
     return true;
   }
   /* entrando no bomb: perto, anda em silêncio (o duelista vai correndo) */
   const sitio = ob.acao !== 'desarmar' && J.m.sitios[(ia.ctx.match(/[abc]$/) || [])[0]];
   const modo = sitio && Math.hypot(sitio.x - e.x, sitio.y - e.y) < 20 && e.papel !== 'duelista' && J.spike.estado !== 'plantada' ? 'anda' : 'corre';
-  return {ponto: ob, modo};
+  return {ponto: ob, modo: ob.modo || modo};
 };
 
 /* ---------- desenho ---------- */

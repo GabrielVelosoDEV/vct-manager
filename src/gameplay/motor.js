@@ -28,6 +28,8 @@ GP.MOSTRAR_TODOS = false;
    também). Atrás da parede ele só aparece quando faz barulho (para quem ouve)
    ou quando é revelado por habilidade (para o time todo). */
 GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
+GP.MIRA_POSICIONADA = {reacao: 0.65, erro: 0.55};
+GP.CUSTO_VIRAR = 0.22;     /* s por radiano além do campo de visão central */
 GP.ouve = function (J, a, b) {
   for (let i = J.sons.length - 1; i >= 0; i--) {
     const s = J.sons[i];
@@ -318,8 +320,14 @@ GP.iaPensar = function (J, e, dt) {
       const var_ = 1 + GP._gauss(rnd) * p.variacao;
       /* aparecer pelas costas ou pelo lado demora mais para perceber */
       const fora = Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) > 0.6;
-      ia.reacaoAte = J.t + Math.max(0.12, p.reacao * var_ * (0.9 + 0.2 * rnd())) + (fora ? p.periferia : 0);
-      const mag = p.erroMira * (0.6 + dAlvo / 30) * Math.max(0.5, var_);
+      /* quanto mais longe de onde ele olha, mais demora para virar e achar
+         (é o que faz o fogo cruzado funcionar) */
+      const giroExtra = Math.max(0, Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) - 0.6) * GP.CUSTO_VIRAR;
+      /* mira já posicionada: quem segura parado um ângulo e o inimigo aparece
+         onde ele está olhando reage mais rápido e erra menos o primeiro tiro */
+      const posicionado = ia.segurando && J.t - ia.segurando < 0.3 && Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) < 0.35 && Math.hypot(e.vx, e.vy) < 0.5;
+      ia.reacaoAte = J.t + Math.max(0.1, p.reacao * var_ * (0.9 + 0.2 * rnd()) * (posicionado ? GP.MIRA_POSICIONADA.reacao : 1)) + (fora ? p.periferia : 0) + giroExtra;
+      const mag = p.erroMira * (0.6 + dAlvo / 30) * Math.max(0.5, var_) * (posicionado ? GP.MIRA_POSICIONADA.erro : 1);
       const a = rnd() * Math.PI * 2;
       ia.errX = Math.cos(a) * mag; ia.errY = Math.sin(a) * mag;
       ia.rajada = 0;
@@ -376,7 +384,8 @@ GP.iaPensar = function (J, e, dt) {
   /* na partida o objetivo manda: quem planta, desarma ou pega a spike não para
      por barulho; quem segura um ponto vira para o barulho; o resto segue o
      plano andando (só o agressivo vai atrás de quem viu) */
-  if (J.modo === 'partida' && GP._objetivoPartida && (ia.estado === 'alerta' || (ia.estado === 'cacar' && ia.agressivo < 0.6))) {
+  const defendendo = J.modo === 'partida' && e.time === (GP._timeDef && GP._timeDef(J)) && J.spike && J.spike.estado !== 'plantada';
+  if (J.modo === 'partida' && GP._objetivoPartida && (ia.estado === 'alerta' || (ia.estado === 'cacar' && (ia.agressivo < 0.6 || defendendo)))) {
     const urgente = /plantar|desarmar|pegar|retake/.test(ia.ctx || '');
     const ob = GP._objetivoPartida(J, e, dt);
     const fonte = ia.estado === 'alerta' ? ia.ouviu : ia.vista;
