@@ -174,8 +174,8 @@ GP._aplicarComando = function (J, e, dt) {
     e.recarregaAte = J.t + Ad.recarga; e.luneta = false;
   }
   c.recarregar = false;
-  const habArma = GP.atirarHab && e.ef && (e.ef.facas > 0 && e.ef.facasAte > J.t || e.ef.overdrive > J.t);
-  if (c.atirar && J.t >= e.proxTiro && habArma && !e.passivo) { GP.atirarHab(J, e); }
+  const habArma = GP.temArmaHab && GP.temArmaHab(J, e);
+  if (c.atirar && J.t >= e.proxTiro && habArma && !e.passivo && !(e.ef && e.ef.drone)) { GP.atirarHab(J, e); }
   else if (c.atirar && J.t >= e.proxTiro && J.t >= e.equipaAte && !e.recarregaAte && arm.municao > 0 && !e.passivo && !(GP.semTiro && GP.semTiro(J, e))) {
     GP._atirar(J, e);
     if (!Ad.auto) c.atirar = false;   /* semi: um clique, um tiro */

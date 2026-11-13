@@ -7,11 +7,11 @@ servem (troque só a extensão). Fundo transparente ou verde liso #00FF00.
 
 Vista exatamente de cima, fundo #00FF00. Prompts em assets/gameplay/habilidades/PROMPTS.md.
 
-0/6 com imagem.
+6/6 com imagem.
 
-- [ ] `c_objeto.png` — objeto: um drone de reconhecimento pequeno de quatro hélices, visto de cima, corpo azul-escuro e luz ciano, olhando para a direita (Owl Drone)
-- [ ] `q_projetil.png` — projetil: uma flecha tecnológica com ponta elétrica azul faiscando (Shock Bolt)
-- [ ] `q_area.png` — area: uma descarga elétrica no chão: raios azuis saindo do centro em todas as direções (Shock Bolt)
-- [ ] `e_projetil.png` — projetil: uma flecha tecnológica com ponta de sensor ciano piscando (Recon Bolt)
-- [ ] `e_area.png` — area: um pulso de radar: anéis finos ciano se espalhando do centro como ondas, só linhas e pontos (Recon Bolt)
-- [ ] `x_rastro.png` — rastro: um feixe de energia azul reto e grosso, branco no meio, que atravessa paredes (Hunter's Fury)
+- [x] `c_objeto.png` — objeto: um drone de reconhecimento pequeno de quatro hélices, visto de cima, corpo azul-escuro e luz ciano, olhando para a direita (Owl Drone)
+- [x] `q_projetil.png` — projetil: uma flecha tecnológica com ponta elétrica azul faiscando (Shock Bolt)
+- [x] `q_area.png` — area: uma descarga elétrica no chão: raios azuis saindo do centro em todas as direções (Shock Bolt)
+- [x] `e_projetil.png` — projetil: uma flecha tecnológica com ponta de sensor ciano piscando (Recon Bolt)
+- [x] `e_area.png` — area: um pulso de radar: anéis finos ciano se espalhando do centro como ondas, só linhas e pontos (Recon Bolt)
+- [x] `x_rastro.png` — rastro: um feixe de energia azul reto e grosso, branco no meio, que atravessa paredes (Hunter's Fury)

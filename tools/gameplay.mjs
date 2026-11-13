@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -107,7 +107,7 @@ for(const nome of nomes){
     eu.x=melhor.x;eu.y=melhor.y;b.x=melhor.x+8;b.y=melhor.y;eu.ang=eu.cmd.ang=0;eu.cmd.mira={x:b.x,y:b.y};b.ang=Math.PI;b.bot=false;b.ia=null;
     return {J,eu,b};};
   const rodar=(J,s)=>{for(let f=0;f<s*120;f++)GP.passo(J,1/120);};
-  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay'])for(const k of ['c','q','e','x']){
+  for(const ag of ['jett','phoenix','reyna','raze','yoru','neon','iso','waylay','sova','breach','skye','kayo','fade','gekko','tejo'])for(const k of ['c','q','e','x']){
     const {J,eu,b}=pega(ag);const h=GP.HABS[ag][k];if(h.semDuelo)continue;
     const hp0=b.hp+b.escudo,x0=eu.x;
     if(h.precisa==='orbe')GP._hab(J).orbes.push({x:eu.x,y:eu.y,ate:J.t+3,dono:eu});
@@ -120,13 +120,36 @@ for(const nome of nomes){
       if(ag==='jett'&&k==='c'){ok(GP.vistaBloqueada(J,eu,b)||!GP._hab(J).areas.length,'jett c: a fumaça não esconde');}
       if(ag==='neon'&&k==='q')ok(b.ef&&b.ef.conc>0,'neon q: não concussionou');
       if(ag==='waylay'&&k==='x')ok(b.ef&&b.ef.lento>0,'waylay x: não desacelerou');
+      const ef=b.ef||{};
+      if(ag==='sova'&&k==='q')ok(b.hp+b.escudo<hp0,'sova q: o choque não machucou');
+      if(ag==='sova'&&k==='e')ok(ef.revelado>0,'sova e: não revelou');
+      if(ag==='breach'&&k==='q')ok(ef.cego>0,'breach q: não cegou');
+      if(ag==='breach'&&(k==='e'||k==='x'))ok(ef.conc>0,'breach '+k+': não concussionou');
+      if(ag==='skye'&&k==='q')ok(ef.conc>0,'skye q: o bicho não pegou');
+      if(ag==='kayo'&&k==='e')ok(ef.supr>0,'kayo e: não suprimiu');
+      if(ag==='kayo'&&k==='q')ok(ef.cego>0,'kayo q: não cegou');
+      if(ag==='fade'&&k==='q')ok(ef.preso>0,'fade q: não prendeu');
+      if(ag==='fade'&&k==='c')ok(ef.miope>0,'fade c: o prowler não pegou');
+      if(ag==='fade'&&k==='x')ok(ef.revelado>0,'fade x: não revelou');
+      if(ag==='gekko'&&k==='e')ok(ef.cego>0,'gekko e: não cegou');
+      if(ag==='tejo'&&k==='q')ok(ef.conc>0,'tejo q: não concussionou');
+      if(ag==='tejo'&&k==='e')ok(b.hp+b.escudo<hp0,'tejo e: o míssil não machucou');
       if(ag==='raze'&&k==='c'){rodar(J,4);ok(b.hp+b.escudo<hp0,'raze c: o boom bot não explodiu no bot');}
     }catch(err){ok(false,ag+' '+k+' quebrou: '+err.message);}
   }
   /* facas da Jett: atira e acerta */
   {const {J,eu,b}=pega('jett');eu.cmd.hab='x';rodar(J,0.05);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.4);eu.cmd.atirar=false;
    ok(b.hp+b.escudo<hp0||!b.vivo,'jett x: as facas não acertaram');}
-  console.log('habilidades dos duelistas testadas');
+  /* drone do Sova: pilota, o corpo fica parado, o dardo revela */
+  {const {J,eu,b}=pega('sova');const x0=eu.x;eu.cmd.hab='c';rodar(J,0.05);eu.cmd.mx=1;rodar(J,0.4);eu.cmd.mx=0;
+   ok(Math.abs(eu.x-x0)<0.05&&J.hab.drones.length===1,'sova c: o drone não saiu ou o corpo andou');
+   eu.cmd.mira={x:b.x,y:b.y};eu.cmd.atirar=true;rodar(J,0.8);ok(b.ef&&b.ef.revelado>0,'sova c: o dardo não revelou');}
+  /* Hunter's Fury atravessa e machuca */
+  {const {J,eu,b}=pega('sova');eu.cmd.hab='x';rodar(J,0.05);const hp0=b.hp+b.escudo;eu.cmd.atirar=true;rodar(J,0.1);eu.cmd.atirar=false;
+   ok(b.hp+b.escudo<hp0,"sova x: o raio não acertou");}
+  /* Seekers acham o alvo mesmo atrás da parede */
+  {const {J,eu,b}=pega('skye');eu.cmd.hab='x';rodar(J,4);ok(b.ef&&b.ef.miope>0,'skye x: os seekers não chegaram');}
+  console.log('habilidades dos duelistas e iniciadores testadas');
 }
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
 process.exit(falhas?1:0);

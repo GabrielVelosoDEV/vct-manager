@@ -210,7 +210,8 @@ GP._quadro = function (agora) {
     const k = eu.luneta ? 0.55 : 0.32;
     ox = fx * k; oy = fy * k;
   }
-  const tx = eu.x + ox, ty = eu.y + oy;
+  const dr = eu.ef && eu.ef.drone;   /* pilotando drone: a câmera vai com ele */
+  const tx = (dr ? dr.x : eu.x) + ox, ty = (dr ? dr.y : eu.y) + oy;
   S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10);
   /* mapa pintado: a câmera não passa da borda da pintura (fora dela não há nada) */
   const pt = R.arte && R.arte.pintura;
