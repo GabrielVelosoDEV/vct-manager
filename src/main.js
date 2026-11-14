@@ -23,7 +23,7 @@ async function boot(){
     /* com o Banco de dados do menu aberto, o G é a base: grava ela e devolve
        a carreira antes de gravar a carreira */
     Base.fecharEdicao();
-    if(G&&G.meuTime)salvarRun(G.runNome);
+    if(G&&(G.meuTime||G.voce))salvarRun(G.runNome);
   });
 }
 

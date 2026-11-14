@@ -10,7 +10,7 @@
    (permanente, vale para toda carreira nova — ver data/base.js);
    dentro do jogo ele edita só aquele save.
    ============================================================ */
-const VERSAO_JOGO='1.0';
+const VERSAO_JOGO='1.1';
 
 function renderMenu(limpo){
   const el=$('#shellMenu');
@@ -62,6 +62,8 @@ function entrarNoJogo(){
 }
 function sairParaMenu(t){
   modo='menu';telaMenu=t||'menu';render();
+  /* a lista de partidas salvas do menu fica em dia (a run atual foi salva no avanço) */
+  if(typeof atualizarRuns==='function')atualizarRuns().then(()=>{if(modo==='menu')render();}).catch(()=>{});
 }
 
 /* ---------- novo jogo ----------
@@ -72,7 +74,7 @@ function sairParaMenu(t){
 async function novaCarreira(semente){
   /* a carreira em andamento é gravada antes de sair de cena */
   Base.fecharEdicao();
-  if(G&&G.meuTime){await salvarRun(G.runNome);await atualizarRuns();}
+  if(G&&(G.meuTime||G.voce)){await salvarRun(G.runNome);await atualizarRuns();}
   iniciarPreRun(semente);
   modo='menu';telaMenu='menu';render();
   telaNovoJogo();
@@ -128,7 +130,7 @@ function vConfig(){
     ${sw('dicas','Dicas da primeira temporada',
          'Mostra uma dica no topo de cada tela na primeira visita e a lista de primeiros passos na Central, '+
          'só durante a primeira temporada da carreira.')}
-    ${G&&G.meuTime?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
+    ${G&&(G.meuTime||G.voce)?`<div class="opt"><div class="txt"><b>Dificuldade desta carreira: ${esc(dificuldade().nome)}</b>
       <span>${esc(dificuldade().resumo)} Escolhida na carreira nova e fixa até o fim dela.</span></div></div>`:''}
     ${sw('palavroes','Palavrão nos comentários da torcida',
          'A torcida fala como torcida: elogia, cobra e xinga. Desligado, os palavrões aparecem com asterisco '+

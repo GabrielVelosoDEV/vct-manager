@@ -72,14 +72,37 @@ function tabelaDaCasaMenu(t){
 }
 
 /* ---------- cartões do palco ---------- */
+/* o clube da carreira na tela inicial: o que você dirige ou o do seu jogador */
+function clubeDaCarreiraMenu(){
+  if(!G||!G.times)return null;
+  const id=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  return id?G.times[id]||null:null;
+}
+/* modo jogador: o cartão mostra você, não o clube */
+function cartaoCarreiraJogador(){
+  const p=typeof meuJogador==='function'?meuJogador():null, L=G.voce.aposentado;
+  const t=clubeDaCarreiraMenu(), cor=t?corDoClube(t):'#FF4655', salva=listaRuns[0];
+  const seg=typeof seguidores==='function'?seguidores():0;
+  return `<article class="mn-card mn-c-car" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+      ${t?`<div class="mn-c-marca" aria-hidden="true">${escudo(t,180)}</div>`:''}
+      <div class="mn-c-cab"><span class="eyebrow">Sua carreira de jogador</span><span class="mn-c-hora">${salva?'salvo '+esc(haQuanto(salva.atualizado)):''}</span></div>
+      <h3>${esc(p?p.nome:L?L.nome:'Você')}</h3>
+      <p>${p?`${esc(p.roleAtual||p.role)} · ${p.idade} anos · over ${over(p)} · ${t?esc(t.nome):'sem clube'}`
+        :L?`Aposentado em ${L.ano}, auge over ${L.pico}${L.hall?' · Hall da Fama':''}`:''}</p>
+      ${p?`<ul class="mn-c-lista"><li>${icone('estrela')} ${typeof fmtSeg==='function'?fmtSeg(seg):seg} seguidores</li>
+        <li>${icone('trofeu')} ${((p.carreira||{}).titulos||0)} título${((p.carreira||{}).titulos||0)===1?'':'s'} · ${(p.premios||[]).length} prêmio${(p.premios||[]).length===1?'':'s'}</li></ul>`:''}
+      <button class="btn mn-c-bt" data-mn="continuar">Continuar ›</button>
+    </article>`;
+}
 function cartaoCarreira(){
+  if(G&&G.voce)return cartaoCarreiraJogador();
   const t=G&&G.meuTime&&G.times[G.meuTime];
   if(!t)return `<article class="mn-card mn-c-novo">
       <div class="mn-c-cab"><span class="eyebrow">Sua carreira</span></div>
       <h3>Comece a sua história</h3>
-      <p>Escolha um dos 80 clubes do circuito, monte a comissão, contrate, treine e leve o time ao Champions.</p>
+      <p>Dirija um dos 80 clubes do circuito, ou crie o seu jogador e viva a carreira dele dentro do servidor, da ranked à aposentadoria.</p>
       <ul class="mn-c-lista"><li>${icone('elenco')} elencos reais de 2027</li><li>${icone('trofeu')} Kickoff, Stages, Masters e Champions</li>
-        <li>${icone('dinheiro')} mercado, patrocínio e estrutura</li></ul>
+        <li>${icone('jogar')} modo jogador com a partida 5v5 jogável</li></ul>
       <button class="btn mn-c-bt" data-mn="novo">Novo jogo ›</button>
     </article>`;
   const cor=corDoClube(t);
@@ -105,7 +128,7 @@ function cartaoCarreira(){
     </article>`;
 }
 function cartaoProximo(){
-  const t=G&&G.meuTime&&G.times[G.meuTime];
+  const t=clubeDaCarreiraMenu();
   if(!t){
     const R=typeof REGIONS!=='undefined'?REGIONS:[];
     return `<article class="mn-card mn-c-circ">
@@ -195,16 +218,18 @@ const LINK_APP_PC='https://github.com/GabrielVelosoDEV/vct-manager/releases/late
 /* ---------- a tela ---------- */
 function vMenuPrincipal(){
   const mundo=(G&&G.times)?G:(Base.reg&&Base.reg.estado);
-  const t=G&&G.meuTime&&G.times[G.meuTime];
+  const t=clubeDaCarreiraMenu();
+  const jog=!!(G&&G.voce), pj=jog&&typeof meuJogador==='function'?meuJogador():null;
   const cor=t?corDoClube(t):'#FF4655';
   const nSalvas=listaRuns.length;
   const item=(id,icn,rot,sub,cls)=>
     `<button class="menu-item ${cls||''}" id="${id}">${ico(icn)}<span class="mi-t"><b>${rot}</b>${sub?`<span class="sub">${esc(sub)}</span>`:''}</span><span class="mi-seta">${ico('seta_d')}</span></button>`;
-  const principal=t
-    ?`<button class="mn-principal" id="mnContinuar"><span class="mp-esc">${escudo(t,40)}</span>
-        <span class="mp-t"><b>Continuar</b><span>${esc(t.nome)} · ${G.ano} · semana ${G.semana||1}</span></span><span class="mp-seta">${ico('jogar')}</span></button>`
+  const quem=jog?(pj?pj.nome+(t?' · '+t.nome:' · sem clube'):G.voce.aposentado?G.voce.aposentado.nome+' · aposentado':'Jogador'):t?t.nome:'';
+  const principal=(t||jog)
+    ?`<button class="mn-principal" id="mnContinuar"><span class="mp-esc">${t?escudo(t,40):ico('elenco')}</span>
+        <span class="mp-t"><b>Continuar</b><span>${esc(quem)} · ${G.ano} · semana ${G.semana||1}</span></span><span class="mp-seta">${ico('jogar')}</span></button>`
     :`<button class="mn-principal" id="mnNovo"><span class="mp-esc mp-novo">${ico('mais')}</span>
-        <span class="mp-t"><b>Novo jogo</b><span>escolha o seu clube</span></span><span class="mp-seta">${ico('jogar')}</span></button>`;
+        <span class="mp-t"><b>Novo jogo</b><span>treinador, diretoria ou jogador</span></span><span class="mp-seta">${ico('jogar')}</span></button>`;
   const boot=!_aberturaVista;_aberturaVista=true;
   return `<div class="mn ${boot?'mn-boot':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
     ${fundoMenu(mundo,cor)}
@@ -213,10 +238,9 @@ function vMenuPrincipal(){
       <span class="mn-ver">v${VERSAO_JOGO} · temporada 2027</span>
       <nav class="mn-lista" aria-label="Menu principal">
         ${principal}
-        ${t?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
+        ${(t||jog)?item('mnNovo','mais','Novo jogo','começa da base de dados'):''}
         ${item('mnRuns','disco','Partidas salvas',nSalvas?nSalvas+(nSalvas===1?' partida':' partidas'):'nenhuma ainda')}
         ${item('mnBanco','banco','Banco de dados',Base.resumo().times+' clubes · '+(Base.reg&&Base.reg.editada?'base editada':'base original'))}
-        ${item('mnGameplay','controle','Modo jogador · protótipo','gameplay de cima, nos 13 mapas')}
         ${typeof Pasta!=='undefined'?(Pasta.estado==='pendente'
           ?item('mnPasta','alerta','Permitir a pasta de saves','o navegador pede sua confirmação','mi-aviso')
           :item('mnSaves',Pasta.estado==='ligada'?'check':'alerta','Onde ficam seus saves',textoOndeSalva(),
@@ -243,7 +267,7 @@ function vMenuPrincipal(){
 function ligarMenuPrincipal(){
   const liga=(id,fn)=>{const el=$('#'+id);if(el&&!el.disabled)el.onclick=fn;};
   const continuar=async()=>{
-    if(G&&G.meuTime){entrarNoJogo();return;}
+    if(G&&(G.meuTime||G.voce)){entrarNoJogo();return;}
     const r=listaRuns.find(x=>x.clube&&x.clube!=='—');
     if(!r)return;
     const ok=await carregarRun(r.id);
@@ -254,7 +278,6 @@ function ligarMenuPrincipal(){
   liga('mnNovo',()=>novaCarreira());
   liga('mnRuns',()=>{telaMenu='runs';render();});
   liga('mnBanco',()=>{telaMenu='banco';render();});
-  liga('mnGameplay',()=>{location.href='gameplay.html';});
   liga('mnConfig',()=>{telaMenu='config';render();});
   liga('mnCreditos',()=>{telaMenu='creditos';render();});
   liga('mnPasta',()=>reconectarPasta());

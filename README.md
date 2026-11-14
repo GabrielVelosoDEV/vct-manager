@@ -6,7 +6,7 @@ internacional completo rodando ao redor.
 
 Projeto pessoal, sem fins comerciais. https://gabrielvelosodev.github.io/vct-manager/
 
-**Versão 1.0** — carreira de treinador ou de diretoria, com a diretoria cobrando metas;
+**Versão 1.1** — carreira de treinador, de diretoria ou de jogador, com a diretoria cobrando metas;
 o circuito inteiro (Kickoff, Stages, Masters, Champions, Challengers e Ascension) nas
 quatro regiões; veto, relatório de scouting, partida ao vivo e ficha; treino por mapa,
 comps e táticas; vestiário com entrosamento por dupla; estrutura do clube em sete

@@ -291,6 +291,7 @@ function empacotarRun(nome){
   return{
     id:G.runId, versao:RUN_VERSAO, nome:nome||G.runNome||'Sem nome',
     ano:G.ano, clube:G.meuTime?G.times[G.meuTime].nome
+      :(G.voce&&G.voce.aposentado)?'🎮 '+G.voce.aposentado.nome+' · aposentado'
       :(G.voce&&G.jogadores[G.voce.id])?'🎮 '+G.jogadores[G.voce.id].nome+(G.jogadores[G.voce.id].timeId&&G.times[G.jogadores[G.voce.id].timeId]?' · '+G.times[G.jogadores[G.voce.id].timeId].nome:' · sem clube'):'—',
     fase:G.calendario&&G.calendario[G.bloco]?G.calendario[G.bloco].nome:'',
     atualizado:Date.now(), semente:_s, estado:G
