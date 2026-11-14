@@ -78,6 +78,7 @@ function escalarClubeDoJogador(){
   _fixoValido(t);
   const p=meuJogador(), antes=(t.titulares||[]).includes(p.id);
   autoEscalar(t,ajusteDoTecnico(t));
+  if(typeof convocacao==='function')convocacao(p,t);
   const agora=(t.titulares||[]).includes(p.id);
   if(antes!==agora&&typeof noticia==='function'){
     noticia(agora?`${p.nome} ganha a vaga no cinco do ${t.nome}.`:`${p.nome} perde a vaga e vai para o banco do ${t.nome}.`,{c:'clube',p:[p.id],t:[t.id]});

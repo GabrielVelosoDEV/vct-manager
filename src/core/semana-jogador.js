@@ -257,6 +257,8 @@ function fecharSemanaJogador(p,t){
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
   /* fama, redes, entrevistas e patrocínios (core/fama.js) */
   if(typeof famaSemana==='function'){famaSemana(p,t,rel);if(typeof assistenteDePatrocinio==='function')assistenteDePatrocinio();}
+  /* prêmios, convocação, lesões curtas e o corpo (core/legado-jogador.js) */
+  if(typeof legadoSemana==='function')legadoSemana(p,t,rel);
   /* dinheiro, propostas e o assistente de contrato (core/carreira-mercado.js) */
   if(typeof financasSemana==='function')financasSemana(p,t);
   /* histórico curto das semanas (a tela mostra as últimas) */

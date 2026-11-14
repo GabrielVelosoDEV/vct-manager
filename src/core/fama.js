@@ -138,6 +138,10 @@ const POSTS={
     humilde:'CAMPEÕES. De todo mundo: time, staff e torcida. Obrigado! 🏆',
     confiante:'Troféu na mão. Agora vem o próximo. 🏆',
     provocador:'Avisei. Quem duvidou, segura essa. 🏆😏'}},
+  premio:{rot:'Prêmio do ano',tons:{
+    humilde:'Prêmio individual num jogo de cinco. Divido com o time e com quem me ajudou a chegar aqui. 🙏',
+    confiante:'Trabalho de um ano inteiro. E ainda tem mais. 🏅',
+    provocador:'Disseram que era sorte. Uma temporada inteira de sorte, então. 🏅😏'}},
   polemica:{rot:'Depois da polêmica',tons:{
     humilde:'Passei do ponto. Já conversei com quem precisava. Foco no time.',
     confiante:'Falo o que penso. Resolvido internamente, bola pra frente.',

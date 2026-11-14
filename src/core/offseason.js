@@ -136,6 +136,8 @@ function fimDeTemporada(){
     p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:p.base&&G.times[p.base]?'Base · '+G.times[p.base].nome:'Sem clube',over:over(p),...p.temp});
     if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
+    /* modo jogador: o corpo decide (core/legado-jogador.js) */
+    if(p.voce&&typeof corpoDecide==='function'&&corpoDecide(p)){aposentarJogador('corpo',true);aposentados++;continue;}
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});

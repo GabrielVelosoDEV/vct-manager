@@ -140,5 +140,6 @@ function ligarJogador(v,on){
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
   if(typeof ligarMidia==='function')ligarMidia(v,on);
+  if(typeof ligarLegado==='function')ligarLegado(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }

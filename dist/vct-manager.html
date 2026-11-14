@@ -3535,6 +3535,14 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .md-rs .col-r{display:block;text-align:left;width:100%}
 @media (max-width:760px){.md-barras{grid-template-columns:1fr}}
 
+/* ---------- modo jogador: conquistas e legado (ui/legado.js) ---------- */
+.lg-premios{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.lg-rec{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;margin:10px 0}
+.lg-rec>div{display:flex;align-items:baseline;gap:8px}
+.lg-rec span{flex:1;font-size:12.5px}
+.lg-rec i{font-style:normal;font-size:11px}
+.lg-topo .jg-nick{margin:4px 0}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -26949,6 +26957,8 @@ function fecharSemanaJogador(p,t){
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
   /* fama, redes, entrevistas e patrocínios (core/fama.js) */
   if(typeof famaSemana==='function'){famaSemana(p,t,rel);if(typeof assistenteDePatrocinio==='function')assistenteDePatrocinio();}
+  /* prêmios, convocação, lesões curtas e o corpo (core/legado-jogador.js) */
+  if(typeof legadoSemana==='function')legadoSemana(p,t,rel);
   /* dinheiro, propostas e o assistente de contrato (core/carreira-mercado.js) */
   if(typeof financasSemana==='function')financasSemana(p,t);
   /* histórico curto das semanas (a tela mostra as últimas) */
@@ -27067,6 +27077,7 @@ function escalarClubeDoJogador(){
   _fixoValido(t);
   const p=meuJogador(), antes=(t.titulares||[]).includes(p.id);
   autoEscalar(t,ajusteDoTecnico(t));
+  if(typeof convocacao==='function')convocacao(p,t);
   const agora=(t.titulares||[]).includes(p.id);
   if(antes!==agora&&typeof noticia==='function'){
     noticia(agora?`${p.nome} ganha a vaga no cinco do ${t.nome}.`:`${p.nome} perde a vaga e vai para o banco do ${t.nome}.`,{c:'clube',p:[p.id],t:[t.id]});
@@ -27891,6 +27902,10 @@ const POSTS={
     humilde:'CAMPEÕES. De todo mundo: time, staff e torcida. Obrigado! 🏆',
     confiante:'Troféu na mão. Agora vem o próximo. 🏆',
     provocador:'Avisei. Quem duvidou, segura essa. 🏆😏'}},
+  premio:{rot:'Prêmio do ano',tons:{
+    humilde:'Prêmio individual num jogo de cinco. Divido com o time e com quem me ajudou a chegar aqui. 🙏',
+    confiante:'Trabalho de um ano inteiro. E ainda tem mais. 🏅',
+    provocador:'Disseram que era sorte. Uma temporada inteira de sorte, então. 🏅😏'}},
   polemica:{rot:'Depois da polêmica',tons:{
     humilde:'Passei do ponto. Já conversei com quem precisava. Foco no time.',
     confiante:'Falo o que penso. Resolvido internamente, bola pra frente.',
@@ -28047,6 +28062,198 @@ function assistenteDePatrocinio(){
 }
 
 
+/* ===== src/core/legado-jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — A CARREIRA LONGA (J7)
+   ------------------------------------------------------------
+   PRÊMIOS     os do ano (MVP, seleção, revelação, IGL…) já contavam
+               para o seu jogador (p.premios); aqui viram seguidores,
+               imagem, manchete e um post para comemorar.
+   CONVOCAÇÃO  Masters e Champions com o seu clube: no cinco, vira
+               notícia e conta na carreira.
+   LESÕES      curtas (pulso, mão, costas, tendinite), mais prováveis
+               com cansaço e idade; o fisioterapeuta pessoal corta o
+               risco pela metade e acelera a volta.
+   IDADE       o declínio já mora em desenvolver (clock.js); aqui o
+               corpo avisa (33+, longe do pico) e, no limite, decide:
+               40 anos, ou 35+ com 12 pontos abaixo do próprio pico.
+   APOSENTAR   quando você quiser (ou quando o corpo decidir). O
+               jogador sai do mundo como qualquer aposentado (Hall da
+               Fama se tiver pontos), e o seu legado fica em
+               G.voce.aposentado. Dali, duas portas: virar técnico no
+               mesmo save (clubes por onde passou chamam primeiro, e a
+               reputação de jogador vira nível de coach e confiança da
+               diretoria) ou encerrar a história.
+   ============================================================ */
+
+const LESOES_CURTAS=[
+  {id:'pulso',nome:'lesão no pulso',sem:[1,3]},
+  {id:'mao',nome:'dor na mão',sem:[1,2]},
+  {id:'costas',nome:'dor nas costas',sem:[2,4]},
+  {id:'tendinite',nome:'tendinite',sem:[2,5],idade:27}
+];
+function _sorteLeg(salt){return typeof _sorteRel==='function'?_sorteRel('l|'+salt):0.5;}
+function _sAbsL(){return typeof semAbs==='function'?semAbs():(G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+
+/* ---------- a semana do legado ---------- */
+function legadoSemana(p,t,rel){
+  if(!G.voce||!p)return;
+  /* clubes por onde passou (os contatos para depois) */
+  if(!G.voce.clubes)G.voce.clubes=[];
+  if(t&&!G.voce.clubes.includes(t.id))G.voce.clubes.push(t.id);
+  if(typeof seguidores==='function')G.voce.segPico=Math.max(G.voce.segPico||0,seguidores());
+  /* prêmios novos */
+  const pr=p.premios||[];
+  if(G.voce.premiosVistos==null)G.voce.premiosVistos=pr.length;
+  for(let i=G.voce.premiosVistos;i<pr.length;i++){
+    const x=pr[i];
+    const peso=x.tipo==='mvp'?0.15:x.tipo==='selecao'?0.06:0.04;
+    if(typeof ganharSeguidores==='function')ganharSeguidores(peso,5000,`Prêmio: ${x.rot||x.tipo}.`);
+    if(typeof mexerImagem==='function')mexerImagem(3);
+    if(typeof _abrirPost==='function')_abrirPost('premio');
+    if(typeof mexerConf==='function')mexerConf(2,`Prêmio do ano: ${x.rot||x.tipo}.`);
+  }
+  G.voce.premiosVistos=pr.length;
+  /* lesão curta: só em semana com jogo */
+  const maps=rel&&rel.partidas?rel.partidas.maps:0;
+  const fisio=typeof staffPessoal==='function'&&staffPessoal().fisio;
+  if(p.lesao>0&&fisio&&_sorteLeg('fisio')<0.5)p.lesao=Math.max(0,p.lesao-1);
+  if(maps&&!p.lesao){
+    let risco=0.012+Math.max(0,p.fadiga-0.5)*0.05+Math.max(0,p.idade-28)*0.003;
+    if(fisio)risco*=0.5;
+    if(_sorteLeg('lesao')<risco){
+      const pool=LESOES_CURTAS.filter(l=>!l.idade||p.idade>=l.idade);
+      const l=pool[Math.floor(_sorteLeg('qual')*pool.length)];
+      p.lesao=l.sem[0]+Math.floor(_sorteLeg('sem')*(l.sem[1]-l.sem[0]+1));
+      G.voce.lesaoNome=l.nome;
+      if(typeof noticia==='function')noticia(`🩹 ${p.nome} sente ${l.nome} e fica fora por ${p.lesao} semana${p.lesao>1?'s':''}.`,{c:'carreira',p:[p.id],t:t?[t.id]:[],imp:1});
+    }
+  }
+  if(!p.lesao)G.voce.lesaoNome=null;
+  /* o corpo avisa */
+  const longe=(p.pico||over(p))-over(p);
+  if(p.idade>=33&&longe>=8&&G.voce.avisoCorpo!==G.ano){
+    G.voce.avisoCorpo=G.ano;
+    if(typeof noticia==='function')noticia(`⌛ Aos ${p.idade} anos, ${p.nome} já está ${longe} pontos abaixo do auge. A aposentadoria entra no assunto.`,{c:'carreira',p:[p.id],imp:1});
+  }
+}
+/* Masters e Champions: chamado no começo da semana, depois da escalação */
+function convocacao(p,t){
+  if(!G.voce||!p||!t)return;
+  const c=typeof compromissoDaSemana==='function'?compromissoDaSemana():null;
+  if(!c||!c.stage||!/masters|champions|lock|internacional/i.test(c.stage.nome||''))return;
+  if(G.voce.convocado===c.stage.id)return;
+  G.voce.convocado=c.stage.id;
+  const tit=(t.titulares||[]).includes(p.id);
+  if(!G.voce.intl)G.voce.intl=[];
+  G.voce.intl.push({ano:G.ano,nome:c.stage.nome,clube:t.nome,titular:tit});
+  if(typeof noticia==='function')noticia(tit?`🌍 ${p.nome} vai ao ${c.stage.nome} no cinco do ${t.nome}.`:`🌍 ${p.nome} viaja com o ${t.nome} para o ${c.stage.nome}, no banco.`,{c:'carreira',p:[p.id],t:[t.id],imp:tit?2:1});
+  if(tit&&typeof ganharSeguidores==='function')ganharSeguidores(0.03,2000,`Convocado para o ${c.stage.nome}.`);
+}
+
+/* ---------- conquistas e recordes ---------- */
+function conquistasJogador(p){
+  p=p||meuJogador();if(!p)return null;
+  const c=p.carreira||{}, hist=(p.hist||[]).slice();
+  if(p.temp&&p.temp.maps)hist.push({ano:G.ano,time:p.timeId&&G.times[p.timeId]?G.times[p.timeId].nome:'Sem clube',over:over(p),...p.temp,atual:true});
+  const comMapas=hist.filter(h=>h.maps>=8);
+  const melhor=(f)=>comMapas.slice().sort((a,b)=>f(b)-f(a))[0]||null;
+  const acs=melhor(h=>h.acs/h.maps), kills=melhor(h=>h.k||0);
+  return{titulos:c.titulos||0,intl:c.intl||0,mvpTorneios:c.mvpTorneios||0,premios:(p.premios||[]).slice(),
+    convocacoes:(G.voce&&G.voce.intl)||[],
+    recordes:[
+      acs?{rot:'Melhor ACS numa temporada',v:Math.round(acs.acs/acs.maps),ano:acs.ano}:null,
+      kills?{rot:'Mais abates numa temporada',v:kills.k,ano:kills.ano}:null,
+      {rot:'Melhor over',v:Math.round(p.pico||over(p))},
+      G.voce&&G.voce.segPico?{rot:'Pico de seguidores',v:typeof fmtSeg==='function'?fmtSeg(G.voce.segPico):G.voce.segPico}:null
+    ].filter(Boolean),
+    carreira:typeof resumoCarreira==='function'?resumoCarreira(p):null,
+    lenda:typeof pontosDeLenda==='function'?Math.round(pontosDeLenda(p)*10)/10:0};
+}
+
+/* ---------- a idade decide ---------- */
+function corpoDecide(p){
+  if(!p||!p.voce)return false;
+  const longe=(p.pico||over(p))-over(p);
+  return p.idade>=40||(p.idade>=35&&longe>=12);
+}
+/* ---------- aposentadoria ----------
+   jaRegistrou: a virada de temporada já gravou a temporada no histórico */
+function aposentarJogador(motivo,jaRegistrou){
+  const p=meuJogador();
+  if(!p)return{ok:false,motivo:'Sem jogador.'};
+  const t=p.timeId?G.times[p.timeId]:null;
+  if(!jaRegistrou&&p.temp&&p.temp.maps){
+    p.hist.push({ano:G.ano,time:t?t.nome:'Sem clube',over:over(p),...p.temp});
+  }
+  if(t){if(!G.voce.clubes)G.voce.clubes=[];if(!G.voce.clubes.includes(t.id))G.voce.clubes.push(t.id);}
+  const conq=conquistasJogador(p);
+  const lenda=typeof talvezHallDaFama==='function'?talvezHallDaFama(p):null;
+  const L={nome:p.nome,nomeReal:p.nomeReal||null,foto:p.foto||null,pais:p.pais,genero:p.genero||'m',role:p.role,idade:p.idade,
+    pico:Math.round(p.pico||over(p)),over:over(p),motivo:motivo||'escolha',ano:G.ano,semana:G.semana,desde:G.voce.desde,
+    clubes:(G.voce.clubes||[]).filter(id=>G.times[id]),ultimoClube:t?t.id:null,
+    hist:(p.hist||[]).map(h=>({ano:h.ano,time:h.time,over:h.over,maps:h.maps||0,k:h.k||0,d:h.d||0,acs:h.acs||0,mvp:h.mvp||0})),
+    conquistas:conq,hall:!!lenda,pontos:conq?conq.lenda:0,
+    seguidores:typeof seguidores==='function'?seguidores():0,caixa:typeof caixaJogador==='function'?caixaJogador():0,
+    carta:typeof cartaJogador==='function'?null:null};
+  if(typeof noticia==='function')noticia(motivo==='corpo'
+    ?`👋 Aos ${p.idade} anos, ${p.nome} pendura o mouse: o corpo não acompanha mais.`
+    :`👋 ${p.nome} anuncia a aposentadoria aos ${p.idade} anos.`,{c:'carreira',p:[p.id],t:t?[t.id]:[],imp:3});
+  /* sai do mundo como qualquer aposentado */
+  if(t){t.elenco=t.elenco.filter(x=>x!==p.id);t.titulares=t.titulares.filter(x=>x!==p.id);
+    if(typeof esquecerDuplas==='function')esquecerDuplas(t,p.id);if(typeof autoEscalar==='function')autoEscalar(t);}
+  G.livres=(G.livres||[]).filter(x=>x!==p.id);
+  if(typeof esquecerJogador==='function')esquecerJogador(p.id);
+  delete G.jogadores[p.id];
+  G.voce.aposentado=L;
+  G.voce.propostas=[];G.voce.ofertasPatroc=[];G.voce.patroc=[];G.voce.post=null;G.voce.entrevista=null;G.voce.eventos=[];
+  return{ok:true,legado:L};
+}
+function aposentado(){return !!(G&&G.voce&&G.voce.aposentado);}
+
+/* ---------- virar técnico ---------- */
+function ofertasDeTecnicoExJogador(){
+  const L=G.voce&&G.voce.aposentado;if(!L)return[];
+  const teto=Math.min(99,48+L.pontos*2.5+Math.max(0,L.pico-80)*1.2);
+  const ex=L.clubes.map(id=>G.times[id]).filter(Boolean);
+  const outros=Object.values(G.times).filter(t=>!L.clubes.includes(t.id)&&t.prestigio<=teto)
+    .sort((a,b)=>b.prestigio-a.prestigio).slice(0,6);
+  const lista=[...ex.map(t=>({t,casa:true})),...outros.map(t=>({t,casa:false}))].slice(0,8);
+  if(lista.length<3)Object.values(G.times).sort((a,b)=>a.prestigio-b.prestigio).slice(0,3).forEach(t=>{if(!lista.some(x=>x.t===t))lista.push({t,casa:false});});
+  return lista;
+}
+/* bônus de reputação: o nome de jogador vira nível de coach e paciência da diretoria */
+function reputacaoExJogador(L){return Math.max(0,Math.min(12,Math.round(L.pontos*0.6+Math.max(0,L.pico-82)*0.4)));}
+const ESTILO_COACH_POR_FUNCAO={Duelista:'tecnico',Iniciador:'estrategista',Controlador:'estrategista',Sentinela:'estrategista',Flex:'tecnico'};
+function virarTecnico(clubeId){
+  const L=G.voce&&G.voce.aposentado;
+  const t=G.times[clubeId];
+  if(!L||!t)return{ok:false,motivo:'Clube não encontrado.'};
+  const rep=reputacaoExJogador(L);
+  const nome=L.nomeReal||L.nome;
+  const estilo=typeof ESTILOS_TREINADOR!=='undefined'&&ESTILOS_TREINADOR.some(e=>e.id===ESTILO_COACH_POR_FUNCAO[L.role])?ESTILO_COACH_POR_FUNCAO[L.role]:undefined;
+  criarManager(nome,'treinador',{pais:L.pais,idade:L.idade,genero:L.genero,foto:L.foto,modo:'carreira',estilo});
+  G.manager.exJogador={nome:L.nome,pico:L.pico,ano:L.ano,pontos:L.pontos,hall:L.hall,clubes:L.clubes.slice(),
+    titulos:L.conquistas?L.conquistas.titulos:0,premios:L.conquistas?L.conquistas.premios.length:0};
+  G.exJogador=L;
+  const dif=G.voce.dificuldade;
+  G.voce=null;
+  if(dif&&!G.dificuldade)G.dificuldade=dif;
+  const r=assumirClube(clubeId);
+  if(!r.ok)return r;
+  /* reputação de jogador: coach acima do comum da divisão, diretoria mais paciente */
+  const m=typeof membroManager==='function'?membroManager():null;
+  if(m&&typeof aplicarOverStaff==='function'){
+    const alvo=Math.min(95,overStaff(m)+rep);
+    aplicarOverStaff(m,alvo);m.pot=Math.max(m.pot,Math.min(99,alvo+4));
+  }
+  G.manager.confianca=Math.min(95,G.manager.confianca+rep);
+  const casa=L.clubes.includes(clubeId);
+  if(typeof noticia==='function')noticia(`🎓 ${L.nome} troca o mouse pela prancheta: ${casa?'volta ao':'assume o'} ${t.nome} como head coach.`,{c:'carreira',t:[t.id],imp:3});
+  return{ok:true,msg:`Você é o head coach do ${t.nome}.`};
+}
+
+
 /* ===== src/core/offseason.js ===== */
 /* ============================================================
    FIM DE TEMPORADA
@@ -28186,6 +28393,8 @@ function fimDeTemporada(){
     p.hist.push({ano:G.ano,time:p.timeId?G.times[p.timeId].nome:p.base&&G.times[p.base]?'Base · '+G.times[p.base].nome:'Sem clube',over:over(p),...p.temp});
     if(typeof podarHistorico==='function')podarHistorico(p);
     p.temp=novaTemp();p.idade++;p.contrato=Math.max(0,p.contrato-1);
+    /* modo jogador: o corpo decide (core/legado-jogador.js) */
+    if(p.voce&&typeof corpoDecide==='function'&&corpoDecide(p)){aposentarJogador('corpo',true);aposentados++;continue;}
     const chanceApos=chanceAposentadoria(p);
     if(rnd()<chanceApos){
       if(p.timeId)noticia('👋 '+p.nome+' anunciou aposentadoria aos '+p.idade+' anos.',{c:'carreira',p:[p.id],t:[p.timeId]});
@@ -41989,9 +42198,11 @@ const NAV_JOGADOR=[
   ['news','Notícias','Circuito','jornal'],
   ['config','Configurações','Sistema','engrenagem']
 ];
-function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JOGADOR:NAV;}
+function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
+  /* depois de parar, só o legado e o circuito (ui/legado.js) */
+  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','stats','premios','news','config'].includes(k)?null:vJLegado;
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
     semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
     contrato:typeof vJContrato==='function'?vJContrato:null,midia:typeof vJMidia==='function'?vJMidia:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
@@ -42001,7 +42212,7 @@ function telaDoJogador(k){
 function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.maps),kd:(s.k/Math.max(1,s.d)).toFixed(2)}:{acs:null,kd:null};}
 function _jSituacao(p,t){
   if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
-  if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:'Fora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
+  if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:(G.voce&&G.voce.lesaoNome?'Com '+G.voce.lesaoNome+', f':'F')+'ora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
   const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
   const pct=ch?` Chance de jogar a próxima: ${ch.pct}%.`:'';
   if((t.titulares||[]).includes(p.id))return{rot:'Titular',tom:'up',txt:'Você está no cinco do '+t.nome+'.'+pct};
@@ -42104,6 +42315,7 @@ function vJPerfil(){
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
     </div>
+    ${typeof conquistasJogador==='function'?`<div class="grid g2 cx-linha">${cardConquistas(conquistasJogador(p))}${cardFimDeCarreira(p)}</div>`:''}
     <div class="card"><div class="eyebrow">Carreira</div>
       ${hist.length?`<table class="tbl"><thead><tr><th>Ano</th><th>Clube</th><th>Over</th><th>Mapas</th><th>K/D</th><th>ACS</th><th>MVP</th></tr></thead><tbody>
         ${hist.map(h=>`<tr><td>${h.ano}</td><td>${esc(h.time||'')}</td><td class="num">${h.over}</td><td class="num">${h.maps||0}</td><td class="num">${h.k||0}/${h.d||0}</td><td class="num">${h.maps?Math.round(h.acs/h.maps):'–'}</td><td class="num">${h.mvp||0}</td></tr>`).join('')}</tbody></table>`
@@ -42120,7 +42332,9 @@ function vJMeuClube(){
 
 /* ---------- a barra lateral do modo jogador mostra você ---------- */
 function sideCabecalhoJogador(){
-  const p=meuJogador();if(!p)return '';
+  const p=meuJogador();
+  if(!p&&G.voce&&G.voce.aposentado)return `<div class="side-org"><div class="n"><b>${esc(G.voce.aposentado.nome)}</b><span>aposentado · ${G.voce.aposentado.ano}</span></div></div>`;
+  if(!p)return '';
   const t=clubeDoJogador();
   return `<div class="side-org">${t?escudo(t,34):''}<div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.nome:'sem clube')} · over ${over(p)}</span></div></div>`;
 }
@@ -42396,6 +42610,7 @@ function ligarJogador(v,on){
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
   if(typeof ligarMidia==='function')ligarMidia(v,on);
+  if(typeof ligarLegado==='function')ligarLegado(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }
 
@@ -42691,6 +42906,78 @@ function _jCardMidia(p){
   if(ofertasPatrocinio().length)itens.push(ofertasPatrocinio().length+' oferta'+(ofertasPatrocinio().length>1?'s':'')+' de patrocínio');
   if(!itens.length)return '';
   return `<div class="card rl-ev"><div class="split"><div class="eyebrow">Mídia · ${fmtSeg(seguidores())} seguidores</div><button class="btn sm" data-ir="midia">Abrir ›</button></div><p>Você tem ${itens.join(', ')}.</p></div>`;
+}
+
+
+/* ===== src/ui/legado.js ===== */
+/* ============================================================
+   MODO JOGADOR — conquistas, aposentadoria e legado (J7)
+   ============================================================ */
+const NAV_APOSENTADO=[
+  ['inicio','Legado','Carreira','trofeu'],
+  ['comp','Competições','Circuito','trofeu'],
+  ['stats','Estatísticas','Circuito','grafico'],
+  ['premios','Prêmios','Circuito','trofeu'],
+  ['news','Notícias','Circuito','jornal'],
+  ['config','Configurações','Sistema','engrenagem']
+];
+/* cartão de conquistas e recordes (Meu jogador e Legado) */
+function cardConquistas(c){
+  if(!c)return '';
+  const pr=c.premios||[];
+  return `<div class="card"><div class="eyebrow">Conquistas</div>
+    <div class="jg-st">${[['títulos',c.titulos],['internacionais',c.intl],['prêmios do ano',pr.length],['MVP de torneio',c.mvpTorneios]].map(([r,v])=>`<div><b class="num">${v||0}</b><span>${r}</span></div>`).join('')}</div>
+    ${pr.length?`<div class="lg-premios">${pr.slice().reverse().map(x=>`<span class="chip">${x.ano} · ${esc(x.rot||x.tipo)}</span>`).join('')}</div>`:''}
+    ${c.recordes&&c.recordes.length?`<div class="lg-rec">${c.recordes.map(r=>`<div><span class="dim">${esc(r.rot)}</span><b class="num">${r.v}</b>${r.ano?`<i class="dim">${r.ano}</i>`:''}</div>`).join('')}</div>`:''}
+    ${(c.convocacoes||[]).length?`<p class="dim">Eventos internacionais: ${c.convocacoes.map(x=>`${esc(x.nome)} ${x.ano}${x.titular?'':' (banco)'}`).join(' · ')}.</p>`:''}
+    <p class="dim">Pontos de Hall da Fama: <b>${c.lenda}</b> de ${typeof LENDA_CORTE!=='undefined'?LENDA_CORTE:14} para entrar na aposentadoria.</p></div>`;
+}
+/* o fim da carreira, no Meu jogador */
+function cardFimDeCarreira(p){
+  const longe=(p.pico||over(p))-over(p);
+  return `<div class="card"><div class="eyebrow">Fim de carreira</div>
+    <p>${p.idade} anos · over ${over(p)} (auge ${Math.round(p.pico||over(p))}).${p.idade>=33&&longe>=8?' O corpo já está pedindo.':''}</p>
+    <p class="dim">Você decide quando parar. Aos 40, ou a partir dos 35 com 12 pontos abaixo do auge, o corpo decide por você na virada da temporada. Depois de parar dá para seguir como técnico no mesmo save; os clubes por onde você passou chamam primeiro.</p>
+    <button class="btn ghost sm" data-lgaposentar="1">Pendurar o mouse…</button></div>`;
+}
+function modalAposentar(){
+  const p=meuJogador();if(!p)return;
+  pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">Fim de carreira</div><h2>Pendurar o mouse agora?</h2>
+    <p>${esc(p.nome)}, ${p.idade} anos, over ${over(p)}. A temporada atual entra no histórico como está, e você sai do ${p.timeId?esc(G.times[p.timeId].nome):'mercado'} hoje. Não dá para voltar atrás.</p>
+    <div class="dj-acoes"><button class="btn ghost" id="lgNao">Ainda não</button><button class="btn" id="lgSim">Aposentar</button></div></div></div>`);
+  $('#lgNao').onclick=()=>{$('#modal').innerHTML='';};
+  $('#lgSim').onclick=()=>{aposentarJogador('escolha');$('#modal').innerHTML='';tela='inicio';render();pintarSide();pintarTop();};
+}
+/* a tela depois de parar */
+function vJLegado(){
+  const L=G.voce&&G.voce.aposentado;
+  if(!L)return '';
+  const c=L.conquistas, of=ofertasDeTecnicoExJogador(), rep=reputacaoExJogador(L);
+  const cr=c&&c.carreira||{};
+  return `<section class="card sj-topo lg-topo"><div class="eyebrow">${L.motivo==='corpo'?'O corpo decidiu':'Fim de carreira'} · ${L.ano}</div>
+      <h1 class="jg-nick">${esc(L.nome)}</h1>
+      <p>${esc(L.role)} · ${L.idade} anos · auge over ${L.pico} · ${L.ano-L.desde+1} temporada${L.ano-L.desde?'s':''} na carreira</p>
+      <div class="jg-st mj-fin">${[['mapas',cr.maps||0],['K/D',cr.kd||0],['ACS médio',cr.acs||0],['títulos',c?c.titulos:0],['seguidores',typeof fmtSeg==='function'?fmtSeg(L.seguidores):L.seguidores]].map(([r,v])=>`<div><b class="num">${v}</b><span>${r}</span></div>`).join('')}</div>
+      <p>${L.hall?'<b class="up">Entrou para o Hall da Fama.</b>':`Ficou fora do Hall da Fama (${L.pontos} de ${typeof LENDA_CORTE!=='undefined'?LENDA_CORTE:14} pontos).`} Patrimônio: ${typeof moneyJ==='function'?moneyJ(L.caixa):L.caixa}.</p></section>
+    <div class="grid g2 cx-linha">${cardConquistas(c)}
+      <div class="card"><div class="eyebrow">Clubes</div>
+        <table class="tbl"><thead><tr><th>Ano</th><th>Clube</th><th>Over</th><th>Mapas</th><th>ACS</th></tr></thead><tbody>
+        ${L.hist.slice().reverse().map(h=>`<tr><td>${h.ano}</td><td>${esc(h.time||'')}</td><td class="num">${h.over}</td><td class="num">${h.maps}</td><td class="num">${h.maps?Math.round(h.acs/h.maps):'–'}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="card"><div class="eyebrow">E agora?</div>
+      <p>Seguir no jogo como <b>técnico</b>, no mesmo mundo: a sua reputação de jogador vale +${rep} no nível de coach e na paciência da diretoria. Os clubes por onde você passou chamam primeiro.</p>
+      <div class="mj-props">${of.map(({t,casa})=>`<div class="mj-prop"><div class="mj-prop-top">${escudo(t,40)}<div><div class="eyebrow">${casa?'Ex-clube':'Convite'}</div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))} · prestígio ${Math.round(t.prestigio)}</span></div></div>
+        <div class="mj-prop-b"><button class="btn sm" data-lgtecnico="${t.id}">Assumir como técnico</button></div></div>`).join('')}</div>
+      <p class="dim" style="margin-top:12px">Ou deixe a história aqui: o save continua com o seu legado, e o mundo segue andando se você avançar as semanas.</p></div>`;
+}
+function ligarLegado(v,on){
+  on('[data-lgaposentar]',()=>modalAposentar());
+  on('[data-lgtecnico]',el=>{
+    const r=virarTecnico(el.dataset.lgtecnico);
+    if(!r.ok){flash(r.motivo);return;}
+    tela='inicio';hist=['inicio'];histPos=0;
+    if(typeof Prefs!=='undefined'&&typeof salvarRun==='function'&&Prefs.get('autosave'))salvarRun(G.runNome);
+    pintarTop();pintarSide();render();flash(r.msg);
+  });
 }
 
 

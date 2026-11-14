@@ -27,9 +27,11 @@ const NAV_JOGADOR=[
   ['news','Notícias','Circuito','jornal'],
   ['config','Configurações','Sistema','engrenagem']
 ];
-function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JOGADOR:NAV;}
+function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
+  /* depois de parar, só o legado e o circuito (ui/legado.js) */
+  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','stats','premios','news','config'].includes(k)?null:vJLegado;
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
     semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
     contrato:typeof vJContrato==='function'?vJContrato:null,midia:typeof vJMidia==='function'?vJMidia:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
@@ -39,7 +41,7 @@ function telaDoJogador(k){
 function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.maps),kd:(s.k/Math.max(1,s.d)).toFixed(2)}:{acs:null,kd:null};}
 function _jSituacao(p,t){
   if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
-  if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:'Fora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
+  if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:(G.voce&&G.voce.lesaoNome?'Com '+G.voce.lesaoNome+', f':'F')+'ora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
   const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
   const pct=ch?` Chance de jogar a próxima: ${ch.pct}%.`:'';
   if((t.titulares||[]).includes(p.id))return{rot:'Titular',tom:'up',txt:'Você está no cinco do '+t.nome+'.'+pct};
@@ -142,6 +144,7 @@ function vJPerfil(){
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
     </div>
+    ${typeof conquistasJogador==='function'?`<div class="grid g2 cx-linha">${cardConquistas(conquistasJogador(p))}${cardFimDeCarreira(p)}</div>`:''}
     <div class="card"><div class="eyebrow">Carreira</div>
       ${hist.length?`<table class="tbl"><thead><tr><th>Ano</th><th>Clube</th><th>Over</th><th>Mapas</th><th>K/D</th><th>ACS</th><th>MVP</th></tr></thead><tbody>
         ${hist.map(h=>`<tr><td>${h.ano}</td><td>${esc(h.time||'')}</td><td class="num">${h.over}</td><td class="num">${h.maps||0}</td><td class="num">${h.k||0}/${h.d||0}</td><td class="num">${h.maps?Math.round(h.acs/h.maps):'–'}</td><td class="num">${h.mvp||0}</td></tr>`).join('')}</tbody></table>`
@@ -158,7 +161,9 @@ function vJMeuClube(){
 
 /* ---------- a barra lateral do modo jogador mostra você ---------- */
 function sideCabecalhoJogador(){
-  const p=meuJogador();if(!p)return '';
+  const p=meuJogador();
+  if(!p&&G.voce&&G.voce.aposentado)return `<div class="side-org"><div class="n"><b>${esc(G.voce.aposentado.nome)}</b><span>aposentado · ${G.voce.aposentado.ano}</span></div></div>`;
+  if(!p)return '';
   const t=clubeDoJogador();
   return `<div class="side-org">${t?escudo(t,34):''}<div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.nome:'sem clube')} · over ${over(p)}</span></div></div>`;
 }

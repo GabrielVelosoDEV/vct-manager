@@ -3500,3 +3500,11 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .md-rs{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .md-rs .col-r{display:block;text-align:left;width:100%}
 @media (max-width:760px){.md-barras{grid-template-columns:1fr}}
+
+/* ---------- modo jogador: conquistas e legado (ui/legado.js) ---------- */
+.lg-premios{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.lg-rec{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;margin:10px 0}
+.lg-rec>div{display:flex;align-items:baseline;gap:8px}
+.lg-rec span{flex:1;font-size:12.5px}
+.lg-rec i{font-style:normal;font-size:11px}
+.lg-topo .jg-nick{margin:4px 0}
