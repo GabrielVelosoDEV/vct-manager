@@ -63,16 +63,36 @@ function aplicarTurno(r){
           (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
   }else if(dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
 }
+/* Etapa 7: com o motor completo, a sua série leva alguns segundos para ser
+   jogada. O aviso é pintado ANTES do cálculo (que trava a tela enquanto roda),
+   e só aparece quando a semana tem jogo seu que ainda não foi jogado ao vivo. */
+function avisoMotor(on,texto){
+  if(typeof document==='undefined')return;
+  let el=document.getElementById('avisoMotor');
+  if(!on){if(el)el.remove();return;}
+  if(!el){el=document.createElement('div');el.id='avisoMotor';
+    el.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(5,10,18,.55);backdrop-filter:blur(2px);font:600 15px Inter,system-ui,sans-serif;color:#e8eef5;letter-spacing:.02em';
+    document.body.appendChild(el);}
+  el.textContent=texto;
+}
+function avancarComMotor(plano,depois){
+  const pesado=typeof motorDisponivel==='function'&&motorDisponivel()&&!(plano&&plano.serieFeita)
+    &&(Prefs.get('motorTodas')||(Prefs.get('motorMinhas')&&typeof compromissoDaSemana==='function'&&!!compromissoDaSemana()));
+  if(!pesado||typeof document==='undefined')return depois(avancar(plano));
+  avisoMotor(true,Prefs.get('motorTodas')?'Jogando a rodada no motor completo…':'Jogando a sua partida no motor completo…');
+  setTimeout(()=>{let r;try{r=avancar(plano);}finally{avisoMotor(false);}depois(r);},60);
+}
 function avancarComRitual(quantas){
   if(usarTurnos())return aplicarTurno(avancarTurno());
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
-  if(!comp)return aplicarAvanco(avancar(),quantas||1);
+  if(!comp)return avancarComMotor(null,r=>aplicarAvanco(r,quantas||1));
   abrirPrePartida(comp,plano=>{
-    const r=avancar(plano);
-    /* Série já assistida ao vivo: não abre a transmissão de novo por cima. */
-    if(plano&&plano.serieFeita)aplicarAvanco(Object.assign({},r,{minhaPartida:null}),quantas||1);
-    else aplicarAvanco(r,quantas||1);
+    avancarComMotor(plano,r=>{
+      /* Série já assistida ao vivo: não abre a transmissão de novo por cima. */
+      if(plano&&plano.serieFeita)aplicarAvanco(Object.assign({},r,{minhaPartida:null}),quantas||1);
+      else aplicarAvanco(r,quantas||1);
+    });
   });
 }
 /* resolve o que mostrar depois de avançar, respeitando as preferências */

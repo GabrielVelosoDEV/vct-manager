@@ -98,6 +98,11 @@ function vConfig(){
     ${sw('tempoTecnico','Pedir tempo durante a partida',
          'Libera o pedido de tempo na transmissão ao vivo: dois por mapa, para cortar uma sequência '+
          'de rounds perdidos. Exige assistir ao vivo.')}
+    ${sw('motorMinhas','Minhas partidas no motor completo',
+         'Os dez titulares entram no mapa da gameplay e cada round é jogado de verdade: atributos, agente da comp, '+
+         'tática do clube e condição do dia. Mais lento (alguns segundos por mapa). Desligado, vale o modelo de conta.')}
+    ${sw('motorTodas','Todas as partidas no motor completo',
+         'O circuito inteiro jogado no motor. Bem mais lento: uma rodada cheia leva minutos.')}
     ${sw('aoVivo','Assistir a partida ao vivo',
          'Revela a partida round a round, com ritmo que desacelera nos momentos que pesam. '+
          'A partida já foi decidida pelo motor — assistir não muda nada, e dá para pular a qualquer momento.')}

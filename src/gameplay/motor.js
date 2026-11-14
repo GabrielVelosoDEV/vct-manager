@@ -329,7 +329,9 @@ GP.iaPensar = function (J, e, dt) {
       /* mira já posicionada: quem segura parado um ângulo e o inimigo aparece
          onde ele está olhando reage mais rápido e erra menos o primeiro tiro */
       const posicionado = ia.segurando && J.t - ia.segurando < 0.3 && Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) < 0.35 && Math.hypot(e.vx, e.vy) < 0.5;
-      ia.reacaoAte = J.t + Math.max(0.1, p.reacao * var_ * (0.9 + 0.2 * rnd()) * (posicionado ? GP.MIRA_POSICIONADA.reacao : 1)) + (fora ? p.periferia : 0) + giroExtra;
+      /* pedido de tempo (manager): uns rounds de cabeça no lugar */
+      const tempo = e.bonusTempo ? 0.92 : 1;
+      ia.reacaoAte = J.t + Math.max(0.1, p.reacao * var_ * (0.9 + 0.2 * rnd()) * (posicionado ? GP.MIRA_POSICIONADA.reacao : 1) * tempo) + (fora ? p.periferia : 0) + giroExtra;
       const mag = p.erroMira * (0.6 + dAlvo / 30) * Math.max(0.5, var_) * (posicionado ? GP.MIRA_POSICIONADA.erro : 1);
       const a = rnd() * Math.PI * 2;
       ia.errX = Math.cos(a) * mag; ia.errY = Math.sin(a) * mag;

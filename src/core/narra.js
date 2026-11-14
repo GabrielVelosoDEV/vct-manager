@@ -80,9 +80,16 @@ function narrarRound(h,ctx){
       placarNome+' converte'],sem));
   }
 
+  /* round jogado no motor completo (core/motor.js): o plano de quem atacou e
+     onde a spike caiu são de verdade, então entram na narração */
+  if(h.motor&&h.motor.planoAtk&&!h.pistol){
+    const atkMeu=(h.lado==='atk')===!!ctx.souA;
+    partes.push((atkMeu?ctx.meuTag:ctx.advTag)+' foi de '+h.motor.planoAtk);
+  }
+  if(h.motor&&h.motor.plant&&h.como==='elim')partes.push('com plant no '+String(h.motor.plant).toUpperCase());
   /* como acabou, quando não foi eliminação (o registro guarda) */
-  if(h.como==='spike')partes.push('spike explodiu');
-  else if(h.como==='defuse')partes.push('spike desarmado');
+  if(h.como==='spike')partes.push('spike explodiu'+(h.motor&&h.motor.plant?' no '+String(h.motor.plant).toUpperCase():''));
+  else if(h.como==='defuse')partes.push('spike desarmado'+(h.motor&&h.motor.plant?' no '+String(h.motor.plant).toUpperCase():''));
   else if(h.como==='tempo')partes.push('no tempo');
   const ecoPerdedor=vencedorMeu?(ctx.souA?h.ecoB:h.ecoA):(ctx.souA?h.ecoA:h.ecoB);
   if(!h.pistol&&ecoPerdedor===0)partes.push('em eco');

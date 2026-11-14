@@ -176,3 +176,9 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
 .gp-fim-largo .gp-tab th,.gp-fim-largo .gp-tab td{padding:5px 6px}
 @media (max-width:900px){.gp-espec{display:none}}
 .gp-fim-largo{overflow-x:auto;max-height:92vh;overflow-y:auto}
+/* etapa 7: evolução e carreira do seu jogador */
+.gp-evo{margin:14px 0 4px;text-align:left}
+.gp-evo-l{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.gp-evo-l span{opacity:.85}.gp-evo-l b{color:var(--tx)}
+.gp-evo-l .sobe i{color:#18e5b4;font-style:normal}.gp-evo-l .desce i{color:#ff4655;font-style:normal}
+.gp-carreira .gp-dim{margin:4px 0 8px}

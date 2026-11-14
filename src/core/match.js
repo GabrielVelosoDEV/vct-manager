@@ -256,6 +256,9 @@ function abrirMapa(A,B,mapa,ladoInicialA){
   /* o preparo do seu clube neste mapa, para o relatório do analista */
   if(G.meuTime&&(A.id===G.meuTime||B.id===G.meuTime)&&typeof preparoDoMapa==='function')
     M.prep=preparoDoMapa(A.id===G.meuTime?A:B,mapa).nota;
+  /* etapa 7: nas partidas que a preferência manda, o mapa é jogado no motor
+     da gameplay (core/motor.js); passoRound passa a conduzir o motor */
+  if(typeof usarMotor==='function'&&usarMotor(A,B))motorAbrirMapa(M);
   return M;
 }
 const TEMPOS_POR_MAPA=2;
@@ -368,6 +371,7 @@ const ecoDeN=n=>n===0?2:n===1?(rnd()<.6?0:1):n===2?(rnd()<.5?1:2):2;
    antigo. */
 function passoRound(M){
   if(M.fim)return null;
+  if(M.J)return motorPassoRound(M);
   const{A,B}=M;
   M.r++;
   const r=M.r;

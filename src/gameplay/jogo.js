@@ -19,14 +19,21 @@ GP.UI = {
   opc: {mapa: 'ascent', modo: 'partida', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio', timeA: 'LOUD', timeB: 'NRG'},
   atribEu: null,
 };
-GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu})); } catch (e) { /* sem armazenamento */ } };
+GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu, carreira: GP.UI.carreira || null})); } catch (e) { /* sem armazenamento */ } };
 GP._lerOpc = function () {
-  try { const s = JSON.parse(localStorage.getItem('vct-gameplay-opc') || 'null'); if (s) { Object.assign(GP.UI.opc, s.opc || {}); GP.UI.atribEu = s.atribEu || null; } } catch (e) { /* ignora */ }
+  try { const s = JSON.parse(localStorage.getItem('vct-gameplay-opc') || 'null'); if (s) { Object.assign(GP.UI.opc, s.opc || {}); GP.UI.atribEu = s.atribEu || null; GP.UI.carreira = s.carreira || null; } } catch (e) { /* ignora */ }
   if (!GP.NIVEIS[GP.UI.opc.nivelBot]) GP.UI.opc.nivelBot = 'tier2';
   if (!GP.AGENTES[GP.UI.opc.agenteEu]) GP.UI.opc.agenteEu = 'jett';
   if (GP.UI.opc.agenteBot !== 'aleatorio' && !GP.AGENTES[GP.UI.opc.agenteBot]) GP.UI.opc.agenteBot = 'aleatorio';
   if (!GP.UI.atribEu) GP.UI.atribEu = {...GP.NIVEIS[GP.UI.opc.nivelEu in GP.NIVEIS ? GP.UI.opc.nivelEu : 'tier2'].a};
   for (const k of ['timeA', 'timeB']) if (GP.UI.opc[k] && !GP.timeReal(GP.UI.opc[k])) GP.UI.opc[k] = '';
+};
+GP._cartaoCarreira = function () {
+  const c = GP.UI.carreira, ev = GP.UI.opc.evoluir !== false;
+  const resumo = c && c.partidas ? `<p class="gp-dim">${c.partidas} partida${c.partidas > 1 ? 's' : ''} · ${c.vitorias} vitória${c.vitorias === 1 ? '' : 's'} · ACS médio ${Math.round(c.acs / c.partidas)} · K/D ${(c.k / Math.max(1, c.d)).toFixed(2)}${c.mvp ? ' · ' + c.mvp + ' MVP' : ''}${c.ultima ? ` · última: ${GP.NOME_MAPA[c.ultima.mapa] || c.ultima.mapa} ${c.ultima.placar}, ${c.ultima.acs} de ACS` : ''}</p>` : '<p class="gp-dim">Nenhuma partida 5v5 jogada ainda.</p>';
+  return `<div class="gp-carreira"><div class="gp-eyebrow" style="margin-top:14px">Carreira do seu jogador</div>${resumo}
+    <div class="gp-ops"><button class="gp-op ${ev ? 'on' : ''}" id="gpEvoluir"><b>Evolução ${ev ? 'ligada' : 'desligada'}</b><span>cada partida 5v5 mexe nos seus atributos</span></button>
+    <button class="gp-op" id="gpZerarCarreira"><b>Zerar carreira</b><span>volta ao nível escolhido</span></button></div></div>`;
 };
 /* select de times reais, agrupado por liga */
 GP._selTime = function (id, sel) {
@@ -78,7 +85,7 @@ GP.menu = function () {
   const cinco = ['partida', 'assistir', 'simular'].includes(o.modo);
   const armas = ['vandal', 'phantom', 'spectre', 'sheriff', 'operator', 'classic'].map(k => bt('arma', k, GP.ARMAS[k].nome, GP.ARMAS[k].preco ? GP.ARMAS[k].preco + ' créditos' : 'de graça')).join('');
   const sliders = Object.keys(GP.ATRIB_ROTULO).filter(k => k !== 'consistencia').map(k => `<label class="gp-sl"><span>${GP.ATRIB_ROTULO[k]} <i>${GP.ATRIB_EFEITO[k]}</i></span>
-      <input type="range" min="40" max="95" value="${a[k]}" data-atr="${k}"><b class="num">${a[k]}</b></label>`).join('');
+      <input type="range" min="40" max="95" value="${Math.round(a[k])}" data-atr="${k}"><b class="num">${Math.round(a[k])}</b></label>`).join('');
   $gp('#gpMenu').innerHTML = `<div class="gp-menu-in">
     <div class="gp-topo"><a class="gp-volta" href="index.html">← VCT Manager</a>
       <div><div class="gp-eyebrow">Modo carreira jogador · laboratório</div><h1>Gameplay de cima</h1>
@@ -113,6 +120,7 @@ GP.menu = function () {
         <div class="gp-eyebrow" style="margin-top:16px">O seu jogador</div><div class="gp-ops gp-ops3">
         ${Object.keys(GP.NIVEIS).map(k => bt('nivelEu', k, GP.NIVEIS[k].nome, 'atributos de ' + GP.NIVEIS[k].nome)).join('')}</div>
         <div class="gp-sls">${sliders}</div>
+        ${GP._cartaoCarreira()}
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
           <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
@@ -135,6 +143,9 @@ GP.menu = function () {
   });
   if ($gp('#gpAgBot')) $gp('#gpAgBot').onchange = e => { o.agenteBot = e.target.value; GP._salvarOpc(); };
   for (const k of ['A', 'B']) { const el = $gp('#gpTime' + k); if (el) el.onchange = e => { o['time' + k] = e.target.value; GP._salvarOpc(); GP.menu(); }; }
+  if ($gp('#gpEvoluir')) $gp('#gpEvoluir').onclick = () => { o.evoluir = o.evoluir === false; GP._salvarOpc(); GP.menu(); };
+  if ($gp('#gpZerarCarreira')) $gp('#gpZerarCarreira').onclick = () => {
+    GP.UI.carreira = null; o.nivelEu = o.nivelEu in GP.NIVEIS ? o.nivelEu : 'tier2'; GP.UI.atribEu = {...GP.NIVEIS[o.nivelEu].a}; GP._salvarOpc(); GP.menu(); };
   $gp('#gpJogar').onclick = GP.comecar;
 };
 
@@ -416,15 +427,54 @@ GP._telaResultado = function (J, r, o) {
     ${mvp ? `<p class="gp-dim">MVP: <b>${escGP(mvp.nome)}</b> (${escGP(GP.AGENTES[mvp.agente].nome)}) · ${mvp.acs} de ACS, ${mvp.k}/${mvp.d}/${mvp.a}${o.extra ? ' · ' + o.extra : ''}</p>` : ''}
     ${GP._tabelaEstat(J, r.jogadores, nos, o.jogador ? 'Seu time' + (temNome(nos) ? ' · ' + escGP(nomes[nos]) : '') : escGP(nomes[nos]), o.euId)}
     ${GP._tabelaEstat(J, r.jogadores, eles, o.jogador ? 'Rivais' + (temNome(eles) ? ' · ' + escGP(nomes[eles]) : '') : escGP(nomes[eles]), o.euId)}
+    ${o.evolucao ? `<div class="gp-evo"><div class="gp-eyebrow">Seu jogador depois desta partida</div><div class="gp-evo-l">${Object.keys(o.evolucao).map(k => {
+      const v = o.evolucao[k]; return `<span class="${v > 0 ? 'sobe' : v < 0 ? 'desce' : ''}">${GP.ATRIB_ROTULO[k]} <b class="num">${Math.round(GP.UI.atribEu[k])}</b> <i>${v > 0 ? '+' : ''}${v.toFixed(1)}</i></span>`; }).join('')}</div></div>` : ''}
     <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">${o.de_novo || 'Jogar de novo'}</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
   $gp('#gpFim').hidden = false;
   $gp('#gpDeNovo').onclick = GP.comecar;
   $gp('#gpMenuBt').onclick = GP.sair;
 };
+/* ---------- carreira do seu jogador (etapa 7) ----------
+   O que você faz em campo vira evolução: cada partida 5v5 jogada mexe nos
+   seus atributos pelo que pesou no jogo, com ganho menor perto do teto
+   (como no manager). A carreira guarda partidas, vitórias e médias. */
+GP.ATRIB_TETO = 95;
+GP.evolucaoDaPartida = function (J, r) {
+  const eu = J.ents.find(e => !e.bot); if (!eu) return null;
+  const j = r.jogadores.find(x => x.id === eu.id), R = Math.max(1, j.rounds), st = eu.st;
+  const lim = (v, a, b) => Math.max(a, Math.min(b, v));
+  const perf = lim((j.acs - 170) / 130, -0.6, 1);
+  const correndo = st.tiros ? (st.tirosCorrendo || 0) / st.tiros : 0.3;
+  const venceu = r.vencedor === eu.time ? 0.05 : 0;
+  const d = {
+    mira: 0.10 + 0.35 * perf + lim((j.hs - 25) / 50, -0.2, 0.3),
+    reflexo: 0.08 + 0.25 * perf + lim((j.fb - j.fd) / R * 2, -0.2, 0.3),
+    movimento: 0.06 + 0.2 * perf - lim((correndo - 0.3) * 1.2, -0.2, 0.3),
+    visao: 0.06 + 0.15 * perf + lim((j.kast - 70) / 100, -0.2, 0.2),
+    clutch: 0.05 + 0.1 * perf + 0.25 * j.clutches - 0.05 * Math.max(0, j.clutchTent - j.clutches),
+    consistencia: 0.05 + (j.kast >= 70 ? 0.1 : -0.05),
+  };
+  const a = GP.UI.atribEu, out = {};
+  for (const k in d) {
+    let v = d[k] + venceu;
+    if (v > 0) v *= lim((GP.ATRIB_TETO - (a[k] || 60)) / 40, 0, 1);   /* perto do teto, cresce pouco */
+    v = Math.round(v * 10) / 10;
+    a[k] = lim(Math.round(((a[k] || 60) + v) * 10) / 10, 40, GP.ATRIB_TETO);
+    out[k] = v;
+  }
+  const c = GP.UI.carreira || (GP.UI.carreira = {partidas: 0, vitorias: 0, acs: 0, k: 0, d: 0, mvp: 0});
+  c.partidas++; if (r.vencedor === eu.time) c.vitorias++;
+  c.acs += j.acs; c.k += j.k; c.d += j.d; if (r.mvp === eu.id) c.mvp++;
+  c.ultima = {mapa: r.mapa, placar: r.placar[eu.time] + '–' + r.placar[eu.time === 'A' ? 'B' : 'A'], acs: j.acs, evolucao: out};
+  GP.UI.opc.nivelEu = 'personalizado';
+  GP._salvarOpc();
+  return out;
+};
 GP._fimPartida = function () {
   const J = GP.S.J, r = GP.resultadoPartida(J);
-  if (J.espectador) GP._telaResultado(J, r, {rotulo: 'Partida assistida', de_novo: 'Assistir outra'});
-  else GP._telaResultado(J, r, {rotulo: 'Partida 5v5', jogador: true, nos: J.ents[0].time, euId: J.ents[0].id});
+  if (J.espectador) return GP._telaResultado(J, r, {rotulo: 'Partida assistida', de_novo: 'Assistir outra'});
+  const evo = GP.UI.opc.evoluir !== false ? GP.evolucaoDaPartida(J, r) : null;
+  GP._telaResultado(J, r, {rotulo: 'Partida 5v5', jogador: true, nos: J.ents[0].time, euId: J.ents[0].id, evolucao: evo});
 };
 /* modo simular: roda sem tela, mostrando o progresso, e abre o resultado */
 GP._simularNaTela = async function () {

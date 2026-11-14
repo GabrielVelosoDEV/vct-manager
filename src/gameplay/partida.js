@@ -65,11 +65,17 @@ GP.montarPartida = function (o) {
     const nome = jogador ? (o.nome || 'Você') : J5 ? J5.nome : GP.AGENTES[ag].nome;
     const e = GP.criarAgente({id: time + i, nome, time, bot: !jogador,
       atrib, agente: ag, primaria: null, secundaria: 'classic', escudo: 'nenhum', agressivo: GP.estiloDe ? GP.estiloDe(atrib, papel) : GP.AGRESSIVO_PAPEL[papel]});
-    Object.assign(e, {papel, creditos: GP.ECON.inicio, pontosUlt: 0, prefRifle: J.rnd() < 0.55 ? 'vandal' : 'phantom', funcao: J5 ? J5.funcao : null, over: J5 ? J5.over : null});
+    Object.assign(e, {papel, creditos: GP.ECON.inicio, pontosUlt: 0, prefRifle: J.rnd() < 0.55 ? 'vandal' : 'phantom', funcao: J5 ? J5.funcao : null, over: J5 ? J5.over : null, mid: J5 && J5.id != null ? J5.id : null});
     Object.assign(e.st, {plants: 0, desarmes: 0, fb: 0, assist: 0});
     J.ents.push(e);
   });
   J.eu = J.ents[0];
+  J.primeiroAtk = o.primeiroAtk === 'B' ? 'B' : 'A';
+  /* tática do clube (VCT Manager): agressividade 1–5 empurra o estilo de cada
+     um; o foco entra na escolha dos planos (tatica.js) */
+  J.taticaTime = {A: o.taticaA || null, B: o.taticaB || null};
+  for (const e of J.ents) if (e.ia) e._agBase = e.ia.agressivo;
+  GP.aplicarTaticaTimes(J);
   J.placar = {A: 0, B: 0}; J.lados = {A: 'atk', B: 'def'}; J.derrotas = {A: 0, B: 0};
   J.historico = []; J.compra = {}; J.duracaoRound = GP.PARTIDA.round;
   J.tempoCompra = o.tempoCompra != null ? o.tempoCompra : GP.PARTIDA.compra;
@@ -79,6 +85,15 @@ GP.montarPartida = function (o) {
   return J;
 };
 
+/* agressividade do clube (1–5) sobre o estilo de cada um; chamada de novo
+   quando a tática muda no meio do mapa (pedido de tempo no manager) */
+GP.aplicarTaticaTimes = function (J) {
+  for (const e of J.ents) {
+    if (!e.ia || e._agBase == null) continue;
+    const tt = J.taticaTime && J.taticaTime[e.time];
+    e.ia.agressivo = Math.max(0.1, Math.min(0.97, e._agBase + (tt && tt.agres ? (tt.agres - 3) * 0.08 : 0)));
+  }
+};
 GP._timeAtk = J => J.lados.A === 'atk' ? 'A' : 'B';
 GP._timeDef = J => J.lados.A === 'atk' ? 'B' : 'A';
 GP._ladoNoRound = function (n) {
@@ -118,7 +133,8 @@ GP._olharPara = function (m, p, alvo) {
 GP._novoRoundPartida = function (J) {
   const R = J.round, P = GP.PARTIDA, m = J.m;
   R.n++;
-  const atkAgora = GP._ladoNoRound(R.n), trocou = J.lados[atkAgora] !== 'atk';
+  /* quem abre atacando: o A, a não ser que o veto tenha dado o ataque ao B */
+  const base = GP._ladoNoRound(R.n), atkAgora = J.primeiroAtk === 'B' ? (base === 'A' ? 'B' : 'A') : base, trocou = J.lados[atkAgora] !== 'atk';
   J.lados = {A: atkAgora === 'A' ? 'atk' : 'def', B: atkAgora === 'B' ? 'atk' : 'def'};
   const pistola = R.n === 1 || R.n === P.meio + 1, prorrog = R.n > 2 * P.meio;
   J.tiros = []; J.sons = []; J.marcas = []; J.efx = [];

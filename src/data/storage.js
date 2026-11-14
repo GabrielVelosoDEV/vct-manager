@@ -268,7 +268,8 @@ const Prefs={
           rostosGerados:'ficticios',
           aoVivo:true, velocidadeAoVivo:'1',
           prePartida:true, tempoTecnico:true, dicas:true, turnosNaJanela:true, animarTempo:true,
-          minigames:true, somMini:true, palavroes:true},
+          minigames:true, somMini:true, palavroes:true,
+          motorMinhas:true, motorTodas:false},
   dados:null,
   iniciar(){
     this.dados=Object.assign({},this.padrao);

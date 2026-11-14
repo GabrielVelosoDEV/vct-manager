@@ -65,6 +65,11 @@ GP._estatPasso = function (J) {
         if (e._kast) e.st.kast = (e.st.kast || 0) + 1;
         if (e._rk >= 2) { const k = 'k' + Math.min(5, e._rk); e.st[k] = (e.st[k] || 0) + 1; }
       }
+      /* o round contado para quem narra: quem abriu, quem caiu, o clutch, quantos sobraram */
+      const ab = J._mortesRound.find(x => x.de && (acha(x.de) || {}).time !== (acha(x.em) || {}).time);
+      const cl = J._clutch[ev.vencedor];
+      (J.rodadas || (J.rodadas = {}))[ev.n] = {fk: ab ? ab.de : null, fd: ab ? ab.em : null, clutch: cl ? cl.id : null, clutchContra: cl ? cl.contra : 0,
+        sobrou: J.ents.filter(o => o.vivo && o.time === ev.vencedor).length};
       for (const T in J._clutch) {
         const c = J._clutch[T], e = acha(c.id); if (!e) continue;
         e.st.clutchTent = (e.st.clutchTent || 0) + 1;

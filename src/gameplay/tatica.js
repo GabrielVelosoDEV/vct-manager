@@ -114,6 +114,11 @@ GP._planejarRound = function (J) {
      bomb que está dando certo; liderança baixa quase não se adapta */
   const iglA = GP.iglDe ? GP.iglDe(J, atkT) : 0.5, iglD = GP.iglDe ? GP.iglDe(J, defT) : 0.5;
   for (const h of hist.slice(-2)) if (h.vencedor !== atkT && h.planoAtk && pesos[h.planoAtk]) pesos[h.planoAtk] *= 1 - 0.8 * iglA;
+  /* foco do clube (manager): execução, default (controle de mapa) */
+  const ttA = J.taticaTime && J.taticaTime[atkT], ttD = J.taticaTime && J.taticaTime[defT];
+  if (ttA && ttA.foco === 'execucao') { if (pesos.execucao) pesos.execucao *= 1.8; if (pesos.rush) pesos.rush *= 1.4; }
+  if (ttA && ttA.foco === 'default' && pesos.default) pesos.default *= 1.8;
+  if (ttA && ttA.foco === 'retake' && pesos.default) { pesos.default *= 1.4; if (pesos.rush) pesos.rush *= 0.5; }
   const tipo = GP._sortearPeso(J, pesos);
   const pesoSitio = {};
   for (const L of letras) pesoSitio[L] = 1;
@@ -146,7 +151,8 @@ GP._planejarRound = function (J) {
   /* ---- defesa ---- */
   const contaPlant = {};
   for (const h of J.historico) if (h.plant && h.atk !== defT) contaPlant[h.plant] = (contaPlant[h.plant] || 0) + 1;
-  const tipoDef = GP._sortearPeso(J, {padrao: 60, stack: J.historico.length >= 3 ? 10 + 30 * iglD : 8, push: 15});
+  const tipoDef = GP._sortearPeso(J, {padrao: 60, stack: J.historico.length >= 3 ? 10 + 30 * iglD : 8,
+    push: ttD && ttD.foco === 'execucao' ? 30 : ttD && ttD.foco === 'retake' ? 5 : 15});
   const filaDef = def.slice().sort((a, b) => ({sentinela: 0, controlador: 1, iniciador: 2, duelista: 3})[a.papel] - ({sentinela: 0, controlador: 1, iniciador: 2, duelista: 3})[b.papel]);
   let dist;
   if (tipoDef === 'stack') {
@@ -198,7 +204,9 @@ GP._contato = function (J) {
     /* bomb lotado, ou sem ninguém da defesa vivo lá: quem gira não entra um
        por um — segura do lado de fora e espera o retake */
     const temLa = gira && def.some(d => P.def.posicao[d.id] && P.def.posicao[d.id].L === gira);
-    P.def.segurarFora = gira && (conta(gira) >= 3 || !temLa);
+    /* foco em retake: entrega o bomb mais cedo e volta junto */
+    const focoRetake = J.taticaTime && J.taticaTime[defT] && J.taticaTime[defT].foco === 'retake';
+    P.def.segurarFora = gira && (conta(gira) >= (focoRetake ? 2 : 3) || !temLa);
   }
   /* ataque: fase do plano */
   const A = P.atk;
