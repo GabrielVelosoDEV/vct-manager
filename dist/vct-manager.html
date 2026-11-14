@@ -3445,11 +3445,11 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .tl-ramo-n{padding:10px 12px;border-bottom:2px solid var(--red)}
 .tl-ramo-n b{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em}
 .tl-ramo-n span{font-size:12px}
-.tl{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
-.tl p{margin:0;font-size:12.5px;line-height:1.35}
-.tl.on{border-color:color-mix(in srgb,var(--red) 60%,var(--line));background:color-mix(in srgb,var(--red) 7%,var(--panel2))}
-.tl.fechado{opacity:.45}
-.tl.assin{border-style:dashed}
+.tl-no{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
+.tl-no p{margin:0;font-size:12.5px;line-height:1.35}
+.tl-no.on{border-color:color-mix(in srgb,var(--red) 60%,var(--line));background:color-mix(in srgb,var(--red) 7%,var(--panel2))}
+.tl-no.fechado{opacity:.45}
+.tl-no.assin{border-style:dashed}
 .tl-top{display:flex;align-items:center;gap:8px}
 .tl-top b{flex:1;font-size:14px}
 .tl-f{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:1px 5px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2)}
@@ -3457,7 +3457,7 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .tl-n i{width:8px;height:8px;border-radius:50%;border:1px solid var(--line2)}
 .tl-n i.on{background:var(--red);border-color:var(--red)}
 .tl-mot{font-size:11.5px;color:var(--dim)}
-.tl .btn{align-self:flex-start}
+.tl-no .btn{align-self:flex-start}
 @media (max-width:900px){.tl-arvore{grid-template-columns:1fr}.sj-auto{text-align:left}}
 
 /* ---------- modo jogador: relações (ui/relacoes.js) ---------- */
@@ -3614,6 +3614,344 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .sr-tecnicos{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px}
 /* bandeira em imagem (assets/bandeiras), do tamanho da letra */
 img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+
+/* ============================================================
+   VALORANT WORLD CUP — hub e momentos (C4)
+   Identidade própria do evento: ouro sobre o azul-noite do jogo,
+   a cidade da final ao fundo, escudos das seleções em destaque.
+   ============================================================ */
+:root{--cp-ouro:#E2B45A;--cp-ouro2:#F3D58E;--cp-ouro-s:rgba(226,180,90,.14);--cp-prata:#C9D1D9;--cp-bronze:#C0814E}
+.cpx-eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cp-ouro);font-weight:700;margin-bottom:8px}
+.cpx-rot{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:12px 0 6px}
+.cpx-nota{margin-top:10px;font-size:12px}
+.cpx-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cpx-acoes.c{justify-content:center}
+.cpx-escudo{object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.cpx-escudo-b{display:inline-grid;place-items:center}
+.cpx-escudo-b img{width:86%;height:auto;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+.cpx-escudo-e{display:inline-grid;place-items:center;line-height:1}
+.cpx-g2{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-top:14px;align-items:start}
+.cpx-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;align-items:start}
+.cpx-g2>.card,.cpx-g3>.card{margin:0}
+.tbl .cpx-escudo{vertical-align:middle;margin-right:4px}
+
+/* capa */
+.cpx-capa{position:relative;overflow:hidden;border:1px solid rgba(226,180,90,.28);background:linear-gradient(120deg,#0E151C,#151F29);
+  box-shadow:var(--sombra-2);clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)}
+.cpx-capa:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(226,180,90,.08));pointer-events:none}
+.cpx-capa-in{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:26px;align-items:center;padding:26px 300px 18px 28px;min-height:210px}
+.cpx-logo{width:150px;height:150px;display:grid;place-items:center}
+.cpx-logo img{max-width:150px;max-height:150px;object-fit:contain;filter:drop-shadow(0 10px 24px rgba(0,0,0,.6));animation:cpxFlutua 6s ease-in-out infinite}
+.cpx-logo svg{width:80px;height:80px;color:var(--cp-ouro)}
+.cpx-tit{font-family:'Bebas Neue',sans-serif;font-size:68px;letter-spacing:.03em;line-height:.9;margin:2px 0 8px;text-shadow:0 4px 18px rgba(0,0,0,.55)}
+.cpx-tit span{color:var(--cp-ouro)}
+.cpx-sub{color:var(--tx2);font-size:14px;display:flex;align-items:center;gap:8px}
+.cpx-sub .bandeira{height:16px}
+.cpx-fase{display:inline-block;margin-top:12px;padding:5px 12px;border:1px solid rgba(226,180,90,.4);background:rgba(226,180,90,.1);color:var(--cp-ouro2);font-size:12px;font-weight:600;letter-spacing:.03em}
+.cpx-conta{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 20px;border:1px solid rgba(226,180,90,.35);background:rgba(8,12,17,.55);backdrop-filter:blur(4px);min-width:150px;z-index:1}
+.cpx-conta b{font-family:'Bebas Neue',sans-serif;font-size:58px;line-height:.9;color:var(--cp-ouro)}
+.cpx-conta span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);text-align:center}
+.cpx-taca{position:absolute;right:196px;bottom:-6px;height:236px;width:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 30px rgba(226,180,90,.25));pointer-events:none}
+.cpx-capa-in .cpx-conta{position:absolute;right:26px;top:50%;transform:translateY(-50%)}
+.cpx-etapas{position:relative;list-style:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(255,255,255,.07);background:rgba(8,12,17,.55)}
+.cpx-etapas li{position:relative;padding:12px 16px 12px 34px;display:flex;flex-direction:column;gap:2px;border-right:1px solid rgba(255,255,255,.05)}
+.cpx-etapas li i{position:absolute;left:14px;top:16px;width:10px;height:10px;border-radius:50%;border:2px solid var(--line2)}
+.cpx-etapas li b{font-size:12px;letter-spacing:.04em}
+.cpx-etapas li span{font-size:11px;color:var(--dim)}
+.cpx-etapas li.feito i{background:var(--cp-ouro);border-color:var(--cp-ouro)}
+.cpx-etapas li.feito b{color:var(--tx2)}
+.cpx-etapas li.agora{background:linear-gradient(180deg,rgba(226,180,90,.14),transparent)}
+.cpx-etapas li.agora i{border-color:var(--cp-ouro);box-shadow:0 0 0 4px rgba(226,180,90,.18);animation:cpxPulso 1.8s ease-in-out infinite}
+.cpx-etapas li.agora b{color:var(--cp-ouro2)}
+.cpx-abas{margin-top:16px}
+.cpx-abas button.on{border-bottom-color:var(--cp-ouro)}
+@keyframes cpxFlutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes cpxPulso{0%,100%{box-shadow:0 0 0 3px rgba(226,180,90,.22)}50%{box-shadow:0 0 0 7px rgba(226,180,90,.05)}}
+
+/* final em destaque */
+.cpx-final{position:relative;overflow:hidden;margin-top:14px;border:1px solid rgba(226,180,90,.45);box-shadow:var(--sombra-2),0 0 60px -30px rgba(226,180,90,.6)}
+.cpx-final-topo{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid rgba(226,180,90,.18);
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cp-ouro2)}
+.cpx-final-in{display:grid;grid-template-columns:200px 1fr 300px;gap:20px;align-items:center;padding:18px 22px 22px}
+.cpx-final-taca{display:grid;place-items:center;position:relative}
+.cpx-final-taca:before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(226,180,90,.35),transparent 65%)}
+.cpx-final-taca img{position:relative;height:250px;width:auto;filter:drop-shadow(0 16px 26px rgba(0,0,0,.7))}
+.cpx-final-meio{text-align:center}
+.cpx-final-campea{display:flex;align-items:center;justify-content:center;gap:16px}
+.cpx-final-campea h2{font-size:64px;color:var(--cp-ouro);text-shadow:0 0 30px rgba(226,180,90,.35)}
+.cpx-final-placar{display:inline-flex;align-items:center;gap:10px;margin:10px 0 16px;padding:8px 14px;border:1px solid rgba(255,255,255,.1);background:rgba(8,12,17,.5);cursor:pointer}
+.cpx-final-placar b{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1}
+.cpx-final-placar i{color:var(--dim);font-style:normal}
+.cpx-final-placar span{font-size:11px;color:var(--dim);margin-left:6px}
+.cpx-final-placar:hover{border-color:rgba(226,180,90,.5)}
+.cpx-podio{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.cpx-pd{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--line);background:rgba(8,12,17,.5);cursor:pointer}
+.cpx-pd b{font-size:13px}.cpx-pd em{font-style:normal;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.cpx-med{width:12px;height:12px;border-radius:50%;flex:none}
+.cpx-med.ouro{background:radial-gradient(circle at 35% 35%,#FFF1C4,var(--cp-ouro) 60%,#8C6420)}
+.cpx-med.prata{background:radial-gradient(circle at 35% 35%,#fff,var(--cp-prata) 60%,#6E7882)}
+.cpx-med.bronze{background:radial-gradient(circle at 35% 35%,#FFD9B8,var(--cp-bronze) 60%,#6D3F1E)}
+.cpx-pd-ouro{border-color:rgba(226,180,90,.55)}
+.cpx-final-premios{display:flex;flex-direction:column;gap:10px}
+.cpx-premio{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);background:rgba(8,12,17,.55)}
+.cpx-premio>img{height:64px;width:auto;flex:none;filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))}
+.cpx-premio span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cp-ouro)}
+.cpx-premio b{font-size:15px}
+.cpx-premio em{display:block;font-style:normal;font-size:12px;color:var(--dim)}
+.cpx-ti{display:flex;flex-wrap:wrap;gap:4px 10px}.cpx-ti b{font-size:13px}
+.cpx-premio .jrow,.cpx-ti .jrow{cursor:pointer}
+
+/* a seleção aberta */
+.cpx-sel-topo{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.cpx-sel-topo h2{font-size:40px}
+.cpx-sel-topo>div{flex:1}
+.cpx-sel-chips{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--tx2);margin-top:4px}
+.cpx-sel-troca{align-self:flex-start;max-width:170px}
+.cpx-sit{display:inline-block;padding:2px 8px;border:1px solid var(--line2);font-size:11px;font-style:normal;font-weight:600;color:var(--tx2)}
+.cpx-sit.vivo{border-color:rgba(24,229,180,.45);color:var(--teal)}
+.cpx-sit.fora{border-color:rgba(255,70,85,.35);color:#ff8a94}
+.cpx-sit.ouro{border-color:var(--cp-ouro);color:var(--cp-ouro2);background:var(--cp-ouro-s)}
+.cpx-sit.prata{border-color:var(--cp-prata);color:var(--cp-prata)}
+.cpx-sit.bronze{border-color:var(--cp-bronze);color:#e3a674}
+.cpx-tit-m{color:var(--cp-ouro)}
+.cpx-staffs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.cpx-staff{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);background:var(--surf1)}
+.cpx-staff span{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.cpx-staff em{display:block;font-style:normal;font-size:11px;color:var(--tx2)}
+.cpx-conv{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cpx-conv-col .cpx-rot{margin-top:0}
+.cpx-conv-j{display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+.cpx-conv-j:hover{background:rgba(255,255,255,.03)}
+.cpx-conv-j>div{flex:1;min-width:0}
+.cpx-conv-j b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-conv-j span{font-size:11px;color:var(--dim)}
+.cpx-conv-j em{font-style:normal;font-weight:700}
+.cpx-conv-j.tit em{color:var(--cp-ouro)}
+
+/* jogos */
+.cpx-jogo{display:grid;grid-template-columns:96px 1fr auto 1fr;gap:8px;align-items:center;padding:7px 8px;border:1px solid transparent;border-bottom-color:rgba(255,255,255,.05);font-size:13px;cursor:pointer}
+.cpx-jogo:hover{border-color:rgba(226,180,90,.35);background:rgba(226,180,90,.04)}
+.cpx-jogo>b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em}
+.cpx-j-fase{font-size:10px;color:var(--dim);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-j-l{display:flex;align-items:center;gap:6px;color:var(--tx2)}
+.cpx-j-l.r{justify-content:flex-end}
+.cpx-j-l.w{color:var(--tx);font-weight:700}
+.cpx-vazio{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:28px 18px;color:var(--tx2)}
+.cpx-vazio svg{width:36px;height:36px;color:var(--cp-ouro)}
+.cpx-vazio span{font-size:13px;color:var(--dim);max-width:460px}
+.cpx-vazio-taca{height:140px;width:auto;opacity:.9}
+
+/* chave */
+.cpx-chave{margin-top:14px;padding:16px 18px 18px;border:1px solid rgba(226,180,90,.3);box-shadow:var(--sombra-2)}
+.cpx-chave-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cpx-mm{display:grid;grid-template-columns:repeat(3,1fr) 1.35fr repeat(3,1fr);gap:10px;align-items:stretch}
+.cpx-mm-c{display:flex;flex-direction:column;justify-content:space-around;gap:10px;min-width:0}
+.cpx-mm-t{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-align:center}
+.cpx-mm-t.ouro{color:var(--cp-ouro);font-weight:700}
+.cpx-mm-j{position:relative;border:1px solid var(--line2);background:rgba(10,15,20,.82);padding:3px 0;cursor:pointer;transition:border-color .15s}
+.cpx-mm-j:hover{border-color:rgba(226,180,90,.6)}
+.cpx-mm-j.vazio{opacity:.45;cursor:default}
+.cpx-mm-l{display:flex;align-items:center;gap:6px;padding:3px 8px;font-size:12px;color:var(--tx2)}
+.cpx-mm-l span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-mm-l b{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1}
+.cpx-mm-l.w{color:var(--tx);font-weight:700}.cpx-mm-l.w b{color:var(--cp-ouro)}
+.cpx-mm-l.l{opacity:.6}
+.cpx-mm-l.me{box-shadow:inset 3px 0 0 var(--cp-ouro)}
+.cpx-mm-l i{width:22px;height:22px;border:1px dashed var(--line2);border-radius:50%}
+.cpx-mm-o{font-size:10px;color:var(--dim);padding:0 8px 3px}
+.cpx-mm-centro{justify-content:center;align-items:stretch}
+.cpx-mm-taca{height:150px;width:auto;align-self:center;filter:drop-shadow(0 10px 22px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(226,180,90,.3))}
+.cpx-mm-j.grande{border-color:rgba(226,180,90,.6);box-shadow:0 0 30px -12px rgba(226,180,90,.6);padding:6px 0}
+.cpx-mm-j.grande .cpx-mm-l{font-size:14px;padding:5px 10px}
+.cpx-mm-j.grande .cpx-mm-l b{font-size:26px}
+.cpx-mm-oitavas .cpx-mm-j:after,.cpx-mm-quartas .cpx-mm-j:after,.cpx-mm-semis .cpx-mm-j:after{content:'';position:absolute;top:50%;width:10px;border-top:1px solid rgba(226,180,90,.35)}
+.cpx-mm>.cpx-mm-c:nth-child(-n+3) .cpx-mm-j:after{right:-11px}
+.cpx-mm>.cpx-mm-c:nth-child(n+5) .cpx-mm-j:after{left:-11px}
+
+/* grupos */
+.cpx-grupos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px}
+.cpx-grupo{border:1px solid var(--line);background:linear-gradient(180deg,rgba(226,180,90,.06),transparent 40%),var(--surf1);padding:10px}
+.cpx-grupo-l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.cpx-grupo-l b{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.04em;color:var(--cp-ouro);margin-left:2px;vertical-align:-3px}
+.cpx-grupo-l span{float:right;margin-top:6px}
+.cpx-gl{display:grid;grid-template-columns:14px 26px 1fr auto auto;gap:8px;align-items:center;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;font-size:13px}
+.cpx-gl b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-gl:hover{background:rgba(255,255,255,.03)}
+.cpx-gl-p{font-size:11px;color:var(--dim);text-align:center}
+.cpx-gl.passou .cpx-gl-p{color:var(--teal);font-weight:700}
+.cpx-gl.passou{box-shadow:inset 2px 0 0 var(--teal)}
+.cpx-gl.caiu{opacity:.55}
+.cpx-gl.me{background:var(--cp-ouro-s)}
+.cpx-g-jogos{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:11px}
+.cpx-g-jogos span[data-cpjogo]{padding:2px 6px;border:1px solid var(--line);cursor:pointer;color:var(--tx2)}
+.cpx-g-jogos span[data-cpjogo]:hover{border-color:rgba(226,180,90,.5);color:var(--tx)}
+.cpx-linha-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.cpx-linha-chips .cpx-rot{margin:0 6px 0 0}
+.cpx-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border:1px solid var(--line);font-size:12px;cursor:pointer;background:var(--surf1)}
+.cpx-chip:hover{border-color:rgba(226,180,90,.5)}
+.cpx-chip.me{border-color:var(--cp-ouro);background:var(--cp-ouro-s)}
+
+/* as 40 */
+.cpx-cont{margin-top:14px}
+.cpx-cont-t{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.04em;margin-bottom:8px}
+.cpx-cont-t span{font-family:'Inter',sans-serif;font-size:12px;color:var(--dim);margin-left:6px}
+.cpx-lads{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cpx-lad{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px 12px;border:1px solid var(--line);
+  background:radial-gradient(80% 60% at 50% 0%,rgba(226,180,90,.08),transparent 70%),var(--surf1);cursor:pointer;text-align:center;transition:transform .15s,border-color .15s}
+.cpx-lad:hover{transform:translateY(-2px);border-color:rgba(226,180,90,.45)}
+.cpx-lad.me{border-color:var(--cp-ouro)}
+.cpx-lad b{font-size:13px}.cpx-lad span{font-size:11px;color:var(--dim)}
+.cpx-lad-t{position:absolute;top:6px;right:8px;color:var(--cp-ouro);font-style:normal;font-size:11px}
+
+/* estatísticas */
+.cpx-stats-cab{margin-top:14px}
+.cpx-lid{display:grid;grid-template-columns:18px auto 1fr auto;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+.cpx-lid:hover{background:rgba(255,255,255,.03)}
+.cpx-lid b{display:block;font-size:13px}.cpx-lid span{font-size:11px;color:var(--dim)}
+.cpx-lid em{font-style:normal;font-weight:700;font-size:15px}
+.cpx-lid-p{font-size:11px;color:var(--dim);text-align:center}
+.cpx-lid.top{background:linear-gradient(90deg,var(--cp-ouro-s),transparent)}
+.cpx-lid.top em{color:var(--cp-ouro);font-size:20px}
+.cpx-lid.top .cpx-lid-p{color:var(--cp-ouro);font-weight:700}
+
+/* ranking */
+.cpx-rk td{vertical-align:middle}
+.cpx-rk-p{font-size:15px;font-weight:700;color:var(--tx2)}
+.cpx-rk-s{display:flex;align-items:center;gap:10px}
+.cpx-rk-s b{display:block}.cpx-rk-s em{font-style:normal;font-size:11px;color:var(--dim)}
+.cpx-rk-t{color:var(--cp-ouro);letter-spacing:.1em}
+.cpx-rk tr:nth-child(-n+3) .cpx-rk-p{color:var(--cp-ouro)}
+
+/* campeões */
+.cpx-galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:14px}
+.cpx-ed{border:1px solid rgba(226,180,90,.3);background:radial-gradient(90% 60% at 50% 0%,rgba(226,180,90,.12),transparent 70%),var(--surf1);padding:14px;display:flex;flex-direction:column;gap:10px}
+.cpx-ed-topo{display:flex;align-items:center;gap:10px}
+.cpx-ed-topo img{height:54px;width:auto}
+.cpx-ed-topo b{display:block;font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--cp-ouro)}
+.cpx-ed-topo span{font-size:11px;color:var(--dim)}
+.cpx-ed-campea{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.cpx-ed-campea b{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em}
+.cpx-ed-final{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--tx2);cursor:pointer;padding:5px;border:1px solid var(--line)}
+.cpx-ed-final:hover{border-color:rgba(226,180,90,.5)}
+.cpx-ed-pe{display:flex;justify-content:space-between;font-size:11px;color:var(--dim)}
+.cpx-ed-pe .jrow{cursor:pointer}
+
+/* amistoso */
+.cpx-am{display:flex;align-items:center;justify-content:center;gap:40px;margin:16px 0 6px}
+.cpx-am-t{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:200px}
+.cpx-am-t b{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.04em}
+.cpx-am-t span{font-size:11px;color:var(--dim)}
+.cpx-am-x{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--cp-ouro)}
+
+/* ficha da final */
+.sr-final-copa{background:radial-gradient(60% 40% at 50% 0%,rgba(226,180,90,.18),transparent 70%)}
+.sr-final-copa .sr-cabeca{border-bottom:1px solid rgba(226,180,90,.35)}
+.sr-taca{height:34px;width:auto;vertical-align:middle;margin-right:8px}
+
+/* ---------- momentos (telas que param o jogo) ---------- */
+.cpm-ovl{background:rgba(4,7,10,.94)}
+.cpm{position:relative;width:min(1180px,96vw);height:min(760px,94vh);display:flex;flex-direction:column;overflow:hidden;
+  border:1px solid rgba(226,180,90,.35);box-shadow:0 30px 90px -20px rgba(0,0,0,.9),0 0 80px -40px rgba(226,180,90,.6)}
+.cpm-topo,.cpm-pe{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:12px 18px}
+.cpm-topo{border-bottom:1px solid rgba(226,180,90,.15)}
+.cpm-pe{border-top:1px solid rgba(255,255,255,.06);background:rgba(4,7,10,.5)}
+.cpm-marca{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cp-ouro2)}
+.cpm-marca img{height:28px;width:auto}
+.cpm-meio{position:relative;flex:1;overflow:auto;display:flex}
+.cpm-corpo{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px 28px;text-align:center}
+.cpm-eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--cp-ouro);font-weight:700;animation:cpmSobe .6s ease both}
+.cpm-tit{font-family:'Bebas Neue',sans-serif;font-size:76px;letter-spacing:.03em;line-height:.95;text-shadow:0 6px 24px rgba(0,0,0,.6);animation:cpmSobe .7s .1s ease both}
+.cpm-tit .bandeira{height:.62em}
+.cpm-sub{font-size:16px;color:var(--tx2);max-width:720px;animation:cpmSobe .7s .2s ease both}
+.cpm-sub b{color:var(--tx)}
+.cpm-nota{font-size:13px;color:var(--dim)}
+.cpm-rot{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.btn.cpm-ouro{background:linear-gradient(180deg,var(--cp-ouro2),var(--cp-ouro));color:#1A1206}
+@keyframes cpmSobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cpmPop{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:none}}
+
+/* sede: o logo padrão gira e vira o da sede */
+.cpm-logos{position:relative;width:340px;height:300px;perspective:900px}
+.cpm-logos img,.cpm-sem-logo{position:absolute;inset:0;margin:auto;max-width:100%;max-height:100%;object-fit:contain;backface-visibility:hidden}
+.cpm-logo-padrao{animation:cpmPadrao 2.6s ease forwards}
+.cpm-logo-sede{opacity:0;animation:cpmSede 1.4s 2.1s cubic-bezier(.2,.9,.3,1.2) forwards;filter:drop-shadow(0 0 40px rgba(226,180,90,.45))}
+.cpm-sem-logo{display:grid;place-items:center;font-size:120px}
+.cpm-brilho{position:absolute;inset:-40px;background:radial-gradient(circle,rgba(243,213,142,.55),transparent 60%);opacity:0;animation:cpmFlash 1.2s 1.9s ease-out forwards;pointer-events:none}
+.cpm-depois{opacity:0;animation:cpmSobe .8s 3s ease forwards}
+@keyframes cpmPadrao{0%{opacity:0;transform:scale(.7)}25%{opacity:1;transform:scale(1)}70%{opacity:1;transform:rotateY(0) scale(1)}100%{opacity:0;transform:rotateY(90deg) scale(.9)}}
+@keyframes cpmSede{0%{opacity:0;transform:rotateY(-90deg) scale(.9)}100%{opacity:1;transform:rotateY(0) scale(1)}}
+@keyframes cpmFlash{0%{opacity:0;transform:scale(.6)}40%{opacity:1}100%{opacity:0;transform:scale(1.3)}}
+
+/* convidadas e classificados */
+.cpm-grade{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;width:100%;max-width:1060px;margin-top:6px}
+.cpm-lad{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border:1px solid rgba(226,180,90,.22);background:rgba(8,12,17,.6);opacity:0;animation:cpmPop .5s ease forwards}
+.cpm-lad b{font-size:13px}
+.cpm-lad span{font-size:11px;color:var(--dim)}
+.cpm-lad em{color:var(--cp-ouro);font-style:normal;font-weight:700}
+.cpm-linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;max-width:1000px;animation:cpmSobe .6s 1.4s ease both}
+.cpm-linha .cpm-rot{margin-right:6px}
+.cpm-fora span{font-size:12px;color:var(--dim)}
+
+/* sorteio */
+.cpm-sorteio{justify-content:flex-start;gap:14px}
+.cpm-tit{font-size:76px}
+.cpm-sorteio .cpm-tit{font-size:52px}
+.cpm-potes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:1080px}
+.cpm-pote{border:1px solid var(--line2);padding:8px;display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:var(--dim);background:rgba(8,12,17,.55)}
+.cpm-pote b{width:100%;font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-align:left;color:var(--tx2)}
+.cpm-pote.agora{border-color:var(--cp-ouro);color:var(--tx)}
+.cpm-pote.agora b{color:var(--cp-ouro)}
+.cpm-pote.feito{opacity:.45}
+.cpm-grupos{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;width:100%;max-width:1080px}
+.cpm-grupo{border:1px solid rgba(226,180,90,.25);background:rgba(8,12,17,.65);padding:8px 6px;display:flex;flex-direction:column;gap:6px}
+.cpm-g-letra{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--cp-ouro);line-height:1}
+.cpm-g-sel{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:58px;justify-content:center;font-size:11px}
+.cpm-g-sel.novo{opacity:0;animation:cpmPop .5s ease forwards}
+.cpm-g-sel.vazio{color:var(--line2)}
+.cpm-g-sel.vazio i{width:30px;height:30px;border:1px dashed var(--line2);border-radius:50%}
+
+/* campeã */
+.cpm-campea{gap:6px;overflow:hidden;justify-content:flex-start;padding-top:16px}
+.cpm-c-palco{position:relative;display:flex;align-items:flex-end;justify-content:center;height:230px;width:520px;flex:none}
+.cpm-raios{position:absolute;left:50%;top:50%;width:700px;height:700px;margin:-350px 0 0 -350px;border-radius:50%;
+  background:repeating-conic-gradient(rgba(243,213,142,.16) 0 8deg,transparent 8deg 22deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 62%);mask:radial-gradient(circle,#000 20%,transparent 62%);animation:cpmGira 30s linear infinite}
+.cpm-taca{position:relative;height:230px;width:auto;filter:drop-shadow(0 20px 30px rgba(0,0,0,.7)) drop-shadow(0 0 40px rgba(226,180,90,.5));animation:cpmPop .9s ease both}
+.cpm-c-escudo{position:absolute;right:30px;bottom:6px;animation:cpmPop .8s .5s ease both}
+.cpm-c-nome{font-size:80px;color:var(--cp-ouro);text-shadow:0 0 40px rgba(226,180,90,.45),0 6px 24px rgba(0,0,0,.6)}
+.cpm-c-rot{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--cp-ouro2);animation:cpmSobe .6s .4s ease both}
+.cpm-c-final{display:flex;align-items:center;gap:12px;padding:8px 16px;border:1px solid rgba(255,255,255,.12);background:rgba(4,7,10,.6);animation:cpmSobe .6s .6s ease both}
+.cpm-c-final b{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1}
+.cpm-c-final i{font-style:normal;color:var(--dim)}
+.cpm-c-final span{font-size:12px;color:var(--dim)}
+.cpm-c-baixo{display:flex;gap:26px;align-items:center;justify-content:center;flex-wrap:wrap;animation:cpmSobe .6s .9s ease both}
+.cpm-c-mvp{display:flex;align-items:center;gap:12px;text-align:left}
+.cpm-c-mvp b{display:block;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em}
+.cpm-premio{height:56px;width:auto;margin-top:4px}
+.cpm-c-podio{display:flex;flex-direction:column;gap:6px;text-align:left}
+.cpm-c-podio>div{display:flex;align-items:center;gap:8px;font-size:14px}
+.cpm-c-ti{display:block!important;font-size:12px;color:var(--tx2);max-width:360px}
+.cpm-c-ti .cpm-rot{display:block}
+.cpm-med{width:12px;height:12px;border-radius:50%}
+.cpm-med.prata{background:radial-gradient(circle at 35% 35%,#fff,var(--cp-prata) 60%,#6E7882)}
+.cpm-med.bronze{background:radial-gradient(circle at 35% 35%,#FFD9B8,var(--cp-bronze) 60%,#6D3F1E)}
+.cpm-confete{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.cpm-confete i{position:absolute;top:-20px;width:8px;height:14px;opacity:.85;animation:cpmCai linear infinite}
+@keyframes cpmCai{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(820px) rotate(720deg)}}
+@keyframes cpmGira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  .cpm *,.cpx-logo img,.cpx-etapas li.agora i{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}
+  .cpm-confete{display:none}
+}
+
+/* faixa da Copa na Central */
+.cpx-faixa{display:flex;align-items:center;gap:18px;margin-top:14px;padding:14px 20px;border:1px solid rgba(226,180,90,.4);box-shadow:var(--sombra-1),0 0 40px -24px rgba(226,180,90,.6)}
+.cpx-faixa-logo{height:74px;width:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.cpx-faixa-txt{flex:1;display:flex;flex-direction:column;gap:4px}
+.cpx-faixa-txt .cpx-eyebrow{margin:0}
+.cpx-faixa-txt b{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.03em;line-height:1}
+.cpx-faixa-txt span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)}
+.cpx-faixa-txt em{color:var(--cp-ouro2);font-style:normal;font-weight:700}
+.btn.cpx-faixa-btn{background:linear-gradient(180deg,var(--cp-ouro2),var(--cp-ouro));color:#1A1206}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -28809,7 +29147,10 @@ function convocacao(pais){
   return _convSemana.mapa[pais];
 }
 function _convocacao(pais){
-  const todos=convocaveis(pais).filter(p=>!p.lesao);
+  /* machucado só é chamado se, sem ele, o país não fecha o mínimo: uma lesão
+     de uma semana não pode tirar uma seleção pequena da Copa */
+  const todos0=convocaveis(pais), sadios=todos0.filter(p=>!p.lesao);
+  const todos=sadios.length>=SELECAO_MINIMO?sadios:todos0;
   if(todos.length<SELECAO_MINIMO)return null;
   const titulares=_cincoDoPais(todos);
   const reservas=todos.filter(p=>!titulares.includes(p.id)).sort((a,b)=>over(b)-over(a))
@@ -28839,6 +29180,8 @@ function garantirCopa(){
       const f=forcaSelecao(pais);
       c.ranking[pais]=Math.round(RANKING_BASE+(f-75)*RANKING_POR_PONTO);
     }
+  /* a foto para a variação "desde a última Copa" (a primeira compara com o início) */
+  if(!c.rankingUltimaEdicao)c.rankingUltimaEdicao=Object.assign({},c.ranking);
   return c;
 }
 function rankingPaises(){
@@ -29226,6 +29569,16 @@ function _impSelecao(paises){
 }
 function _nomeSel(p){const i=infoSelecao(p);return i?i.nome:p;}
 
+/* ---------- momentos ----------
+   As telas que param o jogo (core → ui/copa-momentos.js): apresentação da
+   sede, convidadas, classificados, sorteio e a campeã. Ficam numa fila até a
+   tela abrir; o jogo sem tela (tools/) só acumula, com teto. */
+function momentoCopa(tipo,dados){
+  G.copaMomentos=(G.copaMomentos||[]).filter(m=>m.tipo!==tipo||m.ano!==dados.ano);
+  G.copaMomentos.push(Object.assign({tipo},dados));
+  if(G.copaMomentos.length>6)G.copaMomentos.shift();
+}
+
 /* ---------- a semana ---------- */
 function copaSemana(){
   if(!G||G.ano<COPA_PRIMEIRA-1)return;
@@ -29251,6 +29604,7 @@ function _semanaEliminatorias(cic){
     cic.anunciada=true;
     if(typeof escolherComissoesSelecoes==='function')escolherComissoesSelecoes();
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
+    momentoCopa('sede',{ano:cic.ano});
     noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,
       {c:'competicoes',imp:2});
   }
@@ -29266,6 +29620,7 @@ function sortearEliminatorias(cic){
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
   cic.grupos=gruposEliminatorias(cic.ano,cic.convidadas)
     .map(g=>({letra:g.letra,cont:g.cont,paises:g.paises.slice(),jogos:[],rodadas:0}));
+  momentoCopa('convidadas',{ano:cic.ano});
   noticia(`✉️ World Cup ${cic.ano}: ${cic.convidadas.length} seleções convidadas — ${cic.convidadas.map(_nomeSel).join(', ')}. As outras ${cic.grupos.reduce((s,g)=>s+g.paises.length,0)} disputam 16 vagas nas eliminatórias.`,
     {c:'competicoes',imp:_impSelecao(cic.convidadas)});
   noticia(`🎲 Sorteio das eliminatórias: ${cic.grupos.map(g=>g.letra+' ('+g.paises.map(p=>infoSelecao(p).sigla).join(', ')+')').join(' · ')}.`,
@@ -29332,6 +29687,7 @@ function fecharEliminatorias(cic){
   cic.classificados=cic.convidadas.concat(vindos);
   cic.dasEliminatorias=vindos;
   const fora=cic.grupos.flatMap(g=>g.paises.filter(p=>!g.classificados.includes(p)));
+  momentoCopa('classificados',{ano:cic.ano});
   noticia(`🏁 Os 32 da World Cup ${cic.ano} estão definidos. Das eliminatórias: ${vindos.map(_nomeSel).join(', ')}. Ficaram fora: ${fora.map(_nomeSel).join(', ')}.`,
     {c:'competicoes',imp:Math.max(_impSelecao(vindos),_impSelecao(fora),2)});
   return cic.classificados;
@@ -29398,7 +29754,7 @@ function sortearCopa(cic){
   const rk=garantirCopa().ranking, contDe=p=>(infoSelecao(p)||{}).cont;
   const lista=cic.classificados.filter(p=>p!==cic.sede).sort((a,b)=>(rk[b]||0)-(rk[a]||0)||a.localeCompare(b));
   const ordem=[cic.sede].concat(lista);
-  const potes=[0,1,2,3].map(i=>ordem.slice(i*COPA_GRUPOS,(i+1)*COPA_GRUPOS));
+  const potes=[0,1,2,3].map(i=>ordem.slice(i*COPA_GRUPOS,(i+1)*COPA_GRUPOS)).filter(l=>l.length);
   const total={};for(const p of ordem){const c=contDe(p);total[c]=(total[c]||0)+1;}
   const limite=c=>Math.ceil((total[c]||0)/COPA_GRUPOS);
   const grupos=comSorteioLocal('sorteio-copa|'+(G.seed||0)+'|'+cic.ano,()=>{
@@ -29419,13 +29775,14 @@ function sortearCopa(cic){
         }
       }
       /* sem jeito com o continente: pote na ordem */
-      embaralha(pote).forEach((p,i)=>{gs.find(g=>g.length===ip).push(p);});
+      embaralha(pote).forEach(p=>{(gs.find(g=>g.length===ip)||gs[gs.length-1]).push(p);});
     });
     return gs;
   });
   cic.pontosCopa=Object.assign({},rk);
   cic.copa={grupos:grupos.map((paises,i)=>({letra:String.fromCharCode(65+i),paises,jogos:[],rodadas:0})),
     mata:{},convocados:null,fim:false};
+  momentoCopa('sorteio',{ano:cic.ano});
   noticia(`🎲 Sorteio da World Cup ${cic.ano} em ${cic.nomeSede}: ${cic.copa.grupos.map(g=>g.letra+' ('+g.paises.map(p=>infoSelecao(p).sigla).join(', ')+')').join(' · ')}.`,
     {c:'competicoes',imp:Math.max(2,_impSelecao(cic.classificados))});
 }
@@ -29455,7 +29812,10 @@ function _jogoCopa(cic,a,b,bo,fase,peso,sem){
 /* ---------- grupos ----------
    Ordem do pote: rodada 1 é 1×4 e 2×3; rodada 2, 1×3 e 4×2; rodada 3, 1×2 e 3×4. */
 function _rodadaGrupoCopa(p,r){
-  return r===1?[[p[0],p[3]],[p[1],p[2]]]:r===2?[[p[0],p[2]],[p[3],p[1]]]:[[p[0],p[1]],[p[2],p[3]]];
+  /* grupo de 3 (só se faltar seleção): uma folga por rodada */
+  const l=p.length===3?(r===1?[[p[0],p[2]]]:r===2?[[p[1],p[2]]]:[[p[0],p[1]]])
+    :r===1?[[p[0],p[3]],[p[1],p[2]]]:r===2?[[p[0],p[2]],[p[3],p[1]]]:[[p[0],p[1]],[p[2],p[3]]];
+  return l.filter(([a,b])=>a&&b);
 }
 function jogarRodadaCopa(cic,r){
   const novos=[];
@@ -29513,9 +29873,14 @@ function jogarFaseCopa(cic,fase){
 }
 
 /* ---------- os números da Copa ---------- */
-function statsDaCopa(cic){
+function jogosDaCopa(cic){
+  if(!cic||!cic.copa)return [];
+  return cic.copa.grupos.flatMap(g=>g.jogos||[]).concat(...Object.values(cic.copa.mata).map(l=>l.map(j=>j.f).filter(f=>f&&f.det)));
+}
+function statsDaCopa(cic){return statsDeJogos(jogosDaCopa(cic));}
+/* a soma de uma lista de fichas de seleção, por jogador */
+function statsDeJogos(jogos){
   const S={};
-  const jogos=cic.copa.grupos.flatMap(g=>g.jogos).concat(...Object.values(cic.copa.mata).map(l=>l.map(j=>j.f).filter(Boolean)));
   for(const f of jogos){
     for(const mp of (f.det&&f.det.mp)||[])for(const x of String(mp.st||'').split('|').filter(Boolean)){
       const [id,n]=x.split(':');const [k,d,a,acs]=n.split(',').map(Number);
@@ -29578,7 +29943,12 @@ function encerrarCopa(cic){
   for(const id of [].concat(...Object.values(ed.elencos).map(e=>e?e.titulares.concat(e.reservas):[]),ed.timeIdeal,ed.mvp?[ed.mvp]:[]))
     if(G.jogadores[id])ed.nomes[id]=G.jogadores[id].nome;
   for(const sid of Object.values(ed.tecnicos))if(sid&&G.staff[sid])ed.nomes[sid]=G.staff[sid].nome;
-  garantirCopa().edicoes.push(ed);
+  const cg=garantirCopa();
+  ed.rankingAntes=cg.rankingUltimaEdicao||null;
+  cg.edicoes.push(ed);
+  /* a régua da coluna "desde a última Copa": os pontos do dia do sorteio dela */
+  cg.rankingUltimaEdicao=Object.assign({},cic.pontosCopa||cg.ranking);
+  momentoCopa('campea',{ano:cic.ano});
   _enxugarCiclo(cic);
   const nmvp=mvp?G.jogadores[mvp.id].nome:null;
   noticia(`🏆 ${_nomeSel(campeao).toUpperCase()} É CAMPEÃ DA VALORANT WORLD CUP ${cic.ano}! Venceu ${_nomeSel(vice)} por ${fin.f.v===fin.a?fin.f.wa+'–'+fin.f.wb:fin.f.wb+'–'+fin.f.wa} na final em ${ed.cidade||cic.nomeSede}. ${_nomeSel(bronze)} fica com o bronze.${nmvp?' MVP da Copa: '+nmvp+'.':''}`,
@@ -36188,6 +36558,7 @@ function vInicio(){
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
+  ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
@@ -43779,6 +44150,7 @@ function vJCentral(){
   return `${typeof faixaCircuito==='function'?faixaCircuito():''}
     ${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
     ${_jHero(p,t)}
+    ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Jogue ranked, faça lives e treine: os convites para teste e as propostas aparecem em Contrato e mercado.','jogar')+'<button class="btn sm" data-ir="contrato" style="margin-top:8px">Contrato e mercado ›</button>'}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
@@ -44085,7 +44457,7 @@ function vJTalentos(){
   const col=r=>`<div class="tl-ramo"><div class="tl-ramo-n"><b>${esc(r.nome)}</b><span class="dim">${esc(r.desc)}</span></div>
     ${r.t.map((x,i)=>{
       const n=nivelTalento(x.id), max=maxNivelTalento(i), motivo=porqueNaoTalento(p,x.id), aberta=fileiraAberta(p,i);
-      return `<div class="tl ${n?'on':''} ${aberta?'':'fechado'} ${i===5?'assin':''}">
+      return `<div class="tl-no ${n?'on':''} ${aberta?'':'fechado'} ${i===5?'assin':''}">
         <div class="tl-top"><span class="tl-f">${TALENTO_FILEIRAS[i]}</span><b>${esc(x.nome)}</b><span class="tl-n">${Array.from({length:max},(_,j)=>`<i class="${j<n?'on':''}"></i>`).join('')}</span></div>
         <p>${esc(textoEfeito(x.ef))}${max>1?' <span class="dim">por nível</span>':''}</p>
         <p class="dim">${esc(x.txt)}${G.voce.talentoGratis===x.id?' · <b>talento do seu estilo</b>':''}</p>
@@ -44485,201 +44857,630 @@ function ligarLegado(v,on){
 }
 
 
+/* ===== src/ui/copa-momentos.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — OS MOMENTOS (C4)
+   ------------------------------------------------------------
+   As telas que param o jogo, na fila que o núcleo enche
+   (G.copaMomentos, core/copa-ciclo.js):
+
+     sede          o logo padrão da Copa gira e vira o logo da sede
+     convidadas    as 16 que vão direto, uma a uma
+     classificados as 16 que vieram das eliminatórias, e quem ficou fora
+     sorteio       os grupos da Copa, pote a pote
+     campea        a taça, a campeã, a final, o MVP e o pódio
+
+   Cada momento pode ser revisto pela tela da Copa (data-cpmomento).
+   ============================================================ */
+let CPM=null;   /* {fila:[...], i, pote, fim} */
+
+function abrirMomentosCopa(fim){
+  const fila=(G.copaMomentos||[]).slice();
+  G.copaMomentos=[];
+  if(!fila.length){if(fim)fim();return;}
+  CPM={fila,i:0,pote:0,fim:fim||null};
+  pintarMomentoCopa();
+}
+function reverMomentoCopa(tipo,ano){
+  CPM={fila:[{tipo,ano}],i:0,pote:0,fim:null,revendo:true};
+  pintarMomentoCopa();
+}
+function fimMomentosCopa(){
+  const f=CPM&&CPM.fim;CPM=null;
+  $('#modal').innerHTML='';
+  render();
+  if(f)f();
+}
+
+/* ---------- peças ---------- */
+function _cicloDoMomento(m){return cicloDaCopa(m.ano,false);}
+function escudoSelecao(pais,px,cls){
+  const src=ASSETS.logoSelecao(pais);
+  if(src)return `<img class="cpx-escudo ${cls||''}" src="${src}" alt="" style="width:${px}px;height:${px}px">`;
+  const b=ASSETS.bandeira(pais);
+  if(b)return `<span class="cpx-escudo cpx-escudo-b ${cls||''}" style="width:${px}px;height:${px}px"><img src="${b}" alt=""></span>`;
+  return `<span class="cpx-escudo cpx-escudo-e ${cls||''}" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.6)}px">${emojiBandeira(pais)}</span>`;
+}
+function logoDaEdicao(cic){return ASSETS.copa('sede-'+ASSETS.slug(cic.nomeSede))||ASSETS.copa('logo');}
+function fundoDaSede(cic,forca){
+  const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
+  const f=forca==null?.82:forca;
+  const img=cid?`,${urlCSS(ASSETS.cidade(cid.slug))}`:'';
+  return `background-image:radial-gradient(70% 60% at 50% 35%,rgba(226,180,90,.20),transparent 70%),linear-gradient(180deg,rgba(8,12,17,${f-.1}),rgba(8,12,17,${f+.1}))${img};background-size:cover;background-position:center`;
+}
+/* confete: posições fixas por índice (sem sorteio) */
+function confeteCopa(n){
+  let h='';
+  for(let i=0;i<n;i++){
+    const x=(i*37)%100, d=((i*53)%40)/10, dur=4+((i*29)%30)/10, cor=['#E2B45A','#ECE8E1','#FF4655','#18E5B4'][i%4];
+    h+=`<i style="left:${x}%;animation-delay:${d}s;animation-duration:${dur}s;background:${cor};transform:rotate(${i*41}deg)"></i>`;
+  }
+  return `<div class="cpm-confete" aria-hidden="true">${h}</div>`;
+}
+
+/* ---------- as telas ---------- */
+function _telaSede(cic){
+  const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
+  const pad=ASSETS.copa('logo'), sede=ASSETS.copa('sede-'+ASSETS.slug(cic.nomeSede));
+  return `<div class="cpm-corpo cpm-sede">
+    <div class="cpm-eyebrow">Valorant World Cup · ${cic.edicao}ª edição</div>
+    <div class="cpm-logos">
+      ${pad?`<img class="cpm-logo-padrao" src="${pad}" alt="">`:''}
+      ${sede?`<img class="cpm-logo-sede" src="${sede}" alt="">`:`<div class="cpm-logo-sede cpm-sem-logo">${bandeira(cic.sede)}</div>`}
+      <div class="cpm-brilho"></div>
+    </div>
+    <h1 class="cpm-tit cpm-depois">${bandeira(cic.sede)} ${esc(cic.nomeSede)} ${cic.ano}</h1>
+    <p class="cpm-sub cpm-depois">${cid?`A final é em <b>${esc(cid.nome)}</b>. `:''}Eliminatórias no fim de ${cic.ano-1}; a Copa, com 32 seleções, no fim de ${cic.ano}.</p>
+  </div>`;
+}
+function _ladrilho(pais,i,extra){
+  const inf=infoSelecao(pais)||{nome:pais,sigla:pais};
+  return `<div class="cpm-lad" style="animation-delay:${(i*0.09).toFixed(2)}s">${escudoSelecao(pais,72)}
+    <b>${esc(inf.nome)}</b><span>${bandeira(pais)} ${esc(inf.sigla)}${extra||''}</span></div>`;
+}
+function _telaConvidadas(cic){
+  return `<div class="cpm-corpo">
+    <div class="cpm-eyebrow">World Cup ${cic.ano} · ${esc(cic.nomeSede)}</div>
+    <h1 class="cpm-tit">As convidadas</h1>
+    <p class="cpm-sub">A sede e as 15 melhores do ranking vão direto para a Copa.</p>
+    <div class="cpm-grade">${cic.convidadas.map((p,i)=>_ladrilho(p,i,p===cic.sede?' · <em>sede</em>':'')).join('')}</div>
+    <p class="cpm-sub cpm-nota">As outras ${cic.grupos?cic.grupos.reduce((s,g)=>s+g.paises.length,0):24} disputam 16 vagas nas eliminatórias, nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</p>
+  </div>`;
+}
+function _telaClassificados(cic){
+  const fora=(cic.grupos||[]).flatMap(g=>g.paises.filter(p=>!(g.classificados||[]).includes(p)));
+  return `<div class="cpm-corpo">
+    <div class="cpm-eyebrow">World Cup ${cic.ano} · ${esc(cic.nomeSede)}</div>
+    <h1 class="cpm-tit">Os 32 estão definidos</h1>
+    <p class="cpm-sub">Das eliminatórias:</p>
+    <div class="cpm-grade">${(cic.dasEliminatorias||[]).map((p,i)=>_ladrilho(p,i)).join('')}</div>
+    <div class="cpm-linha"><span class="cpm-rot">Convidadas</span>${cic.convidadas.map(p=>`<span class="cpm-mini" title="${esc(_nomeSel(p))}">${escudoSelecao(p,30)}</span>`).join('')}</div>
+    ${fora.length?`<div class="cpm-linha cpm-fora"><span class="cpm-rot">Ficaram fora</span>${fora.map(p=>`<span>${bandeira(p)} ${esc(_nomeSel(p))}</span>`).join('')}</div>`:''}
+  </div>`;
+}
+function _telaSorteio(cic){
+  const C=cic.copa, pote=CPM.pote;
+  const potes=[0,1,2,3].map(k=>C.grupos.map(g=>g.paises[k]).filter(Boolean));
+  return `<div class="cpm-corpo cpm-sorteio">
+    <div class="cpm-eyebrow">World Cup ${cic.ano} · ${esc(cic.nomeSede)} · sorteio dos grupos</div>
+    <h1 class="cpm-tit">${pote>=4?'Os grupos da Copa':pote===0?'Quatro potes, oito grupos':'Pote '+pote+' sorteado'}</h1>
+    <div class="cpm-potes">${potes.map((l,k)=>`<div class="cpm-pote ${k<pote?'feito':k===pote?'agora':''}"><b>Pote ${k+1}</b>
+      ${l.map(p=>`<span>${bandeira(p)} ${esc((infoSelecao(p)||{}).sigla||p)}</span>`).join('')}</div>`).join('')}</div>
+    <div class="cpm-grupos">${C.grupos.map((g,gi)=>`<div class="cpm-grupo"><div class="cpm-g-letra">${g.letra}</div>
+      ${g.paises.map((p,k)=>k<pote?`<div class="cpm-g-sel ${k===pote-1?'novo':''}" style="animation-delay:${(gi*0.12).toFixed(2)}s">${escudoSelecao(p,34)}<span>${esc(_nomeSel(p))}</span></div>`
+        :`<div class="cpm-g-sel vazio"><i></i><span>pote ${k+1}</span></div>`).join('')}</div>`).join('')}</div>
+    <p class="cpm-sub cpm-nota">${pote===0?`A sede, ${esc(cic.nomeSede)}, é a cabeça do grupo A. O sorteio evita juntar seleções do mesmo continente.`
+      :pote>=4?`Grupos de 4 em MD3 nas semanas ${COPA_SEM_R12} e ${COPA_SEM_R3}; os dois primeiros vão às oitavas.`:''}</p>
+  </div>`;
+}
+function _telaCampea(cic){
+  const ed=edicoesDaCopa().find(e=>e.ano===cic.ano);if(!ed)return '<div class="cpm-corpo"></div>';
+  const nome=id=>ed.nomes[id]||(G.jogadores[id]||{}).nome||'—';
+  const f=ed.final, pro=f.v===f.a?f.wa:f.wb, contra=f.v===f.a?f.wb:f.wa;
+  const taca=ASSETS.copa('trofeu'), pm=ed.mvp&&G.jogadores[ed.mvp];
+  const premio=ASSETS.copa('premio-mvp');
+  return `<div class="cpm-corpo cpm-campea">
+    ${confeteCopa(46)}
+    <div class="cpm-eyebrow">Valorant World Cup ${cic.ano} · ${esc(cic.nomeSede)}${ed.cidade?' · '+esc(ed.cidade):''}</div>
+    <div class="cpm-c-palco">
+      <div class="cpm-raios"></div>
+      ${taca?`<img class="cpm-taca" src="${taca}" alt="">`:''}
+      <div class="cpm-c-escudo">${escudoSelecao(ed.campeao,120)}</div>
+    </div>
+    <h1 class="cpm-tit cpm-c-nome">${esc(_nomeSel(ed.campeao))}</h1>
+    <div class="cpm-c-rot">${titulosMundiais(ed.campeao)>1?titulosMundiais(ed.campeao)+'º título mundial':'Campeã do mundo'}</div>
+    <div class="cpm-c-final">${escudoSelecao(ed.campeao,40)}<b class="num">${pro}</b><i>×</i><b class="num">${contra}</b>${escudoSelecao(ed.vice,40)}
+      <span>Final contra ${esc(_nomeSel(ed.vice))}</span></div>
+    <div class="cpm-c-baixo">
+      ${pm?`<div class="cpm-c-mvp">${cartaJogador(pm,{w:92})}<div><span class="cpm-rot">MVP da Copa</span><b>${esc(pm.nome)}</b>${premio?`<img src="${premio}" alt="" class="cpm-premio">`:''}</div></div>`
+        :ed.mvp?`<div class="cpm-c-mvp"><div><span class="cpm-rot">MVP da Copa</span><b>${esc(nome(ed.mvp))}</b></div></div>`:''}
+      <div class="cpm-c-podio">
+        <div><span class="cpm-med prata"></span>${escudoSelecao(ed.vice,34)}<b>${esc(_nomeSel(ed.vice))}</b></div>
+        <div><span class="cpm-med bronze"></span>${escudoSelecao(ed.bronze,34)}<b>${esc(_nomeSel(ed.bronze))}</b></div>
+        <div class="cpm-c-ti"><span class="cpm-rot">Time ideal</span>${ed.timeIdeal.map(nome).map(esc).join(' · ')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function pintarMomentoCopa(){
+  if(!CPM)return;
+  const m=CPM.fila[CPM.i], cic=m&&_cicloDoMomento(m);
+  if(!m||!cic){return CPM.i<CPM.fila.length-1?(CPM.i++,pintarMomentoCopa()):fimMomentosCopa();}
+  if(m.tipo==='sorteio'&&!cic.copa)return CPM.i<CPM.fila.length-1?(CPM.i++,pintarMomentoCopa()):fimMomentosCopa();
+  const html=m.tipo==='sede'?_telaSede(cic):m.tipo==='convidadas'?_telaConvidadas(cic)
+    :m.tipo==='classificados'?_telaClassificados(cic):m.tipo==='sorteio'?_telaSorteio(cic):_telaCampea(cic);
+  const ult=CPM.i>=CPM.fila.length-1;
+  const sorteando=m.tipo==='sorteio'&&CPM.pote<4;
+  const botao=sorteando?(CPM.pote===0?'Sortear o pote 1':'Sortear o pote '+(CPM.pote+1)):ult?'Seguir':'Próximo ›';
+  pintarModal(`<div class="ovl cpm-ovl"><div class="cpm cpm-t-${m.tipo}" style="${fundoDaSede(cic,m.tipo==='campea'?.86:.8)}">
+    <div class="cpm-topo"><span class="cpm-marca">${ASSETS.copa('logo')?`<img src="${ASSETS.copa('logo')}" alt="">`:''}Valorant World Cup</span>
+      <button class="btn ghost sm" data-cpm="pular">${CPM.revendo?'Fechar':'Pular'}</button></div>
+    <div class="cpm-meio" key="${CPM.i}-${CPM.pote}">${html}</div>
+    <div class="cpm-pe">${sorteando&&CPM.pote<3?'<button class="btn ghost" data-cpm="tudo">Sortear tudo</button>':'<span></span>'}
+      <span class="dim">${CPM.fila.length>1?(CPM.i+1)+' de '+CPM.fila.length:''}</span>
+      <button class="btn ${m.tipo==='campea'?'cpm-ouro':''}" data-cpm="seguir">${botao}</button></div>
+  </div></div>`);
+  $('#modal').querySelectorAll('[data-cpm]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const a=b.dataset.cpm;
+    if(a==='pular')return fimMomentosCopa();
+    if(a==='tudo'){CPM.pote=4;return pintarMomentoCopa();}
+    if(m.tipo==='sorteio'&&CPM.pote<4){CPM.pote++;return pintarMomentoCopa();}
+    if(CPM.i>=CPM.fila.length-1)return fimMomentosCopa();
+    CPM.i++;CPM.pote=0;pintarMomentoCopa();
+  });
+}
+
+
 /* ===== src/ui/copa.js ===== */
 /* ============================================================
-   VALORANT WORLD CUP — a tela (C0: primeira versão)
-   A sede e a contagem para a próxima Copa, o ranking de países e a
-   convocação de cada seleção. Na C4 isto vira o hub do evento.
+   VALORANT WORLD CUP — o hub do evento (C4)
+   ------------------------------------------------------------
+   Capa com a cidade da final, o logo da edição, a taça e a contagem;
+   a linha do ciclo (eliminatórias → sorteio → grupos → mata-mata →
+   final); e as abas:
+     Visão geral   pódio (ou a última Copa), a seleção aberta com a
+                   convocação e a comissão, os últimos jogos
+     Chave         grupos e mata-mata da Copa, com a final em destaque;
+                   antes dela, as eliminatórias
+     Seleções      as 40, com escudo, ranking e situação no ciclo
+     Estatísticas  líderes da Copa (ou das eliminatórias)
+     Ranking       pontos, variação desde a última Copa e títulos
+     Campeões      as edições já jogadas
+     Amistoso      duas seleções no motor, sem valer nada
    ============================================================ */
-let copaVer=null;   /* país aberto na tela */
-let copaSelAtual=null;
-let copaCicloMostrado=null;   /* o ciclo cujo mata-mata e grupos estão na tela */   /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
+let copaVer=null;            /* país aberto na tela */
+let copaSelAtual=null;       /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
+let copaCicloMostrado=null;  /* o ciclo cujo mata-mata e grupos estão na tela */
+let copaAba='geral';
+let copaAdv=null;
+const COPA_ABAS=[['geral','Visão geral'],['chave','Chave'],['selecoes','Seleções'],['stats','Estatísticas'],['ranking','Ranking'],['campeoes','Campeões'],['amistoso','Amistoso']];
 
 function semanasAteFinalDaCopa(){
   const ano=proximaCopa(G.ano);
-  return (ano-G.ano)*SEMANAS_ANO+(SEMANAS_ANO-(G.semana||1));
+  return Math.max(0,(ano-G.ano)*SEMANAS_ANO+(SEMANA_FINAL_COPA()-(G.semana||1)));
 }
-function vCopa(){
-  garantirCopa();
-  const ano=proximaCopa(G.ano), s=sedeDoAno(ano), falta=semanasAteFinalDaCopa();
-  const rk=rankingPaises();
-  const meuPais=typeof meuJogador==='function'&&meuJogador()?meuJogador().pais:null;
-  const elimAno=ano-1;
-  const cicH=typeof cicloDaCopa==='function'?cicloDaCopa(ano,false):null;
-  const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`
-    :G.ano===elimAno?(cicH&&cicH.classificados?'Os 32 estão definidos':cicH&&cicH.grupos?'Eliminatórias em andamento':'Eliminatórias no fim desta temporada')
-    :cicH&&cicH.copa&&cicH.copa.fim?`${_nomeSel(cicH.copa.podio[0])} é a campeã`
-    :cicH&&cicH.copa&&cicH.copa.convocados?'A Copa está em andamento'
-    :cicH&&cicH.copa?'Grupos sorteados: a Copa começa na semana '+COPA_SEM_R12
-    :'A Copa é no fim desta temporada, com o sorteio na semana '+COPA_SEM_SORTEIO;
-  const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
-  copaSelAtual=sel;
-  /* no ano seguinte, até o sorteio das eliminatórias, a última Copa segue no topo */
-  const ult=typeof cicloDaCopa==='function'&&anoDeEliminatorias(G.ano)&&!(cicH&&cicH.convidadas)?cicloDaCopa(G.ano-1,false):null;
-  const ultimaCopa=ult&&ult.copa&&ult.copa.fim?ult:null;
-  copaCicloMostrado=cicH&&cicH.copa?cicH:ultimaCopa;
-  const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
-  const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
-  return `<section class="card cp-hero">
-      <div class="cp-hero-in">
-        <div class="cp-trofeu${logo||taca?' img':''}" aria-hidden="true">${logo||taca?`<img src="${logo||taca}" alt="">`:typeof ico==='function'?ico('trofeu'):''}</div>
-        <div><div class="eyebrow">Valorant World Cup · ${s.edicao}ª edição</div>
-          <h1 class="cp-tit">${bandeira(s.pais)} ${esc(s.nome)} ${ano}</h1>
-          <p class="dim">${esc(fase)}${cid?`. A final é em ${esc(cid.nome)}`:''}. 32 seleções: 16 convidadas e 16 das eliminatórias, em 8 grupos de 4 (MD3); os dois primeiros avançam e o mata-mata é todo em MD5.</p></div>
-        ${cicH&&cicH.copa&&cicH.copa.fim?`<div class="cp-conta cp-campea">${bandeira(cicH.copa.podio[0])}<span>campeã ${ano}</span></div>`
-          :`<div class="cp-conta"><b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span></div>`}
-      </div></section>
-    ${cicH&&cicH.copa?cardCopaEmJogo(cicH,sel):ultimaCopa?cardCopaEmJogo(ultimaCopa,sel):''}
-    <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Ranking de países</div>
-        <table class="tbl cp-rank"><thead><tr><th>#</th><th>Seleção</th><th>Força</th><th>Pontos</th></tr></thead><tbody>
-        ${rk.map(x=>`<tr class="${x.pais===sel?'me':''}" data-copapais="${x.pais}" style="cursor:pointer"><td class="num">${x.pos}</td>
-          <td>${bandeira(x.pais)} <b>${esc(x.nome)}</b> <span class="dim">${x.sigla}</span>${x.pais===s.pais?' <span class="chip">sede</span>':''}${x.pos<=COPA_CONVITES?'':''}</td>
-          <td class="num">${forcaSelecao(x.pais)}</td><td class="num">${x.pts}</td></tr>`).join('')}</tbody></table>
-        <p class="dim">${cicH&&cicH.convidadas?`As convidadas saíram deste ranking no dia do sorteio (semana ${ELIM_SEM_SORTEIO}).`:`Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre).`} O ranking nasce da força do melhor cinco de cada país, anda com cada série entre seleções e, a cada virada de ano, um pouco em direção à força atual do elenco.</p></div>
-      ${cardConvocacao(sel)}
-    </div>
-    ${cardEliminatorias(ano,sel)}
-    ${cardCampeoes()}
-    ${cardAmistoso(sel)}`;
-}
-/* ---------- a Copa em jogo: pódio, mata-mata e grupos ---------- */
+function SEMANA_FINAL_COPA(){return typeof COPA_SEM_FINAL!=='undefined'?COPA_SEM_FINAL:SEMANAS_ANO;}
 function _sigSel(p){const i=infoSelecao(p);return i?i.sigla:p;}
-function cardCopaEmJogo(cic,sel){
-  const C=cic.copa;
-  const ed=C.fim?edicoesDaCopa().find(e=>e.ano===cic.ano):null;
-  const nomeJ=id=>ed&&ed.nomes[id]||(G.jogadores[id]||{}).nome||'—';
-  const podio=ed?`<div class="card cx-linha cp-podio">${cic.ano<G.ano?`<div class="cp-ultima">${esc(cic.nomeSede)} ${cic.ano} · a última Copa</div>`:''}
-      <div class="eyebrow">Pódio da World Cup ${cic.ano}</div>
-      <div class="cp-podio-l">${['ouro','prata','bronze'].map((m,i)=>`<div class="cp-pd cp-pd-${m}" data-copapais="${C.podio[i]}">
-        ${escudo(timeVisualSelecao(C.podio[i]),i?56:76)}<b>${esc(_nomeSel(C.podio[i]))}</b><span>${['Campeã','Vice','Bronze'][i]}</span></div>`).join('')}</div>
-      <div class="cp-premios">
-        <div><span class="eyebrow gold">MVP da Copa</span><b class="jrow" data-p="${ed.mvp}">${esc(nomeJ(ed.mvp))}</b></div>
-        <div><span class="eyebrow">Time ideal</span><span class="cp-ti">${ed.timeIdeal.map(id=>`<span class="jrow" data-p="${id}">${esc(nomeJ(id))}</span>`).join('<i>·</i>')}</span></div>
-        ${ed.tecnicoCampeao?`<div><span class="eyebrow">Técnico campeão</span><b>${esc(ed.nomes[ed.tecnicoCampeao]||'')}</b></div>`:''}
-      </div></div>`:'';
-  const jogo=(j,chave)=>{
-    if(!j)return `<div class="cp-mm-j vazio"><span class="dim">a definir</span></div>`;
-    const f=j.f, l=(p,w)=>`<div class="cp-mm-l ${f&&f.v===p?'w':''} ${p===sel?'me':''}">${bandeira(p)} <b>${esc(_sigSel(p))}</b>${f?`<span class="num">${w}</span>`:''}</div>`;
-    return `<div class="cp-mm-j" ${f?`data-cpcopa="${chave}" style="cursor:pointer"`:''}>${l(j.a,f&&f.wa)}${l(j.b,f&&f.wb)}${j.orig&&!f?`<div class="dim cp-mm-o">${esc(j.orig)}</div>`:''}</div>`;
-  };
-  const col=(fase,n,tit)=>`<div class="cp-mm-c"><div class="cp-mm-t">${tit}</div>${Array.from({length:n},(x,i)=>jogo((C.mata[fase]||[])[i],'m|'+fase+'|'+i)).join('')}</div>`;
-  const mata=`<div class="card cx-linha"><div class="eyebrow">Mata-mata · MD5</div>
-    <div class="cp-mm">${col('oitavas',8,'Oitavas')}${col('quartas',4,'Quartas')}${col('semis',2,'Semifinais')}
-      <div class="cp-mm-c">${'<div class="cp-mm-t">Final</div>'+jogo((C.mata.final||[])[0],'m|final|0')+'<div class="cp-mm-t">Bronze</div>'+jogo((C.mata.bronze||[])[0],'m|bronze|0')}</div></div>
-    ${C.mata.oitavas?'':`<p class="dim">Oitavas na semana ${COPA_SEM_OITAVAS}: o 1º de cada grupo enfrenta o 2º do grupo vizinho.</p>`}</div>`;
-  const grupos=`<div class="card cx-linha"><div class="eyebrow">Fase de grupos · MD3</div><div class="cp-grupos">${C.grupos.map(g=>{
-      const t=linhasDoGrupo(g,cic.pontosCopa), passou=g.classificados||[];
-      return `<div class="cp-grupo cp-grupo-t"><div class="cp-g-tit">Grupo ${g.letra}</div>
-        <table class="tbl cp-g-tab"><thead><tr><th></th><th class="c">V</th><th class="c">D</th><th class="c">Mapas</th></tr></thead><tbody>
-        ${t.map(x=>`<tr class="${x.pais===sel?'me':''} ${passou.includes(x.pais)?'cp-passou':''}" data-copapais="${x.pais}" style="cursor:pointer">
-          <td>${bandeira(x.pais)} <b>${esc(_sigSel(x.pais))}</b></td><td class="c num">${x.v}</td><td class="c num">${x.d}</td><td class="c num">${x.mp}:${x.mc}</td></tr>`).join('')}</tbody></table>
-        ${(g.jogos||[]).length?`<div class="cp-g-jogos">${g.jogos.map((f,i)=>`<span class="cp-jogo" data-cpcopa="g|${g.letra}|${i}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
-          :`<div class="dim cp-g-jogos">Rodadas 1 e 2 na semana ${COPA_SEM_R12}, rodada 3 na ${COPA_SEM_R3}.</div>`}</div>`;}).join('')}</div></div>`;
-  return podio+mata+grupos;
-}
-function cardCampeoes(){
-  const eds=edicoesDaCopa();
-  if(!eds.length)return '';
-  return `<div class="card cx-linha"><div class="eyebrow">Campeões da World Cup</div>
-    <table class="tbl"><thead><tr><th>Ano</th><th>Sede</th><th>Campeã</th><th class="c">Final</th><th>Vice</th><th>Bronze</th><th>MVP</th></tr></thead><tbody>
-    ${eds.slice().reverse().map(e=>{const fv=e.final.v===e.final.a?e.final.wa+'–'+e.final.wb:e.final.wb+'–'+e.final.wa;
-      return `<tr><td class="num">${e.ano}</td><td>${bandeira(e.sede)} ${esc(e.nomeSede)}</td>
-      <td>${bandeira(e.campeao)} <b>${esc(_nomeSel(e.campeao))}</b></td><td class="c num" data-cpfinal="${e.ano}" style="cursor:pointer"><b>${fv}</b></td>
-      <td>${bandeira(e.vice)} ${esc(_nomeSel(e.vice))}</td><td>${bandeira(e.bronze)} ${esc(_nomeSel(e.bronze))}</td>
-      <td>${e.mvp?`<span class="jrow" data-p="${e.mvp}">${esc(e.nomes[e.mvp]||'')}</span>`:'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
-}
-/* ---------- amistoso: a partida de seleção, sem valer nada ----------
-   Joga no motor dos clubes com sorteio próprio: não mexe no mundo nem no
-   ranking. Serve para ver duas seleções em quadra antes da Copa. */
-let copaAdv=null;
 function timeVisualSelecao(pais){
   const i=infoSelecao(pais)||{nome:pais,sigla:pais};
   return{nome:i.nome,tag:i.sigla,logo:ASSETS.logoSelecao(pais)||ASSETS.bandeira(pais)||''};
 }
+
+/* ---------- o contexto da tela ---------- */
+function _ctxCopa(){
+  garantirCopa();
+  const ano=proximaCopa(G.ano), s=sedeDoAno(ano);
+  const cic=cicloDaCopa(ano,false);
+  /* no ano seguinte, até o sorteio das eliminatórias, a última Copa segue no topo */
+  const ult=anoDeEliminatorias(G.ano)&&!(cic&&cic.convidadas)?cicloDaCopa(G.ano-1,false):null;
+  const ultima=ult&&ult.copa&&ult.copa.fim?ult:null;
+  const meuPais=typeof meuJogador==='function'&&meuJogador()?meuJogador().pais:null;
+  const rk=rankingPaises();
+  const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
+  copaSelAtual=sel;
+  copaCicloMostrado=cic&&cic.copa?cic:ultima;
+  const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
+  return{ano,s,cic,ultima,sel,rk,cid,meuPais};
+}
+/* a etapa do ciclo, para a linha da capa e o texto */
+function _etapasCopa(x){
+  const{ano,cic}=x, el=ano-1;
+  const feito=k=>({elim:!!(cic&&cic.classificados),sorteio:!!(cic&&cic.copa),grupos:!!(cic&&cic.copa&&cic.copa.mata.oitavas),
+    mata:!!(cic&&cic.copa&&cic.copa.mata.semis),final:!!(cic&&cic.copa&&cic.copa.fim)})[k];
+  const l=[['elim','Eliminatórias',`fim de ${el} · sem. ${ELIM_SEM_SORTEIO}–${ELIM_SEM_CLASSIFICADOS}`],
+    ['sorteio','Sorteio',`${ano} · sem. ${COPA_SEM_SORTEIO}`],['grupos','Grupos',`sem. ${COPA_SEM_R12}–${COPA_SEM_R3} · MD3`],
+    ['mata','Oitavas e quartas',`sem. ${COPA_SEM_OITAVAS} · MD5`],['final','Semis, bronze e final',`sem. ${COPA_SEM_FINAL} · MD5`]];
+  const atual=l.findIndex(([k])=>!feito(k));
+  return l.map(([k,n,q],i)=>({k,n,q,feito:feito(k),agora:i===atual}));
+}
+function _textoFase(x){
+  const{ano,cic}=x, el=ano-1;
+  if(cic&&cic.copa&&cic.copa.fim)return `${_nomeSel(cic.copa.podio[0])} é a campeã do mundo`;
+  if(cic&&cic.copa&&cic.copa.mata.oitavas)return 'Mata-mata em andamento';
+  if(cic&&cic.copa&&cic.copa.convocados)return 'Fase de grupos em andamento';
+  if(cic&&cic.copa)return `Grupos sorteados · a Copa começa na semana ${COPA_SEM_R12}`;
+  if(cic&&cic.classificados)return `Os 32 estão definidos · sorteio dos grupos na semana ${COPA_SEM_SORTEIO} de ${ano}`;
+  if(cic&&cic.grupos)return 'Eliminatórias em andamento';
+  if(G.ano<el)return `Eliminatórias no fim de ${el}`;
+  return `Eliminatórias no fim desta temporada · convites e sorteio na semana ${ELIM_SEM_SORTEIO}`;
+}
+
+/* ---------- a capa ---------- */
+function capaCopa(x){
+  const{ano,s,cic,cid}=x;
+  const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
+  const falta=semanasAteFinalDaCopa(), fim=cic&&cic.copa&&cic.copa.fim;
+  const fundo=cid?`background-image:linear-gradient(90deg,rgba(9,14,19,.96) 0%,rgba(9,14,19,.82) 42%,rgba(9,14,19,.55) 100%),radial-gradient(60% 90% at 82% 20%,rgba(226,180,90,.28),transparent 70%),${urlCSS(ASSETS.cidade(cid.slug))};background-size:cover;background-position:center`:'';
+  const et=_etapasCopa(x);
+  return `<section class="cpx-capa" style="${fundo}">
+    <div class="cpx-capa-in">
+      <div class="cpx-logo">${logo?`<img src="${logo}" alt="Logo da World Cup ${ano}">`:ico('trofeu')}</div>
+      <div class="cpx-capa-txt">
+        <div class="cpx-eyebrow">Valorant World Cup · ${s.edicao}ª edição</div>
+        <h1 class="cpx-tit">${esc(s.nome)} <span>${ano}</span></h1>
+        <div class="cpx-sub">${bandeira(s.pais)} ${cid?`Final em <b>${esc(cid.nome)}</b> · `:''}32 seleções · 8 grupos de 4</div>
+        <div class="cpx-fase">${esc(_textoFase(x))}</div>
+      </div>
+      <div class="cpx-conta">${fim?`${escudoSelecao(cic.copa.podio[0],64)}<span>campeã ${ano}</span>`
+        :`<b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span>`}</div>
+      ${taca?`<img class="cpx-taca" src="${taca}" alt="">`:''}
+    </div>
+    <ol class="cpx-etapas">${et.map(e=>`<li class="${e.feito?'feito':''} ${e.agora?'agora':''}"><i></i><b>${e.n}</b><span>${e.q}</span></li>`).join('')}</ol>
+  </section>`;
+}
+
+/* ---------- a tela ---------- */
+function vCopa(){
+  const x=_ctxCopa();
+  const corpo=copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
+    :copaAba==='ranking'?abaRanking(x):copaAba==='campeoes'?abaCampeoes(x):copaAba==='amistoso'?cardAmistoso(x.sel):abaGeral(x);
+  return capaCopa(x)+`<div class="tabs cpx-abas">${COPA_ABAS.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''}">${n}</button>`).join('')}</div>`+corpo;
+}
+
+/* ---------- visão geral ---------- */
+function abaGeral(x){
+  const cic=copaCicloMostrado;
+  const ed=cic&&cic.copa&&cic.copa.fim?edicoesDaCopa().find(e=>e.ano===cic.ano):null;
+  return `${ed?cardFinalEspecial(cic,ed):''}
+    <div class="cpx-g2">${cardSelecao(x)}${cardUltimosJogos(x)}</div>
+    ${cic&&cic.copa&&!ed?cardChaveCompacta(cic,x.sel):''}`;
+}
+/* a final em destaque: a taça, a campeã, o placar, o MVP e o pódio */
+function cardFinalEspecial(cic,ed){
+  const f=ed.final, pro=f.v===f.a?f.wa:f.wb, contra=f.v===f.a?f.wb:f.wa;
+  const nome=id=>ed.nomes[id]||(G.jogadores[id]||{}).nome||'—';
+  const pm=ed.mvp&&G.jogadores[ed.mvp], taca=ASSETS.copa('trofeu');
+  const premio=k=>ASSETS.copa('premio-'+k);
+  return `<section class="cpx-final" style="${fundoDaSede(cic,.86)}">
+    <div class="cpx-final-topo"><span>${cic.ano<G.ano?'A última Copa · ':''}World Cup ${cic.ano} · ${esc(cic.nomeSede)}</span>
+      <button class="btn ghost sm" data-cpmomento="campea|${cic.ano}">Rever a final</button></div>
+    <div class="cpx-final-in">
+      <div class="cpx-final-taca">${taca?`<img src="${taca}" alt="">`:''}</div>
+      <div class="cpx-final-meio">
+        <div class="cpx-eyebrow">Campeã do mundo</div>
+        <div class="cpx-final-campea">${escudoSelecao(ed.campeao,96)}<h2>${esc(_nomeSel(ed.campeao))}</h2></div>
+        <div class="cpx-final-placar" data-cpfinal="${ed.ano}">${escudoSelecao(ed.campeao,30)}<b class="num">${pro}</b><i>×</i><b class="num">${contra}</b>${escudoSelecao(ed.vice,30)}
+          <span>final contra ${esc(_nomeSel(ed.vice))} · ver a ficha</span></div>
+        <div class="cpx-podio">
+          ${[['ouro',ed.campeao,'Campeã'],['prata',ed.vice,'Vice'],['bronze',ed.bronze,'Bronze']].map(([m,p,r])=>`<div class="cpx-pd cpx-pd-${m}" data-copapais="${p}">
+            <span class="cpx-med ${m}"></span>${escudoSelecao(p,32)}<b>${esc(_nomeSel(p))}</b><em>${r}</em></div>`).join('')}
+        </div>
+      </div>
+      <div class="cpx-final-premios">
+        <div class="cpx-premio">${premio('mvp')?`<img src="${premio('mvp')}" alt="">`:''}<div><span>MVP da Copa</span>
+          ${pm?`<b class="jrow" data-p="${pm.id}">${esc(pm.nome)}</b><em>${bandeira(pm.pais)} ${esc(pm.role)}</em>`:`<b>${esc(nome(ed.mvp))}</b>`}</div></div>
+        <div class="cpx-premio">${premio('time-ideal')?`<img src="${premio('time-ideal')}" alt="">`:''}<div><span>Time ideal</span>
+          <div class="cpx-ti">${ed.timeIdeal.map(id=>`<b class="${G.jogadores[id]?'jrow':''}" data-p="${id}">${esc(nome(id))}</b>`).join('')}</div></div></div>
+        ${ed.tecnicoCampeao?`<div class="cpx-premio">${premio('treinador')?`<img src="${premio('treinador')}" alt="">`:''}<div><span>Técnico campeão</span><b>${esc(ed.nomes[ed.tecnicoCampeao]||'')}</b></div></div>`:''}
+      </div>
+    </div></section>`;
+}
+/* a seleção aberta: escudo, situação, comissão e convocação */
+function _situacao(x,pais){
+  const cic=x.cic, ed=x.ultima&&edicoesDaCopa().find(e=>e.ano===x.ultima.ano);
+  if(cic&&cic.copa){
+    const C=cic.copa;
+    if(C.fim){const i=C.podio.indexOf(pais);return i===0?['ouro','Campeã do mundo']:i===1?['prata','Vice-campeã']:i===2?['bronze','Bronze']:i===3?['','4º lugar']:cic.classificados.includes(pais)?['','Jogou a Copa']:['fora','Fora da Copa'];}
+    const vivo=(()=>{for(const k of ['final','semis','quartas','oitavas']){const l=C.mata[k];if(l)return l.some(j=>(j.a===pais||j.b===pais)&&(!j.f||j.f.v===pais));}
+      return cic.classificados.includes(pais);})();
+    return cic.classificados.includes(pais)?(vivo?['vivo','Na disputa']:['fora','Eliminada']):['fora','Fora da Copa'];
+  }
+  const s=situacaoNoCiclo(cic,pais);
+  if(s==='convidada')return['vivo','Convidada'];
+  if(s==='classificada')return['vivo','Classificada'];
+  if(s==='fora')return['fora','Fora da Copa'];
+  if(s==='eliminatorias')return['','Nas eliminatórias'];
+  if(ed&&ed.campeao===pais)return['ouro','Campeã de '+ed.ano];
+  x.convHoje=x.convHoje||convidadasDaCopa(x.ano);
+  return x.convHoje.includes(pais)?['','Convidada se fosse hoje']:['','Iria às eliminatórias'];
+}
+function cardSelecao(x){
+  const pais=x.sel, info=infoSelecao(pais);if(!info)return '';
+  const C=x.cic&&x.cic.copa, cv=C&&C.convocados&&C.convocados[pais];
+  const c=cv||convocacao(pais), rk=x.rk.find(r=>r.pais===pais);
+  const com=comissaoDaSelecao(pais), tec=com.tecnico&&G.staff[com.tecnico], ana=com.analista&&G.staff[com.analista];
+  const [cls,sit]=_situacao(x,pais), tit=titulosMundiais(pais);
+  const linha=(id,t)=>{const p=G.jogadores[id];if(!p)return '';const cl=p.timeId&&G.times[p.timeId];
+    return `<div class="cpx-conv-j jrow ${t?'tit':''}" data-p="${p.id}">${retrato(p,34)}<div><b>${esc(p.nome)}${p.voce?' <span class="chip up">você</span>':''}</b>
+      <span>${esc(p.roleAtual&&t?p.role:p.role)} · ${cl?esc(cl.tag||cl.nome):p.base?'base':'sem clube'}</span></div><em class="num">${over(p)}</em></div>`;};
+  const pessoa=(m,rot)=>m?`<div class="cpx-staff">${retratoStaff(m,34)}<div><span>${rot}</span><b>${esc(m.nome)}</b><em>${bandeira(m.pais)} ${m.pais===pais?'do país':'estrangeiro'}</em></div></div>`:'';
+  const outras=x.rk.filter(r=>r.pais!==pais);
+  return `<div class="card cpx-sel">
+    <div class="cpx-sel-topo">${escudoSelecao(pais,84)}<div>
+      <div class="cpx-eyebrow">${bandeira(pais)} ${esc(info.sigla)} · ${esc(COPA_CONTINENTES[info.cont])}</div>
+      <h2>${esc(info.nome)}</h2>
+      <div class="cpx-sel-chips"><span class="cpx-sit ${cls}">${esc(sit)}</span><span>${rk?rk.pos+'º no ranking · '+rk.pts+' pts':''}</span>${tit?`<span class="cpx-tit-m">${'★'.repeat(Math.min(tit,5))} ${tit} título${tit>1?'s':''}</span>`:''}</div></div>
+      <select class="cpx-sel-troca" data-cptroca>${[x.rk.find(r=>r.pais===pais)].concat(outras).map(r=>`<option value="${r.pais}" ${r.pais===pais?'selected':''}>${esc(r.nome)}</option>`).join('')}</select></div>
+    <div class="cpx-staffs">${pessoa(tec,'Técnico')}${pessoa(ana,'Analista')}</div>
+    <div class="cpx-eyebrow">${cv?'Convocação da Copa':'Convocação de hoje'} · ${c?c.titulares.length+c.reservas.length:0} jogadores</div>
+    ${c?`<div class="cpx-conv"><div class="cpx-conv-col"><span class="cpx-rot">Titulares</span>${c.titulares.map(i=>linha(i,true)).join('')}</div>
+      <div class="cpx-conv-col"><span class="cpx-rot">Reservas</span>${c.reservas.map(i=>linha(i,false)).join('')}</div></div>
+      <p class="dim cpx-nota">Força do melhor cinco: <b>${forcaSelecao(pais,c)}</b>. ${convocaveis(pais).length} convocáveis no mundo${cv?'; a convocação ficou fixa no início da Copa':'; o cinco sai da mesma conta da escalação dos clubes'}.</p>`
+      :vazio(`<b>${esc(info.nome)} não tem 7 jogadores agora.</b>`,'elenco')}
+  </div>`;
+}
+/* os jogos mais recentes do ciclo, da seleção aberta primeiro */
+function _jogosDoCiclo(cic){
+  if(!cic)return [];
+  const l=[];
+  for(const g of cic.grupos||[])for(const f of g.jogos||[])l.push(f);
+  if(cic.copa){for(const g of cic.copa.grupos)for(const f of g.jogos||[])l.push(f);
+    for(const [k] of COPA_FASES)for(const j of cic.copa.mata[k]||[])if(j.f)l.push(j.f);}
+  return l;
+}
+function cardUltimosJogos(x){
+  const cic=x.cic&&(x.cic.copa||x.cic.grupos)?x.cic:x.ultima;
+  const todos=_jogosDoCiclo(cic);
+  const meus=todos.filter(f=>f.a===x.sel||f.b===x.sel).slice(-6).reverse();
+  const outros=todos.slice(-8).reverse();
+  const linha=f=>`<div class="cpx-jogo ${f.det&&f.det.mp&&f.det.mp.length?'':'sem'}" ${f.det?`data-cpjogo="${_chaveJogo(cic,f)}"`:''}>
+    <span class="cpx-j-fase">${esc(f.fase||'')}</span>
+    <span class="cpx-j-l ${f.v===f.a?'w':''}">${escudoSelecao(f.a,22)}${esc(_sigSel(f.a))}</span><b class="num">${f.wa}–${f.wb}</b>
+    <span class="cpx-j-l r ${f.v===f.b?'w':''}">${esc(_sigSel(f.b))}${escudoSelecao(f.b,22)}</span></div>`;
+  return `<div class="card cpx-jogos"><div class="cpx-eyebrow">${cic?'Jogos · '+(cic.copa?'World Cup ':'Eliminatórias · Copa ')+cic.ano:'Jogos'}</div>
+    ${meus.length?`<div class="cpx-rot">${esc(_nomeSel(x.sel))}</div>${meus.map(linha).join('')}`:''}
+    ${outros.length?`<div class="cpx-rot">${meus.length?'Os mais recentes':'Os mais recentes do ciclo'}</div>${outros.map(linha).join('')}`
+      :`<div class="cpx-vazio">${ico('jogar')}<b>Nenhum jogo de seleção ainda.</b><span>As eliminatórias começam na semana ${ELIM_SEM_RODADA1} de ${x.ano-1}. Enquanto isso, dá para jogar um amistoso.</span>
+        <button class="btn ghost sm" data-cpaba="amistoso">Jogar um amistoso</button></div>`}
+  </div>`;
+}
+function _chaveJogo(cic,f){
+  for(const g of cic.grupos||[]){const i=(g.jogos||[]).indexOf(f);if(i>=0)return 'e|'+g.letra+'|'+i+'|'+cic.ano;}
+  if(cic.copa){for(const g of cic.copa.grupos){const i=(g.jogos||[]).indexOf(f);if(i>=0)return 'g|'+g.letra+'|'+i+'|'+cic.ano;}
+    for(const [k] of COPA_FASES){const i=(cic.copa.mata[k]||[]).findIndex(j=>j.f===f);if(i>=0)return 'm|'+k+'|'+i+'|'+cic.ano;}}
+  return '';
+}
+function _abrirJogo(chave){
+  const [t,k,i,ano]=chave.split('|');const cic=cicloDaCopa(+ano,false);if(!cic)return;
+  if(t==='e'){const g=(cic.grupos||[]).find(x=>x.letra===k);if(g&&g.jogos)modalSerieSelecao(g.jogos[+i]);return;}
+  const C=cic.copa;if(!C)return;
+  if(t==='g'){const g=C.grupos.find(x=>x.letra===k);if(g&&g.jogos)modalSerieSelecao(g.jogos[+i]);return;}
+  const j=(C.mata[k]||[])[+i];
+  if(j&&j.f&&j.f.det)modalSerieSelecao(j.f);
+  else if(k==='final'){const e=edicoesDaCopa().find(z=>z.ano===cic.ano);if(e)modalSerieSelecao(e.final);}
+}
+
+/* ---------- chave ---------- */
+function abaChave(x){
+  const cic=copaCicloMostrado;
+  if(cic&&cic.copa)return cardChave(cic,x.sel)+cardGruposCopa(cic,x.sel);
+  return cardEliminatorias(x.ano,x.sel);
+}
+function _jogoChave(j,chave,sel,grande){
+  if(!j)return `<div class="cpx-mm-j vazio"><div class="cpx-mm-l"><i></i><span>a definir</span></div><div class="cpx-mm-l"><i></i><span>a definir</span></div></div>`;
+  const f=j.f, l=(p,w)=>`<div class="cpx-mm-l ${f&&f.v===p?'w':f?'l':''} ${p===sel?'me':''}">${escudoSelecao(p,grande?34:22)}<span>${esc(grande?_nomeSel(p):_sigSel(p))}</span>${f?`<b class="num">${w}</b>`:''}</div>`;
+  return `<div class="cpx-mm-j ${grande?'grande':''}" ${f?`data-cpjogo="${chave}"`:''}>${l(j.a,f&&f.wa)}${l(j.b,f&&f.wb)}${j.orig&&!f?`<div class="cpx-mm-o">${esc(j.orig)}</div>`:''}</div>`;
+}
+/* a chave em duas metades que se encontram na final, como no pôster */
+function cardChave(cic,sel){
+  const C=cic.copa, M=C.mata, k=(f,i)=>'m|'+f+'|'+i+'|'+cic.ano, taca=ASSETS.copa('trofeu');
+  const col=(fase,ids,tit)=>`<div class="cpx-mm-c cpx-mm-${fase}"><div class="cpx-mm-t">${tit}</div>${ids.map(i=>_jogoChave((M[fase]||[])[i],k(fase,i),sel)).join('')}</div>`;
+  const fin=(M.final||[])[0], br=(M.bronze||[])[0];
+  return `<section class="cpx-chave" style="${fundoDaSede(cic,.9)}">
+    <div class="cpx-chave-topo"><div class="cpx-eyebrow">Mata-mata · MD5</div>
+      ${C.fim?`<button class="btn ghost sm" data-cpmomento="campea|${cic.ano}">Rever a final</button>`:''}</div>
+    <div class="cpx-mm">
+      ${col('oitavas',[0,1,2,3],'Oitavas')}${col('quartas',[0,1],'Quartas')}${col('semis',[0],'Semifinal')}
+      <div class="cpx-mm-c cpx-mm-centro">
+        ${taca?`<img class="cpx-mm-taca" src="${taca}" alt="">`:''}
+        <div class="cpx-mm-t ouro">Final · ${esc((cidadeDaCopa(cic.sede)||{}).nome||cic.nomeSede)}</div>
+        ${_jogoChave(fin,k('final',0),sel,true)}
+        <div class="cpx-mm-t">Disputa do bronze</div>${_jogoChave(br,k('bronze',0),sel)}
+      </div>
+      ${col('semis',[1],'Semifinal')}${col('quartas',[2,3],'Quartas')}${col('oitavas',[4,5,6,7],'Oitavas')}
+    </div>
+    ${M.oitavas?'':`<p class="dim cpx-nota">Oitavas na semana ${COPA_SEM_OITAVAS}: o 1º de cada grupo enfrenta o 2º do grupo vizinho, e as duas metades só se cruzam na final.</p>`}
+  </section>`;
+}
+function cardChaveCompacta(cic,sel){return cardChave(cic,sel);}
+function cardGruposCopa(cic,sel){
+  const C=cic.copa;
+  return `<div class="card cx-linha"><div class="cpx-eyebrow">Fase de grupos · MD3 · os dois primeiros avançam</div>
+    <div class="cpx-grupos">${C.grupos.map(g=>{
+      const t=linhasDoGrupo(g,cic.pontosCopa), passou=g.classificados||[];
+      return `<div class="cpx-grupo"><div class="cpx-grupo-l">Grupo <b>${g.letra}</b></div>
+        ${t.map((r,i)=>`<div class="cpx-gl ${r.pais===sel?'me':''} ${passou.includes(r.pais)?'passou':passou.length?'caiu':''}" data-copapais="${r.pais}">
+          <span class="cpx-gl-p">${i+1}</span>${escudoSelecao(r.pais,26)}<b>${esc(_nomeSel(r.pais))}</b>
+          <span class="num">${r.v}-${r.d}</span><span class="num dim">${r.mp}:${r.mc}</span></div>`).join('')}
+        ${(g.jogos||[]).length?`<div class="cpx-g-jogos">${g.jogos.map((f,i)=>`<span data-cpjogo="g|${g.letra}|${i}|${cic.ano}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
+          :`<div class="cpx-g-jogos dim">Rodadas 1 e 2 na semana ${COPA_SEM_R12}, rodada 3 na ${COPA_SEM_R3}.</div>`}
+      </div>`;}).join('')}</div>
+    ${C.convocados?'':`<div class="cpx-acoes"><button class="btn ghost sm" data-cpmomento="sorteio|${cic.ano}">Rever o sorteio</button></div>`}</div>`;
+}
+/* eliminatórias: o sorteio de verdade ou a simulação "se fosse hoje" */
+function cardEliminatorias(ano,sel){
+  const cic=cicloDaCopa(ano,false), sorteado=!!(cic&&cic.grupos);
+  const conv=sorteado?cic.convidadas:convidadasDaCopa(ano);
+  const grupos=sorteado?cic.grupos:gruposEliminatorias(ano).map(g=>Object.assign({jogos:[]},g));
+  const chip=p=>`<span class="cpx-chip ${p===sel?'me':''}" data-copapais="${p}">${escudoSelecao(p,22)}${esc(_nomeSel(p))}</span>`;
+  return `<div class="card cx-linha cpx-elim"><div class="cpx-eyebrow">${!sorteado?'Eliminatórias · se o sorteio fosse hoje':cic.classificados?'Eliminatórias · os 32 classificados':'Eliminatórias'}</div>
+    <p class="dim">${sorteado
+      ?`Sorteio feito na semana ${ELIM_SEM_SORTEIO}. Grupos de 3 em MD3, todos contra todos; os dois primeiros vão à Copa. Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto e ranking.`
+      :`A sede e as 15 melhores do ranking vão direto. As outras 24 jogam no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa. O sorteio é na semana ${ELIM_SEM_SORTEIO}.`}</p>
+    <div class="cpx-linha-chips"><span class="cpx-rot">Convidadas</span>${conv.map(chip).join('')}</div>
+    ${cic&&cic.classificados?`<div class="cpx-linha-chips"><span class="cpx-rot">Das eliminatórias</span>${cic.dasEliminatorias.map(chip).join('')}</div>`:''}
+    <div class="cpx-grupos">${grupos.map(g=>{
+      const t=sorteado?linhasDoGrupo(g,cic.pontosNoSorteio):g.paises.map(p=>({pais:p,v:0,d:0,mp:0,mc:0}));
+      const passou=g.classificados||[];
+      return `<div class="cpx-grupo"><div class="cpx-grupo-l">Grupo <b>${g.letra}</b> <span>${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
+        ${t.map((r,i)=>`<div class="cpx-gl ${r.pais===sel?'me':''} ${passou.includes(r.pais)?'passou':passou.length?'caiu':''}" data-copapais="${r.pais}">
+          <span class="cpx-gl-p">${i+1}</span>${escudoSelecao(r.pais,26)}<b>${esc(_nomeSel(r.pais))}</b>
+          ${sorteado&&(g.jogos||[]).length?`<span class="num">${r.v}-${r.d}</span><span class="num dim">${r.mp}:${r.mc}</span>`:''}</div>`).join('')}
+        ${(g.jogos||[]).length?`<div class="cpx-g-jogos">${g.jogos.map((f,i)=>`<span data-cpjogo="e|${g.letra}|${i}|${ano}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
+          :sorteado?`<div class="cpx-g-jogos dim">Jogos nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</div>`:''}
+      </div>`;}).join('')}</div>
+    ${sorteado?`<div class="cpx-acoes"><button class="btn ghost sm" data-cpmomento="convidadas|${ano}">Rever as convidadas</button>
+      ${cic.classificados?`<button class="btn ghost sm" data-cpmomento="classificados|${ano}">Rever os classificados</button>`:''}</div>`:''}
+  </div>`;
+}
+
+/* ---------- as 40 seleções ---------- */
+function abaSelecoes(x){
+  const cic=x.cic;
+  const grupos=[['vivo','Na Copa'],['','Nas eliminatórias'],['fora','Fora'],['','No ciclo']];
+  const sit=p=>_situacao(x,p);
+  const lad=r=>{const [c,t]=sit(r.pais);const tit=titulosMundiais(r.pais);
+    return `<div class="cpx-lad ${r.pais===x.sel?'me':''}" data-copapais="${r.pais}" data-cpaba="geral">
+      ${escudoSelecao(r.pais,64)}<b>${esc(r.nome)}</b><span>${bandeira(r.pais)} ${esc(r.sigla)} · ${r.pos}º</span>
+      <em class="cpx-sit ${c}">${esc(t)}</em>${tit?`<i class="cpx-lad-t">${'★'.repeat(Math.min(tit,5))}</i>`:''}</div>`;};
+  const porCont=Object.keys(COPA_CONTINENTES).map(k=>[k,x.rk.filter(r=>r.cont===k)]);
+  return `<div class="card cx-linha"><div class="cpx-eyebrow">As 40 seleções · ${cic&&cic.classificados?'32 na Copa '+x.ano:'ciclo da Copa '+x.ano}</div>
+    ${porCont.map(([k,l])=>`<div class="cpx-cont"><div class="cpx-cont-t">${esc(COPA_CONTINENTES[k])} <span>${l.length}</span></div>
+      <div class="cpx-lads">${l.map(lad).join('')}</div></div>`).join('')}</div>`;
+}
+
+/* ---------- estatísticas ---------- */
+function abaStats(x){
+  const cic=copaCicloMostrado||x.cic;
+  const naCopa=!!(cic&&cic.copa);
+  const jogos=naCopa?jogosDaCopa(cic):_jogosDoCiclo(cic).filter(f=>f.det);
+  const S=Object.values(statsDeJogos(jogos)).filter(s=>G.jogadores[s.id]);
+  if(!S.length)return `<div class="card cx-linha"><div class="cpx-vazio">${ico('grafico')}<b>Ainda não há números.</b><span>Os líderes aparecem quando as seleções entrarem em quadra: eliminatórias no fim de ${x.ano-1}, Copa no fim de ${x.ano}.</span></div></div>`;
+  const min=Math.max(2,Math.round(Math.max(...S.map(s=>s.maps))*0.4));
+  const tabela=(tit,campo,fmt,filtro)=>{
+    const l=S.filter(filtro||(()=>true)).sort((a,b)=>b[campo]-a[campo]).slice(0,8);
+    return `<div class="card cpx-lider"><div class="cpx-eyebrow">${tit}</div>${l.map((s,i)=>{const p=G.jogadores[s.id];
+      return `<div class="cpx-lid jrow ${i===0?'top':''}" data-p="${s.id}"><span class="cpx-lid-p">${i+1}</span>${retrato(p,i?30:42)}
+        <div><b>${esc(p.nome)}</b><span>${bandeira(s.pais)} ${esc(_sigSel(s.pais))} · ${s.maps} mapas</span></div><em class="num">${fmt(s[campo])}</em></div>`;}).join('')}</div>`;};
+  /* seleções: mapas e rounds */
+  const T={};
+  for(const f of jogos){for(const [p,w,l] of [[f.a,f.wa,f.wb],[f.b,f.wb,f.wa]]){const t=T[p]=T[p]||{pais:p,s:0,v:0,mp:0,mc:0,rp:0,rc:0};t.s++;if(f.v===p)t.v++;t.mp+=w;t.mc+=l;}
+    for(const m of (f.det&&f.det.mp)||[]){T[f.a].rp+=m.a;T[f.a].rc+=m.b;T[f.b].rp+=m.b;T[f.b].rc+=m.a;}}
+  const tl=Object.values(T).sort((a,b)=>b.v-a.v||(b.mp-b.mc)-(a.mp-a.mc)).slice(0,12);
+  return `<div class="cpx-stats-cab"><div class="cpx-eyebrow">${naCopa?'World Cup '+cic.ano:'Eliminatórias · Copa '+cic.ano} · ${jogos.length} séries · ${jogos.reduce((s,f)=>s+((f.det&&f.det.mp)||[]).length,0)} mapas</div></div>
+    <div class="cpx-g3">
+      ${tabela('Kills','k',v=>v)}
+      ${tabela('ACS médio','acsM',v=>Math.round(v),s=>s.maps>=min)}
+      ${tabela('K/D','kd',v=>v.toFixed(2),s=>s.maps>=min)}
+    </div>
+    <div class="cpx-g2">
+      ${tabela('MVP de série','mvp',v=>v,s=>s.mvp>0)}
+      <div class="card cpx-lider"><div class="cpx-eyebrow">Seleções</div>
+        <table class="tbl"><thead><tr><th></th><th class="c">Séries</th><th class="c">V</th><th class="c">Mapas</th><th class="c">Rounds</th></tr></thead><tbody>
+        ${tl.map(t=>`<tr data-copapais="${t.pais}" style="cursor:pointer"><td>${escudoSelecao(t.pais,22)} <b>${esc(_nomeSel(t.pais))}</b></td><td class="c num">${t.s}</td><td class="c num">${t.v}</td>
+          <td class="c num">${t.mp}:${t.mc}</td><td class="c num">${t.rp}:${t.rc}</td></tr>`).join('')}</tbody></table></div>
+    </div>`;
+}
+
+/* ---------- ranking ---------- */
+function abaRanking(x){
+  const c=garantirCopa(), antes=c.rankingUltimaEdicao||{};
+  const linha=r=>{const d=antes[r.pais]!=null?r.pts-antes[r.pais]:0, tit=titulosMundiais(r.pais), [cls,sit]=_situacao(x,r.pais);
+    return `<tr class="${r.pais===x.sel?'me':''}" data-copapais="${r.pais}" style="cursor:pointer">
+      <td class="num cpx-rk-p">${r.pos}</td><td><span class="cpx-rk-s">${escudoSelecao(r.pais,30)}<span><b>${esc(r.nome)}</b><em>${bandeira(r.pais)} ${esc(r.sigla)} · ${esc(COPA_CONTINENTES[r.cont])}</em></span></span></td>
+      <td class="num">${forcaSelecao(r.pais)}</td><td class="num"><b>${r.pts}</b></td>
+      <td class="num ${d>0?'up':d<0?'dn':'dim'}">${d>0?'▲ '+d:d<0?'▼ '+(-d):'—'}</td>
+      <td class="cpx-rk-t">${tit?'★'.repeat(Math.min(tit,5))+(tit>5?' '+tit:''):''}</td><td><span class="cpx-sit ${cls}">${esc(sit)}</span></td></tr>`;};
+  return `<div class="card cx-linha"><div class="cpx-eyebrow">Ranking de países</div>
+    <table class="tbl cpx-rk"><thead><tr><th>#</th><th>Seleção</th><th>Força</th><th>Pontos</th><th>${edicoesDaCopa().length?'Desde o sorteio da última Copa':'Desde o início'}</th><th>Títulos</th><th>Situação</th></tr></thead>
+    <tbody>${x.rk.map(linha).join('')}</tbody></table>
+    <p class="dim cpx-nota">${x.cic&&x.cic.convidadas?`As convidadas saíram deste ranking no dia do sorteio (semana ${ELIM_SEM_SORTEIO}).`:`Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre).`}
+      O ranking nasce da força do melhor cinco de cada país, anda com cada série entre seleções (mais na Copa que nas eliminatórias, mais no mata-mata que nos grupos) e, a cada virada de ano, um pouco em direção à força atual do elenco.</p></div>`;
+}
+
+/* ---------- campeões ---------- */
+function abaCampeoes(){
+  const eds=edicoesDaCopa();
+  if(!eds.length)return `<div class="card cx-linha"><div class="cpx-vazio">${ASSETS.copa('trofeu')?`<img src="${ASSETS.copa('trofeu')}" alt="" class="cpx-vazio-taca">`:ico('trofeu')}<b>A taça ainda não tem dono.</b><span>A primeira Valorant World Cup é em ${esc(sedeDoAno(COPA_PRIMEIRA).nome)}, no fim de ${COPA_PRIMEIRA}.</span></div></div>`;
+  return `<div class="cpx-galeria">${eds.slice().reverse().map(e=>{const fv=e.final.v===e.final.a?e.final.wa+'–'+e.final.wb:e.final.wb+'–'+e.final.wa;
+    const logo=ASSETS.copa('sede-'+ASSETS.slug(e.nomeSede));
+    return `<div class="cpx-ed">
+      <div class="cpx-ed-topo">${logo?`<img src="${logo}" alt="">`:''}<div><b>${e.ano}</b><span>${e.edicao}ª · ${esc(e.nomeSede)}${e.cidade?' · '+esc(e.cidade):''}</span></div></div>
+      <div class="cpx-ed-campea" data-copapais="${e.campeao}">${escudoSelecao(e.campeao,72)}<b>${esc(_nomeSel(e.campeao))}</b></div>
+      <div class="cpx-ed-final" data-cpfinal="${e.ano}">final <b class="num">${fv}</b> ${escudoSelecao(e.vice,20)} ${esc(_nomeSel(e.vice))}</div>
+      <div class="cpx-ed-pe"><span>🥉 ${esc(_nomeSel(e.bronze))}</span>${e.mvp?`<span class="jrow" data-p="${e.mvp}">MVP ${esc(e.nomes[e.mvp]||'')}</span>`:''}</div>
+    </div>`;}).join('')}</div>`;
+}
+
+/* ---------- amistoso ---------- */
 function cardAmistoso(sel){
   const c=garantirCopa();
   const outros=rankingPaises().filter(x=>x.pais!==sel);
   const adv=copaAdv&&copaAdv!==sel&&infoSelecao(copaAdv)?copaAdv:outros[0].pais;
   const lista=(c.amistosos||[]);
-  const nome=p=>{const i=infoSelecao(p);return i?i.nome:p;};
-  return `<div class="card cx-linha cp-amistoso"><div class="eyebrow">Amistoso</div>
+  return `<div class="card cx-linha cp-amistoso"><div class="cpx-eyebrow">Amistoso</div>
     <p class="dim">Duas seleções no mesmo motor dos clubes, com veto, mapa a mapa e ficha. Não vale ponto no ranking nem mexe em ninguém.</p>
-    <div class="cp-am-linha">
-      <span class="cp-am-t">${escudo(timeVisualSelecao(sel),40)}<b>${esc(nome(sel))}</b></span>
-      <span class="dim">×</span>
-      <select id="cpAdv">${outros.map(x=>`<option value="${x.pais}" ${x.pais===adv?'selected':''}>${esc(x.nome)} (${x.sigla})</option>`).join('')}</select>
-      <button class="btn" data-cpamistoso="3">Jogar MD3</button>
-      <button class="btn ghost" data-cpamistoso="5">Jogar MD5</button>
+    <div class="cpx-am">
+      <div class="cpx-am-t">${escudoSelecao(sel,96)}<b>${esc(_nomeSel(sel))}</b><span>${bandeira(sel)} a seleção aberta</span></div>
+      <div class="cpx-am-x">×</div>
+      <div class="cpx-am-t">${escudoSelecao(adv,96)}<select id="cpAdv">${outros.map(x=>`<option value="${x.pais}" ${x.pais===adv?'selected':''}>${esc(x.nome)} (${x.sigla})</option>`).join('')}</select><span>${bandeira(adv)} adversária</span></div>
     </div>
-    ${lista.length?`<table class="tbl cp-am-hist"><tbody>${lista.map((f,i)=>`<tr data-cpficha="${i}" style="cursor:pointer">
-      <td>${bandeira(f.a)} <b class="${f.v===f.a?'up':''}">${esc(nome(f.a))}</b></td>
-      <td class="num c"><b>${f.wa} – ${f.wb}</b></td>
-      <td>${bandeira(f.b)} <b class="${f.v===f.b?'up':''}">${esc(nome(f.b))}</b></td>
-      <td class="dim">MD${f.bo} · ${esc(f.mapa)}</td></tr>`).join('')}</tbody></table>`:''}
+    <div class="cpx-acoes c"><button class="btn" data-cpamistoso="3">Jogar MD3</button><button class="btn ghost" data-cpamistoso="5">Jogar MD5</button></div>
+    ${lista.length?`<div class="cpx-rot">Últimos amistosos</div>${lista.map((f,i)=>`<div class="cpx-jogo" data-cpficha="${i}">
+      <span class="cpx-j-fase">MD${f.bo}</span><span class="cpx-j-l ${f.v===f.a?'w':''}">${escudoSelecao(f.a,22)}${esc(_sigSel(f.a))}</span><b class="num">${f.wa}–${f.wb}</b>
+      <span class="cpx-j-l r ${f.v===f.b?'w':''}">${esc(_sigSel(f.b))}${escudoSelecao(f.b,22)}</span></div>`).join('')}`:''}
   </div>`;
 }
+
+/* ---------- ficha de série de seleção (a final ganha a sua cara) ---------- */
 function modalSerieSelecao(f){
   if(!f)return;
   const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
   const lado=pm=>f.esc&&f.esc.a.includes(pm.id)?sig(f.a):sig(f.b);
   const tec=['a','b'].map(k=>{const m=f.tec&&f.tec[k]&&G.staff&&G.staff[f.tec[k]];
     return m?`<span>${bandeira(f[k])} técnico: <b>${esc(m.nome)}</b> ${bandeira(m.pais)}</span>`:'';}).join('');
-  abrir(htmlFichaSerie(f,timeVisualSelecao(f.a),timeVisualSelecao(f.b),{cor:'#e0b252',classe:'sr-selecao',
-    cab:`Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
+  const final=f.fase==='Final';
+  abrir(htmlFichaSerie(f,timeVisualSelecao(f.a),timeVisualSelecao(f.b),{cor:'#e2b45a',classe:'sr-selecao'+(final?' sr-final-copa':''),
+    cab:`${final&&ASSETS.copa('trofeu')?`<img class="sr-taca" src="${ASSETS.copa('trofeu')}" alt="">`:''}Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
     doMvp:lado,rodape:tec?`<div class="sr-tecnicos dim">${tec}</div>`:''}),true);
   _ligarFichaSerie();
 }
-/* convidadas e grupos das eliminatórias, como seriam se o sorteio fosse hoje */
-function cardEliminatorias(ano,sel){
-  const cic=typeof cicloDaCopa==='function'?cicloDaCopa(ano,false):null;
-  const sorteado=!!(cic&&cic.grupos);
-  const conv=sorteado?cic.convidadas:convidadasDaCopa(ano);
-  const nome=p=>{const i=infoSelecao(p);return `<span class="cp-sel${p===sel?' me':''}" data-copapais="${p}">${bandeira(p)} ${esc(i?i.nome:p)}</span>`;};
-  const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
-  const tit=!sorteado?'Se o sorteio fosse hoje':cic.classificados?'Os 32 classificados':'Eliminatórias';
-  let grupos;
-  if(!sorteado){
-    grupos=gruposEliminatorias(ano).map(g=>`<div class="cp-grupo"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
-      ${g.paises.map(nome).join('')}</div>`).join('');
-  }else{
-    grupos=cic.grupos.map(g=>{
-      const t=tabelaGrupo(g,cic.pontosNoSorteio), passou=g.classificados||[];
-      return `<div class="cp-grupo cp-grupo-t"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
-        <table class="tbl cp-g-tab"><thead><tr><th></th><th class="c">V</th><th class="c">D</th><th class="c">Mapas</th></tr></thead><tbody>
-        ${t.map((x,i)=>`<tr class="${x.pais===sel?'me':''} ${passou.includes(x.pais)?'cp-passou':''}" data-copapais="${x.pais}" style="cursor:pointer">
-          <td>${bandeira(x.pais)} <b>${esc(sig(x.pais))}</b>${passou.includes(x.pais)?' <span class="chip up">Copa</span>':''}</td>
-          <td class="c num">${x.v}</td><td class="c num">${x.d}</td><td class="c num">${x.mp}:${x.mc}</td></tr>`).join('')}</tbody></table>
-        ${g.jogos.length?`<div class="cp-g-jogos">${g.jogos.map((f,i)=>`<span class="cp-jogo" data-cpelim="${g.letra}|${i}">${esc(sig(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(sig(f.b))}</span>`).join('')}</div>`
-          :`<div class="dim cp-g-jogos">Jogos nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</div>`}
-      </div>`;}).join('');
-  }
-  return `<div class="card cx-linha"><div class="eyebrow">${tit}</div>
-    <p class="dim">${sorteado
-      ?`Sorteio feito na semana ${ELIM_SEM_SORTEIO}. Grupos de 3 em MD3, todos contra todos; os dois primeiros vão à Copa. Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto e ranking.${cic.classificados?'':` Os 32 saem na semana ${ELIM_SEM_CLASSIFICADOS}.`}`
-      :`A sede e as 15 melhores do ranking vão direto. As outras 24 jogam as eliminatórias no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa. O sorteio é na semana ${ELIM_SEM_SORTEIO}.`}</p>
-    <div class="cp-conv"><b>Convidadas</b> ${conv.map(nome).join('')}</div>
-    ${cic&&cic.classificados?`<div class="cp-conv"><b>Das eliminatórias</b> ${cic.dasEliminatorias.map(nome).join('')}</div>`:''}
-    <div class="cp-grupos">${grupos}</div></div>`;
-}
-function cardConvocacao(pais){
-  const cicC=typeof cicloAtual==='function'?cicloAtual():null;
-  const congelada=cicC&&cicC.copa&&cicC.copa.convocados&&cicC.copa.convocados[pais];
-  const info=infoSelecao(pais), c=congelada||convocacao(pais);
-  if(!info)return '';
-  const linha=(id,tit)=>{const p=G.jogadores[id];if(!p)return '';const t=p.timeId&&G.times[p.timeId];
-    return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b>${p.voce?' <span class="chip up">você</span>':''}${p.real?'':' <span class="dim">gerado</span>'}</td>
-      <td>${esc(p.role)}</td><td class="num">${over(p)}</td><td>${t?esc(t.tag||t.nome):p.base?'base':'sem clube'}</td><td>${tit?'<span class="chip up">titular</span>':''}</td></tr>`;};
-  const esc0=ASSETS.logoSelecao(pais);
-  return `<div class="card"><div class="eyebrow cp-conv-tit">${esc0?`<img class="cp-escudo" src="${esc0}" alt="">`:''}${bandeira(pais)} ${esc(info.nome)} · convocação</div>
-    ${c?`<table class="tbl"><thead><tr><th>Jogador</th><th>Função</th><th>Over</th><th>Clube</th><th></th></tr></thead><tbody>
-      ${c.titulares.map(i=>linha(i,true)).join('')}${c.reservas.map(i=>linha(i,false)).join('')}</tbody></table>
-      <p class="dim">${convocaveis(pais).length} convocáveis no mundo hoje. O cinco é o melhor possível pela mesma conta da escalação dos clubes; os reservas são os melhores que sobram.</p>`
-      :vazio(`<b>${esc(info.nome)} não tem 7 jogadores agora.</b>`,'elenco')}</div>`;
+
+/* ---------- a faixa da Copa na Central ----------
+   Aparece quando o evento está perto ou acontecendo: do Champions até a
+   virada nos anos de eliminatórias e de Copa, e nas primeiras semanas
+   depois de uma final. */
+function cardCopaCentral(){
+  if(typeof garantirCopa!=='function'||!G||G.ano<COPA_PRIMEIRA-1)return '';
+  const sem=G.semana||1;
+  const x=_ctxCopa();
+  const perto=sem>=44||(x.ultima&&sem<=6);
+  if(!perto)return '';
+  const cic=x.ultima&&sem<=6?x.ultima:x.cic;
+  const s=cic?{nome:cic.nomeSede,pais:cic.sede,ano:cic.ano,edicao:cic.edicao}:Object.assign({},x.s,{ano:x.ano});
+  const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo');
+  const ed=cic&&cic.copa&&cic.copa.fim?edicoesDaCopa().find(e=>e.ano===cic.ano):null;
+  const meu=typeof meuJogador==='function'&&meuJogador();
+  const minha=meu&&infoSelecao(meu.pais)?meu.pais:null;
+  const sit=minha?_situacao(x,minha):null;
+  const cv=minha&&cic&&cic.copa&&cic.copa.convocados&&cic.copa.convocados[minha];
+  const chamado=cv&&cv.titulares.concat(cv.reservas).includes(meu.id);
+  const texto=ed?`${esc(_nomeSel(ed.campeao))} é a campeã do mundo`:esc(_textoFase(x));
+  return `<section class="cpx-faixa" style="${cic?fundoDaSede(cic,.84):''}">
+    ${logo?`<img class="cpx-faixa-logo" src="${logo}" alt="">`:''}
+    <div class="cpx-faixa-txt"><div class="cpx-eyebrow">Valorant World Cup · ${esc(s.nome)} ${s.ano}</div>
+      <b>${texto}</b>
+      ${minha?`<span>${escudoSelecao(minha,20)} ${esc(_nomeSel(minha))}: ${esc(sit[1])}${chamado?' · <em>você foi convocado</em>':''}</span>`:''}</div>
+    ${ed?`<div class="cpx-faixa-c">${escudoSelecao(ed.campeao,54)}</div>`:''}
+    <button class="btn cpx-faixa-btn" data-ir="copa">Abrir a World Cup ›</button>
+  </section>`;
 }
 function ligarCopa(v,on){
-  on('[data-copapais]',el=>{copaVer=el.dataset.copapais;render();});
-  const adv=document.querySelector('#cpAdv');if(adv)adv.onchange=()=>{copaAdv=adv.value;};
+  on('[data-cpaba]',el=>{copaAba=el.dataset.cpaba;render();window.scrollTo(0,0);});
+  on('[data-copapais]',el=>{copaVer=el.dataset.copapais;if(el.dataset.cpaba){copaAba=el.dataset.cpaba;window.scrollTo(0,0);}render();});
+  const tr=document.querySelector('[data-cptroca]');if(tr)tr.onchange=()=>{copaVer=tr.value;render();};
+  const adv=document.querySelector('#cpAdv');if(adv)adv.onchange=()=>{copaAdv=adv.value;render();};
   on('[data-cpamistoso]',el=>{
     const sel=document.querySelector('#cpAdv'), minha=copaSelAtual;
     if(!sel||!minha)return;
@@ -44687,15 +45488,10 @@ function ligarCopa(v,on){
     const f=amistosoSelecoes(minha,sel.value,+el.dataset.cpamistoso);
     render();modalSerieSelecao(f);
   });
-  on('[data-cpelim]',el=>{const [l,i]=el.dataset.cpelim.split('|');const cic=cicloAtual();
-    const g=cic&&cic.grupos&&cic.grupos.find(x=>x.letra===l);if(g)modalSerieSelecao(g.jogos[+i]);});
-  on('[data-cpcopa]',el=>{const [t,k,i]=el.dataset.cpcopa.split('|');const cic=copaCicloMostrado;const C=cic&&cic.copa;if(!C)return;
-    if(t==='g'){const g=C.grupos.find(x=>x.letra===k);if(g&&g.jogos)modalSerieSelecao(g.jogos[+i]);}
-    else{const j=(C.mata[k]||[])[+i];
-      if(j&&j.f&&j.f.det)modalSerieSelecao(j.f);
-      else if(k==='final'){const e=edicoesDaCopa().find(x=>x.ano===cic.ano);if(e)modalSerieSelecao(e.final);}}});
+  on('[data-cpjogo]',el=>_abrirJogo(el.dataset.cpjogo));
   on('[data-cpfinal]',el=>{const e=edicoesDaCopa().find(x=>x.ano===+el.dataset.cpfinal);if(e)modalSerieSelecao(e.final);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
+  on('[data-cpmomento]',el=>{const [t,a]=el.dataset.cpmomento.split('|');reverMomentoCopa(t,+a);});
 }
 
 
@@ -46839,15 +47635,23 @@ function aplicarAvanco(r,quantas){
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre
      quando ela termina (ou quando você pula). */
-  if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
-    const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
-    const reg=(G.premios||[]).find(x=>x.ano===ano);
-    const v=G.vereditoPendente;G.vereditoPendente=null;
-    abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
-  }else if(G&&G.vereditoPendente){
-    const v=G.vereditoPendente;G.vereditoPendente=null;
-    modalVeredito(v);
-  }
+  const fimDaTemporada=()=>{
+    if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
+      const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
+      const reg=(G.premios||[]).find(x=>x.ano===ano);
+      const v=G.vereditoPendente;G.vereditoPendente=null;
+      abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
+    }else if(G&&G.vereditoPendente){
+      const v=G.vereditoPendente;G.vereditoPendente=null;
+      modalVeredito(v);
+    }
+  };
+  /* Valorant World Cup: os momentos do evento (sede, sorteio, a campeã…)
+     abrem antes da cerimônia de fim de ano — a final é na semana 52, antes
+     da virada. Com outra tela aberta, ficam na fila para o próximo avanço. */
+  if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
+    abrirMomentosCopa(fimDaTemporada);
+  else fimDaTemporada();
   /* Carta nova de jogador seu: só quando nada mais está aberto, para não
      cobrir resultado nem veredito. Quem ficou na fila sai no próximo avanço. */
   if(G&&G.cartasNovas&&G.cartasNovas.length&&!$('#modal').innerHTML&&typeof modalCartaNova==='function')
@@ -46885,6 +47689,7 @@ function avancarAteMeuJogo(){
     if(r.encerrado)break;                      /* torneio encerrou: pare e mostre */
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
+    if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

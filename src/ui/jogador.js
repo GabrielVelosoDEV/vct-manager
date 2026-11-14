@@ -109,6 +109,7 @@ function vJCentral(){
   return `${typeof faixaCircuito==='function'?faixaCircuito():''}
     ${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
     ${_jHero(p,t)}
+    ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Jogue ranked, faça lives e treine: os convites para teste e as propostas aparecem em Contrato e mercado.','jogar')+'<button class="btn sm" data-ir="contrato" style="margin-top:8px">Contrato e mercado ›</button>'}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}

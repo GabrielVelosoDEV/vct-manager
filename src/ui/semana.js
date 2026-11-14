@@ -112,7 +112,7 @@ function vJTalentos(){
   const col=r=>`<div class="tl-ramo"><div class="tl-ramo-n"><b>${esc(r.nome)}</b><span class="dim">${esc(r.desc)}</span></div>
     ${r.t.map((x,i)=>{
       const n=nivelTalento(x.id), max=maxNivelTalento(i), motivo=porqueNaoTalento(p,x.id), aberta=fileiraAberta(p,i);
-      return `<div class="tl ${n?'on':''} ${aberta?'':'fechado'} ${i===5?'assin':''}">
+      return `<div class="tl-no ${n?'on':''} ${aberta?'':'fechado'} ${i===5?'assin':''}">
         <div class="tl-top"><span class="tl-f">${TALENTO_FILEIRAS[i]}</span><b>${esc(x.nome)}</b><span class="tl-n">${Array.from({length:max},(_,j)=>`<i class="${j<n?'on':''}"></i>`).join('')}</span></div>
         <p>${esc(textoEfeito(x.ef))}${max>1?' <span class="dim">por nível</span>':''}</p>
         <p class="dim">${esc(x.txt)}${G.voce.talentoGratis===x.id?' · <b>talento do seu estilo</b>':''}</p>

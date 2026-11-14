@@ -62,7 +62,10 @@ function convocacao(pais){
   return _convSemana.mapa[pais];
 }
 function _convocacao(pais){
-  const todos=convocaveis(pais).filter(p=>!p.lesao);
+  /* machucado só é chamado se, sem ele, o país não fecha o mínimo: uma lesão
+     de uma semana não pode tirar uma seleção pequena da Copa */
+  const todos0=convocaveis(pais), sadios=todos0.filter(p=>!p.lesao);
+  const todos=sadios.length>=SELECAO_MINIMO?sadios:todos0;
   if(todos.length<SELECAO_MINIMO)return null;
   const titulares=_cincoDoPais(todos);
   const reservas=todos.filter(p=>!titulares.includes(p.id)).sort((a,b)=>over(b)-over(a))
@@ -92,6 +95,8 @@ function garantirCopa(){
       const f=forcaSelecao(pais);
       c.ranking[pais]=Math.round(RANKING_BASE+(f-75)*RANKING_POR_PONTO);
     }
+  /* a foto para a variação "desde a última Copa" (a primeira compara com o início) */
+  if(!c.rankingUltimaEdicao)c.rankingUltimaEdicao=Object.assign({},c.ranking);
   return c;
 }
 function rankingPaises(){

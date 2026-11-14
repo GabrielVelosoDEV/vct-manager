@@ -49,7 +49,7 @@ function sortearCopa(cic){
   const rk=garantirCopa().ranking, contDe=p=>(infoSelecao(p)||{}).cont;
   const lista=cic.classificados.filter(p=>p!==cic.sede).sort((a,b)=>(rk[b]||0)-(rk[a]||0)||a.localeCompare(b));
   const ordem=[cic.sede].concat(lista);
-  const potes=[0,1,2,3].map(i=>ordem.slice(i*COPA_GRUPOS,(i+1)*COPA_GRUPOS));
+  const potes=[0,1,2,3].map(i=>ordem.slice(i*COPA_GRUPOS,(i+1)*COPA_GRUPOS)).filter(l=>l.length);
   const total={};for(const p of ordem){const c=contDe(p);total[c]=(total[c]||0)+1;}
   const limite=c=>Math.ceil((total[c]||0)/COPA_GRUPOS);
   const grupos=comSorteioLocal('sorteio-copa|'+(G.seed||0)+'|'+cic.ano,()=>{
@@ -70,13 +70,14 @@ function sortearCopa(cic){
         }
       }
       /* sem jeito com o continente: pote na ordem */
-      embaralha(pote).forEach((p,i)=>{gs.find(g=>g.length===ip).push(p);});
+      embaralha(pote).forEach(p=>{(gs.find(g=>g.length===ip)||gs[gs.length-1]).push(p);});
     });
     return gs;
   });
   cic.pontosCopa=Object.assign({},rk);
   cic.copa={grupos:grupos.map((paises,i)=>({letra:String.fromCharCode(65+i),paises,jogos:[],rodadas:0})),
     mata:{},convocados:null,fim:false};
+  momentoCopa('sorteio',{ano:cic.ano});
   noticia(`🎲 Sorteio da World Cup ${cic.ano} em ${cic.nomeSede}: ${cic.copa.grupos.map(g=>g.letra+' ('+g.paises.map(p=>infoSelecao(p).sigla).join(', ')+')').join(' · ')}.`,
     {c:'competicoes',imp:Math.max(2,_impSelecao(cic.classificados))});
 }
@@ -106,7 +107,10 @@ function _jogoCopa(cic,a,b,bo,fase,peso,sem){
 /* ---------- grupos ----------
    Ordem do pote: rodada 1 é 1×4 e 2×3; rodada 2, 1×3 e 4×2; rodada 3, 1×2 e 3×4. */
 function _rodadaGrupoCopa(p,r){
-  return r===1?[[p[0],p[3]],[p[1],p[2]]]:r===2?[[p[0],p[2]],[p[3],p[1]]]:[[p[0],p[1]],[p[2],p[3]]];
+  /* grupo de 3 (só se faltar seleção): uma folga por rodada */
+  const l=p.length===3?(r===1?[[p[0],p[2]]]:r===2?[[p[1],p[2]]]:[[p[0],p[1]]])
+    :r===1?[[p[0],p[3]],[p[1],p[2]]]:r===2?[[p[0],p[2]],[p[3],p[1]]]:[[p[0],p[1]],[p[2],p[3]]];
+  return l.filter(([a,b])=>a&&b);
 }
 function jogarRodadaCopa(cic,r){
   const novos=[];
@@ -164,9 +168,14 @@ function jogarFaseCopa(cic,fase){
 }
 
 /* ---------- os números da Copa ---------- */
-function statsDaCopa(cic){
+function jogosDaCopa(cic){
+  if(!cic||!cic.copa)return [];
+  return cic.copa.grupos.flatMap(g=>g.jogos||[]).concat(...Object.values(cic.copa.mata).map(l=>l.map(j=>j.f).filter(f=>f&&f.det)));
+}
+function statsDaCopa(cic){return statsDeJogos(jogosDaCopa(cic));}
+/* a soma de uma lista de fichas de seleção, por jogador */
+function statsDeJogos(jogos){
   const S={};
-  const jogos=cic.copa.grupos.flatMap(g=>g.jogos).concat(...Object.values(cic.copa.mata).map(l=>l.map(j=>j.f).filter(Boolean)));
   for(const f of jogos){
     for(const mp of (f.det&&f.det.mp)||[])for(const x of String(mp.st||'').split('|').filter(Boolean)){
       const [id,n]=x.split(':');const [k,d,a,acs]=n.split(',').map(Number);
@@ -229,7 +238,12 @@ function encerrarCopa(cic){
   for(const id of [].concat(...Object.values(ed.elencos).map(e=>e?e.titulares.concat(e.reservas):[]),ed.timeIdeal,ed.mvp?[ed.mvp]:[]))
     if(G.jogadores[id])ed.nomes[id]=G.jogadores[id].nome;
   for(const sid of Object.values(ed.tecnicos))if(sid&&G.staff[sid])ed.nomes[sid]=G.staff[sid].nome;
-  garantirCopa().edicoes.push(ed);
+  const cg=garantirCopa();
+  ed.rankingAntes=cg.rankingUltimaEdicao||null;
+  cg.edicoes.push(ed);
+  /* a régua da coluna "desde a última Copa": os pontos do dia do sorteio dela */
+  cg.rankingUltimaEdicao=Object.assign({},cic.pontosCopa||cg.ranking);
+  momentoCopa('campea',{ano:cic.ano});
   _enxugarCiclo(cic);
   const nmvp=mvp?G.jogadores[mvp.id].nome:null;
   noticia(`🏆 ${_nomeSel(campeao).toUpperCase()} É CAMPEÃ DA VALORANT WORLD CUP ${cic.ano}! Venceu ${_nomeSel(vice)} por ${fin.f.v===fin.a?fin.f.wa+'–'+fin.f.wb:fin.f.wb+'–'+fin.f.wa} na final em ${ed.cidade||cic.nomeSede}. ${_nomeSel(bronze)} fica com o bronze.${nmvp?' MVP da Copa: '+nmvp+'.':''}`,

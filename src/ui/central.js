@@ -267,6 +267,7 @@ function vInicio(){
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
+  ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}

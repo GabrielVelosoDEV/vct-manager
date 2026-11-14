@@ -131,15 +131,23 @@ function aplicarAvanco(r,quantas){
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre
      quando ela termina (ou quando você pula). */
-  if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
-    const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
-    const reg=(G.premios||[]).find(x=>x.ano===ano);
-    const v=G.vereditoPendente;G.vereditoPendente=null;
-    abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
-  }else if(G&&G.vereditoPendente){
-    const v=G.vereditoPendente;G.vereditoPendente=null;
-    modalVeredito(v);
-  }
+  const fimDaTemporada=()=>{
+    if(G&&G.cerimoniaPendente&&typeof abrirCerimonia==='function'){
+      const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
+      const reg=(G.premios||[]).find(x=>x.ano===ano);
+      const v=G.vereditoPendente;G.vereditoPendente=null;
+      abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
+    }else if(G&&G.vereditoPendente){
+      const v=G.vereditoPendente;G.vereditoPendente=null;
+      modalVeredito(v);
+    }
+  };
+  /* Valorant World Cup: os momentos do evento (sede, sorteio, a campeã…)
+     abrem antes da cerimônia de fim de ano — a final é na semana 52, antes
+     da virada. Com outra tela aberta, ficam na fila para o próximo avanço. */
+  if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
+    abrirMomentosCopa(fimDaTemporada);
+  else fimDaTemporada();
   /* Carta nova de jogador seu: só quando nada mais está aberto, para não
      cobrir resultado nem veredito. Quem ficou na fila sai no próximo avanço. */
   if(G&&G.cartasNovas&&G.cartasNovas.length&&!$('#modal').innerHTML&&typeof modalCartaNova==='function')
@@ -177,6 +185,7 @@ function avancarAteMeuJogo(){
     if(r.encerrado)break;                      /* torneio encerrou: pare e mostre */
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
+    if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

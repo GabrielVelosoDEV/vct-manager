@@ -45,6 +45,16 @@ function _impSelecao(paises){
 }
 function _nomeSel(p){const i=infoSelecao(p);return i?i.nome:p;}
 
+/* ---------- momentos ----------
+   As telas que param o jogo (core → ui/copa-momentos.js): apresentação da
+   sede, convidadas, classificados, sorteio e a campeã. Ficam numa fila até a
+   tela abrir; o jogo sem tela (tools/) só acumula, com teto. */
+function momentoCopa(tipo,dados){
+  G.copaMomentos=(G.copaMomentos||[]).filter(m=>m.tipo!==tipo||m.ano!==dados.ano);
+  G.copaMomentos.push(Object.assign({tipo},dados));
+  if(G.copaMomentos.length>6)G.copaMomentos.shift();
+}
+
 /* ---------- a semana ---------- */
 function copaSemana(){
   if(!G||G.ano<COPA_PRIMEIRA-1)return;
@@ -70,6 +80,7 @@ function _semanaEliminatorias(cic){
     cic.anunciada=true;
     if(typeof escolherComissoesSelecoes==='function')escolherComissoesSelecoes();
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
+    momentoCopa('sede',{ano:cic.ano});
     noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,
       {c:'competicoes',imp:2});
   }
@@ -85,6 +96,7 @@ function sortearEliminatorias(cic){
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
   cic.grupos=gruposEliminatorias(cic.ano,cic.convidadas)
     .map(g=>({letra:g.letra,cont:g.cont,paises:g.paises.slice(),jogos:[],rodadas:0}));
+  momentoCopa('convidadas',{ano:cic.ano});
   noticia(`✉️ World Cup ${cic.ano}: ${cic.convidadas.length} seleções convidadas — ${cic.convidadas.map(_nomeSel).join(', ')}. As outras ${cic.grupos.reduce((s,g)=>s+g.paises.length,0)} disputam 16 vagas nas eliminatórias.`,
     {c:'competicoes',imp:_impSelecao(cic.convidadas)});
   noticia(`🎲 Sorteio das eliminatórias: ${cic.grupos.map(g=>g.letra+' ('+g.paises.map(p=>infoSelecao(p).sigla).join(', ')+')').join(' · ')}.`,
@@ -151,6 +163,7 @@ function fecharEliminatorias(cic){
   cic.classificados=cic.convidadas.concat(vindos);
   cic.dasEliminatorias=vindos;
   const fora=cic.grupos.flatMap(g=>g.paises.filter(p=>!g.classificados.includes(p)));
+  momentoCopa('classificados',{ano:cic.ano});
   noticia(`🏁 Os 32 da World Cup ${cic.ano} estão definidos. Das eliminatórias: ${vindos.map(_nomeSel).join(', ')}. Ficaram fora: ${fora.map(_nomeSel).join(', ')}.`,
     {c:'competicoes',imp:Math.max(_impSelecao(vindos),_impSelecao(fora),2)});
   return cic.classificados;
