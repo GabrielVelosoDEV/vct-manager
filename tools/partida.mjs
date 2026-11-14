@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Partida inteira 5 contra 5, só bots, sem tela: confere que termina, que o
    placar faz sentido e que spike e economia funcionam. Imprime round a round.
-   Uso: node tools/partida.mjs [mapa] [semente] */
+   Uso: node tools/partida.mjs [mapa] [semente] [time A] [time B]
+   (times pela sigla do elenco real, ex.: LOUD NRG; sem time, a comp sai só do meta do mapa) */
 import {readFileSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -15,7 +16,9 @@ const GP=ctx.GP;
 const NIVEL={mira:62,reflexo:62,movimento:60,visao:60,clutch:55,consistencia:55};
 const mapa=process.argv[2]||'ascent', semente=+(process.argv[3]||7);
 const t0=Date.now();
-const J=GP.montarPartida({mapa,semente,atribA:NIVEL,atribB:NIVEL,tempoCompra:2});
+const tA=process.argv[4]&&GP.timeReal(process.argv[4]), tB=process.argv[5]&&GP.timeReal(process.argv[5]);
+const J=GP.montarPartida({mapa,semente,atribA:NIVEL,atribB:NIVEL,tempoCompra:2,timeA:tA||undefined,timeB:tB||undefined});
+for(const t of ['A','B'])console.log(J.nomesTimes[t].padEnd(6),J.ents.filter(e=>e.time===t).map(e=>`${e.nome} (${GP.AGENTES[e.agente].nome})`).join(' · '));
 const dt=1/60;let falhas=0;const ok=(c,m)=>{if(!c){falhas++;console.log('  FALHA:',m);}};
 let ultimo=0;
 while(!J.fim&&J.t<60*60){
@@ -32,7 +35,7 @@ const a=J.placar.A,b=J.placar.B;
 ok(Math.max(a,b)>=13&&Math.abs(a-b)>=2,'placar incoerente '+a+'–'+b);
 ok(J.historico.some(h=>h.plant),'nenhum plant');
 ok(J.historico.length===a+b,'rounds contados errado');
-const tab=J.ents.map(e=>`${e.time} ${e.nome.padEnd(10)} ${GP.AGENTES[e.agente].papel.padEnd(11)} ${e.st.kills}/${e.st.mortes}  dano ${e.st.dano}  plants ${e.st.plants} desarmes ${e.st.desarmes} fb ${e.st.fb}`);
+const tab=J.ents.map(e=>`${e.time} ${e.nome.padEnd(10)} ${GP.AGENTES[e.agente].nome.padEnd(9)} ${GP.AGENTES[e.agente].papel.padEnd(11)} ${e.st.kills}/${e.st.mortes}  dano ${e.st.dano}  plants ${e.st.plants} desarmes ${e.st.desarmes} fb ${e.st.fb}`);
 console.log(tab.join('\n'));
 const atkV=J.historico.filter(h=>h.vencedor===h.atk).length, plants=J.historico.filter(h=>h.plant).length, des=J.historico.filter(h=>h.como==='desarme').length, exp=J.historico.filter(h=>h.como==='explosão').length;
 console.log(`ataque venceu ${Math.round(atkV/J.historico.length*100)}% · plant em ${Math.round(plants/J.historico.length*100)}% · ${des} desarmes · ${exp} explosões`);

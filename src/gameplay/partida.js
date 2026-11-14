@@ -33,14 +33,35 @@ GP._comporTime = function (fixos, rnd) {
 
 GP.montarPartida = function (o) {
   const J = GP.novoJogo({...o, modo: 'partida'});
-  const comp = {A: GP._comporTime(o.agentesA || [], J.rnd), B: GP._comporTime(o.agentesB || [], J.rnd)};
+  /* comp: do elenco (mains + meta do mapa) ou só do meta do mapa */
+  const comp = {}, jog = {};
+  J.nomesTimes = {A: 'Time A', B: 'Time B'};
+  for (const time of ['A', 'B']) {
+    const T = o['time' + time], fixos = (o['agentes' + time] || []).slice();
+    if (T && T.jogadores && T.jogadores.length >= 5) {
+      let js = T.jogadores.slice(0, 5);
+      if (time === 'A' && o.jogador && fixos[0]) {
+        /* você entra no lugar de quem joga a função do seu agente */
+        const pap = GP.AGENTES[fixos[0]].papel;
+        let i = js.findIndex(j => GP.PAPEL_DA_FUNCAO[j.funcao] === pap);
+        if (i < 0) i = js.reduce((b, j, k) => (j.over || 0) < (js[b].over || 0) ? k : b, 0);
+        js = [{nome: o.nome || 'Você', funcao: js[i].funcao, humano: true, agentes: [fixos[0]]}, ...js.filter((_, k) => k !== i)];
+      }
+      jog[time] = js;
+      comp[time] = GP.compDoElenco(o.mapa, js, J.rnd, time === 'A' && o.jogador ? [fixos[0]] : fixos);
+      J.nomesTimes[time] = T.sigla || T.nome;
+    } else comp[time] = GP.compDoMapa(o.mapa, J.rnd, fixos);
+  }
   for (const time of ['A', 'B']) comp[time].forEach((ag, i) => {
     const jogador = time === 'A' && i === 0 && o.jogador;
-    const at = o['atrib' + time], atrib = (Array.isArray(at) ? at[i] : at) || {};
+    const J5 = jog[time] && jog[time][i];
+    const at = o['atrib' + time];
+    const atrib = jogador ? ((Array.isArray(at) ? at[0] : at) || {}) : J5 && J5.at ? GP.atribDoManager(J5.at) : ((Array.isArray(at) ? at[i] : at) || {});
     const papel = GP.AGENTES[ag].papel;
-    const e = GP.criarAgente({id: time + i, nome: jogador ? (o.nome || 'Você') : GP.AGENTES[ag].nome, time, bot: !jogador,
-      atrib, agente: ag, primaria: null, secundaria: 'classic', escudo: 'nenhum', agressivo: GP.AGRESSIVO_PAPEL[papel]});
-    Object.assign(e, {papel, creditos: GP.ECON.inicio, pontosUlt: 0, prefRifle: J.rnd() < 0.55 ? 'vandal' : 'phantom'});
+    const nome = jogador ? (o.nome || 'Você') : J5 ? J5.nome : GP.AGENTES[ag].nome;
+    const e = GP.criarAgente({id: time + i, nome, time, bot: !jogador,
+      atrib, agente: ag, primaria: null, secundaria: 'classic', escudo: 'nenhum', agressivo: GP.estiloDe ? GP.estiloDe(atrib, papel) : GP.AGRESSIVO_PAPEL[papel]});
+    Object.assign(e, {papel, creditos: GP.ECON.inicio, pontosUlt: 0, prefRifle: J.rnd() < 0.55 ? 'vandal' : 'phantom', funcao: J5 ? J5.funcao : null, over: J5 ? J5.over : null});
     Object.assign(e.st, {plants: 0, desarmes: 0, fb: 0, assist: 0});
     J.ents.push(e);
   });

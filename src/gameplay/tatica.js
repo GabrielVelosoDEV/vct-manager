@@ -110,11 +110,14 @@ GP._planejarRound = function (J) {
   const hist = J.historico.filter(h => h.atk === atkT).slice(-4);
   /* ---- ataque ---- */
   const pesos = J.compra[atkT] === 'eco' ? {rush: 4, execucao: 3, default: 3} : {execucao: 34, default: 24, rush: 10, split: 14, fake: 18};
-  for (const h of hist.slice(-2)) if (h.vencedor !== atkT && h.planoAtk && pesos[h.planoAtk]) pesos[h.planoAtk] *= 0.5;
+  /* o IGL lê o round: liderança alta troca de plano quando perde e insiste no
+     bomb que está dando certo; liderança baixa quase não se adapta */
+  const iglA = GP.iglDe ? GP.iglDe(J, atkT) : 0.5, iglD = GP.iglDe ? GP.iglDe(J, defT) : 0.5;
+  for (const h of hist.slice(-2)) if (h.vencedor !== atkT && h.planoAtk && pesos[h.planoAtk]) pesos[h.planoAtk] *= 1 - 0.8 * iglA;
   const tipo = GP._sortearPeso(J, pesos);
   const pesoSitio = {};
   for (const L of letras) pesoSitio[L] = 1;
-  for (const h of hist) if (h.alvo && pesoSitio[h.alvo]) pesoSitio[h.alvo] *= h.vencedor === atkT ? 1.2 : 0.7;
+  for (const h of hist) if (h.alvo && pesoSitio[h.alvo]) pesoSitio[h.alvo] *= h.vencedor === atkT ? 1 + 0.4 * iglA : 1 - 0.55 * iglA;
   const alvo = GP._sortearPeso(J, pesoSitio);
   const outros = letras.filter(L => L !== alvo), outro = outros[Math.floor(rnd() * outros.length)];
   const ordem = {duelista: 0, iniciador: 1, controlador: 2, sentinela: 3};
@@ -140,7 +143,7 @@ GP._planejarRound = function (J) {
   /* ---- defesa ---- */
   const contaPlant = {};
   for (const h of J.historico) if (h.plant && h.atk !== defT) contaPlant[h.plant] = (contaPlant[h.plant] || 0) + 1;
-  const tipoDef = GP._sortearPeso(J, {padrao: 60, stack: J.historico.length >= 3 ? 25 : 8, push: 15});
+  const tipoDef = GP._sortearPeso(J, {padrao: 60, stack: J.historico.length >= 3 ? 10 + 30 * iglD : 8, push: 15});
   const filaDef = def.slice().sort((a, b) => ({sentinela: 0, controlador: 1, iniciador: 2, duelista: 3})[a.papel] - ({sentinela: 0, controlador: 1, iniciador: 2, duelista: 3})[b.papel]);
   let dist;
   if (tipoDef === 'stack') {

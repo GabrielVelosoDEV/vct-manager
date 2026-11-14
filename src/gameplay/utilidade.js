@@ -76,6 +76,12 @@ GP._u = J => { const P = J.plano; if (!P) return null; return P.u || (P.u = {fum
 /* pedir: o bot vira para ang e solta k mirando em ponto */
 GP._pedir = function (J, e, k, ponto, ang, extra) {
   if (!e.ia || e.ia.lanca) return false;
+  /* utilidade baixa: a habilidade cai menos onde devia */
+  const err = 1 - GP._q(e.atrib.utilidade == null ? 70 : e.atrib.utilidade);
+  if (err > 0) {
+    ang += GP._gauss(J.rnd) * err * 0.09;
+    if (ponto) { const d = Math.hypot(ponto.x - e.x, ponto.y - e.y); ponto = {x: ponto.x + GP._gauss(J.rnd) * err * (0.6 + d * 0.06), y: ponto.y + GP._gauss(J.rnd) * err * (0.6 + d * 0.06)}; }
+  }
   e.ia.lanca = {k, ponto: ponto ? {x: ponto.x, y: ponto.y} : null, ang, ate: J.t + 1.4, ...extra};
   const u = GP._u(J); if (u) u.usos++;
   return true;
@@ -384,11 +390,35 @@ GP._utilDefesa = function (J, time) {
       let n = 0;
       if (!GP._fumacaPerto(J, E, 4) && GP._mandarNoPonto(J, bots, ['fumaca'], E, 2.5)) n++;
       if (GP._mandar(J, bots, ['molly', 'cc'], c, perto, 1)) n++;
+      /* parede de controlador (Viper, Harbor) ou duelista corta a entrada */
+      for (const e of bots) {
+        const k = GP._chaves(J, e, ['parede'])[0];
+        if (k && GP._livre(e) && Math.hypot(e.x - E.x, e.y - E.y) < GP._info(e, k).alc - 2 && GP.linhaLivre(m, e.x, e.y, E.x, E.y)) { GP._pedir(J, e, k, E, Math.atan2(E.y - e.y, E.x - e.x)); n++; break; }
+      }
       for (const e of bots) {
         const k = GP._chaves(J, e, ['muro'])[0];
         if (k && GP._livre(e) && Math.hypot(e.x - E.x, e.y - E.y) < 9 && GP.linhaLivre(m, e.x, e.y, E.x, E.y)) { GP._pedir(J, e, k, E, Math.atan2(E.y - e.y, E.x - e.x)); n++; break; }
       }
       if (n) u.stall[L] = t;
+    }
+    /* atacantes amontoados perto do bomb (a execução): molly ou cc no meio deles */
+    if (t - (u.antiExec || 0) > 5) {
+      const juntos = sabe.filter(s => t - s.t < 1.5 && Object.values(m.sitios).some(S => Math.hypot(s.x - S.x, s.y - S.y) < 22));
+      for (const s of juntos) {
+        const viz = juntos.filter(o => Math.hypot(o.x - s.x, o.y - s.y) < 5);
+        if (viz.length < 2) continue;
+        const c = viz.reduce((a, o) => ({x: a.x + o.x / viz.length, y: a.y + o.y / viz.length}), {x: 0, y: 0});
+        if (GP._mandar(J, bots, ['molly', 'cc', 'ultMolly'].slice(0, inimigos.length >= 3 ? 3 : 2), c, viz, 2)) { u.antiExec = t; break; }
+      }
+    }
+    /* re-peek: quem sabe de um atacante colado atrás da parede joga a flash antes de aparecer */
+    for (const e of bots) {
+      if (!GP._livre(e) || t - (e.ia.flashRepeek || 0) < 6) continue;
+      const s = sabe.find(s => t - s.t < 1.2 && Math.hypot(s.x - e.x, s.y - e.y) < 14 && !GP.linhaLivre(m, e.x, e.y, s.x, s.y));
+      if (!s) continue;
+      const k = GP._chaves(J, e, ['flash', 'cc'])[0]; if (!k) continue;
+      const r = GP._melhorMira(J, e, k, s, [s], 1);
+      if (r) { GP._pedir(J, e, k, r.ponto, r.ang); e.ia.flashRepeek = t; }
     }
     /* plantando: molly/cc em quem planta */
     if (sp.estado === 'carregada' && sp.progresso > 0.4 && t - (u.antiPlant || 0) > 4) {
