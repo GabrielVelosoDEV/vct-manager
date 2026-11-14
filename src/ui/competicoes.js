@@ -270,18 +270,21 @@ function premiacaoDoEvento(e,premios){
     </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
 }
 
-/* ---------- ficha da série ---------- */
-function modalSerie(chave){
-  const [sid,n]=String(chave).split('|');
-  const s=acharStage(sid);
-  const r=s&&(s.resultados||[])[+n];
-  if(!r)return;
-  const A=G.times[r.a],B=G.times[r.b],d=r.det||{};
+/* ---------- ficha da série ----------
+   htmlFichaSerie desenha qualquer série guardada no formato enxuto
+   (competition.js e selecao-jogo.js): A e B só precisam de nome, tag e o
+   que escudo() lê. `o.cab` é a linha de cima; `o.doMvp` diz por quem o MVP
+   jogou (o clube, ou a sigla da seleção). */
+function htmlFichaSerie(r,A,B,o){
+  o=o||{};
+  const d=r.det||{};
   const vA=r.v===r.a;
   const linhasDe=(stStr)=>String(stStr||'').split('|').filter(Boolean).map(x=>{
     const [id,nums]=x.split(':');const [k,de,a,acs]=nums.split(',').map(Number);return{id,k,d:de,a,acs};});
   const veto=(d.v||[]).map(([m,tp,tag])=>`<span class="chip ${tp==='b'?'r':tp==='d'?'':'g'}">${tp==='b'?'✕':tp==='d'?'★':'✓'} ${esc(m)}
     <span class="dim">${tp==='d'?'decider':esc(tag)}</span></span>`).join(' ');
+  /* de que lado cada jogador jogou: pela escalação guardada, senão pelo clube */
+  const ladoDe=(id,i,meio)=>r.esc?(r.esc.a.includes(id)?0:1):(i<meio?0:1);
   const mapas=(d.mp||[]).map((mp,i)=>{
     const ls=linhasDe(mp.st);
     const meio=Math.ceil(ls.length/2);
@@ -290,13 +293,14 @@ function modalSerie(chave){
       ${lista.sort((x,y)=>y.acs-x.acs).map(l=>{const p=G.jogadores[l.id];
         return `<tr class="${p?'jrow':''} ${l.id===d.mvp?'mvp':''}" ${p?`data-p="${l.id}"`:''}><td><span class="linha-t">${p?retrato(p,22):''}<span>${esc(p?p.nome:'—')}</span></span>${l.id===d.mvp?' <span class="chip g">MVP</span>':''}</td>
         <td class="r num">${l.k}</td><td class="r num">${l.d}</td><td class="r num">${l.a}</td><td class="r num"><b>${l.acs}</b></td></tr>`;}).join('')}</tbody></table>`;
+    const la=ls.filter((l,j)=>ladoDe(l.id,j,meio)===0), lb=ls.filter((l,j)=>ladoDe(l.id,j,meio)===1);
     const ladoA=mp.l==='atk'?'atacando':mp.l==='def'?'defendendo':'';
     return `<div class="sr-mapa">
       <div class="sr-mapa-topo" style="${fundoMapa(mp.m,0.55)}">
         <span class="sr-n">Mapa ${i+1}</span><b class="sr-m">${esc(mp.m)}</b>
         <span class="sr-placar"><b class="${mp.a>mp.b?'w':''}">${mp.a}</b> – <b class="${mp.b>mp.a?'w':''}">${mp.b}</b></span>
         ${ladoA?`<span class="dim">${esc(A?A.tag:'')} começou ${ladoA}</span>`:''}</div>
-      ${ls.length?`<div class="grid g2">${tabela(ls.slice(0,meio),A)}${tabela(ls.slice(meio),B)}</div>`
+      ${ls.length?`<div class="grid g2">${tabela(la,A)}${tabela(lb,B)}</div>`
         :'<div class="dim" style="padding:8px 0">Linha dos jogadores guardada só nas séries de playoffs, internacionais e do seu clube.</div>'}
     </div>`;}).join('')||`<div class="dim">${esc(r.mapa||'')}</div>`;
   /* MVP da série com a carta e a soma dos mapas */
@@ -305,16 +309,16 @@ function modalSerie(chave){
   if(pm){
     let k=0,de=0,a=0,acs=0,n=0;
     for(const mp of d.mp||[])for(const l of linhasDe(mp.st))if(l.id===d.mvp){k+=l.k;de+=l.d;a+=l.a;acs+=l.acs;n++;}
+    const doMvp=o.doMvp?o.doMvp(pm):tagT(pm.timeId);
     mvpBox=`<div class="sr-mvp">${cartaJogador(pm,{w:92,clique:true})}<div>
       <div class="eyebrow gold">MVP da série</div><b class="sr-mvp-n">${esc(pm.nome)}</b>
-      <div class="dim">${esc(tagT(pm.timeId))} · ${esc(pm.role)}</div>
+      <div class="dim">${esc(doMvp)} · ${esc(pm.role)}</div>
       ${n?`<div class="sr-mvp-st"><span><b class="num">${k}/${de}/${a}</b>K/D/A</span><span><b class="num">${Math.round(acs/n)}</b>ACS</span><span><b class="num">${(k/Math.max(1,de)).toFixed(2)}</b>K/D</span></div>`:''}
     </div></div>`;
   }
-  const corS=typeof corDoEvento==='function'&&s.torneioId?corDoEvento({id:s.torneioId,tier:s.tier}):'var(--red)';
-  abrir(`<div class="sr" style="--cor:${corS}">
+  return `<div class="sr${o.classe?' '+o.classe:''}" style="--cor:${o.cor||'var(--red)'}">
     <div class="sr-cabeca">
-      <div class="eyebrow">${s.torneioId?arteTorneio(torneio(s.torneioId),18)+' ':''}${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}</div>
+      <div class="eyebrow">${o.cab||''}</div>
       <div class="sr-topo">
         <div class="sr-time ${vA?'w':'l'}">${escudo(A,72)}<div><b>${esc(A?A.nome:'—')}</b><span class="dim">${esc(A?A.tag:'')}</span></div></div>
         <div class="sr-score"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
@@ -324,10 +328,24 @@ function modalSerie(chave){
     ${mvpBox}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     ${mapas}
+    ${o.rodape||''}
     <div class="split" style="margin-top:12px"><span></span><button class="btn ghost" id="srFechar">Fechar</button></div>
-  </div>`,true);
+  </div>`;
+}
+function _ligarFichaSerie(){
   const f=document.querySelector('#srFechar');if(f)f.onclick=()=>fechar();
   document.querySelectorAll('#modal .jrow').forEach(x=>x.onclick=()=>modalJogador(x.dataset.p));
+}
+function modalSerie(chave){
+  const [sid,n]=String(chave).split('|');
+  const s=acharStage(sid);
+  const r=s&&(s.resultados||[])[+n];
+  if(!r)return;
+  const A=G.times[r.a],B=G.times[r.b];
+  const corS=typeof corDoEvento==='function'&&s.torneioId?corDoEvento({id:s.torneioId,tier:s.tier}):'var(--red)';
+  abrir(htmlFichaSerie(r,A,B,{cor:corS,
+    cab:`${s.torneioId?arteTorneio(torneio(s.torneioId),18)+' ':''}${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}`}),true);
+  _ligarFichaSerie();
 }
 
 function ligarCompeticoes(v,on){

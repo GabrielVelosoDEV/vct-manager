@@ -533,8 +533,11 @@ function serieFecharMapa(S){
 }
 /* Fecha a série: consolida, aplica o que a partida deixa no mundo e devolve o
    MESMO objeto que simPartida sempre devolveu. */
-function fecharSerie(S,ctx){
-  const{A,B,aId,bId,bo}=S;
+/* A soma da série e o MVP. O MVP sai de quem jogou pelo vencedor (os
+   titulares dele), não do clube do jogador: numa partida de seleção, o
+   clube de cada um é outro. Nos clubes dá o mesmo de sempre. */
+function consolidarSerie(S){
+  const{A,B,aId,bId}=S;
   const vencedor=S.wa>S.wb?aId:bId, perdedor=S.wa>S.wb?bId:aId;
   const agg={};
   S.mapas.forEach(mp=>{for(const id in mp.st){
@@ -542,12 +545,18 @@ function fecharSerie(S,ctx){
     const s=mp.st[id];agg[id].k+=s.k;agg[id].d+=s.d;agg[id].a+=s.a;agg[id].fk+=s.fk;agg[id].cl+=s.cl;agg[id].rounds+=s.rounds;
     if(s.rounds>0){agg[id].maps++;agg[id].acsSoma+=acsDe(s);}
   }});
+  const doVencedor=new Set((vencedor===aId?A:B).titulares||[]);
   let mvp=null,best=-1;
   for(const id in agg){
-    if(G.jogadores[id].timeId!==vencedor)continue;
+    if(!doVencedor.has(id))continue;
     const sc=acsDe(agg[id])+agg[id].cl*30;
     if(sc>best){best=sc;mvp=id;}
   }
+  return{vencedor,perdedor,agg,mvp};
+}
+function fecharSerie(S,ctx){
+  const{A,B,aId,bId,bo}=S;
+  const{vencedor,perdedor,agg,mvp}=consolidarSerie(S);
   /* decisão: grande final em Bo5 ou série de mata-mata — mexe em dobro na
      confiança de quem joga */
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;

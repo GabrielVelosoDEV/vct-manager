@@ -4,6 +4,7 @@
    convocação de cada seleção. Na C4 isto vira o hub do evento.
    ============================================================ */
 let copaVer=null;   /* país aberto na tela */
+let copaSelAtual=null;   /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
 
 function semanasAteFinalDaCopa(){
   const ano=proximaCopa(G.ano);
@@ -17,6 +18,7 @@ function vCopa(){
   const elimAno=ano-1;
   const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`:G.ano===elimAno?'Eliminatórias no fim desta temporada':'A Copa é no fim desta temporada';
   const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
+  copaSelAtual=sel;
   const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
   const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
   return `<section class="card cp-hero">
@@ -36,7 +38,49 @@ function vCopa(){
         <p class="dim">Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre). O ranking nasce da força do melhor cinco de cada país e, a partir da primeira Copa, anda com os resultados.</p></div>
       ${cardConvocacao(sel)}
     </div>
-    ${cardEliminatorias(ano,sel)}`;
+    ${cardEliminatorias(ano,sel)}
+    ${cardAmistoso(sel)}`;
+}
+/* ---------- amistoso: a partida de seleção, sem valer nada ----------
+   Joga no motor dos clubes com sorteio próprio: não mexe no mundo nem no
+   ranking. Serve para ver duas seleções em quadra antes da Copa. */
+let copaAdv=null;
+function timeVisualSelecao(pais){
+  const i=infoSelecao(pais)||{nome:pais,sigla:pais};
+  return{nome:i.nome,tag:i.sigla,logo:ASSETS.logoSelecao(pais)||ASSETS.bandeira(pais)||''};
+}
+function cardAmistoso(sel){
+  const c=garantirCopa();
+  const outros=rankingPaises().filter(x=>x.pais!==sel);
+  const adv=copaAdv&&copaAdv!==sel&&infoSelecao(copaAdv)?copaAdv:outros[0].pais;
+  const lista=(c.amistosos||[]);
+  const nome=p=>{const i=infoSelecao(p);return i?i.nome:p;};
+  return `<div class="card cx-linha cp-amistoso"><div class="eyebrow">Amistoso</div>
+    <p class="dim">Duas seleções no mesmo motor dos clubes, com veto, mapa a mapa e ficha. Não vale ponto no ranking nem mexe em ninguém.</p>
+    <div class="cp-am-linha">
+      <span class="cp-am-t">${escudo(timeVisualSelecao(sel),40)}<b>${esc(nome(sel))}</b></span>
+      <span class="dim">×</span>
+      <select id="cpAdv">${outros.map(x=>`<option value="${x.pais}" ${x.pais===adv?'selected':''}>${esc(x.nome)} (${x.sigla})</option>`).join('')}</select>
+      <button class="btn" data-cpamistoso="3">Jogar MD3</button>
+      <button class="btn ghost" data-cpamistoso="5">Jogar MD5</button>
+    </div>
+    ${lista.length?`<table class="tbl cp-am-hist"><tbody>${lista.map((f,i)=>`<tr data-cpficha="${i}" style="cursor:pointer">
+      <td>${bandeira(f.a)} <b class="${f.v===f.a?'up':''}">${esc(nome(f.a))}</b></td>
+      <td class="num c"><b>${f.wa} – ${f.wb}</b></td>
+      <td>${bandeira(f.b)} <b class="${f.v===f.b?'up':''}">${esc(nome(f.b))}</b></td>
+      <td class="dim">MD${f.bo} · ${esc(f.mapa)}</td></tr>`).join('')}</tbody></table>`:''}
+  </div>`;
+}
+function modalSerieSelecao(f){
+  if(!f)return;
+  const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
+  const lado=pm=>f.esc&&f.esc.a.includes(pm.id)?sig(f.a):sig(f.b);
+  const tec=['a','b'].map(k=>{const m=f.tec&&f.tec[k]&&G.staff&&G.staff[f.tec[k]];
+    return m?`<span>${bandeira(f[k])} técnico: <b>${esc(m.nome)}</b> ${bandeira(m.pais)}</span>`:'';}).join('');
+  abrir(htmlFichaSerie(f,timeVisualSelecao(f.a),timeVisualSelecao(f.b),{cor:'#e0b252',classe:'sr-selecao',
+    cab:`Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
+    doMvp:lado,rodape:tec?`<div class="sr-tecnicos dim">${tec}</div>`:''}),true);
+  _ligarFichaSerie();
 }
 /* convidadas e grupos das eliminatórias, como seriam se o sorteio fosse hoje */
 function cardEliminatorias(ano,sel){
@@ -64,4 +108,13 @@ function cardConvocacao(pais){
 }
 function ligarCopa(v,on){
   on('[data-copapais]',el=>{copaVer=el.dataset.copapais;render();});
+  const adv=document.querySelector('#cpAdv');if(adv)adv.onchange=()=>{copaAdv=adv.value;};
+  on('[data-cpamistoso]',el=>{
+    const sel=document.querySelector('#cpAdv'), minha=copaSelAtual;
+    if(!sel||!minha)return;
+    copaAdv=sel.value;
+    const f=amistosoSelecoes(minha,sel.value,+el.dataset.cpamistoso);
+    render();modalSerieSelecao(f);
+  });
+  on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
 }

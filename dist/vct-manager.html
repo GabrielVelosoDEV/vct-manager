@@ -3574,6 +3574,12 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cp-grupo{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px}
 .cp-g-tit{font-weight:700;font-size:13px}
 .cp-g-tit .dim{font-weight:400;font-size:11px;margin-left:4px}
+.cp-am-linha{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+.cp-am-t{display:inline-flex;align-items:center;gap:8px;font-size:16px}
+.cp-am-t img{object-fit:contain}
+.cp-am-hist td{padding:7px 8px}
+.sr-selecao .logo-t{object-fit:contain;background:none}
+.sr-tecnicos{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px}
 /* bandeira em imagem (assets/bandeiras), do tamanho da letra */
 img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
 
@@ -18396,8 +18402,11 @@ function serieFecharMapa(S){
 }
 /* Fecha a série: consolida, aplica o que a partida deixa no mundo e devolve o
    MESMO objeto que simPartida sempre devolveu. */
-function fecharSerie(S,ctx){
-  const{A,B,aId,bId,bo}=S;
+/* A soma da série e o MVP. O MVP sai de quem jogou pelo vencedor (os
+   titulares dele), não do clube do jogador: numa partida de seleção, o
+   clube de cada um é outro. Nos clubes dá o mesmo de sempre. */
+function consolidarSerie(S){
+  const{A,B,aId,bId}=S;
   const vencedor=S.wa>S.wb?aId:bId, perdedor=S.wa>S.wb?bId:aId;
   const agg={};
   S.mapas.forEach(mp=>{for(const id in mp.st){
@@ -18405,12 +18414,18 @@ function fecharSerie(S,ctx){
     const s=mp.st[id];agg[id].k+=s.k;agg[id].d+=s.d;agg[id].a+=s.a;agg[id].fk+=s.fk;agg[id].cl+=s.cl;agg[id].rounds+=s.rounds;
     if(s.rounds>0){agg[id].maps++;agg[id].acsSoma+=acsDe(s);}
   }});
+  const doVencedor=new Set((vencedor===aId?A:B).titulares||[]);
   let mvp=null,best=-1;
   for(const id in agg){
-    if(G.jogadores[id].timeId!==vencedor)continue;
+    if(!doVencedor.has(id))continue;
     const sc=acsDe(agg[id])+agg[id].cl*30;
     if(sc>best){best=sc;mvp=id;}
   }
+  return{vencedor,perdedor,agg,mvp};
+}
+function fecharSerie(S,ctx){
+  const{A,B,aId,bId,bo}=S;
+  const{vencedor,perdedor,agg,mvp}=consolidarSerie(S);
   /* decisão: grande final em Bo5 ou série de mata-mata — mexe em dobro na
      confiança de quem joga */
   const st=ctx&&ctx.stage&&typeof acharStage==='function'?acharStage(ctx.stage):null;
@@ -28887,6 +28902,233 @@ function orientarNacionalidadesCopa(){
 }
 
 
+/* ===== src/core/selecao-jogo.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — A PARTIDA DE SELEÇÃO (C1)
+   ------------------------------------------------------------
+   Uma seleção não mora em G.times: não joga liga, não tem caixa e
+   não entra no mercado. Para jogar, ela vira um time de verdade só
+   durante a série — entra em G.times com o id SEL-<país>, joga no
+   mesmo motor dos clubes (veto, mapa a mapa, round a round) e sai.
+
+   Durante a série, os convocados jogam na função que a seleção dá a
+   eles (roleAtual); depois, cada um volta para a função do clube.
+   Clube, elenco, contrato e mercado não são tocados.
+
+   O que fica da série:
+     · a ficha (veto, placar e linha de cada jogador por mapa, MVP);
+     · as estatísticas de seleção de cada convocado (p.selecao), que
+       não se misturam com as da temporada do clube;
+     · forma, cansaço e moral, mais leves que numa série de clube;
+     · a afinidade de mapa, como em qualquer partida;
+     · os pontos do ranking de países (menos no amistoso).
+
+   Comissão: cada seleção tem técnico e analista escolhidos entre
+   todos os profissionais do mundo — com ou sem clube, porque a
+   seleção só joga no fim da temporada. As federações preferem quem
+   é do país; sem ninguém de nível alto em casa, vão atrás de
+   estrangeiros. Escolha sem sorteio, refeita a cada ciclo.
+   ============================================================ */
+
+const SEL_PREFERE_NACIONAL=1.5;   /* em níveis de comissão (1 a 5): nacional vale um nível e meio a mais */
+const SEL_SINERGIA_BASE=44;       /* seleção treina pouco junta: abaixo do clube médio (55) */
+const SEL_SINERGIA_DUPLA=3;       /* por dupla de titulares que joga no mesmo clube */
+const SEL_SINERGIA_MAX=68;
+const SEL_K_RANKING=32;           /* Elo: o quanto uma série mexe nos pontos */
+
+/* ---------- a comissão ---------- */
+function _candidatosComissao(cargo){
+  return Object.values(G.staff||{}).filter(m=>m&&m.cargo===cargo&&!m.aposentado)
+    .map(m=>({m,n:typeof nivelDe==='function'?nivelDe(m):2}));
+}
+/* Todas de uma vez, das mais fortes para as mais fracas: a federação maior
+   escolhe primeiro. Ninguém comanda duas seleções. */
+function escolherComissoesSelecoes(){
+  const c=garantirCopa();if(!c)return null;
+  c.comissao={};c.comissaoAno=G.ano;
+  const usados=new Set();
+  const ordem=rankingPaises().map(x=>x.pais);
+  for(const cargo of ['tecnico','analista']){
+    const cand=_candidatosComissao(cargo);
+    for(const pais of ordem){
+      let melhor=null,nota=-1;
+      for(const x of cand){
+        if(usados.has(x.m.id))continue;
+        const v=x.n+(x.m.pais===pais?SEL_PREFERE_NACIONAL:0);
+        if(v>nota||(v===nota&&melhor&&String(x.m.id)<String(melhor.id))){nota=v;melhor=x.m;}
+      }
+      (c.comissao[pais]=c.comissao[pais]||{})[cargo]=melhor?melhor.id:null;
+      if(melhor)usados.add(melhor.id);
+    }
+  }
+  return c.comissao;
+}
+function comissaoDaSelecao(pais){
+  const c=garantirCopa();if(!c)return{};
+  const viva=id=>id&&G.staff&&G.staff[id]&&!G.staff[id].aposentado;
+  if(!c.comissao||!c.comissao[pais]||!viva(c.comissao[pais].tecnico))escolherComissoesSelecoes();
+  return c.comissao[pais]||{};
+}
+
+/* ---------- a seleção como time ---------- */
+function idSelecao(pais){return 'SEL-'+pais;}
+function paisDoTimeSelecao(id){return String(id||'').startsWith('SEL-')?String(id).slice(4):null;}
+function sinergiaSelecao(titulares){
+  const rs=titulares.map(i=>G.jogadores[i]).filter(Boolean);
+  let duplas=0;
+  for(let i=0;i<rs.length;i++)for(let j=i+1;j<rs.length;j++)
+    if(rs[i].timeId&&rs[i].timeId===rs[j].timeId)duplas++;
+  return clamp(SEL_SINERGIA_BASE+duplas*SEL_SINERGIA_DUPLA,0,SEL_SINERGIA_MAX);
+}
+/* O time de uma partida: convocação de agora, comissão da federação,
+   tática pelo perfil do elenco. `conv` permite escalar outra convocação
+   (o técnico da seleção, na C7). */
+function timeDaSelecao(pais,conv){
+  const info=infoSelecao(pais);
+  conv=conv||convocacao(pais);
+  if(!info||!conv||conv.titulares.length<5)return null;
+  const com=comissaoDaSelecao(pais);
+  const nivel=id=>{const m=id&&G.staff&&G.staff[id];return m&&typeof nivelDe==='function'?nivelDe(m):NIVEL_NEUTRO;};
+  const tit=conv.titulares.slice(0,5);
+  const t={
+    id:idSelecao(pais),selecao:pais,nome:info.nome,tag:info.sigla,regiao:null,tier:1,
+    logo:(typeof ASSETS!=='undefined'&&(ASSETS.logoSelecao(pais)||ASSETS.bandeira(pais)))||'',
+    elenco:tit.concat(conv.reservas||[]),titulares:tit,igl:null,
+    comissao:{tecnico:com.tecnico||null,analista:com.analista||null},
+    staff:{tecnico:nivel(com.tecnico),analista:nivel(com.analista),mental:NIVEL_NEUTRO,fisio:NIVEL_NEUTRO,olheiro:NIVEL_NEUTRO},
+    sinergia:sinergiaSelecao(tit),mapPref:{},
+    tatica:{agres:3,foco:'default',scrim:0},
+    comps:{},temporada:{v:0,d:0},prestigio:50
+  };
+  const rs=tit.map(i=>G.jogadores[i]).filter(Boolean);
+  const cand=rs.slice().sort((a,b)=>b.at.lider-a.at.lider)[0];
+  t.igl=cand?cand.id:null;
+  /* elenco de mira joga para frente; de utilidade, travado (táticas de match.js) */
+  const perfil=typeof perfilAgressivo==='function'?perfilAgressivo(t):0;
+  t.tatica.agres=clamp(3+Math.round(perfil/6),2,4);
+  return t;
+}
+
+/* Põe as seleções no mundo só enquanto `fn` roda. Os convocados jogam na
+   função da seleção e voltam para a do clube no fim, aconteça o que acontecer. */
+function comSelecoesEmCampo(times,fn){
+  const guardaRole={}, guardaTime={};
+  try{
+    for(const t of times){
+      guardaTime[t.id]=G.times[t.id];
+      G.times[t.id]=t;
+      const rs=t.titulares.map(i=>G.jogadores[i]).filter(Boolean);
+      const dist=distribuirFuncoes(rs);
+      rs.forEach((p,i)=>{if(!(p.id in guardaRole))guardaRole[p.id]=p.roleAtual;p.roleAtual=dist.atrib[i];});
+      if(typeof compIA==='function')compIA(t);
+    }
+    return fn();
+  }finally{
+    for(const id in guardaRole){const p=G.jogadores[id];if(p)p.roleAtual=guardaRole[id];}
+    for(const id in guardaTime){if(guardaTime[id])G.times[id]=guardaTime[id];else delete G.times[id];}
+  }
+}
+
+/* ---------- a série ----------
+   ctx: {bo, nome (da competição), fase, peso (no ranking; 0 = não conta),
+         amistoso (sorteio local e nada muda no mundo), semana}
+   Devolve a ficha enxuta, no formato que a tela de série já sabe ler. */
+function jogarSerieSelecoes(paisA,paisB,ctx){
+  ctx=ctx||{};
+  const bo=ctx.bo||COPA_MD_GRUPOS;
+  const A=timeDaSelecao(paisA), B=timeDaSelecao(paisB);
+  if(!A||!B)return _woSelecoes(paisA,paisB,A,B,bo,ctx);
+  const jogar=()=>comSelecoesEmCampo([A,B],()=>{
+    const S=abrirSerie(A.id,B.id,bo,ctx.veto,null);
+    while(!S.fim){
+      if(!serieAbrirMapa(S))break;
+      while(!S.M.fim)passoRound(S.M);
+      serieFecharMapa(S);
+    }
+    return Object.assign({S},consolidarSerie(S));
+  });
+  const r=ctx.amistoso&&typeof comSorteioLocal==='function'
+    ?comSorteioLocal('amistoso|'+(G.seed||0)+'|'+paisA+'|'+paisB+'|'+(ctx.n||0),jogar):jogar();
+  const ficha=_fichaSelecoes(paisA,paisB,A,B,bo,r,ctx);
+  if(!ctx.amistoso){
+    _posSerieSelecoes(r);
+    if(ctx.peso!==0)rankingPosSerie(ficha,ctx.peso==null?1:ctx.peso);
+  }
+  return ficha;
+}
+function _fichaSelecoes(paisA,paisB,A,B,bo,r,ctx){
+  const S=r.S, venc=r.vencedor===A.id?paisA:paisB;
+  return{
+    a:paisA,b:paisB,wa:S.wa,wb:S.wb,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+    nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,
+    esc:{a:A.titulares.slice(),b:B.titulares.slice()},
+    tec:{a:A.comissao.tecnico,b:B.comissao.tecnico},
+    mapa:S.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
+    det:{
+      v:(S.veto.seq||[]).map(x=>[x.m,x.tipo==='ban'?'b':x.tipo==='dec'?'d':'p',x.t||'']),
+      mp:S.mapas.map(m=>({m:m.mapa,a:m.sa,b:m.sb,l:m.hist&&m.hist[0]?m.hist[0].lado:null,
+        st:Object.entries(m.st||{}).filter(([,x])=>x&&x.rounds>0)
+          .map(([id,x])=>id+':'+x.k+','+x.d+','+x.a+','+Math.round(acsDe(x))).join('|')})),
+      mvp:r.mvp||null}
+  };
+}
+/* Seleção sem cinco convocáveis perde sem jogar (placar mínimo). */
+function _woSelecoes(paisA,paisB,A,B,bo,ctx){
+  const venc=A&&!B?paisA:B&&!A?paisB:paisA, need=Math.ceil(bo/2);
+  return{a:paisA,b:paisB,wa:venc===paisA?need:0,wb:venc===paisB?need:0,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+    nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,mapa:'W.O.',wo:venc===paisA?paisB:paisA,det:{v:[],mp:[],mvp:null}};
+}
+
+/* ---------- o que a série deixa ---------- */
+function statsSelecao(p){
+  if(!p.selecao)p.selecao={series:0,v:0,maps:0,k:0,d:0,a:0,fk:0,cl:0,acs:0,mvp:0,estreia:G.ano};
+  return p.selecao;
+}
+function _posSerieSelecoes(r){
+  const venc=r.vencedor, ganhou=new Set((r.S[venc===r.S.A.id?'A':'B'].titulares)||[]);
+  for(const id in r.agg){
+    const p=G.jogadores[id],s=r.agg[id];if(!p)continue;
+    const x=statsSelecao(p);
+    x.series++;if(ganhou.has(id))x.v++;
+    x.maps+=s.maps;x.k+=s.k;x.d+=s.d;x.a+=s.a;x.fk+=s.fk;x.cl+=s.cl;x.acs+=s.acsSoma;
+    if(id===r.mvp)x.mvp++;
+    const kd=s.d?s.k/s.d:2;
+    p.forma=clamp(p.forma+(kd-1.02)*0.04,.15,1);
+    p.fadiga=clamp(p.fadiga+0.04,0,1);
+    p.moral=clamp(p.moral+(ganhou.has(id)?0.03:-0.035),.15,1);
+  }
+  for(const mp of r.S.mapas)for(const id in mp.st){
+    const p=G.jogadores[id],st=mp.st[id];
+    if(p&&st.rounds&&typeof evoluirAfinidade==='function')evoluirAfinidade(p,mp.mapa,acsDe(st));
+  }
+}
+/* Elo do ranking de países. Ganhar de quem está acima vale mais; o placar
+   largo (2–0, 3–0) vale um pouco mais que o apertado. `peso` é o tamanho
+   da partida: eliminatórias 1, grupos da Copa 1,5, mata-mata 2. */
+function rankingPosSerie(f,peso){
+  const c=garantirCopa();if(!c||!f||f.amistoso)return 0;
+  const ra=c.ranking[f.a]||RANKING_BASE, rb=c.ranking[f.b]||RANKING_BASE;
+  const esperado=1/(1+Math.pow(10,(rb-ra)/400));
+  const res=f.v===f.a?1:0;
+  const margem=1+0.25*Math.max(0,Math.abs(f.wa-f.wb)-1);
+  const d=Math.round(SEL_K_RANKING*(peso||1)*margem*(res-esperado));
+  c.ranking[f.a]=ra+d;c.ranking[f.b]=rb-d;
+  return d;
+}
+
+/* ---------- amistoso (a tela da Copa) ----------
+   Sorteio local: o mundo não muda, nem os pontos. Guarda os últimos cinco
+   para a ficha poder ser reaberta. */
+const AMISTOSOS_GUARDADOS=5;
+function amistosoSelecoes(paisA,paisB,bo){
+  const c=garantirCopa();if(!c)return null;
+  c.nAmistoso=(c.nAmistoso||0)+1;
+  const f=jogarSerieSelecoes(paisA,paisB,{bo:bo||COPA_MD_GRUPOS,amistoso:true,nome:'Amistoso',n:c.nAmistoso});
+  c.amistosos=[f].concat(c.amistosos||[]).slice(0,AMISTOSOS_GUARDADOS);
+  return f;
+}
+
+
 /* ===== src/core/offseason.js ===== */
 /* ============================================================
    FIM DE TEMPORADA
@@ -38926,18 +39168,21 @@ function premiacaoDoEvento(e,premios){
     </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
 }
 
-/* ---------- ficha da série ---------- */
-function modalSerie(chave){
-  const [sid,n]=String(chave).split('|');
-  const s=acharStage(sid);
-  const r=s&&(s.resultados||[])[+n];
-  if(!r)return;
-  const A=G.times[r.a],B=G.times[r.b],d=r.det||{};
+/* ---------- ficha da série ----------
+   htmlFichaSerie desenha qualquer série guardada no formato enxuto
+   (competition.js e selecao-jogo.js): A e B só precisam de nome, tag e o
+   que escudo() lê. `o.cab` é a linha de cima; `o.doMvp` diz por quem o MVP
+   jogou (o clube, ou a sigla da seleção). */
+function htmlFichaSerie(r,A,B,o){
+  o=o||{};
+  const d=r.det||{};
   const vA=r.v===r.a;
   const linhasDe=(stStr)=>String(stStr||'').split('|').filter(Boolean).map(x=>{
     const [id,nums]=x.split(':');const [k,de,a,acs]=nums.split(',').map(Number);return{id,k,d:de,a,acs};});
   const veto=(d.v||[]).map(([m,tp,tag])=>`<span class="chip ${tp==='b'?'r':tp==='d'?'':'g'}">${tp==='b'?'✕':tp==='d'?'★':'✓'} ${esc(m)}
     <span class="dim">${tp==='d'?'decider':esc(tag)}</span></span>`).join(' ');
+  /* de que lado cada jogador jogou: pela escalação guardada, senão pelo clube */
+  const ladoDe=(id,i,meio)=>r.esc?(r.esc.a.includes(id)?0:1):(i<meio?0:1);
   const mapas=(d.mp||[]).map((mp,i)=>{
     const ls=linhasDe(mp.st);
     const meio=Math.ceil(ls.length/2);
@@ -38946,13 +39191,14 @@ function modalSerie(chave){
       ${lista.sort((x,y)=>y.acs-x.acs).map(l=>{const p=G.jogadores[l.id];
         return `<tr class="${p?'jrow':''} ${l.id===d.mvp?'mvp':''}" ${p?`data-p="${l.id}"`:''}><td><span class="linha-t">${p?retrato(p,22):''}<span>${esc(p?p.nome:'—')}</span></span>${l.id===d.mvp?' <span class="chip g">MVP</span>':''}</td>
         <td class="r num">${l.k}</td><td class="r num">${l.d}</td><td class="r num">${l.a}</td><td class="r num"><b>${l.acs}</b></td></tr>`;}).join('')}</tbody></table>`;
+    const la=ls.filter((l,j)=>ladoDe(l.id,j,meio)===0), lb=ls.filter((l,j)=>ladoDe(l.id,j,meio)===1);
     const ladoA=mp.l==='atk'?'atacando':mp.l==='def'?'defendendo':'';
     return `<div class="sr-mapa">
       <div class="sr-mapa-topo" style="${fundoMapa(mp.m,0.55)}">
         <span class="sr-n">Mapa ${i+1}</span><b class="sr-m">${esc(mp.m)}</b>
         <span class="sr-placar"><b class="${mp.a>mp.b?'w':''}">${mp.a}</b> – <b class="${mp.b>mp.a?'w':''}">${mp.b}</b></span>
         ${ladoA?`<span class="dim">${esc(A?A.tag:'')} começou ${ladoA}</span>`:''}</div>
-      ${ls.length?`<div class="grid g2">${tabela(ls.slice(0,meio),A)}${tabela(ls.slice(meio),B)}</div>`
+      ${ls.length?`<div class="grid g2">${tabela(la,A)}${tabela(lb,B)}</div>`
         :'<div class="dim" style="padding:8px 0">Linha dos jogadores guardada só nas séries de playoffs, internacionais e do seu clube.</div>'}
     </div>`;}).join('')||`<div class="dim">${esc(r.mapa||'')}</div>`;
   /* MVP da série com a carta e a soma dos mapas */
@@ -38961,16 +39207,16 @@ function modalSerie(chave){
   if(pm){
     let k=0,de=0,a=0,acs=0,n=0;
     for(const mp of d.mp||[])for(const l of linhasDe(mp.st))if(l.id===d.mvp){k+=l.k;de+=l.d;a+=l.a;acs+=l.acs;n++;}
+    const doMvp=o.doMvp?o.doMvp(pm):tagT(pm.timeId);
     mvpBox=`<div class="sr-mvp">${cartaJogador(pm,{w:92,clique:true})}<div>
       <div class="eyebrow gold">MVP da série</div><b class="sr-mvp-n">${esc(pm.nome)}</b>
-      <div class="dim">${esc(tagT(pm.timeId))} · ${esc(pm.role)}</div>
+      <div class="dim">${esc(doMvp)} · ${esc(pm.role)}</div>
       ${n?`<div class="sr-mvp-st"><span><b class="num">${k}/${de}/${a}</b>K/D/A</span><span><b class="num">${Math.round(acs/n)}</b>ACS</span><span><b class="num">${(k/Math.max(1,de)).toFixed(2)}</b>K/D</span></div>`:''}
     </div></div>`;
   }
-  const corS=typeof corDoEvento==='function'&&s.torneioId?corDoEvento({id:s.torneioId,tier:s.tier}):'var(--red)';
-  abrir(`<div class="sr" style="--cor:${corS}">
+  return `<div class="sr${o.classe?' '+o.classe:''}" style="--cor:${o.cor||'var(--red)'}">
     <div class="sr-cabeca">
-      <div class="eyebrow">${s.torneioId?arteTorneio(torneio(s.torneioId),18)+' ':''}${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}</div>
+      <div class="eyebrow">${o.cab||''}</div>
       <div class="sr-topo">
         <div class="sr-time ${vA?'w':'l'}">${escudo(A,72)}<div><b>${esc(A?A.nome:'—')}</b><span class="dim">${esc(A?A.tag:'')}</span></div></div>
         <div class="sr-score"><span class="${vA?'w':''}">${r.wa}</span><i>:</i><span class="${vA?'':'w'}">${r.wb}</span></div>
@@ -38980,10 +39226,24 @@ function modalSerie(chave){
     ${mvpBox}
     ${veto?`<div class="sr-veto"><span class="eyebrow">Veto</span> ${veto}</div>`:''}
     ${mapas}
+    ${o.rodape||''}
     <div class="split" style="margin-top:12px"><span></span><button class="btn ghost" id="srFechar">Fechar</button></div>
-  </div>`,true);
+  </div>`;
+}
+function _ligarFichaSerie(){
   const f=document.querySelector('#srFechar');if(f)f.onclick=()=>fechar();
   document.querySelectorAll('#modal .jrow').forEach(x=>x.onclick=()=>modalJogador(x.dataset.p));
+}
+function modalSerie(chave){
+  const [sid,n]=String(chave).split('|');
+  const s=acharStage(sid);
+  const r=s&&(s.resultados||[])[+n];
+  if(!r)return;
+  const A=G.times[r.a],B=G.times[r.b];
+  const corS=typeof corDoEvento==='function'&&s.torneioId?corDoEvento({id:s.torneioId,tier:s.tier}):'var(--red)';
+  abrir(htmlFichaSerie(r,A,B,{cor:corS,
+    cab:`${s.torneioId?arteTorneio(torneio(s.torneioId),18)+' ':''}${esc(nomeStage(s))}${r.rd?' · '+esc(r.rd):''}${r.sem?' · '+rotuloSemana(G.ano,r.sem):''}`}),true);
+  _ligarFichaSerie();
 }
 
 function ligarCompeticoes(v,on){
@@ -43721,6 +43981,7 @@ function ligarLegado(v,on){
    convocação de cada seleção. Na C4 isto vira o hub do evento.
    ============================================================ */
 let copaVer=null;   /* país aberto na tela */
+let copaSelAtual=null;   /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
 
 function semanasAteFinalDaCopa(){
   const ano=proximaCopa(G.ano);
@@ -43734,6 +43995,7 @@ function vCopa(){
   const elimAno=ano-1;
   const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`:G.ano===elimAno?'Eliminatórias no fim desta temporada':'A Copa é no fim desta temporada';
   const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
+  copaSelAtual=sel;
   const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
   const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
   return `<section class="card cp-hero">
@@ -43753,7 +44015,49 @@ function vCopa(){
         <p class="dim">Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre). O ranking nasce da força do melhor cinco de cada país e, a partir da primeira Copa, anda com os resultados.</p></div>
       ${cardConvocacao(sel)}
     </div>
-    ${cardEliminatorias(ano,sel)}`;
+    ${cardEliminatorias(ano,sel)}
+    ${cardAmistoso(sel)}`;
+}
+/* ---------- amistoso: a partida de seleção, sem valer nada ----------
+   Joga no motor dos clubes com sorteio próprio: não mexe no mundo nem no
+   ranking. Serve para ver duas seleções em quadra antes da Copa. */
+let copaAdv=null;
+function timeVisualSelecao(pais){
+  const i=infoSelecao(pais)||{nome:pais,sigla:pais};
+  return{nome:i.nome,tag:i.sigla,logo:ASSETS.logoSelecao(pais)||ASSETS.bandeira(pais)||''};
+}
+function cardAmistoso(sel){
+  const c=garantirCopa();
+  const outros=rankingPaises().filter(x=>x.pais!==sel);
+  const adv=copaAdv&&copaAdv!==sel&&infoSelecao(copaAdv)?copaAdv:outros[0].pais;
+  const lista=(c.amistosos||[]);
+  const nome=p=>{const i=infoSelecao(p);return i?i.nome:p;};
+  return `<div class="card cx-linha cp-amistoso"><div class="eyebrow">Amistoso</div>
+    <p class="dim">Duas seleções no mesmo motor dos clubes, com veto, mapa a mapa e ficha. Não vale ponto no ranking nem mexe em ninguém.</p>
+    <div class="cp-am-linha">
+      <span class="cp-am-t">${escudo(timeVisualSelecao(sel),40)}<b>${esc(nome(sel))}</b></span>
+      <span class="dim">×</span>
+      <select id="cpAdv">${outros.map(x=>`<option value="${x.pais}" ${x.pais===adv?'selected':''}>${esc(x.nome)} (${x.sigla})</option>`).join('')}</select>
+      <button class="btn" data-cpamistoso="3">Jogar MD3</button>
+      <button class="btn ghost" data-cpamistoso="5">Jogar MD5</button>
+    </div>
+    ${lista.length?`<table class="tbl cp-am-hist"><tbody>${lista.map((f,i)=>`<tr data-cpficha="${i}" style="cursor:pointer">
+      <td>${bandeira(f.a)} <b class="${f.v===f.a?'up':''}">${esc(nome(f.a))}</b></td>
+      <td class="num c"><b>${f.wa} – ${f.wb}</b></td>
+      <td>${bandeira(f.b)} <b class="${f.v===f.b?'up':''}">${esc(nome(f.b))}</b></td>
+      <td class="dim">MD${f.bo} · ${esc(f.mapa)}</td></tr>`).join('')}</tbody></table>`:''}
+  </div>`;
+}
+function modalSerieSelecao(f){
+  if(!f)return;
+  const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
+  const lado=pm=>f.esc&&f.esc.a.includes(pm.id)?sig(f.a):sig(f.b);
+  const tec=['a','b'].map(k=>{const m=f.tec&&f.tec[k]&&G.staff&&G.staff[f.tec[k]];
+    return m?`<span>${bandeira(f[k])} técnico: <b>${esc(m.nome)}</b> ${bandeira(m.pais)}</span>`:'';}).join('');
+  abrir(htmlFichaSerie(f,timeVisualSelecao(f.a),timeVisualSelecao(f.b),{cor:'#e0b252',classe:'sr-selecao',
+    cab:`Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
+    doMvp:lado,rodape:tec?`<div class="sr-tecnicos dim">${tec}</div>`:''}),true);
+  _ligarFichaSerie();
 }
 /* convidadas e grupos das eliminatórias, como seriam se o sorteio fosse hoje */
 function cardEliminatorias(ano,sel){
@@ -43781,6 +44085,15 @@ function cardConvocacao(pais){
 }
 function ligarCopa(v,on){
   on('[data-copapais]',el=>{copaVer=el.dataset.copapais;render();});
+  const adv=document.querySelector('#cpAdv');if(adv)adv.onchange=()=>{copaAdv=adv.value;};
+  on('[data-cpamistoso]',el=>{
+    const sel=document.querySelector('#cpAdv'), minha=copaSelAtual;
+    if(!sel||!minha)return;
+    copaAdv=sel.value;
+    const f=amistosoSelecoes(minha,sel.value,+el.dataset.cpamistoso);
+    render();modalSerieSelecao(f);
+  });
+  on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
 }
 
 

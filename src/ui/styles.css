@@ -3540,5 +3540,11 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cp-grupo{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px}
 .cp-g-tit{font-weight:700;font-size:13px}
 .cp-g-tit .dim{font-weight:400;font-size:11px;margin-left:4px}
+.cp-am-linha{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+.cp-am-t{display:inline-flex;align-items:center;gap:8px;font-size:16px}
+.cp-am-t img{object-fit:contain}
+.cp-am-hist td{padding:7px 8px}
+.sr-selecao .logo-t{object-fit:contain;background:none}
+.sr-tecnicos{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px}
 /* bandeira em imagem (assets/bandeiras), do tamanho da letra */
 img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
