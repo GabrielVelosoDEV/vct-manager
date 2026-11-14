@@ -77,7 +77,7 @@ function semanaJogador(){
   return G.voce.sem;
 }
 function vezesFeita(id){const s=semanaJogador();return s?s.feitas.filter(f=>f.id===id).length:0;}
-function custoEnergia(a){return Math.max(1,Math.round(a.energia*(1-efeitosTalentos().en)));}
+function custoEnergia(a){const su=typeof efeitosSetup==='function'?efeitosSetup().en:0;return Math.max(1,Math.round(a.energia*(1-Math.min(.5,efeitosTalentos().en+su))));}
 /* devolve null se dá para fazer, ou o motivo */
 function porqueNaoAtividade(id){
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
@@ -113,7 +113,10 @@ function fatorXP(p,k){
   const a=p.idade, idade=a<=19?1.25:a<=22?1.1:a<=25?1:a<=27?.85:a<=30?.65:.45;
   const dif=XP_DIFICULDADE[(G.voce&&G.voce.dificuldade)||'normal']||1;
   const tal=1+((efeitosTalentos().xp||{})[k]||0);
-  return pot*idade*dif*tal;
+  /* setup e staff pessoal (core/carreira-mercado.js) */
+  const su=typeof efeitosSetup==='function'?efeitosSetup():null;
+  const setup=su?1+(su.xp[k]||0)+su.xpTodos:1;
+  return pot*idade*dif*tal*setup;
 }
 /* aplica x de XP bruto no atributo k; devolve quantos pontos subiu */
 function ganharXP(p,k,x){
@@ -209,7 +212,8 @@ function custoSemanaJogador(p){
 function semanaAutomatica(p){
   const s=semanaJogador();
   if(!s||s.feitas.length||!G.voce.auto||p.lesao)return false;
-  for(const id of ['coletivo','range','duelo','vod'])if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
+  /* sem clube, a ranked entra no lugar do treino do clube: é ela que traz os olheiros */
+  for(const id of (clubeDoJogador()?['coletivo','range','duelo','vod']:['ranked','range','duelo']))if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
   s.automatica=true;
   return true;
 }
@@ -248,6 +252,8 @@ function fecharSemanaJogador(p,t){
   }
   /* titularidade e relações (core/relacoes.js) */
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
+  /* dinheiro, propostas e o assistente de contrato (core/carreira-mercado.js) */
+  if(typeof financasSemana==='function')financasSemana(p,t);
   /* histórico curto das semanas (a tela mostra as últimas) */
   if(!G.voce.semanas)G.voce.semanas=[];
   G.voce.semanas.unshift({ano:s.ano,semana:s.semana,gasto:s.ini-s.energia,feitas:s.feitas.map(f=>f.id+(f.simulado?'*':'')),maps,auto:!!s.automatica});

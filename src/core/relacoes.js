@@ -22,11 +22,12 @@
    gerador do mundo: conversar não muda o resultado das partidas.
    ============================================================ */
 
-const CONF_TECNICO_INICIO={ranked:50,academia:50,challengers:50,banco:45,titular:68,lenda:82};
+const CONF_TECNICO_INICIO={ranked:50,tier2:50,banco:45,titular:68,lenda:82};
 const AJ_ATUAL=1.0;          /* vantagem de quem já é titular, em pontos de over */
 const AJ_CONDICAO=25;        /* condição 0,9 → −2,5 pontos */
 const AJ_CONFIANCA=5;        /* (confiança − 50)/5 → ±10 pontos; abaixo de 30, a geladeira cobra mais */
-const AJ_CHANCE=7;           /* "vou te dar uma chance": duas semanas de vantagem */
+const AJ_CHANCE=7;
+const AJ_CLAUSULA=5;         /* cláusula de titular no contrato (core/carreira-mercado.js) */           /* "vou te dar uma chance": duas semanas de vantagem */
 
 function _sorteRel(salt){
   let h=2166136261;
@@ -61,7 +62,7 @@ function ajusteDoTecnico(t){
   return p=>{
     let a=(condicao(p)-1)*AJ_CONDICAO;
     if(atuais.has(p.id))a+=AJ_ATUAL;
-    if(p.voce){a+=_pesoConf(confTecnico());if(chance)a+=AJ_CHANCE;}
+    if(p.voce){a+=_pesoConf(confTecnico());if(chance)a+=AJ_CHANCE;if(p.clausulas&&p.clausulas.titular)a+=AJ_CLAUSULA;}
     return a;
   };
 }
@@ -128,6 +129,7 @@ function _fatoresChance(p,t,aj){
   ];
   if((t.titulares||[]).includes(p.id))f.push({rot:'Já é titular',v:AJ_ATUAL,txt:'o técnico não mexe no cinco à toa'});
   if(chance)f.push({rot:'Chance prometida',v:AJ_CHANCE,txt:'o técnico disse que ia te dar uma chance'});
+  if(p.clausulas&&p.clausulas.titular)f.push({rot:'Cláusula de titular',v:AJ_CLAUSULA,txt:'está no seu contrato'});
   return f;
 }
 
@@ -225,7 +227,6 @@ function opcoesComTecnico(){
   out.push({id:'funcao',rot:'Pedir outra função',dica:'Ele aceita se você render perto do seu over nela. Abre a vaga dessa função para você.'});
   out.push({id:'feedback',rot:'Pedir feedback',dica:'Sem risco: ele diz o que pesa na escalação, e gosta de quem pergunta.'});
   out.push({id:'reclamar',rot:'Reclamar da escalação',dica:'Desabafo. A sua cabeça melhora um pouco; a confiança dele cai bastante.'});
-  out.push({id:'sair',rot:'Pedir para sair',dica:'Chega com contratos e mercado (J5).',off:true});
   return out;
 }
 function conversarComTecnico(opcao,extra){

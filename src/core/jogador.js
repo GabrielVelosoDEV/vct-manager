@@ -80,6 +80,8 @@ function criarCarreiraJogador(o){
   G.jogadores[p.id]=p;
   G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
   p.pico=Math.max(p.pico||0,over(p));p.xp={};
+  G.voce.caixa=typeof CAIXA_INICIAL!=='undefined'?(CAIXA_INICIAL[ini.id]||5000):5000;G.voce.autoContrato=true;
+  G.voce.vida=['ranked','tier2'].includes(ini.id)?'simples':'confortavel';
   if(typeof darTalentoDoEstilo==='function')darTalentoDoEstilo(p);   /* o estilo dá o talento de partida (core/talentos.js) */
   G.meuTime=null;
   /* onde você aparece no mundo */

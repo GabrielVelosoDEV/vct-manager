@@ -254,6 +254,8 @@ function pagar(ids,tabela){
     if(!t.premiosAno||t.premiosAno.ano!==G.ano)t.premiosAno={ano:G.ano,v:0};
     t.premiosAno.v+=clube;
     (t.elenco||[]).forEach(pid=>{const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+0.02,0.05,1);});
+    /* modo jogador: a sua parte do prêmio (core/carreira-mercado.js) */
+    if(G.voce&&typeof receberPremio==='function')receberPremio(t,v-clube,i);
     if(id===G.meuTime)noticia('Premiação: '+money(v)+'. '+money(clube)+' ficam no clube e o resto vai de bônus para os jogadores.',{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.

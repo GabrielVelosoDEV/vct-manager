@@ -3486,6 +3486,35 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .dj-ag{font-size:12px;padding:3px 6px;max-width:170px}
 @media (max-width:760px){.rl-fat>div{grid-template-columns:1fr 50px}.rl-fat i{grid-column:1/-1}.rl-tab th:nth-child(4),.rl-tab td:nth-child(4){display:none}}
 
+/* ---------- modo jogador: contrato, mercado e finanças (ui/mercado-jogador.js) ---------- */
+.mj-props{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:8px}
+.mj-prop{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:var(--panel2);display:flex;flex-direction:column;gap:8px}
+.mj-prop.acordo{border-color:color-mix(in srgb,#2fbf8f 60%,var(--line))}
+.mj-prop-top{display:flex;gap:12px;align-items:center}
+.mj-prop-top>div{display:flex;flex-direction:column}
+.mj-clube{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.04em}
+.mj-num{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px 12px;margin:8px 0}
+.mj-num>div{display:flex;flex-direction:column}
+.mj-num span{font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.mj-prop p{margin:0;font-size:13px}
+.mj-prop-b{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto}
+.mj-prop-b .dim{font-size:11.5px}
+.mj-emps{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.mj-emp{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.mj-emp span{font-size:12px;color:var(--dim)}
+.mj-emp .btn,.mj-emp>.dim{grid-row:1/3;grid-column:2}
+.mj-emp.off{opacity:.55}
+.mj-neg{max-width:640px}
+.mj-form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
+.mj-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--dim)}
+.mj-form .mj-chk{flex-direction:row;align-items:center;gap:8px;color:var(--tx)}
+.mj-resp{min-height:22px;font-weight:600}
+.mj-fin{grid-template-columns:repeat(5,1fr)}
+.mj-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.mj-item:last-of-type{border-bottom:0}
+.mj-item p{margin:2px 0 0;font-size:12.5px}
+@media (max-width:760px){.mj-fin{grid-template-columns:repeat(2,1fr)}.mj-form{grid-template-columns:1fr}}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -18728,6 +18757,8 @@ function pagar(ids,tabela){
     if(!t.premiosAno||t.premiosAno.ano!==G.ano)t.premiosAno={ano:G.ano,v:0};
     t.premiosAno.v+=clube;
     (t.elenco||[]).forEach(pid=>{const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+0.02,0.05,1);});
+    /* modo jogador: a sua parte do prêmio (core/carreira-mercado.js) */
+    if(G.voce&&typeof receberPremio==='function')receberPremio(t,v-clube,i);
     if(id===G.meuTime)noticia('Premiação: '+money(v)+'. '+money(clube)+' ficam no clube e o resto vai de bônus para os jogadores.',{c:'clube',t:[id]});});
 }
 /* Encerramento de um stage: paga, entrega o título e elege o melhor jogador.
@@ -26362,6 +26393,8 @@ function criarCarreiraJogador(o){
   G.jogadores[p.id]=p;
   G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
   p.pico=Math.max(p.pico||0,over(p));p.xp={};
+  G.voce.caixa=typeof CAIXA_INICIAL!=='undefined'?(CAIXA_INICIAL[ini.id]||5000):5000;G.voce.autoContrato=true;
+  G.voce.vida=['ranked','tier2'].includes(ini.id)?'simples':'confortavel';
   if(typeof darTalentoDoEstilo==='function')darTalentoDoEstilo(p);   /* o estilo dá o talento de partida (core/talentos.js) */
   G.meuTime=null;
   /* onde você aparece no mundo */
@@ -26716,7 +26749,7 @@ function semanaJogador(){
   return G.voce.sem;
 }
 function vezesFeita(id){const s=semanaJogador();return s?s.feitas.filter(f=>f.id===id).length:0;}
-function custoEnergia(a){return Math.max(1,Math.round(a.energia*(1-efeitosTalentos().en)));}
+function custoEnergia(a){const su=typeof efeitosSetup==='function'?efeitosSetup().en:0;return Math.max(1,Math.round(a.energia*(1-Math.min(.5,efeitosTalentos().en+su))));}
 /* devolve null se dá para fazer, ou o motivo */
 function porqueNaoAtividade(id){
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
@@ -26752,7 +26785,10 @@ function fatorXP(p,k){
   const a=p.idade, idade=a<=19?1.25:a<=22?1.1:a<=25?1:a<=27?.85:a<=30?.65:.45;
   const dif=XP_DIFICULDADE[(G.voce&&G.voce.dificuldade)||'normal']||1;
   const tal=1+((efeitosTalentos().xp||{})[k]||0);
-  return pot*idade*dif*tal;
+  /* setup e staff pessoal (core/carreira-mercado.js) */
+  const su=typeof efeitosSetup==='function'?efeitosSetup():null;
+  const setup=su?1+(su.xp[k]||0)+su.xpTodos:1;
+  return pot*idade*dif*tal*setup;
 }
 /* aplica x de XP bruto no atributo k; devolve quantos pontos subiu */
 function ganharXP(p,k,x){
@@ -26848,7 +26884,8 @@ function custoSemanaJogador(p){
 function semanaAutomatica(p){
   const s=semanaJogador();
   if(!s||s.feitas.length||!G.voce.auto||p.lesao)return false;
-  for(const id of ['coletivo','range','duelo','vod'])if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
+  /* sem clube, a ranked entra no lugar do treino do clube: é ela que traz os olheiros */
+  for(const id of (clubeDoJogador()?['coletivo','range','duelo','vod']:['ranked','range','duelo']))if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
   s.automatica=true;
   return true;
 }
@@ -26887,6 +26924,8 @@ function fecharSemanaJogador(p,t){
   }
   /* titularidade e relações (core/relacoes.js) */
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
+  /* dinheiro, propostas e o assistente de contrato (core/carreira-mercado.js) */
+  if(typeof financasSemana==='function')financasSemana(p,t);
   /* histórico curto das semanas (a tela mostra as últimas) */
   if(!G.voce.semanas)G.voce.semanas=[];
   G.voce.semanas.unshift({ano:s.ano,semana:s.semana,gasto:s.ini-s.energia,feitas:s.feitas.map(f=>f.id+(f.simulado?'*':'')),maps,auto:!!s.automatica});
@@ -26947,11 +26986,12 @@ function talentosDoBoneco(){
    gerador do mundo: conversar não muda o resultado das partidas.
    ============================================================ */
 
-const CONF_TECNICO_INICIO={ranked:50,academia:50,challengers:50,banco:45,titular:68,lenda:82};
+const CONF_TECNICO_INICIO={ranked:50,tier2:50,banco:45,titular:68,lenda:82};
 const AJ_ATUAL=1.0;          /* vantagem de quem já é titular, em pontos de over */
 const AJ_CONDICAO=25;        /* condição 0,9 → −2,5 pontos */
 const AJ_CONFIANCA=5;        /* (confiança − 50)/5 → ±10 pontos; abaixo de 30, a geladeira cobra mais */
-const AJ_CHANCE=7;           /* "vou te dar uma chance": duas semanas de vantagem */
+const AJ_CHANCE=7;
+const AJ_CLAUSULA=5;         /* cláusula de titular no contrato (core/carreira-mercado.js) */           /* "vou te dar uma chance": duas semanas de vantagem */
 
 function _sorteRel(salt){
   let h=2166136261;
@@ -26986,7 +27026,7 @@ function ajusteDoTecnico(t){
   return p=>{
     let a=(condicao(p)-1)*AJ_CONDICAO;
     if(atuais.has(p.id))a+=AJ_ATUAL;
-    if(p.voce){a+=_pesoConf(confTecnico());if(chance)a+=AJ_CHANCE;}
+    if(p.voce){a+=_pesoConf(confTecnico());if(chance)a+=AJ_CHANCE;if(p.clausulas&&p.clausulas.titular)a+=AJ_CLAUSULA;}
     return a;
   };
 }
@@ -27053,6 +27093,7 @@ function _fatoresChance(p,t,aj){
   ];
   if((t.titulares||[]).includes(p.id))f.push({rot:'Já é titular',v:AJ_ATUAL,txt:'o técnico não mexe no cinco à toa'});
   if(chance)f.push({rot:'Chance prometida',v:AJ_CHANCE,txt:'o técnico disse que ia te dar uma chance'});
+  if(p.clausulas&&p.clausulas.titular)f.push({rot:'Cláusula de titular',v:AJ_CLAUSULA,txt:'está no seu contrato'});
   return f;
 }
 
@@ -27150,7 +27191,6 @@ function opcoesComTecnico(){
   out.push({id:'funcao',rot:'Pedir outra função',dica:'Ele aceita se você render perto do seu over nela. Abre a vaga dessa função para você.'});
   out.push({id:'feedback',rot:'Pedir feedback',dica:'Sem risco: ele diz o que pesa na escalação, e gosta de quem pergunta.'});
   out.push({id:'reclamar',rot:'Reclamar da escalação',dica:'Desabafo. A sua cabeça melhora um pouco; a confiança dele cai bastante.'});
-  out.push({id:'sair',rot:'Pedir para sair',dica:'Chega com contratos e mercado (J5).',off:true});
   return out;
 }
 function conversarComTecnico(opcao,extra){
@@ -27232,6 +27272,459 @@ function pedirAgente(t,mapa,ag){
 }
 
 
+/* ===== src/core/carreira-mercado.js ===== */
+/* ============================================================
+   MODO JOGADOR — CONTRATO, MERCADO E FINANÇAS PESSOAIS (J5)
+   ------------------------------------------------------------
+   Aqui caem as proteções provisórias da J0: o contrato não renova
+   mais sozinho, e o clube pode cortar você na virada. Em troca você
+   decide a carreira:
+
+   CONTRATO   salário, anos, multa (baixa, padrão, alta) e duas
+              cláusulas: titularidade (o técnico pesa ela na escalação;
+              seis semanas seguidas no banco liberam a saída sem multa)
+              e bônus por título.
+   EMPRESÁRIO opcional. Cobra comissão do salário e luvas para assinar;
+              traz mais propostas e negocia teto mais alto. Os bons só
+              aceitam quem já é alguém.
+   PROPOSTAS  renovação do seu clube (último ano de contrato), clubes
+              querendo você (na janela, no último ano, ou quando você
+              pede para ser negociado), contratos para quem está livre
+              e convites para teste (ranked e agente livre).
+              Aceitar, recusar ou negociar: o clube aceita, devolve uma
+              contraproposta ou perde a paciência.
+   SAÍDA      pedir para ser negociado (mais propostas, o clube vende
+              mais fácil, o técnico não gosta) ou forçar a saída
+              (rescisão se você está no banco ou na geladeira).
+   FINANÇAS   salário, prêmios e lives entram; comissão, staff pessoal,
+              estilo de vida e o setup saem. O setup e o staff dão
+              bônus pequenos no treino e na cabeça.
+
+   O assistente de contrato (ligado por padrão) aceita a renovação do
+   seu clube e a melhor proposta quando você está livre, se você não
+   decidir. Os sorteios usam (ano, semana, assunto), não o gerador
+   do mundo.
+   ============================================================ */
+
+const CAIXA_INICIAL={ranked:2000,tier2:9000,banco:22000,titular:45000,lenda:160000};
+const PROPOSTA_VALIDADE=3;          /* semanas */
+const PACIENCIA_CLUBE=3;            /* rodadas de negociação */
+const BANCO_LIBERA_CLAUSULA=6;      /* semanas seguidas no banco com cláusula de titular */
+
+/* ---------- utilidades ---------- */
+/* dinheiro com uma casa entre mil e dez mil: salário de Challengers é $1,6k, não $2k */
+function moneyJ(v){const n=Math.round(v||0),a=Math.abs(n);return a>=1e6?'$'+(n/1e6).toFixed(2)+'M':a>=1e4?'$'+Math.round(n/1e3)+'k':a>=1e3?'$'+(n/1e3).toFixed(1).replace('.',',')+'k':'$'+n;}
+function _sorteMerc(salt){return typeof _sorteRel==='function'?_sorteRel('m|'+salt):0.5;}
+function _sAbs(){return typeof semAbs==='function'?semAbs():(G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+function caixaJogador(){if(!G.voce)return 0;if(G.voce.caixa==null)G.voce.caixa=CAIXA_INICIAL[G.voce.inicio]||5000;return G.voce.caixa;}
+function lancar(valor,txt,tipo){
+  if(!G.voce||!valor)return;
+  caixaJogador();
+  G.voce.caixa=Math.round(G.voce.caixa+valor);
+  if(!G.voce.extrato)G.voce.extrato=[];
+  G.voce.extrato.unshift({ano:G.ano,semana:G.semana,valor:Math.round(valor),txt,tipo:tipo||(valor>0?'entra':'sai')});
+  G.voce.extrato.length=Math.min(G.voce.extrato.length,40);
+}
+
+/* ---------- setup, staff pessoal e estilo de vida ---------- */
+const SETUP_ITENS=[
+  {id:'monitor',nome:'Monitor',niveis:[{preco:900,txt:'144 Hz'},{preco:2800,txt:'240 Hz'},{preco:6500,txt:'360 Hz OLED'}],ef:{xp:{mira:.04,reflexo:.04}},desc:'XP de mira e reflexo nos treinos.'},
+  {id:'perifericos',nome:'Mouse e teclado',niveis:[{preco:400,txt:'bons'},{preco:1200,txt:'de pro'},{preco:3000,txt:'sob medida'}],ef:{xpTodos:.025},desc:'Um pouco mais de XP em tudo.'},
+  {id:'cadeira',nome:'Cadeira e mesa',niveis:[{preco:600,txt:'ergonômica'},{preco:1800,txt:'de escritório bom'},{preco:4000,txt:'completa'}],ef:{en:.03},desc:'Cada atividade gasta menos energia.'}
+];
+const STAFF_PESSOAL=[
+  {id:'personal',nome:'Personal de mira',mes:2500,ef:{xp:{mira:.10,reflexo:.08}},desc:'+10% XP de mira e +8% de reflexo.'},
+  {id:'psicologo',nome:'Psicólogo',mes:2200,ef:{moral:.012,cabeca:.01},desc:'Moral e cabeça sobem toda semana.'},
+  {id:'fisio',nome:'Fisioterapeuta',mes:1800,ef:{fadiga:-.012},desc:'Recupera um pouco mais do cansaço por semana.'}
+];
+const ESTILOS_VIDA=[
+  {id:'simples',nome:'Simples',mes:600,moral:-0.004,desc:'Guarda dinheiro. A cabeça sente um pouco.'},
+  {id:'confortavel',nome:'Confortável',mes:3500,moral:0,desc:'O padrão de quem vive do jogo.'},
+  {id:'luxo',nome:'Luxo',mes:12000,moral:0.006,desc:'Moral em cima e mais fama. Caro.'}
+];
+function setupJogador(){if(!G.voce)return{};if(!G.voce.setup)G.voce.setup={};return G.voce.setup;}
+function staffPessoal(){if(!G.voce)return{};if(!G.voce.staffP)G.voce.staffP={};return G.voce.staffP;}
+function estiloVida(){return ESTILOS_VIDA.find(e=>e.id===(G.voce&&G.voce.vida))||ESTILOS_VIDA[1];}
+function comprarSetup(id){
+  const it=SETUP_ITENS.find(x=>x.id===id), s=setupJogador();
+  if(!it)return{ok:false,motivo:'Item desconhecido.'};
+  const n=s[id]||0;
+  if(n>=it.niveis.length)return{ok:false,motivo:'Já está no topo.'};
+  const preco=it.niveis[n].preco;
+  if(caixaJogador()<preco)return{ok:false,motivo:`Custa ${moneyJ(preco)}; você tem ${moneyJ(caixaJogador())}.`};
+  lancar(-preco,`${it.nome}: ${it.niveis[n].txt}`,'setup');
+  s[id]=n+1;
+  return{ok:true,msg:`${it.nome} novo: ${it.niveis[n].txt}.`};
+}
+function alternarStaffPessoal(id){
+  const it=STAFF_PESSOAL.find(x=>x.id===id), s=staffPessoal();
+  if(!it)return{ok:false,motivo:'Desconhecido.'};
+  if(s[id]){delete s[id];return{ok:true,msg:`${it.nome} dispensado.`};}
+  if(caixaJogador()<it.mes)return{ok:false,motivo:`Precisa de pelo menos um mês (${moneyJ(it.mes)}) em caixa.`};
+  s[id]=true;return{ok:true,msg:`${it.nome} contratado: ${moneyJ(it.mes)}/mês.`};
+}
+function definirEstiloVida(id){if(!G.voce||!ESTILOS_VIDA.some(e=>e.id===id))return;G.voce.vida=id;}
+/* soma dos bônus do setup e do staff */
+function efeitosSetup(){
+  const tot={xp:{},xpTodos:0,en:0,moral:0,cabeca:0,fadiga:0};
+  const s=setupJogador(), st=staffPessoal();
+  for(const it of SETUP_ITENS){const n=s[it.id]||0;if(!n)continue;
+    for(const k in it.ef.xp||{})tot.xp[k]=(tot.xp[k]||0)+it.ef.xp[k]*n;
+    tot.xpTodos+=(it.ef.xpTodos||0)*n;tot.en+=(it.ef.en||0)*n;}
+  for(const it of STAFF_PESSOAL){if(!st[it.id])continue;
+    for(const k in it.ef.xp||{})tot.xp[k]=(tot.xp[k]||0)+it.ef.xp[k];
+    tot.moral+=it.ef.moral||0;tot.cabeca+=it.ef.cabeca||0;tot.fadiga+=it.ef.fadiga||0;}
+  tot.moral+=estiloVida().moral||0;
+  return tot;
+}
+function gastoMensal(){
+  const st=staffPessoal();
+  let g=estiloVida().mes;
+  for(const it of STAFF_PESSOAL)if(st[it.id])g+=it.mes;
+  const e=G.voce&&G.voce.empresario, p=meuJogador();
+  if(e&&p&&p.timeId)g+=Math.round(p.salario*e.comissao);
+  return g;
+}
+function rendaMensal(){const p=meuJogador();return p&&p.timeId?p.salario:0;}
+
+/* ---------- empresário ---------- */
+const EMPRESARIO_NIVEIS=[null,
+  {nome:'Iniciante',comissao:.05,luvas:500,minOver:0},
+  {nome:'Regional',comissao:.07,luvas:2000,minOver:68},
+  {nome:'Conhecido',comissao:.09,luvas:6000,minOver:74},
+  {nome:'Grande',comissao:.11,luvas:15000,minOver:80},
+  {nome:'Superagente',comissao:.14,luvas:40000,minOver:86}];
+function candidatosEmpresario(){
+  const p=meuJogador();if(!p)return[];
+  const usados=new Set(), out=[];
+  const nomes=(typeof SN1M!=='undefined'?SN1M:['Rafael','Bruno','Diego']), sob=(typeof SN2!=='undefined'?SN2:['Silva','Costa','Lima']);
+  const fama=(G.voce.fama||0);
+  for(let n=1;n<=5;n++){
+    const nv=EMPRESARIO_NIVEIS[n];
+    const k=Math.floor(_sorteMerc('emp'+n+'|'+G.ano)*nomes.length), j=Math.floor(_sorteMerc('emps'+n+'|'+G.ano)*sob.length);
+    let nome=nomes[k]+' '+sob[j];if(usados.has(nome))nome+=' Jr.';usados.add(nome);
+    const aceita=Math.round(p.pico||over(p))+Math.min(6,fama/5)>=nv.minOver;
+    out.push({nivel:n,nome,comissao:nv.comissao,luvas:nv.luvas,rot:nv.nome,aceita,minOver:nv.minOver});
+  }
+  return out;
+}
+function contratarEmpresario(nivel){
+  const c=candidatosEmpresario().find(x=>x.nivel===+nivel);
+  if(!c)return{ok:false,motivo:'Empresário desconhecido.'};
+  if(!c.aceita)return{ok:false,motivo:`${c.nome} só trabalha com quem tem over ${c.minOver} (ou fama equivalente).`};
+  if(caixaJogador()<c.luvas)return{ok:false,motivo:`As luvas são ${moneyJ(c.luvas)}; você tem ${moneyJ(caixaJogador())}.`};
+  lancar(-c.luvas,`Luvas do empresário ${c.nome}`,'empresario');
+  G.voce.empresario={nivel:c.nivel,nome:c.nome,comissao:c.comissao,desde:G.ano};
+  return{ok:true,msg:`${c.nome} agora cuida da sua carreira (${Math.round(c.comissao*100)}% do salário).`};
+}
+function demitirEmpresario(){if(!G.voce||!G.voce.empresario)return{ok:false,motivo:'Você não tem empresário.'};const n=G.voce.empresario.nome;G.voce.empresario=null;return{ok:true,msg:`${n} deixou de cuidar da sua carreira.`};}
+function nivelEmpresario(){return (G.voce&&G.voce.empresario&&G.voce.empresario.nivel)||0;}
+
+/* ---------- interesse dos clubes ---------- */
+function _piorTitularDaFuncao(t,p){
+  const tit=(t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  const mesma=tit.filter(q=>(q.roleAtual||q.role)===p.role);
+  const lista=mesma.length?mesma:tit;
+  return lista.length?Math.min(...lista.map(q=>over(q))):60;
+}
+/* quanto o clube t quer você: >0 quer. Mais alto, mais quer. */
+function interesseDoClube(t,p){
+  if(!t||t.id===p.timeId||(t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return -99;
+  const ganho=over(p)-_piorTitularDaFuncao(t,p);
+  const sal=salario(p,t);
+  const folga=typeof folgaSalarial==='function'?folgaSalarial(t):sal;
+  if(folga<sal*0.75)return -99;
+  /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
+  if(t.tier===1&&over(p)<74)return -99;
+  return ganho+2+(t.tier===2?1:0)+Math.min(3,(G.voce.fama||0)/10);
+}
+function clubesInteressados(p,n){
+  return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
+    .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
+}
+
+/* ---------- propostas ---------- */
+function propostasJogador(){
+  if(!G.voce)return[];
+  if(!G.voce.propostas)G.voce.propostas=[];
+  const agora=_sAbs();
+  G.voce.propostas=G.voce.propostas.filter(x=>x.validoAte>=agora&&G.times[x.clubeId]);
+  return G.voce.propostas;
+}
+function _novaProposta(tipo,t,p,extra){
+  const emp=nivelEmpresario();
+  const base=salario(p,t)*(0.95+_sorteMerc('sal'+t.id)*0.15)*(1+emp*0.025);
+  const pr=Object.assign({id:'pr'+_sAbs()+'_'+t.id+'_'+tipo,tipo,clubeId:t.id,salario:Math.round(base/100)*100,
+    anos:tipo==='renovacao'?2:2+(_sorteMerc('anos'+t.id)<0.4?1:0),multa:'padrao',titular:false,bonusTitulo:0,
+    paciencia:PACIENCIA_CLUBE,validoAte:_sAbs()+PROPOSTA_VALIDADE,criada:_sAbs()},extra||{});
+  propostasJogador().push(pr);
+  return pr;
+}
+function _jaTem(tipo,tid){return propostasJogador().some(x=>x.tipo===tipo&&x.clubeId===tid);}
+/* uma vez por semana, no fechamento */
+function gerarPropostasSemana(p){
+  if(!G.voce||!p)return;
+  const t=p.timeId?G.times[p.timeId]:null, emp=nivelEmpresario(), fama=G.voce.fama||0;
+  const lista=propostasJogador();
+  /* renovação: último ano, a partir da semana 18 */
+  if(t&&p.contrato<=1&&G.semana>=18&&!_jaTem('renovacao',t.id)&&!(G.voce.semRenov&&_sAbs()-G.voce.semRenov<6)){
+    const quer=over(p)>=_piorTitularDaFuncao(t,p)-4||confTecnico()>=55;
+    if(quer){_novaProposta('renovacao',t,p,{validoAte:_sAbs()+8});
+      if(typeof noticia==='function')noticia(`${t.nome} oferece renovação a ${p.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});}
+    else if(!G.voce.avisoSemRenov||G.voce.avisoSemRenov!==G.ano){G.voce.avisoSemRenov=G.ano;
+      if(typeof noticia==='function')noticia(`${t.nome} não pretende renovar com ${p.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});}
+  }
+  /* livre: convites para teste e contratos */
+  if(!t){
+    const radar=G.voce.radar||0;
+    if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.004){
+      const c=clubesInteressados(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressados(p,4).length))];
+      if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
+        /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
+        if(emp>=3||over(p)>=_piorTitularDaFuncao(c.t,p)+3)_novaProposta('livre',c.t,p);
+        else _novaProposta('teste',c.t,p,{validoAte:_sAbs()+2});
+      }
+    }
+    return;
+  }
+  /* com clube: na janela, no último ano ou pedindo para sair */
+  const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
+  if(G.janela||p.contrato<=1||pediu){
+    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.004){
+      const c=clubesInteressados(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressados(p,5).length))];
+      if(c&&!_jaTem('transferencia',c.t.id)){
+        const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
+        _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
+        if(typeof noticia==='function')noticia(`${c.t.nome} quer ${p.nome}.`,{c:'mercado',p:[p.id],t:[c.t.id]});
+      }
+    }
+  }
+}
+
+/* ---------- negociar ----------
+   pedido: {salario, anos, multa, titular, bonusTitulo} */
+function tetoDoClube(pr){
+  const t=G.times[pr.clubeId], p=meuJogador();
+  let teto=salario(p,t)*(1.08+nivelEmpresario()*0.04);
+  if(pr.tipo==='renovacao')teto*=1+(confTecnico()-50)/250;
+  /* clube que precisa muito paga mais */
+  teto*=1+Math.max(0,Math.min(0.12,(over(p)-_piorTitularDaFuncao(t,p))/50));
+  return Math.round(teto/100)*100;
+}
+function _custoPedido(pr,ped){
+  const k={baixa:1.04,padrao:1,alta:0.94}[ped.multa]||1;
+  return ped.salario*k*(ped.anos>=4?1.03:1)+(ped.bonusTitulo||0)/12;
+}
+function aceitaTitularidade(pr){
+  const t=G.times[pr.clubeId], p=meuJogador();
+  if(over(p)>=_piorTitularDaFuncao(t,p)+1)return true;
+  return pr.tipo==='renovacao'&&confTecnico()>=65;
+}
+function negociarProposta(id,ped){
+  const pr=propostasJogador().find(x=>x.id===id);
+  if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
+  if(pr.tipo==='teste')return{ok:false,motivo:'Teste não se negocia: primeiro passe nele.'};
+  const t=G.times[pr.clubeId];
+  ped=Object.assign({salario:pr.salario,anos:pr.anos,multa:pr.multa,titular:pr.titular,bonusTitulo:pr.bonusTitulo},ped||{});
+  ped.salario=Math.max(100,Math.round(+ped.salario/100)*100);ped.anos=Math.max(1,Math.min(4,+ped.anos||2));
+  ped.bonusTitulo=Math.max(0,Math.min(ped.salario*2,Math.round(+ped.bonusTitulo||0)));
+  if(ped.titular&&!aceitaTitularidade(pr)){
+    pr.paciencia--;
+    if(pr.paciencia<=0){_retirar(pr);return{ok:true,fim:'retirada',msg:`${t.nome} encerrou a conversa: cláusula de titular, não.`};}
+    return{ok:true,fim:'recusa',msg:`${t.nome} não dá cláusula de titular para quem ainda não ganhou a vaga. Tire a cláusula ou ganhe espaço.`};
+  }
+  const teto=tetoDoClube(pr), custo=_custoPedido(pr,ped);
+  if(custo<=teto){Object.assign(pr,ped,{acordo:true});return{ok:true,fim:'acordo',msg:`${t.nome} topou: ${moneyJ(ped.salario)}/mês por ${ped.anos} ano${ped.anos>1?'s':''}.`};}
+  pr.paciencia--;
+  if(pr.paciencia<=0){_retirar(pr);return{ok:true,fim:'retirada',msg:`${t.nome} perdeu a paciência e retirou a proposta.`};}
+  if(custo<=teto*1.15){
+    const contra=Math.round(Math.min(teto,(teto+pr.salario)/2+((ped.salario-pr.salario)*0.35))/100)*100;
+    Object.assign(pr,ped,{salario:Math.min(ped.salario,contra)});
+    return{ok:true,fim:'contra',msg:`${t.nome} volta com ${moneyJ(pr.salario)}/mês e o resto como você pediu.`};
+  }
+  return{ok:true,fim:'recusa',msg:`${t.nome} achou o pedido alto demais. ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.`};
+}
+function _retirar(pr){G.voce.propostas=propostasJogador().filter(x=>x!==pr);}
+function recusarProposta(id){
+  const pr=propostasJogador().find(x=>x.id===id);
+  if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
+  _retirar(pr);
+  if(pr.tipo==='renovacao'){G.voce.semRenov=_sAbs();mexerConf(-2,'Recusou a renovação.');}
+  return{ok:true,msg:`Proposta do ${G.times[pr.clubeId].nome} recusada.`};
+}
+/* o clube atual topa vender pelo valor? */
+function clubeTopaVender(pr){
+  const p=meuJogador(), dono=p.timeId&&G.times[p.timeId];
+  if(!dono)return{ok:true};
+  if(pr.preContrato)return{ok:true,pre:true};
+  const multa=typeof multaDe==='function'?multaDe(p):0;
+  if(pr.taxa>=multa)return{ok:true,multa:true};
+  let d=typeof disposicaoDeVender==='function'?disposicaoDeVender(p):0.5;
+  if(p.pedidoSaida&&!p.pedidoSaida.negado)d=Math.max(d,0.8);
+  d*=Math.min(1.3,pr.taxa/Math.max(1,p.valor||valor(p)));
+  return _sorteMerc('vende'+pr.id)<d?{ok:true}:{ok:false,motivo:`${dono.nome} não aceitou vender por ${moneyJ(pr.taxa)}. A multa é ${moneyJ(multa)}.`};
+}
+function _aplicarContrato(p,pr){
+  p.contrato=pr.anos;p.salario=pr.salario;
+  if(typeof multaPadrao==='function')p.multa=Math.round(multaPadrao(p,pr.anos)*({baixa:.7,padrao:1,alta:1.5}[pr.multa]||1)/5000)*5000;
+  p.clausulas={titular:!!pr.titular,bonusTitulo:pr.bonusTitulo||0};
+  G.voce.semBanco=0;
+}
+function aceitarProposta(id){
+  const pr=propostasJogador().find(x=>x.id===id);
+  if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
+  if(pr.tipo==='teste')return{ok:false,motivo:'Faça o teste primeiro.'};
+  const p=meuJogador(), t=G.times[pr.clubeId];
+  if(pr.tipo==='renovacao'){
+    _aplicarContrato(p,pr);_retirar(pr);mexerConf(1,'Renovou o contrato.');
+    if(typeof noticia==='function')noticia(`${p.nome} renova com o ${t.nome} por ${pr.anos} ano${pr.anos>1?'s':''}.`,{c:'mercado',p:[p.id],t:[t.id]});
+    return{ok:true,msg:`Renovado: ${moneyJ(pr.salario)}/mês por ${pr.anos} ano${pr.anos>1?'s':''}.`};
+  }
+  if((t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return{ok:false,motivo:`${t.nome} fechou o elenco nesse meio-tempo.`};
+  if(pr.tipo==='transferencia'){
+    const v=clubeTopaVender(pr);
+    if(!v.ok)return v;
+    if(v.pre){
+      /* último ano fora da janela: pré-contrato, você vai na virada */
+      p.preContrato={clubeId:t.id,anos:pr.anos,sal:pr.salario,multa:pr.multa,ano:G.ano};
+      G.voce.preJ5=Object.assign({},pr);_retirar(pr);
+      if(typeof noticia==='function')noticia(`${p.nome} assina pré-contrato com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
+      return{ok:true,msg:`Pré-contrato assinado. Você se apresenta ao ${t.nome} na virada da temporada.`};
+    }
+    const dono=G.times[p.timeId], taxa=v.multa?multaDe(p):pr.taxa;
+    t.caixa-=taxa;if(dono)dono.caixa+=taxa;
+    contratar(p,t,pr.anos,pr.salario);
+  }else contratar(p,t,pr.anos,pr.salario);
+  _aplicarContrato(p,pr);
+  _chegouNoClube(p,t);
+  if(typeof noticia==='function')noticia(`${p.nome} é o novo jogador do ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id],imp:2});
+  return{ok:true,msg:`Fechado: ${t.nome}, ${moneyJ(pr.salario)}/mês por ${pr.anos} ano${pr.anos>1?'s':''}.`};
+}
+/* clube novo: técnico novo, confiança do zero (mais alta para quem chega para jogar) */
+function _chegouNoClube(p,t){
+  G.voce.propostas=[];G.voce.chance=null;G.voce.eventos=[];G.voce.semBanco=0;
+  G.voce.confTec=Math.max(45,Math.min(65,50+(over(p)-_piorTitularDaFuncao(t,p))*2));
+  if(typeof escalarClubeDoJogador==='function')escalarClubeDoJogador();
+}
+/* teste: res {aprovado} */
+function resolverTeste(id,aprovado){
+  const pr=propostasJogador().find(x=>x.id===id&&x.tipo==='teste');
+  if(!pr)return{ok:false,motivo:'Esse teste não existe mais.'};
+  const t=G.times[pr.clubeId], p=meuJogador();
+  _retirar(pr);
+  if(!aprovado){G.voce.radar=Math.max(0,(G.voce.radar||0)-1);return{ok:true,msg:`Não foi dessa vez: o ${t.nome} agradeceu e seguiu procurando.`};}
+  _novaProposta('livre',t,p,{validoAte:_sAbs()+3});
+  G.voce.radar=(G.voce.radar||0)+2;
+  return{ok:true,msg:`Aprovado no teste! O ${t.nome} mandou uma proposta de contrato.`};
+}
+function simularTeste(id){
+  const pr=propostasJogador().find(x=>x.id===id&&x.tipo==='teste');
+  if(!pr)return{ok:false,motivo:'Esse teste não existe mais.'};
+  const t=G.times[pr.clubeId], p=meuJogador();
+  const chance=Math.max(0.1,Math.min(0.9,0.5+(over(p)-_piorTitularDaFuncao(t,p))*0.08));
+  return resolverTeste(id,_sorteMerc('teste'+id)<chance);
+}
+
+/* ---------- pedir para sair ---------- */
+function pedirParaSerNegociado(){
+  const p=meuJogador(), t=clubeDoJogador();
+  if(!t)return{ok:false,motivo:'Você não tem clube.'};
+  if(p.pedidoSaida&&!p.pedidoSaida.negado)return{ok:false,motivo:'Você já pediu.'};
+  p.pedidoSaida={ano:G.ano,semana:G.semana};
+  mexerConf(-4,'Pediu para ser negociado.');
+  if(typeof noticia==='function')noticia(`${p.nome} pede para deixar o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
+  return{ok:true,msg:'O clube sabe que você quer sair. Mais propostas devem chegar, e eles vendem mais fácil.'};
+}
+function cancelarPedidoSaida(){const p=meuJogador();if(p)delete p.pedidoSaida;return{ok:true,msg:'Você ficou. O pedido de saída foi retirado.'};}
+function forcarSaida(){
+  const p=meuJogador(), t=clubeDoJogador();
+  if(!t)return{ok:false,motivo:'Você não tem clube.'};
+  const tit=(t.titulares||[]).includes(p.id);
+  const clausula=p.clausulas&&p.clausulas.titular&&(G.voce.semBanco||0)>=BANCO_LIBERA_CLAUSULA;
+  if(clausula||!tit||confTecnico()<30){
+    if(typeof noticia==='function')noticia(`${t.nome} rescinde com ${p.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
+    liberar(p);delete p.pedidoSaida;p.clausulas=null;G.voce.propostas=[];G.voce.eventos=[];
+    return{ok:true,msg:clausula?'Cláusula de titularidade acionada: você sai livre, sem multa.':'Rescisão assinada. Você está livre no mercado.'};
+  }
+  mexerConf(-20,'Tentou forçar a saída sendo titular.');
+  p.moral=Math.max(.05,p.moral-0.08);
+  p.pedidoSaida=p.pedidoSaida||{ano:G.ano,semana:G.semana};
+  return{ok:true,msg:'"Você tem contrato e é titular." O clube não liberou, e o técnico ficou de cara fechada.'};
+}
+
+/* ---------- a semana do dinheiro ----------
+   chamado no fechamento da semana do jogador (fecharSemanaJogador) */
+function financasSemana(p,t){
+  if(!G.voce||!p)return;
+  caixaJogador();
+  const sem=12/SEMANAS_ANO;
+  const sal=t?p.salario*sem:0;
+  const e=G.voce.empresario;
+  let sai=estiloVida().mes*sem;
+  const st=staffPessoal();for(const it of STAFF_PESSOAL)if(st[it.id])sai+=it.mes*sem;
+  const com=e&&t?p.salario*e.comissao*sem:0;
+  const liquido=sal-com-sai;
+  G.voce.caixa=Math.round(G.voce.caixa+liquido);
+  /* extrato: uma linha por semana com o saldo, para não lotar */
+  if(!G.voce.extrato)G.voce.extrato=[];
+  G.voce.extrato.unshift({ano:G.ano,semana:G.semana,valor:Math.round(liquido),tipo:'semana',
+    txt:`Semana: salário ${moneyJ(sal)}${com?` · comissão −${moneyJ(com)}`:''} · gastos −${moneyJ(sai)}`});
+  G.voce.extrato.length=Math.min(G.voce.extrato.length,40);
+  /* efeitos semanais do setup, do staff e do estilo de vida */
+  const ef=efeitosSetup();
+  p.moral=Math.max(.05,Math.min(1,p.moral+ef.moral));
+  if(ef.cabeca&&typeof confiancaDe==='function')p.confianca=Math.min(1,confiancaDe(p)+ef.cabeca);
+  if(ef.fadiga)p.fadiga=Math.max(0,p.fadiga+ef.fadiga);
+  if(estiloVida().id==='luxo')G.voce.fama=(G.voce.fama||0)+0.2;
+  /* no vermelho: o staff vai embora e o estilo de vida desce */
+  if(G.voce.caixa<0){
+    const tinha=Object.keys(st).length||estiloVida().id!=='simples';
+    G.voce.staffP={};if(estiloVida().id!=='simples')G.voce.vida=estiloVida().id==='luxo'?'confortavel':'simples';
+    if(tinha&&typeof noticia==='function')noticia(`${p.nome} está no vermelho: cortou staff pessoal e gastos.`,{c:'carreira',p:[p.id]});
+    p.moral=Math.max(.05,p.moral-0.02);
+  }
+  /* banco com cláusula de titular conta semana */
+  if(t){G.voce.semBanco=(t.titulares||[]).includes(p.id)?0:(G.voce.semBanco||0)+1;}
+  gerarPropostasSemana(p);
+  assistenteDeContrato(p);
+}
+/* parte dos prêmios do clube (competition.js pagar): metade do prêmio é dos
+   jogadores; titular leva o dobro de quem ficou no banco */
+function receberPremio(t,parteJogadores,colocacao,nomeTorneio){
+  if(!G.voce)return;
+  const p=meuJogador();if(!p||p.timeId!==t.id)return;
+  const el=(t.elenco||[]).length||5, tit=(t.titulares||[]).includes(p.id);
+  const cotas=(t.titulares||[]).length*2+(el-(t.titulares||[]).length);
+  const minha=Math.round(parteJogadores*(tit?2:1)/Math.max(1,cotas));
+  if(minha>0)lancar(minha,`Premiação${nomeTorneio?' · '+nomeTorneio:''}`,'premio');
+  if(colocacao===0&&p.clausulas&&p.clausulas.bonusTitulo)lancar(p.clausulas.bonusTitulo,`Bônus por título${nomeTorneio?' · '+nomeTorneio:''}`,'premio');
+}
+/* virada de temporada: contrato que acabou. Devolve true se tratou. */
+function viradaContratoJogador(p){
+  if(!p||!p.voce||!p.timeId||p.contrato>0)return false;
+  const t=G.times[p.timeId];
+  const renov=propostasJogador().find(x=>x.tipo==='renovacao'&&x.clubeId===t.id);
+  if(renov&&G.voce.autoContrato!==false){
+    aceitarProposta(renov.id);
+    if(typeof noticia==='function')noticia(`O assistente aceitou a renovação de ${p.nome} com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
+    return true;
+  }
+  if(typeof noticia==='function')noticia(`${p.nome} deixa o ${t.nome}: contrato encerrado.`,{c:'mercado',p:[p.id],t:[t.id],imp:2});
+  liberar(p);p.clausulas=null;G.voce.propostas=[];G.voce.eventos=[];
+  return true;
+}
+/* o assistente de contrato, para quem está livre: depois de duas semanas
+   sem decidir, fica com a melhor proposta (e simula o teste) */
+function assistenteDeContrato(p){
+  if(!G.voce||G.voce.autoContrato===false||!p||p.timeId)return;
+  const lista=propostasJogador();
+  const livre=lista.filter(x=>x.tipo==='livre').sort((a,b)=>b.salario-a.salario)[0];
+  if(livre&&_sAbs()-livre.criada>=2){aceitarProposta(livre.id);return;}
+  const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);
+  if(teste)simularTeste(teste.id);
+}
+
+
 /* ===== src/core/offseason.js ===== */
 /* ============================================================
    FIM DE TEMPORADA
@@ -27259,7 +27752,6 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
    divisão em vez de apodrecer num clube que não o sustenta. */
 function renovarSePuder(p){
   const t=G.times[p.timeId];
-  if(p.voce&&t){p.contrato=2;p.salario=salario(p,t);return true;}   /* modo jogador (J5) */
   if(!t){liberar(p);return false;}
   /* quem não quer ficar não fica, nem por dinheiro: a mesma régua da sua mesa */
   if(typeof interesseEmFicar==='function'&&t.elenco.length>5&&interesseEmFicar(p,t).nota<INTERESSE_MIN){liberar(p);return false;}
@@ -27295,8 +27787,8 @@ function ajustarFolha(){
     let guarda=0;
     while(t.elenco.length>4&&folhaAnual(t)>receitaLivre(t)*tetoFolhaDe(t)&&guarda++<8){
       const banco=t.elenco.map(i=>G.jogadores[i])
-        .filter(p=>p&&!p.voce&&!(t.titulares||[]).includes(p.id));
-      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(p=>p&&!p.voce))
+        .filter(p=>p&&!(t.titulares||[]).includes(p.id));
+      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(Boolean))
         .sort((a,b)=>b.salario-a.salario)[0];
       if(!alvo)break;
       liberar(alvo);cortes++;
@@ -27384,8 +27876,12 @@ function fimDeTemporada(){
       delete G.jogadores[id];aposentados++;continue;
     }
     /* pré-contrato assinado na temporada: ele se apresenta no clube novo */
-    if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){}
-    else if(p.contrato===0&&p.timeId&&p.voce){p.contrato=2;p.salario=salario(p,G.times[p.timeId]);}   /* modo jogador: renova sozinho até a J5 */
+    if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){
+      /* modo jogador: o pré-contrato leva as cláusulas negociadas (core/carreira-mercado.js) */
+      if(p.voce&&G.voce&&G.voce.preJ5){_aplicarContrato(p,G.voce.preJ5);G.voce.preJ5=null;_chegouNoClube(p,G.times[p.timeId]);}
+    }
+    /* modo jogador: contrato acabou; renova só se você aceitou (ou o assistente) */
+    else if(p.contrato===0&&p.timeId&&p.voce&&typeof viradaContratoJogador==='function')viradaContratoJogador(p);
     else if(p.contrato===0&&p.timeId){
       if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
@@ -41160,6 +41656,8 @@ const NAV_JOGADOR=[
   ['semana','Semana e treinos','Carreira','mira'],
   ['talentos','Talentos','Carreira','arvore'],
   ['relacoes','Relações','Carreira','duplo'],
+  ['contrato','Contrato e mercado','Carreira','troca'],
+  ['financas','Finanças','Carreira','dinheiro'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Estatísticas','Circuito','grafico'],
@@ -41171,7 +41669,8 @@ function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JO
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
-    semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
+    semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
+    contrato:typeof vJContrato==='function'?vJContrato:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
 }
 
 /* ---------- pedaços ---------- */
@@ -41246,6 +41745,7 @@ function vJCentral(){
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
+    ${typeof propostasJogador==='function'&&propostasJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">Propostas</div><button class="btn sm" data-ir="contrato">Ver ›</button></div><p>${propostasJogador().map(x=>`${esc(_TIPO_PROP[x.tipo]||x.tipo)}: <b>${esc(G.times[x.clubeId].nome)}</b>`).join(' · ')}</p></div>`:''}
     ${typeof eventosJogador==='function'&&eventosJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">No vestiário</div><button class="btn sm" data-ir="relacoes">Responder ›</button></div>${eventosJogador().map(e=>`<p>${esc(e.txt)}</p>`).join('')}</div>`:''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
 }
@@ -41569,6 +42069,7 @@ function ligarJogador(v,on){
   });
   const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
+  if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }
 
@@ -41644,6 +42145,149 @@ function modalConversaJogador(titulo,msg){
   pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">${esc(titulo)}</div><h2 class="rl-fala">${esc(msg)}</h2>
     <div class="dj-acoes"><button class="btn" id="rlOk">Ok</button></div></div></div>`);
   $('#rlOk').onclick=()=>{$('#modal').innerHTML='';render();};
+}
+
+
+/* ===== src/ui/mercado-jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — Contrato e mercado, Finanças pessoais (J5)
+   ============================================================ */
+
+const _TIPO_PROP={renovacao:'Renovação',transferencia:'Transferência',livre:'Contrato',teste:'Convite para teste'};
+const _MULTA_ROT={baixa:'Baixa',padrao:'Padrão',alta:'Alta'};
+function _cartaoProposta(pr){
+  const t=G.times[pr.clubeId], p=meuJogador();
+  const resta=pr.validoAte-semAbs();
+  const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
+  return `<div class="mj-prop ${pr.acordo?'acordo':''}">
+    <div class="mj-prop-top">${escudo(t,40)}<div><div class="eyebrow">${_TIPO_PROP[pr.tipo]||pr.tipo}${pr.preContrato?' · pré-contrato':''}</div><b class="mj-clube">${esc(t.nome)}</b>
+      <span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div></div>
+    ${pr.tipo==='teste'?`<p>Uma semana de teste: um duelo contra o nível do elenco deles (over ${overMedioTime(t)}). Passou, chega a proposta de contrato.</p>`
+    :`<div class="mj-num">${lin('Salário',moneyJ(pr.salario)+'/mês')}${lin('Contrato',pr.anos+' ano'+(pr.anos>1?'s':''))}${lin('Multa',_MULTA_ROT[pr.multa]||'Padrão')}
+      ${pr.titular?lin('Cláusula','titular'):''}${pr.bonusTitulo?lin('Bônus por título',moneyJ(pr.bonusTitulo)):''}${pr.taxa?lin('Taxa ao seu clube',moneyJ(pr.taxa)):''}</div>
+      ${p.timeId&&pr.tipo!=='renovacao'?`<p class="dim">Hoje: ${moneyJ(p.salario)}/mês no ${esc(G.times[p.timeId].nome)}.</p>`:''}`}
+    <div class="mj-prop-b">
+      ${pr.tipo==='teste'?`<button class="btn sm" data-mjteste="${pr.id}">Jogar o teste</button><button class="btn ghost sm" data-mjtestesim="${pr.id}">Simular</button>`
+      :`<button class="btn sm" data-mjaceitar="${pr.id}">${pr.acordo?'Assinar':'Aceitar'}</button><button class="btn ghost sm" data-mjneg="${pr.id}">Negociar</button>`}
+      <button class="btn ghost sm" data-mjrecusar="${pr.id}">Recusar</button>
+      <span class="dim">${pr.acordo?'acordo fechado · ':''}${pr.tipo!=='teste'?`paciência ${pr.paciencia} · `:''}vale mais ${resta} semana${resta===1?'':'s'}</span></div></div>`;
+}
+function vJContrato(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  const t=clubeDoJogador(), props=propostasJogador(), e=G.voce.empresario;
+  const cl=p.clausulas||{};
+  const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
+  const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
+  const cand=e?[]:candidatosEmpresario();
+  return `<div class="grid g2 cx-linha">
+    <div class="card"><div class="eyebrow">Seu contrato</div>
+      ${t?`<div class="mj-prop-top">${escudo(t,44)}<div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div></div>
+        <div class="mj-num">${lin('Salário',moneyJ(p.salario)+'/mês')}${lin('Restam',p.contrato+' ano'+(p.contrato===1?'':'s'))}${lin('Multa',moneyJ(multaDe(p)))}
+          ${lin('Cláusulas',[cl.titular?'titular':'',cl.bonusTitulo?'bônus por título '+moneyJ(cl.bonusTitulo):''].filter(Boolean).join(' · ')||'nenhuma')}</div>
+        ${p.preContrato?`<p><b>Pré-contrato assinado</b> com o ${esc((G.times[p.preContrato.clubeId]||{}).nome||'')}: você se apresenta na virada.</p>`:''}
+        ${p.contrato<=1?`<p class="dim">Último ano. ${props.some(x=>x.tipo==='renovacao')?'Tem renovação na mesa.':'A renovação, se vier, chega a partir da semana 18.'} Sem renovar, você sai livre na virada.</p>`:''}
+        ${cl.titular?`<p class="dim">Com a cláusula de titular, ${BANCO_LIBERA_CLAUSULA} semanas seguidas no banco liberam a saída sem multa (hoje: ${G.voce.semBanco||0}).</p>`:''}
+        <div class="rl-ops">${pediu?'<button class="btn ghost sm" data-mjsaida="cancelar">Retirar o pedido de saída</button>':'<button class="btn ghost sm" data-mjsaida="pedir" title="Mais propostas e o clube vende mais fácil. O técnico não gosta.">Pedir para ser negociado</button>'}
+          <button class="btn ghost sm" data-mjsaida="forcar" title="Se você está no banco ou na geladeira, o clube rescinde. Titular, não: e o técnico fecha a cara.">Forçar a saída</button></div>
+        ${pediu?'<p class="dim">Você pediu para sair: o clube sabe e vende mais fácil.</p>':''}`
+      :`<p><b>Sem clube.</b> Ranked, olheiros e convites para teste. A ranked e a fama sobem o seu radar (hoje ${Math.round(G.voce.radar||0)}).</p>`}
+      <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato!==false?'checked':''}> Assistente de contrato: aceita a renovação do meu clube e, se eu estiver livre, a melhor proposta, quando eu não decidir</label>
+    </div>
+    <div class="card"><div class="eyebrow">Empresário</div>
+      ${e?`<p><b>${esc(e.nome)}</b> · ${esc(EMPRESARIO_NIVEIS[e.nivel].nome)} · ${Math.round(e.comissao*100)}% do salário</p>
+        <p class="dim">Traz mais propostas e negocia um teto mais alto (+${e.nivel*4}% no que o clube aceita pagar).</p>
+        <button class="btn ghost sm" data-mjemp="demitir">Dispensar</button>`
+      :`<p class="dim">Sem empresário as propostas chegam mais devagar e o teto é o do clube. Ele cobra luvas para assinar e uma comissão do salário.</p>
+        <div class="mj-emps">${cand.map(c=>`<div class="mj-emp ${c.aceita?'':'off'}"><b>${esc(c.nome)}</b><span>${esc(c.rot)} · ${Math.round(c.comissao*100)}% · luvas ${moneyJ(c.luvas)}</span>
+          ${c.aceita?`<button class="btn sm" data-mjemp="${c.nivel}">Contratar</button>`:`<span class="dim">só com over ${c.minOver}</span>`}</div>`).join('')}</div>`}
+    </div></div>
+  <div class="card"><div class="eyebrow">Propostas</div>
+    ${props.length?`<div class="mj-props">${props.map(_cartaoProposta).join('')}</div>`
+      :vazio(t?'<b>Nenhuma proposta agora.</b> Elas chegam na janela, no último ano de contrato ou quando você pede para ser negociado. Empresário e fama aceleram.':'<b>Nenhuma proposta agora.</b> Jogue ranked, faça lives e treine: os olheiros olham o over e o radar.','troca')}
+  </div>`;
+}
+function modalNegociar(id){
+  const pr=propostasJogador().find(x=>x.id===id);if(!pr)return;
+  const t=G.times[pr.clubeId];
+  pintarModal(`<div class="ovl"><div class="box mj-neg"><div class="eyebrow">Negociar · ${esc(t.nome)}</div>
+    <h2>${_TIPO_PROP[pr.tipo]}</h2>
+    <div class="mj-form">
+      <label>Salário por mês<input type="number" id="mjSal" value="${pr.salario}" step="100" min="100"></label>
+      <label>Anos<select id="mjAnos">${[1,2,3,4].map(a=>`<option ${a===pr.anos?'selected':''}>${a}</option>`).join('')}</select></label>
+      <label>Multa<select id="mjMulta">${Object.entries(_MULTA_ROT).map(([k,v])=>`<option value="${k}" ${k===pr.multa?'selected':''}>${v}</option>`).join('')}</select></label>
+      <label>Bônus por título<input type="number" id="mjBonus" value="${pr.bonusTitulo||0}" step="500" min="0"></label>
+      <label class="mj-chk"><input type="checkbox" id="mjTit" ${pr.titular?'checked':''}> Cláusula de titular</label>
+    </div>
+    <p class="dim">Multa baixa facilita a sua saída, e o clube cobra por isso; multa alta prende você, e o clube gosta. A cláusula de titular só sai para quem já ganhou a vaga. Bônus por título até dois salários. O clube tem ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.</p>
+    <p id="mjResp" class="mj-resp"></p>
+    <div class="dj-acoes"><button class="btn ghost" id="mjFechar">Fechar</button><button class="btn" id="mjEnviar">Enviar o pedido</button></div></div></div>`);
+  $('#mjFechar').onclick=()=>{$('#modal').innerHTML='';render();};
+  $('#mjEnviar').onclick=()=>{
+    const r=negociarProposta(id,{salario:+$('#mjSal').value,anos:+$('#mjAnos').value,multa:$('#mjMulta').value,bonusTitulo:+$('#mjBonus').value,titular:$('#mjTit').checked});
+    const resp=$('#mjResp');resp.textContent=r.ok?r.msg:r.motivo;resp.className='mj-resp '+(r.fim==='acordo'?'up':r.fim==='retirada'?'dn':'');
+    if(r.fim==='acordo'||r.fim==='retirada'){
+      $('#mjEnviar').textContent=r.fim==='acordo'?'Assinar':'Ok';
+      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarProposta(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
+    }else if(r.fim==='contra'){const pr2=propostasJogador().find(x=>x.id===id);if(pr2)$('#mjSal').value=pr2.salario;}
+  };
+}
+function jogarTeste(id){
+  const pr=propostasJogador().find(x=>x.id===id);if(!pr)return;
+  if(typeof GP==='undefined'||!GP.treinarNoManager){const r=simularTeste(id);flash(r.ok?r.msg:r.motivo);render();return;}
+  const p=meuJogador(), t=G.times[pr.clubeId];
+  const at=Object.assign({},p.at);bonusDoJogadorNaPartida(p,at,null);
+  GP.treinarNoManager({modo:'duelo',mapa:mapaDoTreino(),nome:p.nome,euMid:p.id,funcao:p.role,over:over(p),atrib:at,
+    agente:GP.idAgente((p.agentes||[])[0])||null,rival:{over:overMedioTime(t)||72,funcao:p.role}})
+  .then(r=>{
+    const nota=notaDoTreino('duelo',r), ok=nota>=0.75&&!r.desistiu;
+    const res=resolverTeste(id,ok);
+    pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">Teste · ${esc(t.nome)}</div><h2>${r.eu}–${r.eles} no duelo</h2>
+      <p class="${ok?'up':'dn'}">${esc(res.msg||'')}</p><div class="dj-acoes"><button class="btn" id="mjOk">Ok</button></div></div></div>`);
+    $('#mjOk').onclick=()=>{$('#modal').innerHTML='';render();};
+  }).catch(e=>{console.error(e);flash('O teste não abriu.');});
+}
+
+/* ---------- Finanças pessoais ---------- */
+function vJFinancas(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  const cx=caixaJogador(), renda=rendaMensal(), gasto=gastoMensal(), s=setupJogador(), st=staffPessoal(), ev=estiloVida();
+  const ext=(G.voce.extrato||[]).slice(0,16);
+  const num=(r,v,cls)=>`<div><b class="num ${cls||''}">${v}</b><span>${r}</span></div>`;
+  return `<section class="card sj-topo"><div class="eyebrow">Finanças pessoais</div>
+      <div class="jg-st mj-fin">${num('patrimônio',moneyJ(cx),cx<0?'dn':'')}${num('salário por mês',moneyJ(renda))}${num('gastos por mês',moneyJ(gasto))}${num('sobra por mês',moneyJ(renda-gasto),renda-gasto<0?'dn':'up')}${num('fãs',Math.round(G.voce.fas||0))}</div>
+      <p class="dim">Entram salário, a sua parte dos prêmios do clube (titular leva o dobro de quem está no banco), bônus por título e lives. Saem comissão do empresário, staff pessoal, estilo de vida e o setup. No vermelho, o staff vai embora e o padrão de vida desce.</p></section>
+    <div class="grid g2 cx-linha">
+      <div class="card"><div class="eyebrow">Setup</div>
+        ${SETUP_ITENS.map(it=>{const n=s[it.id]||0, prox=it.niveis[n];
+          return `<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${n?esc(it.niveis[n-1].txt):'o básico'}</span><p class="dim">${esc(it.desc)} Nível ${n}/${it.niveis.length}.</p></div>
+            ${prox?`<button class="btn sm" data-mjsetup="${it.id}">${esc(prox.txt)} · ${moneyJ(prox.preco)}</button>`:'<span class="chip up">no topo</span>'}</div>`;}).join('')}
+      </div>
+      <div class="card"><div class="eyebrow">Staff pessoal</div>
+        ${STAFF_PESSOAL.map(it=>`<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${moneyJ(it.mes)}/mês</span><p class="dim">${esc(it.desc)}</p></div>
+          <button class="btn ${st[it.id]?'ghost':''} sm" data-mjstaff="${it.id}">${st[it.id]?'Dispensar':'Contratar'}</button></div>`).join('')}
+        <div class="eyebrow" style="margin-top:14px">Estilo de vida</div>
+        <div class="dj-modos">${ESTILOS_VIDA.map(e=>`<button class="nj-papel ${ev.id===e.id?'on':''}" data-mjvida="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span><i>${moneyJ(e.mes)}/mês</i></button>`).join('')}</div>
+      </div></div>
+    <div class="card"><div class="eyebrow">Extrato</div>
+      ${ext.length?`<table class="tbl"><tbody>${ext.map(x=>`<tr><td class="dim">${x.ano} · sem ${x.semana}</td><td>${esc(x.txt)}</td><td class="num ${x.valor<0?'dn':'up'}">${x.valor>0?'+':''}${moneyJ(x.valor)}</td></tr>`).join('')}</tbody></table>`
+        :vazio('<b>Nada ainda.</b> A primeira semana fecha com o salário.','dinheiro')}</div>`;
+}
+
+function ligarMercadoJogador(v,on){
+  const depois=r=>{flash(r.ok?(r.msg||'Feito.'):r.motivo);render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
+  on('[data-mjaceitar]',el=>depois(aceitarProposta(el.dataset.mjaceitar)));
+  on('[data-mjrecusar]',el=>depois(recusarProposta(el.dataset.mjrecusar)));
+  on('[data-mjneg]',el=>modalNegociar(el.dataset.mjneg));
+  on('[data-mjteste]',el=>jogarTeste(el.dataset.mjteste));
+  on('[data-mjtestesim]',el=>depois(simularTeste(el.dataset.mjtestesim)));
+  on('[data-mjemp]',el=>depois(el.dataset.mjemp==='demitir'?demitirEmpresario():contratarEmpresario(el.dataset.mjemp)));
+  on('[data-mjsaida]',el=>{const a=el.dataset.mjsaida;depois(a==='pedir'?pedirParaSerNegociado():a==='cancelar'?cancelarPedidoSaida():forcarSaida());});
+  on('[data-mjsetup]',el=>depois(comprarSetup(el.dataset.mjsetup)));
+  on('[data-mjstaff]',el=>depois(alternarStaffPessoal(el.dataset.mjstaff)));
+  on('[data-mjvida]',el=>{definirEstiloVida(el.dataset.mjvida);render();});
+  const au=v.querySelector('#mjAuto');if(au)au.onchange=()=>{G.voce.autoContrato=au.checked;};
 }
 
 
