@@ -9,8 +9,8 @@
      clarão    cega quem estiver olhando
      explosão  dano em raio, com queda e precisando de linha livre
      efeito    no próprio corpo: arrancada, invisível, mais rápido…
-   Fase atual: duelistas. Os bots sofrem as habilidades mas ainda não
-   usam as deles (fica para quando a gameplay for finalizada).
+   Os bots usam as habilidades pelo mesmo caminho (cmd.hab + cmd.mira);
+   quem decide quando é o time, em utilidade.js.
    ============================================================ */
 'use strict';
 
@@ -446,7 +446,9 @@ GP.vistaBloqueada = function (J, a, b) {
   if (b.ef && b.ef.invis > t) return true;
   if (a.ef && a.ef.miope > t && Math.hypot(a.x - b.x, a.y - b.y) > 4.5) return true;
   if (!H) return false;
-  for (const ar of H.areas) if (ar.fumaca && !(ar.donoVe && a === ar.dono)) {
+  /* dentro da smoke só se enxerga de perto */
+  const colado = Math.hypot(a.x - b.x, a.y - b.y) < 2.2;
+  for (const ar of H.areas) if (ar.fumaca && !colado && !(ar.donoVe && a === ar.dono)) {
     const d = GP._distSeg(ar.x, ar.y, [a.x, a.y], [b.x, b.y]);
     if (d < ar.r) return true;
   }

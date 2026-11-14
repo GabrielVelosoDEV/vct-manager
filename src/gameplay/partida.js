@@ -202,6 +202,7 @@ GP._fluxoPartida = function (J, dt) {
   if (R.fase === 'ativo') {
     GP._passoSpike(J, dt || 1 / 120);
     GP._contato(J);
+    if (GP._utilTime) GP._utilTime(J);
     const atk = GP._timeAtk(J), def = GP._timeDef(J), sp = J.spike;
     const vivos = t => J.ents.some(e => e.vivo && e.time === t);
     let venc = null, como = '';

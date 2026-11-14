@@ -344,6 +344,8 @@ GP.iaPensar = function (J, e, dt) {
   /* sem bala e sem inimigo à vista: recarrega */
   if (!alvo && arm.municao < GP.ARMAS[arm.id].pente * 0.5 && arm.reserva > 0) c.recarregar = true;
   if (arm.municao === 0 && arm.reserva === 0 && e.armas.secundaria && e.slot !== 'secundaria') c.trocar = 'secundaria';
+  /* utilitária (etapa 3): o que o time pediu, drone, armadilha, sair do fogo */
+  if (J.modo === 'partida' && GP._utilBot && GP._utilBot(J, e, dt, alvo)) return;
 
   if (ia.estado === 'combate') {
     /* mira: o erro some aos poucos (o tempo de ajuste vem da mira) */
@@ -429,10 +431,11 @@ GP._irPara = function (J, e, alvo, modo, dt) {
   const ia = e.ia, c = e.cmd;
   if (!alvo) { c.mx = c.my = 0; return; }
   if (!ia.caminho || !ia.caminho.length || ia.caminhoPara !== alvo || J.t > ia.caminhoAte) {
-    ia.caminho = GP.caminho(J.m, e.x, e.y, alvo.x, alvo.y) || [];
+    ia.caminho = (GP._caminhoBot ? GP._caminhoBot(J, e, alvo) : GP.caminho(J.m, e.x, e.y, alvo.x, alvo.y)) || [];
     ia.caminhoPara = alvo; ia.caminhoAte = J.t + 2.5;
   }
   while (ia.caminho.length && Math.hypot(ia.caminho[0].x - e.x, ia.caminho[0].y - e.y) < 0.7) ia.caminho.shift();
+  if (GP._pararNaFumaca && GP._pararNaFumaca(J, e, dt)) return;
   const prox = ia.caminho[0];
   if (!prox) { c.mx = c.my = 0; return; }
   const dx = prox.x - e.x, dy = prox.y - e.y, d = Math.hypot(dx, dy);

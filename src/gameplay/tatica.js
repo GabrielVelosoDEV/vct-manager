@@ -300,7 +300,12 @@ GP._escolherObjetivo = function (J, e) {
     }
   } else {
     const D = P.def, pos = D.posicao[e.id] || {L: Object.keys(m.sitios)[0], spot: T.meio};
-    if (sp.estado === 'plantada') {
+    const vivosDef = J.ents.filter(o => o.vivo && o.time === e.time).length, vivosAtk = J.ents.filter(o => o.vivo && o.time !== e.time).length;
+    if (sp.estado === 'plantada' && vivosDef <= vivosAtk - 2 && Math.hypot(e.x - sp.x, e.y - sp.y) > 10) {
+      /* retake sem chance: salva a arma longe da spike */
+      ctx = 'salvar';
+      faz = () => { const q = GP._antesDe(m, sp, m.spawn.def, 8); return segurar(q, Math.atan2(sp.y - q.y, sp.x - q.x), 'anda'); };
+    } else if (sp.estado === 'plantada') {
       const Rt = P.retake, perto = Math.hypot(e.x - sp.x, e.y - sp.y) < 12;
       if (!Rt || Rt.fase === 'entrar' || !J.ents.some(o => o.vivo && o.time !== e.time)) {
         const quem = maisPerto(e.time, sp);
