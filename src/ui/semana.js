@@ -137,5 +137,6 @@ function ligarJogador(v,on){
     render();
   });
   const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
+  if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }

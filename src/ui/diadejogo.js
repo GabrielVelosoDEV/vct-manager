@@ -63,6 +63,8 @@ function avTalvezJogar(){
 
 /* ---------- a tela antes da série ---------- */
 function abrirDiaDeJogo(comp,depois){
+  /* o técnico fecha o cinco agora, com o que sabe hoje (core/relacoes.js) */
+  if(typeof escalarClubeDoJogador==='function')escalarClubeDoJogador();
   const p=meuJogador(), t=clubeDoJogador();
   const A=G.times[comp.aId], B=G.times[comp.bId], adv=G.times[comp.advId];
   const v=veto(A,B,comp.bo);
@@ -76,7 +78,7 @@ function pintarDiaDeJogo(){
   const linhaMapa=(mapa,i)=>{
     const ag=typeof agenteDe==='function'?agenteDe(t,mapa,p):null;
     return `<div class="dj-mapa">
-      <div class="dj-mapa-n"><span class="dim">Mapa ${i+1}</span><b>${esc(mapa)}</b>${ag&&titular?`<span class="chip">${esc(ag)}</span>`:''}</div>
+      <div class="dj-mapa-n"><span class="dim">Mapa ${i+1}</span><b>${esc(mapa)}</b>${ag&&titular?_djAgentes(p,mapa,ag,i):''}</div>
       <div class="dj-modos">${DJ_MODOS.map(m=>`<button class="nj-papel ${DJ.escolhas[i]===m.id?'on':''}" data-djm="${i}:${m.id}" ${!titular&&m.id!=='simular'?'disabled':''}>
         <b>${esc(m.nome)}</b><span>${esc(m.desc)}</span><i>${esc(m.tempo)}</i></button>`).join('')}</div></div>`;
   };
@@ -98,8 +100,18 @@ function pintarDiaDeJogo(){
     </div>
   </div></div>`);
   document.querySelectorAll('[data-djm]').forEach(b=>b.onclick=()=>{const [i,m]=b.dataset.djm.split(':');DJ.escolhas[+i]=m;pintarDiaDeJogo();});
+  document.querySelectorAll('[data-djag]').forEach(s=>s.onchange=()=>{
+    const r=pedirAgente(clubeDoJogador(),DJ.v.mapas[+s.dataset.djag],s.value);
+    flash(r.ok?r.msg:r.motivo);pintarDiaDeJogo();});
   const st=$('#djSimTudo');if(st)st.onclick=()=>{DJ.escolhas=DJ.escolhas.map(()=>'simular');comecarDiaDeJogo();};
   $('#djComecar').onclick=comecarDiaDeJogo;
+}
+/* o seu agente no mapa: dá para pedir outro do pool; o técnico decide */
+function _djAgentes(p,mapa,ag,i){
+  const pool=[...new Set([ag,...(p.agentes||[])])];
+  if(typeof pedirAgente!=='function'||pool.length<2)return `<span class="chip">${esc(ag)}</span>`;
+  const nv=a=>typeof nivelAgente==='function'?Math.round(nivelAgente(p,a)):'';
+  return `<select class="dj-ag" data-djag="${i}" title="Pedir outro agente ao técnico">${pool.map(a=>`<option value="${esc(a)}" ${a===ag?'selected':''}>${esc(a)} · ${nv(a)}</option>`).join('')}</select>`;
 }
 function comecarDiaDeJogo(){
   const {comp,depois,v,escolhas}=DJ;DJ=null;

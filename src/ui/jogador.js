@@ -16,6 +16,7 @@ const NAV_JOGADOR=[
   ['perfil','Meu jogador','Carreira','elenco'],
   ['semana','Semana e treinos','Carreira','mira'],
   ['talentos','Talentos','Carreira','arvore'],
+  ['relacoes','Relações','Carreira','duplo'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Estatísticas','Circuito','grafico'],
@@ -27,7 +28,7 @@ function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JO
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
-    semana:typeof vJSemana==='function'?vJSemana:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
+    semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
 }
 
 /* ---------- pedaços ---------- */
@@ -35,8 +36,10 @@ function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.map
 function _jSituacao(p,t){
   if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
   if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:'Fora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
-  if((t.titulares||[]).includes(p.id))return{rot:'Titular',tom:'up',txt:'Você está no cinco do '+t.nome+'.'};
-  return{rot:'Reserva',tom:'',txt:'O técnico escala pelo over, pela forma e pelo cansaço. Treinar e render nos jogos muda a sua situação.'};
+  const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
+  const pct=ch?` Chance de jogar a próxima: ${ch.pct}%.`:'';
+  if((t.titulares||[]).includes(p.id))return{rot:'Titular',tom:'up',txt:'Você está no cinco do '+t.nome+'.'+pct};
+  return{rot:'Reserva',tom:'',txt:'O técnico escala pelo over na função, pela condição e pela confiança dele em você.'+pct};
 }
 function _jHero(p,t){
   const cor=t?corDoClube(t):'#5a6b7d';
@@ -100,6 +103,7 @@ function vJCentral(){
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
+    ${typeof eventosJogador==='function'&&eventosJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">No vestiário</div><button class="btn sm" data-ir="relacoes">Responder ›</button></div>${eventosJogador().map(e=>`<p>${esc(e.txt)}</p>`).join('')}</div>`:''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
 }
 /* o resumo da semana na Central: energia, o que falta e os pontos de talento */

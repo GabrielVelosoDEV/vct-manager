@@ -3425,3 +3425,29 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .tl-mot{font-size:11.5px;color:var(--dim)}
 .tl .btn{align-self:flex-start}
 @media (max-width:900px){.tl-arvore{grid-template-columns:1fr}.sj-auto{text-align:left}}
+
+/* ---------- modo jogador: relações (ui/relacoes.js) ---------- */
+.rl-b{height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;flex:1}
+.rl-b i{display:block;height:100%;background:var(--teal)}
+.rl-b i.up{background:#2fbf8f}.rl-b i.dn{background:#e0524a}
+.rl-conf{display:flex;align-items:center;gap:14px;margin:6px 0 12px}
+.rl-conf>b{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1}
+.rl-conf>div{flex:1;display:flex;flex-direction:column;gap:6px}
+.rl-conf span{font-weight:600}
+.rl-ops{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.rl-op{display:flex;gap:6px;align-items:center}
+.rl-log{border-top:1px solid var(--line);margin-top:10px;padding-top:8px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.rl-pct{font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1}
+.rl-chance .rl-b{height:10px;margin:6px 0}
+.rl-fat{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.rl-fat>div{display:grid;grid-template-columns:160px 60px 1fr;gap:8px;align-items:baseline;font-size:13px}
+.rl-fat i{font-style:normal;font-size:12px}
+.rl-ev{border-color:color-mix(in srgb,var(--red) 50%,var(--line))}
+.rl-evi{padding:8px 0;border-bottom:1px solid var(--line)}
+.rl-evi:last-child{border-bottom:0}
+.rl-evi p{margin:4px 0}
+.rl-dupla{display:flex;align-items:center;gap:8px;min-width:120px}
+.rl-acoes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.rl-fala{font-family:inherit!important;font-size:18px!important;letter-spacing:0!important;line-height:1.45;text-transform:none}
+.dj-ag{font-size:12px;padding:3px 6px;max-width:170px}
+@media (max-width:760px){.rl-fat>div{grid-template-columns:1fr 50px}.rl-fat i{grid-column:1/-1}.rl-tab th:nth-child(4),.rl-tab td:nth-child(4){display:none}}

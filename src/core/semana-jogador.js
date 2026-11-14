@@ -232,6 +232,7 @@ function fecharSemanaJogador(p,t){
     const pesos={mira:.5+k/maps*.03,reflexo:.3+fk/maps*.08,mov:.2,util:.3+as/maps*.03,visao:.4,clutch:.2+cl*.5/maps,consist:.3*(d/maps<16?1.2:.8)};
     const r=distribuirXP(p,pesos,maps*perf*XP_POR_MAPA);
     rel.partidas={maps,xp:r.xp,subiu:r.subiu};
+    rel.partidasDiff={acs,k,d,cl};
   }
   /* treino do clube */
   if(t&&!p.lesao){
@@ -245,6 +246,8 @@ function fecharSemanaJogador(p,t){
     }
     rel.coletivo=foi;
   }
+  /* titularidade e relações (core/relacoes.js) */
+  if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
   /* histórico curto das semanas (a tela mostra as últimas) */
   if(!G.voce.semanas)G.voce.semanas=[];
   G.voce.semanas.unshift({ano:s.ano,semana:s.semana,gasto:s.ini-s.energia,feitas:s.feitas.map(f=>f.id+(f.simulado?'*':'')),maps,auto:!!s.automatica});

@@ -64,17 +64,28 @@ function funcoesNaEscalacao(p){
 }
 /* Nota de um conjunto de cinco. É esta função que decide tudo: mexer no peso
    da cobertura aqui muda o comportamento de todos os 80 clubes de uma vez. */
-function notaEscalacao(ids){
+/* `aj` (opcional) soma pontos por jogador: é por onde o técnico do clube do
+   modo jogador pesa forma, cansaço e confiança (core/relacoes.js). Sem ele a
+   conta é a de sempre. */
+function notaEscalacao(ids,aj){
   const rs=ids.map(i=>G.jogadores[i]).filter(Boolean);
   if(rs.length<5)return -Infinity;
-  return distribuirFuncoes(rs).nota;
+  let n=distribuirFuncoes(rs).nota;
+  if(aj)for(const p of rs)n+=aj(p)||0;
+  return n;
 }
 
 /* Quanto um jogador em recuperação rende. Não é zero: no cenário real quem
    está com a mão ruim entra e joga pior, e é isso que a escalação de emergência
    tem de custar. */
 const PENA_LESAO=0.72;
-function autoEscalar(t){
+function autoEscalar(t,aj){
+  const esc=melhorEscalacao(t,aj);
+  if(!esc){t.titulares=[];t.igl=null;return;}
+  aplicarEscalacao(t,esc);
+}
+/* o melhor cinco pela nota, sem mexer em nada (null se não há ninguém) */
+function melhorEscalacao(t,aj){
   const sadios=t.elenco.map(id=>G.jogadores[id]).filter(p=>p&&!p.lesao);
   /* Cinco em quadra SEMPRE, mesmo que doa.
 
@@ -93,13 +104,13 @@ function autoEscalar(t){
       noticia('🩹 Sem gente inteira: '+Math.min(machucados.length,5-sadios.length)+
               ' jogador(es) entram em recuperação e rendem menos.',{c:'clube',t:[t.id]});
   }
-  if(!el.length){t.titulares=[];t.igl=null;return;}
+  if(!el.length)return null;
 
   /* Ponto de partida: os cinco de maior over. Começar pelo time mais forte e
      corrigir a cobertura depois dá resultado melhor do que o contrário —
      cobertura custa 4 pontos, over costuma custar mais. */
-  let esc=el.slice().sort((a,b)=>over(b)-over(a)).slice(0,5).map(p=>p.id);
-  let nota=notaEscalacao(esc);
+  let esc=el.slice().sort((a,b)=>over(b)-over(a)+(aj?(aj(b)||0)-(aj(a)||0):0)).slice(0,5).map(p=>p.id);
+  let nota=notaEscalacao(esc,aj);
 
   /* Trocas de melhoria até estabilizar. Com no máximo 9 no elenco isso é um
      punhado de combinações; o laço externo existe porque uma troca boa às
@@ -110,7 +121,7 @@ function autoEscalar(t){
     for(const cand of fora){
       for(let i=0;i<esc.length;i++){
         const tentativa=esc.slice();tentativa[i]=cand.id;
-        const n=notaEscalacao(tentativa);
+        const n=notaEscalacao(tentativa,aj);
         if(n>nota+0.001){esc=tentativa;nota=n;mudou=true;break;}
       }
       if(mudou)break;
@@ -123,9 +134,12 @@ function autoEscalar(t){
   const fixo=t.titularFixo;
   if(fixo&&fixo.ano===G.ano&&el.some(p=>p.id===fixo.id)&&!esc.includes(fixo.id)){
     let melhor=null;
-    for(let i=0;i<esc.length;i++){const tt=esc.slice();tt[i]=fixo.id;const n=notaEscalacao(tt);if(!melhor||n>melhor.n)melhor={tt,n};}
+    for(let i=0;i<esc.length;i++){const tt=esc.slice();tt[i]=fixo.id;const n=notaEscalacao(tt,aj);if(!melhor||n>melhor.n)melhor={tt,n};}
     if(melhor)esc=melhor.tt;
   }
+  return esc;
+}
+function aplicarEscalacao(t,esc){
   t.titulares=esc;
   /* registra em que função cada um vai jogar: é o que o motor de partida lê
      para cobrar o preço de atuar fora de posição */

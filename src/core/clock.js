@@ -122,6 +122,8 @@ function avancar(plano){
     if(typeof limparNegociacoes==='function')limparNegociacoes();
   }
 
+  /* modo jogador: o técnico do seu clube escala no começo da semana (core/relacoes.js) */
+  if(!em&&G.voce&&typeof escalarClubeDoJogador==='function')escalarClubeDoJogador();
   const resultados=[];let minhaPartida=null;
   if(b){
     /* O número de rodadas da semana é decidido UMA vez, no começo dela: numa
