@@ -206,7 +206,42 @@ function blocoJogadorNJ(){
       <label class="nj-sl"><span>Over inicial <b class="num" id="njOverV">${escJ.over}</b></span><input type="range" min="45" max="97" value="${escJ.over}" id="njOver"></label>
       <label class="nj-sl"><span>Potencial (teto) <b class="num" id="njPotV">${escJ.pot}</b></span><input type="range" min="50" max="99" value="${escJ.pot}" id="njPot"></label>
       <p class="dim">Os valores do ponto de partida são sugestões: dá para começar uma promessa de teto altíssimo ou uma lenda pronta em qualquer lugar. Quanto mais longe o over está do potencial, mais espaço para evoluir.</p>
-    </div>`;
+    </div>
+    <label class="sj-auto nj-manual"><input type="checkbox" id="njManual" ${escJ.atribManual?'checked':''}> Distribuir os atributos à mão</label>
+    <div id="njAtrib">${escJ.atribManual?atribManualNJ():''}</div>`;
+}
+/* ---------- atributos à mão (J1) ----------
+   O orçamento é o próprio over: cada ponto num atributo custa o peso dele na
+   função (mira de Duelista custa 0,30; utilidade, 0,06). Dá para montar uma
+   "mira pura" tirando de onde a função pouco usa, mas o over final é o que
+   você escolheu no controle acima. Liderança não entra no over e tem teto. */
+function atribBaseNJ(){
+  const W=ROLE_W[escJ.funcao]||ROLE_W.Flex, wMax=Math.max(...Object.values(W)), at={};
+  for(const[k]of ATTRS)if(k!=='lider')at[k]=clamp(Math.round(escJ.over-(1-(W[k]||0)/wMax)*22),25,99);
+  for(let it=0;it<30;it++){const d=escJ.over-overNJ(at);if(Math.abs(d)<0.3)break;
+    for(const k in W)at[k]=clamp(at[k]+d*W[k]*2.2,25,99);}
+  for(const k in at)at[k]=Math.round(at[k]);
+  at.lider=clamp(escJ.over-8,25,99);
+  return at;
+}
+function overNJ(at){const W=ROLE_W[escJ.funcao]||ROLE_W.Flex;let t=0;for(const k in W)t+=(at[k]||0)*W[k];return t;}
+function _tetoLiderNJ(){return clamp(Math.max(escJ.over,60)+5,25,99);}
+function atribManualNJ(){
+  if(!escJ.atrib||escJ.atribFun!==escJ.funcao||escJ.atribOver!==escJ.over){escJ.atrib=atribBaseNJ();escJ.atribFun=escJ.funcao;escJ.atribOver=escJ.over;}
+  const W=ROLE_W[escJ.funcao]||ROLE_W.Flex, at=escJ.atrib;
+  const sobra=escJ.over-overNJ(at);
+  return `<div class="nj-at">${ATTRS.map(([k,rot])=>{const w=W[k]||0, v=at[k];
+      const podeMais=k==='lider'?v<_tetoLiderNJ():v<99&&w<=sobra+0.05, podeMenos=v>25;
+      return `<div><span>${esc(rot)}<i class="dim">${k==='lider'?'fora do over':'custa '+w.toFixed(2).replace('.',',')}</i></span>
+        <button class="btn ghost sm" data-njat="${k}:-1" ${podeMenos?'':'disabled'}>−</button><b class="num">${v}</b><button class="btn ghost sm" data-njat="${k}:1" ${podeMais?'':'disabled'}>+</button></div>`;}).join('')}</div>
+    <p class="dim">Over resultante <b>${Math.round(overNJ(at)*10)/10}</b> de ${escJ.over} · sobram <b>${sobra.toFixed(1).replace('.',',')}</b> pontos de over. <a href="#" id="njAtReset">Voltar ao perfil da função</a></p>`;
+}
+function ligarAtribNJ(){
+  const box=$('#njAtrib');if(!box)return;
+  box.querySelectorAll('[data-njat]').forEach(b=>b.onclick=e=>{e.preventDefault();
+    const [k,d]=b.dataset.njat.split(':');const at=escJ.atrib;at[k]=clamp(at[k]+(+d),25,99);
+    box.innerHTML=atribManualNJ();ligarAtribNJ();});
+  const r=$('#njAtReset');if(r)r.onclick=e=>{e.preventDefault();escJ.atrib=atribBaseNJ();box.innerHTML=atribManualNJ();ligarAtribNJ();};
 }
 function ligarBlocoJogadorNJ(guardaNome){
   const m=$('#modal');if(!m)return;
@@ -216,8 +251,12 @@ function ligarBlocoJogadorNJ(guardaNome){
   m.querySelectorAll('[data-njini]').forEach(b=>b.onclick=()=>{guardaNome();escJ.inicio=b.dataset.njini;
     const ij=inicioJogador(escJ.inicio);escJ.over=ij.over;escJ.pot=ij.pot;escSel=null;telaNovoJogo();});
   m.querySelectorAll('[data-njag]').forEach(s=>s.onchange=()=>{escJ.ag[+s.dataset.njag]=s.value;});
+  const man=$('#njManual');
+  if(man)man.onchange=()=>{escJ.atribManual=man.checked;const box=$('#njAtrib');if(box){box.innerHTML=man.checked?atribManualNJ():'';ligarAtribNJ();}};
+  ligarAtribNJ();
   const ov=$('#njOver'),pt=$('#njPot');
-  if(ov)ov.oninput=()=>{escJ.over=+ov.value;$('#njOverV').textContent=escJ.over;if(escJ.pot<escJ.over){escJ.pot=escJ.over;if(pt)pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;}};
+  if(ov)ov.oninput=()=>{escJ.over=+ov.value;$('#njOverV').textContent=escJ.over;if(escJ.pot<escJ.over){escJ.pot=escJ.over;if(pt)pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;}
+    if(escJ.atribManual){const box=$('#njAtrib');if(box){box.innerHTML=atribManualNJ();ligarAtribNJ();}}};
   if(pt)pt.oninput=()=>{escJ.pot=Math.max(+pt.value,escJ.over);pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;};
 }
 function comecarCarreiraJogadorNJ(timeId){
@@ -226,7 +265,8 @@ function comecarCarreiraJogadorNJ(timeId){
   criarManager(escNome,'jogador',{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero});
   const p=criarCarreiraJogador({nick:escNome,nome:escJ.nomeReal,pais:escPais,idade:escIdade,genero:escGenero,foto:escFoto,
     funcao:escJ.funcao,agentes:[...new Set(escJ.ag)],estilo:escJ.estilo,inicio:escJ.inicio,over:escJ.over,pot:escJ.pot,
-    timeId,dificuldade:escDif});
+    timeId,dificuldade:escDif,atrib:escJ.atribManual?Object.assign({},escJ.atrib):null});
+  if(typeof iniciarGuia==='function')iniciarGuia();
   salvarRun(G.runNome);
   $('#modal').innerHTML='';
   tela='inicio';hist=['inicio'];histPos=0;

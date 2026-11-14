@@ -3542,6 +3542,13 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .lg-rec span{flex:1;font-size:12.5px}
 .lg-rec i{font-style:normal;font-size:11px}
 .lg-topo .jg-nick{margin:4px 0}
+.nj-manual{text-align:left;max-width:none;margin-top:12px}
+.nj-at{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;margin-top:8px}
+.nj-at>div{display:grid;grid-template-columns:1fr auto 36px auto;align-items:center;gap:6px}
+.nj-at>div>span{display:flex;flex-direction:column;font-size:13px}
+.nj-at i{font-style:normal;font-size:10.5px}
+.nj-at b{text-align:center}
+@media (max-width:700px){.nj-at{grid-template-columns:1fr}}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -16862,7 +16869,7 @@ function melhorEscalacao(t,aj){
   }
 
   /* modo jogador: quem chegou prometido como titular joga a primeira
-     temporada no cinco (core/jogador.js; a titularidade de verdade é J4) */
+     primeiras semanas no cinco (core/jogador.js; depois, core/relacoes.js) */
   const fixo=t.titularFixo;
   if(fixo&&fixo.ano===G.ano&&el.some(p=>p.id===fixo.id)&&!esc.includes(fixo.id)){
     let melhor=null;
@@ -26354,10 +26361,15 @@ function situacaoManager(){
      G.voce = {id, desde, inicio, estilo, dificuldade}
    e o registro do jogador em G.jogadores leva p.voce = true.
 
-   Enquanto contrato (J5) e aposentadoria (J7) não existem, a IA
-   não mexe em você: não vende, não dispensa, não aposenta, e o
-   seu contrato renova sozinho. As proteções ficam marcadas com
-   "modo jogador" no código para sair quando as etapas chegarem.
+   Desde a J5 o contrato é seu: renova se você aceitar (ou o
+   assistente de contrato), e o clube pode cortar você. A IA não
+   negocia você pelas suas costas (transferencias e livres da IA
+   pulam p.voce); toda troca passa pelas suas propostas
+   (core/carreira-mercado.js). Aposentadoria é sua ou do corpo
+   (core/legado-jogador.js), nunca do sorteio do mundo.
+   As etapas seguintes moram cada uma no seu arquivo:
+     J3 semana-jogador.js e talentos.js · J4 relacoes.js
+     J5 carreira-mercado.js · J6 fama.js · J7 legado-jogador.js
    ============================================================ */
 
 function modoJogador(){return !!(typeof G!=='undefined'&&G&&G.voce);}
@@ -27751,9 +27763,22 @@ function viradaContratoJogador(p){
 }
 /* o assistente de contrato, para quem está livre: depois de duas semanas
    sem decidir, fica com a melhor proposta (e simula o teste) */
+const ASSISTENTE_BANCO=8;   /* semanas seguidas no banco até o assistente buscar a saída */
 function assistenteDeContrato(p){
-  if(!G.voce||G.voce.autoContrato===false||!p||p.timeId)return;
+  if(!G.voce||G.voce.autoContrato===false||!p)return;
   const lista=propostasJogador();
+  if(p.timeId){
+    /* encostado no banco: pede para ser negociado e aceita a melhor transferência
+       para um clube onde ele entraria no cinco (J8: sem isto, a carreira no
+       automático passava anos no banco do mesmo clube) */
+    if((G.voce.semBanco||0)<ASSISTENTE_BANCO)return;
+    if(!p.pedidoSaida)pedirParaSerNegociado();
+    const tr=lista.filter(x=>x.tipo==='transferencia'&&_sAbs()-x.criada>=1)
+      .map(x=>({x,t:G.times[x.clubeId]})).filter(o=>o.t&&over(p)>=_piorTitularDaFuncao(o.t,p))
+      .sort((a,b)=>(a.t.tier-b.t.tier)||(b.t.prestigio-a.t.prestigio))[0];
+    if(tr){const r=aceitarProposta(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
+    return;
+  }
   const livre=lista.filter(x=>x.tipo==='livre').sort((a,b)=>b.salario-a.salario)[0];
   if(livre&&_sAbs()-livre.criada>=2){aceitarProposta(livre.id);return;}
   const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);
@@ -28004,7 +28029,9 @@ function exigenciaMarca(m){
   const tolera=/energ|bebida|game|stream|aposta|bet/i.test(m.setor||'');
   return{fama:8+n*11,imagem:tolera?-60:n>=4?20:0};
 }
-function valorMarca(m){return Math.round((250*Math.pow(m.nivel||1,2))*(1+famaJogador()/50)/50)*50;}
+/* calibrado na J8: com três marcas globais, uma lenda ganha de patrocínio
+   algo perto do salário, não o dobro dele */
+function valorMarca(m){return Math.round((110*Math.pow(m.nivel||1,2))*(1+famaJogador()/60)/50)*50;}
 function _marcasPossiveis(p){
   if(!G.marcas)return[];
   const pais=p.pais, reg=p.timeId?G.times[p.timeId].regiao:(typeof regiaoDoPaisMarca==='function'?regiaoDoPaisMarca(pais):null);
@@ -31799,7 +31826,7 @@ function render(){
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
   const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
-  const html=(typeof guiaBanner==='function'&&!(typeof modoJogador==='function'&&modoJogador())?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
+  const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
@@ -32458,7 +32485,7 @@ const GUIA_TELAS={
   comp:'Todos os torneios do circuito, com tabela, chaveamento e campeões. O seu aparece primeiro.'
 };
 /* Primeiros passos da Central: cada um se marca sozinho quando acontece. */
-const GUIA_PASSOS=[
+const GUIA_PASSOS_TECNICO=[
   {id:'elenco', texto:'Confira a escalação',             tela:'elenco'},
   {id:'taticas',texto:'Escolha o foco tático',           tela:'taticas'},
   {id:'treino', texto:'Monte o plano de treino da semana',tela:'treino'},
@@ -32467,6 +32494,32 @@ const GUIA_PASSOS=[
   {id:'mercado',texto:'Dê uma olhada no mercado',        tela:'mercado'},
   {id:'partida',texto:'Jogue a primeira partida com relatório e veto'}
 ];
+/* modo jogador: as dicas e os primeiros passos são outros */
+const GUIA_TELAS_JOGADOR={
+  inicio:'A Central do jogador: a sua situação no clube, a chance de jogar, o próximo jogo e o que estão falando de você. O botão Avançar passa a semana.',
+  semana:'A semana tem energia. Treine jogando (rende mais que simular), vá ao treino do clube e guarde energia se tiver jogo. Sem nada marcado, o assistente simula uma semana padrão.',
+  talentos:'Cada ponto de over acima de 65 no seu auge vale um ponto de talento. As fileiras abrem por faixa de over; a assinatura (90) é uma só.',
+  relacoes:'O técnico escala pela conta de sempre mais a confiança dele em você. Uma conversa com ele por semana, uma com cada colega.',
+  contrato:'Propostas chegam na janela, no último ano de contrato ou quando você pede para sair. Negocie: o clube aceita, contrapropõe ou perde a paciência.',
+  financas:'Salário, prêmios, lives e patrocínios entram; empresário, staff pessoal e estilo de vida saem. O setup dá XP e economiza energia.',
+  midia:'Seguidores viram fama, e fama traz propostas e patrocínio. O tom do post e a resposta da entrevista mexem na sua imagem.',
+  perfil:'Atributos com a barra de XP, agentes, conquistas e, um dia, o botão de pendurar o mouse.'
+};
+const GUIA_PASSOS_JOGADOR=[
+  {id:'semana',  texto:'Abra Semana e treinos',             tela:'semana'},
+  {id:'treinou', texto:'Jogue um treino (range, duelo, deathmatch ou retake)', tela:'semana'},
+  {id:'talentos',texto:'Veja a árvore de talentos',         tela:'talentos'},
+  {id:'relacoes',texto:'Converse com o técnico',            tela:'relacoes'},
+  {id:'contrato',texto:'Confira o seu contrato',            tela:'contrato'},
+  {id:'midia',   texto:'Veja a sua fama e mídia',           tela:'midia'},
+  {id:'jogou',   texto:'Viva o primeiro dia de jogo'}
+];
+function _guiaJogadorAuto(){
+  if(!G.guia||!G.voce)return;
+  const v=G.guia.vistos, s=G.voce.sem;
+  if(s&&s.feitas&&s.feitas.some(f=>!f.simulado&&f.nota!=null))v.treinou=true;
+  if(G.voce.conversas&&G.voce.conversas.tec)v.relacoes=true;
+}
 function iniciarGuia(){G.guia={ano:G.ano,vistos:{},ok:{},fim:false};}
 function guiaAtivo(){
   return !!(G&&G.guia&&!G.guia.fim&&G.ano===G.guia.ano&&Prefs.get('dicas')!==false);
@@ -32474,13 +32527,17 @@ function guiaAtivo(){
 function guiaMarcar(k){if(G&&G.guia&&G.guia.vistos)G.guia.vistos[k]=true;}
 /* Aviso no topo da tela, até você dizer que entendeu. */
 function guiaBanner(k){
-  if(!guiaAtivo()||!GUIA_TELAS[k]||G.guia.ok[k])return '';
-  return `<div class="guia"><span class="guia-tag">Dica</span><span>${esc(GUIA_TELAS[k])}</span>
+  const textos=typeof modoJogador==='function'&&modoJogador()?GUIA_TELAS_JOGADOR:GUIA_TELAS;
+  if(!guiaAtivo()||!textos[k]||G.guia.ok[k])return '';
+  return `<div class="guia"><span class="guia-tag">Dica</span><span>${esc(textos[k])}</span>
     <button class="btn sm ghost" data-guiaok="${k}">Entendi</button></div>`;
 }
 function guiaPassosHTML(){
   if(!guiaAtivo())return '';
   const v=G.guia.vistos;
+  const jog=typeof modoJogador==='function'&&modoJogador();
+  if(jog)_guiaJogadorAuto();
+  const GUIA_PASSOS=jog?GUIA_PASSOS_JOGADOR:GUIA_PASSOS_TECNICO;
   const feitos=GUIA_PASSOS.filter(p=>v[p.id]).length;
   if(feitos===GUIA_PASSOS.length)return '';
   return `<div class="card guia-card"><div class="eyebrow">Primeiros passos · ${feitos} de ${GUIA_PASSOS.length}</div>
@@ -37930,6 +37987,10 @@ function vPreparacao(){
 
 
 /* ===== src/ui/competicoes.js ===== */
+/* o clube do usuário nesta tela: o que você dirige ou, no modo jogador, o do
+   seu jogador (sem clube: nenhum) */
+function _meuIdComp(){return typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;}
+function _meuComp(){const id=_meuIdComp();return id?G.times[id]||null:null;}
 /* ============================================================
    CIRCUITO › COMPETIÇÕES — hub da temporada, página de torneio
    e ficha da série
@@ -37985,10 +38046,10 @@ function eventosDoAno(){
   });
 }
 function eventoDoMeuClube(e){
-  const eu=G.meuTime;
-  if(e.times.has(eu))return true;
-  const t=meu();
-  return e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
+  const eu=_meuIdComp();
+  if(eu&&e.times.has(eu))return true;
+  const t=_meuComp();
+  return !!t&&e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
 }
 /* cor do circuito (V1): é ela que pinta a barra, o cartão e a capa */
 function corDoEvento(e){
@@ -38036,7 +38097,7 @@ function linhaDoTempo(evs){
 function cartaoEvento(e){
   const camp=e.campeao?G.times[e.campeao]:null;
   const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
-  const meuJoga=e.times.has(G.meuTime);
+  const meuJoga=e.times.has(_meuIdComp());
   const est=e.status==='encerrado'?'Encerrado':e.status==='andamento'?'Em disputa':'Em '+Math.max(0,e.ini-(G.semana||1))+' sem.';
   return `<button class="ev-card ${e.status} ${meuJoga?'meu':''}" data-evento="${esc(e.id)}"
       style="--cor:${corDoEvento(e)};${sede?fundoCidade(sede.slug,0.62):''}">
@@ -38048,18 +38109,18 @@ function cartaoEvento(e){
   </button>`;
 }
 function corridaAoChampions(){
-  const t=meu();
+  const t=_meuComp();
   return REGIONS.map(R=>{
     const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
     return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th><th class="c">Forma</th></tr></thead>
     <tbody>${rk.map((id,i)=>{const z=i<4?'q':i===rk.length-1?'cai':'';
-      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+      return `<tr class="${id===(t&&t.id)?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
     <td class="r num"><b>${G.regioes[R.id].pontos[id]||0}</b></td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}</tbody></table></div>`;
   }).join('')+legendaZonas([['q','Vaga no Champions'],['cai','Rebaixamento: o último cai para o Challengers']]);
 }
 function vComp(){
   if(compSel)return paginaTorneio(compSel);
-  const t=meu();
+  const t=_meuComp();
   const evs=eventosDoAno();
   const filtros=[['todos','Todos'],['meu','Onde meu clube está'],['INT','Internacional'],
     ...REGIONS.map(r=>[r.id,r.nome.replace('VCT ','')]),['pts','Corrida ao Champions']];
@@ -38090,7 +38151,7 @@ function statsDoEvento(e){
 function paginaTorneio(id){
   const e=eventosDoAno().find(x=>x.id===id);
   if(!e){compSel=null;return vComp();}
-  const t=meu();
+  const t=_meuComp();
   const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
   const camp=e.campeao?G.times[e.campeao]:null;
   const premios=e.final?premiosDoStage(e.final):[];
@@ -38110,7 +38171,7 @@ function paginaTorneio(id){
     <span>${esc(fases)}</span>
     ${total?`<span class="gold">${money(total)} em prêmios · ${money(premios[0])} ao campeão</span>`:''}
     <span>${e.times.size?e.times.size+' equipes':'equipes a definir'}</span>
-    ${e.times.has(t.id)?'<span class="chip r">seu clube joga</span>':''}
+    ${e.times.has((t&&t.id))?'<span class="chip r">seu clube joga</span>':''}
   </div>`;
   const abas=[['chave','Chave e tabela'],['jogos','Jogos'],['stats','Estatísticas'],['premios','Premiação']];
   let corpo='';
@@ -38131,7 +38192,7 @@ function cartaoPartida(s,r,t){
   const mapas=((r.det&&r.det.mp)||[]).map(mp=>`<span class="pt-mapa" style="${fundoMapa(mp.m,0.5)}">
       <b>${esc(mp.m)}</b><span><i class="${mp.a>mp.b?'w':''}">${mp.a}</i>–<i class="${mp.b>mp.a?'w':''}">${mp.b}</i></span></span>`).join('')
     ||(r.mapa?`<span class="dim">${esc(r.mapa)}</span>`:'');
-  const meu=t&&(r.a===t.id||r.b===t.id);
+  const meu=t&&(r.a===(t&&t.id)||r.b===(t&&t.id));
   const selo=typeof seloClassico==='function'?seloClassico(A,B):'';
   return `<button class="partida ${meu?'me':''}${selo?' classico':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
     <div class="pt-lados">
@@ -38144,7 +38205,7 @@ function cartaoPartida(s,r,t){
   </button>`;
 }
 function jogosDoEvento(e){
-  const t=meu();
+  const t=_meuComp();
   return e.stages.slice().reverse().map(s=>{
     const rs=(s.resultados||[]).slice();
     if(!rs.length)return '';
@@ -38169,7 +38230,7 @@ function estatisticasDoEvento(e){
     return `<div class="card flat"><div class="eyebrow">${rot}</div>
       ${top.length?`<div class="st-podio">${ordemPod.join('')}</div>`:''}
       <table class="tb"><tbody>${top.slice(3).map(([id,x],i)=>{const p=G.jogadores[id];
-      return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${id}"><td>${selo(i+4)}</td>
+      return `<tr class="jrow ${p.timeId===_meuIdComp()?'me':''}" data-p="${id}"><td>${selo(i+4)}</td>
         <td><span class="linha-t">${retrato(p,22)}<b>${esc(p.nome)}</b></span> <span class="dim">${esc(tagT(x.timeId||p.timeId))}</span></td>
         <td class="r num"><b>${fmt(x)}</b></td></tr>`;}).join('')||(top.length?'':'<tr><td class="dim">Sem dados ainda.</td></tr>')}</tbody></table></div>`;};
   const mapas={};
@@ -38186,13 +38247,13 @@ function estatisticasDoEvento(e){
     `<div class="mp-uso-i" style="${fundoMapa(m,0.55)}"><b>${esc(m)}</b><span>${n} mapa${n===1?'':'s'}</span></div>`).join('')}</div></div>`:''}`;
 }
 function premiacaoDoEvento(e,premios){
-  const t=meu();
+  const t=_meuComp();
   const f=e.final;
   if(!f||!premios.length)return '<div class="empty">Este torneio não paga premiação: é fase classificatória.</div>';
   const rk=f.feito&&f.ranking&&f.ranking.length?f.ranking:null;
   return `<div class="card flat"><div class="eyebrow">Premiação · ${money(premios.reduce((s,v)=>s+v,0))} no total</div>
     <table class="wide tb"><thead><tr><th>Colocação</th><th>Equipe</th><th class="r">Prêmio</th></tr></thead><tbody>
-    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===t.id?'me':''} ${i===0?'pr-1':''}">
+    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===(t&&t.id)?'me':''} ${i===0?'pr-1':''}">
       <td>${i===0?imgTrofeu(arquivoTrofeu(e.id),26,'Troféu')+' ':''}${selo((i+1)+'º',i===0?'top':i===1?'prata':i===2?'bronze':'')}</td>
       <td>${id?celClube(id,24):'<span class="dim">a definir</span>'}</td><td class="r num"><b>${money(v)}</b></td></tr>`;}).join('')}
     </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
@@ -42178,8 +42239,9 @@ function avPintar(fim){
    as do jogador. As telas do circuito (Competições, Estatísticas,
    Prêmios, Notícias) são as mesmas, e a página do seu clube é a
    página de clube de sempre.
-   As etapas seguintes acrescentam aqui: Semana e treinos (J3),
-   Relações (J4), Contrato e Finanças pessoais (J5), Mídia (J6).
+   As outras telas do jogador moram em: ui/semana.js (Semana e
+   treinos, Talentos), ui/relacoes.js, ui/mercado-jogador.js
+   (Contrato e mercado, Finanças), ui/midia.js e ui/legado.js.
    ============================================================ */
 
 const NAV_JOGADOR=[
@@ -42211,7 +42273,7 @@ function telaDoJogador(k){
 /* ---------- pedaços ---------- */
 function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.maps),kd:(s.k/Math.max(1,s.d)).toFixed(2)}:{acs:null,kd:null};}
 function _jSituacao(p,t){
-  if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
+  if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Ranked, lives e fama sobem o radar dos olheiros; os convites para teste aparecem em Contrato e mercado.'};
   if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:(G.voce&&G.voce.lesaoNome?'Com '+G.voce.lesaoNome+', f':'F')+'ora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
   const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
   const pct=ch?` Chance de jogar a próxima: ${ch.pct}%.`:'';
@@ -42276,9 +42338,10 @@ function vJCentral(){
   const t=clubeDoJogador();
   const px=t?proximoConfronto():null;
   return `${typeof faixaCircuito==='function'?faixaCircuito():''}
+    ${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
     ${_jHero(p,t)}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
-       :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
+       :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Jogue ranked, faça lives e treine: os convites para teste e as propostas aparecem em Contrato e mercado.','jogar')+'<button class="btn sm" data-ir="contrato" style="margin-top:8px">Contrato e mercado ›</button>'}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
     ${typeof _jCardMidia==='function'?_jCardMidia(p):''}
     ${typeof propostasJogador==='function'&&propostasJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">Propostas</div><button class="btn sm" data-ir="contrato">Ver ›</button></div><p>${propostasJogador().map(x=>`${esc(_TIPO_PROP[x.tipo]||x.tipo)}: <b>${esc(G.times[x.clubeId].nome)}</b>`).join(' · ')}</p></div>`:''}
@@ -42434,7 +42497,7 @@ function pintarDiaDeJogo(){
     </div>
     <p class="${titular?'':'dim'}">${titular
       ?`<b>Você é titular.</b> O técnico vetou e montou a comp; escolha como viver cada mapa.`
-      :`<b>Você está no banco nesta série.</b> O técnico escala pelo over, pela forma e pelo cansaço; a série vai ser transmitida e você acompanha de fora.`}</p>
+      :`<b>Você está no banco nesta série.</b> O técnico escala pelo over na função, pela condição e pela confiança dele em você (veja Relações); a série vai ser transmitida e você acompanha de fora.`}</p>
     ${v.mapas.map(linhaMapa).join('')}
     ${titular?`<p class="dim">Na gameplay: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda, mouse mira, clique atira, <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades, <kbd>F</kbd> planta/desarma, <kbd>Esc</kbd> pausa (dá para deixar o bot terminar o round).</p>`:''}
     <div class="dj-acoes">
@@ -42458,6 +42521,7 @@ function _djAgentes(p,mapa,ag,i){
 }
 function comecarDiaDeJogo(){
   const {comp,depois,v,escolhas}=DJ;DJ=null;
+  if(typeof guiaMarcar==='function')guiaMarcar('jogou');
   $('#modal').innerHTML='';
   const ctx={stage:comp.stage.id,nome:comp.stage.nome,semana:G.semana};
   const S=abrirSerie(comp.aId,comp.bId,comp.bo,{seq:v.seq,mapas:v.mapas,lados:v.lados});
@@ -44917,7 +44981,42 @@ function blocoJogadorNJ(){
       <label class="nj-sl"><span>Over inicial <b class="num" id="njOverV">${escJ.over}</b></span><input type="range" min="45" max="97" value="${escJ.over}" id="njOver"></label>
       <label class="nj-sl"><span>Potencial (teto) <b class="num" id="njPotV">${escJ.pot}</b></span><input type="range" min="50" max="99" value="${escJ.pot}" id="njPot"></label>
       <p class="dim">Os valores do ponto de partida são sugestões: dá para começar uma promessa de teto altíssimo ou uma lenda pronta em qualquer lugar. Quanto mais longe o over está do potencial, mais espaço para evoluir.</p>
-    </div>`;
+    </div>
+    <label class="sj-auto nj-manual"><input type="checkbox" id="njManual" ${escJ.atribManual?'checked':''}> Distribuir os atributos à mão</label>
+    <div id="njAtrib">${escJ.atribManual?atribManualNJ():''}</div>`;
+}
+/* ---------- atributos à mão (J1) ----------
+   O orçamento é o próprio over: cada ponto num atributo custa o peso dele na
+   função (mira de Duelista custa 0,30; utilidade, 0,06). Dá para montar uma
+   "mira pura" tirando de onde a função pouco usa, mas o over final é o que
+   você escolheu no controle acima. Liderança não entra no over e tem teto. */
+function atribBaseNJ(){
+  const W=ROLE_W[escJ.funcao]||ROLE_W.Flex, wMax=Math.max(...Object.values(W)), at={};
+  for(const[k]of ATTRS)if(k!=='lider')at[k]=clamp(Math.round(escJ.over-(1-(W[k]||0)/wMax)*22),25,99);
+  for(let it=0;it<30;it++){const d=escJ.over-overNJ(at);if(Math.abs(d)<0.3)break;
+    for(const k in W)at[k]=clamp(at[k]+d*W[k]*2.2,25,99);}
+  for(const k in at)at[k]=Math.round(at[k]);
+  at.lider=clamp(escJ.over-8,25,99);
+  return at;
+}
+function overNJ(at){const W=ROLE_W[escJ.funcao]||ROLE_W.Flex;let t=0;for(const k in W)t+=(at[k]||0)*W[k];return t;}
+function _tetoLiderNJ(){return clamp(Math.max(escJ.over,60)+5,25,99);}
+function atribManualNJ(){
+  if(!escJ.atrib||escJ.atribFun!==escJ.funcao||escJ.atribOver!==escJ.over){escJ.atrib=atribBaseNJ();escJ.atribFun=escJ.funcao;escJ.atribOver=escJ.over;}
+  const W=ROLE_W[escJ.funcao]||ROLE_W.Flex, at=escJ.atrib;
+  const sobra=escJ.over-overNJ(at);
+  return `<div class="nj-at">${ATTRS.map(([k,rot])=>{const w=W[k]||0, v=at[k];
+      const podeMais=k==='lider'?v<_tetoLiderNJ():v<99&&w<=sobra+0.05, podeMenos=v>25;
+      return `<div><span>${esc(rot)}<i class="dim">${k==='lider'?'fora do over':'custa '+w.toFixed(2).replace('.',',')}</i></span>
+        <button class="btn ghost sm" data-njat="${k}:-1" ${podeMenos?'':'disabled'}>−</button><b class="num">${v}</b><button class="btn ghost sm" data-njat="${k}:1" ${podeMais?'':'disabled'}>+</button></div>`;}).join('')}</div>
+    <p class="dim">Over resultante <b>${Math.round(overNJ(at)*10)/10}</b> de ${escJ.over} · sobram <b>${sobra.toFixed(1).replace('.',',')}</b> pontos de over. <a href="#" id="njAtReset">Voltar ao perfil da função</a></p>`;
+}
+function ligarAtribNJ(){
+  const box=$('#njAtrib');if(!box)return;
+  box.querySelectorAll('[data-njat]').forEach(b=>b.onclick=e=>{e.preventDefault();
+    const [k,d]=b.dataset.njat.split(':');const at=escJ.atrib;at[k]=clamp(at[k]+(+d),25,99);
+    box.innerHTML=atribManualNJ();ligarAtribNJ();});
+  const r=$('#njAtReset');if(r)r.onclick=e=>{e.preventDefault();escJ.atrib=atribBaseNJ();box.innerHTML=atribManualNJ();ligarAtribNJ();};
 }
 function ligarBlocoJogadorNJ(guardaNome){
   const m=$('#modal');if(!m)return;
@@ -44927,8 +45026,12 @@ function ligarBlocoJogadorNJ(guardaNome){
   m.querySelectorAll('[data-njini]').forEach(b=>b.onclick=()=>{guardaNome();escJ.inicio=b.dataset.njini;
     const ij=inicioJogador(escJ.inicio);escJ.over=ij.over;escJ.pot=ij.pot;escSel=null;telaNovoJogo();});
   m.querySelectorAll('[data-njag]').forEach(s=>s.onchange=()=>{escJ.ag[+s.dataset.njag]=s.value;});
+  const man=$('#njManual');
+  if(man)man.onchange=()=>{escJ.atribManual=man.checked;const box=$('#njAtrib');if(box){box.innerHTML=man.checked?atribManualNJ():'';ligarAtribNJ();}};
+  ligarAtribNJ();
   const ov=$('#njOver'),pt=$('#njPot');
-  if(ov)ov.oninput=()=>{escJ.over=+ov.value;$('#njOverV').textContent=escJ.over;if(escJ.pot<escJ.over){escJ.pot=escJ.over;if(pt)pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;}};
+  if(ov)ov.oninput=()=>{escJ.over=+ov.value;$('#njOverV').textContent=escJ.over;if(escJ.pot<escJ.over){escJ.pot=escJ.over;if(pt)pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;}
+    if(escJ.atribManual){const box=$('#njAtrib');if(box){box.innerHTML=atribManualNJ();ligarAtribNJ();}}};
   if(pt)pt.oninput=()=>{escJ.pot=Math.max(+pt.value,escJ.over);pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;};
 }
 function comecarCarreiraJogadorNJ(timeId){
@@ -44937,7 +45040,8 @@ function comecarCarreiraJogadorNJ(timeId){
   criarManager(escNome,'jogador',{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero});
   const p=criarCarreiraJogador({nick:escNome,nome:escJ.nomeReal,pais:escPais,idade:escIdade,genero:escGenero,foto:escFoto,
     funcao:escJ.funcao,agentes:[...new Set(escJ.ag)],estilo:escJ.estilo,inicio:escJ.inicio,over:escJ.over,pot:escJ.pot,
-    timeId,dificuldade:escDif});
+    timeId,dificuldade:escDif,atrib:escJ.atribManual?Object.assign({},escJ.atrib):null});
+  if(typeof iniciarGuia==='function')iniciarGuia();
   salvarRun(G.runNome);
   $('#modal').innerHTML='';
   tela='inicio';hist=['inicio'];histPos=0;

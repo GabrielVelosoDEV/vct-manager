@@ -240,7 +240,9 @@ function exigenciaMarca(m){
   const tolera=/energ|bebida|game|stream|aposta|bet/i.test(m.setor||'');
   return{fama:8+n*11,imagem:tolera?-60:n>=4?20:0};
 }
-function valorMarca(m){return Math.round((250*Math.pow(m.nivel||1,2))*(1+famaJogador()/50)/50)*50;}
+/* calibrado na J8: com três marcas globais, uma lenda ganha de patrocínio
+   algo perto do salário, não o dobro dele */
+function valorMarca(m){return Math.round((110*Math.pow(m.nivel||1,2))*(1+famaJogador()/60)/50)*50;}
 function _marcasPossiveis(p){
   if(!G.marcas)return[];
   const pais=p.pais, reg=p.timeId?G.times[p.timeId].regiao:(typeof regiaoDoPaisMarca==='function'?regiaoDoPaisMarca(pais):null);

@@ -13,6 +13,16 @@ comps e táticas; vestiário com entrosamento por dupla; estrutura do clube em s
 departamentos; base com radar das rankeds; mercado com negociação em etapas, trocas e
 empréstimos; finanças, patrocínio e torcida; feed de imprensa com veículos reais;
 seis minigames opcionais; cerimônia de fim de ano e prêmios da temporada.
+
+**Modo jogador** — o terceiro papel: em vez de dirigir um clube, você é um jogador do
+circuito, no mesmo mundo. Criação completa (função, agentes, estilo, de onde começa,
+over e potencial, atributos à mão); a semana com energia e treinos jogáveis (range,
+duelo, deathmatch e retake) por cima do manager; XP por atributo e árvore de talentos
+por função; o dia de jogo com a partida 5v5 jogável (mapa inteiro, melhores momentos ou
+simulado), dentro da mesma partida do motor; titularidade pela confiança do técnico,
+relações com os colegas e conflitos; contrato, empresário, propostas, testes e
+finanças pessoais; fama, redes, entrevistas e patrocínio pessoal; prêmios, lesões,
+idade e aposentadoria, com a opção de seguir como técnico no mesmo save.
 ---
 
 ## Rodar
@@ -146,6 +156,13 @@ primário, painel e KPI.
 3. **Escolher clube e começar** — a aba Validação precisa estar limpa. A run começa,
    o app troca para `modo-jogo` e salva automaticamente.
 4. **Jogar** — cada Avançar resolve uma rodada de todas as competições ativas.
+
+No **modo jogador** o passo 2 escolhe o papel Jogador e monta o seu jogador; o passo 3
+escolhe o clube onde ele começa (ou nenhum, na ranked). A IA dirige o seu clube; você
+vive a semana (Semana e treinos), o dia de jogo e a carreira em volta. As ferramentas
+`tools/carreira-jogador.mjs`, `semana-jogador.mjs`, `titularidade.mjs`,
+`mercado-jogador.mjs`, `fama-jogador.mjs`, `carreira-longa.mjs` e `carreiras.mjs`
+medem o modo sem tela.
 
 ---
 

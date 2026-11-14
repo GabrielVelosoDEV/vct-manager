@@ -172,7 +172,7 @@ function render(){
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
   const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
-  const html=(typeof guiaBanner==='function'&&!(typeof modoJogador==='function'&&modoJogador())?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
+  const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();

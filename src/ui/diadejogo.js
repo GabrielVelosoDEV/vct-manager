@@ -91,7 +91,7 @@ function pintarDiaDeJogo(){
     </div>
     <p class="${titular?'':'dim'}">${titular
       ?`<b>Você é titular.</b> O técnico vetou e montou a comp; escolha como viver cada mapa.`
-      :`<b>Você está no banco nesta série.</b> O técnico escala pelo over, pela forma e pelo cansaço; a série vai ser transmitida e você acompanha de fora.`}</p>
+      :`<b>Você está no banco nesta série.</b> O técnico escala pelo over na função, pela condição e pela confiança dele em você (veja Relações); a série vai ser transmitida e você acompanha de fora.`}</p>
     ${v.mapas.map(linhaMapa).join('')}
     ${titular?`<p class="dim">Na gameplay: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda, mouse mira, clique atira, <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades, <kbd>F</kbd> planta/desarma, <kbd>Esc</kbd> pausa (dá para deixar o bot terminar o round).</p>`:''}
     <div class="dj-acoes">
@@ -115,6 +115,7 @@ function _djAgentes(p,mapa,ag,i){
 }
 function comecarDiaDeJogo(){
   const {comp,depois,v,escolhas}=DJ;DJ=null;
+  if(typeof guiaMarcar==='function')guiaMarcar('jogou');
   $('#modal').innerHTML='';
   const ctx={stage:comp.stage.id,nome:comp.stage.nome,semana:G.semana};
   const S=abrirSerie(comp.aId,comp.bId,comp.bo,{seq:v.seq,mapas:v.mapas,lados:v.lados});

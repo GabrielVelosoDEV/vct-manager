@@ -440,9 +440,22 @@ function viradaContratoJogador(p){
 }
 /* o assistente de contrato, para quem está livre: depois de duas semanas
    sem decidir, fica com a melhor proposta (e simula o teste) */
+const ASSISTENTE_BANCO=8;   /* semanas seguidas no banco até o assistente buscar a saída */
 function assistenteDeContrato(p){
-  if(!G.voce||G.voce.autoContrato===false||!p||p.timeId)return;
+  if(!G.voce||G.voce.autoContrato===false||!p)return;
   const lista=propostasJogador();
+  if(p.timeId){
+    /* encostado no banco: pede para ser negociado e aceita a melhor transferência
+       para um clube onde ele entraria no cinco (J8: sem isto, a carreira no
+       automático passava anos no banco do mesmo clube) */
+    if((G.voce.semBanco||0)<ASSISTENTE_BANCO)return;
+    if(!p.pedidoSaida)pedirParaSerNegociado();
+    const tr=lista.filter(x=>x.tipo==='transferencia'&&_sAbs()-x.criada>=1)
+      .map(x=>({x,t:G.times[x.clubeId]})).filter(o=>o.t&&over(p)>=_piorTitularDaFuncao(o.t,p))
+      .sort((a,b)=>(a.t.tier-b.t.tier)||(b.t.prestigio-a.t.prestigio))[0];
+    if(tr){const r=aceitarProposta(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
+    return;
+  }
   const livre=lista.filter(x=>x.tipo==='livre').sort((a,b)=>b.salario-a.salario)[0];
   if(livre&&_sAbs()-livre.criada>=2){aceitarProposta(livre.id);return;}
   const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);

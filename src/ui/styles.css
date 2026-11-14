@@ -3508,3 +3508,10 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .lg-rec span{flex:1;font-size:12.5px}
 .lg-rec i{font-style:normal;font-size:11px}
 .lg-topo .jg-nick{margin:4px 0}
+.nj-manual{text-align:left;max-width:none;margin-top:12px}
+.nj-at{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;margin-top:8px}
+.nj-at>div{display:grid;grid-template-columns:1fr auto 36px auto;align-items:center;gap:6px}
+.nj-at>div>span{display:flex;flex-direction:column;font-size:13px}
+.nj-at i{font-style:normal;font-size:10.5px}
+.nj-at b{text-align:center}
+@media (max-width:700px){.nj-at{grid-template-columns:1fr}}

@@ -130,7 +130,7 @@ function melhorEscalacao(t,aj){
   }
 
   /* modo jogador: quem chegou prometido como titular joga a primeira
-     temporada no cinco (core/jogador.js; a titularidade de verdade é J4) */
+     primeiras semanas no cinco (core/jogador.js; depois, core/relacoes.js) */
   const fixo=t.titularFixo;
   if(fixo&&fixo.ano===G.ano&&el.some(p=>p.id===fixo.id)&&!esc.includes(fixo.id)){
     let melhor=null;

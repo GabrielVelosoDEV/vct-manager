@@ -7,8 +7,9 @@
    as do jogador. As telas do circuito (Competições, Estatísticas,
    Prêmios, Notícias) são as mesmas, e a página do seu clube é a
    página de clube de sempre.
-   As etapas seguintes acrescentam aqui: Semana e treinos (J3),
-   Relações (J4), Contrato e Finanças pessoais (J5), Mídia (J6).
+   As outras telas do jogador moram em: ui/semana.js (Semana e
+   treinos, Talentos), ui/relacoes.js, ui/mercado-jogador.js
+   (Contrato e mercado, Finanças), ui/midia.js e ui/legado.js.
    ============================================================ */
 
 const NAV_JOGADOR=[
@@ -40,7 +41,7 @@ function telaDoJogador(k){
 /* ---------- pedaços ---------- */
 function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.maps),kd:(s.k/Math.max(1,s.d)).toFixed(2)}:{acs:null,kd:null};}
 function _jSituacao(p,t){
-  if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
+  if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Ranked, lives e fama sobem o radar dos olheiros; os convites para teste aparecem em Contrato e mercado.'};
   if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:(G.voce&&G.voce.lesaoNome?'Com '+G.voce.lesaoNome+', f':'F')+'ora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
   const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
   const pct=ch?` Chance de jogar a próxima: ${ch.pct}%.`:'';
@@ -105,9 +106,10 @@ function vJCentral(){
   const t=clubeDoJogador();
   const px=t?proximoConfronto():null;
   return `${typeof faixaCircuito==='function'?faixaCircuito():''}
+    ${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
     ${_jHero(p,t)}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
-       :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
+       :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Jogue ranked, faça lives e treine: os convites para teste e as propostas aparecem em Contrato e mercado.','jogar')+'<button class="btn sm" data-ir="contrato" style="margin-top:8px">Contrato e mercado ›</button>'}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
     ${typeof _jCardMidia==='function'?_jCardMidia(p):''}
     ${typeof propostasJogador==='function'&&propostasJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">Propostas</div><button class="btn sm" data-ir="contrato">Ver ›</button></div><p>${propostasJogador().map(x=>`${esc(_TIPO_PROP[x.tipo]||x.tipo)}: <b>${esc(G.times[x.clubeId].nome)}</b>`).join(' · ')}</p></div>`:''}

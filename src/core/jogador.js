@@ -13,10 +13,15 @@
      G.voce = {id, desde, inicio, estilo, dificuldade}
    e o registro do jogador em G.jogadores leva p.voce = true.
 
-   Enquanto contrato (J5) e aposentadoria (J7) não existem, a IA
-   não mexe em você: não vende, não dispensa, não aposenta, e o
-   seu contrato renova sozinho. As proteções ficam marcadas com
-   "modo jogador" no código para sair quando as etapas chegarem.
+   Desde a J5 o contrato é seu: renova se você aceitar (ou o
+   assistente de contrato), e o clube pode cortar você. A IA não
+   negocia você pelas suas costas (transferencias e livres da IA
+   pulam p.voce); toda troca passa pelas suas propostas
+   (core/carreira-mercado.js). Aposentadoria é sua ou do corpo
+   (core/legado-jogador.js), nunca do sorteio do mundo.
+   As etapas seguintes moram cada uma no seu arquivo:
+     J3 semana-jogador.js e talentos.js · J4 relacoes.js
+     J5 carreira-mercado.js · J6 fama.js · J7 legado-jogador.js
    ============================================================ */
 
 function modoJogador(){return !!(typeof G!=='undefined'&&G&&G.voce);}

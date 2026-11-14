@@ -1,3 +1,7 @@
+/* o clube do usuário nesta tela: o que você dirige ou, no modo jogador, o do
+   seu jogador (sem clube: nenhum) */
+function _meuIdComp(){return typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;}
+function _meuComp(){const id=_meuIdComp();return id?G.times[id]||null:null;}
 /* ============================================================
    CIRCUITO › COMPETIÇÕES — hub da temporada, página de torneio
    e ficha da série
@@ -53,10 +57,10 @@ function eventosDoAno(){
   });
 }
 function eventoDoMeuClube(e){
-  const eu=G.meuTime;
-  if(e.times.has(eu))return true;
-  const t=meu();
-  return e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
+  const eu=_meuIdComp();
+  if(eu&&e.times.has(eu))return true;
+  const t=_meuComp();
+  return !!t&&e.status==='futuro'&&(e.regiao===t.regiao&&e.tier===t.tier);
 }
 /* cor do circuito (V1): é ela que pinta a barra, o cartão e a capa */
 function corDoEvento(e){
@@ -104,7 +108,7 @@ function linhaDoTempo(evs){
 function cartaoEvento(e){
   const camp=e.campeao?G.times[e.campeao]:null;
   const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
-  const meuJoga=e.times.has(G.meuTime);
+  const meuJoga=e.times.has(_meuIdComp());
   const est=e.status==='encerrado'?'Encerrado':e.status==='andamento'?'Em disputa':'Em '+Math.max(0,e.ini-(G.semana||1))+' sem.';
   return `<button class="ev-card ${e.status} ${meuJoga?'meu':''}" data-evento="${esc(e.id)}"
       style="--cor:${corDoEvento(e)};${sede?fundoCidade(sede.slug,0.62):''}">
@@ -116,18 +120,18 @@ function cartaoEvento(e){
   </button>`;
 }
 function corridaAoChampions(){
-  const t=meu();
+  const t=_meuComp();
   return REGIONS.map(R=>{
     const rk=G.regioes[R.id].t1.slice().sort((x,y)=>(G.regioes[R.id].pontos[y]||0)-(G.regioes[R.id].pontos[x]||0));
     return `<div class="card flat"><div class="eyebrow">${R.nome}</div><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="r">Pontos</th><th class="c">Forma</th></tr></thead>
     <tbody>${rk.map((id,i)=>{const z=i<4?'q':i===rk.length-1?'cai':'';
-      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
+      return `<tr class="${id===(t&&t.id)?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
     <td class="r num"><b>${G.regioes[R.id].pontos[id]||0}</b></td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}</tbody></table></div>`;
   }).join('')+legendaZonas([['q','Vaga no Champions'],['cai','Rebaixamento: o último cai para o Challengers']]);
 }
 function vComp(){
   if(compSel)return paginaTorneio(compSel);
-  const t=meu();
+  const t=_meuComp();
   const evs=eventosDoAno();
   const filtros=[['todos','Todos'],['meu','Onde meu clube está'],['INT','Internacional'],
     ...REGIONS.map(r=>[r.id,r.nome.replace('VCT ','')]),['pts','Corrida ao Champions']];
@@ -158,7 +162,7 @@ function statsDoEvento(e){
 function paginaTorneio(id){
   const e=eventosDoAno().find(x=>x.id===id);
   if(!e){compSel=null;return vComp();}
-  const t=meu();
+  const t=_meuComp();
   const sede=typeof sedeDe==='function'?sedeDe(e.id):null;
   const camp=e.campeao?G.times[e.campeao]:null;
   const premios=e.final?premiosDoStage(e.final):[];
@@ -178,7 +182,7 @@ function paginaTorneio(id){
     <span>${esc(fases)}</span>
     ${total?`<span class="gold">${money(total)} em prêmios · ${money(premios[0])} ao campeão</span>`:''}
     <span>${e.times.size?e.times.size+' equipes':'equipes a definir'}</span>
-    ${e.times.has(t.id)?'<span class="chip r">seu clube joga</span>':''}
+    ${e.times.has((t&&t.id))?'<span class="chip r">seu clube joga</span>':''}
   </div>`;
   const abas=[['chave','Chave e tabela'],['jogos','Jogos'],['stats','Estatísticas'],['premios','Premiação']];
   let corpo='';
@@ -199,7 +203,7 @@ function cartaoPartida(s,r,t){
   const mapas=((r.det&&r.det.mp)||[]).map(mp=>`<span class="pt-mapa" style="${fundoMapa(mp.m,0.5)}">
       <b>${esc(mp.m)}</b><span><i class="${mp.a>mp.b?'w':''}">${mp.a}</i>–<i class="${mp.b>mp.a?'w':''}">${mp.b}</i></span></span>`).join('')
     ||(r.mapa?`<span class="dim">${esc(r.mapa)}</span>`:'');
-  const meu=t&&(r.a===t.id||r.b===t.id);
+  const meu=t&&(r.a===(t&&t.id)||r.b===(t&&t.id));
   const selo=typeof seloClassico==='function'?seloClassico(A,B):'';
   return `<button class="partida ${meu?'me':''}${selo?' classico':''}" data-serie="${esc(s.id)}|${r.n!=null?r.n:''}" ${r.n==null?'disabled':''}>
     <div class="pt-lados">
@@ -212,7 +216,7 @@ function cartaoPartida(s,r,t){
   </button>`;
 }
 function jogosDoEvento(e){
-  const t=meu();
+  const t=_meuComp();
   return e.stages.slice().reverse().map(s=>{
     const rs=(s.resultados||[]).slice();
     if(!rs.length)return '';
@@ -237,7 +241,7 @@ function estatisticasDoEvento(e){
     return `<div class="card flat"><div class="eyebrow">${rot}</div>
       ${top.length?`<div class="st-podio">${ordemPod.join('')}</div>`:''}
       <table class="tb"><tbody>${top.slice(3).map(([id,x],i)=>{const p=G.jogadores[id];
-      return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${id}"><td>${selo(i+4)}</td>
+      return `<tr class="jrow ${p.timeId===_meuIdComp()?'me':''}" data-p="${id}"><td>${selo(i+4)}</td>
         <td><span class="linha-t">${retrato(p,22)}<b>${esc(p.nome)}</b></span> <span class="dim">${esc(tagT(x.timeId||p.timeId))}</span></td>
         <td class="r num"><b>${fmt(x)}</b></td></tr>`;}).join('')||(top.length?'':'<tr><td class="dim">Sem dados ainda.</td></tr>')}</tbody></table></div>`;};
   const mapas={};
@@ -254,13 +258,13 @@ function estatisticasDoEvento(e){
     `<div class="mp-uso-i" style="${fundoMapa(m,0.55)}"><b>${esc(m)}</b><span>${n} mapa${n===1?'':'s'}</span></div>`).join('')}</div></div>`:''}`;
 }
 function premiacaoDoEvento(e,premios){
-  const t=meu();
+  const t=_meuComp();
   const f=e.final;
   if(!f||!premios.length)return '<div class="empty">Este torneio não paga premiação: é fase classificatória.</div>';
   const rk=f.feito&&f.ranking&&f.ranking.length?f.ranking:null;
   return `<div class="card flat"><div class="eyebrow">Premiação · ${money(premios.reduce((s,v)=>s+v,0))} no total</div>
     <table class="wide tb"><thead><tr><th>Colocação</th><th>Equipe</th><th class="r">Prêmio</th></tr></thead><tbody>
-    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===t.id?'me':''} ${i===0?'pr-1':''}">
+    ${premios.map((v,i)=>{const id=rk&&rk[i];return `<tr class="${id===(t&&t.id)?'me':''} ${i===0?'pr-1':''}">
       <td>${i===0?imgTrofeu(arquivoTrofeu(e.id),26,'Troféu')+' ':''}${selo((i+1)+'º',i===0?'top':i===1?'prata':i===2?'bronze':'')}</td>
       <td>${id?celClube(id,24):'<span class="dim">a definir</span>'}</td><td class="r num"><b>${money(v)}</b></td></tr>`;}).join('')}
     </tbody></table><p class="dim" style="margin-top:8px">Metade do prêmio vai aos jogadores, como bônus.</p></div>`;
