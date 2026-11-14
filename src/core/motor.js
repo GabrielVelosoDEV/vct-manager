@@ -72,22 +72,29 @@ const MOTOR_DT=1/60;
 /* um round no motor; devolve a linha no formato de passoRound */
 function motorPassoRound(M){
   if(M.fim)return null;
-  const J=M.J, antes=J.historico.length;
+  /* o round a narrar é o próximo que ainda não virou linha: se você o jogou
+     na gameplay (dia de jogo do modo jogador), ele já está no histórico do
+     motor e aqui só vira linha; senão o motor joga até ele acabar */
+  const J=M.J, alvo=M.hist.length;
   /* a tática em vigor (o pedido de tempo pode ter trocado) */
   J.taticaTime={A:Object.assign({},M.A.tatica||{},M.tatA||{}),B:Object.assign({},M.B.tatica||{},M.tatB||{})};
   GP.aplicarTaticaTimes(J);
   /* pedido de tempo: o time que pediu joga os próximos rounds mais firme */
   for(const e of J.ents)e.bonusTempo=(e.time==='A'&&M.bonusA>0)||(e.time==='B'&&M.bonusB>0);
   let guarda=0;
-  while(!J.fim&&J.historico.length===antes&&guarda++<60*400)GP.passo(J,MOTOR_DT);
+  const jogou=J.historico.length>alvo;
+  while(!J.fim&&J.historico.length<=alvo&&guarda++<60*400)GP.passo(J,MOTOR_DT);
   /* deixa o round assentar (estatística do round lida no passo seguinte) */
-  for(let i=0;i<3&&!J.fim;i++)GP.passo(J,MOTOR_DT);
-  if(J.fim&&J.historico.length===antes){M.fim=true;return null;}
+  if(!jogou)for(let i=0;i<3&&!J.fim;i++)GP.passo(J,MOTOR_DT);
+  if(J.historico.length<=alvo){M.fim=true;return null;}
   if(M.bonusA>0)M.bonusA--;
   if(M.bonusB>0)M.bonusB--;
   if(GP._estatPasso)GP._estatPasso(J);
-  const h=J.historico[J.historico.length-1], r=h.n;
-  M.r=r;M.sa=J.placar.A;M.sb=J.placar.B;
+  const h=J.historico[alvo], r=h.n;
+  M.r=r;
+  /* placar depois deste round (contado pelos vencedores até aqui) */
+  M.sa=J.historico.slice(0,alvo+1).filter(x=>x.vencedor==='A').length;
+  M.sb=J.historico.slice(0,alvo+1).filter(x=>x.vencedor==='B').length;
   const venceA=h.vencedor==='A', ladoA=h.atk==='A'?'atk':'def';
   M.ladoA=ladoA;
   const ent=id=>J.ents.find(e=>e.id===id), mid=id=>{const e=id&&ent(id);return e?e.mid:null;};
@@ -108,7 +115,7 @@ function motorPassoRound(M){
   }
   if(venceA){M.seqPerdaA=0;M.seqPerdaB=(M.seqPerdaB||0)+1;}
   else{M.seqPerdaB=0;M.seqPerdaA=(M.seqPerdaA||0)+1;}
-  if(J.fim)M.fim=true;
+  if(J.fim&&M.hist.length>=J.historico.length)M.fim=true;
   if(!M.fim&&typeof tempoDaComissao==='function'){const q=tempoDaComissao(M);if(q)linha.tempoPedido=q;}
   return linha;
 }

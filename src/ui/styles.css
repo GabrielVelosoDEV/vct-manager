@@ -3354,3 +3354,22 @@ body.sem-anim .mg-card-arte svg{animation:none}
   .jg-st{grid-template-columns:repeat(2,minmax(0,1fr))}
   .nj-ags,.nj-niveis{grid-template-columns:1fr}
 }
+
+/* ---------- modo jogador: o dia de jogo (ui/diadejogo.js) ---------- */
+.dj-box{max-width:980px}
+.dj-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin:14px 0 16px;padding:16px;
+  border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02)}
+.dj-t{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.dj-t b{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em}
+.dj-x{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--dim)}
+.dj-mapa{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.dj-mapa-n{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dj-mapa-n b{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em}
+.dj-modos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dj-modos .nj-papel{width:100%}
+.dj-modos .nj-papel i{display:block;font-style:normal;font-size:11px;color:var(--dim);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.dj-modos .nj-papel:disabled{opacity:.35;cursor:not-allowed}
+.dj-box kbd{font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2);margin:0 1px}
+.dj-acoes{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+@media (max-width:700px){.dj-modos{grid-template-columns:1fr}.dj-vs{gap:8px;padding:10px}}
+.dj-box>p.dim{margin-top:12px}

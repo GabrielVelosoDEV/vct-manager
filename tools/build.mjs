@@ -4,6 +4,7 @@
    O arquivo gerado abre com duplo clique, sem servidor.
    Imagens continuam sendo lidas da pasta assets/ ao lado do HTML. */
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import './gameplay-css.mjs';   /* o CSS da gameplay preso em #gpCamada, para abrir por cima do manager */
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 

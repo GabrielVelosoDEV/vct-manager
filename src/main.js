@@ -84,6 +84,13 @@ function avancarComMotor(plano,depois){
 }
 function avancarComRitual(quantas){
   if(usarTurnos())return aplicarTurno(avancarTurno());
+  /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
+  const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
+  if(dj){
+    abrirDiaDeJogo(dj,plano=>avancarComMotor(plano,r=>
+      aplicarAvanco(plano&&plano.serieFeita?Object.assign({},r,{minhaPartida:null}):r,quantas||1)));
+    return;
+  }
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(!comp)return avancarComMotor(null,r=>aplicarAvanco(r,quantas||1));
@@ -157,13 +164,13 @@ function avancarAteMeuJogo(){
      cima do próprio compromisso seria pular o veto sem avisar. */
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
-  if(comp){avancarComRitual(1);return;}
+  if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())){avancarComRitual(1);return;}
   let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
     /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
        próximo Avançar abre o relatório e o veto. Antes o laço só conferia
        antes do primeiro passo e adiantava por cima do jogo. */
-    if(n>0&&Prefs.get('prePartida')&&prePartidaDisponivel()){pausou=true;break;}
+    if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel()))){pausou=true;break;}
     r=avancar();n++;
     if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;

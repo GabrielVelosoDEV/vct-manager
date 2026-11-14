@@ -74,7 +74,8 @@ function partidaConduzida(S,ctx,aoFim){
     aviso:null      /* recado do pedido de tempo, para a narração dizer */
   };
   /* o seu lado pede tempo por você; com a preferência desligada, a comissão */
-  if(Prefs.get('tempoTecnico'))S[souA?'manualA':'manualB']=true;
+  /* no modo jogador quem pede tempo é o técnico do clube (IA), não você */
+  if(Prefs.get('tempoTecnico')&&!(typeof modoJogador==='function'&&modoJogador()))S[souA?'manualA':'manualB']=true;
   serieAbrirMapa(S);
   avPintar();
   avAgendar(700);
@@ -109,8 +110,11 @@ function avPassoConduzido(){
       avPintar(true);return;
     }
     AV.linhas=[];AV.roundIdx=0;AV.streak=0;AV.ultimo=null;
+    if(AV.velAntes!=null){AV.vel=AV.velAntes;AV.velAntes=null;}   /* mapa novo: a transmissão volta ao ritmo */
     avPintar();avAgendar(1200/AV.vel);return;
   }
+  /* modo jogador: round seu abre a gameplay e a transmissão espera (ui/diadejogo.js) */
+  if(S.jogador&&typeof avTalvezJogar==='function'&&avTalvezJogar())return;
   const h=passoRound(S.M);
   if(!h){                     /* mapa acabou */
     const r=serieFecharMapa(S);

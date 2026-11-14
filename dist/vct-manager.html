@@ -3389,6 +3389,210 @@ body.sem-anim .mg-card-arte svg{animation:none}
   .nj-ags,.nj-niveis{grid-template-columns:1fr}
 }
 
+/* ---------- modo jogador: o dia de jogo (ui/diadejogo.js) ---------- */
+.dj-box{max-width:980px}
+.dj-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin:14px 0 16px;padding:16px;
+  border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02)}
+.dj-t{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.dj-t b{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em}
+.dj-x{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--dim)}
+.dj-mapa{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.dj-mapa-n{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dj-mapa-n b{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em}
+.dj-modos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dj-modos .nj-papel{width:100%}
+.dj-modos .nj-papel i{display:block;font-style:normal;font-size:11px;color:var(--dim);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.dj-modos .nj-papel:disabled{opacity:.35;cursor:not-allowed}
+.dj-box kbd{font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2);margin:0 1px}
+.dj-acoes{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+@media (max-width:700px){.dj-modos{grid-template-columns:1fr}.dj-vs{gap:8px;padding:10px}}
+.dj-box>p.dim{margin-top:12px}
+
+
+/* ===== src/gameplay/gameplay-embutido.css ===== */
+/* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
+#gpCamada{position:fixed;inset:0;z-index:9000;overflow:hidden}
+#gpCamada{--bg:#0B1218; --panel:#16222E; --panel2:#1C2A38; --line:#22323F; --line2:#2E4250;
+  --tx:#ECE8E1; --tx2:#A3B4C2; --dim:#8193A3;
+  --red:#FF4655; --teal:#18E5B4; --ouro:#E2B45A;}
+#gpCamada,#gpCamada *{box-sizing:border-box;margin:0;padding:0}
+#gpCamada{height:100%;overflow:hidden}
+#gpCamada{background:var(--bg);color:var(--tx);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+#gpCamada h1,#gpCamada h2{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;letter-spacing:.04em;line-height:1}
+#gpCamada .num{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+#gpCamada button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+#gpCamada button:focus-visible,#gpCamada a:focus-visible,#gpCamada input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+#gpCamada [hidden]{display:none!important}
+#gpCamada #gpTela{position:fixed;inset:0;display:block;width:100vw;height:100vh}
+#gpCamada.gp-jogando #gpTela{cursor:none}
+#gpCamada .gp-dim{color:var(--dim)}
+#gpCamada .gp-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--tx2);font-weight:600;margin-bottom:8px}
+#gpCamada /* ---------- menu ---------- */
+.gp-tela-cheia{position:fixed;inset:0;overflow:auto;z-index:5;
+  background:radial-gradient(1200px 600px at 80% -10%,rgba(255,70,85,.10),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(24,229,180,.08),transparent 60%),var(--bg)}
+#gpCamada .gp-vidro{background:rgba(6,10,14,.78);backdrop-filter:blur(3px);display:grid;place-items:center}
+#gpCamada .gp-menu-in{max-width:1180px;margin:0 auto;padding:28px 24px 40px}
+#gpCamada .gp-topo{display:flex;gap:22px;align-items:flex-start;margin-bottom:22px}
+#gpCamada .gp-topo h1{font-size:48px;margin:2px 0 6px}
+#gpCamada .gp-topo p{max-width:720px}
+#gpCamada .gp-volta{color:var(--tx2);text-decoration:none;font-size:13px;border:1px solid var(--line2);padding:6px 10px;white-space:nowrap;margin-top:4px}
+#gpCamada .gp-volta:hover{color:var(--tx);border-color:var(--tx2)}
+#gpCamada .gp-sec{background:var(--panel);border:1px solid var(--line);padding:16px;margin-bottom:14px}
+#gpCamada .gp-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#gpCamada .gp-cols .gp-sec{margin-bottom:0}
+#gpCamada .gp-mapas{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+#gpCamada .gp-mapa{position:relative;text-align:left;padding:10px 10px 10px 46px;background:var(--panel2);border:1px solid var(--line2);min-height:54px}
+#gpCamada .gp-mapa i{position:absolute;left:10px;top:10px;width:26px;height:34px;background:linear-gradient(135deg,var(--c1) 0 55%,var(--c2) 55% 80%,var(--c3) 80%);clip-path:polygon(0 0,100% 0,100% 80%,80% 100%,0 100%)}
+#gpCamada .gp-mapa b{display:block;font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;font-weight:400;letter-spacing:.05em;line-height:1}
+#gpCamada .gp-mapa span{display:block;font-size:11px;color:var(--dim);margin-top:3px}
+#gpCamada .gp-mapa.on,#gpCamada .gp-op.on{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red);background:#22222e}
+#gpCamada .gp-mapa:hover,#gpCamada .gp-op:hover{border-color:var(--tx2)}
+#gpCamada .gp-tema{margin-top:10px;font-size:13px}
+#gpCamada .gp-ops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#gpCamada .gp-ops3{grid-template-columns:repeat(3,1fr)}
+#gpCamada .gp-op{text-align:left;padding:9px 10px;background:var(--panel2);border:1px solid var(--line2)}
+#gpCamada .gp-op b{display:block;font-size:13px}
+#gpCamada .gp-op span{display:block;font-size:11px;color:var(--dim)}
+#gpCamada .gp-sls{margin-top:14px;display:grid;gap:10px}
+#gpCamada .gp-sl{display:grid;grid-template-columns:1fr 150px 30px;gap:10px;align-items:center;font-size:13px}
+#gpCamada .gp-sl i{display:block;font-style:normal;font-size:11px;color:var(--dim)}
+#gpCamada .gp-sl input{accent-color:var(--red)}
+#gpCamada .gp-sl b{text-align:right}
+#gpCamada .gp-teclas{margin-top:16px;border-top:1px solid var(--line);padding-top:12px;font-size:13px;display:grid;gap:6px}
+#gpCamada kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px solid var(--line2);border-bottom-width:2px;background:var(--panel2);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center}
+#gpCamada .gp-acoes{display:flex;gap:10px;justify-content:center;margin-top:20px}
+#gpCamada .gp-jogar{background:var(--red);color:#fff;font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;letter-spacing:.08em;padding:10px 46px;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%)}
+#gpCamada .gp-jogar:hover{filter:brightness(1.1)}
+#gpCamada .gp-sec-bt{border:1px solid var(--line2);padding:10px 22px;color:var(--tx2)}
+#gpCamada .gp-sec-bt:hover{color:var(--tx);border-color:var(--tx2)}
+#gpCamada /* ---------- HUD ---------- */
+#gpHud{position:fixed;inset:0;pointer-events:none;z-index:3;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#gpCamada .gp-placar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:stretch;background:rgba(10,16,22,.78);border:1px solid var(--line2)}
+#gpCamada .gp-placar>span{display:grid;place-items:center;padding:6px 18px;font-size:26px}
+#gpCamada .gp-pl-eu{color:var(--teal);border-right:1px solid var(--line2)}
+#gpCamada .gp-pl-ele{color:var(--red);border-left:1px solid var(--line2)}
+#gpCamada .gp-pl-ele i,#gpCamada .gp-pl-meio i{display:block;font-style:normal;font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;font-family:'Inter',sans-serif}
+#gpCamada .gp-pl-meio{min-width:150px;text-align:center}
+#gpCamada .gp-pl-meio b{font-size:20px;font-weight:600}
+#gpCamada .gp-area{position:absolute;top:16px;left:16px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx2);font-weight:600}
+#gpCamada .gp-feed{position:absolute;top:14px;right:14px;display:grid;gap:4px;justify-items:end}
+#gpCamada .gp-kf{display:flex;gap:8px;align-items:center;background:rgba(10,16,22,.78);padding:4px 10px;font-size:12px;border-left:2px solid var(--line2)}
+#gpCamada .gp-kf span{color:var(--dim)}
+#gpCamada .gp-kf.meu{border-left-color:var(--teal)}
+#gpCamada .gp-kf.morri{border-left-color:var(--red)}
+#gpCamada .gp-vida{position:absolute;left:18px;bottom:16px;display:flex;gap:16px;align-items:flex-end}
+#gpCamada .gp-vida b{display:block;font-size:34px;line-height:1}
+#gpCamada .gp-vida span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+#gpCamada .gp-hp b{color:#fff}
+#gpCamada .gp-esc b{color:#7fb6ff;font-size:24px}
+#gpCamada .gp-modo{font-size:12px;color:var(--tx2);padding-bottom:4px}
+#gpCamada .gp-modo em{color:var(--red);font-style:normal;font-weight:600}
+#gpCamada .gp-arma{position:absolute;right:18px;bottom:16px;text-align:right}
+#gpCamada .gp-arma-n{font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;letter-spacing:.06em}
+#gpCamada .gp-mun b{font-size:34px;line-height:1}
+#gpCamada .gp-mun span{color:var(--dim);font-size:16px;margin-left:4px}
+#gpCamada .gp-arma .gp-dim{font-size:11px}
+#gpCamada .gp-faixa{position:absolute;top:22%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',Impact,sans-serif;font-size:46px;letter-spacing:.08em;opacity:0;transition:opacity .2s;color:#fff}
+#gpCamada .gp-faixa.on{opacity:1}
+#gpCamada .gp-faixa.ok{color:var(--teal)}
+#gpCamada .gp-faixa.no{color:var(--red)}
+#gpCamada /* ---------- pausa e fim ---------- */
+.gp-fim-in{width:min(640px,92vw);background:var(--panel);border:1px solid var(--line2);padding:24px;text-align:center}
+#gpCamada .gp-fim-in h2{font-size:52px;margin:6px 0 16px}
+#gpCamada .gp-fim-in h2.ok{color:var(--teal)}
+#gpCamada .gp-fim-in h2.no{color:var(--red)}
+#gpCamada .gp-nums{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
+#gpCamada .gp-nums div{background:var(--panel2);border:1px solid var(--line);padding:10px 4px}
+#gpCamada .gp-nums b{display:block;font-size:20px}
+#gpCamada .gp-nums span{font-size:11px;color:var(--dim)}
+#gpCamada .gp-dicas{list-style:none;text-align:left;display:grid;gap:8px}
+#gpCamada .gp-dicas li{background:var(--panel2);border-left:2px solid var(--ouro);padding:8px 12px;font-size:13px}
+#gpCamada .gp-dicas b{color:var(--ouro)}
+#gpCamada /* agentes */
+.gp-pap{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:start;margin-bottom:8px}
+#gpCamada .gp-pap-n{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;padding-top:12px}
+#gpCamada .gp-ags{display:flex;flex-wrap:wrap;gap:6px}
+#gpCamada .gp-ag{width:62px;padding:4px 2px 5px;background:var(--panel2);border:1px solid var(--line2);display:grid;justify-items:center;gap:3px}
+#gpCamada .gp-ag b{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58px}
+#gpCamada .gp-ag.img{border-color:rgba(24,229,180,.55)}
+#gpCamada .gp-ag.on{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red);background:#22222e}
+#gpCamada .gp-ag-r{width:40px;height:40px;object-fit:cover;background:#0f1923}
+#gpCamada .gp-ini{display:grid;place-items:center;font-family:'Bebas Neue',Impact,sans-serif;font-size:18px;color:var(--tx2);letter-spacing:.04em}
+#gpCamada .gp-nota{font-size:12px;margin:6px 0 10px}
+#gpCamada .gp-rival{display:flex;gap:10px;align-items:center;font-size:13px}
+#gpCamada .gp-rival select{background:var(--panel2);color:var(--tx);border:1px solid var(--line2);padding:6px 8px;font-family:inherit}
+#gpCamada .gp-hud-r{width:52px;height:52px;object-fit:cover;border:1px solid var(--line2);background:#0f1923;align-self:center}
+#gpCamada .gp-vida .gp-ini{font-size:22px}
+#gpCamada .gp-arma-img{display:block;height:28px;max-width:170px;object-fit:contain;margin-left:auto;margin-bottom:2px;opacity:.95}
+#gpCamada .gp-habs{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:6px;align-items:flex-end}
+#gpCamada .gp-hab{position:relative;width:42px;height:42px;background:rgba(10,16,22,.78);border:1px solid var(--line2);display:grid;place-items:center;opacity:.55}
+#gpCamada .gp-hab img{width:30px;height:30px}
+#gpCamada .gp-hab i{width:16px;height:16px;border:2px solid var(--line2);transform:rotate(45deg)}
+#gpCamada .gp-hab kbd{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:9px;padding:0 3px;min-width:0}
+#gpCamada .gp-hab.ok{opacity:1;border-color:var(--teal,#18e5b4)}
+#gpCamada .gp-hab em{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:12px;letter-spacing:1px;color:#eafff9;line-height:1}
+#gpCamada .gp-hab em s{text-decoration:none;opacity:.3}
+#gpCamada .gp-hab em.gp-ult{display:flex;gap:3px;top:-10px}
+#gpCamada .gp-ult i{display:block;width:6px;height:6px;transform:rotate(45deg);border:1px solid rgba(234,255,249,.6);background:transparent}
+#gpCamada .gp-ult i.on{background:#ffd166;border-color:#ffd166}
+#gpCamada .gp-ult.cheia i{background:#18e5b4;border-color:#18e5b4;box-shadow:0 0 6px #18e5b4}
+#gpCamada .gp-hab-nota{font-size:10px;color:var(--dim);margin-left:6px;align-self:center;max-width:90px;line-height:1.2}
+@media (max-width:820px){#gpCamada .gp-cols{grid-template-columns:1fr}
+#gpCamada .gp-topo{flex-direction:column;gap:10px}
+#gpCamada .gp-ops3{grid-template-columns:1fr 1fr}
+#gpCamada .gp-sl{grid-template-columns:1fr 110px 28px}
+#gpCamada .gp-nums{grid-template-columns:repeat(3,1fr)}
+}
+#gpCamada /* partida 5v5 */
+.gp-pl-eu i,#gpCamada .gp-pl-ele i{display:block;font-size:9px;font-style:normal;color:var(--dim);letter-spacing:.04em}
+#gpCamada .gp-spike{color:#ff4655}
+#gpCamada .gp-cred{color:#ffd166;font-weight:700}
+#gpCamada .gp-rounds{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0 14px}
+#gpCamada .gp-rounds i{width:12px;height:12px;display:block;background:#33404a}
+#gpCamada .gp-rounds i.ok{background:#18e5b4}
+#gpCamada .gp-rounds i.no{background:#ff4655}
+#gpCamada .gp-tab{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
+#gpCamada .gp-tab th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;padding:4px 6px;border-bottom:1px solid var(--line2)}
+#gpCamada .gp-tab td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+#gpCamada .gp-tab td.num,#gpCamada .gp-tab th:not(:first-child){text-align:right}
+#gpCamada .gp-tab tr.eu td{color:#18e5b4}
+#gpCamada .gp-tab-r{width:22px;height:22px;vertical-align:middle;margin-right:6px;display:inline-block}
+#gpCamada /* etapa 4: times reais */
+#gpTimeA,#gpCamada #gpTimeB{width:100%;background:var(--panel2);color:var(--tx);border:1px solid var(--line2);padding:7px 8px;font-family:inherit;font-size:13px}
+#gpCamada .gp-elenco{margin:6px 0 0;font-size:12px;line-height:1.5}
+#gpCamada .gp-elenco b{color:var(--tx);font-weight:600}
+#gpCamada .gp-elenco i{font-style:normal;opacity:.7}
+#gpCamada .gp-elenco s{opacity:.5}
+#gpCamada /* etapa 5: espectador e resultado */
+.gp-espec{position:fixed;left:12px;top:86px;width:248px;background:rgba(10,16,24,.78);border:1px solid var(--line2);padding:8px;font-size:12px;pointer-events:auto;backdrop-filter:blur(4px)}
+#gpCamada .gp-es-t{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim,#9aa7b4);margin:6px 2px 4px}
+#gpCamada .gp-es-l{display:flex;align-items:center;gap:7px;padding:4px;cursor:pointer;border-left:3px solid transparent}
+#gpCamada .gp-es-l.ta{border-left-color:#5aa9ff}
+#gpCamada .gp-es-l.tb{border-left-color:#ff4655}
+#gpCamada .gp-es-l.foco{background:rgba(255,255,255,.08)}
+#gpCamada .gp-es-l.morto{opacity:.4}
+#gpCamada .gp-es-r{width:26px;height:26px;object-fit:cover;flex:none}
+#gpCamada .gp-es-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+#gpCamada .gp-es-n b{font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#gpCamada .gp-es-n span{font-size:10px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#gpCamada .gp-es-hp{height:3px;background:rgba(255,255,255,.12)}
+#gpCamada .gp-es-hp i{display:block;height:100%;background:#18e5b4}
+#gpCamada .gp-es-k{font-size:11px;white-space:nowrap}
+#gpCamada .gp-es-ajuda{margin-top:8px;font-size:10px;opacity:.7;line-height:1.7}
+#gpCamada .gp-fim-largo{max-width:980px;width:calc(100vw - 32px)}
+#gpCamada .gp-fim-largo .gp-tab th,#gpCamada .gp-fim-largo .gp-tab td{padding:5px 6px}
+@media (max-width:900px){#gpCamada .gp-espec{display:none}
+}
+#gpCamada .gp-fim-largo{overflow-x:auto;max-height:92vh;overflow-y:auto}
+#gpCamada /* etapa 7: evolução e carreira do seu jogador */
+.gp-evo{margin:14px 0 4px;text-align:left}
+#gpCamada .gp-evo-l{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+#gpCamada .gp-evo-l span{opacity:.85}
+#gpCamada .gp-evo-l b{color:var(--tx)}
+#gpCamada .gp-evo-l .sobe i{color:#18e5b4;font-style:normal}
+#gpCamada .gp-evo-l .desce i{color:#ff4655;font-style:normal}
+#gpCamada .gp-carreira .gp-dim{margin:4px 0 8px}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -9948,6 +10152,1315 @@ GP.simularPartidaAos = function (o, aoProgresso) {
 };
 
 
+/* ===== data/gameplay/imagens.js ===== */
+/* GERADO por tools/gameplay-imagens.py — não editar à mão.
+   O que já chegou de imagem para o modo jogador, já preparado em
+   assets/gameplay/pronto/. Boneco: w/h em px, px/py = os pés, cx = centro. */
+const IMAGENS_GAMEPLAY={"agentes":{"jett":{"retrato":{"src":"assets/agentes/jett.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/jett/parado.webp","w":149,"h":200,"px":47.9,"py":198,"cx":56.9},"passo1":{"src":"assets/gameplay/pronto/agentes/jett/passo1.webp","w":132,"h":214,"px":110.1,"py":211,"cx":58.2},"passo2":{"src":"assets/gameplay/pronto/agentes/jett/passo2.webp","w":122,"h":180,"px":30.0,"py":178,"cx":54.4},"tiro":{"src":"assets/gameplay/pronto/agentes/jett/tiro.webp","w":255,"h":199,"px":136.5,"py":196,"cx":89.9},"caido":{"src":"assets/gameplay/pronto/agentes/jett/caido.webp","w":295,"h":166,"px":150.1,"py":164,"cx":143.3},"c":{"src":"assets/gameplay/pronto/agentes/jett/c.webp","w":123,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/jett/q.webp","w":115,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/jett/e.webp","w":115,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/jett/x.webp","w":115,"h":128}},"phoenix":{"retrato":{"src":"assets/agentes/phoenix.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/phoenix/parado.webp","w":146,"h":200,"px":128.1,"py":195,"cx":74.9},"passo1":{"src":"assets/gameplay/pronto/agentes/phoenix/passo1.webp","w":102,"h":217,"px":67.5,"py":216,"cx":51.8},"passo2":{"src":"assets/gameplay/pronto/agentes/phoenix/passo2.webp","w":124,"h":193,"px":65.5,"py":191,"cx":58.4},"tiro":{"src":"assets/gameplay/pronto/agentes/phoenix/tiro.webp","w":301,"h":194,"px":69.9,"py":192,"cx":93.6},"caido":{"src":"assets/gameplay/pronto/agentes/phoenix/caido.webp","w":252,"h":201,"px":174.3,"py":200,"cx":113.5},"c":{"src":"assets/gameplay/pronto/agentes/phoenix/c.webp","w":128,"h":98},"q":{"src":"assets/gameplay/pronto/agentes/phoenix/q.webp","w":128,"h":125},"e":{"src":"assets/gameplay/pronto/agentes/phoenix/e.webp","w":115,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/phoenix/x.webp","w":128,"h":126}},"reyna":{"retrato":{"src":"assets/agentes/reyna.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/reyna/parado.webp","w":155,"h":200,"px":130.5,"py":191,"cx":74.2},"passo1":{"src":"assets/gameplay/pronto/agentes/reyna/passo1.webp","w":155,"h":221,"px":79.8,"py":218,"cx":67.1},"passo2":{"src":"assets/gameplay/pronto/agentes/reyna/passo2.webp","w":146,"h":225,"px":44.6,"py":223,"cx":63.1},"tiro":{"src":"assets/gameplay/pronto/agentes/reyna/tiro.webp","w":286,"h":190,"px":94.7,"py":187,"cx":95.0},"caido":{"src":"assets/gameplay/pronto/agentes/reyna/caido.webp","w":208,"h":164,"px":153.0,"py":161,"cx":94.4},"c":{"src":"assets/gameplay/pronto/agentes/reyna/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/reyna/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/reyna/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/reyna/x.webp","w":128,"h":128}},"raze":{"retrato":{"src":"assets/agentes/raze.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/raze/parado.webp","w":109,"h":200,"px":58.5,"py":198,"cx":52.6},"passo1":{"src":"assets/gameplay/pronto/agentes/raze/passo1.webp","w":95,"h":221,"px":45.2,"py":219,"cx":44.6},"passo2":{"src":"assets/gameplay/pronto/agentes/raze/passo2.webp","w":117,"h":237,"px":48.9,"py":235,"cx":49.4},"tiro":{"src":"assets/gameplay/pronto/agentes/raze/tiro.webp","w":151,"h":217,"px":134.7,"py":215,"cx":71.7},"caido":{"src":"assets/gameplay/pronto/agentes/raze/caido.webp","w":191,"h":165,"px":166.6,"py":163,"cx":94.1},"c":{"src":"assets/gameplay/pronto/agentes/raze/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/raze/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/raze/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/raze/x.webp","w":128,"h":128}},"yoru":{"retrato":{"src":"assets/agentes/yoru.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/yoru/parado.webp","w":140,"h":200,"px":125.2,"py":198,"cx":69.9},"passo1":{"src":"assets/gameplay/pronto/agentes/yoru/passo1.webp","w":123,"h":230,"px":73.2,"py":228,"cx":63.9},"passo2":{"src":"assets/gameplay/pronto/agentes/yoru/passo2.webp","w":145,"h":258,"px":53.8,"py":255,"cx":75.5},"tiro":{"src":"assets/gameplay/pronto/agentes/yoru/tiro.webp","w":249,"h":220,"px":72.2,"py":218,"cx":73.1},"caido":{"src":"assets/gameplay/pronto/agentes/yoru/caido.webp","w":221,"h":190,"px":183.6,"py":188,"cx":107.2},"c":{"src":"assets/gameplay/pronto/agentes/yoru/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/yoru/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/yoru/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/yoru/x.webp","w":128,"h":128}},"neon":{"retrato":{"src":"assets/agentes/neon.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/neon/parado.webp","w":126,"h":200,"px":113.4,"py":198,"cx":56.8},"passo1":{"src":"assets/gameplay/pronto/agentes/neon/passo1.webp","w":111,"h":219,"px":70.1,"py":217,"cx":55.9},"passo2":{"src":"assets/gameplay/pronto/agentes/neon/passo2.webp","w":162,"h":190,"px":30.7,"py":186,"cx":60.8},"tiro":{"src":"assets/gameplay/pronto/agentes/neon/tiro.webp","w":238,"h":176,"px":68.0,"py":174,"cx":82.5},"caido":{"src":"assets/gameplay/pronto/agentes/neon/caido.webp","w":264,"h":124,"px":207.7,"py":122,"cx":134.7},"c":{"src":"assets/gameplay/pronto/agentes/neon/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/neon/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/neon/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/neon/x.webp","w":128,"h":128}},"iso":{"retrato":{"src":"assets/agentes/iso.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/iso/parado.webp","w":140,"h":200,"px":125.0,"py":198,"cx":69.0},"passo1":{"src":"assets/gameplay/pronto/agentes/iso/passo1.webp","w":118,"h":209,"px":76.9,"py":207,"cx":61.6},"passo2":{"src":"assets/gameplay/pronto/agentes/iso/passo2.webp","w":122,"h":211,"px":46.6,"py":206,"cx":54.5},"tiro":{"src":"assets/gameplay/pronto/agentes/iso/tiro.webp","w":234,"h":176,"px":80.1,"py":174,"cx":74.8},"caido":{"src":"assets/gameplay/pronto/agentes/iso/caido.webp","w":270,"h":141,"px":167.3,"py":139,"cx":125.8},"c":{"src":"assets/gameplay/pronto/agentes/iso/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/iso/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/iso/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/iso/x.webp","w":128,"h":128}},"waylay":{"retrato":{"src":"assets/agentes/waylay.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/waylay/parado.webp","w":151,"h":200,"px":135.7,"py":198,"cx":69.1},"passo1":{"src":"assets/gameplay/pronto/agentes/waylay/passo1.webp","w":127,"h":236,"px":83.1,"py":234,"cx":63.7},"passo2":{"src":"assets/gameplay/pronto/agentes/waylay/passo2.webp","w":152,"h":238,"px":131.8,"py":236,"cx":78.1},"tiro":{"src":"assets/gameplay/pronto/agentes/waylay/tiro.webp","w":186,"h":259,"px":90.9,"py":257,"cx":72.8},"caido":{"src":"assets/gameplay/pronto/agentes/waylay/caido.webp","w":196,"h":191,"px":99.0,"py":189,"cx":96.5},"c":{"src":"assets/gameplay/pronto/agentes/waylay/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/waylay/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/waylay/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/waylay/x.webp","w":128,"h":128}},"sova":{"retrato":{"src":"assets/agentes/sova.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/sova/parado.webp","w":145,"h":200,"px":64.2,"py":198,"cx":69.7},"passo1":{"src":"assets/gameplay/pronto/agentes/sova/passo1.webp","w":164,"h":206,"px":95.0,"py":204,"cx":71.9},"passo2":{"src":"assets/gameplay/pronto/agentes/sova/passo2.webp","w":209,"h":202,"px":140.3,"py":200,"cx":94.3},"tiro":{"src":"assets/gameplay/pronto/agentes/sova/tiro.webp","w":248,"h":206,"px":58.0,"py":204,"cx":75.4},"caido":{"src":"assets/gameplay/pronto/agentes/sova/caido.webp","w":321,"h":211,"px":295.4,"py":209,"cx":162.0},"c":{"src":"assets/gameplay/pronto/agentes/sova/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/sova/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/sova/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/sova/x.webp","w":128,"h":128}},"breach":{"retrato":{"src":"assets/agentes/breach.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/breach/parado.webp","w":151,"h":200,"px":38.1,"py":198,"cx":68.7},"passo1":{"src":"assets/gameplay/pronto/agentes/breach/passo1.webp","w":158,"h":193,"px":125.1,"py":191,"cx":77.7},"passo2":{"src":"assets/gameplay/pronto/agentes/breach/passo2.webp","w":158,"h":193,"px":125.1,"py":191,"cx":77.7},"tiro":{"src":"assets/gameplay/pronto/agentes/breach/tiro.webp","w":218,"h":154,"px":38.9,"py":152,"cx":77.2},"caido":{"src":"assets/gameplay/pronto/agentes/breach/caido.webp","w":218,"h":165,"px":132.7,"py":163,"cx":116.9},"c":{"src":"assets/gameplay/pronto/agentes/breach/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/breach/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/breach/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/breach/x.webp","w":128,"h":128}},"skye":{"retrato":{"src":"assets/agentes/skye.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/skye/parado.webp","w":135,"h":200,"px":57.0,"py":198,"cx":57.4},"passo1":{"src":"assets/gameplay/pronto/agentes/skye/passo1.webp","w":156,"h":201,"px":127.9,"py":199,"cx":80.5},"passo2":{"src":"assets/gameplay/pronto/agentes/skye/passo2.webp","w":156,"h":201,"px":127.9,"py":199,"cx":80.5},"tiro":{"src":"assets/gameplay/pronto/agentes/skye/tiro.webp","w":221,"h":172,"px":11.9,"py":170,"cx":84.8},"caido":{"src":"assets/gameplay/pronto/agentes/skye/caido.webp","w":219,"h":165,"px":125.9,"py":163,"cx":115.3},"c":{"src":"assets/gameplay/pronto/agentes/skye/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/skye/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/skye/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/skye/x.webp","w":128,"h":128}},"kayo":{"retrato":{"src":"assets/agentes/kay-o.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/kayo/parado.webp","w":154,"h":200,"px":38.6,"py":198,"cx":68.6},"passo1":{"src":"assets/gameplay/pronto/agentes/kayo/passo1.webp","w":160,"h":204,"px":130.9,"py":202,"cx":80.1},"passo2":{"src":"assets/gameplay/pronto/agentes/kayo/passo2.webp","w":160,"h":207,"px":89.2,"py":205,"cx":76.5},"tiro":{"src":"assets/gameplay/pronto/agentes/kayo/tiro.webp","w":244,"h":190,"px":14.9,"py":188,"cx":92.1},"caido":{"src":"assets/gameplay/pronto/agentes/kayo/caido.webp","w":218,"h":175,"px":121.1,"py":173,"cx":116.8},"c":{"src":"assets/gameplay/pronto/agentes/kayo/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/kayo/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/kayo/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/kayo/x.webp","w":128,"h":128}},"fade":{"retrato":{"src":"assets/agentes/fade.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/fade/parado.webp","w":159,"h":200,"px":76.2,"py":198,"cx":74.1},"passo1":{"src":"assets/gameplay/pronto/agentes/fade/passo1.webp","w":175,"h":205,"px":145.6,"py":203,"cx":87.0},"passo2":{"src":"assets/gameplay/pronto/agentes/fade/passo2.webp","w":175,"h":205,"px":110.2,"py":203,"cx":87.6},"tiro":{"src":"assets/gameplay/pronto/agentes/fade/tiro.webp","w":240,"h":218,"px":13.0,"py":216,"cx":94.6},"caido":{"src":"assets/gameplay/pronto/agentes/fade/caido.webp","w":229,"h":179,"px":146.3,"py":177,"cx":124.4},"c":{"src":"assets/gameplay/pronto/agentes/fade/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/fade/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/fade/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/fade/x.webp","w":128,"h":128}},"gekko":{"retrato":{"src":"assets/agentes/gekko.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/gekko/parado.webp","w":137,"h":200,"px":55.8,"py":198,"cx":56.9},"passo1":{"src":"assets/gameplay/pronto/agentes/gekko/passo1.webp","w":159,"h":211,"px":130.6,"py":209,"cx":75.5},"passo2":{"src":"assets/gameplay/pronto/agentes/gekko/passo2.webp","w":159,"h":211,"px":130.6,"py":209,"cx":75.5},"tiro":{"src":"assets/gameplay/pronto/agentes/gekko/tiro.webp","w":227,"h":194,"px":13.5,"py":192,"cx":89.1},"caido":{"src":"assets/gameplay/pronto/agentes/gekko/caido.webp","w":214,"h":172,"px":122.6,"py":170,"cx":115.5},"c":{"src":"assets/gameplay/pronto/agentes/gekko/c.webp","w":128,"h":89},"q":{"src":"assets/gameplay/pronto/agentes/gekko/q.webp","w":128,"h":118},"e":{"src":"assets/gameplay/pronto/agentes/gekko/e.webp","w":128,"h":124},"x":{"src":"assets/gameplay/pronto/agentes/gekko/x.webp","w":128,"h":121}},"tejo":{"retrato":{"src":"assets/agentes/tejo.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/tejo/parado.webp","w":140,"h":200,"px":72.2,"py":198,"cx":62.9},"passo1":{"src":"assets/gameplay/pronto/agentes/tejo/passo1.webp","w":160,"h":219,"px":129.6,"py":217,"cx":78.6},"passo2":{"src":"assets/gameplay/pronto/agentes/tejo/passo2.webp","w":160,"h":219,"px":129.6,"py":217,"cx":78.6},"tiro":{"src":"assets/gameplay/pronto/agentes/tejo/tiro.webp","w":241,"h":203,"px":14.3,"py":201,"cx":102.6},"caido":{"src":"assets/gameplay/pronto/agentes/tejo/caido.webp","w":217,"h":169,"px":133.4,"py":167,"cx":115.3},"c":{"src":"assets/gameplay/pronto/agentes/tejo/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/tejo/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/tejo/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/tejo/x.webp","w":128,"h":128}},"brimstone":{"retrato":{"src":"assets/agentes/brimstone.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/brimstone/parado.webp","w":147,"h":200,"px":53.5,"py":198,"cx":65.3},"passo1":{"src":"assets/gameplay/pronto/agentes/brimstone/passo1.webp","w":164,"h":203,"px":131.9,"py":201,"cx":81.0},"passo2":{"src":"assets/gameplay/pronto/agentes/brimstone/passo2.webp","w":164,"h":203,"px":131.9,"py":201,"cx":81.0},"tiro":{"src":"assets/gameplay/pronto/agentes/brimstone/tiro.webp","w":251,"h":190,"px":15.2,"py":188,"cx":103.5},"caido":{"src":"assets/gameplay/pronto/agentes/brimstone/caido.webp","w":219,"h":186,"px":136.8,"py":184,"cx":116.3},"c":{"src":"assets/gameplay/pronto/agentes/brimstone/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/brimstone/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/brimstone/e.webp","w":126,"h":126},"x":{"src":"assets/gameplay/pronto/agentes/brimstone/x.webp","w":128,"h":128}},"viper":{"retrato":{"src":"assets/agentes/viper.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/viper/parado.webp","w":134,"h":200,"px":59.0,"py":198,"cx":59.0},"passo1":{"src":"assets/gameplay/pronto/agentes/viper/passo1.webp","w":173,"h":207,"px":145.0,"py":205,"cx":84.4},"passo2":{"src":"assets/gameplay/pronto/agentes/viper/passo2.webp","w":173,"h":207,"px":145.0,"py":205,"cx":84.4},"tiro":{"src":"assets/gameplay/pronto/agentes/viper/tiro.webp","w":231,"h":193,"px":14.0,"py":191,"cx":96.8},"caido":{"src":"assets/gameplay/pronto/agentes/viper/caido.webp","w":204,"h":176,"px":122.3,"py":174,"cx":111.3},"c":{"src":"assets/gameplay/pronto/agentes/viper/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/viper/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/viper/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/viper/x.webp","w":128,"h":128}},"omen":{"retrato":{"src":"assets/agentes/omen.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/omen/parado.webp","w":163,"h":200,"px":86.8,"py":198,"cx":81.6},"passo1":{"src":"assets/gameplay/pronto/agentes/omen/passo1.webp","w":195,"h":197,"px":164.2,"py":195,"cx":99.5},"passo2":{"src":"assets/gameplay/pronto/agentes/omen/passo2.webp","w":195,"h":197,"px":164.2,"py":195,"cx":99.5},"tiro":{"src":"assets/gameplay/pronto/agentes/omen/tiro.webp","w":225,"h":201,"px":13.3,"py":199,"cx":89.2},"caido":{"src":"assets/gameplay/pronto/agentes/omen/caido.webp","w":202,"h":169,"px":110.7,"py":167,"cx":110.4},"c":{"src":"assets/gameplay/pronto/agentes/omen/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/omen/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/omen/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/omen/x.webp","w":128,"h":128}},"astra":{"retrato":{"src":"assets/agentes/astra.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/astra/parado.webp","w":134,"h":200,"px":73.4,"py":198,"cx":59.2},"passo1":{"src":"assets/gameplay/pronto/agentes/astra/passo1.webp","w":172,"h":219,"px":144.8,"py":217,"cx":80.5},"passo2":{"src":"assets/gameplay/pronto/agentes/astra/passo2.webp","w":172,"h":219,"px":144.8,"py":217,"cx":80.5},"tiro":{"src":"assets/gameplay/pronto/agentes/astra/tiro.webp","w":219,"h":185,"px":13.9,"py":183,"cx":90.2},"caido":{"src":"assets/gameplay/pronto/agentes/astra/caido.webp","w":211,"h":165,"px":121.2,"py":163,"cx":111.9},"c":{"src":"assets/gameplay/pronto/agentes/astra/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/astra/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/astra/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/astra/x.webp","w":128,"h":128}},"harbor":{"retrato":{"src":"assets/agentes/harbor.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/harbor/parado.webp","w":173,"h":200,"px":40.9,"py":198,"cx":67.7},"passo1":{"src":"assets/gameplay/pronto/agentes/harbor/passo1.webp","w":175,"h":189,"px":140.0,"py":187,"cx":77.7},"passo2":{"src":"assets/gameplay/pronto/agentes/harbor/passo2.webp","w":175,"h":189,"px":140.0,"py":187,"cx":77.7},"tiro":{"src":"assets/gameplay/pronto/agentes/harbor/tiro.webp","w":241,"h":145,"px":61.3,"py":143,"cx":91.1},"caido":{"src":"assets/gameplay/pronto/agentes/harbor/caido.webp","w":222,"h":149,"px":137.4,"py":147,"cx":112.0},"c":{"src":"assets/gameplay/pronto/agentes/harbor/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/harbor/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/harbor/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/harbor/x.webp","w":128,"h":128}},"clove":{"retrato":{"src":"assets/agentes/clove.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/clove/parado.webp","w":149,"h":200,"px":31.9,"py":198,"cx":61.2},"passo1":{"src":"assets/gameplay/pronto/agentes/clove/passo1.webp","w":183,"h":196,"px":135.1,"py":194,"cx":88.6},"passo2":{"src":"assets/gameplay/pronto/agentes/clove/passo2.webp","w":183,"h":196,"px":135.1,"py":194,"cx":88.6},"tiro":{"src":"assets/gameplay/pronto/agentes/clove/tiro.webp","w":267,"h":166,"px":18.0,"py":164,"cx":107.5},"caido":{"src":"assets/gameplay/pronto/agentes/clove/caido.webp","w":229,"h":154,"px":123.3,"py":152,"cx":112.6},"c":{"src":"assets/gameplay/pronto/agentes/clove/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/clove/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/clove/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/clove/x.webp","w":128,"h":128}},"miks":{"retrato":{"src":"assets/agentes/mix.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/miks/parado.webp","w":154,"h":200,"px":39.2,"py":197,"cx":62.1},"passo1":{"src":"assets/gameplay/pronto/agentes/miks/passo1.webp","w":185,"h":195,"px":146.1,"py":192,"cx":92.7},"passo2":{"src":"assets/gameplay/pronto/agentes/miks/passo2.webp","w":185,"h":195,"px":146.1,"py":192,"cx":92.7},"tiro":{"src":"assets/gameplay/pronto/agentes/miks/tiro.webp","w":224,"h":161,"px":66.5,"py":158,"cx":88.6},"caido":{"src":"assets/gameplay/pronto/agentes/miks/caido.webp","w":195,"h":167,"px":129.5,"py":164,"cx":100.2},"c":{"src":"assets/gameplay/pronto/agentes/miks/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/miks/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/miks/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/miks/x.webp","w":128,"h":128}},"sage":{"retrato":{"src":"assets/agentes/sage.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/sage/parado.webp","w":127,"h":200,"px":47.6,"py":198,"cx":46.8},"passo1":{"src":"assets/gameplay/pronto/agentes/sage/passo1.webp","w":150,"h":207,"px":107.5,"py":205,"cx":60.8},"passo2":{"src":"assets/gameplay/pronto/agentes/sage/passo2.webp","w":150,"h":207,"px":107.5,"py":205,"cx":60.8},"tiro":{"src":"assets/gameplay/pronto/agentes/sage/tiro.webp","w":206,"h":185,"px":18.7,"py":183,"cx":64.8},"caido":{"src":"assets/gameplay/pronto/agentes/sage/caido.webp","w":223,"h":161,"px":112.8,"py":159,"cx":116.1},"c":{"src":"assets/gameplay/pronto/agentes/sage/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/sage/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/sage/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/sage/x.webp","w":128,"h":128}},"cypher":{"retrato":{"src":"assets/agentes/cypher.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/cypher/parado.webp","w":116,"h":200,"px":49.6,"py":198,"cx":51.7},"passo1":{"src":"assets/gameplay/pronto/agentes/cypher/passo1.webp","w":137,"h":210,"px":100.8,"py":208,"cx":62.2},"passo2":{"src":"assets/gameplay/pronto/agentes/cypher/passo2.webp","w":137,"h":210,"px":100.8,"py":208,"cx":62.2},"tiro":{"src":"assets/gameplay/pronto/agentes/cypher/tiro.webp","w":216,"h":188,"px":18.4,"py":186,"cx":74.1},"caido":{"src":"assets/gameplay/pronto/agentes/cypher/caido.webp","w":224,"h":164,"px":125.7,"py":141,"cx":114.7},"c":{"src":"assets/gameplay/pronto/agentes/cypher/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/cypher/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/cypher/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/cypher/x.webp","w":128,"h":128}},"killjoy":{"retrato":{"src":"assets/agentes/killjoy.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/killjoy/parado.webp","w":133,"h":200,"px":49.6,"py":198,"cx":52.3},"passo1":{"src":"assets/gameplay/pronto/agentes/killjoy/passo1.webp","w":158,"h":211,"px":109.6,"py":209,"cx":69.8},"passo2":{"src":"assets/gameplay/pronto/agentes/killjoy/passo2.webp","w":158,"h":211,"px":109.6,"py":209,"cx":69.8},"tiro":{"src":"assets/gameplay/pronto/agentes/killjoy/tiro.webp","w":218,"h":212,"px":11.9,"py":210,"cx":74.5},"caido":{"src":"assets/gameplay/pronto/agentes/killjoy/caido.webp","w":211,"h":160,"px":105.6,"py":158,"cx":114.1},"c":{"src":"assets/gameplay/pronto/agentes/killjoy/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/killjoy/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/killjoy/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/killjoy/x.webp","w":128,"h":128}},"chamber":{"retrato":{"src":"assets/agentes/chamber.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/chamber/parado.webp","w":154,"h":200,"px":34.1,"py":198,"cx":59.2},"passo1":{"src":"assets/gameplay/pronto/agentes/chamber/passo1.webp","w":136,"h":182,"px":96.0,"py":180,"cx":55.3},"passo2":{"src":"assets/gameplay/pronto/agentes/chamber/passo2.webp","w":136,"h":182,"px":96.0,"py":180,"cx":55.3},"tiro":{"src":"assets/gameplay/pronto/agentes/chamber/tiro.webp","w":219,"h":159,"px":10.6,"py":157,"cx":81.7},"caido":{"src":"assets/gameplay/pronto/agentes/chamber/caido.webp","w":196,"h":175,"px":135.9,"py":173,"cx":94.7},"c":{"src":"assets/gameplay/pronto/agentes/chamber/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/chamber/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/chamber/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/chamber/x.webp","w":128,"h":128}},"deadlock":{"retrato":{"src":"assets/agentes/deadlock.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/deadlock/parado.webp","w":135,"h":200,"px":61.1,"py":198,"cx":54.9},"passo1":{"src":"assets/gameplay/pronto/agentes/deadlock/passo1.webp","w":164,"h":197,"px":133.1,"py":195,"cx":81.2},"passo2":{"src":"assets/gameplay/pronto/agentes/deadlock/passo2.webp","w":164,"h":197,"px":133.1,"py":195,"cx":81.2},"tiro":{"src":"assets/gameplay/pronto/agentes/deadlock/tiro.webp","w":197,"h":199,"px":11.3,"py":197,"cx":64.7},"caido":{"src":"assets/gameplay/pronto/agentes/deadlock/caido.webp","w":253,"h":141,"px":126.3,"py":139,"cx":130.3},"c":{"src":"assets/gameplay/pronto/agentes/deadlock/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/deadlock/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/deadlock/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/deadlock/x.webp","w":128,"h":128}},"vyse":{"retrato":{"src":"assets/agentes/vyse.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/vyse/parado.webp","w":253,"h":200,"px":103.9,"py":198,"cx":97.1},"passo1":{"src":"assets/gameplay/pronto/agentes/vyse/passo1.webp","w":267,"h":197,"px":186.1,"py":195,"cx":113.5},"passo2":{"src":"assets/gameplay/pronto/agentes/vyse/passo2.webp","w":259,"h":197,"px":193.9,"py":195,"cx":106.6},"tiro":{"src":"assets/gameplay/pronto/agentes/vyse/tiro.webp","w":311,"h":190,"px":183.4,"py":188,"cx":114.8},"caido":{"src":"assets/gameplay/pronto/agentes/vyse/caido.webp","w":305,"h":210,"px":116.4,"py":192,"cx":124.4},"c":{"src":"assets/gameplay/pronto/agentes/vyse/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/vyse/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/vyse/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/vyse/x.webp","w":128,"h":128}},"veto":{"retrato":{"src":"assets/agentes/veto.png","w":128,"h":128},"parado":{"src":"assets/gameplay/pronto/agentes/veto/parado.webp","w":171,"h":200,"px":41.3,"py":198,"cx":58.3},"passo1":{"src":"assets/gameplay/pronto/agentes/veto/passo1.webp","w":165,"h":200,"px":140.2,"py":198,"cx":90.2},"passo2":{"src":"assets/gameplay/pronto/agentes/veto/passo2.webp","w":165,"h":200,"px":140.2,"py":198,"cx":90.2},"tiro":{"src":"assets/gameplay/pronto/agentes/veto/tiro.webp","w":191,"h":173,"px":18.3,"py":171,"cx":78.8},"caido":{"src":"assets/gameplay/pronto/agentes/veto/caido.webp","w":228,"h":168,"px":91.6,"py":166,"cx":120.0},"c":{"src":"assets/gameplay/pronto/agentes/veto/c.webp","w":128,"h":128},"q":{"src":"assets/gameplay/pronto/agentes/veto/q.webp","w":128,"h":128},"e":{"src":"assets/gameplay/pronto/agentes/veto/e.webp","w":128,"h":128},"x":{"src":"assets/gameplay/pronto/agentes/veto/x.webp","w":128,"h":128}}},"armas":{"classic":{"src":"assets/gameplay/pronto/armas/classic.webp","w":231,"h":162},"ghost":{"src":"assets/gameplay/pronto/armas/ghost.webp","w":384,"h":129},"sheriff":{"src":"assets/gameplay/pronto/armas/sheriff.webp","w":384,"h":157},"spectre":{"src":"assets/gameplay/pronto/armas/spectre.webp","w":384,"h":151},"phantom":{"src":"assets/gameplay/pronto/armas/phantom.webp","w":384,"h":98},"vandal":{"src":"assets/gameplay/pronto/armas/vandal.webp","w":384,"h":96},"operator":{"src":"assets/gameplay/pronto/armas/operator.webp","w":384,"h":86}},"efeitos":{"fumaca":{"src":"assets/gameplay/pronto/efeitos/fumaca.webp","w":256,"h":256},"fogo":{"src":"assets/gameplay/pronto/efeitos/fogo.webp","w":256,"h":256},"explosao":{"src":"assets/gameplay/pronto/efeitos/explosao.webp","w":256,"h":256},"flash":{"src":"assets/gameplay/pronto/efeitos/flash.webp","w":256,"h":256}},"objetos":{"spike":{"src":"assets/gameplay/pronto/objetos/spike.webp","w":242,"h":256},"caixa":{"src":"assets/gameplay/pronto/objetos/caixa.webp","w":234,"h":246},"caixa2":{"src":"assets/gameplay/pronto/objetos/caixa2.webp","w":240,"h":256},"conteiner":{"src":"assets/gameplay/pronto/objetos/conteiner.webp","w":256,"h":94},"barreira":{"src":"assets/gameplay/pronto/objetos/barreira.webp","w":256,"h":80},"sacos":{"src":"assets/gameplay/pronto/objetos/sacos.webp","w":256,"h":82},"barreira_compra":{"src":"assets/gameplay/pronto/objetos/barreira_compra.webp","w":256,"h":19}},"texturas":{"abyss_piso":{"src":"assets/gameplay/pronto/texturas/abyss_piso.webp","w":512,"h":512},"abyss_parede":{"src":"assets/gameplay/pronto/texturas/abyss_parede.webp","w":512,"h":512},"ascent_piso":{"src":"assets/gameplay/pronto/texturas/ascent_piso.webp","w":512,"h":512},"ascent_parede":{"src":"assets/gameplay/pronto/texturas/ascent_parede.webp","w":512,"h":512},"bind_piso":{"src":"assets/gameplay/pronto/texturas/bind_piso.webp","w":512,"h":512},"bind_parede":{"src":"assets/gameplay/pronto/texturas/bind_parede.webp","w":512,"h":512},"breeze_piso":{"src":"assets/gameplay/pronto/texturas/breeze_piso.webp","w":512,"h":512},"breeze_parede":{"src":"assets/gameplay/pronto/texturas/breeze_parede.webp","w":512,"h":512},"corrode_piso":{"src":"assets/gameplay/pronto/texturas/corrode_piso.webp","w":512,"h":512},"corrode_parede":{"src":"assets/gameplay/pronto/texturas/corrode_parede.webp","w":512,"h":512},"fracture_piso":{"src":"assets/gameplay/pronto/texturas/fracture_piso.webp","w":512,"h":512},"fracture_parede":{"src":"assets/gameplay/pronto/texturas/fracture_parede.webp","w":512,"h":512},"haven_piso":{"src":"assets/gameplay/pronto/texturas/haven_piso.webp","w":512,"h":512},"haven_parede":{"src":"assets/gameplay/pronto/texturas/haven_parede.webp","w":512,"h":512},"icebox_piso":{"src":"assets/gameplay/pronto/texturas/icebox_piso.webp","w":512,"h":512},"icebox_parede":{"src":"assets/gameplay/pronto/texturas/icebox_parede.webp","w":512,"h":512},"lotus_piso":{"src":"assets/gameplay/pronto/texturas/lotus_piso.webp","w":512,"h":512},"lotus_parede":{"src":"assets/gameplay/pronto/texturas/lotus_parede.webp","w":512,"h":512},"pearl_piso":{"src":"assets/gameplay/pronto/texturas/pearl_piso.webp","w":512,"h":512},"pearl_parede":{"src":"assets/gameplay/pronto/texturas/pearl_parede.webp","w":512,"h":512},"split_piso":{"src":"assets/gameplay/pronto/texturas/split_piso.webp","w":512,"h":512},"split_parede":{"src":"assets/gameplay/pronto/texturas/split_parede.webp","w":512,"h":512},"summit_piso":{"src":"assets/gameplay/pronto/texturas/summit_piso.webp","w":512,"h":512},"summit_parede":{"src":"assets/gameplay/pronto/texturas/summit_parede.webp","w":512,"h":512},"sunset_piso":{"src":"assets/gameplay/pronto/texturas/sunset_piso.webp","w":512,"h":512},"sunset_parede":{"src":"assets/gameplay/pronto/texturas/sunset_parede.webp","w":512,"h":512}},"decoracao":{"abyss":{"caixa":{"src":"assets/gameplay/pronto/decoracao/abyss/caixa.webp","w":128,"h":89},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/abyss/caixa_grande.webp","w":158,"h":92},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/abyss/enfeite1.webp","w":90,"h":92},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/abyss/enfeite2.webp","w":207,"h":82},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/abyss/enfeite3.webp","w":232,"h":72}},"ascent":{"caixa":{"src":"assets/gameplay/pronto/decoracao/ascent/caixa.webp","w":99,"h":96},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/ascent/caixa_grande.webp","w":123,"h":111},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/ascent/enfeite1.webp","w":111,"h":113},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/ascent/enfeite2.webp","w":136,"h":109},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/ascent/enfeite3.webp","w":99,"h":114},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/ascent/enfeite4.webp","w":207,"h":94}},"bind":{"caixa":{"src":"assets/gameplay/pronto/decoracao/bind/caixa.webp","w":122,"h":97},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/bind/caixa_grande.webp","w":152,"h":95},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/bind/enfeite1.webp","w":232,"h":100},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/bind/enfeite2.webp","w":196,"h":91},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/bind/enfeite3.webp","w":187,"h":102},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/bind/enfeite4.webp","w":242,"h":86}},"breeze":{"caixa":{"src":"assets/gameplay/pronto/decoracao/breeze/caixa.webp","w":138,"h":78},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/breeze/caixa_grande.webp","w":157,"h":80},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/breeze/enfeite1.webp","w":124,"h":82},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/breeze/enfeite2.webp","w":237,"h":82},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/breeze/enfeite3.webp","w":232,"h":85}},"corrode":{"caixa":{"src":"assets/gameplay/pronto/decoracao/corrode/caixa.webp","w":115,"h":77},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/corrode/caixa_grande.webp","w":153,"h":77},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/corrode/enfeite1.webp","w":73,"h":71},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/corrode/enfeite2.webp","w":205,"h":77},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/corrode/enfeite3.webp","w":232,"h":68}},"fracture":{"caixa":{"src":"assets/gameplay/pronto/decoracao/fracture/caixa.webp","w":142,"h":83},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/fracture/caixa_grande.webp","w":157,"h":107},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/fracture/enfeite1.webp","w":65,"h":90},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/fracture/enfeite2.webp","w":232,"h":96},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/fracture/enfeite3.webp","w":232,"h":88},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/fracture/enfeite4.webp","w":114,"h":78}},"haven":{"caixa":{"src":"assets/gameplay/pronto/decoracao/haven/caixa.webp","w":122,"h":98},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/haven/caixa_grande.webp","w":169,"h":107},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/haven/enfeite1.webp","w":138,"h":101},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/haven/enfeite2.webp","w":237,"h":108},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/haven/enfeite3.webp","w":200,"h":100}},"icebox":{"caixa":{"src":"assets/gameplay/pronto/decoracao/icebox/caixa.webp","w":150,"h":92},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/icebox/caixa_grande.webp","w":177,"h":100},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/icebox/enfeite1.webp","w":206,"h":91},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/icebox/enfeite2.webp","w":237,"h":80},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/icebox/enfeite3.webp","w":124,"h":88},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/icebox/enfeite4.webp","w":76,"h":82}},"lotus":{"caixa":{"src":"assets/gameplay/pronto/decoracao/lotus/caixa.webp","w":127,"h":77},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/lotus/caixa_grande.webp","w":136,"h":102},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/lotus/enfeite1.webp","w":85,"h":78},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/lotus/enfeite2.webp","w":225,"h":88},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/lotus/enfeite3.webp","w":106,"h":84},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/lotus/enfeite4.webp","w":51,"h":72}},"pearl":{"caixa":{"src":"assets/gameplay/pronto/decoracao/pearl/caixa.webp","w":127,"h":102},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/pearl/caixa_grande.webp","w":145,"h":83},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/pearl/enfeite1.webp","w":117,"h":82},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/pearl/enfeite2.webp","w":224,"h":102},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/pearl/enfeite3.webp","w":231,"h":96}},"split":{"caixa":{"src":"assets/gameplay/pronto/decoracao/split/caixa.webp","w":132,"h":103},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/split/caixa_grande.webp","w":167,"h":85},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/split/enfeite1.webp","w":82,"h":107},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/split/enfeite2.webp","w":237,"h":102},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/split/enfeite3.webp","w":232,"h":107}},"summit":{"caixa":{"src":"assets/gameplay/pronto/decoracao/summit/caixa.webp","w":121,"h":70},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/summit/caixa_grande.webp","w":106,"h":69},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/summit/enfeite1.webp","w":83,"h":69},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/summit/enfeite2.webp","w":201,"h":64},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/summit/enfeite3.webp","w":103,"h":51}},"sunset":{"caixa":{"src":"assets/gameplay/pronto/decoracao/sunset/caixa.webp","w":131,"h":72},"caixa_grande":{"src":"assets/gameplay/pronto/decoracao/sunset/caixa_grande.webp","w":158,"h":97},"enfeite1":{"src":"assets/gameplay/pronto/decoracao/sunset/enfeite1.webp","w":111,"h":94},"enfeite2":{"src":"assets/gameplay/pronto/decoracao/sunset/enfeite2.webp","w":221,"h":79},"enfeite3":{"src":"assets/gameplay/pronto/decoracao/sunset/enfeite3.webp","w":232,"h":87},"enfeite4":{"src":"assets/gameplay/pronto/decoracao/sunset/enfeite4.webp","w":22,"h":64}}},"marcas":{"letra_a":{"src":"assets/gameplay/pronto/marcas/letra_a.webp","w":455,"h":458},"letra_b":{"src":"assets/gameplay/pronto/marcas/letra_b.webp","w":383,"h":458},"letra_c":{"src":"assets/gameplay/pronto/marcas/letra_c.webp","w":411,"h":458}},"mapas_arte":{"abyss":{"src":"assets/gameplay/pronto/mapas_arte/abyss.webp","w":1254,"h":1254,"x0_m":-5.21,"y0_m":-5.169,"larg_m":100.522,"alt_m":95.533},"ascent":{"src":"assets/gameplay/pronto/mapas_arte/ascent.webp","w":1254,"h":1254,"x0_m":-10.913,"y0_m":-3.824,"larg_m":111.299,"alt_m":109.618},"bind":{"src":"assets/gameplay/pronto/mapas_arte/bind.webp","w":1254,"h":1254,"x0_m":-16.469,"y0_m":-2.141,"larg_m":139.557,"alt_m":138.03},"breeze":{"src":"assets/gameplay/pronto/mapas_arte/breeze.webp","w":1254,"h":1254,"x0_m":-5.979,"y0_m":-4.496,"larg_m":140.756,"alt_m":138.573},"corrode":{"src":"assets/gameplay/pronto/mapas_arte/corrode.webp","w":1254,"h":1254,"x0_m":-9.188,"y0_m":-2.988,"larg_m":97.398,"alt_m":92.405},"fracture":{"src":"assets/gameplay/pronto/mapas_arte/fracture.webp","w":1254,"h":1254,"x0_m":-7.516,"y0_m":-3.107,"larg_m":100.798,"alt_m":93.598},"haven":{"src":"assets/gameplay/pronto/mapas_arte/haven.webp","w":1254,"h":1254,"x0_m":-11.493,"y0_m":-3.068,"larg_m":105.339,"alt_m":103.534},"icebox":{"src":"assets/gameplay/pronto/mapas_arte/icebox.webp","w":1254,"h":1254,"x0_m":-11.653,"y0_m":-0.248,"larg_m":116.768,"alt_m":108.661},"lotus":{"src":"assets/gameplay/pronto/mapas_arte/lotus.webp","w":1254,"h":1254,"x0_m":-9.12,"y0_m":-9.631,"larg_m":119.602,"alt_m":116.95},"pearl":{"src":"assets/gameplay/pronto/mapas_arte/pearl.webp","w":1254,"h":1254,"x0_m":-7.163,"y0_m":-4.129,"larg_m":117.859,"alt_m":110.938},"split":{"src":"assets/gameplay/pronto/mapas_arte/split.webp","w":1254,"h":1254,"x0_m":-10.076,"y0_m":-10.314,"larg_m":108.213,"alt_m":108.474},"summit":{"src":"assets/gameplay/pronto/mapas_arte/summit.webp","w":1254,"h":1254,"x0_m":-10.577,"y0_m":-11.216,"larg_m":118.746,"alt_m":117.706},"sunset":{"src":"assets/gameplay/pronto/mapas_arte/sunset.webp","w":1254,"h":1254,"x0_m":-12.175,"y0_m":-7.976,"larg_m":120.987,"alt_m":120.574}},"mecanicas":{"abyss":{"porta_fechada":{"src":"assets/gameplay/pronto/mecanicas/abyss/porta_fechada.webp","w":471,"h":131},"porta_quebrada":{"src":"assets/gameplay/pronto/mecanicas/abyss/porta_quebrada.webp","w":471,"h":132}},"ascent":{"porta_fechada":{"src":"assets/gameplay/pronto/mecanicas/ascent/porta_fechada.webp","w":512,"h":162},"porta_aberta":{"src":"assets/gameplay/pronto/mecanicas/ascent/porta_aberta.webp","w":512,"h":162},"interruptor":{"src":"assets/gameplay/pronto/mecanicas/ascent/interruptor.webp","w":512,"h":349}},"bind":{"teleporte_entrada":{"src":"assets/gameplay/pronto/mecanicas/bind/teleporte_entrada.webp","w":512,"h":507},"teleporte_saida":{"src":"assets/gameplay/pronto/mecanicas/bind/teleporte_saida.webp","w":512,"h":507},"teleporte_brilho":{"src":"assets/gameplay/pronto/mecanicas/bind/teleporte_brilho.webp","w":512,"h":390}},"breeze":{"porta_fechada":{"src":"assets/gameplay/pronto/mecanicas/breeze/porta_fechada.webp","w":512,"h":241},"porta_aberta":{"src":"assets/gameplay/pronto/mecanicas/breeze/porta_aberta.webp","w":512,"h":240},"corda_ponta":{"src":"assets/gameplay/pronto/mecanicas/breeze/corda_ponta.webp","w":512,"h":148,"ax":0.217,"ay":0.497,"pw":0.295},"corda_trecho":{"src":"assets/gameplay/pronto/mecanicas/breeze/corda_trecho.webp","w":1024,"h":64}},"fracture":{"porta_fechada":{"src":"assets/gameplay/pronto/mecanicas/fracture/porta_fechada.webp","w":512,"h":192},"porta_aberta":{"src":"assets/gameplay/pronto/mecanicas/fracture/porta_aberta.webp","w":512,"h":196},"tirolesa_ponta":{"src":"assets/gameplay/pronto/mecanicas/fracture/tirolesa_ponta.webp","w":512,"h":204,"ax":0.119,"ay":0.498,"pw":0.225},"tirolesa_trecho":{"src":"assets/gameplay/pronto/mecanicas/fracture/tirolesa_trecho.webp","w":1024,"h":48}},"haven":{"garagem_fechada":{"src":"assets/gameplay/pronto/mecanicas/haven/garagem_fechada.webp","w":512,"h":139},"garagem_quebrada":{"src":"assets/gameplay/pronto/mecanicas/haven/garagem_quebrada.webp","w":512,"h":154}},"icebox":{"tirolesa_ponta":{"src":"assets/gameplay/pronto/mecanicas/icebox/tirolesa_ponta.webp","w":512,"h":267,"ax":0.205,"ay":0.498,"pw":0.396},"tirolesa_trecho":{"src":"assets/gameplay/pronto/mecanicas/icebox/tirolesa_trecho.webp","w":1024,"h":56}},"lotus":{"porta_giratoria_fechada":{"src":"assets/gameplay/pronto/mecanicas/lotus/porta_giratoria_fechada.webp","w":512,"h":172},"porta_giratoria_aberta":{"src":"assets/gameplay/pronto/mecanicas/lotus/porta_giratoria_aberta.webp","w":406,"h":434},"botao":{"src":"assets/gameplay/pronto/mecanicas/lotus/botao.webp","w":185,"h":184},"porta_fragil":{"src":"assets/gameplay/pronto/mecanicas/lotus/porta_fragil.webp","w":496,"h":230},"porta_fragil_quebrada":{"src":"assets/gameplay/pronto/mecanicas/lotus/porta_fragil_quebrada.webp","w":512,"h":243},"tirolesa_ponta":{"src":"assets/gameplay/pronto/mecanicas/lotus/tirolesa_ponta.webp","w":315,"h":378,"ax":0.278,"ay":0.499,"pw":0.451},"tirolesa_trecho":{"src":"assets/gameplay/pronto/mecanicas/lotus/tirolesa_trecho.webp","w":1024,"h":61}},"split":{"corda_ponta":{"src":"assets/gameplay/pronto/mecanicas/split/corda_ponta.webp","w":512,"h":194,"ax":0.175,"ay":0.497,"pw":0.34},"corda_trecho":{"src":"assets/gameplay/pronto/mecanicas/split/corda_trecho.webp","w":1024,"h":53}},"summit":{"muro_em_pe":{"src":"assets/gameplay/pronto/mecanicas/summit/muro_em_pe.webp","w":512,"h":116},"muro_caido":{"src":"assets/gameplay/pronto/mecanicas/summit/muro_caido.webp","w":512,"h":107},"interruptor":{"src":"assets/gameplay/pronto/mecanicas/summit/interruptor.webp","w":273,"h":265},"interruptor_quebrado":{"src":"assets/gameplay/pronto/mecanicas/summit/interruptor_quebrado.webp","w":294,"h":280}},"sunset":{"porta_aberta":{"src":"assets/gameplay/pronto/mecanicas/sunset/porta_aberta.webp","w":512,"h":145},"porta_fechada":{"src":"assets/gameplay/pronto/mecanicas/sunset/porta_fechada.webp","w":512,"h":149},"porta_quebrada":{"src":"assets/gameplay/pronto/mecanicas/sunset/porta_quebrada.webp","w":512,"h":151}}},"habilidades":{"jett":{"c_area":{"src":"assets/gameplay/pronto/habilidades/jett/c_area.webp","w":512,"h":497,"tipo":"area"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/jett/q_clarao.webp","w":510,"h":512,"tipo":"clarao"},"e_rastro":{"src":"assets/gameplay/pronto/habilidades/jett/e_rastro.webp","w":546,"h":205,"tipo":"rastro"},"x_projetil":{"src":"assets/gameplay/pronto/habilidades/jett/x_projetil.webp","w":256,"h":89,"tipo":"projetil"}},"phoenix":{"c_parede":{"src":"assets/gameplay/pronto/habilidades/phoenix/c_parede.webp","w":782,"h":273,"tipo":"parede"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/phoenix/q_projetil.webp","w":256,"h":109,"tipo":"projetil"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/phoenix/q_clarao.webp","w":512,"h":301,"tipo":"clarao"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/phoenix/e_projetil.webp","w":256,"h":115,"tipo":"projetil"},"e_area":{"src":"assets/gameplay/pronto/habilidades/phoenix/e_area.webp","w":512,"h":353,"tipo":"area"},"x_objeto":{"src":"assets/gameplay/pronto/habilidades/phoenix/x_objeto.webp","w":256,"h":246,"tipo":"objeto"}},"reyna":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/reyna/c_objeto.webp","w":256,"h":239,"tipo":"objeto"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/reyna/q_objeto.webp","w":234,"h":256,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/reyna/x_area.webp","w":512,"h":317,"tipo":"area"}},"raze":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/raze/c_objeto.webp","w":256,"h":208,"tipo":"objeto"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/raze/q_projetil.webp","w":256,"h":131,"tipo":"projetil"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/raze/q_clarao.webp","w":486,"h":479,"tipo":"clarao"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/raze/e_projetil.webp","w":256,"h":134,"tipo":"projetil"},"e_clarao":{"src":"assets/gameplay/pronto/habilidades/raze/e_clarao.webp","w":435,"h":444,"tipo":"clarao"},"x_projetil":{"src":"assets/gameplay/pronto/habilidades/raze/x_projetil.webp","w":256,"h":96,"tipo":"projetil"},"x_clarao":{"src":"assets/gameplay/pronto/habilidades/raze/x_clarao.webp","w":499,"h":487,"tipo":"clarao"}},"yoru":{"c_rastro":{"src":"assets/gameplay/pronto/habilidades/yoru/c_rastro.webp","w":947,"h":175,"tipo":"rastro"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/yoru/q_projetil.webp","w":256,"h":98,"tipo":"projetil"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/yoru/q_clarao.webp","w":512,"h":475,"tipo":"clarao"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/yoru/e_objeto.webp","w":256,"h":226,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/yoru/x_area.webp","w":512,"h":492,"tipo":"area"}},"neon":{"c_parede":{"src":"assets/gameplay/pronto/habilidades/neon/c_parede.webp","w":1024,"h":166,"tipo":"parede"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/neon/q_projetil.webp","w":256,"h":101,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/neon/q_area.webp","w":512,"h":369,"tipo":"area"},"e_rastro":{"src":"assets/gameplay/pronto/habilidades/neon/e_rastro.webp","w":1024,"h":97,"tipo":"rastro"},"x_rastro":{"src":"assets/gameplay/pronto/habilidades/neon/x_rastro.webp","w":1024,"h":96,"tipo":"rastro"}},"iso":{"c_parede":{"src":"assets/gameplay/pronto/habilidades/iso/c_parede.webp","w":868,"h":216,"tipo":"parede"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/iso/q_projetil.webp","w":256,"h":114,"tipo":"projetil"},"e_area":{"src":"assets/gameplay/pronto/habilidades/iso/e_area.webp","w":512,"h":463,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/iso/x_area.webp","w":512,"h":420,"tipo":"area"}},"waylay":{"c_projetil":{"src":"assets/gameplay/pronto/habilidades/waylay/c_projetil.webp","w":256,"h":79,"tipo":"projetil"},"c_area":{"src":"assets/gameplay/pronto/habilidades/waylay/c_area.webp","w":512,"h":373,"tipo":"area"},"q_rastro":{"src":"assets/gameplay/pronto/habilidades/waylay/q_rastro.webp","w":679,"h":171,"tipo":"rastro"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/waylay/e_objeto.webp","w":229,"h":256,"tipo":"objeto"},"x_cone":{"src":"assets/gameplay/pronto/habilidades/waylay/x_cone.webp","w":484,"h":421,"tipo":"cone"}},"sova":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/sova/c_objeto.webp","w":256,"h":196,"tipo":"objeto"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/sova/q_projetil.webp","w":256,"h":72,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/sova/q_area.webp","w":512,"h":295,"tipo":"area"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/sova/e_projetil.webp","w":256,"h":79,"tipo":"projetil"},"e_area":{"src":"assets/gameplay/pronto/habilidades/sova/e_area.webp","w":429,"h":392,"tipo":"area"},"x_rastro":{"src":"assets/gameplay/pronto/habilidades/sova/x_rastro.webp","w":1024,"h":238,"tipo":"rastro"}},"breach":{"c_area":{"src":"assets/gameplay/pronto/habilidades/breach/c_area.webp","w":512,"h":362,"tipo":"area"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/breach/q_clarao.webp","w":512,"h":353,"tipo":"clarao"},"e_rastro":{"src":"assets/gameplay/pronto/habilidades/breach/e_rastro.webp","w":1024,"h":194,"tipo":"rastro"},"x_cone":{"src":"assets/gameplay/pronto/habilidades/breach/x_cone.webp","w":512,"h":231,"tipo":"cone"}},"skye":{"c_area":{"src":"assets/gameplay/pronto/habilidades/skye/c_area.webp","w":512,"h":349,"tipo":"area"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/skye/q_objeto.webp","w":256,"h":103,"tipo":"objeto"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/skye/e_projetil.webp","w":256,"h":97,"tipo":"projetil"},"e_clarao":{"src":"assets/gameplay/pronto/habilidades/skye/e_clarao.webp","w":512,"h":413,"tipo":"clarao"},"x_projetil":{"src":"assets/gameplay/pronto/habilidades/skye/x_projetil.webp","w":256,"h":93,"tipo":"projetil"}},"kayo":{"c_projetil":{"src":"assets/gameplay/pronto/habilidades/kayo/c_projetil.webp","w":256,"h":105,"tipo":"projetil"},"c_area":{"src":"assets/gameplay/pronto/habilidades/kayo/c_area.webp","w":512,"h":357,"tipo":"area"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/kayo/q_projetil.webp","w":256,"h":97,"tipo":"projetil"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/kayo/q_clarao.webp","w":512,"h":322,"tipo":"clarao"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/kayo/e_projetil.webp","w":256,"h":44,"tipo":"projetil"},"e_area":{"src":"assets/gameplay/pronto/habilidades/kayo/e_area.webp","w":436,"h":353,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/kayo/x_area.webp","w":512,"h":382,"tipo":"area"}},"fade":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/fade/c_objeto.webp","w":256,"h":105,"tipo":"objeto"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/fade/q_projetil.webp","w":256,"h":125,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/fade/q_area.webp","w":512,"h":328,"tipo":"area"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/fade/e_objeto.webp","w":256,"h":171,"tipo":"objeto"},"x_cone":{"src":"assets/gameplay/pronto/habilidades/fade/x_cone.webp","w":512,"h":148,"tipo":"cone"}},"gekko":{"c_area":{"src":"assets/gameplay/pronto/habilidades/gekko/c_area.webp","w":512,"h":312,"tipo":"area"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/gekko/q_objeto.webp","w":256,"h":117,"tipo":"objeto"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/gekko/e_objeto.webp","w":256,"h":210,"tipo":"objeto"},"e_clarao":{"src":"assets/gameplay/pronto/habilidades/gekko/e_clarao.webp","w":512,"h":302,"tipo":"clarao"},"x_objeto":{"src":"assets/gameplay/pronto/habilidades/gekko/x_objeto.webp","w":256,"h":107,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/gekko/x_area.webp","w":512,"h":264,"tipo":"area"}},"tejo":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/tejo/c_objeto.webp","w":256,"h":175,"tipo":"objeto"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/tejo/q_projetil.webp","w":256,"h":80,"tipo":"projetil"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/tejo/q_clarao.webp","w":512,"h":271,"tipo":"clarao"},"e_projetil":{"src":"assets/gameplay/pronto/habilidades/tejo/e_projetil.webp","w":256,"h":61,"tipo":"projetil"},"e_area":{"src":"assets/gameplay/pronto/habilidades/tejo/e_area.webp","w":512,"h":295,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/tejo/x_area.webp","w":512,"h":256,"tipo":"area"}},"brimstone":{"c_area":{"src":"assets/gameplay/pronto/habilidades/brimstone/c_area.webp","w":512,"h":400,"tipo":"area"},"q_area":{"src":"assets/gameplay/pronto/habilidades/brimstone/q_area.webp","w":512,"h":390,"tipo":"area"},"e_area":{"src":"assets/gameplay/pronto/habilidades/brimstone/e_area.webp","w":512,"h":379,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/brimstone/x_area.webp","w":512,"h":367,"tipo":"area"}},"viper":{"c_projetil":{"src":"assets/gameplay/pronto/habilidades/viper/c_projetil.webp","w":256,"h":114,"tipo":"projetil"},"c_area":{"src":"assets/gameplay/pronto/habilidades/viper/c_area.webp","w":512,"h":344,"tipo":"area"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/viper/q_objeto.webp","w":171,"h":256,"tipo":"objeto"},"q_area":{"src":"assets/gameplay/pronto/habilidades/viper/q_area.webp","w":512,"h":340,"tipo":"area"},"e_parede":{"src":"assets/gameplay/pronto/habilidades/viper/e_parede.webp","w":833,"h":247,"tipo":"parede"},"x_area":{"src":"assets/gameplay/pronto/habilidades/viper/x_area.webp","w":512,"h":209,"tipo":"area"}},"omen":{"c_area":{"src":"assets/gameplay/pronto/habilidades/omen/c_area.webp","w":512,"h":405,"tipo":"area"},"q_rastro":{"src":"assets/gameplay/pronto/habilidades/omen/q_rastro.webp","w":838,"h":283,"tipo":"rastro"},"e_area":{"src":"assets/gameplay/pronto/habilidades/omen/e_area.webp","w":512,"h":382,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/omen/x_area.webp","w":512,"h":402,"tipo":"area"}},"astra":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/astra/c_objeto.webp","w":256,"h":225,"tipo":"objeto"},"c_area":{"src":"assets/gameplay/pronto/habilidades/astra/c_area.webp","w":512,"h":356,"tipo":"area"},"q_area":{"src":"assets/gameplay/pronto/habilidades/astra/q_area.webp","w":510,"h":437,"tipo":"area"},"e_area":{"src":"assets/gameplay/pronto/habilidades/astra/e_area.webp","w":512,"h":345,"tipo":"area"},"x_parede":{"src":"assets/gameplay/pronto/habilidades/astra/x_parede.webp","w":1024,"h":129,"tipo":"parede"}},"harbor":{"c_area":{"src":"assets/gameplay/pronto/habilidades/harbor/c_area.webp","w":512,"h":488,"tipo":"area"},"c_clarao":{"src":"assets/gameplay/pronto/habilidades/harbor/c_clarao.webp","w":512,"h":475,"tipo":"clarao"},"q_parede":{"src":"assets/gameplay/pronto/habilidades/harbor/q_parede.webp","w":886,"h":450,"tipo":"parede"},"e_area":{"src":"assets/gameplay/pronto/habilidades/harbor/e_area.webp","w":512,"h":474,"tipo":"area"},"x_parede":{"src":"assets/gameplay/pronto/habilidades/harbor/x_parede.webp","w":888,"h":237,"tipo":"parede"}},"clove":{"c_clarao":{"src":"assets/gameplay/pronto/habilidades/clove/c_clarao.webp","w":512,"h":453,"tipo":"clarao"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/clove/q_projetil.webp","w":256,"h":99,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/clove/q_area.webp","w":512,"h":482,"tipo":"area"},"e_area":{"src":"assets/gameplay/pronto/habilidades/clove/e_area.webp","w":512,"h":465,"tipo":"area"},"x_area":{"src":"assets/gameplay/pronto/habilidades/clove/x_area.webp","w":512,"h":472,"tipo":"area"}},"miks":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/miks/c_objeto.webp","w":256,"h":148,"tipo":"objeto"},"c_area":{"src":"assets/gameplay/pronto/habilidades/miks/c_area.webp","w":445,"h":506,"tipo":"area"},"c_area_cura":{"src":"assets/gameplay/pronto/habilidades/miks/c_area_cura.webp","w":434,"h":506,"tipo":"area"},"q_clarao":{"src":"assets/gameplay/pronto/habilidades/miks/q_clarao.webp","w":432,"h":491,"tipo":"clarao"},"e_area":{"src":"assets/gameplay/pronto/habilidades/miks/e_area.webp","w":450,"h":494,"tipo":"area"},"x_cone":{"src":"assets/gameplay/pronto/habilidades/miks/x_cone.webp","w":426,"h":511,"tipo":"cone"}},"sage":{"c_parede":{"src":"assets/gameplay/pronto/habilidades/sage/c_parede.webp","w":954,"h":257,"tipo":"parede"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/sage/q_projetil.webp","w":256,"h":109,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/sage/q_area.webp","w":512,"h":429,"tipo":"area"},"e_clarao":{"src":"assets/gameplay/pronto/habilidades/sage/e_clarao.webp","w":439,"h":477,"tipo":"clarao"},"x_area":{"src":"assets/gameplay/pronto/habilidades/sage/x_area.webp","w":433,"h":512,"tipo":"area"}},"cypher":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/cypher/c_objeto.webp","w":125,"h":104,"tipo":"objeto"},"c_parede":{"src":"assets/gameplay/pronto/habilidades/cypher/c_parede.webp","w":987,"h":88,"tipo":"parede"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/cypher/q_objeto.webp","w":131,"h":236,"tipo":"objeto"},"q_area":{"src":"assets/gameplay/pronto/habilidades/cypher/q_area.webp","w":488,"h":490,"tipo":"area"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/cypher/e_objeto.webp","w":206,"h":136,"tipo":"objeto"},"x_clarao":{"src":"assets/gameplay/pronto/habilidades/cypher/x_clarao.webp","w":512,"h":495,"tipo":"clarao"}},"killjoy":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/killjoy/c_objeto.webp","w":256,"h":244,"tipo":"objeto"},"c_area":{"src":"assets/gameplay/pronto/habilidades/killjoy/c_area.webp","w":512,"h":442,"tipo":"area"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/killjoy/q_objeto.webp","w":250,"h":230,"tipo":"objeto"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/killjoy/e_objeto.webp","w":256,"h":180,"tipo":"objeto"},"x_objeto":{"src":"assets/gameplay/pronto/habilidades/killjoy/x_objeto.webp","w":215,"h":256,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/killjoy/x_area.webp","w":507,"h":512,"tipo":"area"}},"chamber":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/chamber/c_objeto.webp","w":256,"h":237,"tipo":"objeto"},"c_area":{"src":"assets/gameplay/pronto/habilidades/chamber/c_area.webp","w":512,"h":425,"tipo":"area"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/chamber/e_objeto.webp","w":256,"h":238,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/chamber/x_area.webp","w":512,"h":415,"tipo":"area"}},"deadlock":{"c_projetil":{"src":"assets/gameplay/pronto/habilidades/deadlock/c_projetil.webp","w":256,"h":78,"tipo":"projetil"},"c_area":{"src":"assets/gameplay/pronto/habilidades/deadlock/c_area.webp","w":512,"h":459,"tipo":"area"},"q_objeto":{"src":"assets/gameplay/pronto/habilidades/deadlock/q_objeto.webp","w":256,"h":191,"tipo":"objeto"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/deadlock/e_objeto.webp","w":256,"h":253,"tipo":"objeto"},"x_rastro":{"src":"assets/gameplay/pronto/habilidades/deadlock/x_rastro.webp","w":689,"h":99,"tipo":"rastro"},"x_objeto":{"src":"assets/gameplay/pronto/habilidades/deadlock/x_objeto.webp","w":218,"h":256,"tipo":"objeto"}},"vyse":{"c_area":{"src":"assets/gameplay/pronto/habilidades/vyse/c_area.webp","w":512,"h":466,"tipo":"area"},"q_parede":{"src":"assets/gameplay/pronto/habilidades/vyse/q_parede.webp","w":919,"h":230,"tipo":"parede"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/vyse/e_objeto.webp","w":253,"h":256,"tipo":"objeto"},"e_clarao":{"src":"assets/gameplay/pronto/habilidades/vyse/e_clarao.webp","w":512,"h":490,"tipo":"clarao"},"x_area":{"src":"assets/gameplay/pronto/habilidades/vyse/x_area.webp","w":476,"h":512,"tipo":"area"}},"veto":{"c_objeto":{"src":"assets/gameplay/pronto/habilidades/veto/c_objeto.webp","w":256,"h":231,"tipo":"objeto"},"q_projetil":{"src":"assets/gameplay/pronto/habilidades/veto/q_projetil.webp","w":256,"h":94,"tipo":"projetil"},"q_area":{"src":"assets/gameplay/pronto/habilidades/veto/q_area.webp","w":509,"h":512,"tipo":"area"},"e_objeto":{"src":"assets/gameplay/pronto/habilidades/veto/e_objeto.webp","w":256,"h":239,"tipo":"objeto"},"x_area":{"src":"assets/gameplay/pronto/habilidades/veto/x_area.webp","w":510,"h":512,"tipo":"area"}}}};
+
+
+/* ===== src/gameplay/temas.js ===== */
+/* ============================================================
+   GAMEPLAY · O VISUAL DE CADA MAPA
+   Paleta própria (não copia arte da Riot), puxada do lugar onde
+   cada mapa se passa. chao: piso; chao2: variação do piso;
+   parede: o corpo da parede; topo: a beirada de cima; acento:
+   detalhes, letra do bomb e spawn; sitio: tinta da área de planta.
+   ============================================================ */
+var GP = (typeof GP !== 'undefined' && GP) || {};
+
+GP.TEMAS = {
+  ascent:   {lugar: 'Veneza, Itália', clima: 'pedra clara, telhas e canais',
+    chao: '#8a7d6a', chao2: '#958772', parede: '#2c2522', topo: '#6a4a3a', acento: '#d0763f', sitio: '#d2b25c', fundo: '#14110f'},
+  bind:     {lugar: 'Rabat, Marrocos', clima: 'areia, arcos e teleportes',
+    chao: '#a08560', chao2: '#ab8f69', parede: '#3a2a1e', topo: '#7a5536', acento: '#2fb3a5', sitio: '#e1c06a', fundo: '#18120c'},
+  haven:    {lugar: 'Timbu, Butão', clima: 'mosteiro, madeira vermelha e musgo',
+    chao: '#80806c', chao2: '#8a8a74', parede: '#2e2620', topo: '#7d3328', acento: '#c9563b', sitio: '#d8bb5a', fundo: '#121410'},
+  split:    {lugar: 'Tóquio, Japão', clima: 'concreto, neon e cordas',
+    chao: '#6f747d', chao2: '#787d86', parede: '#1d2029', topo: '#3c4152', acento: '#ff4f8b', sitio: '#d9c05e', fundo: '#0e1016'},
+  icebox:   {lugar: 'Ilha Bennett, Rússia', clima: 'neve, contêineres e tirolesas',
+    chao: '#9fb2bf', chao2: '#a9bcc8', parede: '#26394a', topo: '#4b6a82', acento: '#ef7d2d', sitio: '#e6cf6e', fundo: '#0d141b'},
+  breeze:   {lugar: 'Triângulo das Bermudas', clima: 'areia, pedra clara e mar turquesa',
+    chao: '#b6a67c', chao2: '#c0b086', parede: '#2c4239', topo: '#4f7a68', acento: '#25c3bd', sitio: '#efd36f', fundo: '#0d1715'},
+  fracture: {lugar: 'Santa Fé, Novo México', clima: 'deserto rachado, laranja e azul',
+    chao: '#97735a', chao2: '#a27c61', parede: '#34262b', topo: '#6b4a3d', acento: '#4c9be8', sitio: '#e6c062', fundo: '#140e0f'},
+  pearl:    {lugar: 'Lisboa submersa, Portugal', clima: 'azulejo, coral e luz azul do fundo do mar',
+    chao: '#71889a', chao2: '#7a91a3', parede: '#1b2c3a', topo: '#2f5a7a', acento: '#e0ae5c', sitio: '#dfc56c', fundo: '#0a121a'},
+  lotus:    {lugar: 'Gates Ocidentais, Índia', clima: 'templo, ouro e mata',
+    chao: '#808566', chao2: '#8a8f6f', parede: '#28301f', topo: '#5c6a3c', acento: '#d9a738', sitio: '#e8cc6a', fundo: '#10130c'},
+  sunset:   {lugar: 'Los Angeles, EUA', clima: 'fim de tarde, laranja e roxo',
+    chao: '#988073', chao2: '#a2897b', parede: '#2c1f2d', topo: '#5d3a58', acento: '#f39243', sitio: '#ecc867', fundo: '#120c12'},
+  abyss:    {lugar: 'base secreta, Noruega', clima: 'aço, precipício e luz fria',
+    chao: '#707c88', chao2: '#7a8693', parede: '#0f171e', topo: '#26343f', acento: '#3cc2d1', sitio: '#d6c26a', fundo: '#05090c'},
+  corrode:  {lugar: 'Mont-Saint-Michel, França', clima: 'mina de sal, castelo e cristais roxos',
+    chao: '#8e867d', chao2: '#989087', parede: '#2a2230', topo: '#5a4470', acento: '#a46cf0', sitio: '#dcc56e', fundo: '#0f0c12'},
+  summit:   {lugar: 'Zhangjiajie, China', clima: 'pedra, montanha e templo vermelho',
+    chao: '#83826f', chao2: '#8d8c78', parede: '#24301f', topo: '#4f5e3c', acento: '#cf4535', sitio: '#e2c463', fundo: '#0e120c'},
+};
+GP.NOME_MAPA = {ascent: 'Ascent', bind: 'Bind', haven: 'Haven', split: 'Split', icebox: 'Icebox', breeze: 'Breeze',
+  fracture: 'Fracture', pearl: 'Pearl', lotus: 'Lotus', sunset: 'Sunset', abyss: 'Abyss', corrode: 'Corrode', summit: 'Summit'};
+
+
+/* ===== src/gameplay/render.js ===== */
+/* ============================================================
+   GAMEPLAY · O DESENHO (canvas, visão de cima)
+   O mapa é desenhado uma vez numa tela grande (fora da vista) e
+   recortado pela câmera a cada quadro. Por cima: sons, tiros,
+   agentes, a névoa (o que o seu cone não vê fica escuro) e a mira.
+   Render não muda o estado do jogo.
+   ============================================================ */
+var GP = (typeof GP !== 'undefined' && GP) || {};
+
+GP.PX_M = 16;            /* resolução da tela do mapa: pixels por metro */
+
+GP._hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+GP._hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+
+/* altura aparente da face das paredes (o lado que se vê de frente) */
+GP.PAREDE_FACE_M = 1.1;
+/* tamanho de uma repetição da textura, em metros */
+GP.TEXTURA_PISO_M = 3.5;
+GP.TEXTURA_PAREDE_M = 3;
+/* texturas com desenho grande (faixas de pedestre, marcas no chão) pedem repetição maior */
+GP.TEXTURA_ESCALA = {split: {piso: 9}};
+/* as duas texturas do mapa, se já chegaram e carregaram */
+GP.texturasDoMapa = function (nome) {
+  const t = GP.manifesto ? GP.manifesto().texturas || {} : {};
+  const a = t[nome + '_piso'], b = t[nome + '_parede'];
+  const ia = a && GP.imagem(a.src), ib = b && GP.imagem(b.src);
+  return ia && ib ? {piso: ia, parede: ib} : null;
+};
+/* Os blocos de parede soltos no meio do chão (as caixas do minimapa) viram
+   objetos de cobertura com imagem: caixa, caixas, contêiner, mureta ou sacos.
+   Só o desenho muda: a colisão e a visão continuam as da grade. */
+GP.coberturas = function (m) {
+  if (m._cob) return m._cob;
+  const {W, H} = m, visto = new Uint8Array(W * H), out = [];
+  for (let i = 0; i < W * H; i++) {
+    if (!m.solido[i] || visto[i]) continue;
+    const fila = [i]; visto[i] = 1; let borda = false, n = 0, x0 = W, x1 = 0, y0 = H, y1 = 0;
+    while (fila.length) {
+      const k = fila.pop(), x = k % W, y = (k / W) | 0; n++;
+      if (x === 0 || y === 0 || x === W - 1 || y === H - 1) borda = true;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      if (n > 400) borda = true;
+      for (const j of [k - 1, k + 1, k - W, k + W]) if (j >= 0 && j < W * H && m.solido[j] && !visto[j] && Math.abs((j % W) - x) <= 1) { visto[j] = 1; fila.push(j); }
+    }
+    if (borda || n < 3) continue;
+    const c = m.cel, w = (x1 - x0 + 1) * c, h = (y1 - y0 + 1) * c;
+    const longo = Math.max(w, h), curto = Math.min(w, h), razao = longo / curto;
+    /* só o que tem tamanho e forma de caixa (até ~3 m, quase quadrado e
+       cheio); o resto é parede de verdade e fica com a cara de parede */
+    if (longo > 3.2 || razao > 1.6 || n < 0.7 * (x1 - x0 + 1) * (y1 - y0 + 1)) continue;
+    const tipo = razao > 1.3 ? 'caixa2' : 'caixa';
+    out.push({tipo, x: x0 * c, y: y0 * c, w, h, deitado: h > w * 1.15});
+  }
+  return (m._cob = out);
+};
+GP._objetosDeCobertura = function (g, m, S) {
+  const ob = GP.manifesto ? GP.manifesto().objetos || {} : {};
+  const dec = GP.manifesto ? (GP.manifesto().decoracao || {})[m.nome] || {} : {};
+  for (const o of GP.coberturas(m)) {
+    /* a caixa com a cara do mapa, se já chegou; senão a genérica */
+    const ent = (Math.max(o.w, o.h) >= 2.6 ? dec.caixa_grande : null) || dec.caixa || ob[o.tipo] || ob.caixa; if (!ent) continue;
+    const im = GP.imagem(ent.src); if (!im) continue;
+    const f = 0.12;
+    g.save(); g.translate((o.x + o.w / 2) * S, (o.y + o.h / 2) * S);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect((-o.w / 2 + 0.25) * S, (-o.h / 2 + 0.3) * S, o.w * S, o.h * S);
+    if (o.deitado) g.rotate(Math.PI / 2);
+    const w = (o.deitado ? o.h : o.w) + f, h = (o.deitado ? o.w : o.h) + f;
+    g.drawImage(im, -w / 2 * S, -h / 2 * S, w * S, h * S);
+    g.restore();
+  }
+};
+
+/* Decoração encostada nas paredes (vaso, barril, poste…): não bloqueia nada.
+   Vai só onde o espaço é largo (não estreita corredor), fora dos bombs, com
+   uns 7 m entre uma e outra. Posições fixas por mapa (sorteio com semente). */
+GP.pontosDeEnfeite = function (m) {
+  if (m._enf) return m._enf;
+  const {W, H} = m, c = m.cel, out = [];
+  const livre = (x, y) => !GP.celSolida(m, x, y);
+  const cands = [];
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
+    if (!livre(x, y) || m.sitio[y * W + x]) continue;
+    /* encostado numa parede ao norte (fica "na frente" dela) ou dos lados */
+    const n = !livre(x, y - 1), l = !livre(x - 1, y), r = !livre(x + 1, y);
+    if (!n && !l && !r) continue;
+    /* largo: 4 m de chão livre para dentro */
+    const dx = l ? 1 : r ? -1 : 0, dy = n ? 1 : 0;
+    let ok = true;
+    for (let k = 1; k <= 8 && ok; k++) if (!livre(x + dx * k, y + dy * k)) ok = false;
+    if (ok) cands.push([x, y, GP._hash(x * 7 + 3, y * 13 + 1)]);
+  }
+  cands.sort((a, b) => a[2] - b[2]);
+  const longe = 7 / c;
+  for (const [x, y] of cands) {
+    if (out.some(p => (p.cx - x) ** 2 + (p.cy - y) ** 2 < longe * longe)) continue;
+    out.push({cx: x, cy: y, x: (x + 0.5) * c, y: (y + 0.5) * c, k: out.length});
+    if (out.length >= 60) break;
+  }
+  return (m._enf = out);
+};
+GP._enfeites = function (g, m, S) {
+  const dec = GP.manifesto ? (GP.manifesto().decoracao || {})[m.nome] || {} : {};
+  const tipos = ['enfeite1', 'enfeite2', 'enfeite3', 'enfeite4'].filter(k => dec[k]);
+  if (!tipos.length) return;
+  for (const p of GP.pontosDeEnfeite(m)) {
+    const ent = dec[tipos[p.k % tipos.length]], im = GP.imagem(ent.src); if (!im) continue;
+    const alt = 1.9, k = alt / Math.max(ent.w, ent.h), w = ent.w * k, h = ent.h * k;
+    g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(p.x * S, (p.y + 0.35) * S, w * 0.45 * S, w * 0.18 * S, 0, 0, Math.PI * 2); g.fill();
+    g.drawImage(im, (p.x - w / 2) * S, (p.y + 0.45 - h) * S, w * S, h * S);
+  }
+};
+
+GP._miniDaGrade = function (m, tema) {
+  const {W, H} = m, [c1, to, fu, si] = [tema.chao, tema.topo, tema.fundo, tema.sitio].map(GP._hex);
+  const mini = document.createElement('canvas'); mini.width = W; mini.height = H;
+  const mg = mini.getContext('2d'), mi = mg.createImageData(W, H);
+  for (let i = 0; i < W * H; i++) {
+    const cor = m.solido[i] ? fu : m.sitio[i] ? si.map((x, j) => x * 0.5 + c1[j] * 0.5) : c1;
+    mi.data[i * 4] = cor[0]; mi.data[i * 4 + 1] = cor[1]; mi.data[i * 4 + 2] = cor[2]; mi.data[i * 4 + 3] = 255;
+  }
+  mg.putImageData(mi, 0, 0);
+  return mini;
+};
+/* o mapa pintado inteiro, se já chegou e carregou */
+GP.CAIXAS_POR_CIMA = [];
+GP.pinturaDoMapa = function (nome, m) {
+  const e = GP.manifesto ? (GP.manifesto().mapas_arte || {})[nome] : null;
+  const im = e && GP.imagem(e.src);
+  if (!im) return null;
+  /* retângulo no mundo onde a pintura cai (larg/alt; mapas antigos: lado) */
+  const pt = {img: im, x0: e.x0_m, y0: e.y0_m, larg: e.larg_m || e.lado_m, alt: e.alt_m || e.lado_m};
+  pt.letras = m ? GP._letrasDaPintura(m) : [];
+  return pt;
+};
+
+/* Onde pintar a letra do bomb: num pedaço de chão livre dentro da área, longe
+   das paredes e das caixas (que são sólidas na grade) e afastado do meio, onde
+   a pintura costuma ter o símbolo do bomb. Devolve o centro em metros e o
+   tamanho que cabe ali. */
+GP._lugarDaLetra = function (m, L) {
+  const {W, H, cel} = m, cod = GP.SITIO_COD[L], st = m.sitios[L];
+  /* distância (em células) até a borda da área: parede, caixa ou chão fora do
+     bomb (a tinta amarela da pintura acompanha a área, então a letra fica dentro dela) */
+  const d = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) d[i] = m.solido[i] || m.sitio[i] !== cod ? 0 : 1e9;
+  const D = Math.SQRT2;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (!d[i]) continue;
+    if (x > 0) d[i] = Math.min(d[i], d[i - 1] + 1);
+    if (y > 0) { d[i] = Math.min(d[i], d[i - W] + 1); if (x > 0) d[i] = Math.min(d[i], d[i - W - 1] + D); if (x < W - 1) d[i] = Math.min(d[i], d[i - W + 1] + D); }
+  }
+  for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
+    const i = y * W + x; if (!d[i]) continue;
+    if (x < W - 1) d[i] = Math.min(d[i], d[i + 1] + 1);
+    if (y < H - 1) { d[i] = Math.min(d[i], d[i + W] + 1); if (x < W - 1) d[i] = Math.min(d[i], d[i + W + 1] + D); if (x > 0) d[i] = Math.min(d[i], d[i + W - 1] + D); }
+  }
+  let melhor = null;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (m.sitio[i] !== cod) continue;
+    const livre = d[i] * cel, px = (x + 0.5) * cel, py = (y + 0.5) * cel;
+    const doMeio = Math.hypot(px - st.x, py - st.y);
+    if (livre < 1.2) continue;
+    const nota = Math.min(livre, 3) * 2 + Math.min(doMeio, 3.5) * 0.4 - (doMeio < 2.2 ? 2 : 0) - Math.max(0, doMeio - 5);
+    if (!melhor || nota > melhor.nota) melhor = {nota, x: px, y: py, livre};
+  }
+  if (!melhor) return {x: st.x, y: st.y, alto: 3.2};
+  return {x: melhor.x, y: melhor.y, alto: Math.max(2.6, Math.min(4.6, melhor.livre * 1.35))};
+};
+
+/* As letras do bomb pintadas no chão, como tinta gasta: entram por
+   multiplicação, então a pedra, as rachaduras e a luz da pintura continuam
+   aparecendo através da tinta. Ficam numa camada própria em boa resolução
+   (desenhada por cima da pintura a cada quadro), para não perder nitidez nem
+   mexer nos pixels da pintura. */
+GP._letrasDaPintura = function (m) {
+  const man = GP.manifesto ? GP.manifesto().marcas || {} : {};
+  const out = [];
+  for (const L of Object.keys(m.sitios)) {
+    const mk = man['letra_' + L], im = mk && GP.imagem(mk.src);
+    if (!im) continue;
+    const lug = GP._lugarDaLetra(m, L);
+    const h = Math.min(256, im.naturalHeight || im.height), w = h * (im.naturalWidth || im.width) / (im.naturalHeight || im.height);
+    const tinta = document.createElement('canvas');
+    tinta.width = Math.ceil(w); tinta.height = Math.ceil(h);
+    const tg = tinta.getContext('2d');
+    tg.drawImage(im, 0, 0, w, h);
+    /* tinta escura por cima, deixando um pouco do desgaste da letra original */
+    tg.globalCompositeOperation = 'source-atop'; tg.globalAlpha = 0.86;
+    tg.fillStyle = '#3a2a1e'; tg.fillRect(0, 0, w, h);
+    out.push({tinta, x: lug.x, y: lug.y, alto: lug.alto, larg: lug.alto * w / h,
+              ang: ((L.charCodeAt(0) % 3) - 1) * 0.09});      /* levemente torta, como pintada à mão */
+  }
+  return out;
+};
+
+GP.desenharMapa = function (m) {
+  const tema = GP.TEMAS[m.nome] || GP.TEMAS.ascent;
+  const {W, H} = m, S = GP.PX_M, c = m.cel;
+  const [c1, c2, pa, to, fu, si] = [tema.chao, tema.chao2, tema.parede, tema.topo, tema.fundo, tema.sitio].map(GP._hex);
+  /* campos por célula: sólido, distância até o piso (dentro da parede), bomb */
+  const sol = new Float32Array(W * H), dist = new Float32Array(W * H), sit = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) { sol[i] = m.solido[i]; sit[i] = m.sitio[i] ? 1 : 0; dist[i] = m.solido[i] ? 99 : 0; }
+  for (let passo = 0; passo < 8; passo++) for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (!m.solido[i]) continue;
+    let d = dist[i];
+    if (x > 0) d = Math.min(d, dist[i - 1] + 1); if (x < W - 1) d = Math.min(d, dist[i + 1] + 1);
+    if (y > 0) d = Math.min(d, dist[i - W] + 1); if (y < H - 1) d = Math.min(d, dist[i + W] + 1);
+    dist[i] = d;
+  }
+  /* amostra bilinear de um campo em coordenada de célula */
+  const bil = (f, u, v) => {
+    u -= 0.5; v -= 0.5;
+    let x0 = Math.floor(u), y0 = Math.floor(v); const fx = u - x0, fy = v - y0;
+    const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H) ? (f === sol ? 1 : f === dist ? 9 : 0) : f[y * W + x];
+    return (at(x0, y0) * (1 - fx) + at(x0 + 1, y0) * fx) * (1 - fy) + (at(x0, y0 + 1) * (1 - fx) + at(x0 + 1, y0 + 1) * fx) * fy;
+  };
+  const tela = document.createElement('canvas');
+  const TW = tela.width = Math.round(W * c * S), TH = tela.height = Math.round(H * c * S);
+  const g = tela.getContext('2d');
+  /* Com o mapa pintado: a pintura é desenhada direto na tela a cada quadro (ela
+     cobre também a paisagem em volta). As caixas já vêm pintadas no lugar das
+     da colisão (conferido mapa a mapa contra a planta); só os mapas listados em
+     GP.CAIXAS_POR_CIMA ganham as nossas por cima. O minimapa sai da grade. */
+  const pintura = GP.pinturaDoMapa(m.nome, m);
+  if (pintura) {
+    if (GP.CAIXAS_POR_CIMA.includes(m.nome)) GP._objetosDeCobertura(g, m, S);
+    return {tela, mini: GP._miniDaGrade(m, tema), tema, pintura};
+  }
+  const img = g.createImageData(TW, TH), d = img.data;
+  /* Com textura do mapa: o piso e o topo da parede vêm das imagens, e por cima
+     vai uma camada nossa com sombra, fundo escuro, tinta do bomb e contornos.
+     A imagem é só desenhada (nunca lida de volta): funciona em file://. */
+  const tx = GP.texturasDoMapa(m.nome);
+  const ov = tx ? g.createImageData(TW, TH) : null, od = ov && ov.data;
+  const mk = tx ? g.createImageData(TW, TH) : null, md = mk && mk.data;
+  const kc = 1 / (c * S);
+  /* A parede tem altura: vista de cima e um pouco de frente, cada parede
+     mostra a FACE (o lado virado para baixo da tela, PAREDE_FACE_M de altura
+     aparente) e o TOPO escuro; longe do piso vira o vazio. Tudo dentro da
+     célula de parede: o desenho não invade o chão em que se anda. */
+  const F = GP.PAREDE_FACE_M / c;            /* altura da face, em células */
+  const topoCor = pa.map(v => v * 0.55), vazio = fu.map(v => v * 0.6);
+  for (let py = 0; py < TH; py++) for (let px = 0; px < TW; px++) {
+    const u = (px + 0.5) * kc, v = (py + 0.5) * kc, wx = (px + 0.5) / S, wy = (py + 0.5) / S;
+    const s = bil(sol, u, v), o = (py * TW + px) * 4;
+    let r, gg, b;
+    if (s > 0.5) {
+      const dd = bil(dist, u, v);
+      /* face: tem chão logo abaixo (até F células) */
+      let face = -1;
+      for (let k = 1; k <= 4; k++) if (bil(sol, u, v + F * k / 4) <= 0.5) { face = k / 4; break; }
+      if (face >= 0) {
+        /* face: mais clara embaixo (perto do chão), escurece para cima */
+        const l = 0.42 + 0.38 * face;
+        r = to[0] * l; gg = to[1] * l; b = to[2] * l;
+        if (face <= 0.25) { r *= 0.8; gg *= 0.8; b *= 0.8; }   /* rodapé */
+        if (ov) { md[o + 3] = 255; od[o + 3] = Math.round(255 * (0.62 - 0.5 * face)); }
+      } else if (dd < 0.7) {
+        /* beirada do topo: a quina de cima da parede, clara */
+        r = to[0] * 1.15; gg = to[1] * 1.15; b = to[2] * 1.15;
+        if (ov) { od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = 255; }
+      } else {
+        const t = Math.max(0, Math.min(1, (dd - 1.5) / 5));
+        const n = 0.95 + 0.08 * GP._hash(Math.floor(wx), Math.floor(wy));
+        r = (topoCor[0] * (1 - t) + vazio[0] * t) * n; gg = (topoCor[1] * (1 - t) + vazio[1] * t) * n; b = (topoCor[2] * (1 - t) + vazio[2] * t) * n;
+        if (ov) { od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = 255; }
+      }
+    } else {
+      /* piso em lajotas de 2 m (sem textura) */
+      const tx2 = Math.floor(wx / 2), ty2 = Math.floor(wy / 2);
+      const base = (tx2 + ty2) & 1 ? c1 : c2;
+      let k = 0.97 + 0.07 * GP._hash(tx2, ty2) + 0.025 * (GP._hash(Math.floor(wx * 2), Math.floor(wy * 2)) - 0.5);
+      const jx = wx - tx2 * 2, jy = wy - ty2 * 2;
+      if (jx < 0.07 || jy < 0.07) k *= 0.9;
+      /* canto escuro colado na parede e a sombra que ela joga para baixo */
+      const ao = 0.34 * Math.min(1, s * 2) * Math.min(1, s * 2), sombra = 0.32 * Math.min(1, bil(sol, u - 0.3, v - 1.1));
+      k *= (1 - ao) * (1 - sombra);
+      r = base[0] * k; gg = base[1] * k; b = base[2] * k;
+      if (ov) { od[o + 3] = Math.round(255 * (1 - (1 - 0.12) * (1 - ao * 1.2) * (1 - sombra * 1.3))); }
+      const st = bil(sit, u, v);
+      if (st > 0.02) {
+        const a = 0.3 * Math.min(1, st * 1.4);
+        r = r * (1 - a) + si[0] * a; gg = gg * (1 - a) + si[1] * a; b = b * (1 - a) + si[2] * a;
+        if (ov) { const a0 = od[o + 3] / 255, a2 = a * 0.8, at = a0 + a2 * (1 - a0);
+          od[o] = si[0] * a2 / Math.max(.01, at); od[o + 1] = si[1] * a2 / Math.max(.01, at); od[o + 2] = si[2] * a2 / Math.max(.01, at); od[o + 3] = Math.round(at * 255); }
+        /* contorno tracejado da área de planta */
+        if (st > 0.3 && st < 0.7 && ((wx + wy) * 1.6 % 1) < 0.55) {
+          r = si[0]; gg = si[1]; b = si[2];
+          if (ov) { od[o] = si[0]; od[o + 1] = si[1]; od[o + 2] = si[2]; od[o + 3] = 230; }
+        }
+      }
+    }
+    d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255;
+  }
+  if (!tx) g.putImageData(img, 0, 0);
+  else {
+    /* piso: textura do chão; face das paredes: textura de parede; por cima,
+       a nossa camada (topo escuro, vazio, sombras, bomb) */
+    const camada = dados => { const cv = document.createElement('canvas'); cv.width = TW; cv.height = TH; cv.getContext('2d').putImageData(dados, 0, 0); return cv; };
+    const padrao = (im, metros) => { const p = g.createPattern(im, 'repeat'); const k = metros * S / im.width; p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0])); return p; };
+    const esc = GP.TEXTURA_ESCALA[m.nome] || {};
+    g.fillStyle = padrao(tx.piso, esc.piso || GP.TEXTURA_PISO_M); g.fillRect(0, 0, TW, TH);
+    const pa2 = document.createElement('canvas'); pa2.width = TW; pa2.height = TH;
+    const pg = pa2.getContext('2d');
+    pg.fillStyle = padrao(tx.parede, esc.parede || GP.TEXTURA_PAREDE_M); pg.fillRect(0, 0, TW, TH);
+    pg.globalCompositeOperation = 'destination-in'; pg.drawImage(camada(mk), 0, 0);
+    g.drawImage(pa2, 0, 0);
+    g.drawImage(camada(ov), 0, 0);
+  }
+  GP._objetosDeCobertura(g, m, S);
+  GP._enfeites(g, m, S);
+  /* minimapa: uma célula por pixel */
+  const mini = document.createElement('canvas'); mini.width = W; mini.height = H;
+  const mg = mini.getContext('2d'), mi = mg.createImageData(W, H);
+  for (let i = 0; i < W * H; i++) {
+    const cor = m.solido[i] ? (dist[i] < 2 ? to : fu) : m.sitio[i] ? si.map((x, j) => x * 0.5 + c1[j] * 0.5) : c1;
+    mi.data[i * 4] = cor[0]; mi.data[i * 4 + 1] = cor[1]; mi.data[i * 4 + 2] = cor[2]; mi.data[i * 4 + 3] = 255;
+  }
+  mg.putImageData(mi, 0, 0);
+  /* área de planta: contorno e letra pintada no chão */
+  for (const L in m.sitios) {
+    const st = m.sitios[L];
+    g.save();
+    g.font = `${Math.round(9 * S)}px "Bebas Neue", Impact, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    const marca = GP.manifesto ? (GP.manifesto().marcas || {})['letra_' + L] : null;
+    const mim = marca && GP.imagem(marca.src);
+    if (mim) { const t = 7 * S; g.globalAlpha = 0.35; g.drawImage(mim, st.x * S - t / 2, st.y * S - t / 2, t, t); g.restore(); continue; }
+    g.fillStyle = tema.sitio; g.globalAlpha = 0.34;
+    g.fillText(L.toUpperCase(), st.x * S, st.y * S);
+    g.globalAlpha = 0.6; g.lineWidth = Math.max(2, S * 0.12); g.strokeStyle = 'rgba(0,0,0,.55)';
+    g.strokeText(L.toUpperCase(), st.x * S, st.y * S);
+    g.restore();
+  }
+  /* spawns */
+  if (m.spawn) for (const [lado, cor] of [['atk', '#ff4655'], ['def', '#18e5b4']]) {
+    const p = m.spawn[lado], gr = g.createRadialGradient(p.x * S, p.y * S, 0, p.x * S, p.y * S, 7 * S);
+    gr.addColorStop(0, cor + '40'); gr.addColorStop(1, cor + '00');
+    g.fillStyle = gr; g.fillRect((p.x - 7) * S, (p.y - 7) * S, 14 * S, 14 * S);
+  }
+  /* nomes das áreas, bem discretos */
+  g.save(); g.font = `600 ${Math.round(0.95 * S)}px Inter, system-ui, sans-serif`; g.textAlign = 'center';
+  g.fillStyle = 'rgba(255,255,255,.2)';
+  for (const a of m.areas) if (a.nome) g.fillText(a.nome.toUpperCase(), a.x * S, a.y * S - 1.2 * S);
+  g.restore();
+  return {tela, mini, tema};
+};
+
+/* ---------- visão: o polígono do que o cone enxerga ---------- */
+GP.poligonoVisao = function (J, e, alcance) {
+  const m = J.m, fov = e.p.fov * Math.PI / 180, pts = [];
+  const passo = 0.35 * Math.PI / 180;
+  const a0 = e.ang - fov / 2, n = Math.ceil(fov / passo);
+  pts.push([e.x, e.y]);
+  for (let i = 0; i <= n; i++) {
+    const a = a0 + i * fov / n, d = GP.raio(m, e.x, e.y, a, alcance);
+    pts.push([e.x + Math.cos(a) * d, e.y + Math.sin(a) * d]);
+  }
+  return pts;
+};
+
+/* ---------- o quadro ---------- */
+GP.render = function (R, J, cam, ui) {
+  const g = R.g, Wc = R.cv.width, Hc = R.cv.height, esc = cam.escala, S = GP.PX_M;
+  const eu = J.eu, tema = R.arte.tema;
+  const W2S = (x, y) => [(x - cam.x) * esc + Wc / 2, (y - cam.y) * esc + Hc / 2];
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = tema.fundo; g.fillRect(0, 0, Wc, Hc);
+  /* mapa */
+  const vw = Wc / esc, vh = Hc / esc;
+  const sx = (cam.x - vw / 2) * S, sy = (cam.y - vh / 2) * S;
+  g.imageSmoothingEnabled = true;
+  const pt = R.arte.pintura;
+  if (pt) {
+    g.drawImage(pt.img, (pt.x0 - cam.x) * esc + Wc / 2, (pt.y0 - cam.y) * esc + Hc / 2, pt.larg * esc, pt.alt * esc);
+    for (const l of pt.letras) {
+      g.save();
+      g.translate((l.x - cam.x) * esc + Wc / 2, (l.y - cam.y) * esc + Hc / 2); g.rotate(l.ang);
+      const w = l.larg * esc, h = l.alto * esc;
+      g.globalCompositeOperation = 'multiply'; g.globalAlpha = 0.7;
+      g.drawImage(l.tinta, -w / 2, -h / 2, w, h);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.08;
+      g.drawImage(l.tinta, -w / 2, -h / 2, w, h);
+      g.restore();
+    }
+  }
+  g.drawImage(R.arte.tela, sx, sy, vw * S, vh * S, 0, 0, Wc, Hc);
+  g.imageSmoothingEnabled = true;
+  g.setTransform(esc, 0, 0, esc, Wc / 2 - cam.x * esc, Hc / 2 - cam.y * esc);
+
+  if (GP.desenharMecanicas) GP.desenharMecanicas(g, J);
+  if (GP.desenharHabilidades) GP.desenharHabilidades(g, J);
+  if (GP.desenharSpike && J.spike) GP.desenharSpike(g, J);
+  /* sons que você ouve (passos e tiros de quem você não vê) */
+  for (const s of J.sons) {
+    if (s.time === eu.time) continue;
+    const dono = J.ents.find(o => o.id === s.dono);
+    if (dono && dono._visivel) continue;
+    const d = Math.hypot(s.x - eu.x, s.y - eu.y);
+    if (d > s.r) continue;
+    const idade = (J.t - s.t) / 1.2, j = GP._hash(Math.round(s.t * 100), 7) * 2 - 1, j2 = GP._hash(7, Math.round(s.t * 100)) * 2 - 1;
+    const erro = s.tiro ? 1.2 : 2.2;
+    g.strokeStyle = s.tiro ? `rgba(255,200,120,${0.75 * (1 - idade)})` : `rgba(255,90,100,${0.6 * (1 - idade)})`;
+    g.lineWidth = 0.12;
+    g.beginPath(); g.arc(s.x + j * erro, s.y + j2 * erro, 0.4 + idade * (s.tiro ? 3.2 : 2.2), 0, Math.PI * 2); g.stroke();
+  }
+  /* rastros dos tiros */
+  for (const t of J.tiros) {
+    const vis = t.dono === eu.id || (J.ents.find(o => o.id === t.dono) || {})._visivel;
+    if (!vis) continue;
+    const a = 1 - (J.t - t.t) / 0.25;
+    g.strokeStyle = t.time === eu.time ? `rgba(255,236,170,${0.85 * a})` : `rgba(255,120,120,${0.85 * a})`;
+    g.lineWidth = 0.06;
+    g.beginPath(); g.moveTo(t.x0, t.y0); g.lineTo(t.x1, t.y1); g.stroke();
+    if (J.t - t.t < 0.05) { g.fillStyle = 'rgba(255,230,160,.9)'; g.beginPath(); g.arc(t.x0, t.y0, 0.22, 0, Math.PI * 2); g.fill(); }
+  }
+  for (const k of J.marcas) if (k.tipo === 'parede') {
+    const a = 1 - (J.t - k.t) / 0.9;
+    g.fillStyle = `rgba(230,220,200,${0.6 * a})`;
+    g.beginPath(); g.arc(k.x, k.y, 0.1 + (1 - a) * 0.25, 0, Math.PI * 2); g.fill();
+  }
+  /* agentes */
+  /* quem está de pé é desenhado de cima para baixo (quem está mais embaixo
+     na tela fica na frente) */
+  const vivos = J.ents.filter(o => o.vivo && (o === eu || o._visivel)).sort((a, b) => a.y - b.y);
+  for (const o of J.ents) {
+    if (o === eu) continue;
+    if (o.vivo && o._visivel) continue;
+    else if (o.vivo && o._vistoEm && J.t - o._vistoEm < 1.1) {
+      /* último lugar em que você o viu */
+      g.globalAlpha = 0.35 * (1 - (J.t - o._vistoEm) / 1.1);
+      g.strokeStyle = '#ff4655'; g.lineWidth = 0.08; g.setLineDash([0.2, 0.15]);
+      g.beginPath(); g.arc(o._vistoX, o._vistoY, o.raio, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
+      g.globalAlpha = 1;
+    } else if (!o.vivo && o._morreuEm && J.t - o._morreuEm < 4 && GP.linhaLivre(J.m, eu.x, eu.y, o.x, o.y)) GP._corpo(g, o, J.t);
+  }
+  if (!eu.vivo) GP._corpo(g, eu, J.t);
+  /* atrás da parede: aparece, mas meio apagado (dá para ver, não para acertar) */
+  for (const o of vivos) GP._agente(g, o, o === eu ? '#18e5b4' : o.time === eu.time ? '#5aa9ff' : '#ff4655', o === eu || o._naLinha !== false ? 1 : 0.45, J.t);
+
+  if (GP.desenharDicaDeUso) GP.desenharDicaDeUso(g, J);
+  /* números de dano e marcas de acerto (por cima da névoa) */
+  for (const k of J.marcas) if (k.tipo === 'acerto' && (k.de === eu.id || k.em === eu.id)) {
+    const a = 1 - (J.t - k.t) / 0.9;
+    g.save(); g.globalAlpha = a;
+    g.font = `700 ${k.parte === 0 ? 0.9 : 0.7}px Inter, sans-serif`; g.textAlign = 'center';
+    g.fillStyle = k.em === eu.id ? '#ff4655' : k.parte === 0 ? '#ffd166' : '#ffffff';
+    g.fillText(String(k.dano), k.x + 0.6, k.y - 0.7 - (1 - a) * 0.8);
+    g.restore();
+  }
+  /* indicador de inimigo visto fora da tela */
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  for (const o of J.ents) {
+    if (o === eu || !o.vivo || !o._visivel || J.espectador) continue;
+    const [px, py] = W2S(o.x, o.y);
+    if (px > 0 && py > 0 && px < Wc && py < Hc) continue;
+    /* seta na borda da tela, na direção dele */
+    const a = Math.atan2(py - Hc / 2, px - Wc / 2), m = 34 * R.dpr;
+    const kx = (Wc / 2 - m) / Math.max(1e-6, Math.abs(Math.cos(a))), ky = (Hc / 2 - m) / Math.max(1e-6, Math.abs(Math.sin(a)));
+    const r = Math.min(kx, ky);
+    const x = Wc / 2 + Math.cos(a) * r, y = Hc / 2 + Math.sin(a) * r;
+    g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = '#ff4655';
+    g.beginPath(); g.moveTo(14 * R.dpr, 0); g.lineTo(-8 * R.dpr, 9 * R.dpr); g.lineTo(-8 * R.dpr, -9 * R.dpr); g.closePath(); g.fill(); g.restore();
+  }
+  /* mira com o círculo do erro atual */
+  if (eu.vivo && ui.mouse) {
+    const mx = ui.mouse.x * R.dpr, my = ui.mouse.y * R.dpr;
+    const [ex, ey] = W2S(eu.x, eu.y);
+    const dist = Math.hypot(mx - ex, my - ey);
+    const erro = GP.erroAtual(eu, J.t) * Math.PI / 180;
+    const r = Math.max(5 * R.dpr, Math.tan(erro / 2) * dist);
+    const cor = eu.recarregaAte ? 'rgba(255,255,255,.4)' : '#eafff9';
+    g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 3 * R.dpr;
+    g.beginPath(); g.arc(mx, my, r, 0, Math.PI * 2); g.stroke();
+    g.strokeStyle = cor; g.lineWidth = 1.4 * R.dpr;
+    g.beginPath(); g.arc(mx, my, r, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = cor; g.fillRect(mx - 1.5 * R.dpr, my - 1.5 * R.dpr, 3 * R.dpr, 3 * R.dpr);
+    /* marca de acerto: X branco, dourado na cabeça */
+    const hit = J.marcas.filter(k => k.tipo === 'acerto' && k.de === eu.id && J.t - k.t < 0.18).pop();
+    if (hit) {
+      g.strokeStyle = hit.parte === 0 ? '#ffd166' : '#ffffff'; g.lineWidth = 2 * R.dpr;
+      const k = 7 * R.dpr, k2 = 13 * R.dpr; g.beginPath();
+      for (const [sx2, sy2] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { g.moveTo(mx + sx2 * k, my + sy2 * k); g.lineTo(mx + sx2 * k2, my + sy2 * k2); }
+      g.stroke();
+    }
+  }
+  if (GP.desenharTelaHab && !J.espectador) GP.desenharTelaHab(g, J, Wc, Hc);
+  /* minimapa */
+  GP._minimapa(R, J);
+};
+
+/* Boneco com imagem (se o agente já tem): em pé, virado para o lado da mira
+   (espelha para a esquerda), pés numa sombra com a cor do time e uma setinha
+   mostrando para onde ele olha. */
+GP._sprite = function (g, o, cor, t, quadro) {
+  if (!o.agente) return false;
+  const ent = GP.agenteImg(o.agente, quadro) || (quadro !== 'caido' ? GP.agenteImg(o.agente, 'parado') : null);
+  if (!ent) return false;
+  const img = GP.imagem(ent.src);
+  if (!img) return false;
+  const ref = GP.agenteImg(o.agente, 'parado') || ent;
+  const k = GP.BONECO_ALTURA_M / ref.h;
+  const esq = Math.cos(o.ang) < 0;
+  const pesY = o.y + (quadro === 'caido' ? 0.25 : GP.BONECO_PES_M);
+  /* sombra e anel do time nos pés */
+  g.save();
+  g.fillStyle = 'rgba(0,0,0,.38)'; g.beginPath(); g.ellipse(o.x, pesY, 0.62, 0.26, 0, 0, Math.PI * 2); g.fill();
+  if (o.vivo) {
+    g.strokeStyle = cor; g.lineWidth = 0.09; g.globalAlpha = 0.9;
+    g.beginPath(); g.ellipse(o.x, pesY, 0.56, 0.22, 0, 0, Math.PI * 2); g.stroke();
+    const ax = o.x + Math.cos(o.ang) * 0.75, ay = pesY + Math.sin(o.ang) * 0.32;
+    g.fillStyle = cor; g.beginPath();
+    g.moveTo(ax + Math.cos(o.ang) * 0.22, ay + Math.sin(o.ang) * 0.1);
+    g.lineTo(ax + Math.cos(o.ang + 2.3) * 0.16, ay + Math.sin(o.ang + 2.3) * 0.08);
+    g.lineTo(ax + Math.cos(o.ang - 2.3) * 0.16, ay + Math.sin(o.ang - 2.3) * 0.08);
+    g.closePath(); g.fill();
+  }
+  g.restore();
+  g.save(); g.translate(o.x, pesY);
+  if (esq) g.scale(-1, 1);
+  if (quadro === 'caido') g.drawImage(img, -ent.cx * k, -ent.py * k, ent.w * k, ent.h * k);
+  else g.drawImage(img, -ent.px * k, -ent.py * k, ent.w * k, ent.h * k);
+  g.restore();
+  return true;
+};
+GP._agente = function (g, o, cor, alfa, t) {
+  g.save(); g.globalAlpha = alfa;
+  const ok = GP._sprite(g, o, cor, t, GP.quadroDoAgente(o, t));
+  g.restore();
+  if (ok) { GP._vidaInimigo(g, o); return; }
+  /* sem imagem: o boneco simples, um pouco maior que o corpo de verdade */
+  g.save(); g.translate(o.x, o.y); g.rotate(o.ang); g.scale(1.35, 1.35);
+  g.globalAlpha = alfa;
+  /* sombra, ombros, cabeça e arma */
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0.08, 0.1, o.raio * 1.05, o.raio * 1.05, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = cor; g.beginPath(); g.ellipse(0, 0, o.raio * 0.78, o.raio, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#0d141b'; g.fillRect(o.raio * 0.2, 0.06, o.raio * 1.55, 0.13);
+  g.fillStyle = 'rgba(255,255,255,.92)'; g.beginPath(); g.arc(0.02, 0, o.raio * 0.42, 0, Math.PI * 2); g.fill();
+  g.fillStyle = cor; g.beginPath(); g.arc(0.02, 0, o.raio * 0.3, 0, Math.PI * 2); g.fill();
+  g.restore();
+  GP._vidaInimigo(g, o);
+};
+/* barra de vida curta para o inimigo */
+GP._vidaInimigo = function (g, o) {
+  if (o.time === 'eu' || o.hp >= 100) return;
+  const y = o.agente && GP.agenteImg(o.agente, 'parado') ? o.y + GP.BONECO_PES_M - GP.BONECO_ALTURA_M - 0.25 : o.y - 0.95;
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(o.x - 0.5, y, 1, 0.12);
+  g.fillStyle = '#ff4655'; g.fillRect(o.x - 0.5, y, o.hp / 100, 0.12);
+};
+GP._corpo = function (g, o, t) {
+  if (GP._sprite(g, o, o.time === 'eu' ? '#18e5b4' : '#ff4655', t, 'caido')) return;
+  g.save(); g.globalAlpha = 0.55; g.strokeStyle = o.time === 'eu' ? '#18e5b4' : '#ff4655'; g.lineWidth = 0.1;
+  g.beginPath(); g.moveTo(o.x - 0.3, o.y - 0.3); g.lineTo(o.x + 0.3, o.y + 0.3); g.moveTo(o.x + 0.3, o.y - 0.3); g.lineTo(o.x - 0.3, o.y + 0.3); g.stroke();
+  g.restore();
+};
+GP._minimapa = function (R, J) {
+  const g = R.g, m = J.m, lado = 170 * R.dpr, k = lado / Math.max(m.larguraM, m.alturaM);
+  const x0 = R.cv.width - lado - 14 * R.dpr, y0 = R.cv.height - lado * (m.alturaM / Math.max(m.larguraM, m.alturaM)) - 126 * R.dpr;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 0.85; g.imageSmoothingEnabled = false;
+  g.drawImage(R.arte.mini, x0, y0, m.larguraM * k, m.alturaM * k);
+  g.imageSmoothingEnabled = true; g.globalAlpha = 1;
+  g.strokeStyle = 'rgba(255,255,255,.15)'; g.strokeRect(x0 - 0.5, y0 - 0.5, m.larguraM * k + 1, m.alturaM * k + 1);
+  for (const o of J.ents) {
+    if (!o.vivo || (o !== J.eu && !o._visivel)) continue;
+    g.fillStyle = o === J.eu ? '#18e5b4' : o.time === J.eu.time ? '#5aa9ff' : '#ff4655';
+    g.beginPath(); g.arc(x0 + o.x * k, y0 + o.y * k, 3.2 * R.dpr, 0, Math.PI * 2); g.fill();
+    if (o === J.eu) { g.strokeStyle = '#18e5b4'; g.lineWidth = 1.5 * R.dpr; g.beginPath(); g.moveTo(x0 + o.x * k, y0 + o.y * k);
+      g.lineTo(x0 + (o.x + Math.cos(o.ang) * 9) * k, y0 + (o.y + Math.sin(o.ang) * 9) * k); g.stroke(); }
+  }
+  g.restore();
+};
+
+
+/* ===== src/gameplay/jogo.js ===== */
+/* ============================================================
+   GAMEPLAY · A TELA (menu, controles, laço, HUD, relatório)
+   Laboratório do modo carreira jogador — fase 1: duelo 1v1 e
+   treino de alvos em qualquer um dos 13 mapas.
+   ============================================================ */
+var GP = (typeof GP !== 'undefined' && GP) || {};
+
+GP.NIVEIS = {
+  ranked: {nome: 'Ranked', desc: 'imortal das ranqueadas', a: {mira: 56, reflexo: 55, movimento: 54, visao: 52, clutch: 50, consistencia: 48}},
+  tier2:  {nome: 'Tier 2', desc: 'Challengers', a: {mira: 71, reflexo: 70, movimento: 68, visao: 66, clutch: 66, consistencia: 66}},
+  tier1:  {nome: 'Tier 1', desc: 'franquia do VCT', a: {mira: 86, reflexo: 86, movimento: 82, visao: 80, clutch: 82, consistencia: 84}},
+};
+GP.ATRIB_ROTULO = {mira: 'Mira', reflexo: 'Reflexo', movimento: 'Movimento', visao: 'Visão', clutch: 'Controle (clutch)', consistencia: 'Consistência'};
+GP.ATRIB_EFEITO = {
+  mira: 'erro do tiro', reflexo: 'a mão treme menos quando o inimigo aparece', movimento: 'velocidade e parada',
+  visao: 'só no bot: percebe rápido quem surge pelo lado', clutch: 'controle da rajada', consistencia: 'só no bot: oscila menos'};
+
+GP.UI = {
+  opc: {mapa: 'ascent', modo: 'partida', arma: 'vandal', nivelEu: 'tier2', nivelBot: 'tier2', spawns: 'rapido', rounds: 5, agenteEu: 'jett', agenteBot: 'aleatorio', timeA: 'LOUD', timeB: 'NRG'},
+  atribEu: null,
+};
+GP._salvarOpc = function () { try { localStorage.setItem('vct-gameplay-opc', JSON.stringify({opc: GP.UI.opc, atribEu: GP.UI.atribEu, carreira: GP.UI.carreira || null})); } catch (e) { /* sem armazenamento */ } };
+GP._lerOpc = function () {
+  try { const s = JSON.parse(localStorage.getItem('vct-gameplay-opc') || 'null'); if (s) { Object.assign(GP.UI.opc, s.opc || {}); GP.UI.atribEu = s.atribEu || null; GP.UI.carreira = s.carreira || null; } } catch (e) { /* ignora */ }
+  if (!GP.NIVEIS[GP.UI.opc.nivelBot]) GP.UI.opc.nivelBot = 'tier2';
+  if (!GP.AGENTES[GP.UI.opc.agenteEu]) GP.UI.opc.agenteEu = 'jett';
+  if (GP.UI.opc.agenteBot !== 'aleatorio' && !GP.AGENTES[GP.UI.opc.agenteBot]) GP.UI.opc.agenteBot = 'aleatorio';
+  if (!GP.UI.atribEu) GP.UI.atribEu = {...GP.NIVEIS[GP.UI.opc.nivelEu in GP.NIVEIS ? GP.UI.opc.nivelEu : 'tier2'].a};
+  for (const k of ['timeA', 'timeB']) if (GP.UI.opc[k] && !GP.timeReal(GP.UI.opc[k])) GP.UI.opc[k] = '';
+};
+GP._cartaoCarreira = function () {
+  const c = GP.UI.carreira, ev = GP.UI.opc.evoluir !== false;
+  const resumo = c && c.partidas ? `<p class="gp-dim">${c.partidas} partida${c.partidas > 1 ? 's' : ''} · ${c.vitorias} vitória${c.vitorias === 1 ? '' : 's'} · ACS médio ${Math.round(c.acs / c.partidas)} · K/D ${(c.k / Math.max(1, c.d)).toFixed(2)}${c.mvp ? ' · ' + c.mvp + ' MVP' : ''}${c.ultima ? ` · última: ${GP.NOME_MAPA[c.ultima.mapa] || c.ultima.mapa} ${c.ultima.placar}, ${c.ultima.acs} de ACS` : ''}</p>` : '<p class="gp-dim">Nenhuma partida 5v5 jogada ainda.</p>';
+  return `<div class="gp-carreira"><div class="gp-eyebrow" style="margin-top:14px">Carreira do seu jogador</div>${resumo}
+    <div class="gp-ops"><button class="gp-op ${ev ? 'on' : ''}" id="gpEvoluir"><b>Evolução ${ev ? 'ligada' : 'desligada'}</b><span>cada partida 5v5 mexe nos seus atributos</span></button>
+    <button class="gp-op" id="gpZerarCarreira"><b>Zerar carreira</b><span>volta ao nível escolhido</span></button></div></div>`;
+};
+/* select de times reais, agrupado por liga */
+GP._selTime = function (id, sel) {
+  const REG = {AMER: 'Americas', EMEA: 'EMEA', PAC: 'Pacific', CN: 'China'}, grupos = {};
+  for (const t of GP.timesReais()) (grupos[(REG[t.reg] || 'Outros') + (t.tier === 't1' ? ' · VCT' : ' · Challengers')] || (grupos[(REG[t.reg] || 'Outros') + (t.tier === 't1' ? ' · VCT' : ' · Challengers')] = [])).push(t);
+  return `<select id="${id}"><option value="">Bots (sem elenco, nível abaixo)</option>${Object.entries(grupos).map(([g, ts]) =>
+    `<optgroup label="${escGP(g)}">${ts.map(t => `<option value="${escGP(t.sigla)}" ${sel === t.sigla ? 'selected' : ''}>${escGP(t.nome)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+};
+GP._resumoTime = function (sigla, comVoce) {
+  const T = sigla && GP.timeReal(sigla); if (!T) return '';
+  const pap = GP.AGENTES[GP.UI.opc.agenteEu].papel;
+  let sai = comVoce ? T.jogadores.findIndex(j => GP.PAPEL_DA_FUNCAO[j.funcao] === pap) : -1;
+  if (comVoce && sai < 0) sai = T.jogadores.reduce((b, j, k) => j.over < T.jogadores[b].over ? k : b, 0);
+  const media = Math.round(T.jogadores.reduce((a, j) => a + j.over, 0) / 5);
+  return `<p class="gp-dim gp-elenco">${T.jogadores.map((j, k) => k === sai ? `<s>${escGP(j.nome)}</s>` : `<b>${escGP(j.nome)}</b> <i>${escGP(j.funcao)} ${j.over}</i>`).join(' · ')} · over médio ${media}${comVoce ? ` · você entra no lugar de ${escGP(T.jogadores[sai].nome)}` : ''}</p>`;
+};
+const $gp = s => document.querySelector(s);
+/* onde ficam as classes de estado: a página da gameplay ou a camada no manager */
+GP._raiz = () => document.getElementById('gpCamada') || document.body;
+const escGP = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
+/* ---------- agentes no menu ---------- */
+GP._rostoAgente = function (id, cls) {
+  const r = GP.agenteImg(id, 'retrato'), A = GP.AGENTES[id];
+  return r ? `<img class="${cls || ''}" src="${r.src}" alt="">` : `<span class="${cls || ''} gp-ini">${escGP(A.nome.slice(0, 2).toUpperCase())}</span>`;
+};
+GP._gradeAgentes = function (sel) {
+  return Object.keys(GP.PAPEIS).map(papel => `<div class="gp-pap"><span class="gp-pap-n">${GP.PAPEIS[papel]}</span><div class="gp-ags">
+    ${Object.values(GP.AGENTES).filter(a => a.papel === papel).map(a => `<button class="gp-ag ${sel === a.id ? 'on' : ''} ${GP.temImagem('agentes', a.id, 'parado') ? 'img' : ''}" data-op="agenteEu" data-val="${a.id}" title="${escGP(a.nome)}">
+      ${GP._rostoAgente(a.id, 'gp-ag-r')}<b>${escGP(a.nome)}</b></button>`).join('')}</div></div>`).join('');
+};
+/* o rival: o escolhido, ou um duelista sorteado (de preferência um que já tem boneco) */
+GP._agenteDoRival = function () {
+  const o = GP.UI.opc;
+  if (o.agenteBot !== 'aleatorio') return o.agenteBot;
+  const duel = Object.values(GP.AGENTES).filter(a => a.papel === 'duelista' && a.id !== o.agenteEu);
+  const comImg = duel.filter(a => GP.temImagem('agentes', a.id, 'parado'));
+  const pool = comImg.length ? comImg : duel;
+  return pool[Math.floor(Math.random() * pool.length)].id;
+};
+
+/* ---------- menu ---------- */
+GP.menu = function () {
+  const o = GP.UI.opc, a = GP.UI.atribEu;
+  const bt = (grupo, val, rot, sub) => `<button class="gp-op ${o[grupo] === val ? 'on' : ''}" data-op="${grupo}" data-val="${val}"><b>${escGP(rot)}</b>${sub ? `<span>${escGP(sub)}</span>` : ''}</button>`;
+  const mapas = Object.keys(GP.NOME_MAPA).sort().map(k => {
+    const t = GP.TEMAS[k];
+    return `<button class="gp-mapa ${o.mapa === k ? 'on' : ''}" data-op="mapa" data-val="${k}" style="--c1:${t.chao};--c2:${t.topo};--c3:${t.acento}">
+      <i></i><b>${GP.NOME_MAPA[k]}</b><span>${escGP(t.lugar)}</span></button>`;
+  }).join('');
+  const cinco = ['partida', 'assistir', 'simular'].includes(o.modo);
+  const armas = ['vandal', 'phantom', 'spectre', 'sheriff', 'operator', 'classic'].map(k => bt('arma', k, GP.ARMAS[k].nome, GP.ARMAS[k].preco ? GP.ARMAS[k].preco + ' créditos' : 'de graça')).join('');
+  const sliders = Object.keys(GP.ATRIB_ROTULO).filter(k => k !== 'consistencia').map(k => `<label class="gp-sl"><span>${GP.ATRIB_ROTULO[k]} <i>${GP.ATRIB_EFEITO[k]}</i></span>
+      <input type="range" min="40" max="95" value="${Math.round(a[k])}" data-atr="${k}"><b class="num">${Math.round(a[k])}</b></label>`).join('');
+  $gp('#gpMenu').innerHTML = `<div class="gp-menu-in">
+    <div class="gp-topo"><a class="gp-volta" href="index.html">← VCT Manager</a>
+      <div><div class="gp-eyebrow">Modo carreira jogador · laboratório</div><h1>Gameplay de cima</h1>
+      <p class="gp-dim">Partida 5v5 nos 13 mapas, com spike, economia e as habilidades dos 29 agentes. Escolha o seu time e o rival entre os elencos reais do VCT Manager: cada bot joga com os atributos e o estilo do jogador de verdade.</p></div></div>
+    <div class="gp-sec"><div class="gp-eyebrow">Mapa</div><div class="gp-mapas">${mapas}</div>
+      <p class="gp-dim gp-tema">${escGP(GP.NOME_MAPA[o.mapa])}: ${escGP(GP.TEMAS[o.mapa].clima)}.</p></div>
+    <div class="gp-cols">
+      <div class="gp-sec"><div class="gp-eyebrow">Modo</div><div class="gp-ops">
+        ${bt('modo', 'partida', 'Jogar 5v5', 'você é um dos 10')}${bt('modo', 'assistir', 'Assistir 5v5', 'os 10 são bots, câmera livre')}${bt('modo', 'simular', 'Simular', 'sem tela, em segundos')}${bt('modo', 'duelo', 'Duelo 1v1', 'round a round')}${bt('modo', 'alvos', 'Treino de alvos', '60 s, bots que não atiram')}</div>
+        ${cinco && o.modo !== 'simular' ? `<div class="gp-eyebrow" style="margin-top:14px">Fase de compra</div><div class="gp-ops">
+        ${bt('compra', '10', '10 s', 'a loja é automática')}${bt('compra', '30', '30 s', 'como no Valorant')}</div>` : ''}
+        ${o.modo === 'partida' ? `<p class="gp-dim">Você é um dos 5 do time A; o resto é bot. Armas, escudo e habilidades são comprados sozinhos pelo dinheiro do time. Segure <kbd>F</kbd> no bomb para plantar e na spike para desarmar.</p>` : ''}
+        ${cinco ? `<div class="gp-eyebrow" style="margin-top:14px">${o.modo === 'partida' ? 'Seu time' : 'Time A'}</div>${GP._selTime('gpTimeA', o.timeA)}${GP._resumoTime(o.timeA, o.modo === 'partida')}
+        <div class="gp-eyebrow" style="margin-top:12px">${o.modo === 'partida' ? 'Rival' : 'Time B'}</div>${GP._selTime('gpTimeB', o.timeB)}${GP._resumoTime(o.timeB, false)}
+        <p class="gp-dim">Com elenco, cada bot é o jogador de verdade: atributos e estilo dele, e a comp sai do meta do mapa e dos agentes que ele joga.</p>` : ''}
+        ${cinco ? '' : `<div class="gp-eyebrow" style="margin-top:14px">Arma</div><div class="gp-ops gp-ops3">${armas}</div>`}
+        <div class="gp-eyebrow" style="margin-top:14px">${cinco ? 'Nível dos bots sem elenco' : 'Rival'}</div><div class="gp-ops gp-ops3">
+        ${Object.keys(GP.NIVEIS).map(k => bt('nivelBot', k, GP.NIVEIS[k].nome, GP.NIVEIS[k].desc)).join('')}</div>
+        ${o.modo === 'duelo' ? `<div class="gp-eyebrow" style="margin-top:14px">Onde nasce</div><div class="gp-ops">
+        ${bt('spawns', 'rapido', 'Perto', '20–40 m, sem se ver')}${bt('spawns', 'oficiais', 'Spawns do mapa', 'ataque × defesa')}</div>
+        <div class="gp-eyebrow" style="margin-top:14px">Vence quem fizer</div><div class="gp-ops gp-ops3">
+        ${bt('rounds', 3, '3 rounds')}${bt('rounds', 5, '5 rounds')}${bt('rounds', 7, '7 rounds')}</div>` : ''}
+      </div>
+      ${o.modo === 'assistir' || o.modo === 'simular' ? `<div class="gp-sec"><div class="gp-eyebrow">${o.modo === 'assistir' ? 'Assistindo' : 'Simulação'}</div>
+        ${o.modo === 'assistir' ? `<div class="gp-teclas"><p><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> velocidade 1×, 2× e 4× · <kbd>Tab</kbd> próximo jogador · <kbd>clique</kbd> seguir quem está embaixo do cursor ou no painel · <kbd>Espaço</kbd> câmera livre (<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move) · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p class="gp-dim">O espectador vê todo mundo, os planos dos dois times e o painel com vida, arma e créditos dos 10.</p></div>`
+        : `<p class="gp-dim">A partida inteira roda sem tela, do round 1 ao fim, e mostra placar, rounds e as estatísticas de cada jogador: ACS, K/D/A, ADR, KAST, first blood e first death, plant, desarme, clutch e multi-kills. É o mesmo motor que o VCT Manager vai usar para as partidas.</p>`}</div>` :
+      `<div class="gp-sec"><div class="gp-eyebrow">O seu agente</div>${GP._gradeAgentes(o.agenteEu)}
+        <p class="gp-dim gp-nota">Com contorno verde: já tem boneco. Os 29 agentes têm as quatro habilidades.</p>
+        <label class="gp-rival">Agente do rival <select id="gpAgBot"><option value="aleatorio">um duelista sorteado</option>
+          ${Object.values(GP.AGENTES).map(a => `<option value="${a.id}" ${o.agenteBot === a.id ? 'selected' : ''}>${escGP(a.nome)} · ${GP.PAPEIS[a.papel]}</option>`).join('')}</select></label>
+        <div class="gp-eyebrow" style="margin-top:16px">O seu jogador</div><div class="gp-ops gp-ops3">
+        ${Object.keys(GP.NIVEIS).map(k => bt('nivelEu', k, GP.NIVEIS[k].nome, 'atributos de ' + GP.NIVEIS[k].nome)).join('')}</div>
+        <div class="gp-sls">${sliders}</div>
+        ${GP._cartaoCarreira()}
+        <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
+          <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. O inimigo só aparece quando faz barulho (correndo, atirando, usando habilidade) ou quando é revelado. No Shift você não faz barulho, mas anda devagar e mira pior.</p></div>
+      </div>`}
+    </div>
+    <div class="gp-acoes"><button class="gp-jogar" id="gpJogar">${o.modo === 'assistir' ? 'Assistir' : o.modo === 'simular' ? 'Simular' : 'Jogar'}</button></div>
+  </div>`;
+  $gp('#gpMenu').hidden = false;
+  document.querySelectorAll('#gpMenu [data-op]').forEach(el => el.onclick = () => {
+    const g = el.dataset.op, v = el.dataset.val;
+    o[g] = g === 'rounds' ? +v : v;
+    if (g === 'nivelEu') GP.UI.atribEu = {...GP.NIVEIS[v].a};
+    GP._salvarOpc(); GP.menu();
+  });
+  document.querySelectorAll('#gpMenu [data-atr]').forEach(el => el.oninput = () => {
+    a[el.dataset.atr] = +el.value; el.nextElementSibling.textContent = el.value; o.nivelEu = 'personalizado';
+    document.querySelectorAll('#gpMenu [data-op="nivelEu"]').forEach(b => b.classList.remove('on'));
+    GP._salvarOpc();
+  });
+  if ($gp('#gpAgBot')) $gp('#gpAgBot').onchange = e => { o.agenteBot = e.target.value; GP._salvarOpc(); };
+  for (const k of ['A', 'B']) { const el = $gp('#gpTime' + k); if (el) el.onchange = e => { o['time' + k] = e.target.value; GP._salvarOpc(); GP.menu(); }; }
+  if ($gp('#gpEvoluir')) $gp('#gpEvoluir').onclick = () => { o.evoluir = o.evoluir === false; GP._salvarOpc(); GP.menu(); };
+  if ($gp('#gpZerarCarreira')) $gp('#gpZerarCarreira').onclick = () => {
+    GP.UI.carreira = null; o.nivelEu = o.nivelEu in GP.NIVEIS ? o.nivelEu : 'tier2'; GP.UI.atribEu = {...GP.NIVEIS[o.nivelEu].a}; GP._salvarOpc(); GP.menu(); };
+  $gp('#gpJogar').onclick = GP.comecar;
+};
+
+/* ---------- partida ---------- */
+GP.S = null;   /* a sessão em andamento */
+
+/* carrega as imagens do mapa escolhido (texturas e objetos) antes de montar a arte */
+GP._carregarImagensDoMapa = function (mapa) {
+  const man = GP.manifesto(), srcs = [];
+  for (const k of [mapa + '_piso', mapa + '_parede']) if ((man.texturas || {})[k]) srcs.push(man.texturas[k].src);
+  for (const k in (man.objetos || {})) srcs.push(man.objetos[k].src);
+  for (const k in ((man.decoracao || {})[mapa] || {})) srcs.push(man.decoracao[mapa][k].src);
+  for (const k in (man.marcas || {})) srcs.push(man.marcas[k].src);
+  if ((man.mapas_arte || {})[mapa]) srcs.push(man.mapas_arte[mapa].src);
+  for (const k in ((man.mecanicas || {})[mapa] || {})) srcs.push(man.mecanicas[mapa][k].src);
+  const esperas = srcs.map(src => new Promise(ok => {
+    const im = GP.imagem(src) || GP.IMG.cache[src];
+    if (!im || (im.complete && im.naturalWidth)) return ok();
+    im.addEventListener('load', ok, {once: true}); im.addEventListener('error', ok, {once: true});
+  }));
+  return Promise.race([Promise.all(esperas), new Promise(ok => setTimeout(ok, 4000))]);
+};
+GP.comecar = async function () {
+  const o = GP.UI.opc;
+  await GP._carregarImagensDoMapa(o.mapa);
+  for (const id of Object.keys(GP.AGENTES)) GP.precarregarAgente(id);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
+  if (o.modo === 'simular') return GP._simularNaTela();
+  const times = {timeA: (o.timeA && GP.timeReal(o.timeA)) || undefined, timeB: (o.timeB && GP.timeReal(o.timeB)) || undefined};
+  const J = o.modo === 'assistir' ? GP.montarPartida({
+    mapa: o.mapa, jogador: false, atribA: GP.NIVEIS[o.nivelBot].a, atribB: GP.NIVEIS[o.nivelBot].a,
+    semente: (Date.now() & 0xffffff) || 1, tempoCompra: +(o.compra || 10), ...times,
+  }) : o.modo === 'partida' ? GP.montarPartida({
+    mapa: o.mapa, jogador: true, nome: o.timeA ? 'Você' : GP.AGENTES[o.agenteEu].nome, agentesA: [o.agenteEu],
+    atribA: [GP.UI.atribEu, ...Array(4).fill(GP.NIVEIS[o.nivelBot].a)], atribB: GP.NIVEIS[o.nivelBot].a,
+    semente: (Date.now() & 0xffffff) || 1, tempoCompra: +(o.compra || 10),
+    timeA: (o.timeA && GP.timeReal(o.timeA)) || undefined, timeB: (o.timeB && GP.timeReal(o.timeB)) || undefined,
+  }) : GP.montarDuelo({
+    mapa: o.mapa, modo: o.modo, arma: o.arma, armaBot: o.arma === 'operator' ? 'vandal' : o.arma,
+    atribEu: GP.UI.atribEu, atribBot: GP.NIVEIS[o.nivelBot].a, spawns: o.spawns, rounds: o.rounds,
+    semente: (Date.now() & 0xffffff) || 1, agenteEu: o.agenteEu, agentesBot: [GP._agenteDoRival()],
+    nome: GP.AGENTES[o.agenteEu].nome, nomesBot: ['Rival', 'Alvo 2', 'Alvo 3', 'Alvo 4'],
+    agressivo: 0.5,
+  });
+  const cv = $gp('#gpTela');
+  const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte: GP.desenharMapa(J.m)};
+  R.fg = R.fog.getContext('2d');
+  for (const b of J.ents) if (b.bot && b.agente && J.modo === 'duelo') b.nome = GP.AGENTES[b.agente].nome;
+  GP.S = {J, R, cam: {x: J.eu.x, y: J.eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
+    ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: 0, feed: [], vel: 1, livre: false};
+  if (o.modo === 'assistir') { J.espectador = true; GP.S.foco = J.ents[0]; }
+  $gp('#gpEspec').hidden = !J.espectador;
+  GP._ajustarTela();
+  $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
+  $gp('#gpHud').hidden = false;
+  GP._raiz().classList.add('gp-jogando');
+  requestAnimationFrame(GP._quadro);
+};
+
+GP._ajustarTela = function () {
+  const S = GP.S; if (!S) return;
+  const R = S.R, w = window.innerWidth, h = window.innerHeight;
+  R.cv.width = Math.round(w * R.dpr); R.cv.height = Math.round(h * R.dpr);
+  R.cv.style.width = w + 'px'; R.cv.style.height = h + 'px';
+  R.fog.width = R.cv.width; R.fog.height = R.cv.height;
+  /* a tela mostra ~68 m na largura (menos em tela estreita); a roda do mouse
+     aproxima ou afasta (fica guardado) */
+  S.metrosLargura = Math.max(36, Math.min(76, 56 * Math.sqrt(w / 1400))) * (GP.UI.opc.zoom || 1);
+};
+
+GP._comando = function () {
+  const S = GP.S, J = S.J, eu = J.eu, k = S.ui.teclas, c = eu.cmd;
+  c.mx = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
+  c.my = (k.KeyS ? 1 : 0) - (k.KeyW ? 1 : 0);
+  c.modo = k.ControlLeft || k.ControlRight ? 'agacha' : k.ShiftLeft || k.ShiftRight ? 'anda' : 'corre';
+  c.spike = !!k.KeyF;
+  c.luneta = S.ui.direito;
+  if (S.ui.mouse) {
+    const R = S.R, esc = S.cam.escala;
+    const wx = S.cam.x + (S.ui.mouse.x * R.dpr - R.cv.width / 2) / esc;
+    const wy = S.cam.y + (S.ui.mouse.y * R.dpr - R.cv.height / 2) / esc;
+    c.ang = Math.atan2(wy - eu.y, wx - eu.x);
+    c.mira = {x: wx, y: wy};
+  }
+  /* clique rápido (aperta e solta no mesmo quadro) ainda vale um tiro;
+     arma automática atira enquanto o botão estiver apertado */
+  const auto = GP.defArma(eu).auto;
+  if (J.round.fase !== 'ativo') c.atirar = false;
+  else if (S.ui.cliqueNovo) c.atirar = true;
+  else if (auto) c.atirar = S.ui.botao;
+  S.ui.cliqueNovo = false;
+  if (J.round.fase !== 'ativo') { c.mx = c.my = 0; }
+};
+
+GP._quadro = function (agora) {
+  const S = GP.S; if (!S) return;
+  const J = S.J;
+  let dt = Math.min(0.1, (agora - S.ult) / 1000); S.ult = agora;
+  if (!S.pausa && !J.fim) {
+    S.acum += dt * (J.espectador ? S.vel : S.embutido && (!J.eu.vivo || S.botAssumiu) ? 3 : 1);
+    const h = 1 / 120;
+    while (S.acum >= h) {
+      for (const e of J.ents) { e._ax = e.x; e._ay = e.y; }
+      if (!J.espectador && !S.botAssumiu) GP._comando();
+      GP.passo(J, h); S.acum -= h;
+    }
+    if (J.espectador) GP._visaoEspectador(J); else GP.atualizarVisaoDoJogador(J);
+  }
+  if (J.espectador) {
+    /* câmera livre: WASD/setas; senão segue o foco (morreu: o próximo vivo) */
+    const k = S.ui.teclas, v = 34 / (GP.UI.opc.zoom || 1) * dt;
+    const mx = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0), my = (k.KeyS || k.ArrowDown ? 1 : 0) - (k.KeyW || k.ArrowUp ? 1 : 0);
+    if (mx || my) S.livre = true;
+    if (!S.foco || !S.foco.vivo) { const prox = J.ents.find(o => o.vivo && (!S.foco || o.time === S.foco.time)) || J.ents.find(o => o.vivo); if (prox) S.foco = prox; }
+    if (S.foco) J.eu = S.foco;
+    if (S.livre) { S.cam.x += mx * v; S.cam.y += my * v; }
+  }
+  /* câmera: segue você e puxa um pouco para onde você mira */
+  const R = S.R, eu = J.eu;
+  S.cam.escala = R.cv.width / (S.metrosLargura * (eu.luneta ? 1.35 : 1));
+  let ox = 0, oy = 0;
+  if (S.ui.mouse && !J.espectador) {
+    const fx = (S.ui.mouse.x * R.dpr - R.cv.width / 2) / S.cam.escala, fy = (S.ui.mouse.y * R.dpr - R.cv.height / 2) / S.cam.escala;
+    const k = eu.luneta ? 0.55 : 0.32;
+    ox = fx * k; oy = fy * k;
+  }
+  const dr = eu.ef && eu.ef.drone;   /* pilotando drone: a câmera vai com ele */
+  /* morto na partida: assiste a um aliado vivo */
+  const viz = !eu.vivo && J.modo === 'partida' ? (J.ents.find(o => o.vivo && o.time === eu.time) || eu) : eu;
+  if (viz !== eu) { ox = oy = 0; }
+  const tx = (dr ? dr.x : viz.x) + ox, ty = (dr ? dr.y : viz.y) + oy;
+  if (!(J.espectador && S.livre)) { S.cam.x += (tx - S.cam.x) * Math.min(1, dt * 10); S.cam.y += (ty - S.cam.y) * Math.min(1, dt * 10); }
+  /* mapa pintado: a câmera não passa da borda da pintura (fora dela não há nada) */
+  const pt = R.arte && R.arte.pintura;
+  if (pt) {
+    const meiaW = R.cv.width / S.cam.escala / 2, meiaH = R.cv.height / S.cam.escala / 2;
+    const prende = (v, a, b) => a > b ? (a + b) / 2 : Math.max(a, Math.min(b, v));
+    S.cam.x = prende(S.cam.x, pt.x0 + meiaW, pt.x0 + pt.larg - meiaW);
+    S.cam.y = prende(S.cam.y, pt.y0 + meiaH, pt.y0 + pt.alt - meiaH);
+  }
+  /* desenha entre o passo anterior e o atual (o motor roda a 120/s e a tela
+     no ritmo do monitor): o movimento fica liso em qualquer taxa de quadros */
+  const al = S.pausa || J.fim ? 1 : Math.min(1, S.acum / (1 / 120));
+  const reais = J.ents.map(e => [e.x, e.y]);
+  for (const e of J.ents) if (e._ax != null && Math.hypot(e.x - e._ax, e.y - e._ay) < 2) { e.x = e._ax + (e.x - e._ax) * al; e.y = e._ay + (e.y - e._ay) * al; }
+  GP.render(R, J, S.cam, S.ui);
+  J.ents.forEach((e, i) => { e.x = reais[i][0]; e.y = reais[i][1]; });
+  GP._lerEventos();
+  if (agora - S.hudEm > 66) { S.hudEm = agora; GP._hud(); }
+  if (S.embutido) {
+    /* no manager: o trecho acaba no fim do round (ou do mapa); o placar do fim
+       do round fica um instante na tela antes de devolver */
+    if (!S.fechaEm && (J.fim || J.historico.length >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
+    if (S.fechaEm && agora >= S.fechaEm) { GP._encerrarEmbutido(); return; }
+  } else if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }
+  requestAnimationFrame(GP._quadro);
+};
+
+GP._lerEventos = function () {
+  const S = GP.S, J = S.J;
+  for (; S.eventosVistos < J.eventos.length; S.eventosVistos++) {
+    const ev = J.eventos[S.eventosVistos];
+    if (ev.tipo === 'morte') {
+      const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
+      S.feed.unshift({t: performance.now(), de: de ? de.nome : 'Mapa', em: em.nome, arma: ev.arma, cabeca: ev.cabeca, meu: de === J.eu, morri: em === J.eu});
+      S.feed = S.feed.slice(0, 5);
+    }
+  }
+};
+
+GP._hud = function () {
+  const S = GP.S, J = S.J, eu = J.eu, R = J.round;
+  const arm = GP.armaDe(eu), A = GP.defArma(eu);
+  const resta = R.fase === 'ativo' ? Math.max(0, R.ate - J.t) : R.fase === 'pre' ? Math.max(0, R.ate - J.t) : 0;
+  const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const alvos = J.modo === 'alvos', partida = J.modo === 'partida';
+  if (partida && J.espectador) GP._hudEspectador();
+  else if (partida) {
+    const nos = eu.time, eles = nos === 'A' ? 'B' : 'A', lado = J.lados[nos] === 'atk' ? 'ataque' : 'defesa', sp = J.spike;
+    const plantada = sp && sp.estado === 'plantada';
+    const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
+    const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[nos]) ? escGP(J.nomesTimes[nos]) + ' · ' : ''}${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você ${lado === 'ataque' ? 'no' : 'na'} ${lado}${J.plano ? ' · ' + (lado === 'ataque' ? J.plano.nomeAtk : J.plano.nomeDef) : ''}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[eles]) ? escGP(J.nomesTimes[eles]) + ' · ' : ''}${vivos(eles)} vivos</i></span>`;
+  } else
+  $gp('#gpPlacar').innerHTML = alvos
+    ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`
+    : `<span class="gp-pl-eu num">${J.placar.eu}</span><span class="gp-pl-meio"><b class="num">${R.fase === 'pre' ? 'em ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · primeiro a ${J.alvoRounds}</i></span><span class="gp-pl-ele num">${J.placar.eles}</span>`;
+  $gp('#gpVida').innerHTML = `${eu.agente ? GP._rostoAgente(eu.agente, 'gp-hud-r') : ''}<div class="gp-hp"><b class="num">${Math.ceil(eu.hp)}</b><span>vida</span></div>
+    <div class="gp-esc"><b class="num">${Math.ceil(eu.escudo)}</b><span>escudo</span></div>
+    <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 3 ? ' · <em>tiro aberto</em>' : ''}</div>`;
+  const silh = GP.temImagem('armas', arm.id) ? `<img class="gp-arma-img" src="${GP.manifesto().armas[arm.id].src}" alt="">` : '';
+  $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
+    <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
+    <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}${J.modo === 'partida' ? ` · <b class="gp-cred">¤ ${eu.creditos}</b>` : ''}</div>`;
+  if (eu.agente) {
+    const HH = GP.HABS && GP.HABS[eu.agente];
+    const estado = ['c', 'q', 'e', 'x'].map(k => (eu.cargas ? eu.cargas[k] : 0) + (GP.podeUsar && GP.podeUsar(J, eu, k) ? '+' : '')).join(',') + eu.agente + (eu.pontosUlt || 0);
+    if (S.habDe !== estado) {
+      S.habDe = estado;
+      $gp('#gpHab').innerHTML = ['c', 'q', 'e', 'x'].map(k => {
+        const ic = GP.agenteImg(eu.agente, k), h = HH && HH[k];
+        const n = eu.cargas ? eu.cargas[k] : 0, pode = GP.podeUsar && GP.podeUsar(J, eu, k);
+        const pu = Math.min(GP.PONTOS_ULT || 5, eu.pontosUlt || 0), PU = GP.PONTOS_ULT || 5;
+        const pontos = k === 'x' ? `<em class="gp-ult${pu >= PU ? ' cheia' : ''}">${'<i class="on"></i>'.repeat(pu)}${'<i></i>'.repeat(PU - pu)}</em>`
+          : h && h.cargas > 1 ? `<em>${'•'.repeat(n)}${'<s>•</s>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
+        return `<div class="gp-hab ${pode ? 'ok' : ''}" title="${h ? h.nome : ''}">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}${pontos}<kbd>${k.toUpperCase()}</kbd></div>`;
+      }).join('') + (HH ? '' : '<span class="gp-hab-nota">habilidades deste agente na próxima leva</span>');
+    }
+  }
+  $gp('#gpArea').textContent = [GP.NOME_MAPA[J.m.nome], GP.areaEm(J.m, eu.x, eu.y), GP.sitioEm(J.m, eu.x, eu.y) ? 'bomb ' + GP.sitioEm(J.m, eu.x, eu.y).toUpperCase() : ''].filter(Boolean).join(' · ');
+  const agora = performance.now();
+  $gp('#gpFeed').innerHTML = S.feed.filter(f => agora - f.t < 6000).map(f => `<div class="gp-kf ${f.meu ? 'meu' : ''} ${f.morri ? 'morri' : ''}">
+    <b>${escGP(f.de)}</b><span>${escGP(f.arma)}${f.cabeca ? ' ✦' : ''}</span><b>${escGP(f.em)}</b></div>`).join('');
+  let faixa = '';
+  if (partida && J.espectador) {
+    const sp = J.spike, nomes = J.nomesTimes || {A: 'A', B: 'B'};
+    if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + nomes[GP._timeAtk(J)] + ' no ataque';
+    else if (R.fase === 'fim') faixa = 'Round de ' + nomes[R.vencedor] + ' · ' + R.como;
+    else if (sp && sp.estado === 'plantada' && sp.desarmador) faixa = 'Desarmando…';
+    const fx = $gp('#gpFaixa');
+    fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '');
+    return;
+  }
+  if (partida) {
+    const nos = eu.time, sp = J.spike;
+    if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
+    else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
+    else if (R.trava && R.trava[nos] > J.t) faixa = 'Barreira: ' + Math.ceil(R.trava[nos] - J.t) + ' s';
+    else if (S.embutido && S.botAssumiu) faixa = 'O bot está jogando por você · 3×';
+    else if (S.embutido && !eu.vivo && R.fase === 'ativo') faixa = 'Você caiu · o round segue em 3×';
+    else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
+    else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
+    const fx = $gp('#gpFaixa');
+    fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.fase === 'fim' ? (R.vencedor === nos ? ' ok' : ' no') : '');
+    return;
+  }
+  if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
+  else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
+  const fx = $gp('#gpFaixa');
+  fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.vencedor === 'eu' ? ' ok' : R.vencedor === 'eles' ? ' no' : '');
+};
+
+/* ---------- fim: números e o que treinar ---------- */
+GP._fim = function () {
+  const S = GP.S; if (!S) return;
+  const J = S.J, r = GP.resumo(J), alvos = J.modo === 'alvos';
+  if (J.modo === 'partida') return GP._fimPartida();
+  const dicas = [];
+  if (r.tiros >= 8 && r.correndo >= 30) dicas.push(`<b>${r.correndo}%</b> dos seus tiros saíram correndo. Correndo o tiro abre muito: solte as teclas (ou segure Shift) um instante antes de atirar.`);
+  if (r.tiros >= 10 && r.abertos >= 35) dicas.push(`<b>${r.abertos}%</b> dos tiros com a rajada já aberta. Atire em rajadas de 3–5 e solte; de longe, tiro a tiro.`);
+  if (r.acertos >= 6 && r.hs < 20) dicas.push(`Só <b>${r.hs}%</b> na cabeça. Mire no centro do boneco e espere o círculo da mira fechar.`);
+  if (r.reacaoMs && r.reacaoMs > 450) dicas.push(`Do inimigo aparecer ao seu primeiro tiro: <b>${r.reacaoMs} ms</b>. Ande com a mira já apontada para onde ele pode surgir.`);
+  if (!dicas.length) dicas.push(r.precisao >= 30 ? 'Mira e disciplina boas. Tente o rival um nível acima.' : 'Jogue de novo com Shift nas esquinas: andar não faz barulho e deixa o tiro mais preciso.');
+  const titulo = alvos ? `${r.kills} abates em 60 s` : (J.fim.venceu ? 'Vitória ' : 'Derrota ') + J.placar.eu + '–' + J.placar.eles;
+  $gp('#gpFim').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">${alvos ? 'Treino de alvos' : 'Duelo'} · ${GP.NOME_MAPA[J.m.nome]} · ${GP.ARMAS[GP.UI.opc.arma].nome}</div>
+    <h2 class="${alvos ? '' : J.fim.venceu ? 'ok' : 'no'}">${titulo}</h2>
+    <div class="gp-nums">
+      <div><b class="num">${r.kills}/${r.mortes}</b><span>abates / mortes</span></div>
+      <div><b class="num">${r.precisao}%</b><span>precisão</span></div>
+      <div><b class="num">${r.hs}%</b><span>na cabeça</span></div>
+      <div><b class="num">${r.reacaoMs != null ? r.reacaoMs + ' ms' : '—'}</b><span>reação média</span></div>
+      <div><b class="num">${r.dano}</b><span>dano</span></div>
+    </div>
+    <div class="gp-eyebrow">O que treinar</div><ul class="gp-dicas">${dicas.map(d => `<li>${d}</li>`).join('')}</ul>
+    <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">Jogar de novo</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
+  $gp('#gpFim').hidden = false;
+  $gp('#gpDeNovo').onclick = GP.comecar;
+  $gp('#gpMenuBt').onclick = GP.sair;
+};
+GP._tabelaEstat = function (J, jog, time, titulo, euId) {
+  const linhas = jog.filter(j => j.time === time).sort((a, b) => b.acs - a.acs);
+  const cl = j => j.clutchTent ? `${j.clutches}/${j.clutchTent}` : '–';
+  return `<table class="gp-tab"><thead><tr><th>${titulo}</th><th title="pontuação de combate por round">ACS</th><th>K</th><th>D</th><th>A</th><th title="dano por round">ADR</th><th title="% de rounds com abate, assistência, sobrevivência ou troca">KAST</th><th title="primeiro abate / primeira morte">FB/FD</th><th>Plant</th><th title="desarmes">Des.</th><th title="clutches ganhos / tentados">Clutch</th></tr></thead>
+    <tbody>${linhas.map(j => `<tr class="${j.id === euId ? 'eu' : ''}"><td>${GP._rostoAgente(j.agente, 'gp-tab-r')}${escGP(j.nome)}</td><td class="num"><b>${j.acs}</b></td><td class="num">${j.k}</td><td class="num">${j.d}</td><td class="num">${j.a}</td>
+      <td class="num">${j.adr}</td><td class="num">${j.kast}%</td><td class="num">${j.fb}/${j.fd}</td><td class="num">${j.plants}</td><td class="num">${j.desarmes}</td><td class="num">${cl(j)}</td></tr>`).join('')}</tbody></table>`;
+};
+GP._telaResultado = function (J, r, o) {
+  const nos = o.nos || 'A', eles = nos === 'A' ? 'B' : 'A', nomes = r.times;
+  const temNome = t => nomes[t] && !/^Time /.test(nomes[t]);
+  const rounds = r.rounds.map(h => `<i class="${h.vencedor === nos ? 'ok' : 'no'}" title="Round ${h.n}: ${escGP(nomes[h.vencedor])} por ${h.como}${h.plant ? ' · plant ' + h.plant.toUpperCase() : ''} · ${escGP(h.planoAtk || '')} × ${escGP(h.planoDef || '')}"></i>`).join('');
+  const mvp = r.jogadores.find(j => j.id === r.mvp);
+  const titulo = o.jogador ? `<h2 class="${r.vencedor === nos ? 'ok' : 'no'}">${r.vencedor === nos ? 'Vitória' : 'Derrota'} ${r.placar[nos]}–${r.placar[eles]}</h2>`
+    : `<h2>${escGP(nomes.A)} ${r.placar.A}–${r.placar.B} ${escGP(nomes.B)}</h2>`;
+  $gp('#gpFim').innerHTML = `<div class="gp-fim-in gp-fim-largo"><div class="gp-eyebrow">${escGP(o.rotulo)} · ${GP.NOME_MAPA[r.mapa]}${!o.jogador ? '' : temNome('A') ? ' · ' + escGP(nomes[nos]) + ' × ' + escGP(nomes[eles]) : ''}</div>
+    ${titulo}<div class="gp-rounds">${rounds}</div>
+    ${mvp ? `<p class="gp-dim">MVP: <b>${escGP(mvp.nome)}</b> (${escGP(GP.AGENTES[mvp.agente].nome)}) · ${mvp.acs} de ACS, ${mvp.k}/${mvp.d}/${mvp.a}${o.extra ? ' · ' + o.extra : ''}</p>` : ''}
+    ${GP._tabelaEstat(J, r.jogadores, nos, o.jogador ? 'Seu time' + (temNome(nos) ? ' · ' + escGP(nomes[nos]) : '') : escGP(nomes[nos]), o.euId)}
+    ${GP._tabelaEstat(J, r.jogadores, eles, o.jogador ? 'Rivais' + (temNome(eles) ? ' · ' + escGP(nomes[eles]) : '') : escGP(nomes[eles]), o.euId)}
+    ${o.evolucao ? `<div class="gp-evo"><div class="gp-eyebrow">Seu jogador depois desta partida</div><div class="gp-evo-l">${Object.keys(o.evolucao).map(k => {
+      const v = o.evolucao[k]; return `<span class="${v > 0 ? 'sobe' : v < 0 ? 'desce' : ''}">${GP.ATRIB_ROTULO[k]} <b class="num">${Math.round(GP.UI.atribEu[k])}</b> <i>${v > 0 ? '+' : ''}${v.toFixed(1)}</i></span>`; }).join('')}</div></div>` : ''}
+    <div class="gp-acoes"><button class="gp-jogar" id="gpDeNovo">${o.de_novo || 'Jogar de novo'}</button><button class="gp-sec-bt" id="gpMenuBt">Mudar opções</button></div></div>`;
+  $gp('#gpFim').hidden = false;
+  $gp('#gpDeNovo').onclick = GP.comecar;
+  $gp('#gpMenuBt').onclick = GP.sair;
+};
+/* ---------- carreira do seu jogador (etapa 7) ----------
+   O que você faz em campo vira evolução: cada partida 5v5 jogada mexe nos
+   seus atributos pelo que pesou no jogo, com ganho menor perto do teto
+   (como no manager). A carreira guarda partidas, vitórias e médias. */
+GP.ATRIB_TETO = 95;
+GP.evolucaoDaPartida = function (J, r) {
+  const eu = J.ents.find(e => !e.bot); if (!eu) return null;
+  const j = r.jogadores.find(x => x.id === eu.id), R = Math.max(1, j.rounds), st = eu.st;
+  const lim = (v, a, b) => Math.max(a, Math.min(b, v));
+  const perf = lim((j.acs - 170) / 130, -0.6, 1);
+  const correndo = st.tiros ? (st.tirosCorrendo || 0) / st.tiros : 0.3;
+  const venceu = r.vencedor === eu.time ? 0.05 : 0;
+  const d = {
+    mira: 0.10 + 0.35 * perf + lim((j.hs - 25) / 50, -0.2, 0.3),
+    reflexo: 0.08 + 0.25 * perf + lim((j.fb - j.fd) / R * 2, -0.2, 0.3),
+    movimento: 0.06 + 0.2 * perf - lim((correndo - 0.3) * 1.2, -0.2, 0.3),
+    visao: 0.06 + 0.15 * perf + lim((j.kast - 70) / 100, -0.2, 0.2),
+    clutch: 0.05 + 0.1 * perf + 0.25 * j.clutches - 0.05 * Math.max(0, j.clutchTent - j.clutches),
+    consistencia: 0.05 + (j.kast >= 70 ? 0.1 : -0.05),
+  };
+  const a = GP.UI.atribEu, out = {};
+  for (const k in d) {
+    let v = d[k] + venceu;
+    if (v > 0) v *= lim((GP.ATRIB_TETO - (a[k] || 60)) / 40, 0, 1);   /* perto do teto, cresce pouco */
+    v = Math.round(v * 10) / 10;
+    a[k] = lim(Math.round(((a[k] || 60) + v) * 10) / 10, 40, GP.ATRIB_TETO);
+    out[k] = v;
+  }
+  const c = GP.UI.carreira || (GP.UI.carreira = {partidas: 0, vitorias: 0, acs: 0, k: 0, d: 0, mvp: 0});
+  c.partidas++; if (r.vencedor === eu.time) c.vitorias++;
+  c.acs += j.acs; c.k += j.k; c.d += j.d; if (r.mvp === eu.id) c.mvp++;
+  c.ultima = {mapa: r.mapa, placar: r.placar[eu.time] + '–' + r.placar[eu.time === 'A' ? 'B' : 'A'], acs: j.acs, evolucao: out};
+  GP.UI.opc.nivelEu = 'personalizado';
+  GP._salvarOpc();
+  return out;
+};
+GP._fimPartida = function () {
+  const J = GP.S.J, r = GP.resultadoPartida(J);
+  if (J.espectador) return GP._telaResultado(J, r, {rotulo: 'Partida assistida', de_novo: 'Assistir outra'});
+  const evo = GP.UI.opc.evoluir !== false ? GP.evolucaoDaPartida(J, r) : null;
+  GP._telaResultado(J, r, {rotulo: 'Partida 5v5', jogador: true, nos: J.ents[0].time, euId: J.ents[0].id, evolucao: evo});
+};
+/* modo simular: roda sem tela, mostrando o progresso, e abre o resultado */
+GP._simularNaTela = async function () {
+  const o = GP.UI.opc, t0 = performance.now();
+  $gp('#gpMenu').hidden = true;
+  $gp('#gpFim').hidden = false;
+  const nomes = {A: o.timeA ? (GP.timeReal(o.timeA) || {}).nome || o.timeA : 'Time A', B: o.timeB ? (GP.timeReal(o.timeB) || {}).nome || o.timeB : 'Time B'};
+  $gp('#gpFim').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">Simulando · ${GP.NOME_MAPA[o.mapa]}</div><h2 id="gpSimPlacar">${escGP(nomes.A)} 0–0 ${escGP(nomes.B)}</h2><p class="gp-dim" id="gpSimRound">round 1</p></div>`;
+  let J0 = null;
+  const r = await GP.simularPartidaAos({mapa: o.mapa, semente: (Date.now() & 0xffffff) || 1, atribA: GP.NIVEIS[o.nivelBot].a, atribB: GP.NIVEIS[o.nivelBot].a,
+    timeA: (o.timeA && GP.timeReal(o.timeA)) || undefined, timeB: (o.timeB && GP.timeReal(o.timeB)) || undefined}, J => {
+    J0 = J;
+    const p = $gp('#gpSimPlacar'), rd = $gp('#gpSimRound');
+    if (p) p.textContent = `${nomes.A} ${J.placar.A}–${J.placar.B} ${nomes.B}`;
+    if (rd) rd.textContent = 'round ' + J.round.n;
+  });
+  GP._telaResultado(J0, r, {rotulo: 'Simulação', de_novo: 'Simular de novo', extra: `simulado em ${((performance.now() - t0) / 1000).toFixed(1)} s`});
+};
+GP.sair = function () {
+  GP.S = null;
+  GP._raiz().classList.remove('gp-jogando');
+  $gp('#gpHud').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true; $gp('#gpEspec').hidden = true;
+  const R = $gp('#gpTela').getContext('2d'); R.setTransform(1, 0, 0, 1, 0, 0); R.clearRect(0, 0, 99999, 99999);
+  GP.menu();
+};
+GP.pausar = function (on) {
+  const S = GP.S; if (!S || S.J.fim) return;
+  S.pausa = on; S.ui.teclas = {}; S.ui.botao = false;
+  $gp('#gpPausa').hidden = !on;
+  if (on && S.embutido) {
+    $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">A partida é oficial: o round continua contando.</p><div class="gp-acoes">
+      <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpBot">Deixar o bot jogar ${S.ateHist === Infinity ? 'o resto do mapa' : 'este round'}</button></div></div>`;
+    $gp('#gpVoltar').onclick = () => GP.pausar(false);
+    $gp('#gpBot').onclick = () => { S.botAssumiu = true; S.J.eu.bot = true; GP.pausar(false); };
+    return;
+  }
+  if (on) $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><div class="gp-acoes">
+    <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpDesistir">Sair da partida</button></div></div>`;
+  if (on) { $gp('#gpVoltar').onclick = () => GP.pausar(false); $gp('#gpDesistir').onclick = GP.sair; }
+};
+
+/* ---------- espectador ---------- */
+GP._visaoEspectador = function (J) {
+  for (const o of J.ents) { o._visivel = o.vivo && !(o.ef && o.ef.invis > J.t && o.time !== (GP.S.foco || {}).time); o._naLinha = o._visivel; }
+};
+GP._teclaEspectador = function (e) {
+  const S = GP.S, J = S.J;
+  const vel = {Digit1: 1, Digit2: 2, Digit3: 4}[e.code];
+  if (vel) S.vel = vel;
+  if (e.code === 'Space' && !e.repeat) S.livre = !S.livre;
+  if (e.code === 'Tab' && !e.repeat) {
+    const vivos = J.ents.filter(o => o.vivo); if (!vivos.length) return;
+    const i = vivos.indexOf(S.foco);
+    S.foco = vivos[(i + (e.shiftKey ? vivos.length - 1 : 1)) % vivos.length]; S.livre = false;
+  }
+};
+GP._seguirNoCursor = function () {
+  const S = GP.S, J = S.J, R = S.R; if (!S.ui.mouse) return;
+  const wx = S.cam.x + (S.ui.mouse.x * R.dpr - R.cv.width / 2) / S.cam.escala, wy = S.cam.y + (S.ui.mouse.y * R.dpr - R.cv.height / 2) / S.cam.escala;
+  const o = J.ents.filter(o => o.vivo).sort((a, b) => Math.hypot(a.x - wx, a.y - wy) - Math.hypot(b.x - wx, b.y - wy))[0];
+  if (o && Math.hypot(o.x - wx, o.y - wy) < 3) { S.foco = o; S.livre = false; }
+};
+GP._hudEspectador = function () {
+  const S = GP.S, J = S.J, R = J.round, sp = J.spike, nomes = J.nomesTimes || {A: 'A', B: 'B'};
+  const resta = Math.max(0, R.ate - J.t), mmss = x => Math.floor(x / 60) + ':' + String(Math.floor(x % 60)).padStart(2, '0');
+  const plantada = sp && sp.estado === 'plantada', atk = GP._timeAtk(J);
+  const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
+  const plano = t => J.plano ? (t === atk ? J.plano.nomeAtk : J.plano.nomeDef) : '';
+  const lado = t => (t === atk ? 'ataque' : 'defesa');
+  $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar.A}<i>${escGP(nomes.A)} · ${lado('A')} · ${vivos('A')} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta)}</b><i>round ${R.n} · ${S.vel}× · ${escGP(plano('A'))} × ${escGP(plano('B'))}</i></span><span class="gp-pl-ele num">${J.placar.B}<i>${escGP(nomes.B)} · ${lado('B')} · ${vivos('B')} vivos</i></span>`;
+  const linha = e => {
+    const arm = e.armas.primaria ? GP.ARMAS[e.armas.primaria.id].nome : GP.ARMAS[e.armas.secundaria.id].nome;
+    return `<div class="gp-es-l ${e.vivo ? '' : 'morto'} ${e === S.foco ? 'foco' : ''} ${e.time === 'A' ? 'ta' : 'tb'}" data-id="${e.id}">
+      ${GP._rostoAgente(e.agente, 'gp-es-r')}<div class="gp-es-n"><b>${escGP(e.nome)}</b><span>${escGP(arm)}${e.escudo > 0 ? ' · escudo' : ''} · ¤${e.creditos}</span>
+      <div class="gp-es-hp"><i style="width:${e.vivo ? Math.max(0, Math.min(100, e.hp)) : 0}%"></i></div></div>
+      <div class="gp-es-k num">${e.st.kills}/${e.st.mortes}/${e.st.assist || 0}${J.spike.dono === e.id ? ' ◆' : ''}</div></div>`;
+  };
+  const el = $gp('#gpEspec');
+  el.innerHTML = ['A', 'B'].map(t => `<div class="gp-es-t">${escGP(nomes[t])}</div>` + J.ents.filter(e => e.time === t).map(linha).join('')).join('') +
+    `<div class="gp-es-ajuda"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> velocidade · <kbd>Tab</kbd> próximo · <kbd>Espaço</kbd> câmera ${S.livre ? 'livre' : 'seguindo'}</div>`;
+  if (!el._ligado) { el._ligado = true; el.addEventListener('click', ev => { const d = ev.target.closest('[data-id]'); if (!d || !GP.S) return; const o = GP.S.J.ents.find(x => x.id === d.dataset.id); if (o && o.vivo) { GP.S.foco = o; GP.S.livre = false; } }); }
+};
+
+/* ---------- entrada ---------- */
+GP.ligar = function () {
+  GP._lerOpc();
+  GP._ouvir();
+  GP.menu();
+};
+GP._ouvir = function () {
+  if (GP._ouvindo) return;
+  GP._ouvindo = true;
+  const cv = $gp('#gpTela');
+  window.addEventListener('resize', GP._ajustarTela);
+  window.addEventListener('keydown', e => {
+    if (!GP.S) return;
+    if (e.code === 'Escape') { GP.pausar(!GP.S.pausa); e.preventDefault(); return; }
+    if (GP.S.pausa) return;
+    GP.S.ui.teclas[e.code] = true;
+    if (GP.S.J.espectador) { GP._teclaEspectador(e); return; }
+    const c = GP.S.J.eu.cmd;
+    if (e.code === 'KeyR') c.recarregar = true;
+    if (e.code === 'KeyF' && !e.repeat) c.usar = true;
+    const tecla = {KeyC: 'c', KeyQ: 'q', KeyE: 'e', KeyX: 'x'}[e.code];
+    if (tecla && !e.repeat) c.hab = tecla;
+    if (e.code === 'Digit1') c.trocar = 'primaria';
+    if (e.code === 'Digit2') c.trocar = 'secundaria';
+    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ControlLeft', 'ShiftLeft', 'Space', 'Tab'].includes(e.code)) e.preventDefault();
+  });
+  window.addEventListener('keydown', e => { if (GP.S && GP.S.J.espectador && ['Tab', 'Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault(); });
+  window.addEventListener('keyup', e => { if (GP.S) GP.S.ui.teclas[e.code] = false; });
+  window.addEventListener('blur', () => { if (GP.S && !GP.S.J.fim) GP.pausar(true); });
+  cv.addEventListener('mousemove', e => { if (GP.S) GP.S.ui.mouse = {x: e.clientX, y: e.clientY}; });
+  cv.addEventListener('mousedown', e => {
+    if (!GP.S || GP.S.pausa) return;
+    if (GP.S.J.espectador) { if (e.button === 0) GP._seguirNoCursor(); return; }
+    if (e.button === 0) { GP.S.ui.botao = true; GP.S.ui.cliqueNovo = true; }
+    if (e.button === 2) GP.S.ui.direito = true;
+  });
+  window.addEventListener('mouseup', e => { if (!GP.S) return; if (e.button === 0) GP.S.ui.botao = false; if (e.button === 2) GP.S.ui.direito = false; });
+  cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('wheel', e => {
+    if (!GP.S) return;
+    e.preventDefault();
+    GP.UI.opc.zoom = Math.max(0.65, Math.min(1.5, (GP.UI.opc.zoom || 1) * (e.deltaY > 0 ? 1.08 : 1 / 1.08)));
+    GP._salvarOpc(); GP._ajustarTela();
+  }, {passive: false});
+  /* no navegador, Ctrl+W fecha a aba: pergunta antes, no meio da partida */
+  window.addEventListener('beforeunload', e => { if (GP.S && !GP.S.J.fim && !GP.S.embutido) { e.preventDefault(); e.returnValue = ''; } });
+};
+/* a página da gameplay se monta sozinha; dentro do manager quem chama é o dia de jogo */
+if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('gpMenu') && !document.getElementById('gpCamada')) GP.ligar(); });
+
+/* ============================================================
+   DENTRO DO VCT MANAGER (modo jogador, dia de jogo)
+   A mesma partida que o motor está jogando (M.J) abre por cima do
+   manager, presa no seu boneco. Você joga o round (ou o mapa); no fim,
+   o boneco volta para a IA e a promessa resolve. Esc pausa; na pausa dá
+   para deixar o bot terminar. Morto, o round segue em 3×.
+   ============================================================ */
+GP._embutir = function () {
+  let c = document.getElementById('gpCamada');
+  if (!c) {
+    c = document.createElement('div'); c.id = 'gpCamada'; c.hidden = true;
+    c.innerHTML = `<canvas id="gpTela"></canvas><div id="gpHud" hidden><div id="gpPlacar" class="gp-placar"></div><div id="gpArea" class="gp-area"></div>
+      <div id="gpFeed" class="gp-feed"></div><div id="gpVida" class="gp-vida"></div><div id="gpArma" class="gp-arma"></div><div id="gpHab" class="gp-habs"></div>
+      <div id="gpFaixa" class="gp-faixa"></div><div id="gpEspec" class="gp-espec" hidden></div></div>
+      <div id="gpMenu" class="gp-tela-cheia" hidden></div><div id="gpPausa" class="gp-tela-cheia gp-vidro" hidden></div><div id="gpFim" class="gp-tela-cheia gp-vidro" hidden></div>`;
+    document.body.appendChild(c);
+    GP._lerOpc();
+    GP._ouvir();
+  }
+  return c;
+};
+GP._arteCache = {};
+/* o: {euMid: id do jogador do manager, ate: 'round' | 'mapa', rotulo} */
+GP.jogarNoManager = async function (J, o) {
+  const eu = J.ents.find(e => e.mid === o.euMid);
+  if (!eu) return {jogou: false};
+  const c = GP._embutir();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  await GP._carregarImagensDoMapa(J.m.nome);
+  for (const id of new Set(J.ents.map(e => e.agente))) GP.precarregarAgente(id);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
+  const cv = $gp('#gpTela');
+  const arte = GP._arteCache[J.m.nome] || (GP._arteCache[J.m.nome] = GP.desenharMapa(J.m));
+  const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte};
+  R.fg = R.fog.getContext('2d');
+  /* o seu boneco passa a ser seu */
+  const eraEu = J.eu;
+  J.eu = eu; eu.bot = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.atirar = false; eu.cmd.ang = eu.ang;
+  return new Promise(ok => {
+    GP.S = {J, R, cam: {x: eu.x, y: eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
+      ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: J.eventos.length, feed: [], vel: 1, livre: false,
+      embutido: true, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
+      aoFim: () => ok({jogou: true, bot: !!GP.S && GP.S.botAssumiu})};
+    c.hidden = false;
+    $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
+    $gp('#gpHud').hidden = false;
+    GP._raiz().classList.add('gp-jogando');
+    GP._ajustarTela();
+    requestAnimationFrame(GP._quadro);
+  });
+};
+GP._encerrarEmbutido = function () {
+  const S = GP.S; if (!S) return;
+  const J = S.J, eu = S.euEnt;
+  eu.bot = true; eu.cmd.atirar = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.hab = null;
+  if (eu.ia) { eu.ia.caminho = null; eu.ia.lanca = null; }
+  J.eu = S.eraEu || J.ents[0];
+  GP._raiz().classList.remove('gp-jogando');
+  const c = document.getElementById('gpCamada'); if (c) c.hidden = true;
+  const fim = S.aoFim;
+  GP.S = null;
+  if (fim) fim();
+};
+
+
 /* ===== data/torcidas.js ===== */
 /* ============================================================
    TORCIDAS — tamanho e temperamento de cada clube
@@ -16365,22 +17878,29 @@ const MOTOR_DT=1/60;
 /* um round no motor; devolve a linha no formato de passoRound */
 function motorPassoRound(M){
   if(M.fim)return null;
-  const J=M.J, antes=J.historico.length;
+  /* o round a narrar é o próximo que ainda não virou linha: se você o jogou
+     na gameplay (dia de jogo do modo jogador), ele já está no histórico do
+     motor e aqui só vira linha; senão o motor joga até ele acabar */
+  const J=M.J, alvo=M.hist.length;
   /* a tática em vigor (o pedido de tempo pode ter trocado) */
   J.taticaTime={A:Object.assign({},M.A.tatica||{},M.tatA||{}),B:Object.assign({},M.B.tatica||{},M.tatB||{})};
   GP.aplicarTaticaTimes(J);
   /* pedido de tempo: o time que pediu joga os próximos rounds mais firme */
   for(const e of J.ents)e.bonusTempo=(e.time==='A'&&M.bonusA>0)||(e.time==='B'&&M.bonusB>0);
   let guarda=0;
-  while(!J.fim&&J.historico.length===antes&&guarda++<60*400)GP.passo(J,MOTOR_DT);
+  const jogou=J.historico.length>alvo;
+  while(!J.fim&&J.historico.length<=alvo&&guarda++<60*400)GP.passo(J,MOTOR_DT);
   /* deixa o round assentar (estatística do round lida no passo seguinte) */
-  for(let i=0;i<3&&!J.fim;i++)GP.passo(J,MOTOR_DT);
-  if(J.fim&&J.historico.length===antes){M.fim=true;return null;}
+  if(!jogou)for(let i=0;i<3&&!J.fim;i++)GP.passo(J,MOTOR_DT);
+  if(J.historico.length<=alvo){M.fim=true;return null;}
   if(M.bonusA>0)M.bonusA--;
   if(M.bonusB>0)M.bonusB--;
   if(GP._estatPasso)GP._estatPasso(J);
-  const h=J.historico[J.historico.length-1], r=h.n;
-  M.r=r;M.sa=J.placar.A;M.sb=J.placar.B;
+  const h=J.historico[alvo], r=h.n;
+  M.r=r;
+  /* placar depois deste round (contado pelos vencedores até aqui) */
+  M.sa=J.historico.slice(0,alvo+1).filter(x=>x.vencedor==='A').length;
+  M.sb=J.historico.slice(0,alvo+1).filter(x=>x.vencedor==='B').length;
   const venceA=h.vencedor==='A', ladoA=h.atk==='A'?'atk':'def';
   M.ladoA=ladoA;
   const ent=id=>J.ents.find(e=>e.id===id), mid=id=>{const e=id&&ent(id);return e?e.mid:null;};
@@ -16401,7 +17921,7 @@ function motorPassoRound(M){
   }
   if(venceA){M.seqPerdaA=0;M.seqPerdaB=(M.seqPerdaB||0)+1;}
   else{M.seqPerdaB=0;M.seqPerdaA=(M.seqPerdaA||0)+1;}
-  if(J.fim)M.fim=true;
+  if(J.fim&&M.hist.length>=J.historico.length)M.fim=true;
   if(!M.fim&&typeof tempoDaComissao==='function'){const q=tempoDaComissao(M);if(q)linha.tempoPedido=q;}
   return linha;
 }
@@ -18916,7 +20436,8 @@ function compromissoDaSemana(){
 /* Tem jogo do seu clube na rodada que acabou de ser preparada? É a pergunta
    que decide se a semana para no meio. */
 function meuJogoPreparado(b){
-  return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  return !!(meu&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(meu))));
 }
 /* ---------- a janela dia a dia ----------
    A janela de transferências anda devagar: cada Avançar move um dia, e a
@@ -19082,7 +20603,8 @@ function fecharSemana(b,resultados,minhaPartida,idx){
 /* Semanas até o próximo jogo do seu clube, para o botão de pular o vazio.
    Devolve 0 se há jogo nesta semana. */
 function semanasAteMeuJogo(){
-  if(!G.meuTime)return 0;
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  if(!meu)return 0;
   for(let d=0;d<SEMANAS_ANO;d++){
     const sem=G.semana+d;
     if(sem>SEMANAS_ANO)return d;                 /* vira o ano: pare aqui */
@@ -19090,7 +20612,7 @@ function semanasAteMeuJogo(){
     if(i==null)continue;
     const b=G.calendario[i];
     if(!b.stages.length&&b.montar)return d;      /* bloco que ainda vai montar */
-    if(b.stages.some(s=>!s.feito&&(s.times||[]).includes(G.meuTime)))return d;
+    if(b.stages.some(s=>!s.feito&&(s.times||[]).includes(meu)))return d;
   }
   return 0;
 }
@@ -38146,7 +39668,8 @@ function partidaConduzida(S,ctx,aoFim){
     aviso:null      /* recado do pedido de tempo, para a narração dizer */
   };
   /* o seu lado pede tempo por você; com a preferência desligada, a comissão */
-  if(Prefs.get('tempoTecnico'))S[souA?'manualA':'manualB']=true;
+  /* no modo jogador quem pede tempo é o técnico do clube (IA), não você */
+  if(Prefs.get('tempoTecnico')&&!(typeof modoJogador==='function'&&modoJogador()))S[souA?'manualA':'manualB']=true;
   serieAbrirMapa(S);
   avPintar();
   avAgendar(700);
@@ -38181,8 +39704,11 @@ function avPassoConduzido(){
       avPintar(true);return;
     }
     AV.linhas=[];AV.roundIdx=0;AV.streak=0;AV.ultimo=null;
+    if(AV.velAntes!=null){AV.vel=AV.velAntes;AV.velAntes=null;}   /* mapa novo: a transmissão volta ao ritmo */
     avPintar();avAgendar(1200/AV.vel);return;
   }
+  /* modo jogador: round seu abre a gameplay e a transmissão espera (ui/diadejogo.js) */
+  if(S.jogador&&typeof avTalvezJogar==='function'&&avTalvezJogar())return;
   const h=passoRound(S.M);
   if(!h){                     /* mapa acabou */
     const r=serieFecharMapa(S);
@@ -38656,6 +40182,121 @@ function sideCabecalhoJogador(){
   const p=meuJogador();if(!p)return '';
   const t=clubeDoJogador();
   return `<div class="side-org">${t?escudo(t,34):''}<div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.nome:'sem clube')} · over ${over(p)}</span></div></div>`;
+}
+
+
+/* ===== src/ui/diadejogo.js ===== */
+/* ============================================================
+   MODO JOGADOR — O DIA DE JOGO (J2)
+   ------------------------------------------------------------
+   Semana com jogo do seu clube: antes da série abre esta tela.
+   O técnico (IA) já vetou e escalou; você vê se é titular, o seu
+   agente em cada mapa, e escolhe POR MAPA como quer viver:
+     Jogar tudo         o mapa inteiro na gameplay, no seu boneco
+     Melhores momentos  o motor joga e para nos rounds que pesam
+                        (pistols, um do meio, reta final apertada,
+                        match point, prorrogação); nesses, você entra
+     Simular            o motor joga; você acompanha a transmissão
+   É sempre a MESMA partida do motor (M.J): os rounds que você joga
+   e os que o motor joga contam igual para tabela, estatística,
+   torcida e prêmios. No banco, a série é só transmissão.
+   ============================================================ */
+
+const DJ_MODOS=[
+  {id:'tudo',     nome:'Jogar tudo',        desc:'O mapa inteiro na gameplay, round a round.', tempo:'~25 min por mapa'},
+  {id:'momentos', nome:'Melhores momentos', desc:'Você entra nos rounds que pesam; o motor joga o resto.', tempo:'~6 rounds por mapa'},
+  {id:'simular',  nome:'Simular',           desc:'O motor joga; você acompanha a transmissão.', tempo:'segundos'}
+];
+let DJ=null;
+
+/* semana com jogo do seu clube, no modo jogador */
+function diaDeJogoDisponivel(){
+  if(typeof modoJogador!=='function'||!modoJogador())return null;
+  const t=clubeDoJogador();
+  if(!t||(typeof emCondicaoDeJogo==='function'&&!emCondicaoDeJogo(t)))return null;
+  return typeof compromissoDaSemana==='function'?compromissoDaSemana():null;
+}
+
+/* o round que vem é seu? (a transmissão pergunta antes de cada round) */
+function rodadaDoJogador(S){
+  const M=S&&S.M, info=S&&S.jogador;
+  if(!M||!M.J||M.fim||!info)return null;
+  const J=M.J;
+  if(J.historico.length>M.hist.length)return null;            /* esse round já foi jogado */
+  if(!J.ents.some(e=>e.mid===info.euMid))return null;          /* você não está em quadra */
+  const modo=info.escolhas[S.idx]||'simular';
+  if(modo==='simular')return null;
+  if(modo==='tudo')return info.mapaJogado===S.idx?null:'mapa';
+  const r=M.hist.length+1, a=M.sa, b=M.sb;
+  const momento=r===1||r===13||r>=25||Math.max(a,b)>=12||(r>=20&&Math.abs(a-b)<=2)||r===7||r===18;
+  return momento?'round':null;
+}
+
+/* chamado pela transmissão conduzida antes de jogar um round: se o round é
+   seu, abre a gameplay e devolve true (a transmissão espera) */
+function avTalvezJogar(){
+  if(!AV||!AV.S||AV.jogando||typeof GP==='undefined'||!GP.jogarNoManager)return false;
+  const S=AV.S, ate=rodadaDoJogador(S);
+  if(!ate)return false;
+  AV.jogando=true;
+  if(AV.timer){clearTimeout(AV.timer);AV.timer=null;}
+  avPintar();
+  GP.jogarNoManager(S.M.J,{euMid:S.jogador.euMid,ate}).then(()=>{
+    AV.jogando=false;
+    if(ate==='mapa'){S.jogador.mapaJogado=S.idx;AV.velAntes=AV.vel;AV.vel=0.06;}   /* as linhas do mapa jogado passam rápido */
+    avPassoConduzido();
+  }).catch(e=>{AV.jogando=false;console.error(e);avPassoConduzido();});
+  return true;
+}
+
+/* ---------- a tela antes da série ---------- */
+function abrirDiaDeJogo(comp,depois){
+  const p=meuJogador(), t=clubeDoJogador();
+  const A=G.times[comp.aId], B=G.times[comp.bId], adv=G.times[comp.advId];
+  const v=veto(A,B,comp.bo);
+  const titular=(t.titulares||[]).includes(p.id);
+  DJ={comp,depois,v,titular,escolhas:v.mapas.map(()=>titular?'momentos':'simular')};
+  pintarDiaDeJogo();
+}
+function pintarDiaDeJogo(){
+  const {comp,v,titular}=DJ, p=meuJogador(), t=clubeDoJogador(), adv=G.times[comp.advId];
+  const ovT=x=>Math.round(x.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+  const linhaMapa=(mapa,i)=>{
+    const ag=typeof agenteDe==='function'?agenteDe(t,mapa,p):null;
+    return `<div class="dj-mapa">
+      <div class="dj-mapa-n"><span class="dim">Mapa ${i+1}</span><b>${esc(mapa)}</b>${ag&&titular?`<span class="chip">${esc(ag)}</span>`:''}</div>
+      <div class="dj-modos">${DJ_MODOS.map(m=>`<button class="nj-papel ${DJ.escolhas[i]===m.id?'on':''}" data-djm="${i}:${m.id}" ${!titular&&m.id!=='simular'?'disabled':''}>
+        <b>${esc(m.nome)}</b><span>${esc(m.desc)}</span><i>${esc(m.tempo)}</i></button>`).join('')}</div></div>`;
+  };
+  pintarModal(`<div class="ovl"><div class="box wide dj-box">
+    <div class="eyebrow">Dia de jogo · ${esc(comp.stage.nome||'')} · MD${comp.bo}</div>
+    <div class="dj-vs">
+      <div class="dj-t">${escudo(t,64)}<b>${esc(t.nome)}</b><span class="dim">over ${ovT(t)}</span></div>
+      <div class="dj-x">×</div>
+      <div class="dj-t">${escudo(adv,64)}<b>${esc(adv.nome)}</b><span class="dim">over ${ovT(adv)}</span></div>
+    </div>
+    <p class="${titular?'':'dim'}">${titular
+      ?`<b>Você é titular.</b> O técnico vetou e montou a comp; escolha como viver cada mapa.`
+      :`<b>Você está no banco nesta série.</b> O técnico escala pelo over, pela forma e pelo cansaço; a série vai ser transmitida e você acompanha de fora.`}</p>
+    ${v.mapas.map(linhaMapa).join('')}
+    ${titular?`<p class="dim">Na gameplay: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> anda, mouse mira, clique atira, <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades, <kbd>F</kbd> planta/desarma, <kbd>Esc</kbd> pausa (dá para deixar o bot terminar o round).</p>`:''}
+    <div class="dj-acoes">
+      ${titular?'<button class="btn ghost" id="djSimTudo">Simular a série inteira</button>':''}
+      <button class="btn" id="djComecar">${titular?'Começar a série':'Acompanhar a série'} ›</button>
+    </div>
+  </div></div>`);
+  document.querySelectorAll('[data-djm]').forEach(b=>b.onclick=()=>{const [i,m]=b.dataset.djm.split(':');DJ.escolhas[+i]=m;pintarDiaDeJogo();});
+  const st=$('#djSimTudo');if(st)st.onclick=()=>{DJ.escolhas=DJ.escolhas.map(()=>'simular');comecarDiaDeJogo();};
+  $('#djComecar').onclick=comecarDiaDeJogo;
+}
+function comecarDiaDeJogo(){
+  const {comp,depois,v,escolhas}=DJ;DJ=null;
+  $('#modal').innerHTML='';
+  const ctx={stage:comp.stage.id,nome:comp.stage.nome,semana:G.semana};
+  const S=abrirSerie(comp.aId,comp.bId,comp.bo,{seq:v.seq,mapas:v.mapas,lados:v.lados});
+  S.jogador={escolhas,euMid:G.voce.id};
+  const plano={stageId:comp.stage.id,veto:{seq:v.seq,mapas:v.mapas,lados:v.lados}};
+  partidaConduzida(S,ctx,res=>{res.semana=G.semana;plano.serieFeita=res;if(depois)depois(plano);});
 }
 
 
@@ -40710,6 +42351,13 @@ function avancarComMotor(plano,depois){
 }
 function avancarComRitual(quantas){
   if(usarTurnos())return aplicarTurno(avancarTurno());
+  /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
+  const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
+  if(dj){
+    abrirDiaDeJogo(dj,plano=>avancarComMotor(plano,r=>
+      aplicarAvanco(plano&&plano.serieFeita?Object.assign({},r,{minhaPartida:null}):r,quantas||1)));
+    return;
+  }
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(!comp)return avancarComMotor(null,r=>aplicarAvanco(r,quantas||1));
@@ -40783,13 +42431,13 @@ function avancarAteMeuJogo(){
      cima do próprio compromisso seria pular o veto sem avisar. */
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
-  if(comp){avancarComRitual(1);return;}
+  if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())){avancarComRitual(1);return;}
   let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
     /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
        próximo Avançar abre o relatório e o veto. Antes o laço só conferia
        antes do primeiro passo e adiantava por cima do jogo. */
-    if(n>0&&Prefs.get('prePartida')&&prePartidaDisponivel()){pausou=true;break;}
+    if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel()))){pausou=true;break;}
     r=avancar();n++;
     if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;

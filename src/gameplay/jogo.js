@@ -51,6 +51,8 @@ GP._resumoTime = function (sigla, comVoce) {
   return `<p class="gp-dim gp-elenco">${T.jogadores.map((j, k) => k === sai ? `<s>${escGP(j.nome)}</s>` : `<b>${escGP(j.nome)}</b> <i>${escGP(j.funcao)} ${j.over}</i>`).join(' · ')} · over médio ${media}${comVoce ? ` · você entra no lugar de ${escGP(T.jogadores[sai].nome)}` : ''}</p>`;
 };
 const $gp = s => document.querySelector(s);
+/* onde ficam as classes de estado: a página da gameplay ou a camada no manager */
+GP._raiz = () => document.getElementById('gpCamada') || document.body;
 const escGP = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 
 /* ---------- agentes no menu ---------- */
@@ -201,7 +203,7 @@ GP.comecar = async function () {
   GP._ajustarTela();
   $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
   $gp('#gpHud').hidden = false;
-  document.body.classList.add('gp-jogando');
+  GP._raiz().classList.add('gp-jogando');
   requestAnimationFrame(GP._quadro);
 };
 
@@ -245,11 +247,11 @@ GP._quadro = function (agora) {
   const J = S.J;
   let dt = Math.min(0.1, (agora - S.ult) / 1000); S.ult = agora;
   if (!S.pausa && !J.fim) {
-    S.acum += dt * (J.espectador ? S.vel : 1);
+    S.acum += dt * (J.espectador ? S.vel : S.embutido && (!J.eu.vivo || S.botAssumiu) ? 3 : 1);
     const h = 1 / 120;
     while (S.acum >= h) {
       for (const e of J.ents) { e._ax = e.x; e._ay = e.y; }
-      if (!J.espectador) GP._comando();
+      if (!J.espectador && !S.botAssumiu) GP._comando();
       GP.passo(J, h); S.acum -= h;
     }
     if (J.espectador) GP._visaoEspectador(J); else GP.atualizarVisaoDoJogador(J);
@@ -295,7 +297,12 @@ GP._quadro = function (agora) {
   J.ents.forEach((e, i) => { e.x = reais[i][0]; e.y = reais[i][1]; });
   GP._lerEventos();
   if (agora - S.hudEm > 66) { S.hudEm = agora; GP._hud(); }
-  if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }
+  if (S.embutido) {
+    /* no manager: o trecho acaba no fim do round (ou do mapa); o placar do fim
+       do round fica um instante na tela antes de devolver */
+    if (!S.fechaEm && (J.fim || J.historico.length >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
+    if (S.fechaEm && agora >= S.fechaEm) { GP._encerrarEmbutido(); return; }
+  } else if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }
   requestAnimationFrame(GP._quadro);
 };
 
@@ -323,7 +330,7 @@ GP._hud = function () {
     const plantada = sp && sp.estado === 'plantada';
     const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
     const vivos = t => J.ents.filter(o => o.time === t && o.vivo).length;
-    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[nos]) ? escGP(J.nomesTimes[nos]) + ' · ' : ''}${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você no ${lado}${J.plano ? ' · ' + (lado === 'ataque' ? J.plano.nomeAtk : J.plano.nomeDef) : ''}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[eles]) ? escGP(J.nomesTimes[eles]) + ' · ' : ''}${vivos(eles)} vivos</i></span>`;
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${J.placar[nos]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[nos]) ? escGP(J.nomesTimes[nos]) + ' · ' : ''}${vivos(nos)} vivos</i></span><span class="gp-pl-meio"><b class="num${plantada ? ' gp-spike' : ''}">${plantada ? '◆ ' + Math.ceil(Math.max(0, sp.explode - J.t)) : tempo}</b><i>round ${R.n} · você ${lado === 'ataque' ? 'no' : 'na'} ${lado}${J.plano ? ' · ' + (lado === 'ataque' ? J.plano.nomeAtk : J.plano.nomeDef) : ''}</i></span><span class="gp-pl-ele num">${J.placar[eles]}<i>${J.nomesTimes && !/^Time /.test(J.nomesTimes[eles]) ? escGP(J.nomesTimes[eles]) + ' · ' : ''}${vivos(eles)} vivos</i></span>`;
   } else
   $gp('#gpPlacar').innerHTML = alvos
     ? `<span class="gp-pl-eu num">${eu.st.kills}</span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>treino de alvos</i></span><span class="gp-pl-ele num">${eu.st.tiros ? Math.round(eu.st.cabecas / Math.max(1, eu.st.acertos) * 100) : 0}%<i>HS</i></span>`
@@ -369,6 +376,8 @@ GP._hud = function () {
     if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
     else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
     else if (R.trava && R.trava[nos] > J.t) faixa = 'Barreira: ' + Math.ceil(R.trava[nos] - J.t) + ' s';
+    else if (S.embutido && S.botAssumiu) faixa = 'O bot está jogando por você · 3×';
+    else if (S.embutido && !eu.vivo && R.fase === 'ativo') faixa = 'Você caiu · o round segue em 3×';
     else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
     else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
     const fx = $gp('#gpFaixa');
@@ -495,7 +504,7 @@ GP._simularNaTela = async function () {
 };
 GP.sair = function () {
   GP.S = null;
-  document.body.classList.remove('gp-jogando');
+  GP._raiz().classList.remove('gp-jogando');
   $gp('#gpHud').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true; $gp('#gpEspec').hidden = true;
   const R = $gp('#gpTela').getContext('2d'); R.setTransform(1, 0, 0, 1, 0, 0); R.clearRect(0, 0, 99999, 99999);
   GP.menu();
@@ -504,6 +513,13 @@ GP.pausar = function (on) {
   const S = GP.S; if (!S || S.J.fim) return;
   S.pausa = on; S.ui.teclas = {}; S.ui.botao = false;
   $gp('#gpPausa').hidden = !on;
+  if (on && S.embutido) {
+    $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">A partida é oficial: o round continua contando.</p><div class="gp-acoes">
+      <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpBot">Deixar o bot jogar ${S.ateHist === Infinity ? 'o resto do mapa' : 'este round'}</button></div></div>`;
+    $gp('#gpVoltar').onclick = () => GP.pausar(false);
+    $gp('#gpBot').onclick = () => { S.botAssumiu = true; S.J.eu.bot = true; GP.pausar(false); };
+    return;
+  }
   if (on) $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><div class="gp-acoes">
     <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpDesistir">Sair da partida</button></div></div>`;
   if (on) { $gp('#gpVoltar').onclick = () => GP.pausar(false); $gp('#gpDesistir').onclick = GP.sair; }
@@ -554,6 +570,12 @@ GP._hudEspectador = function () {
 /* ---------- entrada ---------- */
 GP.ligar = function () {
   GP._lerOpc();
+  GP._ouvir();
+  GP.menu();
+};
+GP._ouvir = function () {
+  if (GP._ouvindo) return;
+  GP._ouvindo = true;
   const cv = $gp('#gpTela');
   window.addEventListener('resize', GP._ajustarTela);
   window.addEventListener('keydown', e => {
@@ -590,7 +612,71 @@ GP.ligar = function () {
     GP._salvarOpc(); GP._ajustarTela();
   }, {passive: false});
   /* no navegador, Ctrl+W fecha a aba: pergunta antes, no meio da partida */
-  window.addEventListener('beforeunload', e => { if (GP.S && !GP.S.J.fim) { e.preventDefault(); e.returnValue = ''; } });
-  GP.menu();
+  window.addEventListener('beforeunload', e => { if (GP.S && !GP.S.J.fim && !GP.S.embutido) { e.preventDefault(); e.returnValue = ''; } });
 };
-if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', GP.ligar);
+/* a página da gameplay se monta sozinha; dentro do manager quem chama é o dia de jogo */
+if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('gpMenu') && !document.getElementById('gpCamada')) GP.ligar(); });
+
+/* ============================================================
+   DENTRO DO VCT MANAGER (modo jogador, dia de jogo)
+   A mesma partida que o motor está jogando (M.J) abre por cima do
+   manager, presa no seu boneco. Você joga o round (ou o mapa); no fim,
+   o boneco volta para a IA e a promessa resolve. Esc pausa; na pausa dá
+   para deixar o bot terminar. Morto, o round segue em 3×.
+   ============================================================ */
+GP._embutir = function () {
+  let c = document.getElementById('gpCamada');
+  if (!c) {
+    c = document.createElement('div'); c.id = 'gpCamada'; c.hidden = true;
+    c.innerHTML = `<canvas id="gpTela"></canvas><div id="gpHud" hidden><div id="gpPlacar" class="gp-placar"></div><div id="gpArea" class="gp-area"></div>
+      <div id="gpFeed" class="gp-feed"></div><div id="gpVida" class="gp-vida"></div><div id="gpArma" class="gp-arma"></div><div id="gpHab" class="gp-habs"></div>
+      <div id="gpFaixa" class="gp-faixa"></div><div id="gpEspec" class="gp-espec" hidden></div></div>
+      <div id="gpMenu" class="gp-tela-cheia" hidden></div><div id="gpPausa" class="gp-tela-cheia gp-vidro" hidden></div><div id="gpFim" class="gp-tela-cheia gp-vidro" hidden></div>`;
+    document.body.appendChild(c);
+    GP._lerOpc();
+    GP._ouvir();
+  }
+  return c;
+};
+GP._arteCache = {};
+/* o: {euMid: id do jogador do manager, ate: 'round' | 'mapa', rotulo} */
+GP.jogarNoManager = async function (J, o) {
+  const eu = J.ents.find(e => e.mid === o.euMid);
+  if (!eu) return {jogou: false};
+  const c = GP._embutir();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  await GP._carregarImagensDoMapa(J.m.nome);
+  for (const id of new Set(J.ents.map(e => e.agente))) GP.precarregarAgente(id);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
+  const cv = $gp('#gpTela');
+  const arte = GP._arteCache[J.m.nome] || (GP._arteCache[J.m.nome] = GP.desenharMapa(J.m));
+  const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte};
+  R.fg = R.fog.getContext('2d');
+  /* o seu boneco passa a ser seu */
+  const eraEu = J.eu;
+  J.eu = eu; eu.bot = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.atirar = false; eu.cmd.ang = eu.ang;
+  return new Promise(ok => {
+    GP.S = {J, R, cam: {x: eu.x, y: eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
+      ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: J.eventos.length, feed: [], vel: 1, livre: false,
+      embutido: true, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
+      aoFim: () => ok({jogou: true, bot: !!GP.S && GP.S.botAssumiu})};
+    c.hidden = false;
+    $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
+    $gp('#gpHud').hidden = false;
+    GP._raiz().classList.add('gp-jogando');
+    GP._ajustarTela();
+    requestAnimationFrame(GP._quadro);
+  });
+};
+GP._encerrarEmbutido = function () {
+  const S = GP.S; if (!S) return;
+  const J = S.J, eu = S.euEnt;
+  eu.bot = true; eu.cmd.atirar = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.hab = null;
+  if (eu.ia) { eu.ia.caminho = null; eu.ia.lanca = null; }
+  J.eu = S.eraEu || J.ents[0];
+  GP._raiz().classList.remove('gp-jogando');
+  const c = document.getElementById('gpCamada'); if (c) c.hidden = true;
+  const fim = S.aoFim;
+  GP.S = null;
+  if (fim) fim();
+};

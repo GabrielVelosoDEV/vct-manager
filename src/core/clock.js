@@ -70,7 +70,8 @@ function compromissoDaSemana(){
 /* Tem jogo do seu clube na rodada que acabou de ser preparada? É a pergunta
    que decide se a semana para no meio. */
 function meuJogoPreparado(b){
-  return !!(G.meuTime&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(G.meuTime))));
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  return !!(meu&&b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(meu))));
 }
 /* ---------- a janela dia a dia ----------
    A janela de transferências anda devagar: cada Avançar move um dia, e a
@@ -236,7 +237,8 @@ function fecharSemana(b,resultados,minhaPartida,idx){
 /* Semanas até o próximo jogo do seu clube, para o botão de pular o vazio.
    Devolve 0 se há jogo nesta semana. */
 function semanasAteMeuJogo(){
-  if(!G.meuTime)return 0;
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  if(!meu)return 0;
   for(let d=0;d<SEMANAS_ANO;d++){
     const sem=G.semana+d;
     if(sem>SEMANAS_ANO)return d;                 /* vira o ano: pare aqui */
@@ -244,7 +246,7 @@ function semanasAteMeuJogo(){
     if(i==null)continue;
     const b=G.calendario[i];
     if(!b.stages.length&&b.montar)return d;      /* bloco que ainda vai montar */
-    if(b.stages.some(s=>!s.feito&&(s.times||[]).includes(G.meuTime)))return d;
+    if(b.stages.some(s=>!s.feito&&(s.times||[]).includes(meu)))return d;
   }
   return 0;
 }
