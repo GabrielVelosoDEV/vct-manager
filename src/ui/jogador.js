@@ -19,6 +19,7 @@ const NAV_JOGADOR=[
   ['relacoes','Relações','Carreira','duplo'],
   ['contrato','Contrato e mercado','Carreira','troca'],
   ['financas','Finanças','Carreira','dinheiro'],
+  ['midia','Fama e mídia','Carreira','estrela'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Estatísticas','Circuito','grafico'],
@@ -31,7 +32,7 @@ function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JO
 function telaDoJogador(k){
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
     semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
-    contrato:typeof vJContrato==='function'?vJContrato:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
+    contrato:typeof vJContrato==='function'?vJContrato:null,midia:typeof vJMidia==='function'?vJMidia:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
 }
 
 /* ---------- pedaços ---------- */
@@ -106,6 +107,7 @@ function vJCentral(){
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
+    ${typeof _jCardMidia==='function'?_jCardMidia(p):''}
     ${typeof propostasJogador==='function'&&propostasJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">Propostas</div><button class="btn sm" data-ir="contrato">Ver ›</button></div><p>${propostasJogador().map(x=>`${esc(_TIPO_PROP[x.tipo]||x.tipo)}: <b>${esc(G.times[x.clubeId].nome)}</b>`).join(' · ')}</p></div>`:''}
     ${typeof eventosJogador==='function'&&eventosJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">No vestiário</div><button class="btn sm" data-ir="relacoes">Responder ›</button></div>${eventosJogador().map(e=>`<p>${esc(e.txt)}</p>`).join('')}</div>`:''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;

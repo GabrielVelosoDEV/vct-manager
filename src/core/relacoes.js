@@ -199,11 +199,11 @@ function resolverConflito(evId,opcao){
   const mx=(a,b,lo,hi)=>Math.max(lo,Math.min(hi,a+b));
   if(e.tipo==='rival'){
     if(opcao==='ignorar'){q.moral=mx(q.moral,0.03,.05,1);msg=`Você deixou passar. ${q.nome} seguiu falando.`;}
-    else if(opcao==='responder'){mexerDupla(t,p.id,q.id,-8);p.moral=mx(p.moral,0.04,.05,1);mexerConf(-1.5,`Bateu boca com ${q.nome}.`);msg=`Resposta dada. O vestiário ficou pesado entre vocês.`;}
+    else if(opcao==='responder'){mexerDupla(t,p.id,q.id,-8);p.moral=mx(p.moral,0.04,.05,1);mexerConf(-1.5,`Bateu boca com ${q.nome}.`);G.voce.polemica=semAbs();msg=`Resposta dada. O vestiário ficou pesado entre vocês.`;}
     else if(opcao==='conversar'){mexerDupla(t,p.id,q.id,5);msg=`Conversa franca com ${q.nome}. A disputa continua, mas limpa.`;}
   }else if(e.tipo==='derrota'){
     if(opcao==='assumir'){mexerConf(2,'Assumiu a culpa depois da derrota.');mexerDupla(t,p.id,q.id,3);p.moral=mx(p.moral,-0.02,.05,1);msg='Você assumiu. O técnico anotou a postura.';}
-    else if(opcao==='rebater'){mexerConf(-2.5,`Discutiu com ${q.nome} depois da derrota.`);mexerDupla(t,p.id,q.id,-8);msg=`Bate-boca com ${q.nome}. Todo mundo ouviu.`;}
+    else if(opcao==='rebater'){mexerConf(-2.5,`Discutiu com ${q.nome} depois da derrota.`);G.voce.polemica=semAbs();mexerDupla(t,p.id,q.id,-8);msg=`Bate-boca com ${q.nome}. Todo mundo ouviu.`;}
     else if(opcao==='silencio'){p.moral=mx(p.moral,-0.04,.05,1);msg='Você ficou quieto e levou para casa.';}
   }
   if(!msg)return{ok:false,motivo:'Opção que não existe.'};

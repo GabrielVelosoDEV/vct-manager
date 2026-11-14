@@ -110,7 +110,7 @@ function gastoMensal(){
   if(e&&p&&p.timeId)g+=Math.round(p.salario*e.comissao);
   return g;
 }
-function rendaMensal(){const p=meuJogador();return p&&p.timeId?p.salario:0;}
+function rendaMensal(){const p=meuJogador();return (p&&p.timeId?p.salario:0)+(typeof patrociniosMensais==='function'?patrociniosMensais():0);}
 
 /* ---------- empresário ---------- */
 const EMPRESARIO_NIVEIS=[null,
@@ -123,12 +123,12 @@ function candidatosEmpresario(){
   const p=meuJogador();if(!p)return[];
   const usados=new Set(), out=[];
   const nomes=(typeof SN1M!=='undefined'?SN1M:['Rafael','Bruno','Diego']), sob=(typeof SN2!=='undefined'?SN2:['Silva','Costa','Lima']);
-  const fama=(G.voce.fama||0);
+  const fama=(typeof famaJogador==='function'?famaJogador():0);
   for(let n=1;n<=5;n++){
     const nv=EMPRESARIO_NIVEIS[n];
     const k=Math.floor(_sorteMerc('emp'+n+'|'+G.ano)*nomes.length), j=Math.floor(_sorteMerc('emps'+n+'|'+G.ano)*sob.length);
     let nome=nomes[k]+' '+sob[j];if(usados.has(nome))nome+=' Jr.';usados.add(nome);
-    const aceita=Math.round(p.pico||over(p))+Math.min(6,fama/5)>=nv.minOver;
+    const aceita=Math.round(p.pico||over(p))+Math.min(6,fama/8)>=nv.minOver;
     out.push({nivel:n,nome,comissao:nv.comissao,luvas:nv.luvas,rot:nv.nome,aceita,minOver:nv.minOver});
   }
   return out;
@@ -161,7 +161,7 @@ function interesseDoClube(t,p){
   if(folga<sal*0.75)return -99;
   /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
   if(t.tier===1&&over(p)<74)return -99;
-  return ganho+2+(t.tier===2?1:0)+Math.min(3,(G.voce.fama||0)/10);
+  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20);
 }
 function clubesInteressados(p,n){
   return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
@@ -189,7 +189,7 @@ function _jaTem(tipo,tid){return propostasJogador().some(x=>x.tipo===tipo&&x.clu
 /* uma vez por semana, no fechamento */
 function gerarPropostasSemana(p){
   if(!G.voce||!p)return;
-  const t=p.timeId?G.times[p.timeId]:null, emp=nivelEmpresario(), fama=G.voce.fama||0;
+  const t=p.timeId?G.times[p.timeId]:null, emp=nivelEmpresario(), fama=(typeof famaJogador==='function'?famaJogador():0);
   const lista=propostasJogador();
   /* renovação: último ano, a partir da semana 18 */
   if(t&&p.contrato<=1&&G.semana>=18&&!_jaTem('renovacao',t.id)&&!(G.voce.semRenov&&_sAbs()-G.voce.semRenov<6)){
@@ -202,7 +202,7 @@ function gerarPropostasSemana(p){
   /* livre: convites para teste e contratos */
   if(!t){
     const radar=G.voce.radar||0;
-    if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.004){
+    if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
       const c=clubesInteressados(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressados(p,4).length))];
       if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
         /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
@@ -215,7 +215,7 @@ function gerarPropostasSemana(p){
   /* com clube: na janela, no último ano ou pedindo para sair */
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
-    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.004){
+    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
       const c=clubesInteressados(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressados(p,5).length))];
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
@@ -400,7 +400,6 @@ function financasSemana(p,t){
   p.moral=Math.max(.05,Math.min(1,p.moral+ef.moral));
   if(ef.cabeca&&typeof confiancaDe==='function')p.confianca=Math.min(1,confiancaDe(p)+ef.cabeca);
   if(ef.fadiga)p.fadiga=Math.max(0,p.fadiga+ef.fadiga);
-  if(estiloVida().id==='luxo')G.voce.fama=(G.voce.fama||0)+0.2;
   /* no vermelho: o staff vai embora e o estilo de vida desce */
   if(G.voce.caixa<0){
     const tinha=Object.keys(st).length||estiloVida().id!=='simples';
@@ -422,6 +421,7 @@ function receberPremio(t,parteJogadores,colocacao,nomeTorneio){
   const cotas=(t.titulares||[]).length*2+(el-(t.titulares||[]).length);
   const minha=Math.round(parteJogadores*(tit?2:1)/Math.max(1,cotas));
   if(minha>0)lancar(minha,`Premiação${nomeTorneio?' · '+nomeTorneio:''}`,'premio');
+  if(colocacao===0&&typeof famaTitulo==='function')famaTitulo(nomeTorneio);
   if(colocacao===0&&p.clausulas&&p.clausulas.bonusTitulo)lancar(p.clausulas.bonusTitulo,`Bônus por título${nomeTorneio?' · '+nomeTorneio:''}`,'premio');
 }
 /* virada de temporada: contrato que acabou. Devolve true se tratou. */

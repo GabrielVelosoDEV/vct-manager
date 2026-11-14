@@ -56,9 +56,9 @@ const ATIV_JOGADOR=[
   {id:'agente',nome:'Treinar um agente',grupo:'clique',energia:10,base:0,unico:true,
    desc:'Familiaridade com um agente do seu pool (ou um novo).'},
   {id:'ranked',nome:'Ranked',grupo:'clique',energia:15,base:4,xp:{mira:.5,reflexo:.5},
-   desc:'Pouco XP, mas sobe a sua fama e o radar dos olheiros.'},
+   desc:'Pouco XP, mas sobe seguidores e o radar dos olheiros.'},
   {id:'live',nome:'Live',grupo:'clique',energia:15,base:0,
-   desc:'Fãs e um dinheiro extra. Não treina nada.'}
+   desc:'Seguidores e um dinheiro que cresce com o seu público. Não treina nada.'}
 ];
 function ativJogador(id){return ATIV_JOGADOR.find(a=>a.id===id);}
 
@@ -177,11 +177,14 @@ function fazerAtividade(id,res){
     }
   }
   if(id==='vod'){const adv=adversarioDaSemana();G.voce.vod={adv:adv&&adv.id,ano:G.ano,semana:G.semana,forca:1+ef.vod};feito.adv=adv&&adv.nome;}
-  if(id==='ranked'){G.voce.fama=(G.voce.fama||0)+1;G.voce.radar=(G.voce.radar||0)+(clubeDoJogador()?0.5:2);}
+  if(id==='ranked'){if(typeof ganharSeguidores==='function')feito.seg=ganharSeguidores(0.004,400,null);G.voce.radar=(G.voce.radar||0)+(clubeDoJogador()?0.5:2);}
   if(id==='live'){
-    const fas=Math.round(150+(G.voce.fama||0)*25+over(p)*4);
-    G.voce.fas=(G.voce.fas||0)+fas;G.voce.caixa=(G.voce.caixa||0)+Math.round(fas*1.5);
-    feito.fas=fas;
+    /* live: seguidores e um dinheiro que cresce com o público (core/fama.js) */
+    const seg=typeof seguidores==='function'?seguidores():10000;
+    feito.seg=typeof ganharSeguidores==='function'?ganharSeguidores(0.008,800,null):0;
+    const din=Math.round(300+seg*0.004);
+    if(typeof lancar==='function')lancar(din,'Live','live');else G.voce.caixa=(G.voce.caixa||0)+din;
+    feito.din=din;
   }
   s.feitas.push(feito);
   return{ok:true,feito};
@@ -252,6 +255,8 @@ function fecharSemanaJogador(p,t){
   }
   /* titularidade e relações (core/relacoes.js) */
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
+  /* fama, redes, entrevistas e patrocínios (core/fama.js) */
+  if(typeof famaSemana==='function'){famaSemana(p,t,rel);if(typeof assistenteDePatrocinio==='function')assistenteDePatrocinio();}
   /* dinheiro, propostas e o assistente de contrato (core/carreira-mercado.js) */
   if(typeof financasSemana==='function')financasSemana(p,t);
   /* histórico curto das semanas (a tela mostra as últimas) */

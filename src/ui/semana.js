@@ -46,7 +46,7 @@ function vJSemana(){
   const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&(g!=='clube'||t));return l.length?`<div class="card"><div class="eyebrow">${titulo}</div>${sub?`<p class="dim">${sub}</p>`:''}<div class="sj-grid">${l.map(card).join('')}</div></div>`:'';};
   const feitas=s.feitas.map(f=>{const a=ativJogador(f.id);
     return `<div class="sj-feita"><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}<span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
-      <span>${_xpTexto(f.xp)}${f.fam?` familiaridade +${f.fam}`:''}${f.fas?` +${f.fas} fãs`:''}</span>${_subiuTexto(f.subiu)}</div>`;}).join('');
+      <span>${_xpTexto(f.xp)}${f.fam?` familiaridade +${f.fam}`:''}${f.seg?` +${fmtSeg(f.seg)} seguidores`:''}${f.din?` · ${moneyJ(f.din)}`:''}</span>${_subiuTexto(f.subiu)}</div>`;}).join('');
   const u=G.voce.ultimaSemana;
   return `<section class="card sj-topo">
       <div class="split"><div><div class="eyebrow">Semana e treinos · ${esc(lab)}</div>
@@ -132,12 +132,13 @@ function ligarJogador(v,on){
     const alvo=id==='agente'?(v.querySelector('#sjAgente')||{}).value:null;
     const r=fazerAtividade(id,{simulado:true,alvo});
     if(!r.ok)flash(r.motivo);
-    else if(id==='live')flash(`Live feita: +${r.feito.fas} fãs.`);
+    else if(id==='live')flash(`Live feita: +${fmtSeg(r.feito.seg)} seguidores e ${moneyJ(r.feito.din)}.`);
     else if(id==='agente')flash(`${alvo}: familiaridade +${r.feito.fam}.`);
     render();
   });
   const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
+  if(typeof ligarMidia==='function')ligarMidia(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }

@@ -105,7 +105,7 @@ function vJFinancas(){
   const ext=(G.voce.extrato||[]).slice(0,16);
   const num=(r,v,cls)=>`<div><b class="num ${cls||''}">${v}</b><span>${r}</span></div>`;
   return `<section class="card sj-topo"><div class="eyebrow">Finanças pessoais</div>
-      <div class="jg-st mj-fin">${num('patrimônio',moneyJ(cx),cx<0?'dn':'')}${num('salário por mês',moneyJ(renda))}${num('gastos por mês',moneyJ(gasto))}${num('sobra por mês',moneyJ(renda-gasto),renda-gasto<0?'dn':'up')}${num('fãs',Math.round(G.voce.fas||0))}</div>
+      <div class="jg-st mj-fin">${num('patrimônio',moneyJ(cx),cx<0?'dn':'')}${num('salário por mês',moneyJ(renda))}${num('gastos por mês',moneyJ(gasto))}${num('sobra por mês',moneyJ(renda-gasto),renda-gasto<0?'dn':'up')}${num('patrocínios por mês',moneyJ(typeof patrociniosMensais==='function'?patrociniosMensais():0))}</div>
       <p class="dim">Entram salário, a sua parte dos prêmios do clube (titular leva o dobro de quem está no banco), bônus por título e lives. Saem comissão do empresário, staff pessoal, estilo de vida e o setup. No vermelho, o staff vai embora e o padrão de vida desce.</p></section>
     <div class="grid g2 cx-linha">
       <div class="card"><div class="eyebrow">Setup</div>
