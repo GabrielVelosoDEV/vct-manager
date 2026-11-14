@@ -202,7 +202,7 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
 function _fichaSelecoes(paisA,paisB,A,B,bo,r,ctx){
   const S=r.S, venc=r.vencedor===A.id?paisA:paisB;
   return{
-    a:paisA,b:paisB,wa:S.wa,wb:S.wb,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+    a:paisA,b:paisB,wa:S.wa,wb:S.wb,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,dia:ctx.dia,
     nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,
     esc:{a:A.titulares.slice(),b:B.titulares.slice()},
     tec:{a:A.comissao.tecnico,b:B.comissao.tecnico},
@@ -218,7 +218,7 @@ function _fichaSelecoes(paisA,paisB,A,B,bo,r,ctx){
 /* Seleção sem cinco convocáveis perde sem jogar (placar mínimo). */
 function _woSelecoes(paisA,paisB,A,B,bo,ctx){
   const venc=A&&!B?paisA:B&&!A?paisB:paisA, need=Math.ceil(bo/2);
-  return{a:paisA,b:paisB,wa:venc===paisA?need:0,wb:venc===paisB?need:0,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+  return{a:paisA,b:paisB,wa:venc===paisA?need:0,wb:venc===paisB?need:0,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,dia:ctx.dia,
     nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,mapa:'W.O.',wo:venc===paisA?paisB:paisA,det:{v:[],mp:[],mvp:null}};
 }
 

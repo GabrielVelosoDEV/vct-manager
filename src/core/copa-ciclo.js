@@ -6,14 +6,16 @@
 
      semana 1   anúncio da sede e da edição; a comissão das 40
                 seleções é escolhida de novo
-     semana 48  convites (a sede + as 15 melhores do ranking) e o
+     novembro   (as datas estão em data/copa.js, ELIM_DIAS)
+       dom 45   convites (a sede + as 15 melhores do ranking) e o
                 sorteio dos 8 grupos de 3 das eliminatórias
-     semana 49  rodada 1: 1º × 3º e 2º × 3º de cada grupo
-     semana 50  rodada 2: 1º × 2º, o jogo que costuma decidir o grupo
-     semana 51  anúncio dos 32 classificados
+       ter 46   rodada 1: 1º × 3º
+       qui 46   rodada 1: 2º × 3º
+       sáb 46   rodada 2: 1º × 2º, o jogo que costuma decidir o grupo
+       dom 46   anúncio dos 32 classificados
 
-   Tudo no fim da temporada, com o calendário dos clubes encerrado:
-   a convocação não toca no mercado e a janela segue como estava.
+   Depois dos playoffs do Champions, com a janela aberta: a convocação
+   não toca no mercado e a pré-temporada segue.
 
    copaSemana() roda no fechamento de cada semana (clock.js) e faz
    tudo o que está atrasado — um save que pula semanas, ou que chega
@@ -23,7 +25,23 @@
    à força atual de cada país: geração boa sobe sem jogar, e quem
    envelhece cai.
    ============================================================ */
-const COPA_SEM_SEDE=1, ELIM_SEM_SORTEIO=48, ELIM_SEM_RODADA1=49, ELIM_SEM_RODADA2=50, ELIM_SEM_CLASSIFICADOS=51;
+const COPA_SEM_SEDE=1, ELIM_SEM_SORTEIO=ELIM_DIAS.sorteio[0], ELIM_SEM_RODADA1=ELIM_DIAS.r1[0][0],
+      ELIM_SEM_RODADA2=ELIM_DIAS.r2[0], ELIM_SEM_CLASSIFICADOS=ELIM_DIAS.classificados[0];
+
+/* O dia de hoje para a Copa: num dia da janela (core/clock.js) só sai o que
+   está marcado até ele; no fechamento da semana, tudo dela. `ano` é o ano em
+   que a data cai: o que é de um ano que já passou chegou faz tempo. */
+function _hojeCopa(){return G._copaHoje!=null?G._copaHoje:6;}
+function _chegou(q,ano){
+  if(ano!=null&&G.ano!==ano)return G.ano>ano;
+  const s=G.semana||1;
+  return s>q[0]||(s===q[0]&&q[1]<=_hojeCopa());
+}
+/* um dia da janela que passou: os jogos de seleção marcados até ele */
+function copaDoDia(dia){
+  G._copaHoje=dia;
+  try{copaSemana();}finally{G._copaHoje=null;}
+}
 const RANKING_DERIVA=0.15;     /* fração do caminho até a força atual, por ano */
 
 function cicloDaCopa(anoCopa,criar){
@@ -82,16 +100,17 @@ function _semanaEliminatorias(cic){
     if(typeof abrirConvitesDeSelecao==='function')abrirConvitesDeSelecao(cic);
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
     momentoCopa('sede',{ano:cic.ano});
-    noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,
+    noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, em novembro de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são em novembro, depois do Champions.`,
       {c:'competicoes',imp:2});
   }
-  if(!cic.convidadas&&sem>=ELIM_SEM_SORTEIO)sortearEliminatorias(cic);
-  if(cic.grupos&&sem>=ELIM_SEM_RODADA1)jogarRodadaEliminatorias(cic,1);
-  if(cic.grupos&&sem>=ELIM_SEM_RODADA2)jogarRodadaEliminatorias(cic,2);
-  if(cic.grupos&&!cic.classificados&&sem>=ELIM_SEM_CLASSIFICADOS)fecharEliminatorias(cic);
+  const ano=cic.ano-1;
+  if(!cic.convidadas&&_chegou(ELIM_DIAS.sorteio,ano))sortearEliminatorias(cic);
+  if(cic.grupos&&_chegou(ELIM_DIAS.r1[0],ano))jogarRodadaEliminatorias(cic,1);
+  if(cic.grupos&&_chegou(ELIM_DIAS.r2,ano))jogarRodadaEliminatorias(cic,2);
+  if(cic.grupos&&!cic.classificados&&_chegou(ELIM_DIAS.classificados,ano))fecharEliminatorias(cic);
 }
 
-/* ---------- semana 48: convites e sorteio ---------- */
+/* ---------- domingo da 45: convites e sorteio ---------- */
 function sortearEliminatorias(cic){
   cic.convidadas=convidadasDaCopa(cic.ano);
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
@@ -108,7 +127,7 @@ function sortearEliminatorias(cic){
     {c:'competicoes',imp:1});
 }
 
-/* ---------- semanas 49 e 50: os jogos ----------
+/* ---------- semana 46: os jogos ----------
    Grupo de 3 com a ordem do pote: rodada 1 é 1º×3º e 2º×3º, rodada 2 é
    1º×2º. Grupo de 4 (só se faltar seleção): todos contra todos em duas
    rodadas de três jogos. */
@@ -122,19 +141,26 @@ function _jogosDaRodada(g,r){
 /* um jogo de cada vez: o que já foi jogado (inclusive antes, na tela do modo
    jogador) não se joga de novo, e a notícia sai quando a rodada fecha */
 function _jaJogado(g,a,b,r){return (g.jogos||[]).some(f=>f.rodada===r&&((f.a===a&&f.b===b)||(f.a===b&&f.b===a)));}
+/* a data de cada jogo: na rodada 1, o primeiro na terça e o segundo na quinta */
+function _diaElim(r,i){return r===1?ELIM_DIAS.r1[Math.min(i,ELIM_DIAS.r1.length-1)]:ELIM_DIAS.r2;}
 function jogarRodadaEliminatorias(cic,r){
   const cv=cic.convocadosElim||{};
+  let completa=true;
   for(const g of cic.grupos){
     if((g.rodadas||0)>=r)continue;
-    for(const [a,b] of _jogosDaRodada(g,r)){
-      if(_jaJogado(g,a,b,r))continue;
+    let falta=false;
+    _jogosDaRodada(g,r).forEach(([a,b],i)=>{
+      if(_jaJogado(g,a,b,r))return;
+      const q=_diaElim(r,i);
+      if(!_chegou(q,cic.ano-1)){falta=true;return;}
       const f=jogarSerieSelecoes(a,b,{bo:ELIM_MD,nome:'Eliminatórias da World Cup '+cic.ano,fase:'Grupo '+g.letra+' · rodada '+r,peso:1,
-        semana:r===1?ELIM_SEM_RODADA1:ELIM_SEM_RODADA2,conv:{[a]:cv[a],[b]:cv[b]}});
+        semana:q[0],dia:q[1],conv:{[a]:cv[a],[b]:cv[b]}});
       f.rodada=r;
       g.jogos.push(f);
-    }
-    g.rodadas=r;
+    });
+    if(falta)completa=false;else g.rodadas=r;
   }
+  if(!completa)return;
   cic.noticias=cic.noticias||{};
   if(cic.noticias['elim'+r])return;
   cic.noticias['elim'+r]=true;
@@ -164,7 +190,7 @@ function tabelaGrupo(g,pontos){
     ||direto(x.pais,y.pais)||(rk[y.pais]||0)-(rk[x.pais]||0)||x.pais.localeCompare(y.pais));
 }
 
-/* ---------- semana 51: os 32 ---------- */
+/* ---------- domingo da 46: os 32 ---------- */
 function fecharEliminatorias(cic){
   if(cic.grupos.some(g=>(g.rodadas||0)<2)){jogarRodadaEliminatorias(cic,1);jogarRodadaEliminatorias(cic,2);}
   const vindos=[];

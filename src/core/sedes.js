@@ -64,6 +64,8 @@ function cidadeDaCopa(pais){
   const so=(typeof SEDES_COPA!=='undefined'?SEDES_COPA:[]).find(c=>c.pais===pais);
   if(so)return Object.assign({slug:slugCidade(so.nome),tipo:'copa'},so);
   const l=cidades().filter(c=>c.pais===pais);
+  const pref=typeof SEDE_COPA_NO_PAIS!=='undefined'&&SEDE_COPA_NO_PAIS[pais];
+  if(pref&&l.some(c=>c.nome===pref))return l.find(c=>c.nome===pref);
   return l.find(c=>c.maior&&c.tipo==='champions')||l.find(c=>c.maior)||l.find(c=>c.tipo==='champions')||l[0]||null;
 }
 function cidade(slug){return slug?cidades().find(c=>c.slug===slug)||null:null;}
@@ -214,7 +216,7 @@ function edAddCidade(nome,pais,tipo){
   if(G.cidades.some(c=>c.slug===slug))return{ok:false,erro:nome+' já está na lista.'};
   if(!/^[A-Z]{2}$/.test(pais||''))return{ok:false,erro:'Escolha o país.'};
   G.cidades.push({slug,nome,pais,tipo:tipo==='champions'?'champions':'masters',maior:false});
-  return{ok:true,msg:nome+' entrou na lista de sedes. A imagem vai em assets/cidades/'+slug+'.webp.'};
+  return{ok:true,msg:nome+' entrou na lista de sedes. A imagem vai em assets/cidades/'+slug+'.jpg.'};
 }
 function edRemoverCidade(slug){
   if(!G.cidades)montarCidades();

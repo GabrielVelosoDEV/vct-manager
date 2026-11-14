@@ -301,7 +301,7 @@ function edvCidades(){
     <td><select data-ctipo="${esc(c.slug)}"><option value="champions" ${c.tipo==='champions'?'selected':''}>Champions e Masters</option>
       <option value="masters" ${c.tipo==='masters'?'selected':''}>só Masters</option></select></td>
     <td class="c"><input type="checkbox" data-cmaior="${esc(c.slug)}" ${c.maior?'checked':''}></td>
-    <td class="dim"><code>${esc(c.slug)}.webp</code></td>
+    <td class="dim"><code>${esc(c.slug)}.jpg</code></td>
     <td class="r"><button class="btn ghost sm" data-cdel="${esc(c.slug)}">✕</button></td></tr>`;
   return `<div class="card flat"><div class="eyebrow">Cidades-sede · ${G.cidades.length}</div>
     <p class="dim">Todo ano o jogo sorteia a sede de Masters I, Masters II e Champions. Champions só

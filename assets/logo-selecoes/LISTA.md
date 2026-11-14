@@ -47,4 +47,4 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `slv.png` — El Salvador (SLV)
 - [x] `rou.png` — Romênia (ROU)
 - [x] `vie.png` — Vietnã (VIE)
-- [x] `mda.png` — Moldávia (MDA)
+- [x] `por.png` — Portugal (POR)

@@ -90,7 +90,7 @@ function _telaConvidadas(cic){
     <h1 class="cpm-tit">As convidadas</h1>
     <p class="cpm-sub">A sede e as 15 melhores do ranking vão direto para a Copa.</p>
     <div class="cpm-grade">${cic.convidadas.map((p,i)=>_ladrilho(p,i,p===cic.sede?' · <em>sede</em>':'')).join('')}</div>
-    <p class="cpm-sub cpm-nota">As outras ${cic.grupos?cic.grupos.reduce((s,g)=>s+g.paises.length,0):24} disputam 16 vagas nas eliminatórias, nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</p>
+    <p class="cpm-sub cpm-nota">As outras ${cic.grupos?cic.grupos.reduce((s,g)=>s+g.paises.length,0):24} disputam 16 vagas nas eliminatórias, de ${periodoCopa(cic.ano-1,ELIM_DIAS.r1[0],ELIM_DIAS.r2)}.</p>
   </div>`;
 }
 function _telaClassificados(cic){
@@ -116,7 +116,7 @@ function _telaSorteio(cic){
       ${g.paises.map((p,k)=>k<pote?`<div class="cpm-g-sel ${k===pote-1?'novo':''}" style="animation-delay:${(gi*0.12).toFixed(2)}s">${escudoSelecao(p,34)}<span>${esc(_nomeSel(p))}</span></div>`
         :`<div class="cpm-g-sel vazio"><i></i><span>pote ${k+1}</span></div>`).join('')}</div>`).join('')}</div>
     <p class="cpm-sub cpm-nota">${pote===0?`A sede, ${esc(cic.nomeSede)}, é a cabeça do grupo A. O sorteio evita juntar seleções do mesmo continente.`
-      :pote>=4?`Grupos de 4 em MD3 nas semanas ${COPA_SEM_R12} e ${COPA_SEM_R3}; os dois primeiros vão às oitavas.`:''}</p>
+      :pote>=4?`Grupos de 4 em MD3 de ${periodoCopa(cic.ano,COPA_DIAS.g1,COPA_DIAS.g3)}, um jogo a cada dois dias; os dois primeiros vão às oitavas.`:''}</p>
   </div>`;
 }
 function _telaCampea(cic){

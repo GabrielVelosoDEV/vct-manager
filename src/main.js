@@ -55,6 +55,9 @@ function aplicarTurno(r){
   if(typeof conferirCelebracao==='function')conferirCelebracao();
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'){pintarTop();pintarSide();render();}
+  /* World Cup em novembro: um momento do evento (sorteio, os 32…) num dia da janela */
+  if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
+    abrirMomentosCopa(()=>render());
   const dias=diasAteFecharJanela(G.ano,G.semana,G.turno);
   const rot=rotuloTurno(G.ano,G.semana,G.turno);
   if(r.novas&&r.novas.length){
@@ -152,7 +155,7 @@ function aplicarAvanco(r,quantas){
     }
   };
   /* Valorant World Cup: os momentos do evento (sede, sorteio, a campeã…)
-     abrem antes da cerimônia de fim de ano — a final é na semana 52, antes
+     abrem antes da cerimônia de fim de ano — a final é no fim de novembro, antes
      da virada. Com outra tela aberta, ficam na fila para o próximo avanço. */
   if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
     abrirMomentosCopa(fimDaTemporada);
@@ -173,7 +176,12 @@ function avancarAteMeuJogo(){
      no turno em que chegar proposta por alguém seu: é a resposta que importa. */
   if(usarTurnos()){
     let r=null;
-    while(usarTurnos()){r=avancarTurno();if(r&&r.novas&&r.novas.length)break;}
+    /* série sua pela seleção num dia da janela: para nela, não simula por cima */
+    const selecao=()=>typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario();
+    while(usarTurnos()){
+      if(selecao()){if(r)aplicarTurno(r);avancarComRitual(1);return;}
+      r=avancarTurno();if(r&&r.novas&&r.novas.length)break;
+    }
     aplicarTurno(r);
     if(r&&r.novas&&r.novas.length)return;
   }

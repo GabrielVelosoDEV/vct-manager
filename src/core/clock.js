@@ -102,6 +102,8 @@ function avancarTurno(){
     if(typeof gerarPropostas==='function')gerarPropostas();
     if(typeof mercadoVivo==='function')mercadoVivo();
   }finally{G._noTurno=false;G._fracaoMercado=1;}
+  /* World Cup em novembro: os jogos de seleção marcados para o dia que passou */
+  if(typeof copaDoDia==='function')copaDoDia(G.turno||0);
   G.turno=(G.turno||0)+1;G.turnoUsado=true;
   const novas=(G.propostas||[]).filter(x=>!antes.has(x.id)&&G.jogadores[x.jogadorId]
     &&G.jogadores[x.jogadorId].timeId===G.meuTime);

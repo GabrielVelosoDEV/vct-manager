@@ -3733,6 +3733,7 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpx-jogo:hover{border-color:rgba(226,180,90,.35);background:rgba(226,180,90,.04)}
 .cpx-jogo>b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em}
 .cpx-j-fase{font-size:10px;color:var(--dim);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-j-fase i{display:block;font-style:normal;opacity:.75;font-size:9.5px;margin-top:1px}
 .cpx-j-l{display:flex;align-items:center;gap:6px;color:var(--tx2)}
 .cpx-j-l.r{justify-content:flex-end}
 .cpx-j-l.w{color:var(--tx);font-weight:700}
@@ -4079,6 +4080,22 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpt-mapa span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--cp-ouro2)}
 .cpt-mapa:hover{border-color:var(--cp-ouro)}
 .nj-selecao{width:100%;max-width:420px}
+/* World Cup · premiação */
+.cpx-pr{display:grid;grid-template-columns:minmax(260px,1fr) 1.3fr;gap:22px;align-items:start}
+.cpx-pr-tab{display:flex;flex-direction:column;gap:6px}
+.cpx-pr-l{display:grid;grid-template-columns:22px auto 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.cpx-pr-l>b{white-space:nowrap;min-width:84px}
+.cpx-pr-l>b.num{min-width:0;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:.04em;color:var(--tx)}
+.cpx-pr-p{display:flex;align-items:center;gap:6px;color:var(--tx2);font-size:12.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-pr-bonus{background:transparent;border-style:dashed}
+.cpx-pr-bonus>span.dim{font-size:11.5px}
+.cpx-pr-ico{display:flex;color:#e2b45a}.cpx-pr-ico svg{width:16px;height:16px}
+.cpx-pr-div p{margin:0 0 10px;font-size:13px;line-height:1.5}
+.cpx-pr-barra{display:flex;height:30px;border-radius:7px;overflow:hidden;margin:4px 0 12px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.cpx-pr-barra i{display:flex;align-items:center;justify-content:center;font-style:normal;white-space:nowrap;overflow:hidden;color:#16120a}
+.cpx-pr-barra i:nth-child(1){background:#e2b45a}.cpx-pr-barra i:nth-child(2){background:#c99a45}
+.cpx-pr-barra i:nth-child(3){background:#8fa3b8}.cpx-pr-barra i:nth-child(4){background:#5f7488;color:#eef3f8}
+.cpx-pr-meu{display:flex;align-items:center;gap:8px;color:var(--tx)}.cpx-pr-meu svg{width:16px;height:16px;color:#e2b45a}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -4489,7 +4506,7 @@ const COPA_SELECOES=[
   ['FI','FIN','EMEA'],['GB','GBR','EMEA'],['AU','AUS','AP'],['CZ','CZE','EMEA'],['AR','ARG','AMER'],
   ['MX','MEX','AMER'],['LT','LTU','EMEA'],['SE','SWE','EMEA'],['IT','ITA','EMEA'],['DK','DEN','EMEA'],
   ['CO','COL','AMER'],['UA','UKR','EMEA'],['SA','KSA','EMEA'],['NL','NED','EMEA'],['HK','HKG','AP'],
-  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['MD','MDA','EMEA']
+  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['PT','POR','EMEA']
 ];
 /* formato da Copa: 8 grupos de 4 em MD3, os dois primeiros avançam; daí em
    diante (oitavas, quartas, semis, disputa do bronze e final) tudo em MD5 */
@@ -4510,6 +4527,21 @@ const ELIM_POR_GRUPO=3, ELIM_AVANCAM=2, ELIM_MD=3;
 const COPA_CONTINENTES={AMER:'Américas',EMEA:'EMEA',AP:'Ásia-Pacífico'};
 /* convocação: 5 titulares e 5 reservas; abaixo de 7 o país não tem seleção */
 const SELECAO_TAMANHO=10, SELECAO_MINIMO=7;
+
+/* CALENDÁRIO — tudo em novembro, um jogo a cada dois dias, com a janela de
+   transferências aberta (ela vai de novembro a janeiro): o mercado da
+   pré-temporada corre junto. Cada data é [semana, dia], dia 0 = segunda.
+   Com os dias da janela (core/clock.js, avancarTurno), os jogos saem no dia
+   deles; num avanço de semana inteira, saem todos no fechamento dela.
+     ano ímpar  sorteio das eliminatórias no domingo da semana 45; rodada 1
+                na terça e na quinta da 46, rodada 2 no sábado; os 32 no
+                domingo
+     ano par    sorteio da Copa no domingo da 45; grupos na terça, quinta e
+                sábado da 46; oitavas, quartas e semis na terça, quinta e
+                sábado da 47; bronze no sábado e a final no domingo da 48 */
+const ELIM_DIAS={sorteio:[45,6],r1:[[46,1],[46,3]],r2:[46,5],classificados:[46,6]};
+const COPA_DIAS={sorteio:[45,6],g1:[46,1],g2:[46,3],g3:[46,5],
+  oitavas:[47,1],quartas:[47,3],semis:[47,5],bronze:[48,5],final:[48,6]};
 
 
 /* ===== data/cores.js ===== */
@@ -13013,6 +13045,8 @@ const SEDES_COPA=[
   {nome:'Mumbai',pais:'IN',maior:true},
   {nome:'Sydney',pais:'AU',maior:true}
 ];
+/* países-sede em que a Copa não vai para a maior cidade de Champions */
+const SEDE_COPA_NO_PAIS={BR:'Rio de Janeiro'};
 
 /* Sedes reais das duas temporadas antes da carreira: o sorteio de 2027 evita
    repetir estas, como evita as dos dois anos anteriores em qualquer ano. */
@@ -13339,69 +13373,69 @@ const MIDIA={
     'cenas/palco-premios':'webp',
     'cenas/sala-diretoria':'webp',
     'cenas/sala-negociacao':'webp',
-    'cidades/amsterda':'webp',
-    'cidades/atlanta':'webp',
-    'cidades/bangkok':'webp',
-    'cidades/barcelona':'webp',
-    'cidades/belo-horizonte':'webp',
-    'cidades/berlim':'webp',
-    'cidades/brasilia':'webp',
-    'cidades/buenos-aires':'webp',
-    'cidades/busan':'webp',
-    'cidades/chengdu':'webp',
-    'cidades/chicago':'webp',
-    'cidades/cidade-do-mexico':'webp',
-    'cidades/colonia':'webp',
-    'cidades/copenhague':'webp',
-    'cidades/curitiba':'webp',
-    'cidades/dallas':'webp',
-    'cidades/estocolmo':'webp',
-    'cidades/fukuoka':'webp',
-    'cidades/guadalajara':'webp',
-    'cidades/guangzhou':'webp',
-    'cidades/hamburgo':'webp',
-    'cidades/hangzhou':'webp',
-    'cidades/ho-chi-minh':'webp',
-    'cidades/incheon':'webp',
-    'cidades/istambul':'webp',
-    'cidades/jacarta':'webp',
-    'cidades/katowice':'webp',
-    'cidades/kuala-lumpur':'webp',
-    'cidades/las-vegas':'webp',
-    'cidades/lisboa':'webp',
-    'cidades/londres':'webp',
-    'cidades/los-angeles':'webp',
-    'cidades/madri':'webp',
-    'cidades/manchester':'webp',
-    'cidades/manila':'webp',
-    'cidades/miami':'webp',
-    'cidades/milao':'webp',
-    'cidades/montreal':'webp',
+    'cidades/amsterda':'jpg',
+    'cidades/atlanta':'jpg',
+    'cidades/bangkok':'jpg',
+    'cidades/barcelona':'jpg',
+    'cidades/belo-horizonte':'jpg',
+    'cidades/berlim':'jpg',
+    'cidades/brasilia':'jpg',
+    'cidades/buenos-aires':'jpg',
+    'cidades/busan':'jpg',
+    'cidades/chengdu':'jpg',
+    'cidades/chicago':'jpg',
+    'cidades/cidade-do-mexico':'jpg',
+    'cidades/colonia':'jpg',
+    'cidades/copenhague':'jpg',
+    'cidades/curitiba':'jpg',
+    'cidades/dallas':'jpg',
+    'cidades/estocolmo':'jpg',
+    'cidades/fukuoka':'jpg',
+    'cidades/guadalajara':'jpg',
+    'cidades/guangzhou':'jpg',
+    'cidades/hamburgo':'jpg',
+    'cidades/hangzhou':'jpg',
+    'cidades/ho-chi-minh':'jpg',
+    'cidades/incheon':'jpg',
+    'cidades/istambul':'jpg',
+    'cidades/jacarta':'jpg',
+    'cidades/katowice':'jpg',
+    'cidades/kuala-lumpur':'jpg',
+    'cidades/las-vegas':'jpg',
+    'cidades/lisboa':'jpg',
+    'cidades/londres':'jpg',
+    'cidades/los-angeles':'jpg',
+    'cidades/madri':'jpg',
+    'cidades/manchester':'jpg',
+    'cidades/manila':'jpg',
+    'cidades/miami':'jpg',
+    'cidades/milao':'jpg',
+    'cidades/montreal':'jpg',
     'cidades/moscou':'webp',
     'cidades/mumbai':'webp',
-    'cidades/munique':'webp',
-    'cidades/nova-york':'webp',
-    'cidades/osaka':'webp',
-    'cidades/paris':'webp',
-    'cidades/pequim':'webp',
-    'cidades/porto':'webp',
-    'cidades/porto-alegre':'webp',
-    'cidades/reykjavik':'webp',
-    'cidades/riad':'webp',
-    'cidades/rio-de-janeiro':'webp',
-    'cidades/roma':'webp',
-    'cidades/santiago':'webp',
-    'cidades/sao-paulo':'webp',
-    'cidades/seattle':'webp',
-    'cidades/seul':'webp',
-    'cidades/shenzhen':'webp',
-    'cidades/singapura':'webp',
+    'cidades/munique':'jpg',
+    'cidades/nova-york':'jpg',
+    'cidades/osaka':'jpg',
+    'cidades/paris':'jpg',
+    'cidades/pequim':'jpg',
+    'cidades/porto':'jpg',
+    'cidades/porto-alegre':'jpg',
+    'cidades/reykjavik':'jpg',
+    'cidades/riad':'jpg',
+    'cidades/rio-de-janeiro':'jpg',
+    'cidades/roma':'jpg',
+    'cidades/santiago':'jpg',
+    'cidades/sao-paulo':'jpg',
+    'cidades/seattle':'jpg',
+    'cidades/seul':'jpg',
+    'cidades/shenzhen':'jpg',
+    'cidades/singapura':'jpg',
     'cidades/sydney':'webp',
-    'cidades/taipe':'webp',
-    'cidades/toquio':'webp',
-    'cidades/toronto':'webp',
-    'cidades/varsovia':'webp',
-    'cidades/xangai':'webp',
+    'cidades/taipe':'jpg',
+    'cidades/toquio':'jpg',
+    'cidades/toronto':'jpg',
+    'cidades/varsovia':'jpg',
+    'cidades/xangai':'jpg',
     'copa/logo':'png',
     'copa/premio-mvp':'png',
     'copa/premio-time-ideal':'png',
@@ -13478,11 +13512,11 @@ const MIDIA={
     'logo-selecoes/ksa':'png',
     'logo-selecoes/ltu':'png',
     'logo-selecoes/mas':'png',
-    'logo-selecoes/mda':'png',
     'logo-selecoes/mex':'png',
     'logo-selecoes/ned':'png',
     'logo-selecoes/phi':'png',
     'logo-selecoes/pol':'png',
+    'logo-selecoes/por':'png',
     'logo-selecoes/rou':'png',
     'logo-selecoes/rus':'png',
     'logo-selecoes/sgp':'png',
@@ -14680,6 +14714,12 @@ function rotuloSemana(ano,semana){
   const da=a.getUTCDate(), db=b.getUTCDate();
   const ma=MESES_CURTO[a.getUTCMonth()], mb=MESES_CURTO[b.getUTCMonth()];
   return ma===mb ? `${da}–${db} ${ma}` : `${da} ${ma} – ${db} ${mb}`;
+}
+/* um dia dentro da semana (0 = segunda): "ter, 7 nov" */
+function rotuloDia(ano,semana,dia,semDiaDaSemana){
+  const d=new Date(segundaDaSemana(ano,semana).getTime()+(dia||0)*86400000);
+  const txt=`${d.getUTCDate()} ${MESES_CURTO[d.getUTCMonth()]}`;
+  return semDiaDaSemana?txt:`${DIAS_CURTO[dia||0]}, ${txt}`;
 }
 function rotuloCurto(ano,semana){
   const a=segundaDaSemana(ano,semana);
@@ -21706,6 +21746,8 @@ function avancarTurno(){
     if(typeof gerarPropostas==='function')gerarPropostas();
     if(typeof mercadoVivo==='function')mercadoVivo();
   }finally{G._noTurno=false;G._fracaoMercado=1;}
+  /* World Cup em novembro: os jogos de seleção marcados para o dia que passou */
+  if(typeof copaDoDia==='function')copaDoDia(G.turno||0);
   G.turno=(G.turno||0)+1;G.turnoUsado=true;
   const novas=(G.propostas||[]).filter(x=>!antes.has(x.id)&&G.jogadores[x.jogadorId]
     &&G.jogadores[x.jogadorId].timeId===G.meuTime);
@@ -29352,7 +29394,7 @@ function sedeDoAno(ano){
 
 /* ---------- convidadas e eliminatórias ----------
    As duas contas usam o ranking do momento: chamadas no dia do sorteio
-   (fim do ano ímpar), o resultado fica gravado na edição (C2); chamadas
+   (novembro do ano ímpar), o resultado fica gravado na edição (C2); chamadas
    antes disso, mostram como seria se o sorteio fosse hoje. */
 function convidadasDaCopa(ano){
   ano=proximaCopa(ano);
@@ -29641,7 +29683,7 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
 function _fichaSelecoes(paisA,paisB,A,B,bo,r,ctx){
   const S=r.S, venc=r.vencedor===A.id?paisA:paisB;
   return{
-    a:paisA,b:paisB,wa:S.wa,wb:S.wb,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+    a:paisA,b:paisB,wa:S.wa,wb:S.wb,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,dia:ctx.dia,
     nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,
     esc:{a:A.titulares.slice(),b:B.titulares.slice()},
     tec:{a:A.comissao.tecnico,b:B.comissao.tecnico},
@@ -29657,7 +29699,7 @@ function _fichaSelecoes(paisA,paisB,A,B,bo,r,ctx){
 /* Seleção sem cinco convocáveis perde sem jogar (placar mínimo). */
 function _woSelecoes(paisA,paisB,A,B,bo,ctx){
   const venc=A&&!B?paisA:B&&!A?paisB:paisA, need=Math.ceil(bo/2);
-  return{a:paisA,b:paisB,wa:venc===paisA?need:0,wb:venc===paisB?need:0,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,
+  return{a:paisA,b:paisB,wa:venc===paisA?need:0,wb:venc===paisB?need:0,v:venc,bo,ano:G.ano,sem:ctx.semana||G.semana,dia:ctx.dia,
     nome:ctx.nome||'',fase:ctx.fase||'',amistoso:!!ctx.amistoso,mapa:'W.O.',wo:venc===paisA?paisB:paisA,det:{v:[],mp:[],mvp:null}};
 }
 
@@ -29720,14 +29762,16 @@ function amistosoSelecoes(paisA,paisB,bo){
 
      semana 1   anúncio da sede e da edição; a comissão das 40
                 seleções é escolhida de novo
-     semana 48  convites (a sede + as 15 melhores do ranking) e o
+     novembro   (as datas estão em data/copa.js, ELIM_DIAS)
+       dom 45   convites (a sede + as 15 melhores do ranking) e o
                 sorteio dos 8 grupos de 3 das eliminatórias
-     semana 49  rodada 1: 1º × 3º e 2º × 3º de cada grupo
-     semana 50  rodada 2: 1º × 2º, o jogo que costuma decidir o grupo
-     semana 51  anúncio dos 32 classificados
+       ter 46   rodada 1: 1º × 3º
+       qui 46   rodada 1: 2º × 3º
+       sáb 46   rodada 2: 1º × 2º, o jogo que costuma decidir o grupo
+       dom 46   anúncio dos 32 classificados
 
-   Tudo no fim da temporada, com o calendário dos clubes encerrado:
-   a convocação não toca no mercado e a janela segue como estava.
+   Depois dos playoffs do Champions, com a janela aberta: a convocação
+   não toca no mercado e a pré-temporada segue.
 
    copaSemana() roda no fechamento de cada semana (clock.js) e faz
    tudo o que está atrasado — um save que pula semanas, ou que chega
@@ -29737,7 +29781,23 @@ function amistosoSelecoes(paisA,paisB,bo){
    à força atual de cada país: geração boa sobe sem jogar, e quem
    envelhece cai.
    ============================================================ */
-const COPA_SEM_SEDE=1, ELIM_SEM_SORTEIO=48, ELIM_SEM_RODADA1=49, ELIM_SEM_RODADA2=50, ELIM_SEM_CLASSIFICADOS=51;
+const COPA_SEM_SEDE=1, ELIM_SEM_SORTEIO=ELIM_DIAS.sorteio[0], ELIM_SEM_RODADA1=ELIM_DIAS.r1[0][0],
+      ELIM_SEM_RODADA2=ELIM_DIAS.r2[0], ELIM_SEM_CLASSIFICADOS=ELIM_DIAS.classificados[0];
+
+/* O dia de hoje para a Copa: num dia da janela (core/clock.js) só sai o que
+   está marcado até ele; no fechamento da semana, tudo dela. `ano` é o ano em
+   que a data cai: o que é de um ano que já passou chegou faz tempo. */
+function _hojeCopa(){return G._copaHoje!=null?G._copaHoje:6;}
+function _chegou(q,ano){
+  if(ano!=null&&G.ano!==ano)return G.ano>ano;
+  const s=G.semana||1;
+  return s>q[0]||(s===q[0]&&q[1]<=_hojeCopa());
+}
+/* um dia da janela que passou: os jogos de seleção marcados até ele */
+function copaDoDia(dia){
+  G._copaHoje=dia;
+  try{copaSemana();}finally{G._copaHoje=null;}
+}
 const RANKING_DERIVA=0.15;     /* fração do caminho até a força atual, por ano */
 
 function cicloDaCopa(anoCopa,criar){
@@ -29796,16 +29856,17 @@ function _semanaEliminatorias(cic){
     if(typeof abrirConvitesDeSelecao==='function')abrirConvitesDeSelecao(cic);
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
     momentoCopa('sede',{ano:cic.ano});
-    noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,
+    noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, em novembro de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são em novembro, depois do Champions.`,
       {c:'competicoes',imp:2});
   }
-  if(!cic.convidadas&&sem>=ELIM_SEM_SORTEIO)sortearEliminatorias(cic);
-  if(cic.grupos&&sem>=ELIM_SEM_RODADA1)jogarRodadaEliminatorias(cic,1);
-  if(cic.grupos&&sem>=ELIM_SEM_RODADA2)jogarRodadaEliminatorias(cic,2);
-  if(cic.grupos&&!cic.classificados&&sem>=ELIM_SEM_CLASSIFICADOS)fecharEliminatorias(cic);
+  const ano=cic.ano-1;
+  if(!cic.convidadas&&_chegou(ELIM_DIAS.sorteio,ano))sortearEliminatorias(cic);
+  if(cic.grupos&&_chegou(ELIM_DIAS.r1[0],ano))jogarRodadaEliminatorias(cic,1);
+  if(cic.grupos&&_chegou(ELIM_DIAS.r2,ano))jogarRodadaEliminatorias(cic,2);
+  if(cic.grupos&&!cic.classificados&&_chegou(ELIM_DIAS.classificados,ano))fecharEliminatorias(cic);
 }
 
-/* ---------- semana 48: convites e sorteio ---------- */
+/* ---------- domingo da 45: convites e sorteio ---------- */
 function sortearEliminatorias(cic){
   cic.convidadas=convidadasDaCopa(cic.ano);
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
@@ -29822,7 +29883,7 @@ function sortearEliminatorias(cic){
     {c:'competicoes',imp:1});
 }
 
-/* ---------- semanas 49 e 50: os jogos ----------
+/* ---------- semana 46: os jogos ----------
    Grupo de 3 com a ordem do pote: rodada 1 é 1º×3º e 2º×3º, rodada 2 é
    1º×2º. Grupo de 4 (só se faltar seleção): todos contra todos em duas
    rodadas de três jogos. */
@@ -29836,19 +29897,26 @@ function _jogosDaRodada(g,r){
 /* um jogo de cada vez: o que já foi jogado (inclusive antes, na tela do modo
    jogador) não se joga de novo, e a notícia sai quando a rodada fecha */
 function _jaJogado(g,a,b,r){return (g.jogos||[]).some(f=>f.rodada===r&&((f.a===a&&f.b===b)||(f.a===b&&f.b===a)));}
+/* a data de cada jogo: na rodada 1, o primeiro na terça e o segundo na quinta */
+function _diaElim(r,i){return r===1?ELIM_DIAS.r1[Math.min(i,ELIM_DIAS.r1.length-1)]:ELIM_DIAS.r2;}
 function jogarRodadaEliminatorias(cic,r){
   const cv=cic.convocadosElim||{};
+  let completa=true;
   for(const g of cic.grupos){
     if((g.rodadas||0)>=r)continue;
-    for(const [a,b] of _jogosDaRodada(g,r)){
-      if(_jaJogado(g,a,b,r))continue;
+    let falta=false;
+    _jogosDaRodada(g,r).forEach(([a,b],i)=>{
+      if(_jaJogado(g,a,b,r))return;
+      const q=_diaElim(r,i);
+      if(!_chegou(q,cic.ano-1)){falta=true;return;}
       const f=jogarSerieSelecoes(a,b,{bo:ELIM_MD,nome:'Eliminatórias da World Cup '+cic.ano,fase:'Grupo '+g.letra+' · rodada '+r,peso:1,
-        semana:r===1?ELIM_SEM_RODADA1:ELIM_SEM_RODADA2,conv:{[a]:cv[a],[b]:cv[b]}});
+        semana:q[0],dia:q[1],conv:{[a]:cv[a],[b]:cv[b]}});
       f.rodada=r;
       g.jogos.push(f);
-    }
-    g.rodadas=r;
+    });
+    if(falta)completa=false;else g.rodadas=r;
   }
+  if(!completa)return;
   cic.noticias=cic.noticias||{};
   if(cic.noticias['elim'+r])return;
   cic.noticias['elim'+r]=true;
@@ -29878,7 +29946,7 @@ function tabelaGrupo(g,pontos){
     ||direto(x.pais,y.pais)||(rk[y.pais]||0)-(rk[x.pais]||0)||x.pais.localeCompare(y.pais));
 }
 
-/* ---------- semana 51: os 32 ---------- */
+/* ---------- domingo da 46: os 32 ---------- */
 function fecharEliminatorias(cic){
   if(cic.grupos.some(g=>(g.rodadas||0)<2)){jogarRodadaEliminatorias(cic,1);jogarRodadaEliminatorias(cic,2);}
   const vindos=[];
@@ -29911,13 +29979,18 @@ function situacaoNoCiclo(cic,pais){
    ------------------------------------------------------------
    No ano par, o ciclo da Copa (core/copa-ciclo.js) segue:
 
-     semana 46  sorteio dos 8 grupos de 4, com 4 potes de 8 pelo
+     novembro, um jogo a cada dois dias (datas em data/copa.js, COPA_DIAS)
+       dom 45   sorteio dos 8 grupos de 4, com 4 potes de 8 pelo
                 ranking; a sede é cabeça do grupo A; o sorteio evita
                 juntar seleções do mesmo continente no mesmo grupo
-     semana 49  convocações congeladas; rodadas 1 e 2 dos grupos (MD3)
-     semana 50  rodada 3; os 2 primeiros de cada grupo avançam
-     semana 51  oitavas e quartas (MD5)
-     semana 52  semifinais, disputa do bronze e a final (MD5)
+       ter 46   convocações congeladas; rodada 1 dos grupos (MD3)
+       qui 46   rodada 2
+       sáb 46   rodada 3; os 2 primeiros de cada grupo avançam
+       ter 47   oitavas (MD5)
+       qui 47   quartas
+       sáb 47   semifinais
+       sáb 48   disputa do bronze
+       dom 48   a final
 
    Na final fica o registro da edição em G.copa.edicoes: pódio,
    final, elencos do pódio, técnico campeão, MVP, time ideal e os
@@ -29928,26 +30001,28 @@ function situacaoNoCiclo(cic,pais){
    jogadores (o placar por mapa fica) — vinte Copas não podem pesar
    no save o que pesam os jogos do ano.
    ============================================================ */
-const COPA_SEM_SORTEIO=46, COPA_SEM_R12=49, COPA_SEM_R3=50, COPA_SEM_OITAVAS=51, COPA_SEM_FINAL=52;
+const COPA_SEM_SORTEIO=COPA_DIAS.sorteio[0], COPA_SEM_R12=COPA_DIAS.g1[0], COPA_SEM_R3=COPA_DIAS.g3[0], COPA_SEM_OITAVAS=COPA_DIAS.oitavas[0], COPA_SEM_FINAL=COPA_DIAS.final[0];
 const COPA_PESO_GRUPO=1.5, COPA_PESO_MATA=2, COPA_PESO_FINAL=2.5;
 const COPA_FASES=[['oitavas','Oitavas de final'],['quartas','Quartas de final'],['semis','Semifinal'],['bronze','Disputa do bronze'],['final','Final']];
 
 function _semanaCopa(cic){
-  const sem=G.semana;
+  const chegou=q=>_chegou(q,cic.ano);
   /* save que chega ao ano da Copa sem as eliminatórias feitas: faz tudo agora */
-  if(!cic.classificados&&sem>=COPA_SEM_SORTEIO){
+  if(!cic.classificados&&chegou(COPA_DIAS.sorteio)){
     if(!cic.convidadas)sortearEliminatorias(cic);
     fecharEliminatorias(cic);
   }
-  if(!cic.copa&&cic.classificados&&sem>=COPA_SEM_SORTEIO)sortearCopa(cic);
+  if(!cic.copa&&cic.classificados&&chegou(COPA_DIAS.sorteio))sortearCopa(cic);
   if(!cic.copa||cic.copa.fim)return;
-  if(sem>=COPA_SEM_R12){congelarConvocacoes(cic);jogarRodadaCopa(cic,1);jogarRodadaCopa(cic,2);}
-  if(sem>=COPA_SEM_R3){jogarRodadaCopa(cic,3);fecharGruposCopa(cic);}
-  if(sem>=COPA_SEM_OITAVAS){jogarFaseCopa(cic,'oitavas');jogarFaseCopa(cic,'quartas');}
-  if(sem>=COPA_SEM_FINAL){jogarFaseCopa(cic,'semis');jogarFaseCopa(cic,'bronze');jogarFaseCopa(cic,'final');encerrarCopa(cic);}
+  if(chegou(COPA_DIAS.g1))congelarConvocacoes(cic);
+  for(let r=1;r<=3;r++)if(chegou(COPA_DIAS['g'+r]))jogarRodadaCopa(cic,r);
+  if(cic.copa.grupos.every(g=>(g.rodadas||0)>=3))fecharGruposCopa(cic);
+  for(const [fase] of COPA_FASES)if(chegou(COPA_DIAS[fase]))jogarFaseCopa(cic,fase);
+  const F=cic.copa.mata.final;
+  if(F&&F.length&&F.every(j=>j.f))encerrarCopa(cic);
 }
 
-/* ---------- semana 46: o sorteio ----------
+/* ---------- domingo da 45: o sorteio ----------
    Pote 1: a sede e as 7 melhores; potes 2 a 4 pela ordem do ranking. Cada
    pote é sorteado grupo a grupo, A a H; a seleção vai para o primeiro grupo
    que ainda não tem ninguém do pote e não estoura o limite do continente
@@ -30009,9 +30084,9 @@ function _copaDoJogador(p){
   if(!p.copa)p.copa={edicoes:[],ouro:[],prata:[],bronze:[],mvp:[],timeIdeal:[]};
   return p.copa;
 }
-function _jogoCopa(cic,a,b,bo,fase,peso,sem){
+function _jogoCopa(cic,a,b,bo,fase,peso,q){
   const cv=cic.copa.convocados||{};
-  return jogarSerieSelecoes(a,b,{bo,nome:'World Cup '+cic.ano,fase,peso,semana:sem,conv:{[a]:cv[a],[b]:cv[b]}});
+  return jogarSerieSelecoes(a,b,{bo,nome:'World Cup '+cic.ano,fase,peso,semana:q[0],dia:q[1],conv:{[a]:cv[a],[b]:cv[b]}});
 }
 
 /* ---------- grupos ----------
@@ -30027,7 +30102,7 @@ function jogarRodadaCopa(cic,r){
     if((g.rodadas||0)>=r)continue;
     for(const [a,b] of _rodadaGrupoCopa(g.paises,r)){
       if(_jaJogado(g,a,b,r))continue;
-      const f=_jogoCopa(cic,a,b,COPA_MD_GRUPOS,'Grupo '+g.letra+' · rodada '+r,COPA_PESO_GRUPO,r<3?COPA_SEM_R12:COPA_SEM_R3);
+      const f=_jogoCopa(cic,a,b,COPA_MD_GRUPOS,'Grupo '+g.letra+' · rodada '+r,COPA_PESO_GRUPO,COPA_DIAS['g'+r]);
       f.rodada=r;g.jogos.push(f);
     }
     g.rodadas=r;
@@ -30072,8 +30147,7 @@ function jogarFaseCopa(cic,fase){
   if(!M[fase]||M[fase].every(j=>j.f))return;
   const nome=COPA_FASES.find(x=>x[0]===fase)[1];
   const peso=fase==='final'?COPA_PESO_FINAL:fase==='bronze'?COPA_PESO_GRUPO:COPA_PESO_MATA;
-  const sem=fase==='oitavas'||fase==='quartas'?COPA_SEM_OITAVAS:COPA_SEM_FINAL;
-  for(const j of M[fase])if(!j.f)j.f=_jogoCopa(cic,j.a,j.b,COPA_MD_PLAYOFFS,nome,peso,sem);
+  for(const j of M[fase])if(!j.f)j.f=_jogoCopa(cic,j.a,j.b,COPA_MD_PLAYOFFS,nome,peso,COPA_DIAS[fase]);
   const placar=j=>`${infoSelecao(j.a).sigla} ${j.f.wa}–${j.f.wb} ${infoSelecao(j.b).sigla}`;
   if(fase!=='final')noticia(`🌍 World Cup ${cic.ano}, ${nome.toLowerCase()}: ${M[fase].map(placar).join(' · ')}.`,
     {c:'competicoes',imp:Math.max(2,_impSelecao(M[fase].flatMap(j=>[j.a,j.b])))});
@@ -30107,7 +30181,7 @@ function _notaCopa(s,podio){
   return s.acsM+(s.kd-1)*45+s.mvp*6+bonus;
 }
 
-/* ---------- semana 52: o fim ---------- */
+/* ---------- domingo da 48: o fim ---------- */
 function encerrarCopa(cic){
   const C=cic.copa;if(C.fim||!C.mata.final||!C.mata.final[0].f||!C.mata.bronze||!C.mata.bronze[0].f)return;
   const fin=C.mata.final[0], br=C.mata.bronze[0];
@@ -30163,6 +30237,8 @@ function encerrarCopa(cic){
   const nmvp=mvp?G.jogadores[mvp.id].nome:null;
   noticia(`🏆 ${_nomeSel(campeao).toUpperCase()} É CAMPEÃ DA VALORANT WORLD CUP ${cic.ano}! Venceu ${_nomeSel(vice)} por ${fin.f.v===fin.a?fin.f.wa+'–'+fin.f.wb:fin.f.wb+'–'+fin.f.wa} na final em ${ed.cidade||cic.nomeSede}. ${_nomeSel(bronze)} fica com o bronze.${nmvp?' MVP da Copa: '+nmvp+'.':''}`,
     {c:'competicoes',imp:3,p:mvp?[mvp.id]:[]});
+  /* a premiação (core/copa-premio.js): pódio, clubes que cederam e a cena local */
+  if(typeof pagarPremiosDaCopa==='function')ed.premio=pagarPremiosDaCopa(cic,podio);
   if(typeof aoEncerrarCopa==='function')aoEncerrarCopa(cic,ed);
   return ed;
 }
@@ -30221,6 +30297,124 @@ function linhasDoGrupo(g,pts){
 /* ---------- consultas ---------- */
 function edicoesDaCopa(){return (garantirCopa()||{}).edicoes||[];}
 function titulosMundiais(pais){return edicoesDaCopa().filter(e=>e.campeao===pais).length;}
+
+
+/* ===== src/core/copa-premio.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — A PREMIAÇÃO (C8)
+   ------------------------------------------------------------
+   A maior premiação do jogo: o campeão do mundo leva uma vez e meia
+   o prêmio do campeão do Champions (que é editável no Banco de dados:
+   a conta acompanha, então a Copa segue sendo a maior). Vice e
+   terceiro seguem a curva do Champions.
+
+   O dinheiro de cada seleção do pódio é dividido assim:
+     jogadores   a maior parte, entre os 10 convocados — titular leva
+                 duas cotas, reserva uma
+     comissão    técnico e analista da seleção
+     clubes      o clube de cada convocado, pelas mesmas cotas:
+                 quem cedeu o jogador recebe junto
+     cena local  só no título: os clubes do país campeão, que formaram
+                 essa geração (clube da elite pesa o dobro)
+
+   Além do pódio, todo clube com jogador na Copa recebe um bônus por
+   convocado, pago no fim dela.
+
+   O que é de clube entra no caixa e na premiação do ano (Finanças);
+   o que é de jogador vira bônus — no modo jogador, a sua cota cai na
+   sua conta.
+   ============================================================ */
+const COPA_PREMIO_FATOR=1.5;               /* × o prêmio do campeão do Champions */
+const COPA_CURVA_PODIO=[1,.52,.30];
+const COPA_DIVISAO={
+  campeao:{jogadores:.55,comissao:.15,clubes:.18,cena:.12},
+  podio  :{jogadores:.62,comissao:.15,clubes:.23,cena:0}
+};
+const COPA_BONUS_CONVOCADO=12000;          /* por jogador cedido, ao clube dele */
+
+function premioCampeaoCopa(){
+  const ch=G.torneios&&G.torneios.champions&&G.torneios.champions.premio;
+  return Math.round((ch||PREMIO_BASE)*COPA_PREMIO_FATOR/1000)*1000;
+}
+function premiosDaCopa(){return COPA_CURVA_PODIO.map(f=>Math.round(premioCampeaoCopa()*f/1000)*1000);}
+
+function _creditarClube(t,v){
+  if(!t||!v)return;
+  t.caixa+=v;
+  if(!t.premiosAno||t.premiosAno.ano!==G.ano)t.premiosAno={ano:G.ano,v:0};
+  t.premiosAno.v+=v;
+}
+/* clubes do país campeão: os da elite valem dois pesos, os do Challengers um.
+   Sem clube com sede no país, vale onde os jogadores do país jogam. */
+function _cenaLocal(pais){
+  const l=Object.values(G.times||{}).filter(t=>t&&t.pais===pais&&!String(t.id).startsWith('SEL-'));
+  if(l.length)return l.map(t=>({t,peso:t.tier===1?2:1}));
+  const conta={};
+  for(const p of Object.values(G.jogadores))if(p.pais===pais&&p.timeId&&G.times[p.timeId])conta[p.timeId]=(conta[p.timeId]||0)+1;
+  return Object.entries(conta).map(([id,n])=>({t:G.times[id],peso:n}));
+}
+
+/* paga o pódio e o bônus dos convocados; devolve o resumo para a edição */
+function pagarPremiosDaCopa(cic,podio){
+  const C=cic.copa, valores=premiosDaCopa(), resumo={total:0,podio:{},bonus:{}};
+  const porClube={};          /* para uma notícia só por clube */
+  const somar=(tid,k,v)=>{if(!tid||!v)return;const x=porClube[tid]=porClube[tid]||{bonus:0,premio:0,cena:0,n:0};x[k]+=v;};
+  podio.slice(0,3).forEach((pais,i)=>{
+    const cv=C.convocados&&C.convocados[pais];if(!cv)return;
+    const v=valores[i], d=i===0?COPA_DIVISAO.campeao:COPA_DIVISAO.podio;
+    const ids=cv.titulares.concat(cv.reservas).filter(id=>G.jogadores[id]);
+    const cota=id=>cv.titulares.includes(id)?2:1, cotas=ids.reduce((s,id)=>s+cota(id),0)||1;
+    const r={total:v,jogadores:Math.round(v*d.jogadores),comissao:Math.round(v*d.comissao),
+      clubes:Math.round(v*d.clubes),cena:Math.round(v*d.cena),porJogador:{}};
+    for(const id of ids){
+      const p=G.jogadores[id], parte=Math.round(r.jogadores*cota(id)/cotas);
+      r.porJogador[id]=parte;
+      p.moral=clamp((p.moral||0.6)+(i===0?0.08:0.04),.05,1);
+      if(p.voce&&typeof lancar==='function')lancar(parte,`Premiação da World Cup ${cic.ano} · ${['campeão','vice','bronze'][i]}`,'premio');
+      const t=p.timeId&&G.times[p.timeId];
+      if(t){const c=Math.round(r.clubes*cota(id)/cotas);_creditarClube(t,c);somar(t.id,'premio',c);}
+    }
+    if(r.cena){
+      const l=_cenaLocal(pais), soma=l.reduce((s,x)=>s+x.peso,0)||1;
+      r.cenaClubes=l.length;
+      for(const x of l){const c=Math.round(r.cena*x.peso/soma);_creditarClube(x.t,c);somar(x.t.id,'cena',c);}
+    }
+    resumo.podio[pais]=r;resumo.total+=v;
+  });
+  /* o bônus de quem cedeu jogador */
+  for(const pais in C.convocados||{}){
+    const cv=C.convocados[pais];
+    for(const id of cv.titulares.concat(cv.reservas)){
+      const p=G.jogadores[id], t=p&&p.timeId&&G.times[p.timeId];if(!t)continue;
+      _creditarClube(t,COPA_BONUS_CONVOCADO);somar(t.id,'bonus',COPA_BONUS_CONVOCADO);porClube[t.id].n++;
+      resumo.bonus[t.id]=(resumo.bonus[t.id]||0)+COPA_BONUS_CONVOCADO;resumo.total+=COPA_BONUS_CONVOCADO;
+    }
+  }
+  /* as notícias: a premiação, e o que entrou no seu clube */
+  const [v1,v2,v3]=valores;
+  noticia(`💰 Premiação da World Cup ${cic.ano}: ${money(v1)} para ${_nomeSel(podio[0])}, ${money(v2)} para ${_nomeSel(podio[1])} e ${money(v3)} para ${_nomeSel(podio[2])} — a maior bolada do Valorant. Jogadores e comissão ficam com a maior parte; os clubes de cada convocado recebem junto, e os clubes ${_doPais(podio[0])} dividem ${money(resumo.podio[podio[0]]?resumo.podio[podio[0]].cena:0)} pela cena que formou os campeões.`,
+    {c:'competicoes',imp:2});
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  const x=meu&&porClube[meu];
+  if(x&&!G.voce){
+    const partes=[x.n?`${money(x.bonus)} de bônus por ${x.n} convocado${x.n>1?'s':''}`:'',
+      x.premio?`${money(x.premio)} da premiação do pódio`:'',x.cena?`${money(x.cena)} pela cena local campeã`:''].filter(Boolean);
+    noticia(`🌍 A World Cup ${cic.ano} rendeu ${money(x.bonus+x.premio+x.cena)} ao clube: ${partes.join(', ')}.`,{c:'clube',t:[meu],imp:2});
+  }
+  /* técnico da seleção no pódio */
+  const eu=typeof selecaoDoTecnico==='function'?selecaoDoTecnico():null;
+  if(eu&&resumo.podio[eu])noticia(`A comissão de ${_nomeSel(eu)} recebe ${money(resumo.podio[eu].comissao)} da premiação da World Cup.`,{c:'clube',imp:2});
+  return resumo;
+}
+/* "do Brasil", "da Coreia do Sul", "dos Estados Unidos" — o suficiente para a notícia */
+function _doPais(pais){
+  const n=_nomeSel(pais);
+  if(/^(Estados Unidos|Países Baixos|Emirados)/.test(n))return 'dos '+n;
+  if(/^(Filipinas)/.test(n))return 'das '+n;
+  const fem=/^(Arábia|Argentina|Austrália|Alemanha|China|Colômbia|Coreia|Dinamarca|Espanha|Finlândia|França|Geórgia|Índia|Indonésia|Inglaterra|Itália|Lituânia|Malásia|Polônia|Romênia|Rússia|Suécia|Tailândia|Turquia|Ucrânia|República)/.test(n);
+  const sem=/^(Taiwan|Hong Kong|El Salvador|Portugal|Singapura|Israel)/.test(n);
+  return sem?'de '+n:(fem?'da ':'do ')+n;
+}
 
 
 /* ===== src/core/copa-legado.js ===== */
@@ -30397,8 +30591,8 @@ function campeaoMundial(p){return !!(p&&p.copa&&p.copa.ouro&&p.copa.ouro.length)
    ------------------------------------------------------------
    Você é convocado se estiver entre os 10 do seu país (5 titulares
    e 5 reservas), pela mesma conta das seleções da IA. A convocação
-   das eliminatórias sai no sorteio delas (semana 48 do ano ímpar);
-   a da Copa, no sorteio da Copa (semana 46 do ano par).
+   das eliminatórias sai no sorteio delas (domingo da semana 45 do ano
+   ímpar); a da Copa, no sorteio da Copa (o mesmo domingo, no ano par).
 
      convocado     notícia, seguidores, imagem e um post para fazer;
                    a sua série pela seleção abre o dia de jogo, com
@@ -30493,9 +30687,11 @@ function _rodarCopaAte(alvo){
   if(typeof copaSemana!=='function')return null;
   if(G.ano<COPA_PRIMEIRA-1||(G.semana||1)<ELIM_SEM_SORTEIO-2)return null;
   G._copaPararEm=alvo;
+  /* andando dia a dia pela janela, só o que é de hoje (ui: usarTurnos) */
+  if(typeof usarTurnos==='function'&&usarTurnos())G._copaHoje=G.turno||0;
   try{copaSemana();return null;}
   catch(e){if(e&&e.copaPendente)return e.copaPendente;throw e;}
-  finally{G._copaPararEm=null;}
+  finally{G._copaPararEm=null;G._copaHoje=null;}
 }
 /* a próxima série sua nesta semana, como jogador ou como técnico da seleção */
 function jogoDeSelecaoDoUsuario(){
@@ -31210,6 +31406,8 @@ function cidadeDaCopa(pais){
   const so=(typeof SEDES_COPA!=='undefined'?SEDES_COPA:[]).find(c=>c.pais===pais);
   if(so)return Object.assign({slug:slugCidade(so.nome),tipo:'copa'},so);
   const l=cidades().filter(c=>c.pais===pais);
+  const pref=typeof SEDE_COPA_NO_PAIS!=='undefined'&&SEDE_COPA_NO_PAIS[pais];
+  if(pref&&l.some(c=>c.nome===pref))return l.find(c=>c.nome===pref);
   return l.find(c=>c.maior&&c.tipo==='champions')||l.find(c=>c.maior)||l.find(c=>c.tipo==='champions')||l[0]||null;
 }
 function cidade(slug){return slug?cidades().find(c=>c.slug===slug)||null:null;}
@@ -31360,7 +31558,7 @@ function edAddCidade(nome,pais,tipo){
   if(G.cidades.some(c=>c.slug===slug))return{ok:false,erro:nome+' já está na lista.'};
   if(!/^[A-Z]{2}$/.test(pais||''))return{ok:false,erro:'Escolha o país.'};
   G.cidades.push({slug,nome,pais,tipo:tipo==='champions'?'champions':'masters',maior:false});
-  return{ok:true,msg:nome+' entrou na lista de sedes. A imagem vai em assets/cidades/'+slug+'.webp.'};
+  return{ok:true,msg:nome+' entrou na lista de sedes. A imagem vai em assets/cidades/'+slug+'.jpg.'};
 }
 function edRemoverCidade(slug){
   if(!G.cidades)montarCidades();
@@ -45035,7 +45233,7 @@ function pintarDiaDeJogoSelecao(){
   };
   const cic=cicloAtual();
   pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
-    <div class="cpx-eyebrow">Dia de jogo pela seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="cpx-eyebrow">Dia de jogo pela seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}${pend.ctx.dia!=null?' · '+esc(rotuloDia(G.ano,pend.ctx.semana,pend.ctx.dia)):''}</div>
     <div class="dj-vs">
       <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)}${tec?' · técnico '+esc(tec.nome):''}</span></div>
       <div class="dj-x">×</div>
@@ -45686,7 +45884,7 @@ function _telaConvidadas(cic){
     <h1 class="cpm-tit">As convidadas</h1>
     <p class="cpm-sub">A sede e as 15 melhores do ranking vão direto para a Copa.</p>
     <div class="cpm-grade">${cic.convidadas.map((p,i)=>_ladrilho(p,i,p===cic.sede?' · <em>sede</em>':'')).join('')}</div>
-    <p class="cpm-sub cpm-nota">As outras ${cic.grupos?cic.grupos.reduce((s,g)=>s+g.paises.length,0):24} disputam 16 vagas nas eliminatórias, nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</p>
+    <p class="cpm-sub cpm-nota">As outras ${cic.grupos?cic.grupos.reduce((s,g)=>s+g.paises.length,0):24} disputam 16 vagas nas eliminatórias, de ${periodoCopa(cic.ano-1,ELIM_DIAS.r1[0],ELIM_DIAS.r2)}.</p>
   </div>`;
 }
 function _telaClassificados(cic){
@@ -45712,7 +45910,7 @@ function _telaSorteio(cic){
       ${g.paises.map((p,k)=>k<pote?`<div class="cpm-g-sel ${k===pote-1?'novo':''}" style="animation-delay:${(gi*0.12).toFixed(2)}s">${escudoSelecao(p,34)}<span>${esc(_nomeSel(p))}</span></div>`
         :`<div class="cpm-g-sel vazio"><i></i><span>pote ${k+1}</span></div>`).join('')}</div>`).join('')}</div>
     <p class="cpm-sub cpm-nota">${pote===0?`A sede, ${esc(cic.nomeSede)}, é a cabeça do grupo A. O sorteio evita juntar seleções do mesmo continente.`
-      :pote>=4?`Grupos de 4 em MD3 nas semanas ${COPA_SEM_R12} e ${COPA_SEM_R3}; os dois primeiros vão às oitavas.`:''}</p>
+      :pote>=4?`Grupos de 4 em MD3 de ${periodoCopa(cic.ano,COPA_DIAS.g1,COPA_DIAS.g3)}, um jogo a cada dois dias; os dois primeiros vão às oitavas.`:''}</p>
   </div>`;
 }
 function _telaCampea(cic){
@@ -45982,7 +46180,7 @@ function abaMinhaSelecao(x){
       ${cong?`<p class="dim">A lista fechou no sorteio e vale até o fim desta fase. Dá para trocar quem começa jogando:</p>
         <div class="cpt-troca">${cong.titulares.map(id=>`<div class="cpt-tr"><b>${esc(G.jogadores[id].nome)}</b><span>${esc(G.jogadores[id].role)} · ${over(G.jogadores[id])}</span>
           <select data-cptroca="${id}"><option value="">manter</option>${cong.reservas.map(r=>`<option value="${r}">${esc(G.jogadores[r].nome)} (${esc(G.jogadores[r].role)} ${over(G.jogadores[r])})</option>`).join('')}</select></div>`).join('')}</div>`
-      :`<p class="dim">Escolha 5 titulares e até 5 reservas (mínimo ${SELECAO_MINIMO} no total). A lista fecha no sorteio das eliminatórias (semana ${ELIM_SEM_SORTEIO} do ano ímpar) e no sorteio da Copa (semana ${COPA_SEM_SORTEIO}). Sem lista válida, vale a sugestão.</p>
+      :`<p class="dim">Escolha 5 titulares e até 5 reservas (mínimo ${SELECAO_MINIMO} no total). A lista fecha no sorteio das eliminatórias e no da Copa (os dois no domingo da semana ${COPA_SEM_SORTEIO}, no começo de novembro). Sem lista válida, vale a sugestão.</p>
         <div class="cpt-cont"><span class="${nT===5?'ok':'falta'}">${nT}/5 titulares</span><span>${nR}/5 reservas</span>
           <button class="btn ghost sm" data-cptsug>Usar a sugestão</button><button class="btn sm" data-cptsalvar>Salvar convocação</button></div>
         <div class="cpt-lista">${lista.map(linha).join('')}</div>`}
@@ -46033,7 +46231,7 @@ function pintarPreJogoSelecao(){
   const seq=V.seq.map(s=>`<span class="chip ${s.tipo==='ban'?'r':s.tipo==='dec'?'':'g'}">${s.tipo==='ban'?'✕':s.tipo==='dec'?'★':'✓'} ${esc(s.m)}${s.lado0?' · '+(s.lado0==='atk'?'ataque':'defesa'):''} <span class="dim">${s.tipo==='dec'?'decider':esc(s.t)}</span></span>`).join(' ');
   const cic=cicloAtual();
   pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
-    <div class="cpx-eyebrow">Pré-jogo da seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="cpx-eyebrow">Pré-jogo da seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}${pend.ctx.dia!=null?' · '+esc(rotuloDia(G.ano,pend.ctx.semana,pend.ctx.dia)):''}</div>
     <div class="dj-vs">
       <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)} · você no comando</span></div>
       <div class="dj-x">×</div>
@@ -46136,6 +46334,15 @@ function semanasAteFinalDaCopa(){
   return Math.max(0,(ano-G.ano)*SEMANAS_ANO+(SEMANA_FINAL_COPA()-(G.semana||1)));
 }
 function SEMANA_FINAL_COPA(){return typeof COPA_SEM_FINAL!=='undefined'?COPA_SEM_FINAL:SEMANAS_ANO;}
+/* as datas do calendário de novembro (data/copa.js): "ter, 7 nov" e "7–11 nov" */
+function dataCopa(ano,q,semDia){return rotuloDia(ano,q[0],q[1],semDia);}
+function periodoCopa(ano,q1,q2){
+  const d=q=>new Date(segundaDaSemana(ano,q[0]).getTime()+q[1]*86400000), a=d(q1), b=d(q2);
+  const m=x=>MESES_CURTO[x.getUTCMonth()];
+  return m(a)===m(b)?`${a.getUTCDate()}–${b.getUTCDate()} ${m(b)}`:`${a.getUTCDate()} ${m(a)} – ${b.getUTCDate()} ${m(b)}`;
+}
+/* a data de um jogo de seleção já feito (amistoso não tem) */
+function dataDoJogoSelecao(f){return f&&f.dia!=null&&f.sem&&f.ano?rotuloDia(f.ano,f.sem,f.dia):'';}
 function _sigSel(p){const i=infoSelecao(p);return i?i.sigla:p;}
 function timeVisualSelecao(pais){
   const i=infoSelecao(pais)||{nome:pais,sigla:pais};
@@ -46162,10 +46369,10 @@ function _ctxCopa(){
 function _etapasCopa(x){
   const{ano,cic}=x, el=ano-1;
   const feito=k=>({elim:!!(cic&&cic.classificados),sorteio:!!(cic&&cic.copa),grupos:!!(cic&&cic.copa&&cic.copa.mata.oitavas),
-    mata:!!(cic&&cic.copa&&cic.copa.mata.semis),final:!!(cic&&cic.copa&&cic.copa.fim)})[k];
-  const l=[['elim','Eliminatórias',`fim de ${el} · sem. ${ELIM_SEM_SORTEIO}–${ELIM_SEM_CLASSIFICADOS}`],
-    ['sorteio','Sorteio',`${ano} · sem. ${COPA_SEM_SORTEIO}`],['grupos','Grupos',`sem. ${COPA_SEM_R12}–${COPA_SEM_R3} · MD3`],
-    ['mata','Oitavas e quartas',`sem. ${COPA_SEM_OITAVAS} · MD5`],['final','Semis, bronze e final',`sem. ${COPA_SEM_FINAL} · MD5`]];
+    mata:!!(cic&&cic.copa&&cic.copa.mata.final),final:!!(cic&&cic.copa&&cic.copa.fim)})[k];
+  const l=[['elim','Eliminatórias',`${periodoCopa(el,ELIM_DIAS.r1[0],ELIM_DIAS.r2)} ${el}`],
+    ['sorteio','Sorteio',`${dataCopa(ano,COPA_DIAS.sorteio,true)} ${ano}`],['grupos','Grupos',`${periodoCopa(ano,COPA_DIAS.g1,COPA_DIAS.g3)} · MD3`],
+    ['mata','Oitavas a semis',`${periodoCopa(ano,COPA_DIAS.oitavas,COPA_DIAS.semis)} · MD5`],['final','Bronze e final',`${periodoCopa(ano,COPA_DIAS.bronze,COPA_DIAS.final)} · MD5`]];
   const atual=l.findIndex(([k])=>!feito(k));
   return l.map(([k,n,q],i)=>({k,n,q,feito:feito(k),agora:i===atual}));
 }
@@ -46174,11 +46381,11 @@ function _textoFase(x){
   if(cic&&cic.copa&&cic.copa.fim)return `${_nomeSel(cic.copa.podio[0])} é a campeã do mundo`;
   if(cic&&cic.copa&&cic.copa.mata.oitavas)return 'Mata-mata em andamento';
   if(cic&&cic.copa&&cic.copa.grupos.some(g=>(g.jogos||[]).length))return 'Fase de grupos em andamento';
-  if(cic&&cic.copa)return `Grupos sorteados · a Copa começa na semana ${COPA_SEM_R12}`;
-  if(cic&&cic.classificados)return `Os 32 estão definidos · sorteio dos grupos na semana ${COPA_SEM_SORTEIO} de ${ano}`;
+  if(cic&&cic.copa)return `Grupos sorteados · a Copa começa ${dataCopa(ano,COPA_DIAS.g1)}`;
+  if(cic&&cic.classificados)return `Os 32 estão definidos · sorteio dos grupos em ${dataCopa(ano,COPA_DIAS.sorteio,true)} de ${ano}`;
   if(cic&&cic.grupos)return 'Eliminatórias em andamento';
-  if(G.ano<el)return `Eliminatórias no fim de ${el}`;
-  return `Eliminatórias no fim desta temporada · convites e sorteio na semana ${ELIM_SEM_SORTEIO}`;
+  if(G.ano<el)return `Eliminatórias em novembro de ${el}`;
+  return `Eliminatórias em novembro, depois do Champions · convites e sorteio em ${dataCopa(el,ELIM_DIAS.sorteio,true)}`;
 }
 
 /* ---------- a capa ---------- */
@@ -46221,7 +46428,30 @@ function abaGeral(x){
   const ed=cic&&cic.copa&&cic.copa.fim?edicoesDaCopa().find(e=>e.ano===cic.ano):null;
   return `${ed?cardFinalEspecial(cic,ed):''}
     <div class="cpx-g2">${cardSelecao(x)}${cardUltimosJogos(x)}</div>
-    ${cic&&cic.copa&&!ed?cardChaveCompacta(cic,x.sel):''}`;
+    ${cic&&cic.copa&&!ed?cardChaveCompacta(cic,x.sel):''}
+    ${typeof premiosDaCopa==='function'?cardPremiacaoCopa(x,ed):''}`;
+}
+/* a premiação: o que está em jogo (ou o que foi pago, depois da final) */
+function cardPremiacaoCopa(x,ed){
+  const pr=ed&&ed.premio, v=pr?[ed.campeao,ed.vice,ed.bronze].map(p=>(pr.podio[p]||{}).total||0):premiosDaCopa();
+  const d=COPA_DIVISAO.campeao, pc=k=>Math.round(d[k]*100)+'%';
+  const ch=(G.torneios&&G.torneios.champions&&G.torneios.champions.premio)||PREMIO_BASE;
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  const doClube=pr&&meu?(pr.bonus[meu]||0):0;
+  const lin=(m,r,val,pais)=>`<div class="cpx-pr-l"><span class="cpx-med ${m}"></span><b>${r}</b>${pais?`<span class="cpx-pr-p">${escudoSelecao(pais,20)}${esc(_nomeSel(pais))}</span>`:'<span></span>'}<b class="num">${money(val)}</b></div>`;
+  return `<div class="card cx-linha cpx-premio-card"><div class="cpx-eyebrow">Premiação${ed?' · paga na final de '+ed.ano:''}</div>
+    <div class="cpx-pr">
+      <div class="cpx-pr-tab">
+        ${lin('ouro','Campeã',v[0],ed&&ed.campeao)}${lin('prata','Vice',v[1],ed&&ed.vice)}${lin('bronze','Terceiro',v[2],ed&&ed.bronze)}
+        <div class="cpx-pr-l cpx-pr-bonus"><span class="cpx-pr-ico">${ico('aperto')}</span><b>Por convocado</b><span class="dim">ao clube que cede o jogador</span><b class="num">${money(COPA_BONUS_CONVOCADO)}</b></div>
+      </div>
+      <div class="cpx-pr-div">
+        <p>O campeão do mundo leva <b>${(v[0]/ch).toFixed(1).replace('.',',')}×</b> o prêmio do Champions — a maior premiação do jogo. Como o título é dividido:</p>
+        <div class="cpx-pr-barra"><i style="flex:${d.jogadores}">Jogadores ${pc('jogadores')}</i><i style="flex:${d.comissao}">Comissão ${pc('comissao')}</i><i style="flex:${d.clubes}">Clubes ${pc('clubes')}</i><i style="flex:${d.cena}">Cena ${pc('cena')}</i></div>
+        <p class="dim">Os jogadores dividem por cotas (titular vale duas); o clube de cada convocado recebe junto, pelas mesmas cotas; e os clubes do país campeão dividem a parte da cena local, que formou a geração. Vice e terceiro dividem do mesmo jeito, sem a cena.</p>
+        ${doClube?`<p class="cpx-pr-meu">${ico('clube')} O seu clube recebeu <b>${money(doClube)}</b> em bônus de convocação nesta Copa.</p>`:''}
+      </div>
+    </div></div>`;
 }
 /* a final em destaque: a taça, a campeã, o placar, o MVP e o pódio */
 function cardFinalEspecial(cic,ed){
@@ -46312,13 +46542,13 @@ function cardUltimosJogos(x){
   const meus=todos.filter(f=>f.a===x.sel||f.b===x.sel).slice(-6).reverse();
   const outros=todos.slice(-8).reverse();
   const linha=f=>`<div class="cpx-jogo ${f.det&&f.det.mp&&f.det.mp.length?'':'sem'}" ${f.det?`data-cpjogo="${_chaveJogo(cic,f)}"`:''}>
-    <span class="cpx-j-fase">${esc(f.fase||'')}</span>
+    <span class="cpx-j-fase">${esc(f.fase||'')}${dataDoJogoSelecao(f)?`<i>${esc(dataDoJogoSelecao(f))}</i>`:''}</span>
     <span class="cpx-j-l ${f.v===f.a?'w':''}">${escudoSelecao(f.a,22)}${esc(_sigSel(f.a))}</span><b class="num">${f.wa}–${f.wb}</b>
     <span class="cpx-j-l r ${f.v===f.b?'w':''}">${esc(_sigSel(f.b))}${escudoSelecao(f.b,22)}</span></div>`;
   return `<div class="card cpx-jogos"><div class="cpx-eyebrow">${cic?'Jogos · '+(cic.copa?'World Cup ':'Eliminatórias · Copa ')+cic.ano:'Jogos'}</div>
     ${meus.length?`<div class="cpx-rot">${esc(_nomeSel(x.sel))}</div>${meus.map(linha).join('')}`:''}
     ${outros.length?`<div class="cpx-rot">${meus.length?'Os mais recentes':'Os mais recentes do ciclo'}</div>${outros.map(linha).join('')}`
-      :`<div class="cpx-vazio">${ico('jogar')}<b>Nenhum jogo de seleção ainda.</b><span>As eliminatórias começam na semana ${ELIM_SEM_RODADA1} de ${x.ano-1}. Enquanto isso, dá para jogar um amistoso.</span>
+      :`<div class="cpx-vazio">${ico('jogar')}<b>Nenhum jogo de seleção ainda.</b><span>As eliminatórias começam em ${dataCopa(x.ano-1,ELIM_DIAS.r1[0],true)} de ${x.ano-1}. Enquanto isso, dá para jogar um amistoso.</span>
         <button class="btn ghost sm" data-cpaba="amistoso">Jogar um amistoso</button></div>`}
   </div>`;
 }
@@ -46367,7 +46597,7 @@ function cardChave(cic,sel){
       </div>
       ${col('semis',[1],'Semifinal')}${col('quartas',[2,3],'Quartas')}${col('oitavas',[4,5,6,7],'Oitavas')}
     </div>
-    ${M.oitavas?'':`<p class="dim cpx-nota">Oitavas na semana ${COPA_SEM_OITAVAS}: o 1º de cada grupo enfrenta o 2º do grupo vizinho, e as duas metades só se cruzam na final.</p>`}
+    ${M.oitavas?'':`<p class="dim cpx-nota">Oitavas ${dataCopa(cic.ano,COPA_DIAS.oitavas)}, quartas ${dataCopa(cic.ano,COPA_DIAS.quartas)}, semis ${dataCopa(cic.ano,COPA_DIAS.semis)}; bronze e final no fim de semana seguinte. O 1º de cada grupo enfrenta o 2º do grupo vizinho, e as duas metades só se cruzam na final.</p>`}
   </section>`;
 }
 function cardChaveCompacta(cic,sel){return cardChave(cic,sel);}
@@ -46381,7 +46611,7 @@ function cardGruposCopa(cic,sel){
           <span class="cpx-gl-p">${i+1}</span>${escudoSelecao(r.pais,26)}<b>${esc(_nomeSel(r.pais))}</b>
           <span class="num">${r.v}-${r.d}</span><span class="num dim">${r.mp}:${r.mc}</span></div>`).join('')}
         ${(g.jogos||[]).length?`<div class="cpx-g-jogos">${g.jogos.map((f,i)=>`<span data-cpjogo="g|${g.letra}|${i}|${cic.ano}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
-          :`<div class="cpx-g-jogos dim">Rodadas 1 e 2 na semana ${COPA_SEM_R12}, rodada 3 na ${COPA_SEM_R3}.</div>`}
+          :`<div class="cpx-g-jogos dim">Rodadas em ${dataCopa(cic.ano,COPA_DIAS.g1,true)}, ${dataCopa(cic.ano,COPA_DIAS.g2,true)} e ${dataCopa(cic.ano,COPA_DIAS.g3,true)}.</div>`}
       </div>`;}).join('')}</div>
     ${C.convocados?'':`<div class="cpx-acoes"><button class="btn ghost sm" data-cpmomento="sorteio|${cic.ano}">Rever o sorteio</button></div>`}</div>`;
 }
@@ -46393,8 +46623,8 @@ function cardEliminatorias(ano,sel){
   const chip=p=>`<span class="cpx-chip ${p===sel?'me':''}" data-copapais="${p}">${escudoSelecao(p,22)}${esc(_nomeSel(p))}</span>`;
   return `<div class="card cx-linha cpx-elim"><div class="cpx-eyebrow">${!sorteado?'Eliminatórias · se o sorteio fosse hoje':cic.classificados?'Eliminatórias · os 32 classificados':'Eliminatórias'}</div>
     <p class="dim">${sorteado
-      ?`Sorteio feito na semana ${ELIM_SEM_SORTEIO}. Grupos de 3 em MD3, todos contra todos; os dois primeiros vão à Copa. Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto e ranking.`
-      :`A sede e as 15 melhores do ranking vão direto. As outras 24 jogam no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa. O sorteio é na semana ${ELIM_SEM_SORTEIO}.`}</p>
+      ?`Sorteio feito em ${dataCopa(ano-1,ELIM_DIAS.sorteio,true)} de ${ano-1}. Grupos de 3 em MD3, todos contra todos; os dois primeiros vão à Copa. Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto e ranking.`
+      :`A sede e as 15 melhores do ranking vão direto. As outras 24 jogam em novembro de ${ano-1} (${periodoCopa(ano-1,ELIM_DIAS.r1[0],ELIM_DIAS.r2)}): 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa. O sorteio é em ${dataCopa(ano-1,ELIM_DIAS.sorteio,true)}.`}</p>
     <div class="cpx-linha-chips"><span class="cpx-rot">Convidadas</span>${conv.map(chip).join('')}</div>
     ${cic&&cic.classificados?`<div class="cpx-linha-chips"><span class="cpx-rot">Das eliminatórias</span>${cic.dasEliminatorias.map(chip).join('')}</div>`:''}
     <div class="cpx-grupos">${grupos.map(g=>{
@@ -46405,7 +46635,7 @@ function cardEliminatorias(ano,sel){
           <span class="cpx-gl-p">${i+1}</span>${escudoSelecao(r.pais,26)}<b>${esc(_nomeSel(r.pais))}</b>
           ${sorteado&&(g.jogos||[]).length?`<span class="num">${r.v}-${r.d}</span><span class="num dim">${r.mp}:${r.mc}</span>`:''}</div>`).join('')}
         ${(g.jogos||[]).length?`<div class="cpx-g-jogos">${g.jogos.map((f,i)=>`<span data-cpjogo="e|${g.letra}|${i}|${ano}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
-          :sorteado?`<div class="cpx-g-jogos dim">Jogos nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</div>`:''}
+          :sorteado?`<div class="cpx-g-jogos dim">Jogos em ${dataCopa(ano-1,ELIM_DIAS.r1[0],true)}, ${dataCopa(ano-1,ELIM_DIAS.r1[1],true)} e ${dataCopa(ano-1,ELIM_DIAS.r2,true)}.</div>`:''}
       </div>`;}).join('')}</div>
     ${sorteado?`<div class="cpx-acoes"><button class="btn ghost sm" data-cpmomento="convidadas|${ano}">Rever as convidadas</button>
       ${cic.classificados?`<button class="btn ghost sm" data-cpmomento="classificados|${ano}">Rever os classificados</button>`:''}</div>`:''}
@@ -46472,7 +46702,7 @@ function abaRanking(x){
   return `<div class="card cx-linha"><div class="cpx-eyebrow">Ranking de países</div>
     <table class="tbl cpx-rk"><thead><tr><th>#</th><th>Seleção</th><th>Força</th><th>Pontos</th><th>${edicoesDaCopa().length?'Desde o sorteio da última Copa':'Desde o início'}</th><th>Títulos</th><th>Situação</th></tr></thead>
     <tbody>${x.rk.map(linha).join('')}</tbody></table>
-    <p class="dim cpx-nota">${x.cic&&x.cic.convidadas?`As convidadas saíram deste ranking no dia do sorteio (semana ${ELIM_SEM_SORTEIO}).`:`Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre).`}
+    <p class="dim cpx-nota">${x.cic&&x.cic.convidadas?`As convidadas saíram deste ranking no dia do sorteio (${dataCopa(x.ano-1,ELIM_DIAS.sorteio,true)} de ${x.ano-1}).`:`Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre).`}
       O ranking nasce da força do melhor cinco de cada país, anda com cada série entre seleções (mais na Copa que nas eliminatórias, mais no mata-mata que nos grupos) e, a cada virada de ano, um pouco em direção à força atual do elenco.</p></div>`;
 }
 
@@ -46505,7 +46735,7 @@ function modalSerieSelecao(f,aoFechar){
     return m?`<span>${bandeira(f[k])} técnico: <b>${esc(m.nome)}</b> ${bandeira(m.pais)}</span>`:'';}).join('');
   const final=f.fase==='Final';
   abrir(htmlFichaSerie(f,timeVisualSelecao(f.a),timeVisualSelecao(f.b),{cor:'#e2b45a',classe:'sr-selecao'+(final?' sr-final-copa':''),
-    cab:`${final&&ASSETS.copa('trofeu')?`<img class="sr-taca" src="${ASSETS.copa('trofeu')}" alt="">`:''}Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
+    cab:`${final&&ASSETS.copa('trofeu')?`<img class="sr-taca" src="${ASSETS.copa('trofeu')}" alt="">`:''}Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}${dataDoJogoSelecao(f)?' · '+esc(dataDoJogoSelecao(f)):''}`,
     doMvp:lado,rodape:tec?`<div class="sr-tecnicos dim">${tec}</div>`:''}),true);
   _ligarFichaSerie();
   if(aoFechar){const b=document.querySelector('#srFechar');if(b)b.onclick=()=>{fechar();aoFechar();};}
@@ -46519,7 +46749,7 @@ function cardCopaCentral(){
   if(typeof garantirCopa!=='function'||!G||G.ano<COPA_PRIMEIRA-1)return '';
   const sem=G.semana||1;
   const x=_ctxCopa();
-  const perto=sem>=44||(x.ultima&&sem<=6);
+  const perto=sem>=43||(x.ultima&&sem<=6);
   if(!perto)return '';
   const cic=x.ultima&&sem<=6?x.ultima:x.cic;
   const s=cic?{nome:cic.nomeSede,pais:cic.sede,ano:cic.ano,edicao:cic.edicao}:Object.assign({},x.s,{ano:x.ano});
@@ -46865,7 +47095,7 @@ function edvCidades(){
     <td><select data-ctipo="${esc(c.slug)}"><option value="champions" ${c.tipo==='champions'?'selected':''}>Champions e Masters</option>
       <option value="masters" ${c.tipo==='masters'?'selected':''}>só Masters</option></select></td>
     <td class="c"><input type="checkbox" data-cmaior="${esc(c.slug)}" ${c.maior?'checked':''}></td>
-    <td class="dim"><code>${esc(c.slug)}.webp</code></td>
+    <td class="dim"><code>${esc(c.slug)}.jpg</code></td>
     <td class="r"><button class="btn ghost sm" data-cdel="${esc(c.slug)}">✕</button></td></tr>`;
   return `<div class="card flat"><div class="eyebrow">Cidades-sede · ${G.cidades.length}</div>
     <p class="dim">Todo ano o jogo sorteia a sede de Masters I, Masters II e Champions. Champions só
@@ -48631,6 +48861,9 @@ function aplicarTurno(r){
   if(typeof conferirCelebracao==='function')conferirCelebracao();
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'){pintarTop();pintarSide();render();}
+  /* World Cup em novembro: um momento do evento (sorteio, os 32…) num dia da janela */
+  if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
+    abrirMomentosCopa(()=>render());
   const dias=diasAteFecharJanela(G.ano,G.semana,G.turno);
   const rot=rotuloTurno(G.ano,G.semana,G.turno);
   if(r.novas&&r.novas.length){
@@ -48728,7 +48961,7 @@ function aplicarAvanco(r,quantas){
     }
   };
   /* Valorant World Cup: os momentos do evento (sede, sorteio, a campeã…)
-     abrem antes da cerimônia de fim de ano — a final é na semana 52, antes
+     abrem antes da cerimônia de fim de ano — a final é no fim de novembro, antes
      da virada. Com outra tela aberta, ficam na fila para o próximo avanço. */
   if(G&&G.copaMomentos&&G.copaMomentos.length&&!$('#modal').innerHTML&&typeof abrirMomentosCopa==='function')
     abrirMomentosCopa(fimDaTemporada);
@@ -48749,7 +48982,12 @@ function avancarAteMeuJogo(){
      no turno em que chegar proposta por alguém seu: é a resposta que importa. */
   if(usarTurnos()){
     let r=null;
-    while(usarTurnos()){r=avancarTurno();if(r&&r.novas&&r.novas.length)break;}
+    /* série sua pela seleção num dia da janela: para nela, não simula por cima */
+    const selecao=()=>typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario();
+    while(usarTurnos()){
+      if(selecao()){if(r)aplicarTurno(r);avancarComRitual(1);return;}
+      r=avancarTurno();if(r&&r.novas&&r.novas.length)break;
+    }
     aplicarTurno(r);
     if(r&&r.novas&&r.novas.length)return;
   }

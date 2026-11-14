@@ -3699,6 +3699,7 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpx-jogo:hover{border-color:rgba(226,180,90,.35);background:rgba(226,180,90,.04)}
 .cpx-jogo>b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em}
 .cpx-j-fase{font-size:10px;color:var(--dim);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-j-fase i{display:block;font-style:normal;opacity:.75;font-size:9.5px;margin-top:1px}
 .cpx-j-l{display:flex;align-items:center;gap:6px;color:var(--tx2)}
 .cpx-j-l.r{justify-content:flex-end}
 .cpx-j-l.w{color:var(--tx);font-weight:700}
@@ -4045,3 +4046,19 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpt-mapa span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--cp-ouro2)}
 .cpt-mapa:hover{border-color:var(--cp-ouro)}
 .nj-selecao{width:100%;max-width:420px}
+/* World Cup · premiação */
+.cpx-pr{display:grid;grid-template-columns:minmax(260px,1fr) 1.3fr;gap:22px;align-items:start}
+.cpx-pr-tab{display:flex;flex-direction:column;gap:6px}
+.cpx-pr-l{display:grid;grid-template-columns:22px auto 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.cpx-pr-l>b{white-space:nowrap;min-width:84px}
+.cpx-pr-l>b.num{min-width:0;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:.04em;color:var(--tx)}
+.cpx-pr-p{display:flex;align-items:center;gap:6px;color:var(--tx2);font-size:12.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpx-pr-bonus{background:transparent;border-style:dashed}
+.cpx-pr-bonus>span.dim{font-size:11.5px}
+.cpx-pr-ico{display:flex;color:#e2b45a}.cpx-pr-ico svg{width:16px;height:16px}
+.cpx-pr-div p{margin:0 0 10px;font-size:13px;line-height:1.5}
+.cpx-pr-barra{display:flex;height:30px;border-radius:7px;overflow:hidden;margin:4px 0 12px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.cpx-pr-barra i{display:flex;align-items:center;justify-content:center;font-style:normal;white-space:nowrap;overflow:hidden;color:#16120a}
+.cpx-pr-barra i:nth-child(1){background:#e2b45a}.cpx-pr-barra i:nth-child(2){background:#c99a45}
+.cpx-pr-barra i:nth-child(3){background:#8fa3b8}.cpx-pr-barra i:nth-child(4){background:#5f7488;color:#eef3f8}
+.cpx-pr-meu{display:flex;align-items:center;gap:8px;color:var(--tx)}.cpx-pr-meu svg{width:16px;height:16px;color:#e2b45a}

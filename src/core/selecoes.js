@@ -125,7 +125,7 @@ function sedeDoAno(ano){
 
 /* ---------- convidadas e eliminatórias ----------
    As duas contas usam o ranking do momento: chamadas no dia do sorteio
-   (fim do ano ímpar), o resultado fica gravado na edição (C2); chamadas
+   (novembro do ano ímpar), o resultado fica gravado na edição (C2); chamadas
    antes disso, mostram como seria se o sorteio fosse hoje. */
 function convidadasDaCopa(ano){
   ano=proximaCopa(ano);

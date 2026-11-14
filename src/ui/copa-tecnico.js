@@ -56,7 +56,7 @@ function abaMinhaSelecao(x){
       ${cong?`<p class="dim">A lista fechou no sorteio e vale até o fim desta fase. Dá para trocar quem começa jogando:</p>
         <div class="cpt-troca">${cong.titulares.map(id=>`<div class="cpt-tr"><b>${esc(G.jogadores[id].nome)}</b><span>${esc(G.jogadores[id].role)} · ${over(G.jogadores[id])}</span>
           <select data-cptroca="${id}"><option value="">manter</option>${cong.reservas.map(r=>`<option value="${r}">${esc(G.jogadores[r].nome)} (${esc(G.jogadores[r].role)} ${over(G.jogadores[r])})</option>`).join('')}</select></div>`).join('')}</div>`
-      :`<p class="dim">Escolha 5 titulares e até 5 reservas (mínimo ${SELECAO_MINIMO} no total). A lista fecha no sorteio das eliminatórias (semana ${ELIM_SEM_SORTEIO} do ano ímpar) e no sorteio da Copa (semana ${COPA_SEM_SORTEIO}). Sem lista válida, vale a sugestão.</p>
+      :`<p class="dim">Escolha 5 titulares e até 5 reservas (mínimo ${SELECAO_MINIMO} no total). A lista fecha no sorteio das eliminatórias e no da Copa (os dois no domingo da semana ${COPA_SEM_SORTEIO}, no começo de novembro). Sem lista válida, vale a sugestão.</p>
         <div class="cpt-cont"><span class="${nT===5?'ok':'falta'}">${nT}/5 titulares</span><span>${nR}/5 reservas</span>
           <button class="btn ghost sm" data-cptsug>Usar a sugestão</button><button class="btn sm" data-cptsalvar>Salvar convocação</button></div>
         <div class="cpt-lista">${lista.map(linha).join('')}</div>`}
@@ -107,7 +107,7 @@ function pintarPreJogoSelecao(){
   const seq=V.seq.map(s=>`<span class="chip ${s.tipo==='ban'?'r':s.tipo==='dec'?'':'g'}">${s.tipo==='ban'?'✕':s.tipo==='dec'?'★':'✓'} ${esc(s.m)}${s.lado0?' · '+(s.lado0==='atk'?'ataque':'defesa'):''} <span class="dim">${s.tipo==='dec'?'decider':esc(s.t)}</span></span>`).join(' ');
   const cic=cicloAtual();
   pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
-    <div class="cpx-eyebrow">Pré-jogo da seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="cpx-eyebrow">Pré-jogo da seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}${pend.ctx.dia!=null?' · '+esc(rotuloDia(G.ano,pend.ctx.semana,pend.ctx.dia)):''}</div>
     <div class="dj-vs">
       <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)} · você no comando</span></div>
       <div class="dj-x">×</div>

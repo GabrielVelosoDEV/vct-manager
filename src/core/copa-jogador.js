@@ -3,8 +3,8 @@
    ------------------------------------------------------------
    Você é convocado se estiver entre os 10 do seu país (5 titulares
    e 5 reservas), pela mesma conta das seleções da IA. A convocação
-   das eliminatórias sai no sorteio delas (semana 48 do ano ímpar);
-   a da Copa, no sorteio da Copa (semana 46 do ano par).
+   das eliminatórias sai no sorteio delas (domingo da semana 45 do ano
+   ímpar); a da Copa, no sorteio da Copa (o mesmo domingo, no ano par).
 
      convocado     notícia, seguidores, imagem e um post para fazer;
                    a sua série pela seleção abre o dia de jogo, com
@@ -99,9 +99,11 @@ function _rodarCopaAte(alvo){
   if(typeof copaSemana!=='function')return null;
   if(G.ano<COPA_PRIMEIRA-1||(G.semana||1)<ELIM_SEM_SORTEIO-2)return null;
   G._copaPararEm=alvo;
+  /* andando dia a dia pela janela, só o que é de hoje (ui: usarTurnos) */
+  if(typeof usarTurnos==='function'&&usarTurnos())G._copaHoje=G.turno||0;
   try{copaSemana();return null;}
   catch(e){if(e&&e.copaPendente)return e.copaPendente;throw e;}
-  finally{G._copaPararEm=null;}
+  finally{G._copaPararEm=null;G._copaHoje=null;}
 }
 /* a próxima série sua nesta semana, como jogador ou como técnico da seleção */
 function jogoDeSelecaoDoUsuario(){

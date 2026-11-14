@@ -2,9 +2,10 @@
 /* Valorant World Cup (C2): o ciclo e as eliminatórias.
    Roda temporadas inteiras sem clube do usuário e confere, a cada ano ímpar:
      · primeira semana do ano: sede anunciada e comissão escolhida;
-     · semana 48: 16 convidadas (a sede entre elas) e 8 grupos de 3;
-     · semanas 49 e 50: 3 séries MD3 por grupo;
-     · semana 51: 32 classificados, sem repetição, dois de cada grupo.
+     · semana 45 (domingo): 16 convidadas (a sede entre elas) e 8 grupos de 3;
+     · semana 46: 3 séries MD3 por grupo (ter, qui, sáb) e os 32
+       classificados no domingo, sem repetição, dois de cada grupo;
+     · cada série com a data (semana e dia) do calendário de novembro.
    E, a cada virada, que as 40 seleções seguem com pelo menos 7 convocáveis.
    Uso: node tools/copa-ciclo.mjs [anos] [semente] */
 import {readFileSync, writeFileSync, unlinkSync} from 'node:fs';
@@ -34,10 +35,10 @@ for (let k = 0; k < anos; k++) {
     const cic = G.copa && G.copa.ciclos && G.copa.ciclos[ano + 1];
     if (cic) {
       if (primeira) marcas.s1 = cic.anunciada && !!G.copa.comissao;   /* a 1ª semana jogada do ano (a virada pode pular a semana 1) */
-      if (sem === 48) marcas.s48 = !!cic.convidadas && !!cic.grupos && !cic.grupos.some(g => g.jogos.length);
-      if (sem === 49) marcas.s49 = cic.grupos.every(g => g.jogos.length === 2);
-      if (sem === 50) marcas.s50 = cic.grupos.every(g => g.jogos.length === 3) && !cic.classificados;
-      if (sem === 51) marcas.s51 = !!cic.classificados;
+      if (sem === 44) marcas.s44 = !cic.convidadas;
+      if (sem === 45) marcas.s45 = !!cic.convidadas && !!cic.grupos && !cic.grupos.some(g => g.jogos.length);
+      if (sem === 46) marcas.s46 = cic.grupos.every(g => g.jogos.length === 3) && !!cic.classificados
+        && cic.grupos.every(g => g.jogos.every(f => f.sem === 46 && [1, 3, 5].includes(f.dia)));
     }
     primeira = false;
   }
@@ -46,9 +47,8 @@ for (let k = 0; k < anos; k++) {
     ok(cic, `${ano}: sem ciclo da Copa ${ano + 1}`);
     if (!cic) continue;
     ok(marcas.s1, `${ano}: sede/comissão não saíram na semana 1`);
-    ok(marcas.s48, `${ano}: convites e sorteio fora da semana 48`);
-    ok(marcas.s49 && marcas.s50, `${ano}: rodadas fora das semanas 49 e 50`);
-    ok(marcas.s51, `${ano}: classificados fora da semana 51`);
+    ok(marcas.s44 && marcas.s45, `${ano}: convites e sorteio fora da semana 45`);
+    ok(marcas.s46, `${ano}: rodadas/classificados fora da semana 46 (ou sem data)`);
     ok(cic.convidadas.length === 16 && cic.convidadas.includes(cic.sede), `${ano}: convidadas erradas`);
     ok(cic.classificados.length === 32 && new Set(cic.classificados).size === 32, `${ano}: não fechou 32 classificados distintos`);
     console.log(`\n${ano} → World Cup ${cic.ano} (${cic.edicao}ª, ${cic.nomeSede}) · convidadas: ${cic.convidadas.map(sig).join(' ')}`);

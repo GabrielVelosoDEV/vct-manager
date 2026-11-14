@@ -159,7 +159,7 @@ function pintarDiaDeJogoSelecao(){
   };
   const cic=cicloAtual();
   pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
-    <div class="cpx-eyebrow">Dia de jogo pela seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="cpx-eyebrow">Dia de jogo pela seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}${pend.ctx.dia!=null?' · '+esc(rotuloDia(G.ano,pend.ctx.semana,pend.ctx.dia)):''}</div>
     <div class="dj-vs">
       <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)}${tec?' · técnico '+esc(tec.nome):''}</span></div>
       <div class="dj-x">×</div>

@@ -38,7 +38,7 @@ const COPA_SELECOES=[
   ['FI','FIN','EMEA'],['GB','GBR','EMEA'],['AU','AUS','AP'],['CZ','CZE','EMEA'],['AR','ARG','AMER'],
   ['MX','MEX','AMER'],['LT','LTU','EMEA'],['SE','SWE','EMEA'],['IT','ITA','EMEA'],['DK','DEN','EMEA'],
   ['CO','COL','AMER'],['UA','UKR','EMEA'],['SA','KSA','EMEA'],['NL','NED','EMEA'],['HK','HKG','AP'],
-  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['MD','MDA','EMEA']
+  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['PT','POR','EMEA']
 ];
 /* formato da Copa: 8 grupos de 4 em MD3, os dois primeiros avançam; daí em
    diante (oitavas, quartas, semis, disputa do bronze e final) tudo em MD5 */
@@ -59,3 +59,18 @@ const ELIM_POR_GRUPO=3, ELIM_AVANCAM=2, ELIM_MD=3;
 const COPA_CONTINENTES={AMER:'Américas',EMEA:'EMEA',AP:'Ásia-Pacífico'};
 /* convocação: 5 titulares e 5 reservas; abaixo de 7 o país não tem seleção */
 const SELECAO_TAMANHO=10, SELECAO_MINIMO=7;
+
+/* CALENDÁRIO — tudo em novembro, um jogo a cada dois dias, com a janela de
+   transferências aberta (ela vai de novembro a janeiro): o mercado da
+   pré-temporada corre junto. Cada data é [semana, dia], dia 0 = segunda.
+   Com os dias da janela (core/clock.js, avancarTurno), os jogos saem no dia
+   deles; num avanço de semana inteira, saem todos no fechamento dela.
+     ano ímpar  sorteio das eliminatórias no domingo da semana 45; rodada 1
+                na terça e na quinta da 46, rodada 2 no sábado; os 32 no
+                domingo
+     ano par    sorteio da Copa no domingo da 45; grupos na terça, quinta e
+                sábado da 46; oitavas, quartas e semis na terça, quinta e
+                sábado da 47; bronze no sábado e a final no domingo da 48 */
+const ELIM_DIAS={sorteio:[45,6],r1:[[46,1],[46,3]],r2:[46,5],classificados:[46,6]};
+const COPA_DIAS={sorteio:[45,6],g1:[46,1],g2:[46,3],g3:[46,5],
+  oitavas:[47,1],quartas:[47,3],semis:[47,5],bronze:[48,5],final:[48,6]};

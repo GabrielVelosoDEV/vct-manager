@@ -89,6 +89,8 @@ const SEDES_COPA=[
   {nome:'Mumbai',pais:'IN',maior:true},
   {nome:'Sydney',pais:'AU',maior:true}
 ];
+/* países-sede em que a Copa não vai para a maior cidade de Champions */
+const SEDE_COPA_NO_PAIS={BR:'Rio de Janeiro'};
 
 /* Sedes reais das duas temporadas antes da carreira: o sorteio de 2027 evita
    repetir estas, como evita as dos dois anos anteriores em qualquer ano. */

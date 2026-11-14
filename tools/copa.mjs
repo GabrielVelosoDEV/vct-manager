@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /* Valorant World Cup (C3): a Copa.
    Roda temporadas inteiras e confere cada Copa:
-     · sorteio na semana 46: 8 grupos de 4, sede no grupo A, continente
-       espalhado;
+     · sorteio na semana 45 (domingo): 8 grupos de 4, sede no grupo A,
+       continente espalhado; grupos na 46, oitavas a semis na 47, bronze e
+       final na 48 — cada série com a data do calendário de novembro;
      · 48 jogos de grupo (MD3), 16 de mata-mata (MD5), dois por grupo avançam;
      · pódio de quatro seleções diferentes, medalhas para os 10 de cada um
        dos três primeiros, MVP e time ideal entre quem jogou;
@@ -29,18 +30,21 @@ const G = m.G, sig = p => (m.infoSelecao(p) || {sigla: p}).sigla;
 const t0 = Date.now(), posCampeao = [];
 for (let k = 0; k < anos; k++) {
   const ano = G.ano;
-  let sorteioNa46 = null;
+  let sorteioNa45 = null, fimNa48 = null;
   while (G.ano === ano) {
     const sem = G.semana;
     m.avancar();
     const cic = G.copa && G.copa.ciclos && G.copa.ciclos[ano];
-    if (sem === 45) ok(!cic || !cic.copa, `${ano}: sorteio antes da semana 46`);
-    if (sem === 46 && cic) sorteioNa46 = !!cic.copa;
+    if (sem === 44) ok(!cic || !cic.copa, `${ano}: sorteio antes da semana 45`);
+    if (sem === 45 && cic) sorteioNa45 = !!cic.copa && cic.copa.grupos.every(g => !g.jogos.length);
+    if (sem === 47 && cic && cic.copa) ok(!cic.copa.fim && cic.copa.mata.semis && cic.copa.mata.semis.every(j => j.f), `${ano}: semis fora da semana 47`);
+    if (sem === 48 && cic && cic.copa) fimNa48 = !!cic.copa.fim;
   }
   if (ano % 2) continue;
   const cic = G.copa.ciclos[ano], C = cic && cic.copa;
   ok(cic && !cic.arquivado, `${ano}: ciclo arquivado antes da virada`);
-  ok(sorteioNa46, `${ano}: sorteio fora da semana 46`);
+  ok(sorteioNa45, `${ano}: sorteio fora da semana 45`);
+  ok(fimNa48, `${ano}: final fora da semana 48`);
   if (!C) { ok(false, `${ano}: Copa não aconteceu`); continue; }
   const ed = G.copa.edicoes.find(e => e.ano === ano);
   ok(ed, `${ano}: edição não registrada`);
@@ -50,11 +54,21 @@ for (let k = 0; k < anos; k++) {
   const mata = Object.values(C.mata).flat();
   ok(mata.length === 16 && mata.every(j => j.f && j.f.bo === 5), `${ano}: mata-mata fora do formato (${mata.length})`);
   ok(C.grupos.flatMap(g => g.jogos).every(f => f.bo === 3), `${ano}: grupo fora de MD3`);
+  const D = {1: [46, 1], 2: [46, 3], 3: [46, 5], 'Oitavas de final': [47, 1], 'Quartas de final': [47, 3], Semifinal: [47, 5], 'Disputa do bronze': [48, 5], Final: [48, 6]};
+  const datas = C.grupos.flatMap(g => g.jogos.map(f => [f, D[f.rodada]])).concat(mata.map(j => [j.f, D[j.f.fase]]));
+  ok(datas.every(([f, q]) => q && f.sem === q[0] && f.dia === q[1]), `${ano}: série fora da data do calendário`);
   ok(new Set(C.podio).size === 4, `${ano}: pódio repetido`);
   const med = {ouro: 0, prata: 0, bronze: 0};
   for (const p of Object.values(G.jogadores)) if (p.copa) for (const k2 in med) if (p.copa[k2].includes(ano)) med[k2]++;
   ok(med.ouro >= 7 && med.prata >= 7 && med.bronze >= 7, `${ano}: medalhas faltando ${JSON.stringify(med)}`);
   ok(ed && ed.mvp && ed.timeIdeal.length === 5, `${ano}: sem MVP ou time ideal`);
+  /* a premiação: a maior do jogo, dividida entre jogadores, comissão, clubes e cena local */
+  const pr = ed && ed.premio, pc = pr && pr.podio[ed.campeao], champ = (G.torneios.champions || {}).premio || 0;
+  ok(pc && pc.total > champ, `${ano}: prêmio do campeão (${pc && pc.total}) não é o maior do jogo (Champions ${champ})`);
+  ok(pc && Math.abs(pc.jogadores + pc.comissao + pc.clubes + pc.cena - pc.total) <= 2, `${ano}: divisão do prêmio não fecha`);
+  ok(pc && pc.cena > 0 && pc.cenaClubes > 0, `${ano}: cena local do campeão sem clube`);
+  ok(pr && Object.keys(pr.bonus).length > 20, `${ano}: bônus de convocação em poucos clubes`);
+  if (pr) console.log(`  premiação: total ${(pr.total / 1e6).toFixed(2)}M · campeão ${pc.total / 1e3}k (jog ${pc.jogadores / 1e3}k, com ${pc.comissao / 1e3}k, clubes ${pc.clubes / 1e3}k, cena ${pc.cena / 1e3}k em ${pc.cenaClubes} clubes) · bônus em ${Object.keys(pr.bonus).length} clubes`);
   const rk = Object.entries(cic.pontosCopa).filter(([p]) => cic.classificados.includes(p)).sort((a, b) => b[1] - a[1]).map(x => x[0]);
   const pos = rk.indexOf(ed.campeao) + 1; posCampeao.push(pos);
   const nome = id => ed.nomes[id] || id;

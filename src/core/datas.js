@@ -36,6 +36,12 @@ function rotuloSemana(ano,semana){
   const ma=MESES_CURTO[a.getUTCMonth()], mb=MESES_CURTO[b.getUTCMonth()];
   return ma===mb ? `${da}–${db} ${ma}` : `${da} ${ma} – ${db} ${mb}`;
 }
+/* um dia dentro da semana (0 = segunda): "ter, 7 nov" */
+function rotuloDia(ano,semana,dia,semDiaDaSemana){
+  const d=new Date(segundaDaSemana(ano,semana).getTime()+(dia||0)*86400000);
+  const txt=`${d.getUTCDate()} ${MESES_CURTO[d.getUTCMonth()]}`;
+  return semDiaDaSemana?txt:`${DIAS_CURTO[dia||0]}, ${txt}`;
+}
 function rotuloCurto(ano,semana){
   const a=segundaDaSemana(ano,semana);
   return `${a.getUTCDate()} ${MESES_CURTO[a.getUTCMonth()]}`;
