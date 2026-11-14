@@ -22,6 +22,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-ir]',el=>irPara(el.dataset.ir));
+  if(typeof ligarCopa==='function')ligarCopa(v,on);
   on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-ritmo]',()=>{if(typeof abrirRitmo==='function')abrirRitmo();});
   on('[data-blocos]',()=>{if(typeof abrirBlocos==='function')abrirBlocos();});

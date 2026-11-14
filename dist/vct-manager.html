@@ -3550,6 +3550,17 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .nj-at b{text-align:center}
 @media (max-width:700px){.nj-at{grid-template-columns:1fr}}
 
+/* ---------- Valorant World Cup (ui/copa.js) ---------- */
+.cp-hero{background:radial-gradient(120% 140% at 85% 0%,rgba(224,178,82,.18),transparent 60%),var(--panel)}
+.cp-hero-in{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
+.cp-trofeu{width:84px;height:84px;display:grid;place-items:center;border-radius:50%;background:rgba(224,178,82,.12);color:#e0b252}
+.cp-trofeu svg{width:52px;height:52px}
+.cp-tit{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:.04em;margin:2px 0 6px}
+.cp-conta{text-align:center;padding:10px 18px;border:1px solid rgba(224,178,82,.35);border-radius:10px}
+.cp-conta b{display:block;font-family:'Bebas Neue',sans-serif;font-size:44px;color:#e0b252;line-height:1}
+.cp-conta span{font-size:12px;color:var(--dim)}
+.cp-rank tr.me td{background:rgba(224,178,82,.08)}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -3916,6 +3927,54 @@ const TN1=['Crimson','Iron','Nova','Vortex','Obsidian','Solar','Phantom','Lunar'
  'Sable','Torch','Vanta','Aurora','Basalt','Cinder','Delta','Echo'];
 const TN2=['Legion','Syndicate','Collective','Dynasty','Vanguard','Order','Union','Force','Guild','Squad','Division',
  'Society','Corps','Circuit','Company','Front','Assembly','Crew','Faction','Line','Pack','Sect','Wing'];
+
+
+/* ===== data/copa.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — os dados fixos
+   ------------------------------------------------------------
+   Copa de seleções de 2 em 2 anos, no fim da temporada. A primeira é
+   em 2028; no ano anterior a cada Copa (ímpar), as eliminatórias.
+   As sedes seguem esta ordem e recomeçam depois da 20ª edição.
+
+   As 40 seleções são os países com mais jogadores reais na base
+   (data/elencos.js). Os 20 primeiros fecham 7 só com reais; os outros
+   completam com os agentes livres gerados que toda carreira nova já
+   sorteia (core/selecoes.js orienta a nacionalidade deles).
+
+   Continente: AMER (Américas), EMEA (Europa, Oriente Médio e África)
+   e AP (Ásia-Pacífico, com a China). Decide os grupos das
+   eliminatórias e o sorteio da Copa.
+   ============================================================ */
+
+const COPA_PRIMEIRA=2028;
+const COPA_INTERVALO=2;
+const COPA_VAGAS=32, COPA_CONVITES=16;
+
+/* [código, nome da sede] — o código é o país da sede; Inglaterra sedia
+   pelo Reino Unido (GB), que é a seleção */
+const COPA_SEDES=[
+  ['JP','Japão'],['BR','Brasil'],['US','Estados Unidos'],['CN','China'],['TR','Turquia'],
+  ['GB','Inglaterra'],['FR','França'],['DE','Alemanha'],['ES','Espanha'],['AR','Argentina'],
+  ['KR','Coreia do Sul'],['CA','Canadá'],['MX','México'],['SA','Arábia Saudita'],['RU','Rússia'],
+  ['ID','Indonésia'],['IT','Itália'],['CL','Chile'],['IN','Índia'],['AU','Austrália']
+];
+
+/* as 40 seleções, na ordem de jogadores reais na base, com a sigla de três
+   letras do placar e o continente */
+const COPA_SELECOES=[
+  ['CN','CHN','AP'],['KR','KOR','AP'],['BR','BRA','AMER'],['US','USA','AMER'],['TR','TUR','EMEA'],
+  ['JP','JPN','AP'],['PH','PHI','AP'],['RU','RUS','EMEA'],['TH','THA','AP'],['CA','CAN','AMER'],
+  ['CL','CHI','AMER'],['DE','GER','EMEA'],['PL','POL','EMEA'],['IN','IND','AP'],['FR','FRA','EMEA'],
+  ['ES','ESP','EMEA'],['ID','INA','AP'],['TW','TPE','AP'],['SG','SGP','AP'],['MY','MAS','AP'],
+  ['FI','FIN','EMEA'],['GB','GBR','EMEA'],['AU','AUS','AP'],['CZ','CZE','EMEA'],['AR','ARG','AMER'],
+  ['MX','MEX','AMER'],['LT','LTU','EMEA'],['SE','SWE','EMEA'],['IT','ITA','EMEA'],['DK','DEN','EMEA'],
+  ['CO','COL','AMER'],['UA','UKR','EMEA'],['SA','KSA','EMEA'],['NL','NED','EMEA'],['HK','HKG','AP'],
+  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['MD','MDA','EMEA']
+];
+const COPA_CONTINENTES={AMER:'Américas',EMEA:'EMEA',AP:'Ásia-Pacífico'};
+/* convocação: 5 titulares e 5 reservas; abaixo de 7 o país não tem seleção */
+const SELECAO_TAMANHO=10, SELECAO_MINIMO=7;
 
 
 /* ===== data/cores.js ===== */
@@ -15457,6 +15516,11 @@ function criarMundo(seedVal){
     aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
+  /* Valorant World Cup: a nacionalidade desses agentes livres cobre primeiro o
+     que falta para as 40 seleções chegarem a 7 (core/selecoes.js) */
+  if(typeof orientarNacionalidadesCopa==='function')orientarNacionalidadesCopa();
+  /* e o ranking de países nasce da força de cada seleção no mundo novo */
+  if(typeof garantirCopa==='function'){G.copa=null;garantirCopa();}
   /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
      saem os garotos da base e as marcas nacionais (ver paisDoClube) */
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
@@ -28281,6 +28345,142 @@ function virarTecnico(clubeId){
 }
 
 
+/* ===== src/core/selecoes.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — AS SELEÇÕES (C0)
+   ------------------------------------------------------------
+   Uma seleção não é um clube: não está em G.times, não tem caixa,
+   não joga liga nem compra ninguém. É o país (data/copa.js) mais a
+   lista dos convocáveis, que são TODOS os jogadores daquela
+   nacionalidade: com clube, livres ou da base, reais ou gerados.
+
+   Convocação: o melhor cinco possível do país pela mesma conta da
+   escalação dos clubes (lineup.js: over na função e cobertura das
+   funções), e depois os melhores reservas, até 10. País com menos
+   de 7 convocáveis fica sem seleção.
+
+   Na criação do mundo, os 70 agentes livres gerados que toda
+   carreira já sorteia têm a nacionalidade orientada para cobrir o
+   que falta para cada seleção chegar a 7 (ninguém é criado a mais).
+   O nome novo sai de um sorteio local, então o gerador do mundo
+   continua na mesma sequência.
+
+   O estado da Copa mora em G.copa:
+     {ranking:{BR:pts…}, edicoes:[…], ...}
+   ============================================================ */
+
+function infoSelecao(pais){
+  const x=COPA_SELECOES.find(s=>s[0]===pais);
+  return x?{pais:x[0],sigla:x[1],cont:x[2],nome:(typeof PAISES!=='undefined'&&PAISES[x[0]])||x[0]}:null;
+}
+function paisesDaCopa(){return COPA_SELECOES.map(s=>s[0]);}
+
+/* ---------- quem pode ser convocado ---------- */
+function convocaveis(pais){
+  return Object.values(G.jogadores).filter(p=>p&&p.pais===pais&&(p.idade||0)>=16);
+}
+/* o melhor cinco do país: a conta da escalação, num elenco de mentira */
+function _cincoDoPais(lista){
+  if(lista.length<5)return lista.map(p=>p.id);
+  /* só os 14 melhores entram na busca: o resto não muda o cinco e deixa a conta lenta */
+  const el=lista.slice().sort((a,b)=>over(b)-over(a)).slice(0,14);
+  const falso={elenco:el.map(p=>p.id),titulares:[]};
+  return (typeof melhorEscalacao==='function'?melhorEscalacao(falso):null)||el.slice(0,5).map(p=>p.id);
+}
+function convocacao(pais){
+  const todos=convocaveis(pais).filter(p=>!p.lesao);
+  if(todos.length<SELECAO_MINIMO)return null;
+  const titulares=_cincoDoPais(todos);
+  const reservas=todos.filter(p=>!titulares.includes(p.id)).sort((a,b)=>over(b)-over(a))
+    .slice(0,SELECAO_TAMANHO-titulares.length).map(p=>p.id);
+  return{pais,titulares,reservas};
+}
+/* força: a nota do melhor cinco dividida por cinco (over efetivo médio) */
+function forcaSelecao(pais,conv){
+  conv=conv||convocacao(pais);
+  if(!conv)return 0;
+  const rs=conv.titulares.map(i=>G.jogadores[i]).filter(Boolean);
+  if(rs.length<5)return rs.length?rs.reduce((s,p)=>s+over(p),0)/rs.length-6:0;
+  const n=typeof distribuirFuncoes==='function'?distribuirFuncoes(rs).nota:rs.reduce((s,p)=>s+over(p),0);
+  return Math.round(n/5*10)/10;
+}
+
+/* ---------- o estado da Copa ---------- */
+const RANKING_BASE=1500, RANKING_POR_PONTO=25;
+function garantirCopa(){
+  if(!G)return null;
+  /* save de antes da Copa: orienta os livres gerados que houver e começa o ranking */
+  if(!G.copa){orientarNacionalidadesCopa();G.copa={ranking:{},edicoes:[],criada:G.ano};}
+  const c=G.copa;
+  if(!c.ranking)c.ranking={};
+  for(const pais of paisesDaCopa())
+    if(c.ranking[pais]==null){
+      const f=forcaSelecao(pais);
+      c.ranking[pais]=Math.round(RANKING_BASE+(f-75)*RANKING_POR_PONTO);
+    }
+  return c;
+}
+function rankingPaises(){
+  const c=garantirCopa();if(!c)return[];
+  return paisesDaCopa().map(p=>({pais:p,pts:c.ranking[p],...infoSelecao(p)}))
+    .sort((a,b)=>b.pts-a.pts||a.pais.localeCompare(b.pais))
+    .map((x,i)=>Object.assign(x,{pos:i+1}));
+}
+/* a edição de um ano (par a partir de 2028) e a sede dela */
+function anoDeCopa(ano){return ano>=COPA_PRIMEIRA&&(ano-COPA_PRIMEIRA)%COPA_INTERVALO===0;}
+function anoDeEliminatorias(ano){return anoDeCopa(ano+1);}
+function proximaCopa(ano){
+  ano=ano==null?G.ano:ano;
+  if(ano<=COPA_PRIMEIRA)return COPA_PRIMEIRA;
+  const resto=(ano-COPA_PRIMEIRA)%COPA_INTERVALO;
+  return resto===0?ano:ano+(COPA_INTERVALO-resto);
+}
+function edicaoDoAno(ano){return Math.floor((ano-COPA_PRIMEIRA)/COPA_INTERVALO)+1;}
+function sedeDoAno(ano){
+  const i=(edicaoDoAno(ano)-1)%COPA_SEDES.length;
+  const [pais,nome]=COPA_SEDES[(i+COPA_SEDES.length)%COPA_SEDES.length];
+  return{pais,nome,edicao:edicaoDoAno(ano),ano};
+}
+
+/* ---------- nacionalidade dos agentes livres gerados ----------
+   Chamado na criação do mundo, depois dos agentes livres, e em saves
+   antigos na primeira vez que a Copa é aberta. Só mexe em gerado sem
+   clube, nunca em jogador real, e nunca tira um país de 7 ou mais. */
+function orientarNacionalidadesCopa(){
+  if(!G||!G.jogadores)return 0;
+  const conta={};
+  for(const p of Object.values(G.jogadores))if(p&&p.pais)conta[p.pais]=(conta[p.pais]||0)+1;
+  const falta=[];
+  for(const pais of paisesDaCopa()){const f=SELECAO_MINIMO-(conta[pais]||0);for(let i=0;i<f;i++)falta.push(pais);}
+  if(!falta.length)return 0;
+  /* doadores: gerados sem clube, de países com folga (ou fora das 40), na
+     ordem de criação (estável) */
+  const naCopa=new Set(paisesDaCopa());
+  const doadores=(G.livres||[]).map(i=>G.jogadores[i])
+    .filter(p=>p&&!p.real&&!p.timeId&&!p.base&&!p.voce)
+    .sort((a,b)=>(+String(a.id).slice(1))-(+String(b.id).slice(1)));
+  const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
+  let feitos=0;
+  for(const p of doadores){
+    if(!falta.length)break;
+    const de=p.pais;
+    if(naCopa.has(de)&&(conta[de]||0)<=SELECAO_MINIMO+2)continue;   /* não desfalca quem está no limite */
+    const para=falta.shift();
+    conta[de]=(conta[de]||0)-1;conta[para]=(conta[para]||0)+1;
+    p.pais=para;
+    /* nick com o sotaque do país novo, de um sorteio local (o mundo não muda) */
+    usados.delete(p.nome);
+    const nome=typeof comSorteioLocal==='function'&&typeof nomeUnico==='function'
+      ?comSorteioLocal('nac|'+p.id+'|'+para,()=>nomeUnico(usados,para)):null;
+    if(nome){p.nome=nome;usados.add(nome);}
+    const R=typeof REGIONS!=='undefined'&&REGIONS.find(r=>r.paises.includes(para));
+    if(R)p.regiaoOrigem=R.id;
+    feitos++;
+  }
+  return feitos;
+}
+
+
 /* ===== src/core/offseason.js ===== */
 /* ============================================================
    FIM DE TEMPORADA
@@ -31681,6 +31881,7 @@ const NAV=[
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
@@ -31821,12 +32022,12 @@ function render(){
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
-            editor:vEditor,config:vConfig}[tela]
+            editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
-  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
   const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
@@ -42281,6 +42482,7 @@ const NAV_JOGADOR=[
   ['midia','Fama e mídia','Carreira','estrela'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
@@ -42290,7 +42492,7 @@ function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.v
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   /* depois de parar, só o legado e o circuito (ui/legado.js) */
-  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','stats','premios','news','config'].includes(k)?null:vJLegado;
+  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','copa','stats','premios','news','config'].includes(k)?null:vJLegado;
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
     semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
     contrato:typeof vJContrato==='function'?vJContrato:null,midia:typeof vJMidia==='function'?vJMidia:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
@@ -43006,6 +43208,7 @@ function _jCardMidia(p){
 const NAV_APOSENTADO=[
   ['inicio','Legado','Carreira','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
@@ -43068,6 +43271,61 @@ function ligarLegado(v,on){
     if(typeof Prefs!=='undefined'&&typeof salvarRun==='function'&&Prefs.get('autosave'))salvarRun(G.runNome);
     pintarTop();pintarSide();render();flash(r.msg);
   });
+}
+
+
+/* ===== src/ui/copa.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — a tela (C0: primeira versão)
+   A sede e a contagem para a próxima Copa, o ranking de países e a
+   convocação de cada seleção. Na C4 isto vira o hub do evento.
+   ============================================================ */
+let copaVer=null;   /* país aberto na tela */
+
+function semanasAteFinalDaCopa(){
+  const ano=proximaCopa(G.ano);
+  return (ano-G.ano)*SEMANAS_ANO+(SEMANAS_ANO-(G.semana||1));
+}
+function vCopa(){
+  garantirCopa();
+  const ano=proximaCopa(G.ano), s=sedeDoAno(ano), falta=semanasAteFinalDaCopa();
+  const rk=rankingPaises();
+  const meuPais=typeof meuJogador==='function'&&meuJogador()?meuJogador().pais:null;
+  const elimAno=ano-1;
+  const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`:G.ano===elimAno?'Eliminatórias no fim desta temporada':'A Copa é no fim desta temporada';
+  const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
+  return `<section class="card cp-hero">
+      <div class="cp-hero-in">
+        <div class="cp-trofeu" aria-hidden="true">${typeof ico==='function'?ico('trofeu'):''}</div>
+        <div><div class="eyebrow">Valorant World Cup · ${s.edicao}ª edição</div>
+          <h1 class="cp-tit">${esc(s.nome)} ${ano}</h1>
+          <p class="dim">${esc(fase)}. 32 seleções: 16 convidadas pelo ranking e 16 das eliminatórias, em 8 grupos de 4; os dois primeiros de cada grupo avançam.</p></div>
+        <div class="cp-conta"><b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span></div>
+      </div></section>
+    <div class="grid g2 cx-linha">
+      <div class="card"><div class="eyebrow">Ranking de países</div>
+        <table class="tbl cp-rank"><thead><tr><th>#</th><th>Seleção</th><th>Força</th><th>Pontos</th></tr></thead><tbody>
+        ${rk.map(x=>`<tr class="${x.pais===sel?'me':''}" data-copapais="${x.pais}" style="cursor:pointer"><td class="num">${x.pos}</td>
+          <td>${bandeira(x.pais)} <b>${esc(x.nome)}</b> <span class="dim">${x.sigla}</span>${x.pais===s.pais?' <span class="chip">sede</span>':''}${x.pos<=COPA_CONVITES?'':''}</td>
+          <td class="num">${forcaSelecao(x.pais)}</td><td class="num">${x.pts}</td></tr>`).join('')}</tbody></table>
+        <p class="dim">Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre). O ranking nasce da força do melhor cinco de cada país e, a partir da primeira Copa, anda com os resultados.</p></div>
+      ${cardConvocacao(sel)}
+    </div>`;
+}
+function cardConvocacao(pais){
+  const info=infoSelecao(pais), c=convocacao(pais);
+  if(!info)return '';
+  const linha=(id,tit)=>{const p=G.jogadores[id];if(!p)return '';const t=p.timeId&&G.times[p.timeId];
+    return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b>${p.voce?' <span class="chip up">você</span>':''}${p.real?'':' <span class="dim">gerado</span>'}</td>
+      <td>${esc(p.role)}</td><td class="num">${over(p)}</td><td>${t?esc(t.tag||t.nome):p.base?'base':'sem clube'}</td><td>${tit?'<span class="chip up">titular</span>':''}</td></tr>`;};
+  return `<div class="card"><div class="eyebrow">${bandeira(pais)} ${esc(info.nome)} · convocação</div>
+    ${c?`<table class="tbl"><thead><tr><th>Jogador</th><th>Função</th><th>Over</th><th>Clube</th><th></th></tr></thead><tbody>
+      ${c.titulares.map(i=>linha(i,true)).join('')}${c.reservas.map(i=>linha(i,false)).join('')}</tbody></table>
+      <p class="dim">${convocaveis(pais).length} convocáveis no mundo hoje. O cinco é o melhor possível pela mesma conta da escalação dos clubes; os reservas são os melhores que sobram.</p>`
+      :vazio(`<b>${esc(info.nome)} não tem 7 jogadores agora.</b>`,'elenco')}</div>`;
+}
+function ligarCopa(v,on){
+  on('[data-copapais]',el=>{copaVer=el.dataset.copapais;render();});
 }
 
 
@@ -44178,6 +44436,7 @@ function ligarEventos(){
   const temCampo=sel=>!!v.querySelector(sel);
   on('[data-ca]',el=>{compAba=el.dataset.ca;render();});
   on('[data-ir]',el=>irPara(el.dataset.ir));
+  if(typeof ligarCopa==='function')ligarCopa(v,on);
   on('[data-range]',()=>{if(typeof abrirRange==='function')abrirRange();});
   on('[data-ritmo]',()=>{if(typeof abrirRitmo==='function')abrirRitmo();});
   on('[data-blocos]',()=>{if(typeof abrirBlocos==='function')abrirBlocos();});

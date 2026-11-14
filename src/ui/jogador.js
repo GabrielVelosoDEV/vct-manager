@@ -23,6 +23,7 @@ const NAV_JOGADOR=[
   ['midia','Fama e mídia','Carreira','estrela'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
@@ -32,7 +33,7 @@ function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.v
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   /* depois de parar, só o legado e o circuito (ui/legado.js) */
-  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','stats','premios','news','config'].includes(k)?null:vJLegado;
+  if(G.voce&&G.voce.aposentado&&typeof vJLegado==='function')return ['comp','copa','stats','premios','news','config'].includes(k)?null:vJLegado;
   return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
     semana:typeof vJSemana==='function'?vJSemana:null,relacoes:typeof vJRelacoes==='function'?vJRelacoes:null,
     contrato:typeof vJContrato==='function'?vJContrato:null,midia:typeof vJMidia==='function'?vJMidia:null,financas:typeof vJFinancas==='function'?vJFinancas:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;

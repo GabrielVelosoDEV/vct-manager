@@ -4,6 +4,7 @@
 const NAV_APOSENTADO=[
   ['inicio','Legado','Carreira','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],

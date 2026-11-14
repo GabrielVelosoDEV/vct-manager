@@ -26,6 +26,7 @@ const NAV=[
   ['base','Base','Clube','base'],
   ['historia','História','Clube','trofeu'],
   ['comp','Competições','Circuito','trofeu'],
+  ['copa','World Cup','Circuito','estrela'],
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
@@ -166,12 +167,12 @@ function render(){
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
-            editor:vEditor,config:vConfig}[tela]
+            editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
-  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
   const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));

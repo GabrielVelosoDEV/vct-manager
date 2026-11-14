@@ -180,6 +180,11 @@ function criarMundo(seedVal){
     aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
     p.contrato=0;p.regiaoOrigem=R.id;G.jogadores[p.id]=p;G.livres.push(p.id);
   }
+  /* Valorant World Cup: a nacionalidade desses agentes livres cobre primeiro o
+     que falta para as 40 seleções chegarem a 7 (core/selecoes.js) */
+  if(typeof orientarNacionalidadesCopa==='function')orientarNacionalidadesCopa();
+  /* e o ranking de países nasce da força de cada seleção no mundo novo */
+  if(typeof garantirCopa==='function'){G.copa=null;garantirCopa();}
   /* país de sede congelado agora, com o elenco real ainda inteiro: é dele que
      saem os garotos da base e as marcas nacionais (ver paisDoClube) */
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
