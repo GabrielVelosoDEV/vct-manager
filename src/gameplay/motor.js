@@ -28,7 +28,7 @@ GP.MOSTRAR_TODOS = false;
    também). Atrás da parede ele só aparece quando faz barulho (para quem ouve)
    ou quando é revelado por habilidade (para o time todo). */
 GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
-GP.MIRA_POSICIONADA = {reacao: 0.65, erro: 0.55};
+GP.MIRA_POSICIONADA = {reacao: 0.55, erro: 0.45};
 GP.CUSTO_VIRAR = 0.22;     /* s por radiano além do campo de visão central */
 GP.ouve = function (J, a, b) {
   for (let i = J.sons.length - 1; i >= 0; i--) {
@@ -62,7 +62,7 @@ GP.parametros = function (a) {
     periferia: 0.28 - 0.22 * vis,          /* bot: atraso extra se o alvo surge fora da frente dele */
     rajadaMult: 1.25 - 0.5 * clu,
     erroMira: 0.8 - 0.45 * mira,           /* bot: erro inicial (m) ao achar o alvo */
-    erroPiso: 0.07 + 0.16 * (1 - mira),    /* bot: tremida que nunca some (menos tiro na cabeça) */
+    erroPiso: 0.17 + 0.14 * (1 - mira),    /* bot: tremida que nunca some (menos tiro na cabeça) */
     ajuste: 0.75 - 0.4 * mira,             /* bot: tempo para corrigir a mira (s) */
     disciplina: 0.35 + 0.6 * clu,          /* bot: quanto segura a rajada */
     contraStrafe: 0.35 + 0.6 * mov,        /* bot: chance de parar antes de atirar */
@@ -145,9 +145,10 @@ GP.passo = function (J, dt) {
   if (GP.passoMecanicas) GP.passoMecanicas(J, dt);
   if (GP.passoHabilidades) GP.passoHabilidades(J, dt);
   /* limpa o que já passou */
-  J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
-  J.sons = J.sons.filter(s => J.t - s.t < 1.2);
-  J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
+  /* só refaz a lista quando o mais velho venceu (chegam em ordem de tempo) */
+  if (J.tiros.length && J.t - J.tiros[0].t >= 0.25) J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
+  if (J.sons.length && J.t - J.sons[0].t >= 1.2) J.sons = J.sons.filter(s => J.t - s.t < 1.2);
+  if (J.marcas.length && J.t - J.marcas[0].t >= 0.9) J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
   GP._fluxoDoRound(J, dt);
 };
 
@@ -177,6 +178,7 @@ GP._aplicarComando = function (J, e, dt) {
   let mx = c.mx || 0, my = c.my || 0;
   const n = Math.hypot(mx, my); if (n > 1) { mx /= n; my /= n; }
   if (e._acaoSpike) { mx = 0; my = 0; }   /* plantando ou desarmando: parado */
+  if (J.round.trava && J.round.trava[e.time] > J.t) { mx = 0; my = 0; }   /* ainda atrás da barreira */
   let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult * (GP.multVel ? GP.multVel(J, e) : 1);
   if (e.luneta) vmax = Math.min(vmax, GP.VEL.anda * 0.8);
   const tx = mx * vmax, ty = my * vmax;

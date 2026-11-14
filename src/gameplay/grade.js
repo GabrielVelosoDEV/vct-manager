@@ -206,42 +206,48 @@ GP._navPerto = function (m, x, y) {
   }
   return reserva;
 };
+GP._VIZ_X = [1, -1, 0, 0, 1, 1, -1, -1]; GP._VIZ_Y = [0, 0, 1, -1, 1, -1, 1, -1]; GP._VIZ_C = [1, 1, 1, 1, 1.414, 1.414, 1.414, 1.414];
 GP.caminho = function (m, ax, ay, bx, by) {
   const n = m.nav, W = n.W;
   const ini = GP._navPerto(m, ax, ay), fim = GP._navPerto(m, bx, by);
   if (ini < 0 || fim < 0) return null;
-  const g = new Float32Array(W * n.H).fill(Infinity), de = new Int32Array(W * n.H).fill(-1);
-  const fechado = new Uint8Array(W * n.H);
+  /* vetores do tamanho do mapa reaproveitados entre buscas: a geração marca
+     o que é desta busca (sem fill e sem lixo para o coletor) */
+  const N = W * n.H;
+  let B = m._astar;
+  if (!B || B.N !== N) B = m._astar = {N, g: new Float32Array(N), de: new Int32Array(N), ger: new Uint32Array(N), fech: new Uint32Array(N), n: 0, heap: [], pri: []};
+  const gen = ++B.n, g = B.g, de = B.de, ger = B.ger, fech = B.fech;
+  const G = i => ger[i] === gen ? g[i] : Infinity;
   const fx = fim % W, fy = (fim / W) | 0;
   const h = i => { const dx = Math.abs(i % W - fx), dy = Math.abs(((i / W) | 0) - fy); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
   /* heap binário simples */
-  const heap = [], pri = [];
+  const heap = B.heap, pri = B.pri; heap.length = 0; pri.length = 0;
   const push = (i, p) => { heap.push(i); pri.push(p); let k = heap.length - 1;
     while (k > 0) { const pa = (k - 1) >> 1; if (pri[pa] <= pri[k]) break;
-      [heap[pa], heap[k]] = [heap[k], heap[pa]]; [pri[pa], pri[k]] = [pri[k], pri[pa]]; k = pa; } };
+      const ti = heap[pa]; heap[pa] = heap[k]; heap[k] = ti; const tp = pri[pa]; pri[pa] = pri[k]; pri[k] = tp; k = pa; } };
   const pop = () => { const top = heap[0], ult = heap.pop(), up = pri.pop();
     if (heap.length) { heap[0] = ult; pri[0] = up; let k = 0;
       for (;;) { const a = 2 * k + 1, b = a + 1; let s = k;
         if (a < heap.length && pri[a] < pri[s]) s = a; if (b < heap.length && pri[b] < pri[s]) s = b;
-        if (s === k) break; [heap[s], heap[k]] = [heap[k], heap[s]]; [pri[s], pri[k]] = [pri[k], pri[s]]; k = s; } }
+        if (s === k) break; const ti = heap[s]; heap[s] = heap[k]; heap[k] = ti; const tp = pri[s]; pri[s] = pri[k]; pri[k] = tp; k = s; } }
     return top; };
-  g[ini] = 0; push(ini, h(ini));
-  const viz = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, 1.414], [1, -1, 1.414], [-1, 1, 1.414], [-1, -1, 1.414]];
+  g[ini] = 0; de[ini] = -1; ger[ini] = gen; push(ini, h(ini));
+  const VX = GP._VIZ_X, VY = GP._VIZ_Y, VC = GP._VIZ_C, livre = n.livre;
   let achou = false, guarda = 0;
   while (heap.length && guarda++ < 60000) {
     const i = pop();
-    if (fechado[i]) continue;
+    if (fech[i] === gen) continue;
     if (i === fim) { achou = true; break; }
-    fechado[i] = 1;
-    const x = i % W, y = (i / W) | 0;
-    for (const [dx, dy, custo] of viz) {
-      const X = x + dx, Y = y + dy;
+    fech[i] = gen;
+    const x = i % W, y = (i / W) | 0, gi = g[i];
+    for (let v = 0; v < 8; v++) {
+      const dx = VX[v], dy = VY[v], X = x + dx, Y = y + dy;
       if (X < 0 || Y < 0 || X >= W || Y >= n.H) continue;
       const j = Y * W + X;
-      if (!n.livre[j] || fechado[j]) continue;
-      if (dx && dy && (!n.livre[y * W + X] || !n.livre[Y * W + x])) continue; /* sem cortar quina */
-      const ng = g[i] + custo;
-      if (ng < g[j]) { g[j] = ng; de[j] = i; push(j, ng + h(j)); }
+      if (!livre[j] || fech[j] === gen) continue;
+      if (dx && dy && (!livre[y * W + X] || !livre[Y * W + x])) continue; /* sem cortar quina */
+      const ng = gi + VC[v];
+      if (ng < G(j)) { g[j] = ng; de[j] = i; ger[j] = gen; push(j, ng + h(j)); }
     }
   }
   if (!achou) return null;

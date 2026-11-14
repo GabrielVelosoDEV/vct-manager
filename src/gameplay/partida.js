@@ -14,6 +14,10 @@ GP.SPIKE = {planta: 4, pavio: 45, desarme: 7, marco: 3.5, raio: 13, alcance: 1.3
 GP.ECON = {inicio: 800, max: 9000, abate: 200, vitoria: 3000, derrota: [1900, 2400, 2900], plant: 300, prorrogacao: 5000};
 GP.CUSTO_HAB = {c: 200, q: 250};      /* E é a assinatura: uma carga de graça por round */
 GP.PRECO_ESCUDO = {leve: 400, pesado: 1000};
+/* barreira por mapa (calibração da etapa 6): segundos a mais que um lado
+   fica preso no spawn quando o round começa, para o mapa ter o lado que
+   tem no VCT (MAPA_ATK). atk = o ataque sai depois; def = a defesa sai depois */
+GP.BARREIRA_MAPA = {fracture: {atk: 3.5}, ascent: {atk: 2.5}, icebox: {atk: 3}, pearl: {atk: 4}, haven: {atk: 1.5}, bind: {atk: 1.5}, abyss: {def: 2.5}, corrode: {def: 2}, sunset: {def: 1.5}, split: {def: 1.5}, breeze: {def: 0.5}};
 GP.AGRESSIVO_PAPEL = {duelista: 0.75, iniciador: 0.5, controlador: 0.4, sentinela: 0.3};
 
 /* ---------- montar ---------- */
@@ -195,6 +199,7 @@ GP._comprarTodos = function (J) {
       const H = GP.HABS[e.agente];
       if (H) for (const k of ['c', 'q']) {
         const h = H[k]; if (!h || h.semDuelo || !h.cargas) continue;
+        if (e.bot && GP._info && !GP._info(e, k)) continue;   /* o bot não compra o que não sabe usar */
         while (e.cargas[k] < h.cargas && e.creditos >= GP.CUSTO_HAB[k] + (modo === 'eco' ? 2000 : 0)) { e.creditos -= GP.CUSTO_HAB[k]; e.cargas[k]++; }
       }
     }
@@ -218,7 +223,11 @@ GP._fluxoPartida = function (J, dt) {
   }
   if (GP._estatPasso) GP._estatPasso(J);
   if (R.fase === 'compra') {
-    if (J.t >= R.ate) { R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound; }
+    if (J.t >= R.ate) {
+      R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound;
+      const b = GP.BARREIRA_MAPA[J.m.nome] || {};
+      R.trava = {[GP._timeAtk(J)]: J.t + (b.atk || 0), [GP._timeDef(J)]: J.t + (b.def || 0)};
+    }
     return;
   }
   if (R.fase === 'ativo') {

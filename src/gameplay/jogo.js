@@ -357,6 +357,7 @@ GP._hud = function () {
     const nos = eu.time, sp = J.spike;
     if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
     else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
+    else if (R.trava && R.trava[nos] > J.t) faixa = 'Barreira: ' + Math.ceil(R.trava[nos] - J.t) + ' s';
     else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
     else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
     const fx = $gp('#gpFaixa');

@@ -453,42 +453,48 @@ GP._navPerto = function (m, x, y) {
   }
   return reserva;
 };
+GP._VIZ_X = [1, -1, 0, 0, 1, 1, -1, -1]; GP._VIZ_Y = [0, 0, 1, -1, 1, -1, 1, -1]; GP._VIZ_C = [1, 1, 1, 1, 1.414, 1.414, 1.414, 1.414];
 GP.caminho = function (m, ax, ay, bx, by) {
   const n = m.nav, W = n.W;
   const ini = GP._navPerto(m, ax, ay), fim = GP._navPerto(m, bx, by);
   if (ini < 0 || fim < 0) return null;
-  const g = new Float32Array(W * n.H).fill(Infinity), de = new Int32Array(W * n.H).fill(-1);
-  const fechado = new Uint8Array(W * n.H);
+  /* vetores do tamanho do mapa reaproveitados entre buscas: a geração marca
+     o que é desta busca (sem fill e sem lixo para o coletor) */
+  const N = W * n.H;
+  let B = m._astar;
+  if (!B || B.N !== N) B = m._astar = {N, g: new Float32Array(N), de: new Int32Array(N), ger: new Uint32Array(N), fech: new Uint32Array(N), n: 0, heap: [], pri: []};
+  const gen = ++B.n, g = B.g, de = B.de, ger = B.ger, fech = B.fech;
+  const G = i => ger[i] === gen ? g[i] : Infinity;
   const fx = fim % W, fy = (fim / W) | 0;
   const h = i => { const dx = Math.abs(i % W - fx), dy = Math.abs(((i / W) | 0) - fy); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
   /* heap binário simples */
-  const heap = [], pri = [];
+  const heap = B.heap, pri = B.pri; heap.length = 0; pri.length = 0;
   const push = (i, p) => { heap.push(i); pri.push(p); let k = heap.length - 1;
     while (k > 0) { const pa = (k - 1) >> 1; if (pri[pa] <= pri[k]) break;
-      [heap[pa], heap[k]] = [heap[k], heap[pa]]; [pri[pa], pri[k]] = [pri[k], pri[pa]]; k = pa; } };
+      const ti = heap[pa]; heap[pa] = heap[k]; heap[k] = ti; const tp = pri[pa]; pri[pa] = pri[k]; pri[k] = tp; k = pa; } };
   const pop = () => { const top = heap[0], ult = heap.pop(), up = pri.pop();
     if (heap.length) { heap[0] = ult; pri[0] = up; let k = 0;
       for (;;) { const a = 2 * k + 1, b = a + 1; let s = k;
         if (a < heap.length && pri[a] < pri[s]) s = a; if (b < heap.length && pri[b] < pri[s]) s = b;
-        if (s === k) break; [heap[s], heap[k]] = [heap[k], heap[s]]; [pri[s], pri[k]] = [pri[k], pri[s]]; k = s; } }
+        if (s === k) break; const ti = heap[s]; heap[s] = heap[k]; heap[k] = ti; const tp = pri[s]; pri[s] = pri[k]; pri[k] = tp; k = s; } }
     return top; };
-  g[ini] = 0; push(ini, h(ini));
-  const viz = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, 1.414], [1, -1, 1.414], [-1, 1, 1.414], [-1, -1, 1.414]];
+  g[ini] = 0; de[ini] = -1; ger[ini] = gen; push(ini, h(ini));
+  const VX = GP._VIZ_X, VY = GP._VIZ_Y, VC = GP._VIZ_C, livre = n.livre;
   let achou = false, guarda = 0;
   while (heap.length && guarda++ < 60000) {
     const i = pop();
-    if (fechado[i]) continue;
+    if (fech[i] === gen) continue;
     if (i === fim) { achou = true; break; }
-    fechado[i] = 1;
-    const x = i % W, y = (i / W) | 0;
-    for (const [dx, dy, custo] of viz) {
-      const X = x + dx, Y = y + dy;
+    fech[i] = gen;
+    const x = i % W, y = (i / W) | 0, gi = g[i];
+    for (let v = 0; v < 8; v++) {
+      const dx = VX[v], dy = VY[v], X = x + dx, Y = y + dy;
       if (X < 0 || Y < 0 || X >= W || Y >= n.H) continue;
       const j = Y * W + X;
-      if (!n.livre[j] || fechado[j]) continue;
-      if (dx && dy && (!n.livre[y * W + X] || !n.livre[Y * W + x])) continue; /* sem cortar quina */
-      const ng = g[i] + custo;
-      if (ng < g[j]) { g[j] = ng; de[j] = i; push(j, ng + h(j)); }
+      if (!livre[j] || fech[j] === gen) continue;
+      if (dx && dy && (!livre[y * W + X] || !livre[Y * W + x])) continue; /* sem cortar quina */
+      const ng = gi + VC[v];
+      if (ng < G(j)) { g[j] = ng; de[j] = i; ger[j] = gen; push(j, ng + h(j)); }
     }
   }
   if (!achou) return null;
@@ -617,7 +623,7 @@ GP.MOSTRAR_TODOS = false;
    também). Atrás da parede ele só aparece quando faz barulho (para quem ouve)
    ou quando é revelado por habilidade (para o time todo). */
 GP.SOM_MOSTRA = 1.0;      /* depois do último barulho, continua aparecendo tantos s */
-GP.MIRA_POSICIONADA = {reacao: 0.65, erro: 0.55};
+GP.MIRA_POSICIONADA = {reacao: 0.55, erro: 0.45};
 GP.CUSTO_VIRAR = 0.22;     /* s por radiano além do campo de visão central */
 GP.ouve = function (J, a, b) {
   for (let i = J.sons.length - 1; i >= 0; i--) {
@@ -651,7 +657,7 @@ GP.parametros = function (a) {
     periferia: 0.28 - 0.22 * vis,          /* bot: atraso extra se o alvo surge fora da frente dele */
     rajadaMult: 1.25 - 0.5 * clu,
     erroMira: 0.8 - 0.45 * mira,           /* bot: erro inicial (m) ao achar o alvo */
-    erroPiso: 0.07 + 0.16 * (1 - mira),    /* bot: tremida que nunca some (menos tiro na cabeça) */
+    erroPiso: 0.17 + 0.14 * (1 - mira),    /* bot: tremida que nunca some (menos tiro na cabeça) */
     ajuste: 0.75 - 0.4 * mira,             /* bot: tempo para corrigir a mira (s) */
     disciplina: 0.35 + 0.6 * clu,          /* bot: quanto segura a rajada */
     contraStrafe: 0.35 + 0.6 * mov,        /* bot: chance de parar antes de atirar */
@@ -734,9 +740,10 @@ GP.passo = function (J, dt) {
   if (GP.passoMecanicas) GP.passoMecanicas(J, dt);
   if (GP.passoHabilidades) GP.passoHabilidades(J, dt);
   /* limpa o que já passou */
-  J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
-  J.sons = J.sons.filter(s => J.t - s.t < 1.2);
-  J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
+  /* só refaz a lista quando o mais velho venceu (chegam em ordem de tempo) */
+  if (J.tiros.length && J.t - J.tiros[0].t >= 0.25) J.tiros = J.tiros.filter(t => J.t - t.t < 0.25);
+  if (J.sons.length && J.t - J.sons[0].t >= 1.2) J.sons = J.sons.filter(s => J.t - s.t < 1.2);
+  if (J.marcas.length && J.t - J.marcas[0].t >= 0.9) J.marcas = J.marcas.filter(s => J.t - s.t < 0.9);
   GP._fluxoDoRound(J, dt);
 };
 
@@ -766,6 +773,7 @@ GP._aplicarComando = function (J, e, dt) {
   let mx = c.mx || 0, my = c.my || 0;
   const n = Math.hypot(mx, my); if (n > 1) { mx /= n; my /= n; }
   if (e._acaoSpike) { mx = 0; my = 0; }   /* plantando ou desarmando: parado */
+  if (J.round.trava && J.round.trava[e.time] > J.t) { mx = 0; my = 0; }   /* ainda atrás da barreira */
   let vmax = GP.VEL[e.modo] * A.velMult * e.p.velMult * (GP.multVel ? GP.multVel(J, e) : 1);
   if (e.luneta) vmax = Math.min(vmax, GP.VEL.anda * 0.8);
   const tx = mx * vmax, ty = my * vmax;
@@ -4749,6 +4757,10 @@ GP.SPIKE = {planta: 4, pavio: 45, desarme: 7, marco: 3.5, raio: 13, alcance: 1.3
 GP.ECON = {inicio: 800, max: 9000, abate: 200, vitoria: 3000, derrota: [1900, 2400, 2900], plant: 300, prorrogacao: 5000};
 GP.CUSTO_HAB = {c: 200, q: 250};      /* E é a assinatura: uma carga de graça por round */
 GP.PRECO_ESCUDO = {leve: 400, pesado: 1000};
+/* barreira por mapa (calibração da etapa 6): segundos a mais que um lado
+   fica preso no spawn quando o round começa, para o mapa ter o lado que
+   tem no VCT (MAPA_ATK). atk = o ataque sai depois; def = a defesa sai depois */
+GP.BARREIRA_MAPA = {fracture: {atk: 3.5}, ascent: {atk: 2.5}, icebox: {atk: 3}, pearl: {atk: 4}, haven: {atk: 1.5}, bind: {atk: 1.5}, abyss: {def: 2.5}, corrode: {def: 2}, sunset: {def: 1.5}, split: {def: 1.5}, breeze: {def: 0.5}};
 GP.AGRESSIVO_PAPEL = {duelista: 0.75, iniciador: 0.5, controlador: 0.4, sentinela: 0.3};
 
 /* ---------- montar ---------- */
@@ -4930,6 +4942,7 @@ GP._comprarTodos = function (J) {
       const H = GP.HABS[e.agente];
       if (H) for (const k of ['c', 'q']) {
         const h = H[k]; if (!h || h.semDuelo || !h.cargas) continue;
+        if (e.bot && GP._info && !GP._info(e, k)) continue;   /* o bot não compra o que não sabe usar */
         while (e.cargas[k] < h.cargas && e.creditos >= GP.CUSTO_HAB[k] + (modo === 'eco' ? 2000 : 0)) { e.creditos -= GP.CUSTO_HAB[k]; e.cargas[k]++; }
       }
     }
@@ -4953,7 +4966,11 @@ GP._fluxoPartida = function (J, dt) {
   }
   if (GP._estatPasso) GP._estatPasso(J);
   if (R.fase === 'compra') {
-    if (J.t >= R.ate) { R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound; }
+    if (J.t >= R.ate) {
+      R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound;
+      const b = GP.BARREIRA_MAPA[J.m.nome] || {};
+      R.trava = {[GP._timeAtk(J)]: J.t + (b.atk || 0), [GP._timeDef(J)]: J.t + (b.def || 0)};
+    }
     return;
   }
   if (R.fase === 'ativo') {
@@ -5320,7 +5337,10 @@ GP._planejarRound = function (J) {
     else if (tipo === 'default') { const ln = lanes[idxLane++ % lanes.length]; L = ln.L; k = ln.k; }
     papeis[e.id] = {f, L, k, atraso: {entrada: 0, apoio: 0.9, apoio2: 1.8, flanco: 2.5, fake: 0, lurk: 0}[f]};
   });
-  const formarMax = {execucao: 32, split: 30, fake: 34, default: 30 + rnd() * 12, rush: 0}[tipo];
+  const formarMax = {execucao: 40 + rnd() * 10, split: 38 + rnd() * 8, fake: 40, default: 40 + rnd() * 18, rush: 0}[tipo];
+  /* o pro não executa assim que chega: espera a informação e o momento
+     (o rush é a exceção) */
+  const irMin = {execucao: 18 + rnd() * 20, split: 18 + rnd() * 16, fake: 22, default: 0, rush: 0}[tipo];
   /* ---- defesa ---- */
   const contaPlant = {};
   for (const h of J.historico) if (h.plant && h.atk !== defT) contaPlant[h.plant] = (contaPlant[h.plant] || 0) + 1;
@@ -5344,7 +5364,7 @@ GP._planejarRound = function (J) {
   let pusher = null;
   if (tipoDef === 'push') pusher = filaDef.slice().reverse().find(e => e.papel === 'duelista') || filaDef[filaDef.length - 1];
   J.plano = {
-    atk: {tipo, alvo, outro, fase: 'formar', papeis, formarMax, tIr: 0, decidido: tipo !== 'default'},
+    atk: {tipo, alvo, outro, fase: 'formar', papeis, formarMax, irMin, tIr: 0, decidido: tipo !== 'default'},
     def: {tipo: tipoDef, posicao, ancora, pusher: pusher && pusher.id, girarPara: null, segurarFora: false},
     avisos: {}, retake: null, alvo,
     nomeAtk: GP.NOME_PLANO[tipo] + (tipo === 'default' ? '' : ' ' + alvo.toUpperCase()) + (lurker ? ' + lurk' : ''),
@@ -5387,7 +5407,7 @@ GP._contato = function (J) {
     let ir = A.tipo === 'rush' || t - inicio > A.formarMax || mortos >= 2;
     if (A.tipo === 'default') ir = t - inicio > A.formarMax || mortos >= 2;
     else if (A.tipo === 'fake') ir = ir || (prontos >= contando.length - 1 && t - inicio > 18);
-    else ir = ir || (contando.length && prontos >= contando.length - (contando.length > 2 ? 1 : 0));
+    else ir = ir || (contando.length && prontos >= contando.length - (contando.length > 2 ? 1 : 0) && t - inicio >= (A.irMin || 0));
     if (ir) {
       if (!A.decidido) {
         /* default: decide agora — o bomb onde viram menos defensor */
@@ -5417,7 +5437,7 @@ GP._contato = function (J) {
       const longe = def.filter(e => Math.hypot(e.x - sp.x, e.y - sp.y) > 12);
       const juntos = longe.filter(e => Math.hypot(e.x - Rt.ponto.x, e.y - Rt.ponto.y) < 7).length;
       const viagem = Math.hypot(Rt.ponto.x - sp.x, Rt.ponto.y - sp.y) / 6 + GP.SPIKE.desarme + 4;
-      if (!atk.length || juntos >= longe.length || sp.explode - t < viagem || t - Rt.t > 22) Rt.fase = 'entrar';
+      if (!atk.length || juntos >= longe.length || sp.explode - t < viagem || t - Rt.t > 15) Rt.fase = 'entrar';
     }
   }
 };
@@ -7386,6 +7406,7 @@ GP._hud = function () {
     const nos = eu.time, sp = J.spike;
     if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
     else if (R.fase === 'fim') faixa = (R.vencedor === nos ? 'Round ganho' : 'Round perdido') + ' · ' + R.como;
+    else if (R.trava && R.trava[nos] > J.t) faixa = 'Barreira: ' + Math.ceil(R.trava[nos] - J.t) + ' s';
     else if (sp && sp.estado === 'carregada' && sp.dono === eu.id) faixa = GP.sitioEm(J.m, eu.x, eu.y) ? 'Segure F para plantar' : '';
     else if (sp && sp.estado === 'plantada' && eu.time !== GP._timeAtk(J) && Math.hypot(eu.x - sp.x, eu.y - sp.y) < GP.SPIKE.alcance) faixa = 'Segure F para desarmar';
     const fx = $gp('#gpFaixa');

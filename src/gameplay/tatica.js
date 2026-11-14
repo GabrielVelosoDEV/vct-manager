@@ -139,7 +139,10 @@ GP._planejarRound = function (J) {
     else if (tipo === 'default') { const ln = lanes[idxLane++ % lanes.length]; L = ln.L; k = ln.k; }
     papeis[e.id] = {f, L, k, atraso: {entrada: 0, apoio: 0.9, apoio2: 1.8, flanco: 2.5, fake: 0, lurk: 0}[f]};
   });
-  const formarMax = {execucao: 32, split: 30, fake: 34, default: 30 + rnd() * 12, rush: 0}[tipo];
+  const formarMax = {execucao: 40 + rnd() * 10, split: 38 + rnd() * 8, fake: 40, default: 40 + rnd() * 18, rush: 0}[tipo];
+  /* o pro não executa assim que chega: espera a informação e o momento
+     (o rush é a exceção) */
+  const irMin = {execucao: 18 + rnd() * 20, split: 18 + rnd() * 16, fake: 22, default: 0, rush: 0}[tipo];
   /* ---- defesa ---- */
   const contaPlant = {};
   for (const h of J.historico) if (h.plant && h.atk !== defT) contaPlant[h.plant] = (contaPlant[h.plant] || 0) + 1;
@@ -163,7 +166,7 @@ GP._planejarRound = function (J) {
   let pusher = null;
   if (tipoDef === 'push') pusher = filaDef.slice().reverse().find(e => e.papel === 'duelista') || filaDef[filaDef.length - 1];
   J.plano = {
-    atk: {tipo, alvo, outro, fase: 'formar', papeis, formarMax, tIr: 0, decidido: tipo !== 'default'},
+    atk: {tipo, alvo, outro, fase: 'formar', papeis, formarMax, irMin, tIr: 0, decidido: tipo !== 'default'},
     def: {tipo: tipoDef, posicao, ancora, pusher: pusher && pusher.id, girarPara: null, segurarFora: false},
     avisos: {}, retake: null, alvo,
     nomeAtk: GP.NOME_PLANO[tipo] + (tipo === 'default' ? '' : ' ' + alvo.toUpperCase()) + (lurker ? ' + lurk' : ''),
@@ -206,7 +209,7 @@ GP._contato = function (J) {
     let ir = A.tipo === 'rush' || t - inicio > A.formarMax || mortos >= 2;
     if (A.tipo === 'default') ir = t - inicio > A.formarMax || mortos >= 2;
     else if (A.tipo === 'fake') ir = ir || (prontos >= contando.length - 1 && t - inicio > 18);
-    else ir = ir || (contando.length && prontos >= contando.length - (contando.length > 2 ? 1 : 0));
+    else ir = ir || (contando.length && prontos >= contando.length - (contando.length > 2 ? 1 : 0) && t - inicio >= (A.irMin || 0));
     if (ir) {
       if (!A.decidido) {
         /* default: decide agora — o bomb onde viram menos defensor */
@@ -236,7 +239,7 @@ GP._contato = function (J) {
       const longe = def.filter(e => Math.hypot(e.x - sp.x, e.y - sp.y) > 12);
       const juntos = longe.filter(e => Math.hypot(e.x - Rt.ponto.x, e.y - Rt.ponto.y) < 7).length;
       const viagem = Math.hypot(Rt.ponto.x - sp.x, Rt.ponto.y - sp.y) / 6 + GP.SPIKE.desarme + 4;
-      if (!atk.length || juntos >= longe.length || sp.explode - t < viagem || t - Rt.t > 22) Rt.fase = 'entrar';
+      if (!atk.length || juntos >= longe.length || sp.explode - t < viagem || t - Rt.t > 15) Rt.fase = 'entrar';
     }
   }
 };
