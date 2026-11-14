@@ -161,6 +161,9 @@ for(const [c,sig] of ctx.COPA_SELECOES||[]){
   C('logo','Identidade','logo padrão da Valorant World Cup (vira o logo da sede na apresentação)');
   C('trofeu','Identidade','a taça');
   C('fundo-final','Identidade','fundo da final (opcional)');
+  C('premio-mvp','Prêmios da Copa','MVP da Copa');
+  C('premio-treinador','Prêmios da Copa','técnico da Copa');
+  C('premio-time-ideal','Prêmios da Copa','seleção (time ideal) da Copa');
   for(const [c,nome] of ctx.COPA_SEDES||[])C('sede-'+slug(nome),'Logo de cada sede',nome+' ('+c+')');
 }
 for(const role in ctx.AGENTS||{})if(role!=='Flex')for(const a of ctx.AGENTS[role]){
