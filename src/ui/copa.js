@@ -16,7 +16,10 @@ function vCopa(){
   const rk=rankingPaises();
   const meuPais=typeof meuJogador==='function'&&meuJogador()?meuJogador().pais:null;
   const elimAno=ano-1;
-  const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`:G.ano===elimAno?'Eliminatórias no fim desta temporada':'A Copa é no fim desta temporada';
+  const cicH=typeof cicloDaCopa==='function'?cicloDaCopa(ano,false):null;
+  const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`
+    :G.ano===elimAno?(cicH&&cicH.classificados?'Os 32 estão definidos':cicH&&cicH.grupos?'Eliminatórias em andamento':'Eliminatórias no fim desta temporada')
+    :'A Copa é no fim desta temporada';
   const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
   copaSelAtual=sel;
   const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
@@ -35,7 +38,7 @@ function vCopa(){
         ${rk.map(x=>`<tr class="${x.pais===sel?'me':''}" data-copapais="${x.pais}" style="cursor:pointer"><td class="num">${x.pos}</td>
           <td>${bandeira(x.pais)} <b>${esc(x.nome)}</b> <span class="dim">${x.sigla}</span>${x.pais===s.pais?' <span class="chip">sede</span>':''}${x.pos<=COPA_CONVITES?'':''}</td>
           <td class="num">${forcaSelecao(x.pais)}</td><td class="num">${x.pts}</td></tr>`).join('')}</tbody></table>
-        <p class="dim">Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre). O ranking nasce da força do melhor cinco de cada país e, a partir da primeira Copa, anda com os resultados.</p></div>
+        <p class="dim">${cicH&&cicH.convidadas?`As convidadas saíram deste ranking no dia do sorteio (semana ${ELIM_SEM_SORTEIO}).`:`Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre).`} O ranking nasce da força do melhor cinco de cada país, anda com cada série entre seleções e, a cada virada de ano, um pouco em direção à força atual do elenco.</p></div>
       ${cardConvocacao(sel)}
     </div>
     ${cardEliminatorias(ano,sel)}
@@ -84,14 +87,35 @@ function modalSerieSelecao(f){
 }
 /* convidadas e grupos das eliminatórias, como seriam se o sorteio fosse hoje */
 function cardEliminatorias(ano,sel){
-  const conv=convidadasDaCopa(ano), grupos=gruposEliminatorias(ano);
+  const cic=typeof cicloDaCopa==='function'?cicloDaCopa(ano,false):null;
+  const sorteado=!!(cic&&cic.grupos);
+  const conv=sorteado?cic.convidadas:convidadasDaCopa(ano);
   const nome=p=>{const i=infoSelecao(p);return `<span class="cp-sel${p===sel?' me':''}" data-copapais="${p}">${bandeira(p)} ${esc(i?i.nome:p)}</span>`;};
-  const sorteado=G.ano>=ano-1&&G.semana>=49;
-  return `<div class="card cx-linha"><div class="eyebrow">${sorteado?'Convidadas e eliminatórias':'Se o sorteio fosse hoje'}</div>
-    <p class="dim">A sede e as 15 melhores do ranking vão direto. As outras 24 jogam as eliminatórias no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa.</p>
+  const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
+  const tit=!sorteado?'Se o sorteio fosse hoje':cic.classificados?'Os 32 classificados':'Eliminatórias';
+  let grupos;
+  if(!sorteado){
+    grupos=gruposEliminatorias(ano).map(g=>`<div class="cp-grupo"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
+      ${g.paises.map(nome).join('')}</div>`).join('');
+  }else{
+    grupos=cic.grupos.map(g=>{
+      const t=tabelaGrupo(g,cic.pontosNoSorteio), passou=g.classificados||[];
+      return `<div class="cp-grupo cp-grupo-t"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
+        <table class="tbl cp-g-tab"><thead><tr><th></th><th class="c">V</th><th class="c">D</th><th class="c">Mapas</th></tr></thead><tbody>
+        ${t.map((x,i)=>`<tr class="${x.pais===sel?'me':''} ${passou.includes(x.pais)?'cp-passou':''}" data-copapais="${x.pais}" style="cursor:pointer">
+          <td>${bandeira(x.pais)} <b>${esc(sig(x.pais))}</b>${passou.includes(x.pais)?' <span class="chip up">Copa</span>':''}</td>
+          <td class="c num">${x.v}</td><td class="c num">${x.d}</td><td class="c num">${x.mp}:${x.mc}</td></tr>`).join('')}</tbody></table>
+        ${g.jogos.length?`<div class="cp-g-jogos">${g.jogos.map((f,i)=>`<span class="cp-jogo" data-cpelim="${g.letra}|${i}">${esc(sig(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(sig(f.b))}</span>`).join('')}</div>`
+          :`<div class="dim cp-g-jogos">Jogos nas semanas ${ELIM_SEM_RODADA1} e ${ELIM_SEM_RODADA2}.</div>`}
+      </div>`;}).join('');
+  }
+  return `<div class="card cx-linha"><div class="eyebrow">${tit}</div>
+    <p class="dim">${sorteado
+      ?`Sorteio feito na semana ${ELIM_SEM_SORTEIO}. Grupos de 3 em MD3, todos contra todos; os dois primeiros vão à Copa. Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto e ranking.${cic.classificados?'':` Os 32 saem na semana ${ELIM_SEM_CLASSIFICADOS}.`}`
+      :`A sede e as 15 melhores do ranking vão direto. As outras 24 jogam as eliminatórias no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa. O sorteio é na semana ${ELIM_SEM_SORTEIO}.`}</p>
     <div class="cp-conv"><b>Convidadas</b> ${conv.map(nome).join('')}</div>
-    <div class="cp-grupos">${grupos.map(g=>`<div class="cp-grupo"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
-      ${g.paises.map(nome).join('')}</div>`).join('')}</div></div>`;
+    ${cic&&cic.classificados?`<div class="cp-conv"><b>Das eliminatórias</b> ${cic.dasEliminatorias.map(nome).join('')}</div>`:''}
+    <div class="cp-grupos">${grupos}</div></div>`;
 }
 function cardConvocacao(pais){
   const info=infoSelecao(pais), c=convocacao(pais);
@@ -116,5 +140,7 @@ function ligarCopa(v,on){
     const f=amistosoSelecoes(minha,sel.value,+el.dataset.cpamistoso);
     render();modalSerieSelecao(f);
   });
+  on('[data-cpelim]',el=>{const [l,i]=el.dataset.cpelim.split('|');const cic=cicloAtual();
+    const g=cic&&cic.grupos&&cic.grupos.find(x=>x.letra===l);if(g)modalSerieSelecao(g.jogos[+i]);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
 }

@@ -211,7 +211,7 @@ function fimDeTemporada(){
   /* Sem folga em cima da reposição: com os regens crescendo de verdade, o
      "+6" e o piso de 14 enchiam o mercado de garotos que ninguém contratava
      (160 livres em vinte temporadas, e o save crescendo junto). */
-  const novos=Math.max(10,aposentados-promessas);
+  const novos=Math.max(10,aposentados-promessas), novosIds=[];
   for(let i=0;i<novos;i++){
     const R=pick(REGIONS);
     /* Sangue novo entra pela base, na idade da base. Antes entrava pronto,
@@ -221,8 +221,12 @@ function fimDeTemporada(){
     const alvo=overLivreGerado();
     const p=makePlayer(alvo,pick(ROLES),pick(R.paises),idade,usados,2);
     aplicarOver(p,alvo);p.pot=potencialDe(alvo,idade,2);
-    p.contrato=0;G.jogadores[p.id]=p;G.livres.push(p.id);
+    p.contrato=0;G.jogadores[p.id]=p;G.livres.push(p.id);novosIds.push(p.id);
   }
+  /* World Cup: os garotos novos cobrem primeiro as seleções que caíram abaixo
+     de 7 convocáveis (core/selecoes.js). Só muda o país de quem acabou de
+     nascer, com sorteio próprio: o resto do mundo não sente. */
+  if(typeof orientarNacionalidadesCopa==='function')orientarNacionalidadesCopa(novosIds);
   evoluirStaff();
   mercadoStaffIA();
   /* Corte antes de qualquer contratação: quem está acima do teto tem de
@@ -240,7 +244,10 @@ function fimDeTemporada(){
   mercadoIA();
   if(G.livres.length>LIVRES_MAX){
     /* modo jogador: você nunca some do mundo por estar sem clube */
-    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(b.voce?1:0)-(a.voce?1:0)||(over(b)+b.pot)-(over(a)+a.pot));
+    /* World Cup: quem segura a seleção do país no mínimo também fica */
+    const segura=typeof protegidosDaCopa==='function'?protegidosDaCopa():new Set();
+    const fica=p=>(p.voce?2:0)+(segura.has(p.id)?1:0);
+    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>fica(b)-fica(a)||(over(b)+b.pot)-(over(a)+a.pot));
     ordenados.slice(LIVRES_MAX).forEach(p=>{noticia('');
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[p.id];});

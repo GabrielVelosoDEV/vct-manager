@@ -201,6 +201,8 @@ function avancar(plano){
    função própria porque a sua partida pode ser conduzida pela tela, e nesse
    caso esta parte só roda quando ela terminar. */
 function fecharSemana(b,resultados,minhaPartida,idx){
+  /* Valorant World Cup: ciclo, eliminatórias e Copa (core/copa-ciclo.js) */
+  if(typeof copaSemana==='function')copaSemana();
   /* semana que andou em turnos: o fechamento é o último terço do mercado */
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}

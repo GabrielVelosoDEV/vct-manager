@@ -28,8 +28,21 @@ function infoSelecao(pais){
 function paisesDaCopa(){return COPA_SELECOES.map(s=>s[0]);}
 
 /* ---------- quem pode ser convocado ---------- */
+const SELECAO_IDADE_MIN=15;
 function convocaveis(pais){
-  return Object.values(G.jogadores).filter(p=>p&&p.pais===pais&&(p.idade||0)>=16);
+  return Object.values(G.jogadores).filter(p=>p&&p.pais===pais&&(p.idade||0)>=SELECAO_IDADE_MIN);
+}
+/* Os livres que não podem sumir do mundo no corte de fim de ano: os de
+   países que ficariam abaixo do mínimo de convocáveis sem eles. */
+function protegidosDaCopa(){
+  const out=new Set();
+  if(typeof COPA_SELECOES==='undefined')return out;
+  for(const pais of paisesDaCopa()){
+    const l=convocaveis(pais);
+    if(l.length>SELECAO_MINIMO+1)continue;
+    for(const p of l)if(!p.timeId&&!p.base)out.add(p.id);
+  }
+  return out;
 }
 /* o melhor cinco do país: a conta da escalação, num elenco de mentira */
 function _cincoDoPais(lista){
@@ -116,9 +129,9 @@ function convidadasDaCopa(ano){
 }
 /* os grupos das eliminatórias: por continente, potes pelo ranking, sorteio
    local (a mesma carreira sorteia sempre os mesmos grupos e o mundo não muda) */
-function gruposEliminatorias(ano){
+function gruposEliminatorias(ano,convidadas){
   ano=proximaCopa(ano);
-  const conv=new Set(convidadasDaCopa(ano)), rk=rankingPaises();
+  const conv=new Set(convidadas||convidadasDaCopa(ano)), rk=rankingPaises();
   const fila=rk.filter(x=>!conv.has(x.pais)&&convocacao(x.pais));
   const tam=ELIM_POR_GRUPO;
   return comSorteioLocal('elim|'+(G.seed||0)+'|'+ano,()=>{
@@ -148,7 +161,7 @@ function gruposEliminatorias(ano){
    Chamado na criação do mundo, depois dos agentes livres, e em saves
    antigos na primeira vez que a Copa é aberta. Só mexe em gerado sem
    clube, nunca em jogador real, e nunca tira um país de 7 ou mais. */
-function orientarNacionalidadesCopa(){
+function orientarNacionalidadesCopa(soEstes){
   if(!G||!G.jogadores)return 0;
   const conta={};
   for(const p of Object.values(G.jogadores))if(p&&p.pais)conta[p.pais]=(conta[p.pais]||0)+1;
@@ -159,7 +172,7 @@ function orientarNacionalidadesCopa(){
      com mais gente (empate: ordem de criação), e ninguém deixa o próprio
      país abaixo de 7 — a conta é estável e não usa o gerador do mundo. */
   const naCopa=new Set(paisesDaCopa());
-  const doadores=(G.livres||[]).map(i=>G.jogadores[i])
+  const doadores=(soEstes||G.livres||[]).map(i=>G.jogadores[i])
     .filter(p=>p&&!p.real&&!p.timeId&&!p.base&&!p.voce)
     .sort((a,b)=>(+String(a.id).slice(1))-(+String(b.id).slice(1)));
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
