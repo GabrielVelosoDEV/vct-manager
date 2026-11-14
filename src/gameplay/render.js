@@ -451,7 +451,7 @@ GP.render = function (R, J, cam, ui) {
   /* indicador de inimigo visto fora da tela */
   g.setTransform(1, 0, 0, 1, 0, 0);
   for (const o of J.ents) {
-    if (o === eu || !o.vivo || !o._visivel) continue;
+    if (o === eu || !o.vivo || !o._visivel || J.espectador) continue;
     const [px, py] = W2S(o.x, o.y);
     if (px > 0 && py > 0 && px < Wc && py < Hc) continue;
     /* seta na borda da tela, na direção dele */
@@ -484,7 +484,7 @@ GP.render = function (R, J, cam, ui) {
       g.stroke();
     }
   }
-  if (GP.desenharTelaHab) GP.desenharTelaHab(g, J, Wc, Hc);
+  if (GP.desenharTelaHab && !J.espectador) GP.desenharTelaHab(g, J, Wc, Hc);
   /* minimapa */
   GP._minimapa(R, J);
 };

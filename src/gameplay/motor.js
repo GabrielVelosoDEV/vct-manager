@@ -274,6 +274,7 @@ GP._atirar = function (J, e) {
 GP._dano = function (J, de, alvo, dano, parte, Ad) {
   if (GP.multDano) dano *= GP.multDano(J, alvo);
   if (dano <= 0) return;
+  if (GP._registrarDano) GP._registrarDano(J, de, alvo);
   /* o escudo segura 2/3 do dano enquanto durar */
   const antes = alvo.hp + alvo.escudo;
   const absorve = Math.min(alvo.escudo, dano * 0.66);

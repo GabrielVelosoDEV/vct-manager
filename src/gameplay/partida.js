@@ -216,6 +216,7 @@ GP._fluxoPartida = function (J, dt) {
       if (!R.primeiroSangue) { R.primeiroSangue = true; de.st.fb++; }
     }
   }
+  if (GP._estatPasso) GP._estatPasso(J);
   if (R.fase === 'compra') {
     if (J.t >= R.ate) { R.fase = 'ativo'; R.inicio = J.t; R.ate = J.t + J.duracaoRound; }
     return;

@@ -35,7 +35,16 @@ const a=J.placar.A,b=J.placar.B;
 ok(Math.max(a,b)>=13&&Math.abs(a-b)>=2,'placar incoerente '+a+'–'+b);
 ok(J.historico.some(h=>h.plant),'nenhum plant');
 ok(J.historico.length===a+b,'rounds contados errado');
-const tab=J.ents.map(e=>`${e.time} ${e.nome.padEnd(10)} ${GP.AGENTES[e.agente].nome.padEnd(9)} ${GP.AGENTES[e.agente].papel.padEnd(11)} ${e.st.kills}/${e.st.mortes}  dano ${e.st.dano}  plants ${e.st.plants} desarmes ${e.st.desarmes} fb ${e.st.fb}`);
+const res=GP.resultadoPartida(J);
+for(const t of ['A','B']){
+  const k=res.jogadores.filter(j=>j.time===t).reduce((a,j)=>a+j.k,0), mortesOutro=J.eventos.filter(e=>e.tipo==='morte'&&e.de&&J.ents.find(o=>o.id===e.em).time!==t&&J.ents.find(o=>o.id===e.de).time===t).length;
+  ok(k===mortesOutro,`abates do time ${t} (${k}) não batem com as mortes do rival (${mortesOutro})`);
+}
+ok(res.jogadores.every(j=>j.rounds===J.historico.length&&j.kast>=0&&j.kast<=100&&j.acs>0),'estatística fora do lugar (rounds, KAST ou ACS)');
+ok(res.rounds.length===J.historico.length&&res.vencedor,'resultado incompleto');
+const mvp=res.jogadores.find(j=>j.id===res.mvp);
+console.log(`MVP ${mvp.nome} · ACS ${mvp.acs} · ${mvp.k}/${mvp.d}/${mvp.a} · KAST ${mvp.kast}%`);
+const tab=J.ents.map(e=>`${e.time} ${e.nome.padEnd(10)} ${GP.AGENTES[e.agente].nome.padEnd(9)} ${GP.AGENTES[e.agente].papel.padEnd(11)} ACS ${String(res.jogadores.find(j=>j.id===e.id).acs).padStart(3)} ${e.st.kills}/${e.st.mortes}/${e.st.assist||0}  dano ${e.st.dano}  plants ${e.st.plants} desarmes ${e.st.desarmes} fb ${e.st.fb}`);
 console.log(tab.join('\n'));
 const atkV=J.historico.filter(h=>h.vencedor===h.atk).length, plants=J.historico.filter(h=>h.plant).length, des=J.historico.filter(h=>h.como==='desarme').length, exp=J.historico.filter(h=>h.como==='explosão').length;
 console.log(`ataque venceu ${Math.round(atkV/J.historico.length*100)}% · plant em ${Math.round(plants/J.historico.length*100)}% · ${des} desarmes · ${exp} explosões`);

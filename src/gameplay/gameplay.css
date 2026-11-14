@@ -158,3 +158,21 @@ kbd{display:inline-block;min-width:20px;padding:1px 5px;margin:0 2px;border:1px 
 .gp-elenco b{color:var(--tx);font-weight:600}
 .gp-elenco i{font-style:normal;opacity:.7}
 .gp-elenco s{opacity:.5}
+/* etapa 5: espectador e resultado */
+.gp-espec{position:fixed;left:12px;top:86px;width:248px;background:rgba(10,16,24,.78);border:1px solid var(--line2);padding:8px;font-size:12px;pointer-events:auto;backdrop-filter:blur(4px)}
+.gp-es-t{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim,#9aa7b4);margin:6px 2px 4px}
+.gp-es-l{display:flex;align-items:center;gap:7px;padding:4px;cursor:pointer;border-left:3px solid transparent}
+.gp-es-l.ta{border-left-color:#5aa9ff}.gp-es-l.tb{border-left-color:#ff4655}
+.gp-es-l.foco{background:rgba(255,255,255,.08)}
+.gp-es-l.morto{opacity:.4}
+.gp-es-r{width:26px;height:26px;object-fit:cover;flex:none}
+.gp-es-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.gp-es-n b{font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp-es-n span{font-size:10px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp-es-hp{height:3px;background:rgba(255,255,255,.12)}.gp-es-hp i{display:block;height:100%;background:#18e5b4}
+.gp-es-k{font-size:11px;white-space:nowrap}
+.gp-es-ajuda{margin-top:8px;font-size:10px;opacity:.7;line-height:1.7}
+.gp-fim-largo{max-width:980px;width:calc(100vw - 32px)}
+.gp-fim-largo .gp-tab th,.gp-fim-largo .gp-tab td{padding:5px 6px}
+@media (max-width:900px){.gp-espec{display:none}}
+.gp-fim-largo{overflow-x:auto;max-height:92vh;overflow-y:auto}
