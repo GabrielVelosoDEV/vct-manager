@@ -3408,6 +3408,58 @@ body.sem-anim .mg-card-arte svg{animation:none}
 @media (max-width:700px){.dj-modos{grid-template-columns:1fr}.dj-vs{gap:8px;padding:10px}}
 .dj-box>p.dim{margin-top:12px}
 
+/* ---------- modo jogador: semana e treinos, talentos (ui/semana.js) ---------- */
+.jg-atr-b{position:relative}
+.jg-atr-b em{position:absolute;left:0;bottom:0;height:3px;background:var(--gold,#e0b252);border-radius:2px}
+.sj-topo .sj-tit{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.04em;margin:4px 0 10px}
+.sj-auto{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);max-width:280px;text-align:right}
+.sj-en{display:flex;align-items:center;gap:14px;margin:6px 0 8px}
+.sj-en-b{position:relative;flex:1;height:14px;border-radius:7px;background:rgba(255,255,255,.05);overflow:hidden;border:1px solid var(--line)}
+.sj-en-b i{position:absolute;left:0;top:0;bottom:0}
+.sj-en-b .sj-ini{background:rgba(255,255,255,.08)}
+.sj-en-b .sj-agora{background:linear-gradient(90deg,#2fbf8f,#5fe0b0)}
+.sj-en-b .sj-agora.dn{background:linear-gradient(90deg,#c0392b,#ff5a4e)}
+.sj-en-b .sj-agora:not(.up):not(.dn){background:linear-gradient(90deg,#c98a2a,#f0c050)}
+.sj-en-n{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.sj-en-n b{font-family:'Bebas Neue',sans-serif;font-size:30px}
+.sj-en-n span{font-size:12px;color:var(--dim)}
+.sj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:8px}
+.sj-at{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:var(--panel2);display:flex;flex-direction:column;gap:6px}
+.sj-at.off{opacity:.6}
+.sj-at.feita{border-color:color-mix(in srgb,#2fbf8f 55%,var(--line))}
+.sj-at-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sj-at-top b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em}
+.sj-at p{margin:0;font-size:12.5px;line-height:1.4}
+.sj-alvo{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em}
+.sj-at-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto}
+.sj-at-b select{max-width:130px}
+.sj-motivo{font-size:11.5px;color:var(--dim)}
+.sj-feita{display:flex;flex-wrap:wrap;gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.sj-feita:last-child{border-bottom:0}
+.sj-feita .up,.sj-res .up{color:#3fd69f}
+.sj-res{max-width:560px}
+.sj-res h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em;margin:4px 0 8px}
+.jg-sem{margin-top:14px}
+.tl-arvore{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.tl-ramo{display:flex;flex-direction:column;gap:8px}
+.tl-ramo-n{padding:10px 12px;border-bottom:2px solid var(--red)}
+.tl-ramo-n b{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em}
+.tl-ramo-n span{font-size:12px}
+.tl{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
+.tl p{margin:0;font-size:12.5px;line-height:1.35}
+.tl.on{border-color:color-mix(in srgb,var(--red) 60%,var(--line));background:color-mix(in srgb,var(--red) 7%,var(--panel2))}
+.tl.fechado{opacity:.45}
+.tl.assin{border-style:dashed}
+.tl-top{display:flex;align-items:center;gap:8px}
+.tl-top b{flex:1;font-size:14px}
+.tl-f{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:1px 5px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2)}
+.tl-n{display:flex;gap:3px}
+.tl-n i{width:8px;height:8px;border-radius:50%;border:1px solid var(--line2)}
+.tl-n i.on{background:var(--red);border-color:var(--red)}
+.tl-mot{font-size:11.5px;color:var(--dim)}
+.tl .btn{align-self:flex-start}
+@media (max-width:900px){.tl-arvore{grid-template-columns:1fr}.sj-auto{text-align:left}}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -6216,23 +6268,26 @@ GP._pontoDePatrulha = function (J, e) {
    MODOS
    duelo  — 1 contra 1, round a round, primeiro a N
    alvos  — treino: bots que só andam; 60 s, conta abates
+   dm     — deathmatch: todos contra todos, renasce, 2 min
    ============================================================ */
 GP.montarDuelo = function (o) {
   const J = GP.novoJogo(o);
   const eu = GP.criarAgente({id: 'eu', nome: o.nome || 'Você', time: 'eu', atrib: o.atribEu, agente: o.agenteEu,
     primaria: o.arma === 'classic' ? null : o.arma, secundaria: 'classic', escudo: o.escudo || 'pesado'});
-  const n = o.modo === 'alvos' ? 4 : 1;
+  const dm = o.modo === 'dm';
+  const n = o.modo === 'alvos' ? 4 : dm ? 5 : 1;
   for (let i = 0; i < n; i++) {
-    J.ents.push(GP.criarAgente({id: 'bot' + i, nome: o.nomesBot ? o.nomesBot[i] : 'Bot ' + (i + 1), time: 'eles', bot: true,
+    /* no deathmatch cada bot é um time: todos contra todos */
+    J.ents.push(GP.criarAgente({id: 'bot' + i, nome: o.nomesBot ? o.nomesBot[i] : 'Bot ' + (i + 1), time: dm ? 'b' + i : 'eles', bot: true,
       passivo: o.modo === 'alvos', atrib: o.atribBot, primaria: o.armaBot || o.arma, secundaria: 'classic',
       agente: o.agentesBot ? o.agentesBot[i % o.agentesBot.length] : null,
-      escudo: o.modo === 'alvos' ? 'nenhum' : (o.escudo || 'pesado'), agressivo: o.agressivo}));
+      escudo: o.modo === 'alvos' ? 'nenhum' : (o.escudo || 'pesado'), agressivo: dm ? 0.8 : o.agressivo}));
   }
   J.ents.unshift(eu);
   J.eu = eu;
   J.placar = {eu: 0, eles: 0};
   J.alvoRounds = o.rounds || 7;
-  J.duracaoRound = o.modo === 'alvos' ? 60 : 100;
+  J.duracaoRound = o.modo === 'alvos' ? 60 : dm ? (o.duracao || 120) : 100;
   GP.novoRound(J);
   return J;
 };
@@ -6281,7 +6336,8 @@ GP.novoRound = function (J) {
         if (d > 8 && d < 25 && GP.linhaLivre(J.m, J.eu.x, J.eu.y, p.x, p.y)) { pos(b, p); break; }
         if (t === 399) pos(b, p);
       }
-    } else pos(b, i ? GP.pontoLivre(J.m, J.rnd) : pb);
+    } else if (J.modo === 'dm') pos(b, GP._pontoLonge(J, b));
+    else pos(b, i ? GP.pontoLivre(J.m, J.rnd) : pb);
   });
   for (const e of J.ents) {
     e.hp = 100; e.vivo = true; e.spray = 0; e.recarregaAte = 0; e.equipaAte = 0; e._viuEm = 0; e._reagiu = false; e._susto = null; e._morreuEm = 0;
@@ -6315,6 +6371,13 @@ GP._fluxoDoRound = function (J, dt) {
       if (J.t >= R.ate) { R.fase = 'fim'; J.fim = {modo: 'alvos'}; }
       return;
     }
+    if (J.modo === 'dm') {
+      /* deathmatch: quem morre volta em 1,5 s, longe de todo mundo */
+      for (const e of J.ents) if (!e.vivo && J.t - (e._morreuEm || (e._morreuEm = J.t)) > 1.5) GP._renascer(J, e);
+      J.placar.eu = J.eu.st.kills; J.placar.eles = J.eu.st.mortes;
+      if (J.t >= R.ate) { R.fase = 'fim'; J.fim = {modo: 'dm'}; }
+      return;
+    }
     const euVivo = J.eu.vivo, eles = J.ents.filter(e => e.time === 'eles' && e.vivo).length;
     let venc = null;
     if (!euVivo) venc = 'eles'; else if (!eles) venc = 'eu'; else if (J.t >= R.ate) venc = 'empate';
@@ -6327,6 +6390,31 @@ GP._fluxoDoRound = function (J, dt) {
     if (J.placar.eu >= J.alvoRounds || J.placar.eles >= J.alvoRounds) J.fim = {modo: 'duelo', venceu: J.placar.eu > J.placar.eles};
     else GP.novoRound(J);
   }
+};
+
+/* deathmatch: um ponto livre longe de quem está vivo (e de preferência fora da vista) */
+GP._pontoLonge = function (J, e) {
+  let melhor = null, nota = -1;
+  for (let t = 0; t < 40; t++) {
+    const p = GP.pontoLivre(J.m, J.rnd);
+    let d = 99;
+    for (const o of J.ents) if (o !== e && o.vivo && (o.x || o.y)) d = Math.min(d, Math.hypot(o.x - p.x, o.y - p.y) + (GP.linhaLivre(J.m, o.x, o.y, p.x, p.y) ? 0 : 8));
+    if (d > nota) { nota = d; melhor = p; }
+    if (d > 22) break;
+  }
+  return melhor || GP.pontoLivre(J.m, J.rnd);
+};
+GP._renascer = function (J, e) {
+  const p = GP._pontoLonge(J, e);
+  const q = GP.navLivre(J.m, p.x, p.y) ? p : (() => { const i = GP._navPerto(J.m, p.x, p.y), n = J.m.nav; return {x: (i % n.W + 0.5) * n.passo, y: (((i / n.W) | 0) + 0.5) * n.passo}; })();
+  e.x = q.x; e.y = q.y; e.vx = e.vy = 0; e.viagem = null;
+  e.hp = 100; e.vivo = true; e.spray = 0; e.recarregaAte = 0; e.equipaAte = 0; e._viuEm = 0; e._reagiu = false; e._susto = null; e._morreuEm = 0;
+  e.escudo = GP.ESCUDOS[J.opc.escudo || 'pesado'];
+  for (const s of ['primaria', 'secundaria']) if (e.armas[s]) { const A = GP.ARMAS[e.armas[s].id]; e.armas[s].municao = A.pente; e.armas[s].reserva = A.reserva; }
+  e.slot = e.armas.primaria ? 'primaria' : 'secundaria';
+  e.ang = Math.atan2(J.m.alturaM / 2 - e.y, J.m.larguraM / 2 - e.x);
+  if (e === J.eu) e.cmd.ang = e.ang;
+  if (e.ia) Object.assign(e.ia, {estado: 'patrulha', caminho: null, alvoPonto: null, vista: null, ouviu: null, seguraAte: 0, pausaAte: 0});
 };
 
 /* o que o jogador vê agora (para desenhar e para medir a reação) */
@@ -6998,6 +7086,11 @@ GP.passoHabilidades = function (J, dt) {
     if (ev.tipo !== 'morte') continue;
     const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
     if (!de || !em) continue;
+    /* talentos do modo jogador (core/talentos.js): vida e ultimate por abate */
+    if (de.tal && de.time !== em.time) {
+      if (de.tal.vida && de.vivo) de.hp = Math.min(100, de.hp + de.tal.vida);
+      if (de.tal.ult) { de._ultFrac = (de._ultFrac || 0) + de.tal.ult; if (de._ultFrac >= 1 && de.pontosUlt != null) { de._ultFrac -= 1; de.pontosUlt++; } }
+    }
     if (de.time !== em.time && de.pontosUlt != null && de.pontosUlt < GP.PONTOS_ULT) {
       de.pontosUlt++;
       const HH = GP.HABS[de.agente];
@@ -11079,7 +11172,7 @@ GP._quadro = function (agora) {
   if (S.embutido) {
     /* no manager: o trecho acaba no fim do round (ou do mapa); o placar do fim
        do round fica um instante na tela antes de devolver */
-    if (!S.fechaEm && (J.fim || J.historico.length >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
+    if (!S.fechaEm && (J.fim || (J.historico ? J.historico.length : 0) >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
     if (S.fechaEm && agora >= S.fechaEm) { GP._encerrarEmbutido(); return; }
   } else if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }
   requestAnimationFrame(GP._quadro);
@@ -11104,7 +11197,9 @@ GP._hud = function () {
   const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   const alvos = J.modo === 'alvos', partida = J.modo === 'partida';
   if (partida && J.espectador) GP._hudEspectador();
-  else if (partida) {
+  else if (J.modo === 'dm') {
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${eu.st.kills}<i>abates</i></span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>deathmatch · todos contra todos</i></span><span class="gp-pl-ele num">${eu.st.mortes}<i>mortes</i></span>`;
+  } else if (partida) {
     const nos = eu.time, eles = nos === 'A' ? 'B' : 'A', lado = J.lados[nos] === 'atk' ? 'ataque' : 'defesa', sp = J.spike;
     const plantada = sp && sp.estado === 'plantada';
     const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
@@ -11163,7 +11258,8 @@ GP._hud = function () {
     fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.fase === 'fim' ? (R.vencedor === nos ? ' ok' : ' no') : '');
     return;
   }
-  if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
+  if (J.modo === 'dm') faixa = R.fase === 'pre' ? 'Deathmatch — ' + GP.NOME_MAPA[J.m.nome] : !eu.vivo ? 'Você caiu · renasce em instantes' : '';
+  else if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
   else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
   const fx = $gp('#gpFaixa');
   fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.vencedor === 'eu' ? ' ok' : R.vencedor === 'eles' ? ' no' : '');
@@ -11292,6 +11388,18 @@ GP.pausar = function (on) {
   const S = GP.S; if (!S || S.J.fim) return;
   S.pausa = on; S.ui.teclas = {}; S.ui.botao = false;
   $gp('#gpPausa').hidden = !on;
+  if (on && S.embutido && S.treino) {
+    /* treino da semana: dá para encerrar (no retake, o bot termina o round) */
+    $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">Treino da semana. Encerrar agora conta o que você fez até aqui.</p><div class="gp-acoes">
+      <button class="gp-jogar" id="gpVoltar">Voltar ao treino</button><button class="gp-sec-bt" id="gpEncerrar">Encerrar o treino</button></div></div>`;
+    $gp('#gpVoltar').onclick = () => GP.pausar(false);
+    $gp('#gpEncerrar').onclick = () => {
+      if (S.J.modo === 'partida') { S.botAssumiu = true; S.J.eu.bot = true; }
+      else S.J.fim = Object.assign({modo: S.J.modo, desistiu: true}, S.J.modo === 'duelo' ? {venceu: S.J.placar.eu > S.J.placar.eles} : {});
+      GP.pausar(false); S.pausa = false; $gp('#gpPausa').hidden = true;
+    };
+    return;
+  }
   if (on && S.embutido) {
     $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">A partida é oficial: o round continua contando.</p><div class="gp-acoes">
       <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpBot">Deixar o bot jogar ${S.ateHist === Infinity ? 'o resto do mapa' : 'este round'}</button></div></div>`;
@@ -11437,13 +11545,20 @@ GP.jogarNoManager = async function (J, o) {
   return new Promise(ok => {
     GP.S = {J, R, cam: {x: eu.x, y: eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
       ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: J.eventos.length, feed: [], vel: 1, livre: false,
-      embutido: true, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
+      embutido: true, treino: o.treino || null, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
       aoFim: () => ok({jogou: true, bot: !!GP.S && GP.S.botAssumiu})};
     c.hidden = false;
     $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
     $gp('#gpHud').hidden = false;
     GP._raiz().classList.add('gp-jogando');
     GP._ajustarTela();
+    /* situação pronta (retake): começa parado, com a situação na tela */
+    if (o.intro) {
+      GP.S.pausa = true;
+      $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">${escGP(o.intro.titulo || '')}</div><h2>${escGP(o.intro.texto || '')}</h2><div class="gp-acoes"><button class="gp-jogar" id="gpComecar">Começar</button></div></div>`;
+      $gp('#gpPausa').hidden = false;
+      $gp('#gpComecar').onclick = () => GP.pausar(false);
+    }
     requestAnimationFrame(GP._quadro);
   });
 };
@@ -11459,6 +11574,86 @@ GP._encerrarEmbutido = function () {
   GP.S = null;
   if (fim) fim();
 };
+
+/* ============================================================
+   TREINOS DA SEMANA (modo jogador, J3)
+   range (alvos), duelo, deathmatch e retake abrem por cima do manager.
+   o: {modo, mapa, nome, euMid, funcao, over, atrib (do manager), agente,
+       rival:{over, funcao}, aliados:{over}}
+   Devolve {resumo da gameplay, eu, eles, venceu, kills, desistiu}.
+   ============================================================ */
+GP.treinarNoManager = async function (o) {
+  const c = GP._embutir();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  await GP._carregarImagensDoMapa(o.mapa);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
+  const semente = (Date.now() & 0xffffff) || 1;
+  if (o.modo === 'retake') return GP._retakeNoManager(o, semente);
+  const atribEu = GP.atribDoManager(o.atrib);
+  const rv = o.rival || {over: 70, funcao: 'Duelista'};
+  const atribBot = GP.atribDoManager(GP.atributosDe('rival' + semente, rv.funcao || 'Duelista', rv.over || 70));
+  const ags = Object.keys(GP.AGENTES), sorteia = i => ags[(semente + i * 7) % ags.length];
+  const modo = o.modo === 'range' ? 'alvos' : o.modo;
+  const J = GP.montarDuelo({mapa: o.mapa, modo, arma: 'vandal', armaBot: 'vandal', atribEu, atribBot, spawns: 'rapido', rounds: 5,
+    semente, agenteEu: o.agente, agentesBot: [0, 1, 2, 3, 4].map(sorteia), nome: o.nome || 'Você',
+    nomesBot: modo === 'duelo' ? ['Rival'] : modo === 'dm' ? ['Bot 1', 'Bot 2', 'Bot 3', 'Bot 4', 'Bot 5'] : ['Alvo 1', 'Alvo 2', 'Alvo 3', 'Alvo 4'],
+    agressivo: 0.5, escudo: modo === 'dm' ? 'leve' : undefined});
+  for (const id of new Set(J.ents.map(e => e.agente).filter(Boolean))) GP.precarregarAgente(id);
+  const cv = $gp('#gpTela');
+  const arte = GP._arteCache[J.m.nome] || (GP._arteCache[J.m.nome] = GP.desenharMapa(J.m));
+  const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte};
+  R.fg = R.fog.getContext('2d');
+  return new Promise(ok => {
+    GP.S = {J, R, cam: {x: J.eu.x, y: J.eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
+      ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: 0, feed: [], vel: 1, livre: false,
+      embutido: true, treino: o.modo, ateHist: Infinity, euEnt: J.eu,
+      aoFim: () => ok(Object.assign(GP.resumo(J), {eu: J.placar.eu, eles: J.placar.eles, venceu: !!(J.fim && J.fim.venceu), desistiu: !!(J.fim && J.fim.desistiu)}))};
+    c.hidden = false;
+    $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
+    $gp('#gpHud').hidden = false;
+    GP._raiz().classList.add('gp-jogando');
+    GP._ajustarTela();
+    requestAnimationFrame(GP._quadro);
+  });
+};
+/* retake: uma partida 5v5 corre com bots até a spike ser plantada com você
+   vivo na defesa; aí o boneco é seu até o fim do round */
+GP._retakeNoManager = async function (o, semente) {
+  const jog = (pref, n, ov, fun) => Array.from({length: n}, (_, i) => {
+    const f = fun[i % fun.length], nome = pref + ' ' + (i + 1);
+    return {nome, funcao: f, over: ov, at: null, agentes: []};
+  });
+  const funcoes = ['Iniciador', 'Controlador', 'Sentinela', 'Duelista'];
+  const aliados = jog('Aliado', 4, (o.aliados && o.aliados.over) || o.over || 70, funcoes)
+    .map(j => Object.assign(j, {at: GP._paraManager(GP.atributosDe(j.nome + semente, j.funcao, j.over))}));
+  const rivais = jog('Rival', 5, (o.rival && o.rival.over) || 70, ['Duelista', ...funcoes])
+    .map(j => Object.assign(j, {at: GP._paraManager(GP.atributosDe(j.nome + semente, j.funcao, j.over))}));
+  const tA = {nome: 'Seu time', sigla: 'VOCÊ', jogadores: [{id: o.euMid, nome: o.nome || 'Você', funcao: o.funcao || 'Duelista', over: o.over || 70, at: o.atrib, agentes: o.agente ? [o.agente] : []}, ...aliados]};
+  const tB = {nome: 'Rivais', sigla: 'RIV', jogadores: rivais};
+  const J = GP.montarPartida({mapa: o.mapa, jogador: false, tempoCompra: 1, semente, timeA: tA, timeB: tB,
+    agentesA: [o.agente || null, null, null, null, null], agentesB: [null, null, null, null, null], primeiroAtk: 'B'});
+  const eu = J.ents.find(e => e.mid === o.euMid) || J.ents[0];
+  if (!eu.mid) eu.mid = o.euMid;
+  /* corre até a situação: spike plantada, você vivo na defesa, atacante vivo */
+  let guarda = 0, achou = false;
+  while (!J.fim && J.historico.length < 8 && guarda++ < 60 * 60 * 12) {
+    GP.passo(J, 1 / 60);
+    const sp = J.spike;
+    if (sp && sp.estado === 'plantada' && eu.vivo && J.lados[eu.time] === 'def') {
+      /* retake jogável: no máximo um a menos (depois do quinto round, vale qualquer um) */
+      const nos = J.ents.filter(x => x.vivo && x.time === eu.time).length, eles = J.ents.filter(x => x.vivo && x.time !== eu.time).length;
+      if (eles && (nos >= eles - 1 || J.historico.length >= 5)) { achou = true; break; }
+    }
+  }
+  const k0 = eu.st.kills, h0 = J.historico.length;
+  const sp = J.spike, vivos = t => J.ents.filter(x => x.vivo && x.time === t).length, eles = eu.time === 'A' ? 'B' : 'A';
+  const intro = achou ? {titulo: 'Retake · ' + GP.NOME_MAPA[J.m.nome], texto: `Spike plantada no ${String(sp.letra || '').toUpperCase()} · ${vivos(eu.time)} contra ${vivos(eles)} · ${Math.ceil(Math.max(0, sp.explode - J.t))} s`}
+    : {titulo: 'Retake · ' + GP.NOME_MAPA[J.m.nome], texto: 'Sem plant nos rounds simulados: jogue a defesa deste round'};
+  const r = await GP.jogarNoManager(J, {euMid: eu.mid, ate: 'round', treino: 'retake', intro});
+  const h = J.historico[h0];
+  return Object.assign(GP.resumo(J), {kills: eu.st.kills - k0, venceu: !!(h && h.vencedor === eu.time), situacao: achou, bot: r && r.bot});
+};
+GP._paraManager = at => ({mira: at.mira, reflexo: at.reflexo, mov: at.mov, util: at.util, visao: at.visao, clutch: at.clutch, consist: at.consist, lider: at.lider});
 
 
 /* ===== data/torcidas.js ===== */
@@ -17158,7 +17353,9 @@ function vetoAutomatico(meuId,advId,bo,euComeco){
    mesmo de antes: o que muda é o que pesa, não o nível do circuito. */
 function condicao(p){
   const mental=typeof mentalDe==='function'?mentalDe(p):p.moral;
-  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.08) * (0.83 + mental*0.22);
+  /* modo jogador: a energia da semana (core/semana-jogador.js) */
+  const en=p.voce&&typeof fatorEnergia==='function'?fatorEnergia(p):1;
+  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.08) * (0.83 + mental*0.22) * en;
 }
 /* ---------- variância ----------
    Dois níveis, de propósito:
@@ -17842,12 +18039,14 @@ const motorMapaId=m=>String(m||'').toLowerCase();
    atributos do dia (a condição — forma, cansaço, cabeça — pesa nos atributos
    de execução, como pesa em forcaTime) */
 const MOTOR_ATRIB_DIA=['mira','reflexo','mov','util','visao','clutch','consist'];
-function elencoParaMotor(t,mapa){
+function elencoParaMotor(t,mapa,adv){
   const jogadores=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean).map(p=>{
     const c=typeof condicao==='function'?condicao(p):1;
     const at=Object.assign({},p.at);
     /* condição ~0,8–1,15: vira até ±8 pontos nos atributos */
     for(const k of MOTOR_ATRIB_DIA)at[k]=clamp(Math.round(at[k]+(c-1)*55),25,99);
+    /* modo jogador: talentos e VOD do adversário (core/semana-jogador.js) */
+    if(p.voce&&typeof bonusDoJogadorNaPartida==='function')bonusDoJogadorNaPartida(p,at,adv);
     const ag=GP.idAgente(agenteDe(t,mapa,p));
     return{id:p.id,nome:p.nome,funcao:p.roleAtual||p.role,over:over(p),at,agentes:ag?[ag]:[]};
   });
@@ -17858,7 +18057,7 @@ function elencoParaMotor(t,mapa){
 function motorAbrirMapa(M){
   const mapa=motorMapaId(M.mapa);
   if(!MAPAS_GAMEPLAY[mapa])return;
-  const tA=elencoParaMotor(M.A,M.mapa), tB=elencoParaMotor(M.B,M.mapa);
+  const tA=elencoParaMotor(M.A,M.mapa,M.B), tB=elencoParaMotor(M.B,M.mapa,M.A);
   if(tA.jogadores.length<5||tB.jogadores.length<5)return;
   const tat=t=>Object.assign({},t.tatica||{},(M.tatA&&t===M.A)?M.tatA:{},(M.tatB&&t===M.B)?M.tatB:{});
   M.J=GP.montarPartida({
@@ -17870,6 +18069,11 @@ function motorAbrirMapa(M){
     taticaA:tat(M.A),taticaB:tat(M.B),
   });
   M.motor=true;
+  /* modo jogador: vida por abate e ultimate dos talentos vão no seu boneco */
+  if(G.voce&&typeof talentosDoBoneco==='function'){
+    const tal=talentosDoBoneco(), e=tal&&M.J.ents.find(x=>x.mid===G.voce.id);
+    if(e)e.tal=tal;
+  }
 }
 
 const MOTOR_COMO={'eliminação':'elim','explosão':'spike','desarme':'defuse','tempo':'tempo'};
@@ -20661,7 +20865,10 @@ function semana(){
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }
-  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
+  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;
+    p.fadiga=clamp(p.fadiga+(p.voce&&typeof custoSemanaJogador==='function'?custoSemanaJogador(p)+0.025:-.05),0,1);
+    p.forma=clamp(p.forma+gauss(0,.02),.2,1);
+    if(p.voce&&typeof fecharSemanaJogador==='function')fecharSemanaJogador(p,null);});
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
@@ -20687,7 +20894,9 @@ function desenvolver(p,t){
      jogo, então a escolha custa de verdade. */
   const plano=(typeof planoDoJogador==='function')?planoDoJogador(t,p)
              :{tipo:'atributo',alvo:'mira'};
-  const custoPlano=plano.tipo==='descanso'
+  /* modo jogador: o seu jogador cansa pela energia que gastou na semana (core/semana-jogador.js) */
+  const custoPlano=p.voce&&typeof custoSemanaJogador==='function'?custoSemanaJogador(p)
+    :plano.tipo==='descanso'
     ?FADIGA_DESCANSO
     :FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(mapasDoTreino(planoDe(t)).length);
   p.fadiga=clamp(p.fadiga-0.035-recuperacaoEst(t)+(t.tatica.scrim-2)*0.008
@@ -20717,6 +20926,13 @@ function desenvolver(p,t){
   const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
   /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
   let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
+  /* modo jogador: o seu jogador evolui pelo XP da semana (treinos, atividades
+     e partidas); daqui só sobra a queda da idade, que talentos freiam */
+  if(p.voce&&typeof fecharSemanaJogador==='function'){
+    g=g>0?0:g*(1-efeitosTalentos().dec);
+    fecharSemanaJogador(p,t);
+    if(Math.abs(g)<0.0004){p.pico=Math.max(p.pico||0,over(p));p.valor=valor(p);p.salarioJusto=salario(p,t);return;}
+  }
   if(Math.abs(g)<0.0004)return;
   /* Para onde a evolução vai. Antes era um foco de TIME; agora é o plano do
      jogador. Quem descansa não evolui, e quem está aprendendo agente põe o
@@ -26103,6 +26319,8 @@ function criarCarreiraJogador(o){
   ajustarSecundaria(p);
   G.jogadores[p.id]=p;
   G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
+  p.pico=Math.max(p.pico||0,over(p));p.xp={};
+  if(typeof darTalentoDoEstilo==='function')darTalentoDoEstilo(p);   /* o estilo dá o talento de partida (core/talentos.js) */
   G.meuTime=null;
   /* onde você aparece no mundo */
   const t=o.timeId&&G.times[o.timeId];
@@ -26135,6 +26353,527 @@ function criarCarreiraJogador(o){
     else noticia('🎮 '+p.nome+' é o nome que sobe na ranked. Os olheiros já ouviram falar.',{c:'carreira',p:[p.id]});
   }
   return p;
+}
+
+
+/* ===== src/core/talentos.js ===== */
+/* ============================================================
+   MODO JOGADOR — A ÁRVORE DE TALENTOS (J3)
+   ------------------------------------------------------------
+   Uma árvore por função, com três ramos e seis fileiras. Cada
+   fileira abre numa faixa de over (65, 70, 75, 80, 85, 90). Os
+   pontos vêm do over: cada ponto acima de 65 no seu melhor over
+   (o pico) vale um ponto de talento. Um jogador de over 90 tem 25
+   pontos para 46 possíveis, então ninguém fecha a árvore.
+
+   Fileiras 1 a 5: três níveis cada. A fileira 6 é o talento-
+   assinatura do ramo: um nível só, e só uma assinatura na carreira.
+   Para comprar um talento, o de cima no mesmo ramo precisa ter
+   pelo menos um ponto.
+
+   Os efeitos são poucos tipos, todos já entendidos pelo jogo:
+     a      atributo na partida (motor e gameplay), por nível
+     xp     XP a mais nesses atributos, por nível (fração)
+     en     energia a menos por atividade, por nível (fração)
+     dec    freia a queda da idade, por nível (fração)
+     fam    aprende agente mais rápido, por nível (fração)
+     vida   vida recuperada a cada abate, na partida
+     ult    ponto de ultimate a mais por abate (fração acumulada)
+     forma  forma que o treino do clube dá, por nível
+     vod    bônus da revisão de VOD, por nível (fração)
+   ============================================================ */
+
+const TALENTO_FILEIRAS=[65,70,75,80,85,90];
+const TALENTO_NIVEIS=3;
+const TALENTO_BASE=65;
+
+const T_=(id,nome,ef,txt)=>({id,nome,ef,txt});
+const TALENTOS={
+  Duelista:[
+    {id:'entrada',nome:'Entrada',estilos:['entrada'],desc:'Abrir o bomb e trocar a primeira vida.',t:[
+      T_('due_e1','Pé no acelerador',{a:{mov:1}},'Chega primeiro no espaço.'),
+      T_('due_e2','Abre-alas',{vida:5},'Cada abate devolve vida.'),
+      T_('due_e3','Treino de entrada',{xp:{mov:.08,reflexo:.06}},'O treino rende mais no corpo.'),
+      T_('due_e4','Sem medo do contato',{a:{reflexo:1,mov:1}},'Reage antes no primeiro duelo.'),
+      T_('due_e5','Dash recarregado',{ult:.12},'Abate empurra a ultimate.'),
+      T_('due_e6','Ponta de lança',{vida:20,a:{mov:3}},'Assinatura: cada abate cura forte e você não para.')]},
+    {id:'mira',nome:'Mira',estilos:['mira'],desc:'Duelo puro: mira e reflexo.',t:[
+      T_('due_m1','Mão firme',{a:{mira:1}},'Bala mais assentada.'),
+      T_('due_m2','Range diário',{xp:{mira:.08,reflexo:.06}},'Range e deathmatch rendem mais.'),
+      T_('due_m3','Reflexo afiado',{a:{reflexo:1}},'Do pixel ao tiro, mais rápido.'),
+      T_('due_m4','Cabeça fria no duelo',{a:{mira:1,consist:1}},'Duelo ganho não depende do dia.'),
+      T_('due_m5','Spray controlado',{a:{mira:1,reflexo:1}},'Segunda e terceira balas no lugar.'),
+      T_('due_m6','Mira de elite',{a:{mira:4,reflexo:2}},'Assinatura: a mira mais limpa do servidor.')]},
+    {id:'lurker',nome:'Lurker',estilos:['lurker'],desc:'Flanco, informação e tempo de jogo.',t:[
+      T_('due_l1','Passos leves',{a:{visao:1}},'Lê o mapa enquanto anda.'),
+      T_('due_l2','Tempo de jogo',{a:{clutch:1}},'Sabe esperar o round vir.'),
+      T_('due_l3','Estudo de VOD',{vod:.35,xp:{visao:.08}},'Revisar adversário rende mais.'),
+      T_('due_l4','Flanco perfeito',{a:{visao:1,clutch:1}},'Aparece onde ninguém olhou.'),
+      T_('due_l5','Último vivo',{a:{clutch:2}},'Clutch é o seu round.'),
+      T_('due_l6','Fantasma',{a:{clutch:3,visao:3}},'Assinatura: o round tardio é seu.')]}
+  ],
+  Iniciador:[
+    {id:'info',nome:'Informação',estilos:['lurker'],desc:'Achar o inimigo antes de todo mundo.',t:[
+      T_('ini_i1','Olho no minimapa',{a:{visao:1}},'Informação vira call.'),
+      T_('ini_i2','Recon caprichado',{a:{util:1}},'A utilidade acha gente.'),
+      T_('ini_i3','Sala de vídeo',{vod:.35,xp:{visao:.08}},'Revisar adversário rende mais.'),
+      T_('ini_i4','Leitura de setup',{a:{visao:1,util:1}},'Sabe onde a defesa está.'),
+      T_('ini_i5','Recarga rápida',{ult:.12},'A ultimate chega antes.'),
+      T_('ini_i6','Radar humano',{a:{visao:4,util:2}},'Assinatura: o time joga sabendo tudo.')]},
+    {id:'apoio',nome:'Apoio de entrada',estilos:['suporte','entrada'],desc:'Flash e entrada junto com o duelista.',t:[
+      T_('ini_a1','Flash no tempo',{a:{util:1}},'A flash estoura na hora certa.'),
+      T_('ini_a2','Troca garantida',{a:{reflexo:1}},'Entra logo atrás e troca.'),
+      T_('ini_a3','Lineups de casa',{xp:{util:.08,mov:.06}},'Prática de utilidade rende mais.'),
+      T_('ini_a4','Dupla de entrada',{a:{util:1,mov:1}},'Abre o espaço junto.'),
+      T_('ini_a5','Reabastece no abate',{vida:6},'Abate devolve vida.'),
+      T_('ini_a6','Abre-bomb',{a:{util:3,reflexo:2},vida:8},'Assinatura: o bomb abre quando você chega.')]},
+    {id:'cerebro',nome:'Cérebro',estilos:['ancora'],desc:'Jogo pensado, meio de round, pós-plant.',t:[
+      T_('ini_c1','Calma',{a:{consist:1}},'Joga igual em qualquer placar.'),
+      T_('ini_c2','Pós-plant',{a:{clutch:1}},'Segura o bomb depois do plant.'),
+      T_('ini_c3','Agenda organizada',{en:.06},'Cada atividade cansa menos.'),
+      T_('ini_c4','Mid-round',{a:{visao:1,clutch:1}},'Ajusta o round no meio.'),
+      T_('ini_c5','Leitura de economia',{a:{visao:1,consist:1}},'Sabe quando o rival está quebrado.'),
+      T_('ini_c6','Professor',{a:{visao:3,clutch:2,consist:2}},'Assinatura: o round sai como foi desenhado.')]}
+  ],
+  Controlador:[
+    {id:'fumaca',nome:'Fumaças',estilos:['suporte'],desc:'Smokes no lugar e no tempo.',t:[
+      T_('con_f1','Smoke de casa',{a:{util:1}},'A fumaça cai onde deve.'),
+      T_('con_f2','Lineups',{xp:{util:.10}},'Prática de utilidade rende mais.'),
+      T_('con_f3','Timing',{a:{util:1,visao:1}},'Cobre a entrada na hora.'),
+      T_('con_f4','Cortina dupla',{a:{util:2}},'Isola dois ângulos de uma vez.'),
+      T_('con_f5','Recarga de ultimate',{ult:.15},'A ultimate chega antes.'),
+      T_('con_f6','Arquiteto',{a:{util:5,visao:2}},'Assinatura: o mapa vira o que você desenha.')]},
+    {id:'ancora',nome:'Âncora',estilos:['ancora'],desc:'Segurar o bomb e o pós-plant.',t:[
+      T_('con_a1','Não se apavora',{a:{clutch:1}},'Aguenta sozinho.'),
+      T_('con_a2','Paciência',{a:{consist:1}},'Não dá o pico de graça.'),
+      T_('con_a3','Corpo inteiro',{en:.06},'Cada atividade cansa menos.'),
+      T_('con_a4','Pós-plant de molly',{a:{util:1,clutch:1}},'Negar o desarme é arte.'),
+      T_('con_a5','Veterano',{dec:.25},'A idade pesa menos.'),
+      T_('con_a6','Muralha',{a:{clutch:4,consist:3}},'Assinatura: o bomb só cai pagando caro.')]},
+    {id:'igl',nome:'Leitura',estilos:['lurker','mira'],desc:'Ler o jogo e chamar o time.',t:[
+      T_('con_l1','Calls curtas',{a:{visao:1}},'Fala pouco, fala certo.'),
+      T_('con_l2','Caderno de VOD',{vod:.35,xp:{visao:.08}},'Revisar adversário rende mais.'),
+      T_('con_l3','Estudo do meta',{fam:.25},'Aprende agente mais rápido.'),
+      T_('con_l4','Leitura de rotação',{a:{visao:2}},'Chega antes da rotação deles.'),
+      T_('con_l5','Treino coletivo',{forma:.008},'O treino do clube rende forma.'),
+      T_('con_l6','Mestre de xadrez',{a:{visao:4,consist:2},vod:.5},'Assinatura: o adversário joga o seu jogo.')]}
+  ],
+  Sentinela:[
+    {id:'ancora',nome:'Âncora',estilos:['ancora'],desc:'Segurar o bomb sozinho.',t:[
+      T_('sen_a1','Ângulo travado',{a:{consist:1}},'O ângulo não abre.'),
+      T_('sen_a2','Retake',{a:{clutch:1}},'Retake começa por você.'),
+      T_('sen_a3','Treino de retake',{xp:{clutch:.08,visao:.06}},'Retake rende mais.'),
+      T_('sen_a4','Atraso',{a:{clutch:1,consist:1}},'Compra tempo até o reforço.'),
+      T_('sen_a5','Veterano',{dec:.25},'A idade pesa menos.'),
+      T_('sen_a6','Dono do bomb',{a:{clutch:4,consist:3}},'Assinatura: o bomb é seu.')]},
+    {id:'armadilha',nome:'Armadilhas',estilos:['suporte'],desc:'Utilidade que segura flanco.',t:[
+      T_('sen_t1','Trap no tempo',{a:{util:1}},'A armadilha pega gente.'),
+      T_('sen_t2','Setups',{xp:{util:.10}},'Prática de utilidade rende mais.'),
+      T_('sen_t3','Informação de flanco',{a:{util:1,visao:1}},'Ninguém passa em silêncio.'),
+      T_('sen_t4','Setup duplo',{a:{util:2}},'Dois setups por round.'),
+      T_('sen_t5','Recarga de ultimate',{ult:.15},'A ultimate chega antes.'),
+      T_('sen_t6','Fortaleza',{a:{util:4,visao:3}},'Assinatura: o flanco fechado a round inteiro.')]},
+    {id:'operador',nome:'Operador',estilos:['mira','entrada'],desc:'A arma grande e o primeiro abate.',t:[
+      T_('sen_o1','Olho de águia',{a:{mira:1}},'O tiro de longe sai.'),
+      T_('sen_o2','Reposicionar',{a:{mov:1}},'Troca de ângulo depois do tiro.'),
+      T_('sen_o3','Range de precisão',{xp:{mira:.08,reflexo:.06}},'Range rende mais.'),
+      T_('sen_o4','Primeiro abate',{a:{mira:1,reflexo:1}},'Abre o round de longe.'),
+      T_('sen_o5','Abate que acalma',{vida:6},'Abate devolve vida.'),
+      T_('sen_o6','Sniper',{a:{mira:4,reflexo:3}},'Assinatura: o Operator mais temido da liga.')]}
+  ],
+  Flex:[
+    {id:'coringa',nome:'Coringa',estilos:['suporte'],desc:'Joga onde o time precisa.',t:[
+      T_('flx_c1','Pool largo',{fam:.25},'Aprende agente mais rápido.'),
+      T_('flx_c2','Versátil',{a:{util:1}},'Utilidade de qualquer função.'),
+      T_('flx_c3','Agenda leve',{en:.06},'Cada atividade cansa menos.'),
+      T_('flx_c4','Duas funções',{a:{util:1,visao:1}},'Muda de papel no meio do mapa.'),
+      T_('flx_c5','Pool de elite',{fam:.35},'O agente novo fica pronto rápido.'),
+      T_('flx_c6','Canivete suíço',{a:{util:3,visao:2,mira:2}},'Assinatura: qualquer buraco do time é seu.')]},
+    {id:'mira',nome:'Mira',estilos:['mira','entrada'],desc:'Duelo antes de tudo.',t:[
+      T_('flx_m1','Mão firme',{a:{mira:1}},'Bala mais assentada.'),
+      T_('flx_m2','Range diário',{xp:{mira:.08,reflexo:.06}},'Range rende mais.'),
+      T_('flx_m3','Reflexo',{a:{reflexo:1}},'Reage antes.'),
+      T_('flx_m4','Duelista reserva',{a:{mira:1,mov:1}},'Assume a entrada quando precisa.'),
+      T_('flx_m5','Abate que cura',{vida:6},'Abate devolve vida.'),
+      T_('flx_m6','Mira de elite',{a:{mira:4,reflexo:2}},'Assinatura: a mira do time.')]},
+    {id:'leitura',nome:'Leitura',estilos:['lurker','ancora'],desc:'Jogo pensado e round tardio.',t:[
+      T_('flx_l1','Calma',{a:{consist:1}},'Joga igual em qualquer placar.'),
+      T_('flx_l2','Sala de vídeo',{vod:.35,xp:{visao:.08}},'Revisar adversário rende mais.'),
+      T_('flx_l3','Round tardio',{a:{clutch:1}},'O fim do round é seu.'),
+      T_('flx_l4','Leitura de jogo',{a:{visao:1,clutch:1}},'Antecipa a rotação.'),
+      T_('flx_l5','Veterano',{dec:.25},'A idade pesa menos.'),
+      T_('flx_l6','Cabeça do time',{a:{visao:3,clutch:3,consist:2}},'Assinatura: decide o round com a cabeça.')]}
+  ]
+};
+
+/* ---------- consultas ---------- */
+function arvoreDe(p){return TALENTOS[(p&&(p.role||p.roleAtual))]||TALENTOS.Flex;}
+function _talentoPorId(id){
+  for(const f in TALENTOS)for(const r of TALENTOS[f])for(let i=0;i<r.t.length;i++)
+    if(r.t[i].id===id)return{t:r.t[i],ramo:r,fileira:i,funcao:f};
+  return null;
+}
+function talentosDoJogador(){
+  if(!G.voce)return{};
+  if(!G.voce.talentos)G.voce.talentos={};
+  return G.voce.talentos;
+}
+function nivelTalento(id){return talentosDoJogador()[id]||0;}
+function maxNivelTalento(fileira){return fileira===5?1:TALENTO_NIVEIS;}
+/* pontos: cada ponto de over acima de 65 no pico; o talento do estilo é de graça */
+function pontosTalento(p){return Math.max(0,Math.round((p&&(p.pico||over(p)))||0)-TALENTO_BASE);}
+function pontosGastos(){
+  const tt=talentosDoJogador(), gratis=G.voce&&G.voce.talentoGratis;
+  let n=0;for(const id in tt)n+=tt[id]-(id===gratis?1:0);
+  return n;
+}
+function pontosLivres(p){return pontosTalento(p)-pontosGastos();}
+function fileiraAberta(p,fileira){return Math.round(p.pico||over(p))>=TALENTO_FILEIRAS[fileira];}
+function assinaturaEscolhida(){
+  const tt=talentosDoJogador();
+  for(const id in tt){const x=_talentoPorId(id);if(x&&x.fileira===5&&tt[id]>0)return id;}
+  return null;
+}
+/* devolve null se pode, ou o motivo de não poder */
+function porqueNaoTalento(p,id){
+  const x=_talentoPorId(id);
+  if(!x)return 'Talento desconhecido.';
+  if(!arvoreDe(p).includes(x.ramo))return 'Esse ramo é de outra função.';
+  if(nivelTalento(id)>=maxNivelTalento(x.fileira))return 'Já está no máximo.';
+  if(!fileiraAberta(p,x.fileira))return `Abre com over ${TALENTO_FILEIRAS[x.fileira]}.`;
+  if(x.fileira>0&&!nivelTalento(x.ramo.t[x.fileira-1].id))return `Precisa de um ponto em ${x.ramo.t[x.fileira-1].nome}.`;
+  if(x.fileira===5&&assinaturaEscolhida()&&assinaturaEscolhida()!==id)return 'Você já tem uma assinatura.';
+  if(pontosLivres(p)<1)return 'Sem pontos livres. Cada ponto de over acima de 65 dá um.';
+  return null;
+}
+function comprarTalento(id){
+  const p=meuJogador();
+  const motivo=porqueNaoTalento(p,id);
+  if(motivo)return{ok:false,motivo};
+  talentosDoJogador()[id]=nivelTalento(id)+1;
+  return{ok:true};
+}
+/* o talento de partida do estilo escolhido na criação: o primeiro do ramo do
+   estilo, um nível, sem custar ponto */
+function darTalentoDoEstilo(p){
+  if(!G.voce||G.voce.talentoGratis)return;
+  const arv=arvoreDe(p), est=G.voce.estilo;
+  const ramo=arv.find(r=>(r.estilos||[]).includes(est))||arv[0];
+  const id=ramo.t[0].id;
+  talentosDoJogador()[id]=Math.max(1,nivelTalento(id));
+  G.voce.talentoGratis=id;
+}
+/* soma de todos os efeitos comprados */
+function efeitosTalentos(){
+  const tot={a:{},xp:{},en:0,dec:0,fam:0,vida:0,ult:0,forma:0,vod:0};
+  const tt=talentosDoJogador();
+  for(const id in tt){
+    const n=tt[id], x=_talentoPorId(id);if(!x||!n)continue;
+    const ef=x.t.ef;
+    for(const k in ef.a||{})tot.a[k]=(tot.a[k]||0)+ef.a[k]*n;
+    for(const k in ef.xp||{})tot.xp[k]=(tot.xp[k]||0)+ef.xp[k]*n;
+    for(const k of ['en','dec','fam','vida','ult','forma','vod'])if(ef[k])tot[k]+=ef[k]*n;
+  }
+  tot.en=Math.min(.4,tot.en);tot.dec=Math.min(.75,tot.dec);
+  return tot;
+}
+/* texto curto do efeito de um nível */
+function textoEfeito(ef){
+  const nomes=Object.fromEntries(ATTRS);
+  const out=[];
+  for(const k in ef.a||{})out.push(`+${ef.a[k]} ${nomes[k]||k} na partida`);
+  for(const k in ef.xp||{})out.push(`+${Math.round(ef.xp[k]*100)}% XP em ${nomes[k]||k}`);
+  if(ef.en)out.push(`−${Math.round(ef.en*100)}% de energia por atividade`);
+  if(ef.dec)out.push(`−${Math.round(ef.dec*100)}% na queda da idade`);
+  if(ef.fam)out.push(`+${Math.round(ef.fam*100)}% no treino de agente`);
+  if(ef.vida)out.push(`+${ef.vida} de vida por abate`);
+  if(ef.ult)out.push(`+${Math.round(ef.ult*100)}% de ponto de ultimate por abate`);
+  if(ef.forma)out.push(`treino do clube dá mais forma`);
+  if(ef.vod)out.push(`+${Math.round(ef.vod*100)}% no bônus de VOD`);
+  return out.join(' · ');
+}
+
+
+/* ===== src/core/semana-jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — A SEMANA, O TREINO E A EVOLUÇÃO (J3)
+   ------------------------------------------------------------
+   A semana tem energia. Ela começa em até 100 (menos, se você
+   chega cansado) e cada atividade gasta um pouco; o que sobra vira
+   descanso no fechamento. Chegar ao jogo com pouca energia derruba
+   o rendimento (condicao em match.js).
+
+   Atividades:
+     · treinos jogáveis na gameplay (range, duelo, deathmatch,
+       retake): o XP sai de como você jogou; simular rende 60%
+     · prática de utilidade, ranked, VOD do adversário, live e
+       treino de agente: um clique
+     · o treino do clube: o técnico marca; faltar derruba a forma,
+       e a forma pesa na escalação
+
+   O XP de cada atributo enche uma barra; cheia, o atributo sobe 1.
+   A barra cresce com o atributo (60→61 é rápido, 90→91 é lento) e
+   rende menos perto do potencial, com a idade e na dificuldade
+   Difícil. As partidas também dão XP, pelo que você fez nelas.
+   No seu jogador, isto substitui o treino que a IA do clube dava
+   (desenvolver em clock.js); a queda da idade continua lá.
+
+   Sem nada marcado na semana, o assistente faz uma semana padrão
+   simulada (treino do clube, range e duelo): rende bem menos que
+   jogar, e dá para desligar.
+   ============================================================ */
+
+const ENERGIA_MAX=100;
+const SIMULADO_RENDE=0.6;
+const XP_POR_MAPA=4;
+const REPETIR_RENDE=0.6;
+/* custo de um ponto: cresce com o atributo */
+/* atributo bem abaixo do seu over custa como se estivesse a 8 dele: sem o piso,
+   o XP escorria para o atributo que a função ignora (consistência de duelista
+   subia 39 pontos num ano e o over quase não mexia) */
+const XP_CUSTO=15;
+function custoPonto(v,p){const piso=p?over(p)-8:0;return XP_CUSTO*Math.pow(1+Math.max(0,Math.max(v,piso)-55)/15,1.7);}
+const XP_DIFICULDADE={facil:1.35,normal:1,dificil:.75};
+
+const ATIV_JOGADOR=[
+  {id:'coletivo',nome:'Treino do clube',grupo:'clube',energia:15,base:5,xp:{util:.35,visao:.35,consist:.3},unico:true,
+   desc:'O técnico marcou. Faltar derruba a sua forma, e a forma pesa na escalação.'},
+  {id:'range',nome:'Range de mira',grupo:'jogavel',modo:'range',energia:15,base:9,xp:{mira:.6,reflexo:.4},
+   desc:'60 segundos de alvos aparecendo. Abates, precisão e cabeça.'},
+  {id:'duelo',nome:'Duelo 1 contra 1',grupo:'jogavel',modo:'duelo',energia:20,base:10,xp:{mira:.5,consist:.5},
+   desc:'Primeiro a 5, contra um bot do nível do próximo adversário.'},
+  {id:'dm',nome:'Deathmatch',grupo:'jogavel',modo:'dm',energia:25,base:12,xp:{mira:.4,reflexo:.3,mov:.3},
+   desc:'Todos contra todos, 2 minutos. Abates e K/D.'},
+  {id:'retake',nome:'Retake',grupo:'jogavel',modo:'retake',energia:20,base:10,xp:{clutch:.55,visao:.45},
+   desc:'Spike plantado no bomb e você na defesa: retome.'},
+  {id:'utilidade',nome:'Prática de utilidade',grupo:'clique',energia:15,base:8,xp:{util:1},
+   desc:'Lineups de smoke, flash e molly no mapa da semana.'},
+  {id:'vod',nome:'Revisar VOD do adversário',grupo:'clique',energia:10,base:4,xp:{visao:1},unico:true,precisaJogo:true,
+   desc:'Visão de jogo e um bônus de leitura na partida da semana.'},
+  {id:'agente',nome:'Treinar um agente',grupo:'clique',energia:10,base:0,unico:true,
+   desc:'Familiaridade com um agente do seu pool (ou um novo).'},
+  {id:'ranked',nome:'Ranked',grupo:'clique',energia:15,base:4,xp:{mira:.5,reflexo:.5},
+   desc:'Pouco XP, mas sobe a sua fama e o radar dos olheiros.'},
+  {id:'live',nome:'Live',grupo:'clique',energia:15,base:0,
+   desc:'Fãs e um dinheiro extra. Não treina nada.'}
+];
+function ativJogador(id){return ATIV_JOGADOR.find(a=>a.id===id);}
+
+/* ---------- o estado da semana ---------- */
+function energiaInicial(p){return Math.max(35,Math.min(ENERGIA_MAX,Math.round(ENERGIA_MAX-(p.fadiga||0)*60)));}
+function _snapTemp(p){const s=p.temp||{};return{maps:s.maps||0,k:s.k||0,d:s.d||0,a:s.a||0,acs:s.acs||0,fk:s.fk||0,cl:s.cl||0};}
+function semanaJogador(){
+  if(!G.voce)return null;
+  const p=meuJogador();if(!p)return null;
+  const s=G.voce.sem;
+  if(s&&s.ano===G.ano&&s.semana===G.semana)return s;
+  const e=energiaInicial(p);
+  G.voce.sem={ano:G.ano,semana:G.semana,ini:e,energia:e,feitas:[]};
+  if(!G.voce.tempAntes)G.voce.tempAntes=_snapTemp(p);
+  if(G.voce.auto==null)G.voce.auto=true;
+  return G.voce.sem;
+}
+function vezesFeita(id){const s=semanaJogador();return s?s.feitas.filter(f=>f.id===id).length:0;}
+function custoEnergia(a){return Math.max(1,Math.round(a.energia*(1-efeitosTalentos().en)));}
+/* devolve null se dá para fazer, ou o motivo */
+function porqueNaoAtividade(id){
+  const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
+  if(!a||!s||!p)return 'Indisponível.';
+  if(p.lesao)return 'Você está lesionado: a semana é de recuperação.';
+  if(a.grupo==='clube'&&!clubeDoJogador())return 'Sem clube, sem treino coletivo.';
+  if(a.unico&&vezesFeita(id))return 'Já feito nesta semana.';
+  if(a.precisaJogo&&!adversarioDaSemana())return 'Sem jogo do seu clube nesta semana.';
+  if(s.energia<custoEnergia(a))return 'Energia insuficiente.';
+  return null;
+}
+/* o adversário do jogo do seu clube nesta semana (para VOD e para o duelo) */
+function adversarioDaSemana(){
+  const c=typeof compromissoDaSemana==='function'?compromissoDaSemana():null;
+  return c?G.times[c.advId]:null;
+}
+function overMedioTime(t){
+  const tit=((t&&t.titulares)||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  return tit.length?Math.round(tit.reduce((s,x)=>s+over(x),0)/tit.length):null;
+}
+/* o nível do bot do duelo: o próximo adversário; sem jogo, a sua liga */
+function nivelDoRival(){
+  const adv=adversarioDaSemana();
+  if(adv)return{over:overMedioTime(adv),nome:adv.nome};
+  const t=clubeDoJogador();
+  return{over:t?Math.max(60,overMedioTime(t)-2):66,nome:t?'liga':'ranked'};
+}
+
+/* ---------- XP ---------- */
+function fatorXP(p,k){
+  const o=over(p), gap=(p.pot||o)-o;
+  const pot=gap<=0?0.05:Math.max(0.08,Math.min(1,gap/8));
+  const a=p.idade, idade=a<=19?1.25:a<=22?1.1:a<=25?1:a<=27?.85:a<=30?.65:.45;
+  const dif=XP_DIFICULDADE[(G.voce&&G.voce.dificuldade)||'normal']||1;
+  const tal=1+((efeitosTalentos().xp||{})[k]||0);
+  return pot*idade*dif*tal;
+}
+/* aplica x de XP bruto no atributo k; devolve quantos pontos subiu */
+function ganharXP(p,k,x){
+  if(!p.xp)p.xp={};
+  if(!(k in p.at)||x<=0)return 0;
+  let subiu=0;
+  /* o fator de potencial muda a cada ponto: vai aos pedaços */
+  let resto=x;
+  while(resto>0.0001){
+    const pedaco=Math.min(resto,2);resto-=pedaco;
+    p.xp[k]=(p.xp[k]||0)+pedaco*fatorXP(p,k);
+    let guarda=0;
+    while(p.at[k]<99&&p.xp[k]>=custoPonto(p.at[k],p)&&guarda++<20){p.xp[k]-=custoPonto(p.at[k],p);p.at[k]++;subiu++;}
+    if(p.at[k]>=99)p.xp[k]=0;
+  }
+  return subiu;
+}
+function _aposEvoluir(p){
+  if(typeof ajustarSecundaria==='function')ajustarSecundaria(p);
+  p.pico=Math.max(p.pico||0,over(p));
+  if(typeof valor==='function')p.valor=valor(p);
+  if(typeof salario==='function')p.salarioJusto=salario(p,p.timeId&&G.times[p.timeId]);
+}
+/* espalha base*mult pelo mapa de pesos; devolve {xp:{k:x}, subiu:{k:n}} */
+function distribuirXP(p,pesos,total){
+  const r={xp:{},subiu:{}};
+  for(const k in pesos){
+    const x=total*pesos[k];
+    r.xp[k]=(r.xp[k]||0)+x;
+    const n=ganharXP(p,k,x);if(n)r.subiu[k]=(r.subiu[k]||0)+n;
+  }
+  _aposEvoluir(p);
+  return r;
+}
+
+/* ---------- fazer uma atividade ----------
+   res: {nota (0 a 1,5), simulado, alvo (agente), resumo} */
+/* nota 0 (abandonou sem fazer nada) rende 30%, abaixo do simulado; nota 1 rende 105% */
+function notaParaMult(nota){return Math.max(0.3,Math.min(1.4,0.3+nota*0.75));}
+function fazerAtividade(id,res){
+  const motivo=porqueNaoAtividade(id);
+  if(motivo)return{ok:false,motivo};
+  res=res||{simulado:true};
+  const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
+  const n=vezesFeita(id);
+  const gasto=custoEnergia(a);
+  s.energia-=gasto;
+  const mult=(res.simulado?SIMULADO_RENDE:notaParaMult(res.nota||0))*Math.pow(REPETIR_RENDE,n);
+  const feito={id,gasto,simulado:!!res.simulado,nota:res.nota!=null?Math.round(res.nota*100)/100:null,mult:Math.round(mult*100)/100,resumo:res.resumo||null,xp:{},subiu:{}};
+  if(a.base&&a.xp){const r=distribuirXP(p,a.xp,a.base*mult);feito.xp=r.xp;feito.subiu=r.subiu;}
+  const ef=efeitosTalentos();
+  if(id==='agente'){
+    const ag=res.alvo||(p.agentes||[])[0];
+    if(ag&&typeof treinarAgente==='function'){
+      const ganho=treinarAgente(p,ag,(typeof AGENTE_POR_SEMANA!=='undefined'?AGENTE_POR_SEMANA:6)*0.8*(1+ef.fam));
+      feito.alvo=ag;feito.fam=Math.round((ganho||0)*10)/10;
+      if(!(p.agentes||[]).includes(ag)&&typeof nivelAgente==='function'&&nivelAgente(p,ag)>=40)(p.agentes=p.agentes||[]).push(ag);
+    }
+  }
+  if(id==='vod'){const adv=adversarioDaSemana();G.voce.vod={adv:adv&&adv.id,ano:G.ano,semana:G.semana,forca:1+ef.vod};feito.adv=adv&&adv.nome;}
+  if(id==='ranked'){G.voce.fama=(G.voce.fama||0)+1;G.voce.radar=(G.voce.radar||0)+(clubeDoJogador()?0.5:2);}
+  if(id==='live'){
+    const fas=Math.round(150+(G.voce.fama||0)*25+over(p)*4);
+    G.voce.fas=(G.voce.fas||0)+fas;G.voce.caixa=(G.voce.caixa||0)+Math.round(fas*1.5);
+    feito.fas=fas;
+  }
+  s.feitas.push(feito);
+  return{ok:true,feito};
+}
+/* treino jogável: a nota sai do resumo da gameplay */
+function notaDoTreino(modo,r){
+  if(!r)return 0;
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  if(modo==='range')return cl(r.kills/18*0.6+r.precisao/40*0.25+r.hs/35*0.15,0,1.5);
+  if(modo==='duelo'){const t=(r.eu||0)+(r.eles||0);return cl(t?(r.eu/t)*1.5:0,0,1.5);}
+  if(modo==='dm'){const kd=r.kills/Math.max(1,r.mortes);return cl(0.2+r.kills/16*0.6+Math.min(2,kd)*0.3,0,1.5);}
+  if(modo==='retake')return cl((r.venceu?1:0.35)+(r.kills||0)*0.15,0,1.5);
+  return 0.6;
+}
+
+/* ---------- fechamento da semana ----------
+   Chamado por desenvolver (clock.js) com o seu clube, ou pelo laço dos
+   agentes livres. Aplica o XP das partidas, o treino do clube, o assistente
+   e devolve o custo de fadiga da semana. */
+function custoSemanaJogador(p){
+  const s=G.voce&&G.voce.sem;
+  if(!s||s.ano!==G.ano||s.semana!==G.semana)return -0.075;   /* semana em branco: descanso */
+  const gasto=s.ini-s.energia;
+  /* nada gasto: descanso (−0,075, como o descanso do manager); 80 gastos ≈ uma
+     semana de treino do manager (+0,02); 100 gastos ≈ +0,045 */
+  return -0.075+gasto/100*0.12;
+}
+function semanaAutomatica(p){
+  const s=semanaJogador();
+  if(!s||s.feitas.length||!G.voce.auto||p.lesao)return false;
+  for(const id of ['coletivo','range','duelo','vod'])if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
+  s.automatica=true;
+  return true;
+}
+function fecharSemanaJogador(p,t){
+  if(!G.voce||!p||!p.voce)return null;
+  semanaAutomatica(p);
+  const s=semanaJogador();
+  const rel={partidas:null,coletivo:null,auto:!!s.automatica,energia:s.energia,ini:s.ini};
+  /* partidas da semana: XP pelo que você fez */
+  /* o que entrou na temporada desde o último fechamento (virada de ano zera a
+     temporada: aí conta tudo o que já está nela) */
+  const ag=_snapTemp(p);
+  let a=G.voce.tempAntes||ag;
+  if(ag.maps<a.maps)a=_snapTemp({temp:{}});
+  const maps=ag.maps-a.maps;
+  G.voce.tempAntes=ag;
+  if(maps>0){
+    const k=ag.k-a.k, d=ag.d-a.d, as=ag.a-a.a, acs=(ag.acs-a.acs)/maps, cl=ag.cl-a.cl, fk=ag.fk-a.fk;
+    const perf=Math.max(0.6,Math.min(1.4,acs/200));
+    const pesos={mira:.5+k/maps*.03,reflexo:.3+fk/maps*.08,mov:.2,util:.3+as/maps*.03,visao:.4,clutch:.2+cl*.5/maps,consist:.3*(d/maps<16?1.2:.8)};
+    const r=distribuirXP(p,pesos,maps*perf*XP_POR_MAPA);
+    rel.partidas={maps,xp:r.xp,subiu:r.subiu};
+  }
+  /* treino do clube */
+  if(t&&!p.lesao){
+    const foi=s.feitas.some(f=>f.id==='coletivo');
+    if(foi)p.forma=Math.max(.2,Math.min(1,p.forma+0.012+efeitosTalentos().forma));
+    else{
+      p.forma=Math.max(.2,Math.min(1,p.forma-0.04));
+      G.voce.faltas=(G.voce.faltas||0)+1;
+      if(typeof noticia==='function'&&G.voce.faltas%3===0)
+        noticia(`${p.nome} faltou de novo ao treino do ${t.nome}; a comissão anotou.`,{c:'clube',p:[p.id],t:[t.id]});
+    }
+    rel.coletivo=foi;
+  }
+  /* histórico curto das semanas (a tela mostra as últimas) */
+  if(!G.voce.semanas)G.voce.semanas=[];
+  G.voce.semanas.unshift({ano:s.ano,semana:s.semana,gasto:s.ini-s.energia,feitas:s.feitas.map(f=>f.id+(f.simulado?'*':'')),maps,auto:!!s.automatica});
+  G.voce.semanas.length=Math.min(G.voce.semanas.length,12);
+  G.voce.ultimaSemana=rel;
+  return rel;
+}
+
+/* ---------- o efeito na partida ---------- */
+/* energia baixa cobra no rendimento (multiplica condicao) */
+function fatorEnergia(p){
+  if(!p||!p.voce||!G.voce)return 1;
+  const s=G.voce.sem;
+  if(!s||s.ano!==G.ano||s.semana!==G.semana)return 1;
+  return s.energia>=40?1:1-(40-s.energia)*0.002;
+}
+/* atributos do seu jogador no motor: talentos e o VOD do adversário */
+function bonusDoJogadorNaPartida(p,at,adv){
+  if(!p||!p.voce||!G.voce)return at;
+  const ef=efeitosTalentos();
+  for(const k in ef.a)if(k in at)at[k]=Math.min(99,at[k]+ef.a[k]);
+  const v=G.voce.vod;
+  if(v&&adv&&v.adv===adv.id&&v.ano===G.ano&&Math.abs(G.semana-v.semana)<=1){
+    at.visao=Math.min(99,at.visao+Math.round(4*v.forca));
+    at.util=Math.min(99,at.util+Math.round(2*v.forca));
+  }
+  return at;
+}
+/* o que vai no boneco do motor: vida por abate e ultimate */
+function talentosDoBoneco(){
+  const ef=efeitosTalentos();
+  return ef.vida||ef.ult?{vida:ef.vida,ult:ef.ult}:null;
 }
 
 
@@ -29544,6 +30283,8 @@ const NAV=[
 /* ---------- ícones (SVG inline: sem fonte externa, funciona offline) ---------- */
 const ICONES={
   casa:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  mira:'<circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/>',
+  arvore:'<circle cx="12" cy="4.5" r="2"/><circle cx="5.5" cy="12" r="2"/><circle cx="18.5" cy="12" r="2"/><circle cx="5.5" cy="19.5" r="2"/><circle cx="18.5" cy="19.5" r="2"/><path d="M11 6.2 6.6 10.3M13 6.2l4.4 4.1M5.5 14v3.5M18.5 14v3.5"/>',
   estrutura:'<path d="M4 21V5.5L12 3v18"/><path d="M12 9h8v12"/><path d="M7 8h2M7 11.5h2M7 15h2M15 13h2M15 16.5h2"/><path d="M2.5 21h19"/>',
   elenco:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M16 5.6a3 3 0 0 1 0 5.6"/><path d="M18.5 20c0-2.5-.9-4.3-2.5-5.3"/>',
   tatica:'<path d="M4 5h16v14H4z"/><path d="M4 12h16"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="16" cy="15.5" r="1.3"/>',
@@ -40061,6 +40802,8 @@ function avPintar(fim){
 const NAV_JOGADOR=[
   ['inicio','Central','Carreira','casa'],
   ['perfil','Meu jogador','Carreira','elenco'],
+  ['semana','Semana e treinos','Carreira','mira'],
+  ['talentos','Talentos','Carreira','arvore'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Estatísticas','Circuito','grafico'],
@@ -40071,7 +40814,8 @@ const NAV_JOGADOR=[
 function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JOGADOR:NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
-  return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube}[k]||null;
+  return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
+    semana:typeof vJSemana==='function'?vJSemana:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
 }
 
 /* ---------- pedaços ---------- */
@@ -40143,7 +40887,17 @@ function vJCentral(){
     ${_jHero(p,t)}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
+    ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
+}
+/* o resumo da semana na Central: energia, o que falta e os pontos de talento */
+function _jCardSemana(p){
+  if(typeof semanaJogador!=='function')return '';
+  const s=semanaJogador(), livres=pontosLivres(p);
+  const coletivo=clubeDoJogador()&&!vezesFeita('coletivo')&&!p.lesao;
+  return `<div class="card jg-sem"><div class="split"><div class="eyebrow">Sua semana</div><button class="btn sm" data-ir="semana">Semana e treinos ›</button></div>
+    ${_barraEnergia(s)}
+    <p class="dim">${s.feitas.length?s.feitas.length+' atividade'+(s.feitas.length>1?'s':'')+' feita'+(s.feitas.length>1?'s':'')+'.':'Nada marcado ainda.'}${coletivo?' O treino do clube ainda não foi.':''}${livres>0?` <b>${livres} ponto${livres>1?'s':''} de talento livre${livres>1?'s':''}</b> — <a href="#" data-ir="talentos">abrir talentos</a>.`:''}</p></div>`;
 }
 
 /* ---------- Meu jogador ---------- */
@@ -40151,14 +40905,17 @@ function vJPerfil(){
   const p=meuJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
   const t=clubeDoJogador(), est=typeof estiloJogador==='function'&&G.voce?estiloJogador(G.voce.estilo):null;
-  const barra=(k,rot)=>{const v=p.at[k];return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i></div><b class="num">${v}</b></div>`;};
+  /* a barra fina embaixo é o XP até o próximo ponto (core/semana-jogador.js) */
+  const barra=(k,rot)=>{const v=p.at[k];
+    const xp=typeof custoPonto==='function'&&k!=='lider'?Math.min(100,Math.round(((p.xp||{})[k]||0)/custoPonto(v,p)*100)):null;
+    return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i>${xp!=null?`<em style="width:${xp}%"></em>`:''}</div><b class="num">${v}</b></div>`;};
   const fam=(p.agentes||[]).map(a=>{const n=typeof nivelAgente==='function'?nivelAgente(p,a):null;
     return `<div class="jg-agl"><b>${esc(a)}</b><div class="jg-atr-b"><i style="width:${n||0}%"></i></div><span class="num">${n!=null?Math.round(n):'–'}</span></div>`;}).join('');
   const hist=(p.hist||[]).slice().reverse();
   return `${_jHero(p,t)}
     <div class="grid g2 cx-linha">
       <div class="card"><div class="eyebrow">Atributos</div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}
-        <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, cada ponto custa mais. A barra de XP e a árvore de talentos chegam com a semana de treino (J3).</p></div>
+        <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, o XP rende cada vez menos. A linha fina embaixo de cada barra é o XP até o próximo ponto; treinos, atividades e partidas enchem ela.</p></div>
       <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam||vazio('<b>Sem agentes.</b>','elenco')}
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
@@ -40297,6 +41054,150 @@ function comecarDiaDeJogo(){
   S.jogador={escolhas,euMid:G.voce.id};
   const plano={stageId:comp.stage.id,veto:{seq:v.seq,mapas:v.mapas,lados:v.lados}};
   partidaConduzida(S,ctx,res=>{res.semana=G.semana;plano.serieFeita=res;if(depois)depois(plano);});
+}
+
+
+/* ===== src/ui/semana.js ===== */
+/* ============================================================
+   MODO JOGADOR — as telas da semana e dos talentos (J3)
+   Semana e treinos: a energia, as atividades e o que a semana deu.
+   Talentos: a árvore da sua função (core/talentos.js).
+   ============================================================ */
+
+const _NOME_ATR=()=>Object.fromEntries(ATTRS);
+function _xpTexto(xp){
+  const n=_NOME_ATR();
+  return Object.entries(xp||{}).filter(([,v])=>v>0.05).map(([k,v])=>`${n[k]||k} +${v.toFixed(1)}`).join(' · ');
+}
+function _subiuTexto(sub){
+  const n=_NOME_ATR();
+  return Object.entries(sub||{}).map(([k,v])=>`<b class="up">${esc(n[k]||k)} +${v}</b>`).join(' ');
+}
+function _barraEnergia(s){
+  const pct=Math.round(s.energia), ini=Math.round(s.ini);
+  const tom=pct<30?'dn':pct<55?'':'up';
+  return `<div class="sj-en"><div class="sj-en-b"><i class="sj-ini" style="width:${ini}%"></i><i class="sj-agora ${tom}" style="width:${pct}%"></i></div>
+    <div class="sj-en-n"><b class="num">${pct}</b><span>de ${ini} de energia nesta semana</span></div></div>`;
+}
+
+/* ---------- Semana e treinos ---------- */
+function vJSemana(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  const s=semanaJogador(), t=clubeDoJogador(), adv=adversarioDaSemana(), rv=nivelDoRival();
+  const lab=typeof rotuloSemana==='function'?rotuloSemana(G.ano,G.semana):'Semana '+G.semana;
+  const nomes=_NOME_ATR();
+  const card=a=>{
+    const motivo=porqueNaoAtividade(a.id), feitas=vezesFeita(a.id);
+    const alvo=a.xp?Object.keys(a.xp).map(k=>nomes[k]||k).join(', '):a.id==='agente'?'familiaridade':a.id==='live'?'fãs e dinheiro':'';
+    let botoes='';
+    if(a.grupo==='jogavel')botoes=`<button class="btn sm" data-sjjogar="${a.id}" ${motivo?'disabled':''}>Jogar</button><button class="btn ghost sm" data-sjsim="${a.id}" ${motivo?'disabled':''}>Simular (60%)</button>`;
+    else if(a.id==='agente'){
+      const pool=[...new Set([...(p.agentes||[]),...((typeof AGENTS!=='undefined'&&AGENTS[p.role])||[])])];
+      botoes=`<select id="sjAgente" ${motivo?'disabled':''}>${pool.map(x=>`<option>${esc(x)}</option>`).join('')}</select><button class="btn sm" data-sjfazer="agente" ${motivo?'disabled':''}>Treinar</button>`;
+    }else botoes=`<button class="btn sm" data-sjfazer="${a.id}" ${motivo?'disabled':''}>${a.grupo==='clube'?'Ir ao treino':'Fazer'}</button>`;
+    return `<div class="sj-at ${motivo?'off':''} ${feitas?'feita':''}">
+      <div class="sj-at-top"><b>${esc(a.nome)}</b><span class="chip">${custoEnergia(a)} energia</span></div>
+      <p class="dim">${esc(a.desc)}${a.id==='duelo'&&rv.over?` Rival de over ${rv.over}.`:''}${a.id==='vod'&&adv?` Adversário: ${esc(adv.nome)}.`:''}</p>
+      ${alvo?`<div class="sj-alvo">${esc(alvo)}</div>`:''}
+      <div class="sj-at-b">${botoes}${feitas?`<span class="dim">feito ${feitas}×${a.unico?'':' · repetir rende menos'}</span>`:''}</div>
+      ${motivo&&!feitas?`<div class="sj-motivo">${esc(motivo)}</div>`:''}</div>`;
+  };
+  const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&(g!=='clube'||t));return l.length?`<div class="card"><div class="eyebrow">${titulo}</div>${sub?`<p class="dim">${sub}</p>`:''}<div class="sj-grid">${l.map(card).join('')}</div></div>`:'';};
+  const feitas=s.feitas.map(f=>{const a=ativJogador(f.id);
+    return `<div class="sj-feita"><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}<span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
+      <span>${_xpTexto(f.xp)}${f.fam?` familiaridade +${f.fam}`:''}${f.fas?` +${f.fas} fãs`:''}</span>${_subiuTexto(f.subiu)}</div>`;}).join('');
+  const u=G.voce.ultimaSemana;
+  return `<section class="card sj-topo">
+      <div class="split"><div><div class="eyebrow">Semana e treinos · ${esc(lab)}</div>
+        <h2 class="sj-tit">${adv?`Jogo nesta semana: ${esc(adv.nome)}`:t?'Semana sem jogo do seu clube':'Ranked e treino por conta própria'}</h2></div>
+        <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto?'checked':''}> Assistente monta a semana se eu não marcar nada</label></div>
+      ${_barraEnergia(s)}
+      <p class="dim">Cada atividade gasta energia; o que sobrar vira descanso quando a semana fechar. ${adv?'Abaixo de 40 de energia você chega ao jogo cansado e rende menos.':''} Treinar jogando rende mais que simular: o XP sai de como você jogou.</p>
+    </section>
+    ${grupo('clube','Treino do clube','O técnico conta presença. Faltar derruba a forma, e a forma pesa na escalação.')}
+    ${grupo('jogavel','Treinos jogáveis','Abrem a gameplay por cima do manager. Esc pausa e deixa encerrar.')}
+    ${grupo('clique','Fora do jogo')}
+    <div class="grid g2 cx-linha">
+      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas||vazio('<b>Nada ainda.</b> '+(G.voce.auto?'Se você avançar assim, o assistente faz uma semana padrão simulada.':'Se você avançar assim, a semana inteira vira descanso.'),'treino')}</div>
+      <div class="card"><div class="eyebrow">Semana passada</div>${u?`
+        <p>${u.auto?'O assistente montou a semana. ':''}Gastou ${Math.round(u.ini-u.energia)} de ${Math.round(u.ini)} de energia.${u.coletivo===false?' <b class="dn">Faltou ao treino do clube.</b>':''}</p>
+        ${u.partidas?`<p>${u.partidas.maps} mapa${u.partidas.maps>1?'s':''} jogado${u.partidas.maps>1?'s':''}: ${_xpTexto(u.partidas.xp)} ${_subiuTexto(u.partidas.subiu)}</p>`:'<p class="dim">Sem partida sua.</p>'}`
+        :vazio('<b>A primeira semana ainda não fechou.</b>','grafico')}</div>
+    </div>`;
+}
+
+/* abre a gameplay para um treino jogável */
+function mapaDoTreino(){
+  const ativos=(G.mapasAtivos||[]).filter(m=>typeof MAPAS_GAMEPLAY!=='undefined'&&MAPAS_GAMEPLAY[motorMapaId(m)]);
+  const t=clubeDoJogador(), pl=t&&typeof planoDe==='function'?planoDe(t):null;
+  const m=(pl&&pl.mapa&&ativos.includes(pl.mapa)?pl.mapa:null)||ativos[(G.semana||0)%Math.max(1,ativos.length)]||'Ascent';
+  return motorMapaId(m);
+}
+function jogarTreino(id){
+  const motivo=porqueNaoAtividade(id);if(motivo){flash(motivo);return;}
+  if(typeof GP==='undefined'||!GP.treinarNoManager){flash('A gameplay não carregou nesta página.');return;}
+  const a=ativJogador(id), p=meuJogador(), t=clubeDoJogador(), rv=nivelDoRival();
+  const at=Object.assign({},p.at);bonusDoJogadorNaPartida(p,at,null);
+  const ag=GP.idAgente((p.agentes||[])[0])||null;
+  GP.treinarNoManager({modo:a.modo,mapa:mapaDoTreino(),nome:p.nome,euMid:p.id,funcao:p.roleAtual||p.role,over:over(p),atrib:at,agente:ag,
+    rival:{over:rv.over||70,funcao:'Duelista'},aliados:{over:t?overMedioTime(t):over(p)}})
+  .then(r=>{
+    const nota=notaDoTreino(a.modo,r);
+    const res=fazerAtividade(id,{simulado:false,nota,resumo:{kills:r.kills,mortes:r.mortes,precisao:r.precisao,hs:r.hs,eu:r.eu,eles:r.eles,venceu:r.venceu}});
+    render();
+    if(res.ok)modalResultadoTreino(a,res.feito,r);
+  }).catch(e=>{console.error(e);flash('O treino não abriu.');});
+}
+function modalResultadoTreino(a,f,r){
+  const linha=a.modo==='range'?`${r.kills} abates · ${r.precisao}% de precisão · ${r.hs}% na cabeça`
+    :a.modo==='duelo'?`${r.eu}–${r.eles} no duelo`
+    :a.modo==='dm'?`${r.kills} abates e ${r.mortes} mortes`
+    :`${r.venceu?'Retake ganho':'Retake perdido'} · ${r.kills} abate${r.kills===1?'':'s'}`;
+  pintarModal(`<div class="ovl"><div class="box sj-res">
+    <div class="eyebrow">${esc(a.nome)}</div><h2>${esc(linha)}</h2>
+    <p>Nota <b class="num">${(f.nota||0).toFixed(2)}</b> · rendeu ${Math.round(f.mult*100)}% do XP base · −${f.gasto} energia</p>
+    <p>${_xpTexto(f.xp)}</p>${Object.keys(f.subiu).length?`<p>Subiu: ${_subiuTexto(f.subiu)}</p>`:''}
+    <div class="dj-acoes"><button class="btn" id="sjOk">Voltar para a semana</button></div></div></div>`);
+  $('#sjOk').onclick=()=>{$('#modal').innerHTML='';render();};
+}
+
+/* ---------- Talentos ---------- */
+function vJTalentos(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  if(!G.voce.talentoGratis)darTalentoDoEstilo(p);   /* carreira criada antes da J3 */
+  const arv=arvoreDe(p), livres=pontosLivres(p), total=pontosTalento(p), pico=Math.round(p.pico||over(p));
+  const prox=TALENTO_FILEIRAS.find(x=>x>pico);
+  const col=r=>`<div class="tl-ramo"><div class="tl-ramo-n"><b>${esc(r.nome)}</b><span class="dim">${esc(r.desc)}</span></div>
+    ${r.t.map((x,i)=>{
+      const n=nivelTalento(x.id), max=maxNivelTalento(i), motivo=porqueNaoTalento(p,x.id), aberta=fileiraAberta(p,i);
+      return `<div class="tl ${n?'on':''} ${aberta?'':'fechado'} ${i===5?'assin':''}">
+        <div class="tl-top"><span class="tl-f">${TALENTO_FILEIRAS[i]}</span><b>${esc(x.nome)}</b><span class="tl-n">${Array.from({length:max},(_,j)=>`<i class="${j<n?'on':''}"></i>`).join('')}</span></div>
+        <p>${esc(textoEfeito(x.ef))}${max>1?' <span class="dim">por nível</span>':''}</p>
+        <p class="dim">${esc(x.txt)}${G.voce.talentoGratis===x.id?' · <b>talento do seu estilo</b>':''}</p>
+        ${motivo?`<div class="tl-mot">${esc(motivo)}</div>`:`<button class="btn sm" data-tlcompra="${x.id}">+1 nível</button>`}</div>`;}).join('')}</div>`;
+  return `<section class="card sj-topo"><div class="eyebrow">Talentos · ${esc(p.role)}</div>
+      <h2 class="sj-tit">${livres} ponto${livres===1?'':'s'} livre${livres===1?'':'s'} <span class="dim">de ${total}</span></h2>
+      <p class="dim">Cada ponto de over acima de 65 no seu melhor over (hoje ${pico}) vale um ponto. As fileiras abrem em ${TALENTO_FILEIRAS.join(', ')}${prox?`; a próxima abre com over ${prox}`:''}. A fileira de cima precisa de um ponto antes da de baixo, e a assinatura (90) é uma só na carreira.</p></section>
+    <div class="tl-arvore">${arv.map(col).join('')}</div>`;
+}
+
+/* ---------- eventos ---------- */
+function ligarJogador(v,on){
+  on('[data-sjjogar]',el=>jogarTreino(el.dataset.sjjogar));
+  on('[data-sjsim]',el=>{const r=fazerAtividade(el.dataset.sjsim,{simulado:true});if(!r.ok)flash(r.motivo);render();});
+  on('[data-sjfazer]',el=>{
+    const id=el.dataset.sjfazer;
+    const alvo=id==='agente'?(v.querySelector('#sjAgente')||{}).value:null;
+    const r=fazerAtividade(id,{simulado:true,alvo});
+    if(!r.ok)flash(r.motivo);
+    else if(id==='live')flash(`Live feita: +${r.feito.fas} fãs.`);
+    else if(id==='agente')flash(`${alvo}: familiaridade +${r.feito.fam}.`);
+    render();
+  });
+  const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
+  on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
 }
 
 
@@ -41398,6 +42299,7 @@ function ligarEventos(){
   if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
   if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);
+  if(typeof ligarJogador==='function'&&typeof modoJogador==='function'&&modoJogador())ligarJogador(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por

@@ -295,7 +295,10 @@ function semana(){
     if(t.base&&t.base.length)baseDe(t).forEach(p=>crescerNaBase(p,t));
     if(t.caixa<0&&id!==G.meuTime)venderPorDinheiro(t);
   }
-  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;p.fadiga=clamp(p.fadiga-.05,0,1);p.forma=clamp(p.forma+gauss(0,.02),.2,1);});
+  G.livres.forEach(pid=>{const p=G.jogadores[pid];p.semLivre=(p.semLivre||0)+1;
+    p.fadiga=clamp(p.fadiga+(p.voce&&typeof custoSemanaJogador==='function'?custoSemanaJogador(p)+0.025:-.05),0,1);
+    p.forma=clamp(p.forma+gauss(0,.02),.2,1);
+    if(p.voce&&typeof fecharSemanaJogador==='function')fecharSemanaJogador(p,null);});
   /* Propostas pelos jogadores que você anunciou chegam ao longo da janela,
      uma por vez, e não todas de uma vez quando você aperta um botão. */
   if(typeof gerarPropostas==='function')gerarPropostas();
@@ -321,7 +324,9 @@ function desenvolver(p,t){
      jogo, então a escolha custa de verdade. */
   const plano=(typeof planoDoJogador==='function')?planoDoJogador(t,p)
              :{tipo:'atributo',alvo:'mira'};
-  const custoPlano=plano.tipo==='descanso'
+  /* modo jogador: o seu jogador cansa pela energia que gastou na semana (core/semana-jogador.js) */
+  const custoPlano=p.voce&&typeof custoSemanaJogador==='function'?custoSemanaJogador(p)
+    :plano.tipo==='descanso'
     ?FADIGA_DESCANSO
     :FADIGA_TREINO+FADIGA_TREINO_MAPA*fatorTreinoMapas(mapasDoTreino(planoDe(t)).length);
   p.fadiga=clamp(p.fadiga-0.035-recuperacaoEst(t)+(t.tatica.scrim-2)*0.008
@@ -351,6 +356,13 @@ function desenvolver(p,t){
   const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
   /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
   let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
+  /* modo jogador: o seu jogador evolui pelo XP da semana (treinos, atividades
+     e partidas); daqui só sobra a queda da idade, que talentos freiam */
+  if(p.voce&&typeof fecharSemanaJogador==='function'){
+    g=g>0?0:g*(1-efeitosTalentos().dec);
+    fecharSemanaJogador(p,t);
+    if(Math.abs(g)<0.0004){p.pico=Math.max(p.pico||0,over(p));p.valor=valor(p);p.salarioJusto=salario(p,t);return;}
+  }
   if(Math.abs(g)<0.0004)return;
   /* Para onde a evolução vai. Antes era um foco de TIME; agora é o plano do
      jogador. Quem descansa não evolui, e quem está aprendendo agente põe o

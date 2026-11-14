@@ -3373,3 +3373,55 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .dj-acoes{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
 @media (max-width:700px){.dj-modos{grid-template-columns:1fr}.dj-vs{gap:8px;padding:10px}}
 .dj-box>p.dim{margin-top:12px}
+
+/* ---------- modo jogador: semana e treinos, talentos (ui/semana.js) ---------- */
+.jg-atr-b{position:relative}
+.jg-atr-b em{position:absolute;left:0;bottom:0;height:3px;background:var(--gold,#e0b252);border-radius:2px}
+.sj-topo .sj-tit{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.04em;margin:4px 0 10px}
+.sj-auto{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);max-width:280px;text-align:right}
+.sj-en{display:flex;align-items:center;gap:14px;margin:6px 0 8px}
+.sj-en-b{position:relative;flex:1;height:14px;border-radius:7px;background:rgba(255,255,255,.05);overflow:hidden;border:1px solid var(--line)}
+.sj-en-b i{position:absolute;left:0;top:0;bottom:0}
+.sj-en-b .sj-ini{background:rgba(255,255,255,.08)}
+.sj-en-b .sj-agora{background:linear-gradient(90deg,#2fbf8f,#5fe0b0)}
+.sj-en-b .sj-agora.dn{background:linear-gradient(90deg,#c0392b,#ff5a4e)}
+.sj-en-b .sj-agora:not(.up):not(.dn){background:linear-gradient(90deg,#c98a2a,#f0c050)}
+.sj-en-n{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.sj-en-n b{font-family:'Bebas Neue',sans-serif;font-size:30px}
+.sj-en-n span{font-size:12px;color:var(--dim)}
+.sj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:8px}
+.sj-at{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:var(--panel2);display:flex;flex-direction:column;gap:6px}
+.sj-at.off{opacity:.6}
+.sj-at.feita{border-color:color-mix(in srgb,#2fbf8f 55%,var(--line))}
+.sj-at-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sj-at-top b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em}
+.sj-at p{margin:0;font-size:12.5px;line-height:1.4}
+.sj-alvo{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em}
+.sj-at-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto}
+.sj-at-b select{max-width:130px}
+.sj-motivo{font-size:11.5px;color:var(--dim)}
+.sj-feita{display:flex;flex-wrap:wrap;gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.sj-feita:last-child{border-bottom:0}
+.sj-feita .up,.sj-res .up{color:#3fd69f}
+.sj-res{max-width:560px}
+.sj-res h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em;margin:4px 0 8px}
+.jg-sem{margin-top:14px}
+.tl-arvore{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.tl-ramo{display:flex;flex-direction:column;gap:8px}
+.tl-ramo-n{padding:10px 12px;border-bottom:2px solid var(--red)}
+.tl-ramo-n b{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em}
+.tl-ramo-n span{font-size:12px}
+.tl{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
+.tl p{margin:0;font-size:12.5px;line-height:1.35}
+.tl.on{border-color:color-mix(in srgb,var(--red) 60%,var(--line));background:color-mix(in srgb,var(--red) 7%,var(--panel2))}
+.tl.fechado{opacity:.45}
+.tl.assin{border-style:dashed}
+.tl-top{display:flex;align-items:center;gap:8px}
+.tl-top b{flex:1;font-size:14px}
+.tl-f{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:1px 5px;border:1px solid var(--line2);border-radius:3px;color:var(--tx2)}
+.tl-n{display:flex;gap:3px}
+.tl-n i{width:8px;height:8px;border-radius:50%;border:1px solid var(--line2)}
+.tl-n i.on{background:var(--red);border-color:var(--red)}
+.tl-mot{font-size:11.5px;color:var(--dim)}
+.tl .btn{align-self:flex-start}
+@media (max-width:900px){.tl-arvore{grid-template-columns:1fr}.sj-auto{text-align:left}}

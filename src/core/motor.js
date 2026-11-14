@@ -36,12 +36,14 @@ const motorMapaId=m=>String(m||'').toLowerCase();
    atributos do dia (a condição — forma, cansaço, cabeça — pesa nos atributos
    de execução, como pesa em forcaTime) */
 const MOTOR_ATRIB_DIA=['mira','reflexo','mov','util','visao','clutch','consist'];
-function elencoParaMotor(t,mapa){
+function elencoParaMotor(t,mapa,adv){
   const jogadores=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean).map(p=>{
     const c=typeof condicao==='function'?condicao(p):1;
     const at=Object.assign({},p.at);
     /* condição ~0,8–1,15: vira até ±8 pontos nos atributos */
     for(const k of MOTOR_ATRIB_DIA)at[k]=clamp(Math.round(at[k]+(c-1)*55),25,99);
+    /* modo jogador: talentos e VOD do adversário (core/semana-jogador.js) */
+    if(p.voce&&typeof bonusDoJogadorNaPartida==='function')bonusDoJogadorNaPartida(p,at,adv);
     const ag=GP.idAgente(agenteDe(t,mapa,p));
     return{id:p.id,nome:p.nome,funcao:p.roleAtual||p.role,over:over(p),at,agentes:ag?[ag]:[]};
   });
@@ -52,7 +54,7 @@ function elencoParaMotor(t,mapa){
 function motorAbrirMapa(M){
   const mapa=motorMapaId(M.mapa);
   if(!MAPAS_GAMEPLAY[mapa])return;
-  const tA=elencoParaMotor(M.A,M.mapa), tB=elencoParaMotor(M.B,M.mapa);
+  const tA=elencoParaMotor(M.A,M.mapa,M.B), tB=elencoParaMotor(M.B,M.mapa,M.A);
   if(tA.jogadores.length<5||tB.jogadores.length<5)return;
   const tat=t=>Object.assign({},t.tatica||{},(M.tatA&&t===M.A)?M.tatA:{},(M.tatB&&t===M.B)?M.tatB:{});
   M.J=GP.montarPartida({
@@ -64,6 +66,11 @@ function motorAbrirMapa(M){
     taticaA:tat(M.A),taticaB:tat(M.B),
   });
   M.motor=true;
+  /* modo jogador: vida por abate e ultimate dos talentos vão no seu boneco */
+  if(G.voce&&typeof talentosDoBoneco==='function'){
+    const tal=talentosDoBoneco(), e=tal&&M.J.ents.find(x=>x.mid===G.voce.id);
+    if(e)e.tal=tal;
+  }
 }
 
 const MOTOR_COMO={'eliminação':'elim','explosão':'spike','desarme':'defuse','tempo':'tempo'};

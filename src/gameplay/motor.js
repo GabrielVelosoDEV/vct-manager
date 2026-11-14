@@ -469,23 +469,26 @@ GP._pontoDePatrulha = function (J, e) {
    MODOS
    duelo  — 1 contra 1, round a round, primeiro a N
    alvos  — treino: bots que só andam; 60 s, conta abates
+   dm     — deathmatch: todos contra todos, renasce, 2 min
    ============================================================ */
 GP.montarDuelo = function (o) {
   const J = GP.novoJogo(o);
   const eu = GP.criarAgente({id: 'eu', nome: o.nome || 'Você', time: 'eu', atrib: o.atribEu, agente: o.agenteEu,
     primaria: o.arma === 'classic' ? null : o.arma, secundaria: 'classic', escudo: o.escudo || 'pesado'});
-  const n = o.modo === 'alvos' ? 4 : 1;
+  const dm = o.modo === 'dm';
+  const n = o.modo === 'alvos' ? 4 : dm ? 5 : 1;
   for (let i = 0; i < n; i++) {
-    J.ents.push(GP.criarAgente({id: 'bot' + i, nome: o.nomesBot ? o.nomesBot[i] : 'Bot ' + (i + 1), time: 'eles', bot: true,
+    /* no deathmatch cada bot é um time: todos contra todos */
+    J.ents.push(GP.criarAgente({id: 'bot' + i, nome: o.nomesBot ? o.nomesBot[i] : 'Bot ' + (i + 1), time: dm ? 'b' + i : 'eles', bot: true,
       passivo: o.modo === 'alvos', atrib: o.atribBot, primaria: o.armaBot || o.arma, secundaria: 'classic',
       agente: o.agentesBot ? o.agentesBot[i % o.agentesBot.length] : null,
-      escudo: o.modo === 'alvos' ? 'nenhum' : (o.escudo || 'pesado'), agressivo: o.agressivo}));
+      escudo: o.modo === 'alvos' ? 'nenhum' : (o.escudo || 'pesado'), agressivo: dm ? 0.8 : o.agressivo}));
   }
   J.ents.unshift(eu);
   J.eu = eu;
   J.placar = {eu: 0, eles: 0};
   J.alvoRounds = o.rounds || 7;
-  J.duracaoRound = o.modo === 'alvos' ? 60 : 100;
+  J.duracaoRound = o.modo === 'alvos' ? 60 : dm ? (o.duracao || 120) : 100;
   GP.novoRound(J);
   return J;
 };
@@ -534,7 +537,8 @@ GP.novoRound = function (J) {
         if (d > 8 && d < 25 && GP.linhaLivre(J.m, J.eu.x, J.eu.y, p.x, p.y)) { pos(b, p); break; }
         if (t === 399) pos(b, p);
       }
-    } else pos(b, i ? GP.pontoLivre(J.m, J.rnd) : pb);
+    } else if (J.modo === 'dm') pos(b, GP._pontoLonge(J, b));
+    else pos(b, i ? GP.pontoLivre(J.m, J.rnd) : pb);
   });
   for (const e of J.ents) {
     e.hp = 100; e.vivo = true; e.spray = 0; e.recarregaAte = 0; e.equipaAte = 0; e._viuEm = 0; e._reagiu = false; e._susto = null; e._morreuEm = 0;
@@ -568,6 +572,13 @@ GP._fluxoDoRound = function (J, dt) {
       if (J.t >= R.ate) { R.fase = 'fim'; J.fim = {modo: 'alvos'}; }
       return;
     }
+    if (J.modo === 'dm') {
+      /* deathmatch: quem morre volta em 1,5 s, longe de todo mundo */
+      for (const e of J.ents) if (!e.vivo && J.t - (e._morreuEm || (e._morreuEm = J.t)) > 1.5) GP._renascer(J, e);
+      J.placar.eu = J.eu.st.kills; J.placar.eles = J.eu.st.mortes;
+      if (J.t >= R.ate) { R.fase = 'fim'; J.fim = {modo: 'dm'}; }
+      return;
+    }
     const euVivo = J.eu.vivo, eles = J.ents.filter(e => e.time === 'eles' && e.vivo).length;
     let venc = null;
     if (!euVivo) venc = 'eles'; else if (!eles) venc = 'eu'; else if (J.t >= R.ate) venc = 'empate';
@@ -580,6 +591,31 @@ GP._fluxoDoRound = function (J, dt) {
     if (J.placar.eu >= J.alvoRounds || J.placar.eles >= J.alvoRounds) J.fim = {modo: 'duelo', venceu: J.placar.eu > J.placar.eles};
     else GP.novoRound(J);
   }
+};
+
+/* deathmatch: um ponto livre longe de quem está vivo (e de preferência fora da vista) */
+GP._pontoLonge = function (J, e) {
+  let melhor = null, nota = -1;
+  for (let t = 0; t < 40; t++) {
+    const p = GP.pontoLivre(J.m, J.rnd);
+    let d = 99;
+    for (const o of J.ents) if (o !== e && o.vivo && (o.x || o.y)) d = Math.min(d, Math.hypot(o.x - p.x, o.y - p.y) + (GP.linhaLivre(J.m, o.x, o.y, p.x, p.y) ? 0 : 8));
+    if (d > nota) { nota = d; melhor = p; }
+    if (d > 22) break;
+  }
+  return melhor || GP.pontoLivre(J.m, J.rnd);
+};
+GP._renascer = function (J, e) {
+  const p = GP._pontoLonge(J, e);
+  const q = GP.navLivre(J.m, p.x, p.y) ? p : (() => { const i = GP._navPerto(J.m, p.x, p.y), n = J.m.nav; return {x: (i % n.W + 0.5) * n.passo, y: (((i / n.W) | 0) + 0.5) * n.passo}; })();
+  e.x = q.x; e.y = q.y; e.vx = e.vy = 0; e.viagem = null;
+  e.hp = 100; e.vivo = true; e.spray = 0; e.recarregaAte = 0; e.equipaAte = 0; e._viuEm = 0; e._reagiu = false; e._susto = null; e._morreuEm = 0;
+  e.escudo = GP.ESCUDOS[J.opc.escudo || 'pesado'];
+  for (const s of ['primaria', 'secundaria']) if (e.armas[s]) { const A = GP.ARMAS[e.armas[s].id]; e.armas[s].municao = A.pente; e.armas[s].reserva = A.reserva; }
+  e.slot = e.armas.primaria ? 'primaria' : 'secundaria';
+  e.ang = Math.atan2(J.m.alturaM / 2 - e.y, J.m.larguraM / 2 - e.x);
+  if (e === J.eu) e.cmd.ang = e.ang;
+  if (e.ia) Object.assign(e.ia, {estado: 'patrulha', caminho: null, alvoPonto: null, vista: null, ouviu: null, seguraAte: 0, pausaAte: 0});
 };
 
 /* o que o jogador vê agora (para desenhar e para medir a reação) */

@@ -79,6 +79,8 @@ function criarCarreiraJogador(o){
   ajustarSecundaria(p);
   G.jogadores[p.id]=p;
   G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
+  p.pico=Math.max(p.pico||0,over(p));p.xp={};
+  if(typeof darTalentoDoEstilo==='function')darTalentoDoEstilo(p);   /* o estilo dá o talento de partida (core/talentos.js) */
   G.meuTime=null;
   /* onde você aparece no mundo */
   const t=o.timeId&&G.times[o.timeId];

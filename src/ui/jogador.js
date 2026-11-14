@@ -14,6 +14,8 @@
 const NAV_JOGADOR=[
   ['inicio','Central','Carreira','casa'],
   ['perfil','Meu jogador','Carreira','elenco'],
+  ['semana','Semana e treinos','Carreira','mira'],
+  ['talentos','Talentos','Carreira','arvore'],
   ['meuclube','Meu clube','Carreira','vestiario'],
   ['comp','Competições','Circuito','trofeu'],
   ['stats','Estatísticas','Circuito','grafico'],
@@ -24,7 +26,8 @@ const NAV_JOGADOR=[
 function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JOGADOR:NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
-  return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube}[k]||null;
+  return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube,
+    semana:typeof vJSemana==='function'?vJSemana:null,talentos:typeof vJTalentos==='function'?vJTalentos:null}[k]||null;
 }
 
 /* ---------- pedaços ---------- */
@@ -96,7 +99,17 @@ function vJCentral(){
     ${_jHero(p,t)}
     ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
+    ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
+}
+/* o resumo da semana na Central: energia, o que falta e os pontos de talento */
+function _jCardSemana(p){
+  if(typeof semanaJogador!=='function')return '';
+  const s=semanaJogador(), livres=pontosLivres(p);
+  const coletivo=clubeDoJogador()&&!vezesFeita('coletivo')&&!p.lesao;
+  return `<div class="card jg-sem"><div class="split"><div class="eyebrow">Sua semana</div><button class="btn sm" data-ir="semana">Semana e treinos ›</button></div>
+    ${_barraEnergia(s)}
+    <p class="dim">${s.feitas.length?s.feitas.length+' atividade'+(s.feitas.length>1?'s':'')+' feita'+(s.feitas.length>1?'s':'')+'.':'Nada marcado ainda.'}${coletivo?' O treino do clube ainda não foi.':''}${livres>0?` <b>${livres} ponto${livres>1?'s':''} de talento livre${livres>1?'s':''}</b> — <a href="#" data-ir="talentos">abrir talentos</a>.`:''}</p></div>`;
 }
 
 /* ---------- Meu jogador ---------- */
@@ -104,14 +117,17 @@ function vJPerfil(){
   const p=meuJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
   const t=clubeDoJogador(), est=typeof estiloJogador==='function'&&G.voce?estiloJogador(G.voce.estilo):null;
-  const barra=(k,rot)=>{const v=p.at[k];return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i></div><b class="num">${v}</b></div>`;};
+  /* a barra fina embaixo é o XP até o próximo ponto (core/semana-jogador.js) */
+  const barra=(k,rot)=>{const v=p.at[k];
+    const xp=typeof custoPonto==='function'&&k!=='lider'?Math.min(100,Math.round(((p.xp||{})[k]||0)/custoPonto(v,p)*100)):null;
+    return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i>${xp!=null?`<em style="width:${xp}%"></em>`:''}</div><b class="num">${v}</b></div>`;};
   const fam=(p.agentes||[]).map(a=>{const n=typeof nivelAgente==='function'?nivelAgente(p,a):null;
     return `<div class="jg-agl"><b>${esc(a)}</b><div class="jg-atr-b"><i style="width:${n||0}%"></i></div><span class="num">${n!=null?Math.round(n):'–'}</span></div>`;}).join('');
   const hist=(p.hist||[]).slice().reverse();
   return `${_jHero(p,t)}
     <div class="grid g2 cx-linha">
       <div class="card"><div class="eyebrow">Atributos</div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}
-        <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, cada ponto custa mais. A barra de XP e a árvore de talentos chegam com a semana de treino (J3).</p></div>
+        <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, o XP rende cada vez menos. A linha fina embaixo de cada barra é o XP até o próximo ponto; treinos, atividades e partidas enchem ela.</p></div>
       <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam||vazio('<b>Sem agentes.</b>','elenco')}
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>

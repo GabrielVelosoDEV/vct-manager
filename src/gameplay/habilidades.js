@@ -317,6 +317,11 @@ GP.passoHabilidades = function (J, dt) {
     if (ev.tipo !== 'morte') continue;
     const de = J.ents.find(o => o.id === ev.de), em = J.ents.find(o => o.id === ev.em);
     if (!de || !em) continue;
+    /* talentos do modo jogador (core/talentos.js): vida e ultimate por abate */
+    if (de.tal && de.time !== em.time) {
+      if (de.tal.vida && de.vivo) de.hp = Math.min(100, de.hp + de.tal.vida);
+      if (de.tal.ult) { de._ultFrac = (de._ultFrac || 0) + de.tal.ult; if (de._ultFrac >= 1 && de.pontosUlt != null) { de._ultFrac -= 1; de.pontosUlt++; } }
+    }
     if (de.time !== em.time && de.pontosUlt != null && de.pontosUlt < GP.PONTOS_ULT) {
       de.pontosUlt++;
       const HH = GP.HABS[de.agente];

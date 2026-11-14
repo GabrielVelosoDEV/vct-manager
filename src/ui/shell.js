@@ -38,6 +38,8 @@ const NAV=[
 /* ---------- ícones (SVG inline: sem fonte externa, funciona offline) ---------- */
 const ICONES={
   casa:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  mira:'<circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/>',
+  arvore:'<circle cx="12" cy="4.5" r="2"/><circle cx="5.5" cy="12" r="2"/><circle cx="18.5" cy="12" r="2"/><circle cx="5.5" cy="19.5" r="2"/><circle cx="18.5" cy="19.5" r="2"/><path d="M11 6.2 6.6 10.3M13 6.2l4.4 4.1M5.5 14v3.5M18.5 14v3.5"/>',
   estrutura:'<path d="M4 21V5.5L12 3v18"/><path d="M12 9h8v12"/><path d="M7 8h2M7 11.5h2M7 15h2M15 13h2M15 16.5h2"/><path d="M2.5 21h19"/>',
   elenco:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M16 5.6a3 3 0 0 1 0 5.6"/><path d="M18.5 20c0-2.5-.9-4.3-2.5-5.3"/>',
   tatica:'<path d="M4 5h16v14H4z"/><path d="M4 12h16"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="16" cy="15.5" r="1.3"/>',

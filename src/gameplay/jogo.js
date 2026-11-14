@@ -300,7 +300,7 @@ GP._quadro = function (agora) {
   if (S.embutido) {
     /* no manager: o trecho acaba no fim do round (ou do mapa); o placar do fim
        do round fica um instante na tela antes de devolver */
-    if (!S.fechaEm && (J.fim || J.historico.length >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
+    if (!S.fechaEm && (J.fim || (J.historico ? J.historico.length : 0) >= S.ateHist)) S.fechaEm = agora + (J.fim ? 2200 : 1400);
     if (S.fechaEm && agora >= S.fechaEm) { GP._encerrarEmbutido(); return; }
   } else if (J.fim && !S.fimMostrado) { S.fimMostrado = true; setTimeout(GP._fim, 900); }
   requestAnimationFrame(GP._quadro);
@@ -325,7 +325,9 @@ GP._hud = function () {
   const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   const alvos = J.modo === 'alvos', partida = J.modo === 'partida';
   if (partida && J.espectador) GP._hudEspectador();
-  else if (partida) {
+  else if (J.modo === 'dm') {
+    $gp('#gpPlacar').innerHTML = `<span class="gp-pl-eu num">${eu.st.kills}<i>abates</i></span><span class="gp-pl-meio"><b class="num">${mmss(resta)}</b><i>deathmatch · todos contra todos</i></span><span class="gp-pl-ele num">${eu.st.mortes}<i>mortes</i></span>`;
+  } else if (partida) {
     const nos = eu.time, eles = nos === 'A' ? 'B' : 'A', lado = J.lados[nos] === 'atk' ? 'ataque' : 'defesa', sp = J.spike;
     const plantada = sp && sp.estado === 'plantada';
     const tempo = R.fase === 'compra' ? 'compra ' + Math.ceil(resta) : mmss(resta);
@@ -384,7 +386,8 @@ GP._hud = function () {
     fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.fase === 'fim' ? (R.vencedor === nos ? ' ok' : ' no') : '');
     return;
   }
-  if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
+  if (J.modo === 'dm') faixa = R.fase === 'pre' ? 'Deathmatch — ' + GP.NOME_MAPA[J.m.nome] : !eu.vivo ? 'Você caiu · renasce em instantes' : '';
+  else if (R.fase === 'pre') faixa = alvos ? 'Prepare-se' : R.n === 1 ? 'Duelo — ' + GP.NOME_MAPA[J.m.nome] : 'Round ' + R.n;
   else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
   const fx = $gp('#gpFaixa');
   fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.vencedor === 'eu' ? ' ok' : R.vencedor === 'eles' ? ' no' : '');
@@ -513,6 +516,18 @@ GP.pausar = function (on) {
   const S = GP.S; if (!S || S.J.fim) return;
   S.pausa = on; S.ui.teclas = {}; S.ui.botao = false;
   $gp('#gpPausa').hidden = !on;
+  if (on && S.embutido && S.treino) {
+    /* treino da semana: dá para encerrar (no retake, o bot termina o round) */
+    $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">Treino da semana. Encerrar agora conta o que você fez até aqui.</p><div class="gp-acoes">
+      <button class="gp-jogar" id="gpVoltar">Voltar ao treino</button><button class="gp-sec-bt" id="gpEncerrar">Encerrar o treino</button></div></div>`;
+    $gp('#gpVoltar').onclick = () => GP.pausar(false);
+    $gp('#gpEncerrar').onclick = () => {
+      if (S.J.modo === 'partida') { S.botAssumiu = true; S.J.eu.bot = true; }
+      else S.J.fim = Object.assign({modo: S.J.modo, desistiu: true}, S.J.modo === 'duelo' ? {venceu: S.J.placar.eu > S.J.placar.eles} : {});
+      GP.pausar(false); S.pausa = false; $gp('#gpPausa').hidden = true;
+    };
+    return;
+  }
   if (on && S.embutido) {
     $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><h2>Pausa</h2><p class="gp-dim">A partida é oficial: o round continua contando.</p><div class="gp-acoes">
       <button class="gp-jogar" id="gpVoltar">Voltar ao jogo</button><button class="gp-sec-bt" id="gpBot">Deixar o bot jogar ${S.ateHist === Infinity ? 'o resto do mapa' : 'este round'}</button></div></div>`;
@@ -658,13 +673,20 @@ GP.jogarNoManager = async function (J, o) {
   return new Promise(ok => {
     GP.S = {J, R, cam: {x: eu.x, y: eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
       ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: J.eventos.length, feed: [], vel: 1, livre: false,
-      embutido: true, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
+      embutido: true, treino: o.treino || null, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
       aoFim: () => ok({jogou: true, bot: !!GP.S && GP.S.botAssumiu})};
     c.hidden = false;
     $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
     $gp('#gpHud').hidden = false;
     GP._raiz().classList.add('gp-jogando');
     GP._ajustarTela();
+    /* situação pronta (retake): começa parado, com a situação na tela */
+    if (o.intro) {
+      GP.S.pausa = true;
+      $gp('#gpPausa').innerHTML = `<div class="gp-fim-in"><div class="gp-eyebrow">${escGP(o.intro.titulo || '')}</div><h2>${escGP(o.intro.texto || '')}</h2><div class="gp-acoes"><button class="gp-jogar" id="gpComecar">Começar</button></div></div>`;
+      $gp('#gpPausa').hidden = false;
+      $gp('#gpComecar').onclick = () => GP.pausar(false);
+    }
     requestAnimationFrame(GP._quadro);
   });
 };
@@ -680,3 +702,83 @@ GP._encerrarEmbutido = function () {
   GP.S = null;
   if (fim) fim();
 };
+
+/* ============================================================
+   TREINOS DA SEMANA (modo jogador, J3)
+   range (alvos), duelo, deathmatch e retake abrem por cima do manager.
+   o: {modo, mapa, nome, euMid, funcao, over, atrib (do manager), agente,
+       rival:{over, funcao}, aliados:{over}}
+   Devolve {resumo da gameplay, eu, eles, venceu, kills, desistiu}.
+   ============================================================ */
+GP.treinarNoManager = async function (o) {
+  const c = GP._embutir();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  await GP._carregarImagensDoMapa(o.mapa);
+  for (const id of GP.ORDEM_ARMAS) if (GP.temImagem('armas', id)) GP.imagem(GP.manifesto().armas[id].src);
+  const semente = (Date.now() & 0xffffff) || 1;
+  if (o.modo === 'retake') return GP._retakeNoManager(o, semente);
+  const atribEu = GP.atribDoManager(o.atrib);
+  const rv = o.rival || {over: 70, funcao: 'Duelista'};
+  const atribBot = GP.atribDoManager(GP.atributosDe('rival' + semente, rv.funcao || 'Duelista', rv.over || 70));
+  const ags = Object.keys(GP.AGENTES), sorteia = i => ags[(semente + i * 7) % ags.length];
+  const modo = o.modo === 'range' ? 'alvos' : o.modo;
+  const J = GP.montarDuelo({mapa: o.mapa, modo, arma: 'vandal', armaBot: 'vandal', atribEu, atribBot, spawns: 'rapido', rounds: 5,
+    semente, agenteEu: o.agente, agentesBot: [0, 1, 2, 3, 4].map(sorteia), nome: o.nome || 'Você',
+    nomesBot: modo === 'duelo' ? ['Rival'] : modo === 'dm' ? ['Bot 1', 'Bot 2', 'Bot 3', 'Bot 4', 'Bot 5'] : ['Alvo 1', 'Alvo 2', 'Alvo 3', 'Alvo 4'],
+    agressivo: 0.5, escudo: modo === 'dm' ? 'leve' : undefined});
+  for (const id of new Set(J.ents.map(e => e.agente).filter(Boolean))) GP.precarregarAgente(id);
+  const cv = $gp('#gpTela');
+  const arte = GP._arteCache[J.m.nome] || (GP._arteCache[J.m.nome] = GP.desenharMapa(J.m));
+  const R = {cv, g: cv.getContext('2d'), fog: document.createElement('canvas'), dpr: Math.min(2, window.devicePixelRatio || 1), arte};
+  R.fg = R.fog.getContext('2d');
+  return new Promise(ok => {
+    GP.S = {J, R, cam: {x: J.eu.x, y: J.eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
+      ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: 0, feed: [], vel: 1, livre: false,
+      embutido: true, treino: o.modo, ateHist: Infinity, euEnt: J.eu,
+      aoFim: () => ok(Object.assign(GP.resumo(J), {eu: J.placar.eu, eles: J.placar.eles, venceu: !!(J.fim && J.fim.venceu), desistiu: !!(J.fim && J.fim.desistiu)}))};
+    c.hidden = false;
+    $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
+    $gp('#gpHud').hidden = false;
+    GP._raiz().classList.add('gp-jogando');
+    GP._ajustarTela();
+    requestAnimationFrame(GP._quadro);
+  });
+};
+/* retake: uma partida 5v5 corre com bots até a spike ser plantada com você
+   vivo na defesa; aí o boneco é seu até o fim do round */
+GP._retakeNoManager = async function (o, semente) {
+  const jog = (pref, n, ov, fun) => Array.from({length: n}, (_, i) => {
+    const f = fun[i % fun.length], nome = pref + ' ' + (i + 1);
+    return {nome, funcao: f, over: ov, at: null, agentes: []};
+  });
+  const funcoes = ['Iniciador', 'Controlador', 'Sentinela', 'Duelista'];
+  const aliados = jog('Aliado', 4, (o.aliados && o.aliados.over) || o.over || 70, funcoes)
+    .map(j => Object.assign(j, {at: GP._paraManager(GP.atributosDe(j.nome + semente, j.funcao, j.over))}));
+  const rivais = jog('Rival', 5, (o.rival && o.rival.over) || 70, ['Duelista', ...funcoes])
+    .map(j => Object.assign(j, {at: GP._paraManager(GP.atributosDe(j.nome + semente, j.funcao, j.over))}));
+  const tA = {nome: 'Seu time', sigla: 'VOCÊ', jogadores: [{id: o.euMid, nome: o.nome || 'Você', funcao: o.funcao || 'Duelista', over: o.over || 70, at: o.atrib, agentes: o.agente ? [o.agente] : []}, ...aliados]};
+  const tB = {nome: 'Rivais', sigla: 'RIV', jogadores: rivais};
+  const J = GP.montarPartida({mapa: o.mapa, jogador: false, tempoCompra: 1, semente, timeA: tA, timeB: tB,
+    agentesA: [o.agente || null, null, null, null, null], agentesB: [null, null, null, null, null], primeiroAtk: 'B'});
+  const eu = J.ents.find(e => e.mid === o.euMid) || J.ents[0];
+  if (!eu.mid) eu.mid = o.euMid;
+  /* corre até a situação: spike plantada, você vivo na defesa, atacante vivo */
+  let guarda = 0, achou = false;
+  while (!J.fim && J.historico.length < 8 && guarda++ < 60 * 60 * 12) {
+    GP.passo(J, 1 / 60);
+    const sp = J.spike;
+    if (sp && sp.estado === 'plantada' && eu.vivo && J.lados[eu.time] === 'def') {
+      /* retake jogável: no máximo um a menos (depois do quinto round, vale qualquer um) */
+      const nos = J.ents.filter(x => x.vivo && x.time === eu.time).length, eles = J.ents.filter(x => x.vivo && x.time !== eu.time).length;
+      if (eles && (nos >= eles - 1 || J.historico.length >= 5)) { achou = true; break; }
+    }
+  }
+  const k0 = eu.st.kills, h0 = J.historico.length;
+  const sp = J.spike, vivos = t => J.ents.filter(x => x.vivo && x.time === t).length, eles = eu.time === 'A' ? 'B' : 'A';
+  const intro = achou ? {titulo: 'Retake · ' + GP.NOME_MAPA[J.m.nome], texto: `Spike plantada no ${String(sp.letra || '').toUpperCase()} · ${vivos(eu.time)} contra ${vivos(eles)} · ${Math.ceil(Math.max(0, sp.explode - J.t))} s`}
+    : {titulo: 'Retake · ' + GP.NOME_MAPA[J.m.nome], texto: 'Sem plant nos rounds simulados: jogue a defesa deste round'};
+  const r = await GP.jogarNoManager(J, {euMid: eu.mid, ate: 'round', treino: 'retake', intro});
+  const h = J.historico[h0];
+  return Object.assign(GP.resumo(J), {kills: eu.st.kills - k0, venceu: !!(h && h.vencedor === eu.time), situacao: achou, bot: r && r.bot});
+};
+GP._paraManager = at => ({mira: at.mira, reflexo: at.reflexo, mov: at.mov, util: at.util, visao: at.visao, clutch: at.clutch, consist: at.consist, lider: at.lider});

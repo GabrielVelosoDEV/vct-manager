@@ -8,7 +8,9 @@
    mesmo de antes: o que muda é o que pesa, não o nível do circuito. */
 function condicao(p){
   const mental=typeof mentalDe==='function'?mentalDe(p):p.moral;
-  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.08) * (0.83 + mental*0.22);
+  /* modo jogador: a energia da semana (core/semana-jogador.js) */
+  const en=p.voce&&typeof fatorEnergia==='function'?fatorEnergia(p):1;
+  return (0.88 + p.forma*0.24) * (1 - p.fadiga*0.08) * (0.83 + mental*0.22) * en;
 }
 /* ---------- variância ----------
    Dois níveis, de propósito:
