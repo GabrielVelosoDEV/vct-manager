@@ -113,12 +113,11 @@ Banco de dados (aba Torneios). Cidade nova = linha nova no catálogo + arquivo a
 
 | Cidade  | Arquivo        | País      |
 |---------|----------------|-----------|
-| Moscou  | `moscou.webp`  | Rússia    |
-| Mumbai  | `mumbai.webp`  | Índia     |
-| Sydney  | `sydney.webp`  | Austrália |
+| Moscou  | `moscou.jpg`   | Rússia    |
+| Mumbai  | `mumbai.jpg`   | Índia     |
+| Sydney  | `sydney.jpg`   | Austrália |
 
-Estas três ainda estão na versão antiga (WebP); um .jpg com o mesmo nome substitui —
-apague o .webp junto. Nos outros países-sede a Copa usa a maior cidade de Champions do
+Nos outros países-sede a Copa usa a maior cidade de Champions do
 país, e no Brasil, o Rio de Janeiro.
 
 Sem arquivo, o jogo usa a arte do torneio ou um fundo com o nome da cidade — nada quebra.

@@ -79,6 +79,6 @@ PNG, JPG ou WebP servem: troque só a extensão.
 
 ## World Cup — só sede da Copa
 
-- [x] `moscou.webp` — Moscou (RU)
-- [x] `mumbai.webp` — Mumbai (IN)
-- [x] `sydney.webp` — Sydney (AU)
+- [x] `moscou.jpg` — Moscou (RU)
+- [x] `mumbai.jpg` — Mumbai (IN)
+- [x] `sydney.jpg` — Sydney (AU)
