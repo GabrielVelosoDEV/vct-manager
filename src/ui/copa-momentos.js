@@ -14,15 +14,21 @@
    ============================================================ */
 let CPM=null;   /* {fila:[...], i, pote, fim} */
 
+/* depois da campeã, a tela das cartas de campeão do mundo */
+function _comCartas(fila){
+  const out=[];
+  for(const m of fila){out.push(m);if(m.tipo==='campea')out.push({tipo:'cartas',ano:m.ano});}
+  return out;
+}
 function abrirMomentosCopa(fim){
-  const fila=(G.copaMomentos||[]).slice();
+  const fila=_comCartas((G.copaMomentos||[]).slice());
   G.copaMomentos=[];
   if(!fila.length){if(fim)fim();return;}
   CPM={fila,i:0,pote:0,fim:fim||null};
   pintarMomentoCopa();
 }
 function reverMomentoCopa(tipo,ano){
-  CPM={fila:[{tipo,ano}],i:0,pote:0,fim:null,revendo:true};
+  CPM={fila:_comCartas([{tipo,ano}]),i:0,pote:0,fim:null,revendo:true};
   pintarMomentoCopa();
 }
 function fimMomentosCopa(){
@@ -143,13 +149,25 @@ function _telaCampea(cic){
   </div>`;
 }
 
+function _telaCartas(cic){
+  const ed=edicoesDaCopa().find(e=>e.ano===cic.ano);if(!ed)return '<div class="cpm-corpo"></div>';
+  const cv=ed.elencos[ed.campeao]||{titulares:[],reservas:[]};
+  const ids=cv.titulares.concat(cv.reservas).filter(id=>G.jogadores[id]);
+  return `<div class="cpm-corpo cpm-cartas">
+    <div class="cpm-eyebrow">World Cup ${cic.ano} · ${esc(_nomeSel(ed.campeao))}</div>
+    <h1 class="cpm-tit">Cartas de campeão do mundo</h1>
+    <p class="cpm-sub">Os ${ids.length} convocados da campeã ganham a carta especial — para sempre.</p>
+    <div class="cpm-cartas-l">${ids.map((id,i)=>`<div class="cpm-carta ${i<5?'tit':''}" style="animation-delay:${(0.25+i*0.14).toFixed(2)}s">${cartaJogador(G.jogadores[id],{w:i<5?150:112,clique:false})}</div>`).join('')}</div>
+  </div>`;
+}
 function pintarMomentoCopa(){
   if(!CPM)return;
   const m=CPM.fila[CPM.i], cic=m&&_cicloDoMomento(m);
   if(!m||!cic){return CPM.i<CPM.fila.length-1?(CPM.i++,pintarMomentoCopa()):fimMomentosCopa();}
   if(m.tipo==='sorteio'&&!cic.copa)return CPM.i<CPM.fila.length-1?(CPM.i++,pintarMomentoCopa()):fimMomentosCopa();
   const html=m.tipo==='sede'?_telaSede(cic):m.tipo==='convidadas'?_telaConvidadas(cic)
-    :m.tipo==='classificados'?_telaClassificados(cic):m.tipo==='sorteio'?_telaSorteio(cic):_telaCampea(cic);
+    :m.tipo==='classificados'?_telaClassificados(cic):m.tipo==='sorteio'?_telaSorteio(cic)
+    :m.tipo==='cartas'?_telaCartas(cic):_telaCampea(cic);
   const ult=CPM.i>=CPM.fila.length-1;
   const sorteando=m.tipo==='sorteio'&&CPM.pote<4;
   const botao=sorteando?(CPM.pote===0?'Sortear o pote 1':'Sortear o pote '+(CPM.pote+1)):ult?'Seguir':'Próximo ›';
@@ -159,7 +177,7 @@ function pintarMomentoCopa(){
     <div class="cpm-meio" key="${CPM.i}-${CPM.pote}">${html}</div>
     <div class="cpm-pe">${sorteando&&CPM.pote<3?'<button class="btn ghost" data-cpm="tudo">Sortear tudo</button>':'<span></span>'}
       <span class="dim">${CPM.fila.length>1?(CPM.i+1)+' de '+CPM.fila.length:''}</span>
-      <button class="btn ${m.tipo==='campea'?'cpm-ouro':''}" data-cpm="seguir">${botao}</button></div>
+      <button class="btn ${m.tipo==='campea'||m.tipo==='cartas'?'cpm-ouro':''}" data-cpm="seguir">${botao}</button></div>
   </div></div>`);
   $('#modal').querySelectorAll('[data-cpm]').forEach(b=>b.onclick=e=>{e.stopPropagation();
     const a=b.dataset.cpm;

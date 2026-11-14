@@ -149,6 +149,7 @@ function vJPerfil(){
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
     </div>
     ${typeof conquistasJogador==='function'?`<div class="grid g2 cx-linha">${cardConquistas(conquistasJogador(p))}${cardFimDeCarreira(p)}</div>`:''}
+    ${typeof blocoCopaJogador==='function'?blocoCopaJogador(p):''}
     <div class="card"><div class="eyebrow">Carreira</div>
       ${hist.length?`<table class="tbl"><thead><tr><th>Ano</th><th>Clube</th><th>Over</th><th>Mapas</th><th>K/D</th><th>ACS</th><th>MVP</th></tr></thead><tbody>
         ${hist.map(h=>`<tr><td>${h.ano}</td><td>${esc(h.time||'')}</td><td class="num">${h.over}</td><td class="num">${h.maps||0}</td><td class="num">${h.k||0}/${h.d||0}</td><td class="num">${h.maps?Math.round(h.acs/h.maps):'–'}</td><td class="num">${h.mvp||0}</td></tr>`).join('')}</tbody></table>`

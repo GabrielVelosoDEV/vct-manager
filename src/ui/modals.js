@@ -216,6 +216,7 @@ function modalJogador(id){
       <tr><td>First kills · clutches</td><td class="r num">${st.fk} · ${st.cl}</td></tr>
       <tr><td>MVPs</td><td class="r num">${st.mvp}</td></tr></tbody></table>
     </div></div>
+  ${typeof blocoCopaJogador==='function'?blocoCopaJogador(p):''}
   ${blocoCarreira(p)}
   ${p.timeId===t.id&&p.pedidoSaida?`<div class="neg-aviso ${p.pedidoSaida.negado?'':'ok'}" style="margin-top:10px">
     <b>${p.pedidoSaida.negado?'Pedido de saída negado.':p.pedidoSaida.aceito?'Está à venda, como pediu.':'Pediu para ser negociado.'}</b> ${esc(p.pedidoSaida.motivo||'')}

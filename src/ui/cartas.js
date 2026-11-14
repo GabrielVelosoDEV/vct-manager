@@ -17,14 +17,21 @@
    junto porque a carta é um container e o texto usa cqw.
    ============================================================ */
 ASSETS.dirCartas='assets/cartas/';
-ASSETS.carta=function(c){return this.dirCartas+c.id+'.webp';};
+ASSETS.carta=function(c){return this.dirCartas+(c.arq||c.id+'.webp');};
+/* A carta de campeão do mundo (Valorant World Cup): uma só, para os dez
+   convocados da seleção campeã. Fica fora da escada de over — quem tem
+   título mundial aparece com ela; a escada continua valendo para a
+   revelação de carta nova (opt.carta). */
+const CARTA_MUNDIAL={id:'worldchampions',nome:'Campeão do mundo',arq:'worldchampions.png',min:0,max:100};
 
 /* centro do número, da linha OVR, da placa do nome e da função (x,y em %) */
 const GEO_CARTA={
   recruta:     {nx:16.2,ny:9.7, oy:16.6,py:85.9,ry:93.4},
   profissional:{nx:17.4,ny:8.9, oy:15.4,py:86.3,ry:93.4},
   elite:       {nx:17.9,ny:9.3, oy:16.6,py:87.1,ry:94.0},
-  lenda:       {nx:15.2,ny:9.0, oy:15.6,py:85.6,ry:93.2}
+  lenda:       {nx:15.2,ny:9.0, oy:15.6,py:85.6,ry:93.2},
+  /* o OVR já vem escrito na placa de cima; a função dá lugar ao "WORLD CHAMPION" */
+  worldchampions:{nx:16.4,ny:13.7,oy:13.7,py:81.7,ry:81.7}
 };
 const FUNCAO_CARTA={Duelista:'DUELISTA',Iniciador:'INICIADOR',Controlador:'CONTROLADOR',
   Sentinela:'SENTINELA',Flex:'FLEX'};
@@ -48,7 +55,8 @@ function cartaJogador(p,opt){
   opt=opt||{};if(!p)return '';
   const w=opt.w||180;
   const o=opt.o!=null?opt.o:over(p);
-  const c=CARTAS[opt.carta!=null?opt.carta:indiceCarta(o)];
+  const mundial=opt.carta==null&&!opt.semMundial&&typeof campeaoMundial==='function'&&campeaoMundial(p);
+  const c=mundial?CARTA_MUNDIAL:CARTAS[opt.carta!=null?opt.carta:indiceCarta(o)];
   const g=GEO_CARTA[c.id];
   const time=p.timeId&&G.times?G.times[p.timeId]:null;
   /* mesma cadeia do retrato da lista, trocando só o último recurso */
@@ -60,7 +68,7 @@ function cartaJogador(p,opt){
   const fn=nome.length<=7?9.4:nome.length<=10?8.2:nome.length<=13?6.6:5.4;
   return `<div class="carta c-${c.id}${opt.anima?' anima':''}${opt.clique?' clicavel jrow':''}"
     ${opt.clique?`data-p="${p.id}"`:''} style="--w:${w}px;--nx:${g.nx}%;--ny:${g.ny}%;--oy:${g.oy}%;--py:${g.py}%;--ry:${g.ry}%"
-    title="${esc(nome)} · carta ${c.nome} (${c.min}–${Math.min(c.max,99)})">
+    title="${esc(nome)} · ${mundial?'carta de campeão do mundo ('+p.copa.ouro.join(', ')+')':'carta '+c.nome+' ('+c.min+'–'+Math.min(c.max,99)+')'}">
     <div class="carta-fundo">${time?`<img class="carta-escudo" alt="" src="${ASSETS.logo(time)}" onerror="this.remove()">`:''}</div>
     <img class="carta-foto" alt="" loading="lazy" src="${cad.src}"
       onload="if(this.src.indexOf('/rostos/')>=0)this.classList.add('opaca')" onerror="${cad.on}">

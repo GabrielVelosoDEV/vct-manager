@@ -19,7 +19,7 @@ let copaSelAtual=null;       /* o país que a tela está mostrando (o aberto, o 
 let copaCicloMostrado=null;  /* o ciclo cujo mata-mata e grupos estão na tela */
 let copaAba='geral';
 let copaAdv=null;
-const COPA_ABAS=[['geral','Visão geral'],['chave','Chave'],['selecoes','Seleções'],['stats','Estatísticas'],['ranking','Ranking'],['campeoes','Campeões'],['amistoso','Amistoso']];
+const COPA_ABAS=[['geral','Visão geral'],['chave','Chave'],['selecoes','Seleções'],['stats','Estatísticas'],['ranking','Ranking'],['legado','Legado'],['amistoso','Amistoso']];
 
 function semanasAteFinalDaCopa(){
   const ano=proximaCopa(G.ano);
@@ -99,7 +99,7 @@ function capaCopa(x){
 function vCopa(){
   const x=_ctxCopa();
   const corpo=copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
-    :copaAba==='ranking'?abaRanking(x):copaAba==='campeoes'?abaCampeoes(x):copaAba==='amistoso'?cardAmistoso(x.sel):abaGeral(x);
+    :copaAba==='ranking'?abaRanking(x):copaAba==='legado'||copaAba==='campeoes'?abaLegado(x):copaAba==='amistoso'?cardAmistoso(x.sel):abaGeral(x);
   return capaCopa(x)+`<div class="tabs cpx-abas">${COPA_ABAS.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''}">${n}</button>`).join('')}</div>`+corpo;
 }
 
@@ -364,20 +364,6 @@ function abaRanking(x){
       O ranking nasce da força do melhor cinco de cada país, anda com cada série entre seleções (mais na Copa que nas eliminatórias, mais no mata-mata que nos grupos) e, a cada virada de ano, um pouco em direção à força atual do elenco.</p></div>`;
 }
 
-/* ---------- campeões ---------- */
-function abaCampeoes(){
-  const eds=edicoesDaCopa();
-  if(!eds.length)return `<div class="card cx-linha"><div class="cpx-vazio">${ASSETS.copa('trofeu')?`<img src="${ASSETS.copa('trofeu')}" alt="" class="cpx-vazio-taca">`:ico('trofeu')}<b>A taça ainda não tem dono.</b><span>A primeira Valorant World Cup é em ${esc(sedeDoAno(COPA_PRIMEIRA).nome)}, no fim de ${COPA_PRIMEIRA}.</span></div></div>`;
-  return `<div class="cpx-galeria">${eds.slice().reverse().map(e=>{const fv=e.final.v===e.final.a?e.final.wa+'–'+e.final.wb:e.final.wb+'–'+e.final.wa;
-    const logo=ASSETS.copa('sede-'+ASSETS.slug(e.nomeSede));
-    return `<div class="cpx-ed">
-      <div class="cpx-ed-topo">${logo?`<img src="${logo}" alt="">`:''}<div><b>${e.ano}</b><span>${e.edicao}ª · ${esc(e.nomeSede)}${e.cidade?' · '+esc(e.cidade):''}</span></div></div>
-      <div class="cpx-ed-campea" data-copapais="${e.campeao}">${escudoSelecao(e.campeao,72)}<b>${esc(_nomeSel(e.campeao))}</b></div>
-      <div class="cpx-ed-final" data-cpfinal="${e.ano}">final <b class="num">${fv}</b> ${escudoSelecao(e.vice,20)} ${esc(_nomeSel(e.vice))}</div>
-      <div class="cpx-ed-pe"><span>🥉 ${esc(_nomeSel(e.bronze))}</span>${e.mvp?`<span class="jrow" data-p="${e.mvp}">MVP ${esc(e.nomes[e.mvp]||'')}</span>`:''}</div>
-    </div>`;}).join('')}</div>`;
-}
-
 /* ---------- amistoso ---------- */
 function cardAmistoso(sel){
   const c=garantirCopa();
@@ -456,5 +442,6 @@ function ligarCopa(v,on){
   on('[data-cpjogo]',el=>_abrirJogo(el.dataset.cpjogo));
   on('[data-cpfinal]',el=>{const e=edicoesDaCopa().find(x=>x.ano===+el.dataset.cpfinal);if(e)modalSerieSelecao(e.final);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
+  on('[data-cplsec]',el=>{copaLegadoSec=el.dataset.cplsec;render();});
   on('[data-cpmomento]',el=>{const [t,a]=el.dataset.cpmomento.split('|');reverMomentoCopa(t,+a);});
 }

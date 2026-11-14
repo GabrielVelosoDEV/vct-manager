@@ -240,7 +240,10 @@ function encerrarCopa(cic){
   for(const sid of Object.values(ed.tecnicos))if(sid&&G.staff[sid])ed.nomes[sid]=G.staff[sid].nome;
   const cg=garantirCopa();
   ed.rankingAntes=cg.rankingUltimaEdicao||null;
+  ed.participantes=cic.classificados.slice();
+  ed.alcance=_alcanceDaCopa(cic,podio);
   cg.edicoes.push(ed);
+  if(typeof registrarLegadoCopa==='function')registrarLegadoCopa(cic,ed,S);
   /* a régua da coluna "desde a última Copa": os pontos do dia do sorteio dela */
   cg.rankingUltimaEdicao=Object.assign({},cic.pontosCopa||cg.ranking);
   momentoCopa('campea',{ano:cic.ano});
@@ -250,6 +253,16 @@ function encerrarCopa(cic){
     {c:'competicoes',imp:3,p:mvp?[mvp.id]:[]});
   if(typeof aoEncerrarCopa==='function')aoEncerrarCopa(cic,ed);
   return ed;
+}
+/* até onde cada seleção chegou: campeao, vice, bronze, quarto, quartas,
+   oitavas ou grupos */
+function _alcanceDaCopa(cic,podio){
+  const out={};
+  for(const p of cic.classificados)out[p]='grupos';
+  for(const j of cic.copa.mata.oitavas||[]){out[j.a]='oitavas';out[j.b]='oitavas';}
+  for(const j of cic.copa.mata.quartas||[]){out[j.a]='quartas';out[j.b]='quartas';}
+  ['campeao','vice','bronze','quarto'].forEach((k,i)=>{if(podio[i])out[podio[i]]=k;});
+  return out;
 }
 function _caminhoDoCampeao(cic,pais){
   const out=[];

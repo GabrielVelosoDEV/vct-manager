@@ -17,7 +17,7 @@ const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ordem = [...readFileSync(resolve(raiz, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1])
   .filter(p => !p.includes('/ui/') && !p.includes('storage') && !p.includes('assets') && !p.endsWith('main.js'));
 const bundle = ordem.map(p => readFileSync(resolve(raiz, p), 'utf8')).join('\n')
-  + '\nmodule.exports={criarMundo,montarCalendario,avancar,infoSelecao,get G(){return G;}};';
+  + '\nmodule.exports={criarMundo,montarCalendario,avancar,infoSelecao,paisesNaHistoria,jogadoresNaHistoria,tecnicosNaHistoria,timesLendarios,finaisHistoricas,recordesDaCopa,campeaoMundial,get G(){return G;}};';
 const tmp = resolve(raiz, '.cp.tmp.cjs');
 writeFileSync(tmp, bundle); const m = createRequire(import.meta.url)(tmp); unlinkSync(tmp);
 const nums = process.argv.slice(2).filter(a => /^\d+$/.test(a)).map(Number);
@@ -63,6 +63,21 @@ for (let k = 0; k < anos; k++) {
   console.log(`  caminho: ${ed.caminho.map(c => c.fase.replace('Grupo ', 'G') + ' ' + sig(c.adv) + ' ' + c.pro + '–' + c.contra).join(' · ')}`);
   console.log(`  MVP ${nome(ed.mvp)} · time ideal ${ed.timeIdeal.map(nome).join(', ')} · técnico ${ed.tecnicoCampeao && G.staff[ed.tecnicoCampeao] ? G.staff[ed.tecnicoCampeao].nome : '—'} · medalhas ${JSON.stringify(med)}`);
 }
+/* o legado */
+const eds = G.copa.edicoes, J = m.jogadoresNaHistoria(), P = m.paisesNaHistoria();
+const ouros = J.reduce((s, j) => s + j.ouro.length, 0);
+ok(ouros >= eds.length * 7, `legado: ${ouros} medalhas de ouro para ${eds.length} Copas`);
+ok(J.every(j => new Set(j.ed).size === j.ed.length && new Set(j.mvp).size === j.mvp.length), 'legado: ano repetido no hall');
+ok(P.reduce((s, x) => s + x.titulos, 0) === eds.length, 'legado: títulos dos países não batem com as edições');
+ok(m.timesLendarios().length === eds.length && m.finaisHistoricas().length === eds.length, 'legado: times lendários ou finais faltando');
+const campeoesVivos = Object.values(G.jogadores).filter(p => m.campeaoMundial(p)).length;
+console.log(`\nlegado: ${Object.keys(G.copa.hall).length} jogadores no hall · ${campeoesVivos} campeões do mundo em atividade (carta especial)`);
+console.log('países: ' + P.filter(x => x.titulos).map(x => `${sig(x.pais)} ${x.titulos}`).join(' · '));
+console.log('mais títulos: ' + J.slice(0, 5).map(j => `${j.n} (${j.ouro.length}🥇 ${j.prata.length}🥈 ${j.bronze.length}🥉)`).join(' · '));
+console.log('técnicos: ' + m.tecnicosNaHistoria().slice(0, 3).map(t => `${t.n} ${t.titulos.length}`).join(' · '));
+console.log('recordes: ' + m.recordesDaCopa().map(r => `${r.tit}: ${r.quem} ${r.valor}`).join(' | '));
+const fin = m.finaisHistoricas().map(f => `${f.ano} ${f.pro}-${f.contra}${f.tags.length ? ' [' + f.tags.join(', ') + ']' : ''}`);
+console.log('finais: ' + fin.join(' · '));
 const copaKB = JSON.stringify(G.copa).length / 1024;
 ok(Object.entries(G.copa.ciclos).every(([a, c]) => +a >= G.ano - 1 || c.arquivado), 'ciclo antigo sem arquivar');
 console.log(`\ncampeões vieram do ranking em: ${posCampeao.join(', ')} · G.copa pesa ${copaKB.toFixed(0)} KB · ${((Date.now() - t0) / 1000).toFixed(0)} s`);
