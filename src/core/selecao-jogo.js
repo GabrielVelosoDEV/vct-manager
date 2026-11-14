@@ -125,13 +125,15 @@ function comSelecoesEmCampo(times,fn){
 }
 
 /* ---------- a série ----------
-   ctx: {bo, nome (da competição), fase, peso (no ranking; 0 = não conta),
+   ctx: {bo, nome (da competição), fase, peso (no ranking; 0 = não conta), conv,
          amistoso (sorteio local e nada muda no mundo), semana}
    Devolve a ficha enxuta, no formato que a tela de série já sabe ler. */
 function jogarSerieSelecoes(paisA,paisB,ctx){
   ctx=ctx||{};
   const bo=ctx.bo||COPA_MD_GRUPOS;
-  const A=timeDaSelecao(paisA), B=timeDaSelecao(paisB);
+  /* ctx.conv: convocação congelada (a da Copa), por país */
+  const cv=ctx.conv||{};
+  const A=timeDaSelecao(paisA,cv[paisA]), B=timeDaSelecao(paisB,cv[paisB]);
   if(!A||!B)return _woSelecoes(paisA,paisB,A,B,bo,ctx);
   const jogar=()=>comSelecoesEmCampo([A,B],()=>{
     const S=abrirSerie(A.id,B.id,bo,ctx.veto,null);

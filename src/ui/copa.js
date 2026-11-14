@@ -4,7 +4,8 @@
    convocação de cada seleção. Na C4 isto vira o hub do evento.
    ============================================================ */
 let copaVer=null;   /* país aberto na tela */
-let copaSelAtual=null;   /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
+let copaSelAtual=null;
+let copaCicloMostrado=null;   /* o ciclo cujo mata-mata e grupos estão na tela */   /* o país que a tela está mostrando (o aberto, o seu ou o 1º) */
 
 function semanasAteFinalDaCopa(){
   const ano=proximaCopa(G.ano);
@@ -19,9 +20,16 @@ function vCopa(){
   const cicH=typeof cicloDaCopa==='function'?cicloDaCopa(ano,false):null;
   const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`
     :G.ano===elimAno?(cicH&&cicH.classificados?'Os 32 estão definidos':cicH&&cicH.grupos?'Eliminatórias em andamento':'Eliminatórias no fim desta temporada')
-    :'A Copa é no fim desta temporada';
+    :cicH&&cicH.copa&&cicH.copa.fim?`${_nomeSel(cicH.copa.podio[0])} é a campeã`
+    :cicH&&cicH.copa&&cicH.copa.convocados?'A Copa está em andamento'
+    :cicH&&cicH.copa?'Grupos sorteados: a Copa começa na semana '+COPA_SEM_R12
+    :'A Copa é no fim desta temporada, com o sorteio na semana '+COPA_SEM_SORTEIO;
   const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
   copaSelAtual=sel;
+  /* no ano seguinte, até o sorteio das eliminatórias, a última Copa segue no topo */
+  const ult=typeof cicloDaCopa==='function'&&anoDeEliminatorias(G.ano)&&!(cicH&&cicH.convidadas)?cicloDaCopa(G.ano-1,false):null;
+  const ultimaCopa=ult&&ult.copa&&ult.copa.fim?ult:null;
+  copaCicloMostrado=cicH&&cicH.copa?cicH:ultimaCopa;
   const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
   const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
   return `<section class="card cp-hero">
@@ -30,8 +38,10 @@ function vCopa(){
         <div><div class="eyebrow">Valorant World Cup · ${s.edicao}ª edição</div>
           <h1 class="cp-tit">${bandeira(s.pais)} ${esc(s.nome)} ${ano}</h1>
           <p class="dim">${esc(fase)}${cid?`. A final é em ${esc(cid.nome)}`:''}. 32 seleções: 16 convidadas e 16 das eliminatórias, em 8 grupos de 4 (MD3); os dois primeiros avançam e o mata-mata é todo em MD5.</p></div>
-        <div class="cp-conta"><b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span></div>
+        ${cicH&&cicH.copa&&cicH.copa.fim?`<div class="cp-conta cp-campea">${bandeira(cicH.copa.podio[0])}<span>campeã ${ano}</span></div>`
+          :`<div class="cp-conta"><b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span></div>`}
       </div></section>
+    ${cicH&&cicH.copa?cardCopaEmJogo(cicH,sel):ultimaCopa?cardCopaEmJogo(ultimaCopa,sel):''}
     <div class="grid g2 cx-linha">
       <div class="card"><div class="eyebrow">Ranking de países</div>
         <table class="tbl cp-rank"><thead><tr><th>#</th><th>Seleção</th><th>Força</th><th>Pontos</th></tr></thead><tbody>
@@ -42,7 +52,54 @@ function vCopa(){
       ${cardConvocacao(sel)}
     </div>
     ${cardEliminatorias(ano,sel)}
+    ${cardCampeoes()}
     ${cardAmistoso(sel)}`;
+}
+/* ---------- a Copa em jogo: pódio, mata-mata e grupos ---------- */
+function _sigSel(p){const i=infoSelecao(p);return i?i.sigla:p;}
+function cardCopaEmJogo(cic,sel){
+  const C=cic.copa;
+  const ed=C.fim?edicoesDaCopa().find(e=>e.ano===cic.ano):null;
+  const nomeJ=id=>ed&&ed.nomes[id]||(G.jogadores[id]||{}).nome||'—';
+  const podio=ed?`<div class="card cx-linha cp-podio">${cic.ano<G.ano?`<div class="cp-ultima">${esc(cic.nomeSede)} ${cic.ano} · a última Copa</div>`:''}
+      <div class="eyebrow">Pódio da World Cup ${cic.ano}</div>
+      <div class="cp-podio-l">${['ouro','prata','bronze'].map((m,i)=>`<div class="cp-pd cp-pd-${m}" data-copapais="${C.podio[i]}">
+        ${escudo(timeVisualSelecao(C.podio[i]),i?56:76)}<b>${esc(_nomeSel(C.podio[i]))}</b><span>${['Campeã','Vice','Bronze'][i]}</span></div>`).join('')}</div>
+      <div class="cp-premios">
+        <div><span class="eyebrow gold">MVP da Copa</span><b class="jrow" data-p="${ed.mvp}">${esc(nomeJ(ed.mvp))}</b></div>
+        <div><span class="eyebrow">Time ideal</span><span class="cp-ti">${ed.timeIdeal.map(id=>`<span class="jrow" data-p="${id}">${esc(nomeJ(id))}</span>`).join('<i>·</i>')}</span></div>
+        ${ed.tecnicoCampeao?`<div><span class="eyebrow">Técnico campeão</span><b>${esc(ed.nomes[ed.tecnicoCampeao]||'')}</b></div>`:''}
+      </div></div>`:'';
+  const jogo=(j,chave)=>{
+    if(!j)return `<div class="cp-mm-j vazio"><span class="dim">a definir</span></div>`;
+    const f=j.f, l=(p,w)=>`<div class="cp-mm-l ${f&&f.v===p?'w':''} ${p===sel?'me':''}">${bandeira(p)} <b>${esc(_sigSel(p))}</b>${f?`<span class="num">${w}</span>`:''}</div>`;
+    return `<div class="cp-mm-j" ${f?`data-cpcopa="${chave}" style="cursor:pointer"`:''}>${l(j.a,f&&f.wa)}${l(j.b,f&&f.wb)}${j.orig&&!f?`<div class="dim cp-mm-o">${esc(j.orig)}</div>`:''}</div>`;
+  };
+  const col=(fase,n,tit)=>`<div class="cp-mm-c"><div class="cp-mm-t">${tit}</div>${Array.from({length:n},(x,i)=>jogo((C.mata[fase]||[])[i],'m|'+fase+'|'+i)).join('')}</div>`;
+  const mata=`<div class="card cx-linha"><div class="eyebrow">Mata-mata · MD5</div>
+    <div class="cp-mm">${col('oitavas',8,'Oitavas')}${col('quartas',4,'Quartas')}${col('semis',2,'Semifinais')}
+      <div class="cp-mm-c">${'<div class="cp-mm-t">Final</div>'+jogo((C.mata.final||[])[0],'m|final|0')+'<div class="cp-mm-t">Bronze</div>'+jogo((C.mata.bronze||[])[0],'m|bronze|0')}</div></div>
+    ${C.mata.oitavas?'':`<p class="dim">Oitavas na semana ${COPA_SEM_OITAVAS}: o 1º de cada grupo enfrenta o 2º do grupo vizinho.</p>`}</div>`;
+  const grupos=`<div class="card cx-linha"><div class="eyebrow">Fase de grupos · MD3</div><div class="cp-grupos">${C.grupos.map(g=>{
+      const t=linhasDoGrupo(g,cic.pontosCopa), passou=g.classificados||[];
+      return `<div class="cp-grupo cp-grupo-t"><div class="cp-g-tit">Grupo ${g.letra}</div>
+        <table class="tbl cp-g-tab"><thead><tr><th></th><th class="c">V</th><th class="c">D</th><th class="c">Mapas</th></tr></thead><tbody>
+        ${t.map(x=>`<tr class="${x.pais===sel?'me':''} ${passou.includes(x.pais)?'cp-passou':''}" data-copapais="${x.pais}" style="cursor:pointer">
+          <td>${bandeira(x.pais)} <b>${esc(_sigSel(x.pais))}</b></td><td class="c num">${x.v}</td><td class="c num">${x.d}</td><td class="c num">${x.mp}:${x.mc}</td></tr>`).join('')}</tbody></table>
+        ${(g.jogos||[]).length?`<div class="cp-g-jogos">${g.jogos.map((f,i)=>`<span class="cp-jogo" data-cpcopa="g|${g.letra}|${i}">${esc(_sigSel(f.a))} <b>${f.wa}–${f.wb}</b> ${esc(_sigSel(f.b))}</span>`).join('')}</div>`
+          :`<div class="dim cp-g-jogos">Rodadas 1 e 2 na semana ${COPA_SEM_R12}, rodada 3 na ${COPA_SEM_R3}.</div>`}</div>`;}).join('')}</div></div>`;
+  return podio+mata+grupos;
+}
+function cardCampeoes(){
+  const eds=edicoesDaCopa();
+  if(!eds.length)return '';
+  return `<div class="card cx-linha"><div class="eyebrow">Campeões da World Cup</div>
+    <table class="tbl"><thead><tr><th>Ano</th><th>Sede</th><th>Campeã</th><th class="c">Final</th><th>Vice</th><th>Bronze</th><th>MVP</th></tr></thead><tbody>
+    ${eds.slice().reverse().map(e=>{const fv=e.final.v===e.final.a?e.final.wa+'–'+e.final.wb:e.final.wb+'–'+e.final.wa;
+      return `<tr><td class="num">${e.ano}</td><td>${bandeira(e.sede)} ${esc(e.nomeSede)}</td>
+      <td>${bandeira(e.campeao)} <b>${esc(_nomeSel(e.campeao))}</b></td><td class="c num" data-cpfinal="${e.ano}" style="cursor:pointer"><b>${fv}</b></td>
+      <td>${bandeira(e.vice)} ${esc(_nomeSel(e.vice))}</td><td>${bandeira(e.bronze)} ${esc(_nomeSel(e.bronze))}</td>
+      <td>${e.mvp?`<span class="jrow" data-p="${e.mvp}">${esc(e.nomes[e.mvp]||'')}</span>`:'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
 }
 /* ---------- amistoso: a partida de seleção, sem valer nada ----------
    Joga no motor dos clubes com sorteio próprio: não mexe no mundo nem no
@@ -118,7 +175,9 @@ function cardEliminatorias(ano,sel){
     <div class="cp-grupos">${grupos}</div></div>`;
 }
 function cardConvocacao(pais){
-  const info=infoSelecao(pais), c=convocacao(pais);
+  const cicC=typeof cicloAtual==='function'?cicloAtual():null;
+  const congelada=cicC&&cicC.copa&&cicC.copa.convocados&&cicC.copa.convocados[pais];
+  const info=infoSelecao(pais), c=congelada||convocacao(pais);
   if(!info)return '';
   const linha=(id,tit)=>{const p=G.jogadores[id];if(!p)return '';const t=p.timeId&&G.times[p.timeId];
     return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b>${p.voce?' <span class="chip up">você</span>':''}${p.real?'':' <span class="dim">gerado</span>'}</td>
@@ -142,5 +201,11 @@ function ligarCopa(v,on){
   });
   on('[data-cpelim]',el=>{const [l,i]=el.dataset.cpelim.split('|');const cic=cicloAtual();
     const g=cic&&cic.grupos&&cic.grupos.find(x=>x.letra===l);if(g)modalSerieSelecao(g.jogos[+i]);});
+  on('[data-cpcopa]',el=>{const [t,k,i]=el.dataset.cpcopa.split('|');const cic=copaCicloMostrado;const C=cic&&cic.copa;if(!C)return;
+    if(t==='g'){const g=C.grupos.find(x=>x.letra===k);if(g&&g.jogos)modalSerieSelecao(g.jogos[+i]);}
+    else{const j=(C.mata[k]||[])[+i];
+      if(j&&j.f&&j.f.det)modalSerieSelecao(j.f);
+      else if(k==='final'){const e=edicoesDaCopa().find(x=>x.ano===cic.ano);if(e)modalSerieSelecao(e.final);}}});
+  on('[data-cpfinal]',el=>{const e=edicoesDaCopa().find(x=>x.ano===+el.dataset.cpfinal);if(e)modalSerieSelecao(e.final);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
 }

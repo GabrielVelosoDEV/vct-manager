@@ -3547,6 +3547,31 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cp-g-jogos{display:flex;flex-direction:column;gap:4px;font-size:12px;margin-top:4px}
 .cp-jogo{cursor:pointer;padding:3px 6px;border-radius:4px;border:1px solid var(--line)}
 .cp-jogo:hover{border-color:rgba(224,178,82,.5)}
+.cp-ultima{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em;text-align:center}
+.cp-campea{display:flex;flex-direction:column;align-items:center;gap:6px}
+.cp-campea .bandeira{height:38px}
+.cp-podio-l{display:flex;justify-content:center;align-items:flex-end;gap:28px;margin:10px 0 16px}
+.cp-pd{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:12px 18px;border-radius:10px;border:1px solid var(--line)}
+.cp-pd span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+.cp-pd-ouro{order:2;border-color:#e0b252;background:rgba(224,178,82,.08);padding:18px 26px}
+.cp-pd-prata{order:1;border-color:#b8c0c8}
+.cp-pd-bronze{order:3;border-color:#b07a4a}
+.cp-premios{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;font-size:13px}
+.cp-premios>div{display:flex;flex-direction:column;gap:4px;align-items:center}
+.cp-premios .jrow{cursor:pointer}
+.cp-ti{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.cp-ti i{color:var(--dim);font-style:normal}
+.cp-mm{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:center}
+.cp-mm-c{display:flex;flex-direction:column;gap:8px;justify-content:space-around;height:100%}
+.cp-mm-t{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+.cp-mm-j{border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:13px}
+.cp-mm-j.vazio{opacity:.5}
+.cp-mm-j:hover{border-color:rgba(224,178,82,.5)}
+.cp-mm-l{display:flex;align-items:center;gap:6px;padding:2px 0}
+.cp-mm-l .num{margin-left:auto}
+.cp-mm-l.w b,.cp-mm-l.w .num{color:#e0b252}
+.cp-mm-l.me{background:rgba(224,178,82,.08)}
+.cp-mm-o{font-size:11px}
 .cp-am-linha{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
 .cp-am-t{display:inline-flex;align-items:center;gap:8px;font-size:16px}
 .cp-am-t img{object-fit:contain}

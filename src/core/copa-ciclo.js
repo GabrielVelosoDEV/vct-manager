@@ -51,7 +51,10 @@ function copaSemana(){
   const c=garantirCopa();if(!c)return;
   /* virada: o ranking anda em direção à força de hoje */
   if(c.deriva!==G.ano){c.deriva=G.ano;if(c.criada!==G.ano)derivarRanking();}
+  /* ciclo de Copa que já passou vira resumo (core/copa-torneio.js) */
+  if(typeof arquivarCiclo==='function')for(const k in c.ciclos||{})if(+k<G.ano)arquivarCiclo(c.ciclos[k]);
   if(anoDeEliminatorias(G.ano))_semanaEliminatorias(cicloDaCopa(G.ano+1,true));
+  if(anoDeCopa(G.ano)&&typeof _semanaCopa==='function')_semanaCopa(cicloDaCopa(G.ano,true));
 }
 function derivarRanking(){
   const c=garantirCopa();
