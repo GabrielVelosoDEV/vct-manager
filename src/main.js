@@ -84,6 +84,13 @@ function avancarComMotor(plano,depois){
 }
 function avancarComRitual(quantas){
   if(usarTurnos())return aplicarTurno(avancarTurno());
+  /* modo jogador: série sua pela seleção nesta semana (World Cup) abre o dia de
+     jogo da seleção; depois dela, o avanço segue (pode haver outra na semana) */
+  const djs=typeof jogoDeSelecaoDoJogador==='function'?jogoDeSelecaoDoJogador():null;
+  if(djs&&typeof abrirDiaDeJogoSelecao==='function'){
+    abrirDiaDeJogoSelecao(djs,()=>avancarComRitual(quantas));
+    return;
+  }
   /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
   const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
   if(dj){
@@ -172,13 +179,15 @@ function avancarAteMeuJogo(){
      cima do próprio compromisso seria pular o veto sem avisar. */
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
-  if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())){avancarComRitual(1);return;}
+  if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
+     ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador())){avancarComRitual(1);return;}
   let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
     /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
        próximo Avançar abre o relatório e o veto. Antes o laço só conferia
        antes do primeiro passo e adiantava por cima do jogo. */
-    if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel()))){pausou=true;break;}
+    if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
+       ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador()))){pausou=true;break;}
     r=avancar();n++;
     if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;

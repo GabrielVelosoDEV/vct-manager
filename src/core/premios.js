@@ -290,7 +290,9 @@ function pontosDeLenda(p){
   const pr=p.premios||[];
   const conta=t=>pr.filter(x=>x.tipo===t).length;
   return conta('mvp')*5+conta('selecao')*2+conta('regional')*1.5+conta('igl')*1.5+conta('revelacao')
-        +(c.intl||0)*2+(c.titulos||0)*0.3+(c.mvpTorneios||0)*0.75+Math.floor((c.maps||0)/400);
+        +(c.intl||0)*2+(c.titulos||0)*0.3+(c.mvpTorneios||0)*0.75+Math.floor((c.maps||0)/400)
+        /* Valorant World Cup: título mundial pesa como dois títulos internacionais */
+        +(p.copa?p.copa.ouro.length*4+p.copa.prata.length*1.5+p.copa.bronze.length+p.copa.mvp.length*3:0);
 }
 /* Resumo de carreira, usado na ficha e no Hall da Fama. */
 function resumoCarreira(p){

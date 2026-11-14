@@ -23,8 +23,12 @@ const AV_MS_PICO=2600;   /* round de peso 1 */
 
 function avFechar(){
   if(AV&&AV.timer)clearTimeout(AV.timer);
+  /* ctx.aoFechar: o que vem depois só quando você fecha a transmissão
+     (a próxima série pela seleção, no modo jogador) */
+  const depois=AV&&AV.ctx&&AV.ctx.aoFechar;
   AV=null;
   const m=$('#modal');if(m)m.innerHTML='';
+  if(typeof depois==='function')depois();
 }
 
 /* Ponto de entrada: chamado no lugar de modalPartida quando a preferência
@@ -60,7 +64,8 @@ function partidaAoVivo(res){
    motor, e não da tela.
    ============================================================ */
 function partidaConduzida(S,ctx,aoFim){
-  const souA=S.aId===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
+  /* ctx.meuId: o lado que é "seu" quando não é o clube (a seleção, no modo jogador) */
+  const souA=S.aId===((ctx&&ctx.meuId)||(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime));
   const meu=G.times[souA?S.aId:S.bId], adv=G.times[souA?S.bId:S.aId];
   AV={
     S,ctx,aoFim,conduzida:true,
@@ -80,6 +85,8 @@ function partidaConduzida(S,ctx,aoFim){
   avPintar();
   avAgendar(700);
 }
+/* a série de seleção fecha do jeito dela (ctx.fechar), sem efeito de clube */
+function _fecharConduzida(S){return AV.ctx&&typeof AV.ctx.fechar==='function'?AV.ctx.fechar(S):fecharSerie(S,AV.ctx);}
 /* Termina a série sem animar e devolve o resultado a quem pediu. */
 function avEncerrarConduzida(){
   const S=AV.S;
@@ -96,7 +103,7 @@ function avEncerrarConduzida(){
         fecho:narrarFimDeMapa(r,AV.souA,AV.meu.tag,AV.adv.tag)});
     }
   }
-  const res=fecharSerie(S,AV.ctx);
+  const res=_fecharConduzida(S);
   AV.res=res;AV.fim=true;
   return res;
 }
@@ -125,7 +132,7 @@ function avPassoConduzido(){
       AV.mapaIdx++;
     }
     if(S.fim){
-      const res=fecharSerie(S,AV.ctx);
+      const res=_fecharConduzida(S);
       AV.res=res;AV.fim=true;
       if(AV.aoFim)AV.aoFim(res);
       avPintar(true);return;
@@ -237,6 +244,8 @@ function avConselhoHTML(){
 function avPodePedirTempo(){
   return !!(AV&&AV.conduzida&&AV.S&&AV.S.M&&!AV.fim
             &&Prefs.get('tempoTecnico')
+            /* no modo jogador quem pede tempo é o técnico (IA), não você */
+            &&!(typeof modoJogador==='function'&&modoJogador())
             &&typeof podePedirTempo==='function'&&podePedirTempo(AV.S.M,AV.souA));
 }
 function avNarracaoAtual(){
@@ -440,7 +449,10 @@ function avPintar(fim){
   $('#modal').querySelectorAll('[data-tempo]').forEach(b=>b.onclick=()=>{
     avPedirTempo(b.dataset.tempo);avPintar();if(!AV.pausado)avAgendar(700);});
   on('#avPular',avPular);
-  on('#avFicha',()=>{const r=AV.res;avFechar();aba=0;modalPartida(r);});
+  on('#avFicha',()=>{const r=AV.res, vf=AV.ctx&&AV.ctx.verFicha;
+    /* a ficha da seleção abre por cima; o que vem depois espera ela fechar */
+    if(vf){const d=AV.ctx.aoFechar;AV.ctx.aoFechar=null;avFechar();vf(r,d);}
+    else{avFechar();aba=0;modalPartida(r);}});
   on('#avSair',avFechar);
   $('#modal').querySelectorAll('[data-vel]').forEach(b=>b.onclick=()=>{
     AV.vel=parseFloat(b.dataset.vel);

@@ -96,6 +96,10 @@ function sortearEliminatorias(cic){
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
   cic.grupos=gruposEliminatorias(cic.ano,cic.convidadas)
     .map(g=>({letra:g.letra,cont:g.cont,paises:g.paises.slice(),jogos:[],rodadas:0}));
+  /* a convocação das eliminatórias sai no dia do sorteio e vale para os dois jogos */
+  cic.convocadosElim={};
+  for(const g of cic.grupos)for(const p of g.paises){const c=convocacao(p);if(c)cic.convocadosElim[p]={titulares:c.titulares.slice(),reservas:c.reservas.slice()};}
+  if(typeof aoConvocarSelecao==='function')aoConvocarSelecao('elim',cic,cic.convocadosElim);
   momentoCopa('convidadas',{ano:cic.ano});
   noticia(`✉️ World Cup ${cic.ano}: ${cic.convidadas.length} seleções convidadas — ${cic.convidadas.map(_nomeSel).join(', ')}. As outras ${cic.grupos.reduce((s,g)=>s+g.paises.length,0)} disputam 16 vagas nas eliminatórias.`,
     {c:'competicoes',imp:_impSelecao(cic.convidadas)});
@@ -114,17 +118,25 @@ function _jogosDaRodada(g,r){
   const meio=Math.ceil(todos.length/2);
   return r===1?todos.slice(0,meio):todos.slice(meio);
 }
+/* um jogo de cada vez: o que já foi jogado (inclusive antes, na tela do modo
+   jogador) não se joga de novo, e a notícia sai quando a rodada fecha */
+function _jaJogado(g,a,b,r){return (g.jogos||[]).some(f=>f.rodada===r&&((f.a===a&&f.b===b)||(f.a===b&&f.b===a)));}
 function jogarRodadaEliminatorias(cic,r){
+  const cv=cic.convocadosElim||{};
   for(const g of cic.grupos){
     if((g.rodadas||0)>=r)continue;
     for(const [a,b] of _jogosDaRodada(g,r)){
+      if(_jaJogado(g,a,b,r))continue;
       const f=jogarSerieSelecoes(a,b,{bo:ELIM_MD,nome:'Eliminatórias da World Cup '+cic.ano,fase:'Grupo '+g.letra+' · rodada '+r,peso:1,
-        semana:r===1?ELIM_SEM_RODADA1:ELIM_SEM_RODADA2});
+        semana:r===1?ELIM_SEM_RODADA1:ELIM_SEM_RODADA2,conv:{[a]:cv[a],[b]:cv[b]}});
       f.rodada=r;
       g.jogos.push(f);
     }
     g.rodadas=r;
   }
+  cic.noticias=cic.noticias||{};
+  if(cic.noticias['elim'+r])return;
+  cic.noticias['elim'+r]=true;
   /* a rodada em uma notícia: os placares, sem um texto por série */
   const placar=f=>`${infoSelecao(f.a).sigla} ${f.wa}–${f.wb} ${infoSelecao(f.b).sigla}`;
   const daRodada=cic.grupos.flatMap(g=>g.jogos.filter(f=>f.rodada===r));

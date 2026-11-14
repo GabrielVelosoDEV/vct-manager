@@ -18,6 +18,8 @@ function cardConquistas(c){
     <div class="jg-st">${[['títulos',c.titulos],['internacionais',c.intl],['prêmios do ano',pr.length],['MVP de torneio',c.mvpTorneios]].map(([r,v])=>`<div><b class="num">${v||0}</b><span>${r}</span></div>`).join('')}</div>
     ${pr.length?`<div class="lg-premios">${pr.slice().reverse().map(x=>`<span class="chip">${x.ano} · ${esc(x.rot||x.tipo)}</span>`).join('')}</div>`:''}
     ${c.recordes&&c.recordes.length?`<div class="lg-rec">${c.recordes.map(r=>`<div><span class="dim">${esc(r.rot)}</span><b class="num">${r.v}</b>${r.ano?`<i class="dim">${r.ano}</i>`:''}</div>`).join('')}</div>`:''}
+    ${c.copa&&(c.copa.ouro.length||c.copa.prata.length||c.copa.bronze.length)?`<p class="cpx-cq">World Cup: ${c.copa.ouro.map(a=>'🥇 '+a).concat(c.copa.prata.map(a=>'🥈 '+a),c.copa.bronze.map(a=>'🥉 '+a)).join(' · ')}${c.copa.mvp.length?' · MVP da Copa '+c.copa.mvp.join(', '):''}</p>`:''}
+    ${(c.selecao||[]).length?`<p class="dim">Pela seleção: ${c.selecao.map(x=>`${x.tipo==='copa'?'World Cup':'eliminatórias'} ${x.ano}${x.titular?'':' (reserva)'}`).join(' · ')}.</p>`:''}
     ${(c.convocacoes||[]).length?`<p class="dim">Eventos internacionais: ${c.convocacoes.map(x=>`${esc(x.nome)} ${x.ano}${x.titular?'':' (banco)'}`).join(' · ')}.</p>`:''}
     <p class="dim">Pontos de Hall da Fama: <b>${c.lenda}</b> de ${typeof LENDA_CORTE!=='undefined'?LENDA_CORTE:14} para entrar na aposentadoria.</p></div>`;
 }

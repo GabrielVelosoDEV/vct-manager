@@ -123,3 +123,78 @@ function comecarDiaDeJogo(){
   const plano={stageId:comp.stage.id,veto:{seq:v.seq,mapas:v.mapas,lados:v.lados}};
   partidaConduzida(S,ctx,res=>{res.semana=G.semana;plano.serieFeita=res;if(depois)depois(plano);});
 }
+
+/* ============================================================
+   O DIA DE JOGO PELA SELEÇÃO (World Cup, C6)
+   ------------------------------------------------------------
+   Mesma tela e mesmos três jeitos de viver cada mapa, com a sua
+   seleção em vez do clube. O técnico da seleção (IA) já vetou e
+   escalou: titular entra em quadra; reserva assiste. A série é
+   jogada na tela antes de o relógio chegar nela e entregue pronta
+   (core/selecao-jogo.js, injetarSerieSelecao).
+   ============================================================ */
+let DJS=null;
+function abrirDiaDeJogoSelecao(pend,depois){
+  const p=meuJogador(), cv=(pend.ctx&&pend.ctx.conv)||{};
+  const A=timeDaSelecao(pend.a,cv[pend.a]), B=timeDaSelecao(pend.b,cv[pend.b]);
+  if(!A||!B){if(depois)depois();return;}
+  const meu=p.pais===pend.a?A:B, adv=meu===A?B:A;
+  /* o veto com as seleções em campo só durante a conta; elas entram de verdade
+     quando a série começa e saem quando ela fecha */
+  const v=comSelecoesEmCampo([A,B],()=>veto(A,B,pend.ctx.bo));
+  const titular=meu.titulares.includes(p.id);
+  DJS={pend,depois,A,B,meu,adv,v,titular,escolhas:v.mapas.map(()=>titular?'momentos':'simular')};
+  pintarDiaDeJogoSelecao();
+}
+function pintarDiaDeJogoSelecao(){
+  const {pend,v,titular,meu,adv}=DJS, p=meuJogador();
+  const ovT=x=>Math.round(x.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
+  const tec=meu.comissao&&meu.comissao.tecnico&&G.staff[meu.comissao.tecnico];
+  const linhaMapa=(mapa,i)=>{
+    const ag=typeof agenteDe==='function'?agenteDe(meu,mapa,p):null;
+    return `<div class="dj-mapa">
+      <div class="dj-mapa-n"><span class="dim">Mapa ${i+1}</span><b>${esc(mapa)}</b>${ag&&titular?`<span class="chip">${esc(ag)}</span>`:''}</div>
+      <div class="dj-modos">${DJ_MODOS.map(m=>`<button class="nj-papel ${DJS.escolhas[i]===m.id?'on':''}" data-djsm="${i}:${m.id}" ${!titular&&m.id!=='simular'?'disabled':''}>
+        <b>${esc(m.nome)}</b><span>${esc(m.desc)}</span><i>${esc(m.tempo)}</i></button>`).join('')}</div></div>`;
+  };
+  const cic=cicloAtual();
+  pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
+    <div class="cpx-eyebrow">Dia de jogo pela seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="dj-vs">
+      <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)}${tec?' · técnico '+esc(tec.nome):''}</span></div>
+      <div class="dj-x">×</div>
+      <div class="dj-t">${escudoSelecao(adv.selecao,72)}<b>${esc(adv.nome)}</b><span class="dim">over ${ovT(adv)}</span></div>
+    </div>
+    <p class="${titular?'':'dim'}">${titular
+      ?`<b>Você é titular da ${esc(meu.nome)}.</b> O técnico da seleção vetou e montou a comp; escolha como viver cada mapa.`
+      :`<b>Você está entre os reservas nesta série.</b> O cinco da seleção é o melhor possível pela conta das funções; a série vai ser transmitida e você acompanha do banco.`}</p>
+    ${v.mapas.map(linhaMapa).join('')}
+    <div class="dj-acoes">
+      ${titular?'<button class="btn ghost" id="djsSim">Simular a série inteira</button>':''}
+      <button class="btn cpx-faixa-btn" id="djsComecar">${titular?'Entrar em quadra':'Acompanhar a série'} ›</button>
+    </div>
+  </div></div>`);
+  document.querySelectorAll('[data-djsm]').forEach(b=>b.onclick=()=>{const [i,m]=b.dataset.djsm.split(':');DJS.escolhas[+i]=m;pintarDiaDeJogoSelecao();});
+  const st=$('#djsSim');if(st)st.onclick=()=>{DJS.escolhas=DJS.escolhas.map(()=>'simular');comecarDiaDeJogoSelecao();};
+  $('#djsComecar').onclick=comecarDiaDeJogoSelecao;
+}
+function comecarDiaDeJogoSelecao(){
+  const {pend,depois,A,B,meu,v,escolhas}=DJS;DJS=null;
+  $('#modal').innerHTML='';
+  const sair=entrarSelecoesEmCampo([A,B]);
+  G._selecaoEmTela=meu.id;
+  const S=abrirSerie(A.id,B.id,pend.ctx.bo,{seq:v.seq,mapas:v.mapas,lados:v.lados});
+  S.jogador={escolhas,euMid:G.voce.id};
+  let ficha=null;
+  const ctx={meuId:meu.id,nome:pend.ctx.nome,semana:G.semana,
+    /* fecha como série de seleção: ficha, estatística de seleção e ranking */
+    fechar:S2=>{
+      ficha=fecharSerieSelecaoConduzida(S2,A,B,pend);
+      G._selecaoEmTela=null;sair();
+      return Object.assign(consolidarSerie(S2),{aId:S2.aId,bId:S2.bId,bo:S2.bo,mapas:S2.mapas,wa:S2.wa,wb:S2.wb,veto:S2.veto.seq,ficha});
+    },
+    verFicha:(r,d)=>{if(ficha&&typeof modalSerieSelecao==='function')modalSerieSelecao(ficha,d);else if(d)d();},
+    /* o avanço segue quando você fecha a transmissão (ou a ficha) */
+    aoFechar:()=>{if(depois)depois();}};
+  partidaConduzida(S,ctx,()=>{if(ficha)injetarSerieSelecao(ficha);});
+}

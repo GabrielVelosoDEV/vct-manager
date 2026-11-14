@@ -106,22 +106,50 @@ function timeDaSelecao(pais,conv){
 
 /* Põe as seleções no mundo só enquanto `fn` roda. Os convocados jogam na
    função da seleção e voltam para a do clube no fim, aconteça o que acontecer. */
-function comSelecoesEmCampo(times,fn){
+function entrarSelecoesEmCampo(times){
   const guardaRole={}, guardaTime={};
-  try{
-    for(const t of times){
-      guardaTime[t.id]=G.times[t.id];
-      G.times[t.id]=t;
-      const rs=t.titulares.map(i=>G.jogadores[i]).filter(Boolean);
-      const dist=distribuirFuncoes(rs);
-      rs.forEach((p,i)=>{if(!(p.id in guardaRole))guardaRole[p.id]=p.roleAtual;p.roleAtual=dist.atrib[i];});
-      if(typeof compIA==='function')compIA(t);
-    }
-    return fn();
-  }finally{
+  for(const t of times){
+    guardaTime[t.id]=G.times[t.id];
+    G.times[t.id]=t;
+    const rs=t.titulares.map(i=>G.jogadores[i]).filter(Boolean);
+    const dist=distribuirFuncoes(rs);
+    rs.forEach((p,i)=>{if(!(p.id in guardaRole))guardaRole[p.id]=p.roleAtual;p.roleAtual=dist.atrib[i];});
+    if(typeof compIA==='function')compIA(t);
+  }
+  /* devolve a saída: cada um volta para a função do clube */
+  return()=>{
     for(const id in guardaRole){const p=G.jogadores[id];if(p)p.roleAtual=guardaRole[id];}
     for(const id in guardaTime){if(guardaTime[id])G.times[id]=guardaTime[id];else delete G.times[id];}
-  }
+  };
+}
+function comSelecoesEmCampo(times,fn){
+  const sair=entrarSelecoesEmCampo(times);
+  try{return fn();}finally{sair();}
+}
+
+/* ---------- a série do modo jogador ----------
+   A sua partida pela seleção é jogada na tela (ui/diadejogo.js), antes do
+   relógio chegar nela. Para isso o ciclo da Copa roda "até o seu jogo":
+   com G._copaPararEm marcado, a série de quem tem você na convocação para
+   e devolve o que falta jogar (copaPendente). Jogada na tela, a ficha fica
+   guardada em G.copa.injetadas e o relógio usa ela em vez de simular. */
+function _chaveSelecao(a,b,fase){return [a,b].sort().join('|')+'|'+(fase||'');}
+function _naConvocacao(cv,id){return !!(cv&&id&&(cv.titulares.includes(id)||(cv.reservas||[]).includes(id)));}
+function injetarSerieSelecao(ficha){
+  const c=garantirCopa();c.injetadas=c.injetadas||{};
+  c.injetadas[_chaveSelecao(ficha.a,ficha.b,ficha.fase)]=ficha;
+}
+/* fecha a série jogada na tela: a mesma consolidação, ficha, efeitos e ranking
+   do relógio. Chamada com as seleções ainda em campo. */
+function fecharSerieSelecaoConduzida(S,A,B,pend){
+  const ctx=pend.ctx||{};
+  const r=Object.assign({S},consolidarSerie(S));
+  const ficha=_fichaSelecoes(pend.a,pend.b,A,B,S.bo,r,ctx);
+  _posSerieSelecoes(r);
+  if(ctx.peso!==0)rankingPosSerie(ficha,ctx.peso==null?1:ctx.peso);
+  if(typeof aposSerieSelecaoJogador==='function')aposSerieSelecaoJogador(ficha,r);
+  ficha.jogadaNaTela=true;
+  return ficha;
 }
 
 /* ---------- a série ----------
@@ -133,6 +161,14 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
   const bo=ctx.bo||COPA_MD_GRUPOS;
   /* ctx.conv: convocação congelada (a da Copa), por país */
   const cv=ctx.conv||{};
+  if(!ctx.amistoso){
+    /* jogada na tela pelo modo jogador: o relógio só registra */
+    const c=garantirCopa(), k=_chaveSelecao(paisA,paisB,ctx.fase);
+    if(c.injetadas&&c.injetadas[k]){const f=c.injetadas[k];delete c.injetadas[k];return f;}
+    const pa=G._copaPararEm;
+    if(pa&&(paisA===pa.pais||paisB===pa.pais)&&_naConvocacao(cv[pa.pais]||convocacao(pa.pais),pa.id))
+      throw{copaPendente:{a:paisA,b:paisB,ctx:Object.assign({},ctx,{bo})}};
+  }
   const A=timeDaSelecao(paisA,cv[paisA]), B=timeDaSelecao(paisB,cv[paisB]);
   if(!A||!B)return _woSelecoes(paisA,paisB,A,B,bo,ctx);
   const jogar=()=>comSelecoesEmCampo([A,B],()=>{
@@ -150,6 +186,7 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
   if(!ctx.amistoso){
     _posSerieSelecoes(r);
     if(ctx.peso!==0)rankingPosSerie(ficha,ctx.peso==null?1:ctx.peso);
+    if(typeof aposSerieSelecaoJogador==='function')aposSerieSelecaoJogador(ficha,r);
   }
   return ficha;
 }

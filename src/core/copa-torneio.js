@@ -77,6 +77,8 @@ function sortearCopa(cic){
   cic.pontosCopa=Object.assign({},rk);
   cic.copa={grupos:grupos.map((paises,i)=>({letra:String.fromCharCode(65+i),paises,jogos:[],rodadas:0})),
     mata:{},convocados:null,fim:false};
+  /* a convocação da Copa sai junto com o sorteio e vale até a final */
+  congelarConvocacoes(cic);
   momentoCopa('sorteio',{ano:cic.ano});
   noticia(`🎲 Sorteio da World Cup ${cic.ano} em ${cic.nomeSede}: ${cic.copa.grupos.map(g=>g.letra+' ('+g.paises.map(p=>infoSelecao(p).sigla).join(', ')+')').join(' · ')}.`,
     {c:'competicoes',imp:Math.max(2,_impSelecao(cic.classificados))});
@@ -113,20 +115,22 @@ function _rodadaGrupoCopa(p,r){
   return l.filter(([a,b])=>a&&b);
 }
 function jogarRodadaCopa(cic,r){
-  const novos=[];
   for(const g of cic.copa.grupos){
     if((g.rodadas||0)>=r)continue;
     for(const [a,b] of _rodadaGrupoCopa(g.paises,r)){
+      if(_jaJogado(g,a,b,r))continue;
       const f=_jogoCopa(cic,a,b,COPA_MD_GRUPOS,'Grupo '+g.letra+' · rodada '+r,COPA_PESO_GRUPO,r<3?COPA_SEM_R12:COPA_SEM_R3);
-      f.rodada=r;g.jogos.push(f);novos.push(f);
+      f.rodada=r;g.jogos.push(f);
     }
     g.rodadas=r;
   }
-  if(novos.length){
-    const placar=f=>`${infoSelecao(f.a).sigla} ${f.wa}–${f.wb} ${infoSelecao(f.b).sigla}`;
-    noticia(`🌍 World Cup ${cic.ano}, rodada ${r} dos grupos: ${novos.map(placar).join(' · ')}.`,
-      {c:'competicoes',imp:_impSelecao(novos.flatMap(f=>[f.a,f.b]))});
-  }
+  cic.copa.noticias=cic.copa.noticias||{};
+  if(cic.copa.noticias['g'+r])return;
+  cic.copa.noticias['g'+r]=true;
+  const novos=cic.copa.grupos.flatMap(g=>g.jogos.filter(f=>f.rodada===r));
+  const placar=f=>`${infoSelecao(f.a).sigla} ${f.wa}–${f.wb} ${infoSelecao(f.b).sigla}`;
+  noticia(`🌍 World Cup ${cic.ano}, rodada ${r} dos grupos: ${novos.map(placar).join(' · ')}.`,
+    {c:'competicoes',imp:_impSelecao(novos.flatMap(f=>[f.a,f.b]))});
 }
 function fecharGruposCopa(cic){
   if(cic.copa.mata.oitavas)return;

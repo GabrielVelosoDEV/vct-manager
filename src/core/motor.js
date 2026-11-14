@@ -28,6 +28,8 @@ function usarMotor(A,B){
   if(typeof Prefs==='undefined')return false;
   if(Prefs.get('motorTodas'))return true;
   const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  /* a sua seleção na tela (modo jogador): você precisa do motor para entrar nos rounds */
+  if(G._selecaoEmTela&&(A.id===G._selecaoEmTela||B.id===G._selecaoEmTela))return true;
   return !!Prefs.get('motorMinhas')&&!!meu&&(A.id===meu||B.id===meu);
 }
 const motorMapaId=m=>String(m||'').toLowerCase();

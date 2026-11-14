@@ -142,6 +142,14 @@ const POSTS={
     humilde:'Prêmio individual num jogo de cinco. Divido com o time e com quem me ajudou a chegar aqui. 🙏',
     confiante:'Trabalho de um ano inteiro. E ainda tem mais. 🏅',
     provocador:'Disseram que era sorte. Uma temporada inteira de sorte, então. 🏅😏'}},
+  convocacao:{rot:'Convocado para a seleção',tons:{
+    humilde:'Vestir essa camisa é um sonho. Obrigado pela confiança — vou dar tudo pelo país. 🙏',
+    confiante:'Convocado. Agora é trazer essa taça pra casa. 🌍',
+    provocador:'Teve gente que disse que eu nem seria chamado. Pois é. 😏'}},
+  mundial:{rot:'Campeão do mundo',tons:{
+    humilde:'CAMPEÕES DO MUNDO. Isso é de cada pessoa que torceu por essa camisa. Obrigado! 🏆🌍',
+    confiante:'O mundo é nosso. Melhor seleção do planeta. 🏆',
+    provocador:'Duvidaram da gente o torneio inteiro. Agora olhem a medalha no meu peito. 🥇😏'}},
   polemica:{rot:'Depois da polêmica',tons:{
     humilde:'Passei do ponto. Já conversei com quem precisava. Foco no time.',
     confiante:'Falo o que penso. Resolvido internamente, bola pra frente.',

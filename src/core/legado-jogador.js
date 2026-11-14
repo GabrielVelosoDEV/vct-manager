@@ -96,6 +96,7 @@ function conquistasJogador(p){
   const acs=melhor(h=>h.acs/h.maps), kills=melhor(h=>h.k||0);
   return{titulos:c.titulos||0,intl:c.intl||0,mvpTorneios:c.mvpTorneios||0,premios:(p.premios||[]).slice(),
     convocacoes:(G.voce&&G.voce.intl)||[],
+    selecao:(G.voce&&G.voce.selecao)||[],copa:p.copa||null,
     recordes:[
       acs?{rot:'Melhor ACS numa temporada',v:Math.round(acs.acs/acs.maps),ano:acs.ano}:null,
       kills?{rot:'Mais abates numa temporada',v:kills.k,ano:kills.ano}:null,

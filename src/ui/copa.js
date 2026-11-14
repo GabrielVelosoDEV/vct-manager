@@ -63,7 +63,7 @@ function _textoFase(x){
   const{ano,cic}=x, el=ano-1;
   if(cic&&cic.copa&&cic.copa.fim)return `${_nomeSel(cic.copa.podio[0])} é a campeã do mundo`;
   if(cic&&cic.copa&&cic.copa.mata.oitavas)return 'Mata-mata em andamento';
-  if(cic&&cic.copa&&cic.copa.convocados)return 'Fase de grupos em andamento';
+  if(cic&&cic.copa&&cic.copa.grupos.some(g=>(g.jogos||[]).length))return 'Fase de grupos em andamento';
   if(cic&&cic.copa)return `Grupos sorteados · a Copa começa na semana ${COPA_SEM_R12}`;
   if(cic&&cic.classificados)return `Os 32 estão definidos · sorteio dos grupos na semana ${COPA_SEM_SORTEIO} de ${ano}`;
   if(cic&&cic.grupos)return 'Eliminatórias em andamento';
@@ -385,7 +385,7 @@ function cardAmistoso(sel){
 }
 
 /* ---------- ficha de série de seleção (a final ganha a sua cara) ---------- */
-function modalSerieSelecao(f){
+function modalSerieSelecao(f,aoFechar){
   if(!f)return;
   const sig=p=>{const i=infoSelecao(p);return i?i.sigla:p;};
   const lado=pm=>f.esc&&f.esc.a.includes(pm.id)?sig(f.a):sig(f.b);
@@ -396,6 +396,7 @@ function modalSerieSelecao(f){
     cab:`${final&&ASSETS.copa('trofeu')?`<img class="sr-taca" src="${ASSETS.copa('trofeu')}" alt="">`:''}Valorant World Cup · ${esc(f.nome||'Amistoso')}${f.fase?' · '+esc(f.fase):''} · MD${f.bo}`,
     doMvp:lado,rodape:tec?`<div class="sr-tecnicos dim">${tec}</div>`:''}),true);
   _ligarFichaSerie();
+  if(aoFechar){const b=document.querySelector('#srFechar');if(b)b.onclick=()=>{fechar();aoFechar();};}
 }
 
 /* ---------- a faixa da Copa na Central ----------
