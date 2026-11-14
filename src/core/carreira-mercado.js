@@ -163,7 +163,7 @@ function interesseDoClube(t,p){
   if(t.tier===1&&over(p)<74)return -99;
   return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20);
 }
-function clubesInteressados(p,n){
+function clubesInteressadosJogador(p,n){
   return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
@@ -203,7 +203,7 @@ function gerarPropostasSemana(p){
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
-      const c=clubesInteressados(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressados(p,4).length))];
+      const c=clubesInteressadosJogador(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressadosJogador(p,4).length))];
       if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
         /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
         if(emp>=3||over(p)>=_piorTitularDaFuncao(c.t,p)+3)_novaProposta('livre',c.t,p);
@@ -216,7 +216,7 @@ function gerarPropostasSemana(p){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
     if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=clubesInteressados(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressados(p,5).length))];
+      const c=clubesInteressadosJogador(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressadosJogador(p,5).length))];
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -270,7 +270,7 @@ function negociarProposta(id,ped){
   return{ok:true,fim:'recusa',msg:`${t.nome} achou o pedido alto demais. ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.`};
 }
 function _retirar(pr){G.voce.propostas=propostasJogador().filter(x=>x!==pr);}
-function recusarProposta(id){
+function recusarPropostaJogador(id){
   const pr=propostasJogador().find(x=>x.id===id);
   if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
   _retirar(pr);
@@ -295,7 +295,7 @@ function _aplicarContrato(p,pr){
   p.clausulas={titular:!!pr.titular,bonusTitulo:pr.bonusTitulo||0};
   G.voce.semBanco=0;
 }
-function aceitarProposta(id){
+function aceitarPropostaJogador(id){
   const pr=propostasJogador().find(x=>x.id===id);
   if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
   if(pr.tipo==='teste')return{ok:false,motivo:'Faça o teste primeiro.'};
@@ -430,7 +430,7 @@ function viradaContratoJogador(p){
   const t=G.times[p.timeId];
   const renov=propostasJogador().find(x=>x.tipo==='renovacao'&&x.clubeId===t.id);
   if(renov&&G.voce.autoContrato!==false){
-    aceitarProposta(renov.id);
+    aceitarPropostaJogador(renov.id);
     if(typeof noticia==='function')noticia(`O assistente aceitou a renovação de ${p.nome} com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
     return true;
   }
@@ -453,11 +453,11 @@ function assistenteDeContrato(p){
     const tr=lista.filter(x=>x.tipo==='transferencia'&&_sAbs()-x.criada>=1)
       .map(x=>({x,t:G.times[x.clubeId]})).filter(o=>o.t&&over(p)>=_piorTitularDaFuncao(o.t,p))
       .sort((a,b)=>(a.t.tier-b.t.tier)||(b.t.prestigio-a.t.prestigio))[0];
-    if(tr){const r=aceitarProposta(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
+    if(tr){const r=aceitarPropostaJogador(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
     return;
   }
   const livre=lista.filter(x=>x.tipo==='livre').sort((a,b)=>b.salario-a.salario)[0];
-  if(livre&&_sAbs()-livre.criada>=2){aceitarProposta(livre.id);return;}
+  if(livre&&_sAbs()-livre.criada>=2){aceitarPropostaJogador(livre.id);return;}
   const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);
   if(teste)simularTeste(teste.id);
 }

@@ -303,12 +303,24 @@ function selectPais(attrs,atual){
   const fora=cod&&!PAISES[cod]
     ? `<option value="${esc(cod)}" selected>🏳 ${esc(cod)} — fora da lista</option>` : '';
   return `<select ${attrs||''}>${fora}`+LISTA_PAISES.map(c=>
-    `<option value="${c}" ${c===cod?'selected':''}>${FLAG[c]||''} ${esc(PAISES[c])} · ${c}</option>`
+    `<option value="${c}" ${c===cod?'selected':''}>${emojiBandeira(c)} ${esc(PAISES[c])} · ${c}</option>`
   ).join('')+`</select>`;
 }
+/* a bandeira em emoji, montada das duas letras (serve para qualquer país) */
+function emojiBandeira(cod){
+  const c=String(cod||'').toUpperCase();
+  if(FLAG[c])return FLAG[c];
+  return /^[A-Z]{2}$/.test(c)?String.fromCodePoint(...[...c].map(ch=>0x1F1E6+ch.charCodeAt(0)-65)):'🏳';
+}
+/* A bandeira: a imagem de assets/bandeiras quando ela existe, senão o emoji.
+   No Windows o emoji de bandeira vira duas letras, por isso a imagem. */
 function bandeira(cod){
   const c=String(cod||'').toUpperCase();
-  return `<span title="${esc(PAISES[c]||c)}">${FLAG[c]||'🏳'}</span>`;
+  if(!c)return '';
+  const tit=esc(PAISES[c]||c);
+  const src=typeof ASSETS!=='undefined'&&ASSETS.bandeira?ASSETS.bandeira(c):'';
+  return src?`<img class="bandeira" src="${src}" alt="${tit}" title="${tit}" loading="lazy">`
+    :`<span class="bandeira-e" title="${tit}">${emojiBandeira(c)}</span>`;
 }
 function nomePais(cod){const c=String(cod||'').toUpperCase();return PAISES[c]||c;}
 

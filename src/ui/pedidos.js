@@ -32,7 +32,7 @@ function vMercadoPedidos(t){
       ${rs.length?`<table class="wide merc-tab pd-tab"><thead><tr><th>Jogador</th><th>Quem oferece</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th>
         <th class="c">Interesse</th><th class="r">Taxa</th><th class="r">Salário</th><th>Olheiro</th><th></th></tr></thead><tbody>
         ${rs.map(({r,p})=>{const c=p.timeId?T(p.timeId):null;
-          return `<tr class="jrow ${r.recomendado?'pd-rec':''}" data-p="${p.id}"><td><span class="merc-j">${retrato(p,28)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</span></span></td>
+          return `<tr class="jrow ${r.recomendado?'pd-rec':''}" data-p="${p.id}"><td><span class="merc-j">${retrato(p,28)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
           <td>${c?`<span class="linha-t">${escudo(c,18)}<span class="dim">${esc(c.nome)}</span></span>`:'<span class="dim">empresário · livre</span>'}</td>
           <td class="c num">${p.idade}</td><td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
           <td class="c">${interesseMini(p,t)}</td>

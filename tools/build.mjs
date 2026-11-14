@@ -16,6 +16,17 @@ const folhas=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)">/g)].map(m
 const css=folhas.map(f=>`\n/* ===== ${f} ===== */\n`+readFileSync(resolve(raiz,f),'utf8')).join('\n');
 
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
+/* Todos os scripts dividem o mesmo escopo global: duas funções com o mesmo
+   nome em arquivos diferentes não dão erro, a segunda só apaga a primeira
+   em silêncio. O build para quando isso acontece. */
+{
+  const dono=new Map(),repetidos=[];
+  for(const p of scripts)for(const m of readFileSync(resolve(raiz,p),'utf8').matchAll(/^(?:async +)?(?:function\*? +|const +|let +|class +)([A-Za-z_$][\w$]*)/gm)){
+    if(dono.has(m[1])&&dono.get(m[1])!==p)repetidos.push(`${m[1]}: ${dono.get(m[1])} e ${p}`);
+    else dono.set(m[1],p);
+  }
+  if(repetidos.length){console.error('Nome global repetido (o segundo apaga o primeiro):\n  '+repetidos.join('\n  '));process.exit(1);}
+}
 const js=scripts.map(p=>`\n/* ===== ${p} ===== */\n`+readFileSync(resolve(raiz,p),'utf8')).join('\n');
 
 /* replacements como função: evita que $&, $' e $` do código sejam

@@ -73,7 +73,7 @@ function legadoSemana(p,t,rel){
   }
 }
 /* Masters e Champions: chamado no começo da semana, depois da escalação */
-function convocacao(p,t){
+function chamadaInternacional(p,t){
   if(!G.voce||!p||!t)return;
   const c=typeof compromissoDaSemana==='function'?compromissoDaSemana():null;
   if(!c||!c.stage||!/masters|champions|lock|internacional/i.test(c.stage.nome||''))return;

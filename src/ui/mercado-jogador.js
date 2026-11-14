@@ -77,7 +77,7 @@ function modalNegociar(id){
     const resp=$('#mjResp');resp.textContent=r.ok?r.msg:r.motivo;resp.className='mj-resp '+(r.fim==='acordo'?'up':r.fim==='retirada'?'dn':'');
     if(r.fim==='acordo'||r.fim==='retirada'){
       $('#mjEnviar').textContent=r.fim==='acordo'?'Assinar':'Ok';
-      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarProposta(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
+      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
     }else if(r.fim==='contra'){const pr2=propostasJogador().find(x=>x.id===id);if(pr2)$('#mjSal').value=pr2.salario;}
   };
 }
@@ -126,8 +126,8 @@ function vJFinancas(){
 
 function ligarMercadoJogador(v,on){
   const depois=r=>{flash(r.ok?(r.msg||'Feito.'):r.motivo);render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
-  on('[data-mjaceitar]',el=>depois(aceitarProposta(el.dataset.mjaceitar)));
-  on('[data-mjrecusar]',el=>depois(recusarProposta(el.dataset.mjrecusar)));
+  on('[data-mjaceitar]',el=>depois(aceitarPropostaJogador(el.dataset.mjaceitar)));
+  on('[data-mjrecusar]',el=>depois(recusarPropostaJogador(el.dataset.mjrecusar)));
   on('[data-mjneg]',el=>modalNegociar(el.dataset.mjneg));
   on('[data-mjteste]',el=>jogarTeste(el.dataset.mjteste));
   on('[data-mjtestesim]',el=>depois(simularTeste(el.dataset.mjtestesim)));

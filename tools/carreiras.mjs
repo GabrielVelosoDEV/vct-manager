@@ -55,7 +55,7 @@ if (isMainThread) {
   const ordem = [...readFileSync(resolve(raiz, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1])
     .filter(p => !p.includes('/ui/') && !p.includes('storage') && !p.includes('assets') && !p.endsWith('main.js'));
   const bundle = ordem.map(p => readFileSync(resolve(raiz, p), 'utf8')).join('\n')
-    + '\nmodule.exports={criarMundo,montarCalendario,avancar,criarManager,criarCarreiraJogador,meuJogador,over,fazerAtividade,porqueNaoAtividade,semanaJogador,propostasJogador,negociarProposta,aceitarProposta,recusarProposta,simularTeste,candidatosEmpresario,contratarEmpresario,comprarSetup,alternarStaffPessoal,caixaJogador,postarNasRedes,responderEntrevista,seguidores,patrociniosMensais,_piorTitularDaFuncao,INICIOS_JOGADOR,get G(){return G;}};';
+    + '\nmodule.exports={criarMundo,montarCalendario,avancar,criarManager,criarCarreiraJogador,meuJogador,over,fazerAtividade,porqueNaoAtividade,semanaJogador,propostasJogador,negociarProposta,aceitarProposta:aceitarPropostaJogador,recusarProposta:recusarPropostaJogador,simularTeste,candidatosEmpresario,contratarEmpresario,comprarSetup,alternarStaffPessoal,caixaJogador,postarNasRedes,responderEntrevista,seguidores,patrociniosMensais,_piorTitularDaFuncao,INICIOS_JOGADOR,get G(){return G;}};';
   const tmp = resolve(raiz, `.cs.${process.pid}.${Math.random().toString(36).slice(2)}.cjs`);
   writeFileSync(tmp, bundle); const m = createRequire(import.meta.url)(tmp); unlinkSync(tmp);
   m.criarMundo(semente); m.montarCalendario();

@@ -512,7 +512,7 @@ function ligarEventos(){
       <table><thead><tr><th>Nick</th><th>Nome real</th><th class="c">País</th></tr></thead>
       <tbody>${r.jogadores.map(j=>`<tr><td><b>${esc(j.nick)}</b></td>
         <td class="dim">${esc(j.nome)||'—'}</td>
-        <td class="c">${j.pais?(FLAG[j.pais]||'')+' '+esc(j.pais):'<span class="dn">—</span>'}</td></tr>`).join('')}
+        <td class="c">${j.pais?bandeira(j.pais)+' '+esc(j.pais):'<span class="dn">—</span>'}</td></tr>`).join('')}
       </tbody></table>
       ${r.staff.length?`<div class="eyebrow" style="margin-top:12px">Separados como comissão</div>
         <table><tbody>${r.staff.map(s2=>`<tr><td><b>${esc(s2.nick)}</b></td>

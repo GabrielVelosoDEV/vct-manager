@@ -108,7 +108,7 @@ function linhaElenco(t,p,titular,maxSal){
   const vence=p.contrato<=1;
   return `<tr class="${titular?'':'el-res'}">
     <td><span class="tag ${p.roleAtual||p.role}">${(p.roleAtual||p.role).slice(0,3)}</span></td>
-    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${bandeira(p.pais)}
       ${p.igl?'<span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão '+p.lesao+'</span>':''}
       <div class="dim el-sub">${p.idade}a · pot ${p.pot}</div></td>
     <td class="c">${ovTag(p)}</td>
@@ -308,7 +308,7 @@ function vComps(){
     /* fora da função, mas dominado: não é desvio, e a tela diz por quê */
     const dominado=!foraDaFuncao&&fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
     return `<tr>
-      <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}
         <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></span></span></td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
       <td><div class="cmp-ag">${retratoAgente(ag,40)}<div>
@@ -467,7 +467,7 @@ function rodapeMVP(s){
     <div class="mvp-sel">${r.p.aposentado?'':retrato(r.p,44)}</div>
     <div>
       <div class="eyebrow gold">Melhor jogador do torneio</div>
-      <div class="mvp-nome">${esc(r.p.nome)} ${FLAG[r.p.pais]||''}
+      <div class="mvp-nome">${esc(r.p.nome)} ${bandeira(r.p.pais)}
         <span class="dim">${r.time?esc(r.time.tag):''} · ${esc(r.p.role)}${
           r.p.aposentado?' · já aposentado':''}</span></div>
       <div class="dim">${r.acs} de ACS · ${r.kd} de K/D · melhor em quadra ${r.mvps}×
@@ -619,7 +619,7 @@ function vTreino(){
     const gap=Math.max(0,(p.pot||0)-over(p));
     const meusAg=agentesDoJogador(p);
     return `<tr class="${plano.tipo==='descanso'?'descansa':''}">
-      <td>${retrato(p,26)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      <td>${retrato(p,26)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)}
         ${t.titulares.includes(p.id)?'<span class="chip">titular</span>':''}
         ${p.lesao?'<span class="chip r">'+p.lesao+' sem. fora</span>':''}</td>
       <td class="c">${p.idade}</td>
@@ -825,7 +825,7 @@ function vMercadoSaidas(t){
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
-      <td><span class="merc-j">${retrato(p,28)}<span><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</span></span></td>
+      <td><span class="merc-j">${retrato(p,28)}<span><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b> ${bandeira(p.pais)}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</span></span></td>
       <td><span class="tag ${p.role}">${esc(p.role)}</span></td>
       <td class="c num">${p.idade}</td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
@@ -966,7 +966,7 @@ function vMercadoJogadores(t){
   <div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
     <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>{const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id);
-      return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</span></span></td>
+      return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
       <td>${c?`<span class="linha-t">${escudo(c,20)}<span class="dim">${esc(c.nome)}</span></span>`:'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
@@ -1008,7 +1008,7 @@ function blocoRadar(t){
     return `<div class="rd-c rd-${c.estado}">
       <span class="rd-pos num">${i+1}</span>
       ${seloRank(c.rank,38)}
-      <div class="rd-id"><b>${esc(c.nome)}</b> ${FLAG[c.pais]||''} <span class="tag ${c.role}">${c.role}</span>
+      <div class="rd-id"><b>${esc(c.nome)}</b> ${bandeira(c.pais)} <span class="tag ${c.role}">${c.role}</span>
         <div class="dim">${esc(c.rank)} · ${retratoAgente(c.agente,18)} ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
       <div class="rd-leit"><div class="rd-barra" style="--cor:${corO}"><i style="width:${Math.round(L.p*100)}%"></i></div>
         <span class="dim">${'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
@@ -1023,7 +1023,7 @@ function blocoRadar(t){
     return `<div class="rd-teste ${c.estado}">
       ${seloRank(c.rank,64)}
       <div class="rd-t-id"><span class="eyebrow">${c.estado==='teste'?'Em teste nesta semana':'Teste encerrado · decida'}</span>
-        <b>${esc(c.nome)} ${FLAG[c.pais]||''}</b>
+        <b>${esc(c.nome)} ${bandeira(c.pais)}</b>
         <div class="dim">${esc(c.rank)} · ${c.role} · ~${c.idade} anos · main ${esc(c.agente)}</div></div>
       <div class="rd-t-nums"><div><span>Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
         <div><span>Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div></div>
@@ -1037,7 +1037,7 @@ function blocoRadar(t){
     Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.`,'Como o radar funciona')}
     ${destaque.map(cartaoTeste).join('')}
     ${ladder.length?`<div class="rd-lista">${ladder.map(linha).join('')}</div>`:destaque.length?'':'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
-    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
+    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${bandeira(h.pais)} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
   </div>`;
 }
 function vBase(){
@@ -1072,14 +1072,14 @@ function vBase(){
     ${jovens.length?`<table class="tb ordenavel"><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
     ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
-    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num">${p.pot}</td></tr>`).join('')}</tbody></table>`
     :'<div class="empty">Ninguém saiu da sua base ainda.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Radar mundial de talentos (sub-19)</div>
     <table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th></tr></thead>
-    <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+    <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>

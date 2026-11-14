@@ -39,7 +39,16 @@ function _cincoDoPais(lista){
   const falso={elenco:el.map(p=>p.id),titulares:[]};
   return (typeof melhorEscalacao==='function'?melhorEscalacao(falso):null)||el.slice(0,5).map(p=>p.id);
 }
+/* a convocação da semana fica guardada: a tela da Copa pede as 40 várias
+   vezes e cada uma passa pela conta da escalação */
+let _convSemana={g:null,chave:'',mapa:{}};
 function convocacao(pais){
+  const chave=G.ano+'|'+G.semana+'|'+G.seqP;
+  if(_convSemana.g!==G||_convSemana.chave!==chave)_convSemana={g:G,chave,mapa:{}};
+  if(!(pais in _convSemana.mapa))_convSemana.mapa[pais]=_convocacao(pais);
+  return _convSemana.mapa[pais];
+}
+function _convocacao(pais){
   const todos=convocaveis(pais).filter(p=>!p.lesao);
   if(todos.length<SELECAO_MINIMO)return null;
   const titulares=_cincoDoPais(todos);
@@ -94,6 +103,47 @@ function sedeDoAno(ano){
   return{pais,nome,edicao:edicaoDoAno(ano),ano};
 }
 
+/* ---------- convidadas e eliminatórias ----------
+   As duas contas usam o ranking do momento: chamadas no dia do sorteio
+   (fim do ano ímpar), o resultado fica gravado na edição (C2); chamadas
+   antes disso, mostram como seria se o sorteio fosse hoje. */
+function convidadasDaCopa(ano){
+  ano=proximaCopa(ano);
+  const sede=sedeDoAno(ano).pais, rk=rankingPaises().filter(x=>convocacao(x.pais));
+  const l=[sede];
+  for(const x of rk){if(l.length>=COPA_CONVITES)break;if(x.pais!==sede)l.push(x.pais);}
+  return l;
+}
+/* os grupos das eliminatórias: por continente, potes pelo ranking, sorteio
+   local (a mesma carreira sorteia sempre os mesmos grupos e o mundo não muda) */
+function gruposEliminatorias(ano){
+  ano=proximaCopa(ano);
+  const conv=new Set(convidadasDaCopa(ano)), rk=rankingPaises();
+  const fila=rk.filter(x=>!conv.has(x.pais)&&convocacao(x.pais));
+  const tam=ELIM_POR_GRUPO;
+  return comSorteioLocal('elim|'+(G.seed||0)+'|'+ano,()=>{
+    const embaralha=l=>{l=l.slice();for(let i=l.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[l[i],l[j]]=[l[j],l[i]];}return l;};
+    /* potes: as melhores de cada fatia de tamanho g vão uma para cada grupo */
+    const montar=(lista,nome)=>{
+      const g=Math.floor(lista.length/tam);if(!g)return [];
+      const gs=Array.from({length:g},()=>[]);
+      for(let p=0;p<tam;p++)embaralha(lista.slice(p*g,p*g+g)).forEach((x,i)=>gs[i].push(x.pais));
+      lista.slice(g*tam).forEach((x,i)=>gs[gs.length-1-(i%g)].push(x.pais));   /* só se faltar seleção */
+      return gs.map(paises=>({cont:nome,paises}));
+    };
+    const grupos=[], sobras=[];
+    for(const cont of Object.keys(COPA_CONTINENTES)){
+      const l=fila.filter(x=>x.cont===cont);
+      const n=Math.floor(l.length/tam)*tam;
+      grupos.push(...montar(l.slice(0,n),cont));
+      sobras.push(...l.slice(n));      /* as mais fracas do continente */
+    }
+    sobras.sort((a,b)=>b.pts-a.pts);
+    grupos.push(...montar(sobras,'INTER'));
+    return grupos.map((x,i)=>Object.assign(x,{letra:String.fromCharCode(65+i)}));
+  });
+}
+
 /* ---------- nacionalidade dos agentes livres gerados ----------
    Chamado na criação do mundo, depois dos agentes livres, e em saves
    antigos na primeira vez que a Copa é aberta. Só mexe em gerado sem
@@ -105,19 +155,24 @@ function orientarNacionalidadesCopa(){
   const falta=[];
   for(const pais of paisesDaCopa()){const f=SELECAO_MINIMO-(conta[pais]||0);for(let i=0;i<f;i++)falta.push(pais);}
   if(!falta.length)return 0;
-  /* doadores: gerados sem clube, de países com folga (ou fora das 40), na
-     ordem de criação (estável) */
+  /* doadores: gerados sem clube. A cada vaga, sai o doador do país que está
+     com mais gente (empate: ordem de criação), e ninguém deixa o próprio
+     país abaixo de 7 — a conta é estável e não usa o gerador do mundo. */
   const naCopa=new Set(paisesDaCopa());
   const doadores=(G.livres||[]).map(i=>G.jogadores[i])
     .filter(p=>p&&!p.real&&!p.timeId&&!p.base&&!p.voce)
     .sort((a,b)=>(+String(a.id).slice(1))-(+String(b.id).slice(1)));
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let feitos=0;
-  for(const p of doadores){
-    if(!falta.length)break;
-    const de=p.pais;
-    if(naCopa.has(de)&&(conta[de]||0)<=SELECAO_MINIMO+2)continue;   /* não desfalca quem está no limite */
-    const para=falta.shift();
+  while(falta.length){
+    let p=null;
+    for(const d of doadores){
+      if(naCopa.has(d.pais)&&(conta[d.pais]||0)<=SELECAO_MINIMO)continue;
+      if(!p||(naCopa.has(p.pais)&&(!naCopa.has(d.pais)||(conta[d.pais]||0)>(conta[p.pais]||0))))p=d;
+    }
+    if(!p)break;
+    doadores.splice(doadores.indexOf(p),1);
+    const de=p.pais, para=falta.shift();
     conta[de]=(conta[de]||0)-1;conta[para]=(conta[para]||0)+1;
     p.pais=para;
     /* nick com o sotaque do país novo, de um sorteio local (o mundo não muda) */
@@ -129,5 +184,6 @@ function orientarNacionalidadesCopa(){
     if(R)p.regiaoOrigem=R.id;
     feitos++;
   }
+  if(feitos)_convSemana={g:null,chave:'',mapa:{}};
   return feitos;
 }

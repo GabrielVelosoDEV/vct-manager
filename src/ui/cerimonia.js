@@ -40,7 +40,7 @@ function cartaoFicha(f,rot,trof,extra){
   return `<div class="cer-premio">
     ${trof?imgTrofeu(trof,64,rot):''}
     <div class="cer-p-carta">${cartaPremiado(f,170)}</div>
-    <div class="cer-p-nome">${esc(f.nome)} ${FLAG[f.pais]||''}</div>
+    <div class="cer-p-nome">${esc(f.nome)} ${bandeira(f.pais)}</div>
     <div class="dim">${esc(f.tag)} · ${f.role}${f.maps?` · ${f.maps} mapas · ${f.acs} de ACS · ${Number(f.kd).toFixed(2)} K/D`:''}</div>
     ${extra||''}</div>`;
 }
@@ -113,7 +113,7 @@ function telasDaCerimonia(reg,c){
       ${imgTrofeu(arquivoTrofeuPremio('mvp'),90,'MVP do ano')}
       <div class="cer-mvp-carta">${(()=>{const p=P(m.id);const base=p||{id:m.id,nome:m.nome,role:m.role,timeId:m.timeId,pais:m.pais};
         return cartaJogador(base,{w:230,o:m.ov||(p?over(p):70),anima:true});})()}</div>
-      <div class="cer-mvp-info"><div class="cer-p-nome" style="font-size:44px">${esc(m.nome)} ${FLAG[m.pais]||''}</div>
+      <div class="cer-mvp-info"><div class="cer-p-nome" style="font-size:44px">${esc(m.nome)} ${bandeira(m.pais)}</div>
         <div class="dim">${esc(m.tag)} · ${m.role}</div>
         <div class="pr-nums" style="grid-template-columns:repeat(2,1fr)">${[['Mapas',m.maps],['ACS',m.acs],['K/D',Number(m.kd).toFixed(2)],['MVPs de mapa',m.mvps!=null?m.mvps:'—']]
           .map(([k,v])=>`<div><span>${k}</span><b class="num">${v}</b></div>`).join('')}</div>
@@ -125,9 +125,9 @@ function telasDaCerimonia(reg,c){
   if((c.despedidas||[]).length||(c.hall||[]).length){
     const dest=d=>d.destino==='dono'?'compra o '+esc(d.clube||'clube'):d.destino?esc(ROT_DESTINO[d.destino]||d.destino):'sai de cena';
     T.push({rot:'Despedidas',fundo:'despedida',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
-      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
+      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${bandeira(h.pais)}`).join(', ')}</div>`:''}
       <div class="cer-desp">${(c.despedidas||[]).map(d=>`<div class="${d.meu?'me':''}">
-        <b>${esc(d.nome)}</b> ${FLAG[d.pais]||''} <span class="tag ${d.role}">${d.role}</span>
+        <b>${esc(d.nome)}</b> ${bandeira(d.pais)} <span class="tag ${d.role}">${d.role}</span>
         <span class="dim">${d.idade} anos · ${esc(d.tag)} · ${d.titulos} título${d.titulos===1?'':'s'}${d.intl?' · '+d.intl+' internacional'+(d.intl===1?'':'is'):''}</span>
         <em>${dest(d)}</em></div>`).join('')}</div>`});
   }

@@ -58,6 +58,14 @@ function cidades(){
   if(G&&Array.isArray(G.cidades)&&G.cidades.length)return G.cidades;
   return SEDES.map(c=>Object.assign({slug:slugCidade(c.nome)},c));
 }
+/* a cidade da World Cup num país-sede: a só-da-Copa (data/sedes.js) ou a
+   maior do país no circuito, de preferência uma de Champions */
+function cidadeDaCopa(pais){
+  const so=(typeof SEDES_COPA!=='undefined'?SEDES_COPA:[]).find(c=>c.pais===pais);
+  if(so)return Object.assign({slug:slugCidade(so.nome),tipo:'copa'},so);
+  const l=cidades().filter(c=>c.pais===pais);
+  return l.find(c=>c.maior&&c.tipo==='champions')||l.find(c=>c.maior)||l.find(c=>c.tipo==='champions')||l[0]||null;
+}
 function cidade(slug){return slug?cidades().find(c=>c.slug===slug)||null:null;}
 
 /* FNV-1a de 32 bits: estável entre navegadores e Node */

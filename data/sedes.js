@@ -79,6 +79,17 @@ const SEDES=[
   {nome:'Varsóvia',pais:'PL',tipo:'masters',maior:true}
 ];
 
+/* Só sede da Valorant World Cup: país-sede da Copa (data/copa.js) que não
+   tem cidade no circuito. Ficam fora do sorteio de Masters, Champions e
+   regionais e fora do catálogo editável; a imagem segue a mesma regra
+   (assets/cidades/<slug>.webp). Os outros países-sede usam a maior cidade
+   que já têm no circuito: Tóquio, São Paulo, Nova York, Xangai… */
+const SEDES_COPA=[
+  {nome:'Moscou',pais:'RU',maior:true},
+  {nome:'Mumbai',pais:'IN',maior:true},
+  {nome:'Sydney',pais:'AU',maior:true}
+];
+
 /* Sedes reais das duas temporadas antes da carreira: o sorteio de 2027 evita
    repetir estas, como evita as dos dois anos anteriores em qualquer ano. */
 const SEDES_REAIS={

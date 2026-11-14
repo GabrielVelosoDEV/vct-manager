@@ -30,6 +30,20 @@ const ASSETS={
     if(!M||!Object.keys(M).length)return this.arq(dir,nome);
     return M[dir+'/'+this.slug(nome)]?this.arq(dir,nome):'';
   },
+  /* true só quando o manifesto (data/midia.js) lista o arquivo */
+  tem(dir,nome){
+    const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:null;
+    return !!(M&&M[dir+'/'+this.slug(nome)]);
+  },
+  /* bandeira nacional: assets/bandeiras/<código ISO>.png (br, kr, gb-eng…) */
+  bandeira(cod){return this.tem('bandeiras',cod)?this.arq('bandeiras',cod):'';},
+  /* escudo da seleção: assets/logo-selecoes/<sigla>.png (bra, kor…) */
+  logoSelecao(pais){
+    const x=typeof COPA_SELECOES!=='undefined'?COPA_SELECOES.find(s=>s[0]===pais):null;
+    return x&&this.tem('logo-selecoes',x[1])?this.arq('logo-selecoes',x[1]):'';
+  },
+  /* arte da World Cup: assets/copa/ (logo, trofeu, sede-japao…) */
+  copa(nome){return this.tem('copa',nome)?this.arq('copa',nome):'';},
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();

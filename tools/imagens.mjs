@@ -37,11 +37,11 @@ const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'')
 
 /* Ordem de preferência quando o mesmo nome existe em dois formatos. */
 const FORMATOS=['webp','png','jpg','jpeg','svg'];
-const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','imprensa','ui'];
+const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','imprensa','ui','bandeiras','logo-selecoes','copa'];
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);
-for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/organizacoes.js','data/elencos.js','data/comissao.js','data/sedes.js','data/imprensa.js','src/core/torneios.js']){
+for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/organizacoes.js','data/elencos.js','data/comissao.js','data/sedes.js','data/copa.js','data/imprensa.js','src/core/torneios.js']){
   const p=resolve(raiz,f);
   if(existsSync(p))vm.runInContext(readFileSync(p,'utf8')+
     ';this.TIMES_REAIS=typeof TIMES_REAIS!=="undefined"?TIMES_REAIS:this.TIMES_REAIS;'+
@@ -53,6 +53,9 @@ for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js'
     'this.AGENTS=typeof AGENTS!=="undefined"?AGENTS:this.AGENTS;'+
     'this.MAP_POOL=typeof MAP_POOL!=="undefined"?MAP_POOL:this.MAP_POOL;'+
     'this.SEDES=typeof SEDES!=="undefined"?SEDES:this.SEDES;'+
+    'this.SEDES_COPA=typeof SEDES_COPA!=="undefined"?SEDES_COPA:this.SEDES_COPA;'+
+    'this.COPA_SEDES=typeof COPA_SEDES!=="undefined"?COPA_SEDES:this.COPA_SEDES;'+
+    'this.COPA_SELECOES=typeof COPA_SELECOES!=="undefined"?COPA_SELECOES:this.COPA_SELECOES;'+
     'this.VEICULOS=typeof VEICULOS!=="undefined"?VEICULOS:this.VEICULOS;'+
     'this.REGIONS=typeof REGIONS!=="undefined"?REGIONS:this.REGIONS;'+
     'this.PAISES=typeof PAISES!=="undefined"?PAISES:this.PAISES;'+
@@ -63,7 +66,7 @@ for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js'
     'this.montarTorneios=typeof montarTorneios!=="undefined"?montarTorneios:this.montarTorneios;',ctx);
 }
 /* Cada mapa: slug → rótulo. `grupo` separa a LISTA.md por clube/região. */
-const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos'];
+const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','bandeiras','logo-selecoes','copa'];
 const base=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 const grupo=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 for(const r in ctx.TIMES_REAIS||{})for(const d of ['t1','t2'])
@@ -132,6 +135,34 @@ for(const c of ctx.SEDES||[]){
   for(const [k,n] of [['mvp','MVP do ano'],['treinador','Treinador do ano'],['igl','IGL do ano'],['selecao','Seleção do ano'],['revelacao','Revelação do ano (opcional)'],['mvp-regional','MVP regional (opcional)']])
     T('premio-'+k,'Prêmios da temporada',n);
 }
+for(const c of ctx.SEDES_COPA||[]){base.cidades.set(slug(c.nome),c.nome+' ('+c.pais+')');grupo.cidades.set(slug(c.nome),'World Cup — só sede da Copa');}
+/* bandeiras: todos os países do mundo pelo código ISO de duas letras, mais as
+   quatro nações do Reino Unido no formato dos pacotes de bandeira (gb-eng…) */
+{
+  const ISO='AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
+  const nomePt=(()=>{try{const d=new Intl.DisplayNames(['pt-BR'],{type:'region'});return c=>d.of(c);}catch{return c=>c;}})();
+  const naCopa=new Set((ctx.COPA_SELECOES||[]).map(x=>x[0])), noJogo=new Set(Object.keys(ctx.PAISES||{}));
+  const ordem=c=>naCopa.has(c)?0:noJogo.has(c)?1:2;
+  for(const c of [...ISO,'XK'].sort((a,b)=>ordem(a)-ordem(b)||a.localeCompare(b))){
+    const nome=(ctx.PAISES&&ctx.PAISES[c])||nomePt(c);
+    base.bandeiras.set(c.toLowerCase(),nome+' ('+c+')');
+    grupo.bandeiras.set(c.toLowerCase(),naCopa.has(c)?'Seleções da World Cup':noJogo.has(c)?'Outros países do jogo':'Resto do mundo');
+  }
+  for(const [k,n] of [['gb-eng','Inglaterra'],['gb-sct','Escócia'],['gb-wls','País de Gales'],['gb-nir','Irlanda do Norte']]){
+    base.bandeiras.set(k,n+' (opcional)');grupo.bandeiras.set(k,'Nações do Reino Unido (opcionais)');
+  }
+}
+for(const [c,sig] of ctx.COPA_SELECOES||[]){
+  base['logo-selecoes'].set(slug(sig),((ctx.PAISES&&ctx.PAISES[c])||c)+' ('+sig+')');
+  grupo['logo-selecoes'].set(slug(sig),'');
+}
+{
+  const C=(n,g,rot)=>{base.copa.set(n,rot);grupo.copa.set(n,g);};
+  C('logo','Identidade','logo padrão da Valorant World Cup (vira o logo da sede na apresentação)');
+  C('trofeu','Identidade','a taça');
+  C('fundo-final','Identidade','fundo da final (opcional)');
+  for(const [c,nome] of ctx.COPA_SEDES||[])C('sede-'+slug(nome),'Logo de cada sede',nome+' ('+c+')');
+}
 for(const role in ctx.AGENTS||{})if(role!=='Flex')for(const a of ctx.AGENTS[role]){
   base.agentes.set(slug(a),a);grupo.agentes.set(slug(a),role);
 }
@@ -172,8 +203,8 @@ const MIDIA={
 writeFileSync(resolve(raiz,'data/midia.js'),saida);
 
 /* ---------- relatório ---------- */
-const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus',estrutura:'Estrutura do clube',cenas:'Cenas da interface',veiculos:'Veículos de imprensa'};
-const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu',estrutura:'id do departamento',cenas:'id da cena',veiculos:'id do veículo'};
+const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus',estrutura:'Estrutura do clube',cenas:'Cenas da interface',veiculos:'Veículos de imprensa',bandeiras:'Bandeiras nacionais','logo-selecoes':'Escudos das seleções',copa:'Valorant World Cup'};
+const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu',estrutura:'id do departamento',cenas:'id da cena',veiculos:'id do veículo',bandeiras:'código ISO de duas letras do país','logo-selecoes':'sigla de três letras da seleção',copa:'id da arte'};
 let semDono=0;
 console.log(`data/midia.js gravado — ${chaves.length} imagem(ns).\n`);
 /* LISTA.md em cada pasta: o nome exato de cada arquivo que o jogo procura,
@@ -206,6 +237,7 @@ for(const dir of Object.keys(base)){
   const tem=new Set(chaves.filter(k=>k.startsWith(dir+'/')).map(k=>k.slice(dir.length+1)));
   const falta=[...base[dir]].filter(([s])=>!tem.has(s)).map(([,n])=>n);
   const orfaos=[...tem].filter(s=>!base[dir].has(s));
+  if(dir==='bandeiras'){if(orfaos.length)console.log('  fora da lista ISO (servem, o jogo só não procura por elas): '+orfaos.join(', '));orfaos.length=0;}
   semDono+=orfaos.length;
   console.log(`${ROTULO[dir]}: ${base[dir].size-falta.length}/${base[dir].size} com imagem`);
   if(falta.length){

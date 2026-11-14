@@ -26,7 +26,7 @@ function cartaPremiado(f,w){
 function nomePremiado(f){
   if(!f)return '—';
   const vivo=!!P(f.id);
-  return `<span class="${vivo?'jrow pr-link':''}" ${vivo?`data-p="${f.id}"`:''}>${esc(f.nome)}</span> ${FLAG[f.pais]||''}`;
+  return `<span class="${vivo?'jrow pr-link':''}" ${vivo?`data-p="${f.id}"`:''}>${esc(f.nome)}</span> ${bandeira(f.pais)}`;
 }
 function barraRegua(rot,v,cls){
   if(v==null)return '';
@@ -130,7 +130,7 @@ function vPremios(){
       const base={id:'lenda-'+l.nome,nome:l.nome,role:l.role,pais:l.pais,timeId:null};
       return `<div class="hf-carta" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">
         ${cartaJogador(base,{w:128,o:l.pico})}
-        <b>${esc(l.nome)} ${FLAG[l.pais]||''}</b>
+        <b>${esc(l.nome)} ${bandeira(l.pais)}</b>
         <span class="dim">${esc(l.role)} · aposentou em ${l.ano} (${l.idade}a)</span>
         <div class="hf-nums"><span><b class="num">${l.carreira.titulos}</b>títulos</span><span><b class="num">${l.carreira.intl}</b>intern.</span>
           <span><b class="num">${l.premios.length}</b>prêmios</span><span><b class="num">${l.carreira.kd.toFixed(2)}</b>K/D</span></div>

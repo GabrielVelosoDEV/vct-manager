@@ -14,7 +14,7 @@ const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ordem = [...readFileSync(resolve(raiz, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1])
   .filter(p => !p.includes('/ui/') && !p.includes('storage') && !p.includes('assets') && !p.endsWith('main.js'));
 const bundle = ordem.map(p => readFileSync(resolve(raiz, p), 'utf8')).join('\n')
-  + '\nmodule.exports={criarMundo,over,convocaveis,convocacao,forcaSelecao,rankingPaises,sedeDoAno,proximaCopa,PAISES,COPA_SELECOES,SELECAO_MINIMO,get G(){return G;},set orientar(f){orientarNacionalidadesCopa=f;},get orientar(){return orientarNacionalidadesCopa;}};';
+  + '\nmodule.exports={criarMundo,over,convocaveis,convocacao,forcaSelecao,rankingPaises,sedeDoAno,proximaCopa,convidadasDaCopa,gruposEliminatorias,cidadeDaCopa,infoSelecao,COPA_SEDES,PAISES,COPA_SELECOES,SELECAO_MINIMO,get G(){return G;},set orientar(f){orientarNacionalidadesCopa=f;},get orientar(){return orientarNacionalidadesCopa;}};';
 const tmp = resolve(raiz, '.sel.tmp.cjs');
 writeFileSync(tmp, bundle); const m = createRequire(import.meta.url)(tmp); unlinkSync(tmp);
 const semente = +(process.argv.find(a => /^\d+$/.test(a)) || 20260828);
@@ -51,6 +51,17 @@ for (const x of rk) {
   if (elenco && c) console.log('      reservas:', c.reservas.map(i => G.jogadores[i]).map(p => `${p.nome} ${m.over(p)}${p.real ? '' : '*'}`).join(', '));
 }
 const s = m.sedeDoAno(m.proximaCopa(G.ano));
-console.log(`\npróxima Copa: ${s.ano} · ${s.edicao}ª edição · sede ${s.nome} (${s.pais})`);
+const cid = m.cidadeDaCopa(s.pais);
+console.log(`\npróxima Copa: ${s.ano} · ${s.edicao}ª edição · sede ${s.nome} (${s.pais}) · final em ${cid ? cid.nome : '?'}`);
+for (const [pais, nome] of m.COPA_SEDES) ok(m.cidadeDaCopa(pais), `${nome} sem cidade para a final`);
+const conv = m.convidadasDaCopa(s.ano), grupos = m.gruposEliminatorias(s.ano);
+console.log(`\nconvidadas (${conv.length}): ${conv.map(p => m.infoSelecao(p).sigla).join(' ')}`);
+console.log('eliminatórias, se o sorteio fosse hoje:');
+for (const g of grupos) console.log(`  ${g.letra} ${g.cont.padEnd(5)} ${g.paises.map(p => m.infoSelecao(p).sigla).join(' ')}`);
+const naElim = grupos.flatMap(g => g.paises);
+ok(conv.length === 16, 'convidadas ≠ 16');
+ok(grupos.length === 8 && grupos.every(g => g.paises.length === 3), 'eliminatórias fora de 8 grupos de 3');
+ok(new Set([...conv, ...naElim]).size === 40, 'seleção repetida ou faltando entre convidadas e eliminatórias');
+ok(JSON.stringify(m.gruposEliminatorias(s.ano)) === JSON.stringify(grupos), 'o sorteio das eliminatórias não é estável');
 console.log(falhas ? `${falhas} falha(s)` : 'ok');
 process.exit(falhas ? 1 : 0);

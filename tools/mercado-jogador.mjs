@@ -15,7 +15,7 @@ const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ordem = [...readFileSync(resolve(raiz, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1])
   .filter(p => !p.includes('/ui/') && !p.includes('storage') && !p.includes('assets') && !p.endsWith('main.js'));
 const bundle = ordem.map(p => readFileSync(resolve(raiz, p), 'utf8')).join('\n')
-  + '\nmodule.exports={criarMundo,montarCalendario,avancar,criarManager,criarCarreiraJogador,over,propostasJogador,negociarProposta,aceitarProposta,recusarProposta,simularTeste,candidatosEmpresario,contratarEmpresario,comprarSetup,alternarStaffPessoal,caixaJogador,get G(){return G;}};';
+  + '\nmodule.exports={criarMundo,montarCalendario,avancar,criarManager,criarCarreiraJogador,over,propostasJogador,negociarProposta,aceitarProposta:aceitarPropostaJogador,recusarProposta:recusarPropostaJogador,simularTeste,candidatosEmpresario,contratarEmpresario,comprarSetup,alternarStaffPessoal,caixaJogador,get G(){return G;}};';
 const tmp = resolve(raiz, '.mj.tmp.cjs');
 writeFileSync(tmp, bundle); const m = createRequire(import.meta.url)(tmp); unlinkSync(tmp);
 const [ini = 'challengers', ov = 76, anos = 2, semente = 20260828] = process.argv.slice(2);

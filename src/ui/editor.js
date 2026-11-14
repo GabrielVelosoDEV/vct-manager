@@ -59,7 +59,7 @@ function edvTimes(){
     const p=P(id),tit=t.titulares.includes(id);
     return `<tr class="${tit?'me':''}">
       <td>${retrato(p,30)}</td>
-      <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}${tit?' <span class="chip">Titular</span>':''}${p.igl?' <span class="pill">IGL</span>':''}</td>
+      <td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}${tit?' <span class="chip">Titular</span>':''}${p.igl?' <span class="pill">IGL</span>':''}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td>
@@ -195,7 +195,7 @@ function edvJogadores(){
       <td>${edChip(p)}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
-      <td class="c">${FLAG[p.pais]||''} <span class="dim num">${esc(p.pais)}</span></td>
+      <td class="c">${bandeira(p.pais)} <span class="dim num">${esc(p.pais)}</span></td>
       <td class="c">${ovTag(p)}</td>
       <td class="c num dim">${p.pot}</td>
       <td class="r num">${money(p.valor)}</td>
@@ -232,7 +232,7 @@ function edvLivres(){
       <td><b>${esc(p.nome)}</b></td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
-      <td class="c">${FLAG[p.pais]||''}</td>
+      <td class="c">${bandeira(p.pais)}</td>
       <td class="c">${ovTag(p)}</td>
       <td class="c num dim">${p.pot}</td>
       <td class="r num">${money(p.salario)}</td>

@@ -3526,3 +3526,19 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cp-conta b{display:block;font-family:'Bebas Neue',sans-serif;font-size:44px;color:#e0b252;line-height:1}
 .cp-conta span{font-size:12px;color:var(--dim)}
 .cp-rank tr.me td{background:rgba(224,178,82,.08)}
+.cp-trofeu.img{background:none;border-radius:0}
+.cp-trofeu.img img{max-width:84px;max-height:84px;object-fit:contain}
+.cp-tit .bandeira{height:.7em}
+.cp-conv-tit{display:flex;align-items:center;gap:6px}
+.cp-escudo{width:22px;height:22px;object-fit:contain}
+.cp-conv{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 14px}
+.cp-conv>b{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-right:4px}
+.cp-sel{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-size:13px;cursor:pointer}
+.cp-sel:hover{border-color:rgba(224,178,82,.5)}
+.cp-sel.me{border-color:#e0b252;background:rgba(224,178,82,.1)}
+.cp-grupos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cp-grupo{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px}
+.cp-g-tit{font-weight:700;font-size:13px}
+.cp-g-tit .dim{font-weight:400;font-size:11px;margin-left:4px}
+/* bandeira em imagem (assets/bandeiras), do tamanho da letra */
+img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}

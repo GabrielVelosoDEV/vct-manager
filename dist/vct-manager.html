@@ -3560,6 +3560,22 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .cp-conta b{display:block;font-family:'Bebas Neue',sans-serif;font-size:44px;color:#e0b252;line-height:1}
 .cp-conta span{font-size:12px;color:var(--dim)}
 .cp-rank tr.me td{background:rgba(224,178,82,.08)}
+.cp-trofeu.img{background:none;border-radius:0}
+.cp-trofeu.img img{max-width:84px;max-height:84px;object-fit:contain}
+.cp-tit .bandeira{height:.7em}
+.cp-conv-tit{display:flex;align-items:center;gap:6px}
+.cp-escudo{width:22px;height:22px;object-fit:contain}
+.cp-conv{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 14px}
+.cp-conv>b{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-right:4px}
+.cp-sel{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-size:13px;cursor:pointer}
+.cp-sel:hover{border-color:rgba(224,178,82,.5)}
+.cp-sel.me{border-color:#e0b252;background:rgba(224,178,82,.1)}
+.cp-grupos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cp-grupo{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px}
+.cp-g-tit{font-weight:700;font-size:13px}
+.cp-g-tit .dim{font-weight:400;font-size:11px;margin-left:4px}
+/* bandeira em imagem (assets/bandeiras), do tamanho da letra */
+img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -3972,6 +3988,22 @@ const COPA_SELECOES=[
   ['CO','COL','AMER'],['UA','UKR','EMEA'],['SA','KSA','EMEA'],['NL','NED','EMEA'],['HK','HKG','AP'],
   ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['MD','MDA','EMEA']
 ];
+/* formato da Copa: 8 grupos de 4 em MD3, os dois primeiros avançam; daí em
+   diante (oitavas, quartas, semis, disputa do bronze e final) tudo em MD5 */
+const COPA_GRUPOS=8, COPA_POR_GRUPO=4, COPA_AVANCAM=2;
+const COPA_MD_GRUPOS=3, COPA_MD_PLAYOFFS=5;
+
+/* ELIMINATÓRIAS (fim da temporada do ano ímpar)
+   Convidadas: a sede da Copa seguinte e as 15 melhores do ranking no dia
+   do sorteio. As outras 24 jogam as eliminatórias por 16 vagas:
+     · 8 grupos de 3, em MD3, todos contra todos; os dois primeiros vão à Copa;
+     · os grupos são continentais: cada continente divide as suas seleções
+       em grupos de 3, com cabeças de chave pelo ranking (potes);
+     · quem sobra num continente (1 ou 2) vai para o grupo intercontinental,
+       com as sobras dos outros — a soma das sobras sempre fecha grupos de 3.
+   Desempate: vitórias, saldo de mapas, saldo de rounds, confronto direto,
+   ranking. */
+const ELIM_POR_GRUPO=3, ELIM_AVANCAM=2, ELIM_MD=3;
 const COPA_CONTINENTES={AMER:'Américas',EMEA:'EMEA',AP:'Ásia-Pacífico'};
 /* convocação: 5 titulares e 5 reservas; abaixo de 7 o país não tem seleção */
 const SELECAO_TAMANHO=10, SELECAO_MINIMO=7;
@@ -12466,6 +12498,17 @@ const SEDES=[
   {nome:'Santiago',pais:'CL',tipo:'masters',maior:true},
   {nome:'Toronto',pais:'CA',tipo:'masters',maior:true},
   {nome:'Varsóvia',pais:'PL',tipo:'masters',maior:true}
+];
+
+/* Só sede da Valorant World Cup: país-sede da Copa (data/copa.js) que não
+   tem cidade no circuito. Ficam fora do sorteio de Masters, Champions e
+   regionais e fora do catálogo editável; a imagem segue a mesma regra
+   (assets/cidades/<slug>.webp). Os outros países-sede usam a maior cidade
+   que já têm no circuito: Tóquio, São Paulo, Nova York, Xangai… */
+const SEDES_COPA=[
+  {nome:'Moscou',pais:'RU',maior:true},
+  {nome:'Mumbai',pais:'IN',maior:true},
+  {nome:'Sydney',pais:'AU',maior:true}
 ];
 
 /* Sedes reais das duas temporadas antes da carreira: o sorteio de 2027 evita
@@ -27153,7 +27196,7 @@ function escalarClubeDoJogador(){
   _fixoValido(t);
   const p=meuJogador(), antes=(t.titulares||[]).includes(p.id);
   autoEscalar(t,ajusteDoTecnico(t));
-  if(typeof convocacao==='function')convocacao(p,t);
+  if(typeof chamadaInternacional==='function')chamadaInternacional(p,t);
   const agora=(t.titulares||[]).includes(p.id);
   if(antes!==agora&&typeof noticia==='function'){
     noticia(agora?`${p.nome} ganha a vaga no cinco do ${t.nome}.`:`${p.nome} perde a vaga e vai para o banco do ${t.nome}.`,{c:'clube',p:[p.id],t:[t.id]});
@@ -27550,7 +27593,7 @@ function interesseDoClube(t,p){
   if(t.tier===1&&over(p)<74)return -99;
   return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20);
 }
-function clubesInteressados(p,n){
+function clubesInteressadosJogador(p,n){
   return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
@@ -27590,7 +27633,7 @@ function gerarPropostasSemana(p){
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
-      const c=clubesInteressados(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressados(p,4).length))];
+      const c=clubesInteressadosJogador(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressadosJogador(p,4).length))];
       if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
         /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
         if(emp>=3||over(p)>=_piorTitularDaFuncao(c.t,p)+3)_novaProposta('livre',c.t,p);
@@ -27603,7 +27646,7 @@ function gerarPropostasSemana(p){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
     if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=clubesInteressados(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressados(p,5).length))];
+      const c=clubesInteressadosJogador(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressadosJogador(p,5).length))];
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -27657,7 +27700,7 @@ function negociarProposta(id,ped){
   return{ok:true,fim:'recusa',msg:`${t.nome} achou o pedido alto demais. ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.`};
 }
 function _retirar(pr){G.voce.propostas=propostasJogador().filter(x=>x!==pr);}
-function recusarProposta(id){
+function recusarPropostaJogador(id){
   const pr=propostasJogador().find(x=>x.id===id);
   if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
   _retirar(pr);
@@ -27682,7 +27725,7 @@ function _aplicarContrato(p,pr){
   p.clausulas={titular:!!pr.titular,bonusTitulo:pr.bonusTitulo||0};
   G.voce.semBanco=0;
 }
-function aceitarProposta(id){
+function aceitarPropostaJogador(id){
   const pr=propostasJogador().find(x=>x.id===id);
   if(!pr)return{ok:false,motivo:'Essa proposta não existe mais.'};
   if(pr.tipo==='teste')return{ok:false,motivo:'Faça o teste primeiro.'};
@@ -27817,7 +27860,7 @@ function viradaContratoJogador(p){
   const t=G.times[p.timeId];
   const renov=propostasJogador().find(x=>x.tipo==='renovacao'&&x.clubeId===t.id);
   if(renov&&G.voce.autoContrato!==false){
-    aceitarProposta(renov.id);
+    aceitarPropostaJogador(renov.id);
     if(typeof noticia==='function')noticia(`O assistente aceitou a renovação de ${p.nome} com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
     return true;
   }
@@ -27840,11 +27883,11 @@ function assistenteDeContrato(p){
     const tr=lista.filter(x=>x.tipo==='transferencia'&&_sAbs()-x.criada>=1)
       .map(x=>({x,t:G.times[x.clubeId]})).filter(o=>o.t&&over(p)>=_piorTitularDaFuncao(o.t,p))
       .sort((a,b)=>(a.t.tier-b.t.tier)||(b.t.prestigio-a.t.prestigio))[0];
-    if(tr){const r=aceitarProposta(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
+    if(tr){const r=aceitarPropostaJogador(tr.x.id);if(r.ok&&typeof noticia==='function')noticia(`O assistente fechou a saída de ${p.nome} do banco: ${r.msg}`,{c:'mercado',p:[p.id]});}
     return;
   }
   const livre=lista.filter(x=>x.tipo==='livre').sort((a,b)=>b.salario-a.salario)[0];
-  if(livre&&_sAbs()-livre.criada>=2){aceitarProposta(livre.id);return;}
+  if(livre&&_sAbs()-livre.criada>=2){aceitarPropostaJogador(livre.id);return;}
   const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);
   if(teste)simularTeste(teste.id);
 }
@@ -28229,7 +28272,7 @@ function legadoSemana(p,t,rel){
   }
 }
 /* Masters e Champions: chamado no começo da semana, depois da escalação */
-function convocacao(p,t){
+function chamadaInternacional(p,t){
   if(!G.voce||!p||!t)return;
   const c=typeof compromissoDaSemana==='function'?compromissoDaSemana():null;
   if(!c||!c.stage||!/masters|champions|lock|internacional/i.test(c.stage.nome||''))return;
@@ -28387,7 +28430,16 @@ function _cincoDoPais(lista){
   const falso={elenco:el.map(p=>p.id),titulares:[]};
   return (typeof melhorEscalacao==='function'?melhorEscalacao(falso):null)||el.slice(0,5).map(p=>p.id);
 }
+/* a convocação da semana fica guardada: a tela da Copa pede as 40 várias
+   vezes e cada uma passa pela conta da escalação */
+let _convSemana={g:null,chave:'',mapa:{}};
 function convocacao(pais){
+  const chave=G.ano+'|'+G.semana+'|'+G.seqP;
+  if(_convSemana.g!==G||_convSemana.chave!==chave)_convSemana={g:G,chave,mapa:{}};
+  if(!(pais in _convSemana.mapa))_convSemana.mapa[pais]=_convocacao(pais);
+  return _convSemana.mapa[pais];
+}
+function _convocacao(pais){
   const todos=convocaveis(pais).filter(p=>!p.lesao);
   if(todos.length<SELECAO_MINIMO)return null;
   const titulares=_cincoDoPais(todos);
@@ -28442,6 +28494,47 @@ function sedeDoAno(ano){
   return{pais,nome,edicao:edicaoDoAno(ano),ano};
 }
 
+/* ---------- convidadas e eliminatórias ----------
+   As duas contas usam o ranking do momento: chamadas no dia do sorteio
+   (fim do ano ímpar), o resultado fica gravado na edição (C2); chamadas
+   antes disso, mostram como seria se o sorteio fosse hoje. */
+function convidadasDaCopa(ano){
+  ano=proximaCopa(ano);
+  const sede=sedeDoAno(ano).pais, rk=rankingPaises().filter(x=>convocacao(x.pais));
+  const l=[sede];
+  for(const x of rk){if(l.length>=COPA_CONVITES)break;if(x.pais!==sede)l.push(x.pais);}
+  return l;
+}
+/* os grupos das eliminatórias: por continente, potes pelo ranking, sorteio
+   local (a mesma carreira sorteia sempre os mesmos grupos e o mundo não muda) */
+function gruposEliminatorias(ano){
+  ano=proximaCopa(ano);
+  const conv=new Set(convidadasDaCopa(ano)), rk=rankingPaises();
+  const fila=rk.filter(x=>!conv.has(x.pais)&&convocacao(x.pais));
+  const tam=ELIM_POR_GRUPO;
+  return comSorteioLocal('elim|'+(G.seed||0)+'|'+ano,()=>{
+    const embaralha=l=>{l=l.slice();for(let i=l.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[l[i],l[j]]=[l[j],l[i]];}return l;};
+    /* potes: as melhores de cada fatia de tamanho g vão uma para cada grupo */
+    const montar=(lista,nome)=>{
+      const g=Math.floor(lista.length/tam);if(!g)return [];
+      const gs=Array.from({length:g},()=>[]);
+      for(let p=0;p<tam;p++)embaralha(lista.slice(p*g,p*g+g)).forEach((x,i)=>gs[i].push(x.pais));
+      lista.slice(g*tam).forEach((x,i)=>gs[gs.length-1-(i%g)].push(x.pais));   /* só se faltar seleção */
+      return gs.map(paises=>({cont:nome,paises}));
+    };
+    const grupos=[], sobras=[];
+    for(const cont of Object.keys(COPA_CONTINENTES)){
+      const l=fila.filter(x=>x.cont===cont);
+      const n=Math.floor(l.length/tam)*tam;
+      grupos.push(...montar(l.slice(0,n),cont));
+      sobras.push(...l.slice(n));      /* as mais fracas do continente */
+    }
+    sobras.sort((a,b)=>b.pts-a.pts);
+    grupos.push(...montar(sobras,'INTER'));
+    return grupos.map((x,i)=>Object.assign(x,{letra:String.fromCharCode(65+i)}));
+  });
+}
+
 /* ---------- nacionalidade dos agentes livres gerados ----------
    Chamado na criação do mundo, depois dos agentes livres, e em saves
    antigos na primeira vez que a Copa é aberta. Só mexe em gerado sem
@@ -28453,19 +28546,24 @@ function orientarNacionalidadesCopa(){
   const falta=[];
   for(const pais of paisesDaCopa()){const f=SELECAO_MINIMO-(conta[pais]||0);for(let i=0;i<f;i++)falta.push(pais);}
   if(!falta.length)return 0;
-  /* doadores: gerados sem clube, de países com folga (ou fora das 40), na
-     ordem de criação (estável) */
+  /* doadores: gerados sem clube. A cada vaga, sai o doador do país que está
+     com mais gente (empate: ordem de criação), e ninguém deixa o próprio
+     país abaixo de 7 — a conta é estável e não usa o gerador do mundo. */
   const naCopa=new Set(paisesDaCopa());
   const doadores=(G.livres||[]).map(i=>G.jogadores[i])
     .filter(p=>p&&!p.real&&!p.timeId&&!p.base&&!p.voce)
     .sort((a,b)=>(+String(a.id).slice(1))-(+String(b.id).slice(1)));
   const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
   let feitos=0;
-  for(const p of doadores){
-    if(!falta.length)break;
-    const de=p.pais;
-    if(naCopa.has(de)&&(conta[de]||0)<=SELECAO_MINIMO+2)continue;   /* não desfalca quem está no limite */
-    const para=falta.shift();
+  while(falta.length){
+    let p=null;
+    for(const d of doadores){
+      if(naCopa.has(d.pais)&&(conta[d.pais]||0)<=SELECAO_MINIMO)continue;
+      if(!p||(naCopa.has(p.pais)&&(!naCopa.has(d.pais)||(conta[d.pais]||0)>(conta[p.pais]||0))))p=d;
+    }
+    if(!p)break;
+    doadores.splice(doadores.indexOf(p),1);
+    const de=p.pais, para=falta.shift();
     conta[de]=(conta[de]||0)-1;conta[para]=(conta[para]||0)+1;
     p.pais=para;
     /* nick com o sotaque do país novo, de um sorteio local (o mundo não muda) */
@@ -28477,6 +28575,7 @@ function orientarNacionalidadesCopa(){
     if(R)p.regiaoOrigem=R.id;
     feitos++;
   }
+  if(feitos)_convSemana={g:null,chave:'',mapa:{}};
   return feitos;
 }
 
@@ -29038,6 +29137,14 @@ function montarCidades(){
 function cidades(){
   if(G&&Array.isArray(G.cidades)&&G.cidades.length)return G.cidades;
   return SEDES.map(c=>Object.assign({slug:slugCidade(c.nome)},c));
+}
+/* a cidade da World Cup num país-sede: a só-da-Copa (data/sedes.js) ou a
+   maior do país no circuito, de preferência uma de Champions */
+function cidadeDaCopa(pais){
+  const so=(typeof SEDES_COPA!=='undefined'?SEDES_COPA:[]).find(c=>c.pais===pais);
+  if(so)return Object.assign({slug:slugCidade(so.nome),tipo:'copa'},so);
+  const l=cidades().filter(c=>c.pais===pais);
+  return l.find(c=>c.maior&&c.tipo==='champions')||l.find(c=>c.maior)||l.find(c=>c.tipo==='champions')||l[0]||null;
 }
 function cidade(slug){return slug?cidades().find(c=>c.slug===slug)||null:null;}
 
@@ -30675,6 +30782,20 @@ const ASSETS={
     if(!M||!Object.keys(M).length)return this.arq(dir,nome);
     return M[dir+'/'+this.slug(nome)]?this.arq(dir,nome):'';
   },
+  /* true só quando o manifesto (data/midia.js) lista o arquivo */
+  tem(dir,nome){
+    const M=typeof MIDIA!=='undefined'&&MIDIA.arquivos?MIDIA.arquivos:null;
+    return !!(M&&M[dir+'/'+this.slug(nome)]);
+  },
+  /* bandeira nacional: assets/bandeiras/<código ISO>.png (br, kr, gb-eng…) */
+  bandeira(cod){return this.tem('bandeiras',cod)?this.arq('bandeiras',cod):'';},
+  /* escudo da seleção: assets/logo-selecoes/<sigla>.png (bra, kor…) */
+  logoSelecao(pais){
+    const x=typeof COPA_SELECOES!=='undefined'?COPA_SELECOES.find(s=>s[0]===pais):null;
+    return x&&this.tem('logo-selecoes',x[1])?this.arq('logo-selecoes',x[1]):'';
+  },
+  /* arte da World Cup: assets/copa/ (logo, trofeu, sede-japao…) */
+  copa(nome){return this.tem('copa',nome)?this.arq('copa',nome):'';},
   slug(s){
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
@@ -32158,12 +32279,24 @@ function selectPais(attrs,atual){
   const fora=cod&&!PAISES[cod]
     ? `<option value="${esc(cod)}" selected>🏳 ${esc(cod)} — fora da lista</option>` : '';
   return `<select ${attrs||''}>${fora}`+LISTA_PAISES.map(c=>
-    `<option value="${c}" ${c===cod?'selected':''}>${FLAG[c]||''} ${esc(PAISES[c])} · ${c}</option>`
+    `<option value="${c}" ${c===cod?'selected':''}>${emojiBandeira(c)} ${esc(PAISES[c])} · ${c}</option>`
   ).join('')+`</select>`;
 }
+/* a bandeira em emoji, montada das duas letras (serve para qualquer país) */
+function emojiBandeira(cod){
+  const c=String(cod||'').toUpperCase();
+  if(FLAG[c])return FLAG[c];
+  return /^[A-Z]{2}$/.test(c)?String.fromCodePoint(...[...c].map(ch=>0x1F1E6+ch.charCodeAt(0)-65)):'🏳';
+}
+/* A bandeira: a imagem de assets/bandeiras quando ela existe, senão o emoji.
+   No Windows o emoji de bandeira vira duas letras, por isso a imagem. */
 function bandeira(cod){
   const c=String(cod||'').toUpperCase();
-  return `<span title="${esc(PAISES[c]||c)}">${FLAG[c]||'🏳'}</span>`;
+  if(!c)return '';
+  const tit=esc(PAISES[c]||c);
+  const src=typeof ASSETS!=='undefined'&&ASSETS.bandeira?ASSETS.bandeira(c):'';
+  return src?`<img class="bandeira" src="${src}" alt="${tit}" title="${tit}" loading="lazy">`
+    :`<span class="bandeira-e" title="${tit}">${emojiBandeira(c)}</span>`;
 }
 function nomePais(cod){const c=String(cod||'').toUpperCase();return PAISES[c]||c;}
 
@@ -33447,7 +33580,7 @@ function linhaElenco(t,p,titular,maxSal){
   const vence=p.contrato<=1;
   return `<tr class="${titular?'':'el-res'}">
     <td><span class="tag ${p.roleAtual||p.role}">${(p.roleAtual||p.role).slice(0,3)}</span></td>
-    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${bandeira(p.pais)}
       ${p.igl?'<span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão '+p.lesao+'</span>':''}
       <div class="dim el-sub">${p.idade}a · pot ${p.pot}</div></td>
     <td class="c">${ovTag(p)}</td>
@@ -33647,7 +33780,7 @@ function vComps(){
     /* fora da função, mas dominado: não é desvio, e a tela diz por quê */
     const dominado=!foraDaFuncao&&fun!==(p.roleAtual||p.role)&&fun!=='Flex'&&(p.roleAtual||p.role)!=='Flex';
     return `<tr>
-      <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      <td><span class="merc-j">${retrato(p,32)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}
         <div class="dim" style="font-size:11px">${esc(p.roleAtual||p.role)}</div></span></span></td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
       <td><div class="cmp-ag">${retratoAgente(ag,40)}<div>
@@ -33806,7 +33939,7 @@ function rodapeMVP(s){
     <div class="mvp-sel">${r.p.aposentado?'':retrato(r.p,44)}</div>
     <div>
       <div class="eyebrow gold">Melhor jogador do torneio</div>
-      <div class="mvp-nome">${esc(r.p.nome)} ${FLAG[r.p.pais]||''}
+      <div class="mvp-nome">${esc(r.p.nome)} ${bandeira(r.p.pais)}
         <span class="dim">${r.time?esc(r.time.tag):''} · ${esc(r.p.role)}${
           r.p.aposentado?' · já aposentado':''}</span></div>
       <div class="dim">${r.acs} de ACS · ${r.kd} de K/D · melhor em quadra ${r.mvps}×
@@ -33958,7 +34091,7 @@ function vTreino(){
     const gap=Math.max(0,(p.pot||0)-over(p));
     const meusAg=agentesDoJogador(p);
     return `<tr class="${plano.tipo==='descanso'?'descansa':''}">
-      <td>${retrato(p,26)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}
+      <td>${retrato(p,26)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)}
         ${t.titulares.includes(p.id)?'<span class="chip">titular</span>':''}
         ${p.lesao?'<span class="chip r">'+p.lesao+' sem. fora</span>':''}</td>
       <td class="c">${p.idade}</td>
@@ -34164,7 +34297,7 @@ function vMercadoSaidas(t){
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th>Função</th><th class="c">Idade</th>
       <th class="c">Over</th><th class="c">Pot</th><th class="r">Vale</th><th>Situação</th><th></th></tr></thead>
     <tbody>${t.elenco.map(P).sort((a,b)=>over(b)-over(a)).map(p=>`<tr>
-      <td><span class="merc-j">${retrato(p,28)}<span><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b> ${FLAG[p.pais]||''}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</span></span></td>
+      <td><span class="merc-j">${retrato(p,28)}<span><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b> ${bandeira(p.pais)}${t.titulares.includes(p.id)?' <span class="chip">titular</span>':''}</span></span></td>
       <td><span class="tag ${p.role}">${esc(p.role)}</span></td>
       <td class="c num">${p.idade}</td>
       <td class="c"><span class="ov ${ovClass(over(p))}">${over(p)}</span></td>
@@ -34305,7 +34438,7 @@ function vMercadoJogadores(t){
   <div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
     <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>{const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id);
-      return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</span></span></td>
+      return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
       <td>${c?`<span class="linha-t">${escudo(c,20)}<span class="dim">${esc(c.nome)}</span></span>`:'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
@@ -34347,7 +34480,7 @@ function blocoRadar(t){
     return `<div class="rd-c rd-${c.estado}">
       <span class="rd-pos num">${i+1}</span>
       ${seloRank(c.rank,38)}
-      <div class="rd-id"><b>${esc(c.nome)}</b> ${FLAG[c.pais]||''} <span class="tag ${c.role}">${c.role}</span>
+      <div class="rd-id"><b>${esc(c.nome)}</b> ${bandeira(c.pais)} <span class="tag ${c.role}">${c.role}</span>
         <div class="dim">${esc(c.rank)} · ${retratoAgente(c.agente,18)} ${esc(c.agente)} · ~${c.idade} anos · ${c.partidas+c.obs*12} partidas vistas</div></div>
       <div class="rd-leit"><div class="rd-barra" style="--cor:${corO}"><i style="width:${Math.round(L.p*100)}%"></i></div>
         <span class="dim">${'leitura '+Math.round(L.p*100)+'% · '+c.obs+' sem.'}</span></div>
@@ -34362,7 +34495,7 @@ function blocoRadar(t){
     return `<div class="rd-teste ${c.estado}">
       ${seloRank(c.rank,64)}
       <div class="rd-t-id"><span class="eyebrow">${c.estado==='teste'?'Em teste nesta semana':'Teste encerrado · decida'}</span>
-        <b>${esc(c.nome)} ${FLAG[c.pais]||''}</b>
+        <b>${esc(c.nome)} ${bandeira(c.pais)}</b>
         <div class="dim">${esc(c.rank)} · ${c.role} · ~${c.idade} anos · main ${esc(c.agente)}</div></div>
       <div class="rd-t-nums"><div><span>Over</span><b class="num">${faixa(L.ov[0],L.ov[1])}</b></div>
         <div><span>Potencial</span><b class="num" style="color:var(--gold)">${faixa(L.pot[0],L.pot[1])}</b></div></div>
@@ -34376,7 +34509,7 @@ function blocoRadar(t){
     Conta que ninguém chama some em ${RADAR_VIDA} semanas, e os rivais também estão olhando.`,'Como o radar funciona')}
     ${destaque.map(cartaoTeste).join('')}
     ${ladder.length?`<div class="rd-lista">${ladder.map(linha).join('')}</div>`:destaque.length?'':'<div class="empty">O olheiro ainda não marcou nenhuma conta. Elas aparecem ao longo das semanas.</div>'}
-    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${FLAG[h.pais]||''} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
+    ${(R.hist||[]).length?`<div class="rd-hist">${R.hist.slice(0,5).map(h=>`<span><b>${esc(h.nome)}</b> ${bandeira(h.pais)} ${esc(h.txt)} <span class="dim">· ${h.ano} S${h.s}</span></span>`).join('')}</div>`:''}
   </div>`;
 }
 function vBase(){
@@ -34411,14 +34544,14 @@ function vBase(){
     ${jovens.length?`<table class="tb ordenavel"><thead>${THJ}</thead><tbody>${jovens.map(p=>linhaJog(p)).join('')}</tbody></table>`:'<div class="empty">Nenhum jogador com 22 anos ou menos.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Revelados pela casa</div>
     ${casa.length?`<table><thead><tr><th>Jogador</th><th>Clube hoje</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th></tr></thead>
-    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+    <tbody>${casa.map(p=>`<tr class="jrow ${p.timeId===t.id?'me':''}" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num">${p.pot}</td></tr>`).join('')}</tbody></table>`
     :'<div class="empty">Ninguém saiu da sua base ainda.</div>'}</div>
   <div class="card flat"><div class="eyebrow">Radar mundial de talentos (sub-19)</div>
     <table><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th></tr></thead>
-    <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</td>
+    <tbody>${prom.map(p=>`<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</td>
       <td class="dim">${p.timeId?esc(nomeT(p.timeId)):'<span class="chip t">Livre</span>'}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num" style="color:var(--gold);font-weight:700">${p.pot}</td>
@@ -38570,7 +38703,7 @@ function chipsFiltro(attr,atual,ops){
 function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
 function linhaJogadorMini(p,valor,i,extra){
   return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
-    <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
+    <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
     ${extra||''}<td class="r num"><b>${valor}</b></td></tr>`;
 }
 
@@ -38639,7 +38772,7 @@ function mundoLideres(){
     return `<div class="card flat lid-card"><div class="eyebrow">${rot}</div>
       ${p1?`<div class="lid-top jrow" data-p="${p1.id}" style="--clube:${p1.timeId?corDoClube(G.times[p1.timeId]):'#8A96A3'}">
         <span class="lid-foto">${retrato(p1,72)}</span>
-        <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${FLAG[p1.pais]||''}
+        <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${bandeira(p1.pais)}
           <div class="dim">${p1.timeId?escudo(G.times[p1.timeId],16)+' '+esc(tagT(p1.timeId)):'livre'} · ${esc(p1.role)}</div></div>
         <b class="lid-v num">${fmt(f(p1))}</b></div>`:''}
       <table><tbody>${top.slice(1).map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i+1)).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
@@ -38806,7 +38939,7 @@ function cartaPremiado(f,w){
 function nomePremiado(f){
   if(!f)return '—';
   const vivo=!!P(f.id);
-  return `<span class="${vivo?'jrow pr-link':''}" ${vivo?`data-p="${f.id}"`:''}>${esc(f.nome)}</span> ${FLAG[f.pais]||''}`;
+  return `<span class="${vivo?'jrow pr-link':''}" ${vivo?`data-p="${f.id}"`:''}>${esc(f.nome)}</span> ${bandeira(f.pais)}`;
 }
 function barraRegua(rot,v,cls){
   if(v==null)return '';
@@ -38910,7 +39043,7 @@ function vPremios(){
       const base={id:'lenda-'+l.nome,nome:l.nome,role:l.role,pais:l.pais,timeId:null};
       return `<div class="hf-carta" title="${esc(l.premios.map(x=>x.ano+' '+x.rot).join('\n'))}">
         ${cartaJogador(base,{w:128,o:l.pico})}
-        <b>${esc(l.nome)} ${FLAG[l.pais]||''}</b>
+        <b>${esc(l.nome)} ${bandeira(l.pais)}</b>
         <span class="dim">${esc(l.role)} · aposentou em ${l.ano} (${l.idade}a)</span>
         <div class="hf-nums"><span><b class="num">${l.carreira.titulos}</b>títulos</span><span><b class="num">${l.carreira.intl}</b>intern.</span>
           <span><b class="num">${l.premios.length}</b>prêmios</span><span><b class="num">${l.carreira.kd.toFixed(2)}</b>K/D</span></div>
@@ -39411,7 +39544,7 @@ function cartaoFicha(f,rot,trof,extra){
   return `<div class="cer-premio">
     ${trof?imgTrofeu(trof,64,rot):''}
     <div class="cer-p-carta">${cartaPremiado(f,170)}</div>
-    <div class="cer-p-nome">${esc(f.nome)} ${FLAG[f.pais]||''}</div>
+    <div class="cer-p-nome">${esc(f.nome)} ${bandeira(f.pais)}</div>
     <div class="dim">${esc(f.tag)} · ${f.role}${f.maps?` · ${f.maps} mapas · ${f.acs} de ACS · ${Number(f.kd).toFixed(2)} K/D`:''}</div>
     ${extra||''}</div>`;
 }
@@ -39484,7 +39617,7 @@ function telasDaCerimonia(reg,c){
       ${imgTrofeu(arquivoTrofeuPremio('mvp'),90,'MVP do ano')}
       <div class="cer-mvp-carta">${(()=>{const p=P(m.id);const base=p||{id:m.id,nome:m.nome,role:m.role,timeId:m.timeId,pais:m.pais};
         return cartaJogador(base,{w:230,o:m.ov||(p?over(p):70),anima:true});})()}</div>
-      <div class="cer-mvp-info"><div class="cer-p-nome" style="font-size:44px">${esc(m.nome)} ${FLAG[m.pais]||''}</div>
+      <div class="cer-mvp-info"><div class="cer-p-nome" style="font-size:44px">${esc(m.nome)} ${bandeira(m.pais)}</div>
         <div class="dim">${esc(m.tag)} · ${m.role}</div>
         <div class="pr-nums" style="grid-template-columns:repeat(2,1fr)">${[['Mapas',m.maps],['ACS',m.acs],['K/D',Number(m.kd).toFixed(2)],['MVPs de mapa',m.mvps!=null?m.mvps:'—']]
           .map(([k,v])=>`<div><span>${k}</span><b class="num">${v}</b></div>`).join('')}</div>
@@ -39496,9 +39629,9 @@ function telasDaCerimonia(reg,c){
   if((c.despedidas||[]).length||(c.hall||[]).length){
     const dest=d=>d.destino==='dono'?'compra o '+esc(d.clube||'clube'):d.destino?esc(ROT_DESTINO[d.destino]||d.destino):'sai de cena';
     T.push({rot:'Despedidas',fundo:'despedida',html:`<div class="cer-tit"><div class="eyebrow">Despedidas · ${c.ano}</div><h2>Quem pendurou o mouse</h2></div>
-      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${FLAG[h.pais]||''}`).join(', ')}</div>`:''}
+      ${(c.hall||[]).length?`<div class="cer-hall">${icone('coluna','ouro')} Entram no Hall da Fama: ${c.hall.map(h=>`<b>${esc(h.nome)}</b> ${bandeira(h.pais)}`).join(', ')}</div>`:''}
       <div class="cer-desp">${(c.despedidas||[]).map(d=>`<div class="${d.meu?'me':''}">
-        <b>${esc(d.nome)}</b> ${FLAG[d.pais]||''} <span class="tag ${d.role}">${d.role}</span>
+        <b>${esc(d.nome)}</b> ${bandeira(d.pais)} <span class="tag ${d.role}">${d.role}</span>
         <span class="dim">${d.idade} anos · ${esc(d.tag)} · ${d.titulos} título${d.titulos===1?'':'s'}${d.intl?' · '+d.intl+' internacional'+(d.intl===1?'':'is'):''}</span>
         <em>${dest(d)}</em></div>`).join('')}</div>`});
   }
@@ -41294,7 +41427,7 @@ function vMercadoPedidos(t){
       ${rs.length?`<table class="wide merc-tab pd-tab"><thead><tr><th>Jogador</th><th>Quem oferece</th><th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th>
         <th class="c">Interesse</th><th class="r">Taxa</th><th class="r">Salário</th><th>Olheiro</th><th></th></tr></thead><tbody>
         ${rs.map(({r,p})=>{const c=p.timeId?T(p.timeId):null;
-          return `<tr class="jrow ${r.recomendado?'pd-rec':''}" data-p="${p.id}"><td><span class="merc-j">${retrato(p,28)}<span><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}</span></span></td>
+          return `<tr class="jrow ${r.recomendado?'pd-rec':''}" data-p="${p.id}"><td><span class="merc-j">${retrato(p,28)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
           <td>${c?`<span class="linha-t">${escudo(c,18)}<span class="dim">${esc(c.nome)}</span></span>`:'<span class="dim">empresário · livre</span>'}</td>
           <td class="c num">${p.idade}</td><td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
           <td class="c">${interesseMini(p,t)}</td>
@@ -43061,7 +43194,7 @@ function modalNegociar(id){
     const resp=$('#mjResp');resp.textContent=r.ok?r.msg:r.motivo;resp.className='mj-resp '+(r.fim==='acordo'?'up':r.fim==='retirada'?'dn':'');
     if(r.fim==='acordo'||r.fim==='retirada'){
       $('#mjEnviar').textContent=r.fim==='acordo'?'Assinar':'Ok';
-      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarProposta(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
+      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
     }else if(r.fim==='contra'){const pr2=propostasJogador().find(x=>x.id===id);if(pr2)$('#mjSal').value=pr2.salario;}
   };
 }
@@ -43110,8 +43243,8 @@ function vJFinancas(){
 
 function ligarMercadoJogador(v,on){
   const depois=r=>{flash(r.ok?(r.msg||'Feito.'):r.motivo);render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
-  on('[data-mjaceitar]',el=>depois(aceitarProposta(el.dataset.mjaceitar)));
-  on('[data-mjrecusar]',el=>depois(recusarProposta(el.dataset.mjrecusar)));
+  on('[data-mjaceitar]',el=>depois(aceitarPropostaJogador(el.dataset.mjaceitar)));
+  on('[data-mjrecusar]',el=>depois(recusarPropostaJogador(el.dataset.mjrecusar)));
   on('[data-mjneg]',el=>modalNegociar(el.dataset.mjneg));
   on('[data-mjteste]',el=>jogarTeste(el.dataset.mjteste));
   on('[data-mjtestesim]',el=>depois(simularTeste(el.dataset.mjtestesim)));
@@ -43294,12 +43427,14 @@ function vCopa(){
   const elimAno=ano-1;
   const fase=G.ano<elimAno?`Eliminatórias no fim de ${elimAno}`:G.ano===elimAno?'Eliminatórias no fim desta temporada':'A Copa é no fim desta temporada';
   const sel=copaVer&&infoSelecao(copaVer)?copaVer:(meuPais&&infoSelecao(meuPais)?meuPais:rk[0].pais);
+  const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(s.pais):null;
+  const logo=ASSETS.copa('sede-'+ASSETS.slug(s.nome))||ASSETS.copa('logo'), taca=ASSETS.copa('trofeu');
   return `<section class="card cp-hero">
       <div class="cp-hero-in">
-        <div class="cp-trofeu" aria-hidden="true">${typeof ico==='function'?ico('trofeu'):''}</div>
+        <div class="cp-trofeu${logo||taca?' img':''}" aria-hidden="true">${logo||taca?`<img src="${logo||taca}" alt="">`:typeof ico==='function'?ico('trofeu'):''}</div>
         <div><div class="eyebrow">Valorant World Cup · ${s.edicao}ª edição</div>
-          <h1 class="cp-tit">${esc(s.nome)} ${ano}</h1>
-          <p class="dim">${esc(fase)}. 32 seleções: 16 convidadas pelo ranking e 16 das eliminatórias, em 8 grupos de 4; os dois primeiros de cada grupo avançam.</p></div>
+          <h1 class="cp-tit">${bandeira(s.pais)} ${esc(s.nome)} ${ano}</h1>
+          <p class="dim">${esc(fase)}${cid?`. A final é em ${esc(cid.nome)}`:''}. 32 seleções: 16 convidadas e 16 das eliminatórias, em 8 grupos de 4 (MD3); os dois primeiros avançam e o mata-mata é todo em MD5.</p></div>
         <div class="cp-conta"><b class="num">${falta}</b><span>semana${falta===1?'':'s'} para a final</span></div>
       </div></section>
     <div class="grid g2 cx-linha">
@@ -43310,7 +43445,19 @@ function vCopa(){
           <td class="num">${forcaSelecao(x.pais)}</td><td class="num">${x.pts}</td></tr>`).join('')}</tbody></table>
         <p class="dim">Hoje, as ${COPA_CONVITES} primeiras seriam convidadas (a sede entra sempre). O ranking nasce da força do melhor cinco de cada país e, a partir da primeira Copa, anda com os resultados.</p></div>
       ${cardConvocacao(sel)}
-    </div>`;
+    </div>
+    ${cardEliminatorias(ano,sel)}`;
+}
+/* convidadas e grupos das eliminatórias, como seriam se o sorteio fosse hoje */
+function cardEliminatorias(ano,sel){
+  const conv=convidadasDaCopa(ano), grupos=gruposEliminatorias(ano);
+  const nome=p=>{const i=infoSelecao(p);return `<span class="cp-sel${p===sel?' me':''}" data-copapais="${p}">${bandeira(p)} ${esc(i?i.nome:p)}</span>`;};
+  const sorteado=G.ano>=ano-1&&G.semana>=49;
+  return `<div class="card cx-linha"><div class="eyebrow">${sorteado?'Convidadas e eliminatórias':'Se o sorteio fosse hoje'}</div>
+    <p class="dim">A sede e as 15 melhores do ranking vão direto. As outras 24 jogam as eliminatórias no fim de ${ano-1}: 8 grupos de 3 por continente, em MD3; os dois primeiros de cada grupo vão à Copa.</p>
+    <div class="cp-conv"><b>Convidadas</b> ${conv.map(nome).join('')}</div>
+    <div class="cp-grupos">${grupos.map(g=>`<div class="cp-grupo"><div class="cp-g-tit">Grupo ${g.letra} <span class="dim">${g.cont==='INTER'?'Intercontinental':esc(COPA_CONTINENTES[g.cont])}</span></div>
+      ${g.paises.map(nome).join('')}</div>`).join('')}</div></div>`;
 }
 function cardConvocacao(pais){
   const info=infoSelecao(pais), c=convocacao(pais);
@@ -43318,7 +43465,8 @@ function cardConvocacao(pais){
   const linha=(id,tit)=>{const p=G.jogadores[id];if(!p)return '';const t=p.timeId&&G.times[p.timeId];
     return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b>${p.voce?' <span class="chip up">você</span>':''}${p.real?'':' <span class="dim">gerado</span>'}</td>
       <td>${esc(p.role)}</td><td class="num">${over(p)}</td><td>${t?esc(t.tag||t.nome):p.base?'base':'sem clube'}</td><td>${tit?'<span class="chip up">titular</span>':''}</td></tr>`;};
-  return `<div class="card"><div class="eyebrow">${bandeira(pais)} ${esc(info.nome)} · convocação</div>
+  const esc0=ASSETS.logoSelecao(pais);
+  return `<div class="card"><div class="eyebrow cp-conv-tit">${esc0?`<img class="cp-escudo" src="${esc0}" alt="">`:''}${bandeira(pais)} ${esc(info.nome)} · convocação</div>
     ${c?`<table class="tbl"><thead><tr><th>Jogador</th><th>Função</th><th>Over</th><th>Clube</th><th></th></tr></thead><tbody>
       ${c.titulares.map(i=>linha(i,true)).join('')}${c.reservas.map(i=>linha(i,false)).join('')}</tbody></table>
       <p class="dim">${convocaveis(pais).length} convocáveis no mundo hoje. O cinco é o melhor possível pela mesma conta da escalação dos clubes; os reservas são os melhores que sobram.</p>`
@@ -43391,7 +43539,7 @@ function edvTimes(){
     const p=P(id),tit=t.titulares.includes(id);
     return `<tr class="${tit?'me':''}">
       <td>${retrato(p,30)}</td>
-      <td><b>${esc(p.nome)}</b> ${FLAG[p.pais]||''}${tit?' <span class="chip">Titular</span>':''}${p.igl?' <span class="pill">IGL</span>':''}</td>
+      <td><b>${esc(p.nome)}</b> ${bandeira(p.pais)}${tit?' <span class="chip">Titular</span>':''}${p.igl?' <span class="pill">IGL</span>':''}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td>
@@ -43527,7 +43675,7 @@ function edvJogadores(){
       <td>${edChip(p)}</td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
-      <td class="c">${FLAG[p.pais]||''} <span class="dim num">${esc(p.pais)}</span></td>
+      <td class="c">${bandeira(p.pais)} <span class="dim num">${esc(p.pais)}</span></td>
       <td class="c">${ovTag(p)}</td>
       <td class="c num dim">${p.pot}</td>
       <td class="r num">${money(p.valor)}</td>
@@ -43564,7 +43712,7 @@ function edvLivres(){
       <td><b>${esc(p.nome)}</b></td>
       <td><span class="tag ${p.role}">${p.role}</span></td>
       <td class="c num">${p.idade}</td>
-      <td class="c">${FLAG[p.pais]||''}</td>
+      <td class="c">${bandeira(p.pais)}</td>
       <td class="c">${ovTag(p)}</td>
       <td class="c num dim">${p.pot}</td>
       <td class="r num">${money(p.salario)}</td>
@@ -44926,7 +45074,7 @@ function ligarEventos(){
       <table><thead><tr><th>Nick</th><th>Nome real</th><th class="c">País</th></tr></thead>
       <tbody>${r.jogadores.map(j=>`<tr><td><b>${esc(j.nick)}</b></td>
         <td class="dim">${esc(j.nome)||'—'}</td>
-        <td class="c">${j.pais?(FLAG[j.pais]||'')+' '+esc(j.pais):'<span class="dn">—</span>'}</td></tr>`).join('')}
+        <td class="c">${j.pais?bandeira(j.pais)+' '+esc(j.pais):'<span class="dn">—</span>'}</td></tr>`).join('')}
       </tbody></table>
       ${r.staff.length?`<div class="eyebrow" style="margin-top:12px">Separados como comissão</div>
         <table><tbody>${r.staff.map(s2=>`<tr><td><b>${esc(s2.nick)}</b></td>

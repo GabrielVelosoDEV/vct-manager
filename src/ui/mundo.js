@@ -12,7 +12,7 @@ function chipsFiltro(attr,atual,ops){
 function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
 function linhaJogadorMini(p,valor,i,extra){
   return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
-    <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${FLAG[p.pais]||''} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
+    <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
     ${extra||''}<td class="r num"><b>${valor}</b></td></tr>`;
 }
 
@@ -81,7 +81,7 @@ function mundoLideres(){
     return `<div class="card flat lid-card"><div class="eyebrow">${rot}</div>
       ${p1?`<div class="lid-top jrow" data-p="${p1.id}" style="--clube:${p1.timeId?corDoClube(G.times[p1.timeId]):'#8A96A3'}">
         <span class="lid-foto">${retrato(p1,72)}</span>
-        <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${FLAG[p1.pais]||''}
+        <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${bandeira(p1.pais)}
           <div class="dim">${p1.timeId?escudo(G.times[p1.timeId],16)+' '+esc(tagT(p1.timeId)):'livre'} · ${esc(p1.role)}</div></div>
         <b class="lid-v num">${fmt(f(p1))}</b></div>`:''}
       <table><tbody>${top.slice(1).map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i+1)).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
