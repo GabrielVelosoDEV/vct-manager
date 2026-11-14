@@ -56,6 +56,8 @@ function _cincoDoPais(lista){
    vezes e cada uma passa pela conta da escalação */
 let _convSemana={g:null,chave:'',mapa:{}};
 function convocacao(pais){
+  /* a seleção que você comanda: a sua lista, quando ela fecha o mínimo */
+  if(typeof convocacaoDoTecnico==='function'){const u=convocacaoDoTecnico(pais);if(u)return u;}
   const chave=G.ano+'|'+G.semana+'|'+G.seqP;
   if(_convSemana.g!==G||_convSemana.chave!==chave)_convSemana={g:G,chave,mapa:{}};
   if(!(pais in _convSemana.mapa))_convSemana.mapa[pais]=_convocacao(pais);

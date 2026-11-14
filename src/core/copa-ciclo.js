@@ -79,6 +79,7 @@ function _semanaEliminatorias(cic){
   if(!cic.anunciada&&sem>=COPA_SEM_SEDE){
     cic.anunciada=true;
     if(typeof escolherComissoesSelecoes==='function')escolherComissoesSelecoes();
+    if(typeof abrirConvitesDeSelecao==='function')abrirConvitesDeSelecao(cic);
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
     momentoCopa('sede',{ano:cic.ano});
     noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,

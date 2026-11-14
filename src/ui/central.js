@@ -268,6 +268,7 @@ function vInicio(){
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
   ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
+  ${typeof cardConviteSelecao==='function'?cardConviteSelecao():''}
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}

@@ -112,6 +112,8 @@ function avancarTurno(){
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
 function avancar(plano){
+  /* seleção esquecida em campo (tela fechada no meio de uma série): fora */
+  if(G&&G.times)for(const k in G.times)if(k.startsWith('SEL-'))delete G.times[k];
   /* Continuação de uma semana de rodada dupla que parou antes do seu segundo
      jogo: o começo da semana (janela, negociações vencidas) já rodou. */
   const em=G.semanaEmCurso||null;

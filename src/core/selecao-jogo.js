@@ -33,7 +33,8 @@ const SEL_K_RANKING=32;           /* Elo: o quanto uma série mexe nos pontos */
 
 /* ---------- a comissão ---------- */
 function _candidatosComissao(cargo){
-  return Object.values(G.staff||{}).filter(m=>m&&m.cargo===cargo&&!m.aposentado)
+  /* você (o treinador do modo técnico) não é escolhido pela IA: seleção só por convite */
+  return Object.values(G.staff||{}).filter(m=>m&&m.cargo===cargo&&!m.aposentado&&!m.voce)
     .map(m=>({m,n:typeof nivelDe==='function'?nivelDe(m):2}));
 }
 /* Todas de uma vez, das mais fortes para as mais fracas: a federação maior
@@ -54,6 +55,11 @@ function escolherComissoesSelecoes(){
       }
       (c.comissao[pais]=c.comissao[pais]||{})[cargo]=melhor?melhor.id:null;
       if(melhor)usados.add(melhor.id);
+      /* a seleção que você comanda (core/copa-tecnico.js) */
+      if(cargo==='tecnico'&&typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()===pais&&G.manager.staffId){
+        if(melhor)usados.delete(melhor.id);
+        c.comissao[pais].tecnico=G.manager.staffId;
+      }
     }
   }
   return c.comissao;
@@ -101,6 +107,9 @@ function timeDaSelecao(pais,conv){
   /* elenco de mira joga para frente; de utilidade, travado (táticas de match.js) */
   const perfil=typeof perfilAgressivo==='function'?perfilAgressivo(t):0;
   t.tatica.agres=clamp(3+Math.round(perfil/6),2,4);
+  /* a seleção que você comanda joga com a sua tática */
+  if(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()===pais&&G.manager.selecaoTatica)
+    t.tatica=Object.assign({},t.tatica,G.manager.selecaoTatica,{scrim:0});
   return t;
 }
 
@@ -166,7 +175,7 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
     const c=garantirCopa(), k=_chaveSelecao(paisA,paisB,ctx.fase);
     if(c.injetadas&&c.injetadas[k]){const f=c.injetadas[k];delete c.injetadas[k];return f;}
     const pa=G._copaPararEm;
-    if(pa&&(paisA===pa.pais||paisB===pa.pais)&&_naConvocacao(cv[pa.pais]||convocacao(pa.pais),pa.id))
+    if(pa&&(paisA===pa.pais||paisB===pa.pais)&&(pa.tecnico||_naConvocacao(cv[pa.pais]||convocacao(pa.pais),pa.id)))
       throw{copaPendente:{a:paisA,b:paisB,ctx:Object.assign({},ctx,{bo})}};
   }
   const A=timeDaSelecao(paisA,cv[paisA]), B=timeDaSelecao(paisB,cv[paisB]);

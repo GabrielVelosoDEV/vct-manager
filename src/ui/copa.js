@@ -98,9 +98,11 @@ function capaCopa(x){
 /* ---------- a tela ---------- */
 function vCopa(){
   const x=_ctxCopa();
-  const corpo=copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
+  if(copaAba==='minha'&&!(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()))copaAba='geral';
+  const corpo=copaAba==='minha'?abaMinhaSelecao(x):copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
     :copaAba==='ranking'?abaRanking(x):copaAba==='legado'||copaAba==='campeoes'?abaLegado(x):copaAba==='amistoso'?cardAmistoso(x.sel):abaGeral(x);
-  return capaCopa(x)+`<div class="tabs cpx-abas">${COPA_ABAS.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''}">${n}</button>`).join('')}</div>`+corpo;
+  const abas=(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()?[['minha','Minha seleção']]:[]).concat(COPA_ABAS);
+  return capaCopa(x)+`<div class="tabs cpx-abas">${abas.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''} ${k==='minha'?'cpx-aba-minha':''}">${n}</button>`).join('')}</div>`+corpo;
 }
 
 /* ---------- visão geral ---------- */
@@ -443,6 +445,7 @@ function ligarCopa(v,on){
   on('[data-cpjogo]',el=>_abrirJogo(el.dataset.cpjogo));
   on('[data-cpfinal]',el=>{const e=edicoesDaCopa().find(x=>x.ano===+el.dataset.cpfinal);if(e)modalSerieSelecao(e.final);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
+  if(typeof ligarCopaTecnico==='function')ligarCopaTecnico(v,on);
   on('[data-cplsec]',el=>{copaLegadoSec=el.dataset.cplsec;render();});
   on('[data-cpmomento]',el=>{const [t,a]=el.dataset.cpmomento.split('|');reverMomentoCopa(t,+a);});
 }

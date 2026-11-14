@@ -3,6 +3,7 @@
    ============================================================ */
 let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
 /* modo jogador: a ficha do seu jogador na criação (core/jogador.js) */
+let escSelecao='';   /* a seleção que o treinador comanda desde o começo (C7) */
 let escJ={funcao:'Duelista',ag:['Jett','Raze','Neon'],estilo:'mira',inicio:'tier2',over:72,pot:88,nomeReal:''};
 /* modo: carreira normal, ou um cenário de desafio (core/desafios.js) */
 let escCenario=null;
@@ -92,7 +93,10 @@ function telaNovoJogo(){
     <div class="eyebrow" style="margin-top:14px">Estilo</div>
     <div class="nj-estilos">${ESTILOS_TREINADOR.map(e=>`
         <button class="nj-estilo ${escEstilo===e.id?'on':''}" data-estilo="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span>
-          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>`:''}
+          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Seleção (Valorant World Cup)</div>
+    <p class="dim" style="margin:-2px 0 8px">Comande só o clube ou o clube e uma seleção. Sem seleção agora, convites de federação chegam no começo de cada ciclo da Copa.</p>
+    <select id="njSelecao" class="nj-selecao"><option value="">Só o clube</option>${(typeof rankingPaises==='function'&&G&&G.copa?rankingPaises():COPA_SELECOES.map(s=>({pais:s[0],nome:(PAISES[s[0]]||s[0]),sigla:s[1]}))).map(r=>`<option value="${r.pais}" ${escSelecao===r.pais?'selected':''}>${esc(r.nome)} (${esc(r.sigla)})${r.pos?' · '+r.pos+'º no ranking':''}</option>`).join('')}</select>`:''}
     <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
@@ -137,8 +141,9 @@ function telaNovoJogo(){
   const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;
     const pa=$('#njPais');if(pa)escPais=pa.value;const id=$('#njIdade');if(id)escIdade=escPapel==='jogador'?clamp(parseInt(id.value)||19,15,40):clamp(parseInt(id.value)||34,22,70);
     const nr=$('#njNomeReal');if(nr)escJ.nomeReal=nr.value;
-    const ge=$('#njGenero');if(ge)escGenero=ge.value;};
-  ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
+    const ge=$('#njGenero');if(ge)escGenero=ge.value;
+    const se=$('#njSelecao');if(se)escSelecao=se.value;};
+  ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero','#njSelecao'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
   const inFoto=$('#njFoto');
   if(inFoto)inFoto.onchange=async()=>{guardaNome();
     try{escFoto=await fotoDoArquivo(inFoto.files[0]);telaNovoJogo();}catch(e){flash(e.message);}};
@@ -166,6 +171,7 @@ function telaNovoJogo(){
     iniciarGuia();
     criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
+    if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
     iniciarBase(T(G.meuTime));
     if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
     if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));

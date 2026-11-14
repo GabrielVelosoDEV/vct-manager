@@ -83,14 +83,16 @@ function avancarComMotor(plano,depois){
   setTimeout(()=>{let r;try{r=avancar(plano);}finally{avisoMotor(false);}depois(r);},60);
 }
 function avancarComRitual(quantas){
-  if(usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: série sua pela seleção nesta semana (World Cup) abre o dia de
      jogo da seleção; depois dela, o avanço segue (pode haver outra na semana) */
-  const djs=typeof jogoDeSelecaoDoJogador==='function'?jogoDeSelecaoDoJogador():null;
-  if(djs&&typeof abrirDiaDeJogoSelecao==='function'){
-    abrirDiaDeJogoSelecao(djs,()=>avancarComRitual(quantas));
+  const djs=typeof jogoDeSelecaoDoUsuario==='function'?jogoDeSelecaoDoUsuario():null;
+  if(djs){
+    /* jogador convocado: o dia de jogo; técnico da seleção: o pré-jogo dela */
+    const abrirS=djs.papel==='tecnico'?abrirPreJogoSelecao:abrirDiaDeJogoSelecao;
+    abrirS(djs,()=>avancarComRitual(quantas));
     return;
   }
+  if(usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
   const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
   if(dj){
@@ -180,14 +182,14 @@ function avancarAteMeuJogo(){
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
-     ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador())){avancarComRitual(1);return;}
+     ||(typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario())){avancarComRitual(1);return;}
   let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
     /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
        próximo Avançar abre o relatório e o veto. Antes o laço só conferia
        antes do primeiro passo e adiantava por cima do jogo. */
     if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
-       ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador()))){pausou=true;break;}
+       ||(typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario()))){pausou=true;break;}
     r=avancar();n++;
     if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;

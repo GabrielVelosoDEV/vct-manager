@@ -4041,6 +4041,45 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpx-perfil-num span{display:flex;flex-direction:column;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .cpx-perfil-num b{font-size:20px;color:var(--tx);letter-spacing:0}
 
+/* ---------- modo técnico da seleção (C7) ---------- */
+.cpx-aba-minha{color:var(--cp-ouro2)!important}
+.cpx-convite{flex-wrap:wrap}
+.cpx-conv-l{display:flex;gap:12px;flex-wrap:wrap}
+.cpx-conv-c{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 12px;border:1px solid rgba(226,180,90,.3);background:rgba(8,12,17,.5)}
+.cpx-conv-c span{display:flex;gap:6px}
+.cpt-cab .cpt-cab-in{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:18px 22px}
+.cpt-cab h2{font-size:48px;color:var(--cp-ouro)}
+.cpt-cont{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.cpt-cont span{font-size:12px;font-weight:700;color:var(--tx2)}
+.cpt-cont span.ok{color:var(--teal)}.cpt-cont span.falta{color:var(--amber)}
+.cpt-lista{max-height:560px;overflow:auto;border-top:1px solid var(--line)}
+.cpt-j{display:grid;grid-template-columns:32px 1fr auto auto;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04)}
+.cpt-j.tit{background:linear-gradient(90deg,var(--cp-ouro-s),transparent)}
+.cpt-j.res{background:linear-gradient(90deg,rgba(76,141,255,.08),transparent)}
+.cpt-j-n b{display:block;font-size:13px;cursor:pointer}.cpt-j-n span{font-size:11px;color:var(--dim)}
+.cpt-ov{font-style:normal;font-weight:700}
+.cpt-bts{display:flex;gap:2px}
+.cpt-bts button{padding:3px 8px;font-size:11px;border:1px solid var(--line);color:var(--tx2)}
+.cpt-bts button.on{border-color:var(--cp-ouro);color:var(--cp-ouro2);background:var(--cp-ouro-s)}
+.cpt-troca{display:flex;flex-direction:column;gap:6px}
+.cpt-tr{display:grid;grid-template-columns:1fr auto 220px;gap:10px;align-items:center;padding:6px;border:1px solid var(--line)}
+.cpt-tr span{font-size:11px;color:var(--dim)}
+.cpt-rot{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:12px 0 6px}
+.cpt-seg{display:flex;gap:4px;flex-wrap:wrap}
+.cpt-seg button{padding:6px 12px;border:1px solid var(--line);color:var(--tx2);font-size:12px;background:var(--surf1)}
+.cpt-seg button.on{border-color:var(--cp-ouro);color:var(--cp-ouro2);background:var(--cp-ouro-s)}
+.cpt-pj{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;margin:6px 0 12px}
+.cpt-pj-j{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.cpt-pj-j b{font-size:13px}.cpt-pj-j span{font-size:11px;color:var(--dim)}
+.cpt-pj-j select{grid-column:2/4;font-size:11px}
+.cpt-veto-seq{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.cpt-mapas{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-bottom:8px}
+.cpt-mapa{position:relative;height:54px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:6px 8px;border:1px solid var(--line2);text-align:left}
+.cpt-mapa b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em}
+.cpt-mapa span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--cp-ouro2)}
+.cpt-mapa:hover{border-color:var(--cp-ouro)}
+.nj-selecao{width:100%;max-width:420px}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -21677,6 +21716,8 @@ function avancarTurno(){
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
 function avancar(plano){
+  /* seleção esquecida em campo (tela fechada no meio de uma série): fora */
+  if(G&&G.times)for(const k in G.times)if(k.startsWith('SEL-'))delete G.times[k];
   /* Continuação de uma semana de rodada dupla que parou antes do seu segundo
      jogo: o começo da semana (janela, negociações vencidas) já rodou. */
   const em=G.semanaEmCurso||null;
@@ -29242,6 +29283,8 @@ function _cincoDoPais(lista){
    vezes e cada uma passa pela conta da escalação */
 let _convSemana={g:null,chave:'',mapa:{}};
 function convocacao(pais){
+  /* a seleção que você comanda: a sua lista, quando ela fecha o mínimo */
+  if(typeof convocacaoDoTecnico==='function'){const u=convocacaoDoTecnico(pais);if(u)return u;}
   const chave=G.ano+'|'+G.semana+'|'+G.seqP;
   if(_convSemana.g!==G||_convSemana.chave!==chave)_convSemana={g:G,chave,mapa:{}};
   if(!(pais in _convSemana.mapa))_convSemana.mapa[pais]=_convocacao(pais);
@@ -29429,7 +29472,8 @@ const SEL_K_RANKING=32;           /* Elo: o quanto uma série mexe nos pontos */
 
 /* ---------- a comissão ---------- */
 function _candidatosComissao(cargo){
-  return Object.values(G.staff||{}).filter(m=>m&&m.cargo===cargo&&!m.aposentado)
+  /* você (o treinador do modo técnico) não é escolhido pela IA: seleção só por convite */
+  return Object.values(G.staff||{}).filter(m=>m&&m.cargo===cargo&&!m.aposentado&&!m.voce)
     .map(m=>({m,n:typeof nivelDe==='function'?nivelDe(m):2}));
 }
 /* Todas de uma vez, das mais fortes para as mais fracas: a federação maior
@@ -29450,6 +29494,11 @@ function escolherComissoesSelecoes(){
       }
       (c.comissao[pais]=c.comissao[pais]||{})[cargo]=melhor?melhor.id:null;
       if(melhor)usados.add(melhor.id);
+      /* a seleção que você comanda (core/copa-tecnico.js) */
+      if(cargo==='tecnico'&&typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()===pais&&G.manager.staffId){
+        if(melhor)usados.delete(melhor.id);
+        c.comissao[pais].tecnico=G.manager.staffId;
+      }
     }
   }
   return c.comissao;
@@ -29497,6 +29546,9 @@ function timeDaSelecao(pais,conv){
   /* elenco de mira joga para frente; de utilidade, travado (táticas de match.js) */
   const perfil=typeof perfilAgressivo==='function'?perfilAgressivo(t):0;
   t.tatica.agres=clamp(3+Math.round(perfil/6),2,4);
+  /* a seleção que você comanda joga com a sua tática */
+  if(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()===pais&&G.manager.selecaoTatica)
+    t.tatica=Object.assign({},t.tatica,G.manager.selecaoTatica,{scrim:0});
   return t;
 }
 
@@ -29562,7 +29614,7 @@ function jogarSerieSelecoes(paisA,paisB,ctx){
     const c=garantirCopa(), k=_chaveSelecao(paisA,paisB,ctx.fase);
     if(c.injetadas&&c.injetadas[k]){const f=c.injetadas[k];delete c.injetadas[k];return f;}
     const pa=G._copaPararEm;
-    if(pa&&(paisA===pa.pais||paisB===pa.pais)&&_naConvocacao(cv[pa.pais]||convocacao(pa.pais),pa.id))
+    if(pa&&(paisA===pa.pais||paisB===pa.pais)&&(pa.tecnico||_naConvocacao(cv[pa.pais]||convocacao(pa.pais),pa.id)))
       throw{copaPendente:{a:paisA,b:paisB,ctx:Object.assign({},ctx,{bo})}};
   }
   const A=timeDaSelecao(paisA,cv[paisA]), B=timeDaSelecao(paisB,cv[paisB]);
@@ -29741,6 +29793,7 @@ function _semanaEliminatorias(cic){
   if(!cic.anunciada&&sem>=COPA_SEM_SEDE){
     cic.anunciada=true;
     if(typeof escolherComissoesSelecoes==='function')escolherComissoesSelecoes();
+    if(typeof abrirConvitesDeSelecao==='function')abrirConvitesDeSelecao(cic);
     const cid=typeof cidadeDaCopa==='function'?cidadeDaCopa(cic.sede):null;
     momentoCopa('sede',{ano:cic.ano});
     noticia(`🌍 ${cic.nomeSede} recebe a ${cic.edicao}ª Valorant World Cup, no fim de ${cic.ano}${cid?', com a final em '+cid.nome:''}. As eliminatórias são no fim desta temporada.`,
@@ -30432,12 +30485,157 @@ function aoEncerrarCopa(cic,ed){
    vem antes dela fica jogado (o relógio não joga de novo). */
 function jogoDeSelecaoDoJogador(){
   const p=_eu();
-  if(!p||!infoSelecao(p.pais)||typeof copaSemana!=='function')return null;
+  if(!p||!infoSelecao(p.pais))return null;
+  return _rodarCopaAte({pais:p.pais,id:p.id});
+}
+/* roda o ciclo da semana até a série marcada (ou até o fim, devolvendo null) */
+function _rodarCopaAte(alvo){
+  if(typeof copaSemana!=='function')return null;
   if(G.ano<COPA_PRIMEIRA-1||(G.semana||1)<ELIM_SEM_SORTEIO-2)return null;
-  G._copaPararEm={pais:p.pais,id:p.id};
+  G._copaPararEm=alvo;
   try{copaSemana();return null;}
   catch(e){if(e&&e.copaPendente)return e.copaPendente;throw e;}
   finally{G._copaPararEm=null;}
+}
+/* a próxima série sua nesta semana, como jogador ou como técnico da seleção */
+function jogoDeSelecaoDoUsuario(){
+  const j=jogoDeSelecaoDoJogador();
+  if(j)return Object.assign(j,{papel:'jogador'});
+  const pais=typeof selecaoDoTecnico==='function'?selecaoDoTecnico():null;
+  if(!pais)return null;
+  const t=_rodarCopaAte({pais,tecnico:true});
+  return t?Object.assign(t,{papel:'tecnico'}):null;
+}
+
+
+/* ===== src/core/copa-tecnico.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — O MODO TÉCNICO (C7)
+   ------------------------------------------------------------
+   No papel de treinador você pode comandar o clube e também uma
+   seleção (qualquer uma das 40): escolhe na criação da carreira ou
+   aceita um convite de federação durante o jogo.
+
+     G.manager.selecao        o país que você comanda (ou null)
+     G.manager.selecaoConv    a sua convocação: {titulares, reservas}
+     G.manager.selecaoTatica  {agres, foco}
+     G.manager.convitesSelecao  convites abertos: [{pais, ano, ate}]
+
+   A comissão: você entra como técnico da seleção (o analista segue
+   sendo da federação). As federações da IA nunca escolhem você — só
+   por convite. Convites saem no começo de cada ciclo (a primeira
+   semana do ano das eliminatórias), das federações que preferem você
+   ao técnico que têm, pela mesma conta da IA: nível de comissão,
+   com um nível e meio a mais para quem é do país.
+
+   A sua convocação vale quando fecha o mínimo (7, com os 5 titulares);
+   sem ela, a seleção usa a sugestão de sempre. Ela é congelada nos
+   mesmos dias das outras (sorteio das eliminatórias, sorteio da
+   Copa); depois disso dá para trocar só quem é titular entre os 10.
+   As séries da sua seleção param o relógio como as do seu clube e
+   abrem o pré-jogo (ui/copa-tecnico.js).
+   ============================================================ */
+const CONVITE_MAX=3;
+
+function selecaoDoTecnico(){
+  if(!G||!G.manager||(typeof modoJogador==='function'&&modoJogador()))return null;
+  if(typeof souTreinador==='function'&&!souTreinador())return null;
+  return G.manager.selecao||null;
+}
+/* a sua lista, se ainda for válida: jogadores vivos, do país, 5 titulares e 7 no total */
+function convocacaoDoTecnico(pais){
+  if(!pais||selecaoDoTecnico()!==pais)return null;
+  const u=G.manager.selecaoConv;if(!u)return null;
+  const ok=id=>{const p=G.jogadores[id];return p&&p.pais===pais&&(p.idade||0)>=(typeof SELECAO_IDADE_MIN!=='undefined'?SELECAO_IDADE_MIN:15);};
+  const tit=(u.titulares||[]).filter(ok), res=(u.reservas||[]).filter(ok).filter(i=>!tit.includes(i));
+  if(tit.length<5||tit.length+res.length<SELECAO_MINIMO)return null;
+  return{pais,titulares:tit.slice(0,5),reservas:res.slice(0,SELECAO_TAMANHO-5)};
+}
+function salvarConvocacaoDoTecnico(titulares,reservas){
+  const pais=selecaoDoTecnico();if(!pais)return{ok:false,motivo:'Você não comanda uma seleção.'};
+  if(titulares.length!==5)return{ok:false,motivo:'Escolha exatamente 5 titulares.'};
+  if(titulares.length+reservas.length<SELECAO_MINIMO)return{ok:false,motivo:`A convocação precisa de pelo menos ${SELECAO_MINIMO} jogadores.`};
+  if(titulares.length+reservas.length>SELECAO_TAMANHO)return{ok:false,motivo:`No máximo ${SELECAO_TAMANHO} convocados.`};
+  G.manager.selecaoConv={titulares:titulares.slice(),reservas:reservas.slice()};
+  return{ok:true,msg:'Convocação salva.'};
+}
+/* depois do congelamento: trocar quem começa jogando entre os 10 */
+function convocacaoCongelada(){
+  const pais=selecaoDoTecnico();if(!pais)return null;
+  const cic=cicloDaCopa(proximaCopa(G.ano),false);if(!cic)return null;
+  if(cic.copa&&cic.copa.convocados&&cic.copa.convocados[pais]&&!cic.copa.fim)return cic.copa.convocados[pais];
+  if(cic.convocadosElim&&cic.convocadosElim[pais]&&!cic.classificados)return cic.convocadosElim[pais];
+  return null;
+}
+function trocarTitularCongelado(sai,entra){
+  const cv=convocacaoCongelada();if(!cv)return{ok:false,motivo:'Sem convocação fechada agora.'};
+  const i=cv.titulares.indexOf(sai), j=cv.reservas.indexOf(entra);
+  if(i<0||j<0)return{ok:false,motivo:'Troca inválida.'};
+  cv.titulares[i]=entra;cv.reservas[j]=sai;
+  /* a lista "de sempre" acompanha */
+  G.manager.selecaoConv={titulares:cv.titulares.slice(),reservas:cv.reservas.slice()};
+  return{ok:true,msg:`${G.jogadores[entra].nome} entra no lugar de ${G.jogadores[sai].nome}.`};
+}
+function salvarTaticaDaSelecao(t){
+  if(!selecaoDoTecnico())return;
+  G.manager.selecaoTatica=Object.assign({agres:3,foco:'default'},G.manager.selecaoTatica||{},t||{});
+}
+
+/* ---------- assumir e deixar ---------- */
+function assumirSelecao(pais){
+  if(!infoSelecao(pais))return{ok:false,motivo:'Seleção desconhecida.'};
+  if(typeof souTreinador==='function'&&!souTreinador())return{ok:false,motivo:'Só o treinador comanda uma seleção.'};
+  G.manager.selecao=pais;G.manager.selecaoDesde=G.ano;
+  G.manager.selecaoConv=null;G.manager.selecaoTatica={agres:3,foco:'default'};
+  G.manager.convitesSelecao=[];
+  (G.manager.selecoes=G.manager.selecoes||[]).push({pais,desde:G.ano});
+  if(G.copa)escolherComissoesSelecoes();
+  if(typeof noticia==='function')noticia(`🌍 ${G.manager.nome} assume o comando da seleção nacional: ${_nomeSel(pais)}. O clube continua com você.`,{c:'clube',imp:3});
+  return{ok:true,msg:`Você assumiu ${_nomeSel(pais)}.`};
+}
+function deixarSelecao(){
+  const pais=selecaoDoTecnico();if(!pais)return{ok:false,motivo:'Você não comanda uma seleção.'};
+  /* no meio de uma fase com convocação fechada não dá: a federação não fica sem técnico no meio da Copa */
+  if(convocacaoCongelada())return{ok:false,motivo:'Com a convocação fechada, espere a fase acabar para sair.'};
+  G.manager.selecao=null;G.manager.selecaoConv=null;
+  const h=(G.manager.selecoes||[]).find(x=>x.pais===pais&&!x.ate);if(h)h.ate=G.ano;
+  if(G.copa)escolherComissoesSelecoes();
+  if(typeof noticia==='function')noticia(`${G.manager.nome} deixou o comando da seleção nacional: ${_nomeSel(pais)}.`,{c:'clube',imp:2});
+  return{ok:true,msg:`Você deixou ${_nomeSel(pais)}.`};
+}
+
+/* ---------- convites ----------
+   No começo de cada ciclo: as federações que preferem você ao técnico de agora. */
+function convitesDeSelecao(){
+  if(!G.manager||selecaoDoTecnico()||(typeof souTreinador==='function'&&!souTreinador()))return[];
+  const eu=typeof membroManager==='function'?membroManager():null;
+  if(!eu)return[];
+  const meu=typeof nivelDe==='function'?nivelDe(eu):2;
+  const out=[];
+  for(const x of rankingPaises()){
+    const com=comissaoDaSelecao(x.pais), atual=com.tecnico&&G.staff[com.tecnico];
+    const notaAtual=atual?nivelDe(atual)+(atual.pais===x.pais?SEL_PREFERE_NACIONAL:0):0;
+    const notaEu=meu+((G.manager.pais||eu.pais)===x.pais?SEL_PREFERE_NACIONAL:0);
+    if(notaEu>notaAtual)out.push({pais:x.pais,pos:x.pos});
+  }
+  /* as maiores primeiro */
+  return out.slice(0,CONVITE_MAX);
+}
+function abrirConvitesDeSelecao(cic){
+  const l=convitesDeSelecao();
+  if(!l.length)return;
+  G.manager.convitesSelecao=l.map(x=>({pais:x.pais,ano:G.ano,ate:ELIM_SEM_SORTEIO-1}));
+  if(typeof noticia==='function')noticia(`📨 ${l.length>1?'Federações querem':'Uma federação quer'} você no comando para a World Cup ${cic.ano}: ${l.map(x=>_nomeSel(x.pais)).join(', ')}. O convite vale até a semana ${ELIM_SEM_SORTEIO-1}.`,{c:'clube',imp:3});
+}
+function convitesSelecaoAbertos(){
+  const l=(G.manager&&G.manager.convitesSelecao)||[];
+  return l.filter(c=>c.ano===G.ano&&(G.semana||1)<=c.ate);
+}
+function responderConviteSelecao(pais,aceita){
+  const l=convitesSelecaoAbertos();
+  if(!l.some(c=>c.pais===pais))return{ok:false,motivo:'Esse convite não está mais de pé.'};
+  if(!aceita){G.manager.convitesSelecao=l.filter(c=>c.pais!==pais);return{ok:true,msg:`Você recusou ${_nomeSel(pais)}.`};}
+  return assumirSelecao(pais);
 }
 
 
@@ -36997,6 +37195,7 @@ function vInicio(){
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
   ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
+  ${typeof cardConviteSelecao==='function'?cardConviteSelecao():''}
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
@@ -45724,6 +45923,190 @@ function blocoCopaJogador(p){
 }
 
 
+/* ===== src/ui/copa-tecnico.js ===== */
+/* ============================================================
+   VALORANT WORLD CUP — o modo técnico na tela (C7)
+   ------------------------------------------------------------
+   · aba "Minha seleção" da tela World Cup: convocação (os 10, com os
+     5 titulares), tática, comissão e a opção de deixar a seleção;
+   · convites das federações na Central (aceitar ou recusar);
+   · o pré-jogo da sua seleção: escalação, tática e o veto na sua
+     vez, depois ao vivo (com pedido de tempo) ou simulado.
+   ============================================================ */
+let CONV_TEC=null;   /* rascunho da convocação: {pais, tit:Set, res:Set} */
+
+/* ---------- convites na Central ---------- */
+function cardConviteSelecao(){
+  if(typeof convitesSelecaoAbertos!=='function'||!G.manager)return '';
+  const l=convitesSelecaoAbertos();
+  if(!l.length)return '';
+  return `<section class="cpx-faixa cpx-convite">
+    ${ASSETS.copa('logo')?`<img class="cpx-faixa-logo" src="${ASSETS.copa('logo')}" alt="">`:''}
+    <div class="cpx-faixa-txt"><div class="cpx-eyebrow">Convite de federação · World Cup ${proximaCopa(G.ano)}</div>
+      <b>${l.length>1?'Seleções querem você no comando':'Uma seleção quer você no comando'}</b>
+      <span>Você segue no clube. O convite vale até a semana ${l[0].ate}.</span></div>
+    <div class="cpx-conv-l">${l.map(c=>`<div class="cpx-conv-c">${escudoSelecao(c.pais,44)}<b>${esc(_nomeSel(c.pais))}</b>
+      <span><button class="btn sm cpx-faixa-btn" data-cpconv="${c.pais}|1">Aceitar</button><button class="btn ghost sm" data-cpconv="${c.pais}|0">Recusar</button></span></div>`).join('')}</div>
+  </section>`;
+}
+
+/* ---------- aba Minha seleção ---------- */
+function abaMinhaSelecao(x){
+  const pais=selecaoDoTecnico();
+  if(!pais)return '';
+  const info=infoSelecao(pais), cong=convocacaoCongelada();
+  const sug=_convocacao(pais), atual=convocacaoDoTecnico(pais);
+  if(!CONV_TEC||CONV_TEC.pais!==pais){
+    const base=atual||sug||{titulares:[],reservas:[]};
+    CONV_TEC={pais,tit:new Set(base.titulares),res:new Set(base.reservas)};
+  }
+  const tat=Object.assign({agres:3,foco:'default'},G.manager.selecaoTatica||{});
+  const com=comissaoDaSelecao(pais), ana=com.analista&&G.staff[com.analista], eu=membroManager();
+  const lista=convocaveis(pais).sort((a,b)=>over(b)-over(a));
+  const cic=x.cic, sit=_situacao(x,pais);
+  const linha=p=>{const t=p.timeId&&G.times[p.timeId];const est=CONV_TEC.tit.has(p.id)?'tit':CONV_TEC.res.has(p.id)?'res':'';
+    return `<div class="cpt-j ${est}">
+      ${retrato(p,32)}<div class="cpt-j-n"><b class="jrow" data-p="${p.id}">${esc(p.nome)}</b><span>${esc(p.role)} · ${t?esc(t.tag||t.nome):p.base?'base':'sem clube'} · ${p.idade} anos${p.lesao?' · <em class="dn">lesionado</em>':''}</span></div>
+      <em class="num cpt-ov">${over(p)}</em>
+      <span class="cpt-bts">${cong?'':`<button class="${est==='tit'?'on':''}" data-cpt="${p.id}|tit">Titular</button><button class="${est==='res'?'on':''}" data-cpt="${p.id}|res">Reserva</button><button class="${!est?'on':''}" data-cpt="${p.id}|">—</button>`}</span></div>`;};
+  const nT=CONV_TEC.tit.size, nR=CONV_TEC.res.size;
+  return `<section class="cpx-final cpt-cab" style="${cic?fundoDaSede(cic,.88):''}">
+    <div class="cpt-cab-in">${escudoSelecao(pais,96)}
+      <div><div class="cpx-eyebrow">Você comanda · desde ${G.manager.selecaoDesde||G.ano}</div><h2>${esc(info.nome)}</h2>
+        <div class="cpx-sel-chips"><span class="cpx-sit ${sit[0]}">${esc(sit[1])}</span><span>${(x.rk.find(r=>r.pais===pais)||{}).pos}º no ranking</span></div></div>
+      <div class="cpx-staffs">${eu?`<div class="cpx-staff">${retratoStaff(eu,34)}<div><span>Técnico</span><b>${esc(eu.nome)}</b><em>você · nível ${nivelDe(eu).toFixed(1)}</em></div></div>`:''}
+        ${ana?`<div class="cpx-staff">${retratoStaff(ana,34)}<div><span>Analista</span><b>${esc(ana.nome)}</b><em>${bandeira(ana.pais)} da federação</em></div></div>`:''}</div>
+    </div></section>
+  <div class="cpx-g2">
+    <div class="card"><div class="cpx-eyebrow">${cong?'Convocação fechada':'Convocação'} · ${cong?cong.titulares.length+cong.reservas.length:nT+nR} de ${SELECAO_TAMANHO}</div>
+      ${cong?`<p class="dim">A lista fechou no sorteio e vale até o fim desta fase. Dá para trocar quem começa jogando:</p>
+        <div class="cpt-troca">${cong.titulares.map(id=>`<div class="cpt-tr"><b>${esc(G.jogadores[id].nome)}</b><span>${esc(G.jogadores[id].role)} · ${over(G.jogadores[id])}</span>
+          <select data-cptroca="${id}"><option value="">manter</option>${cong.reservas.map(r=>`<option value="${r}">${esc(G.jogadores[r].nome)} (${esc(G.jogadores[r].role)} ${over(G.jogadores[r])})</option>`).join('')}</select></div>`).join('')}</div>`
+      :`<p class="dim">Escolha 5 titulares e até 5 reservas (mínimo ${SELECAO_MINIMO} no total). A lista fecha no sorteio das eliminatórias (semana ${ELIM_SEM_SORTEIO} do ano ímpar) e no sorteio da Copa (semana ${COPA_SEM_SORTEIO}). Sem lista válida, vale a sugestão.</p>
+        <div class="cpt-cont"><span class="${nT===5?'ok':'falta'}">${nT}/5 titulares</span><span>${nR}/5 reservas</span>
+          <button class="btn ghost sm" data-cptsug>Usar a sugestão</button><button class="btn sm" data-cptsalvar>Salvar convocação</button></div>
+        <div class="cpt-lista">${lista.map(linha).join('')}</div>`}
+    </div>
+    <div>
+      <div class="card"><div class="cpx-eyebrow">Tática da seleção</div>
+        <div class="cpt-rot">Agressividade</div>
+        <div class="cpt-seg">${[1,2,3,4,5].map(v=>`<button class="${tat.agres===v?'on':''}" data-cptag="${v}">${v}</button>`).join('')}</div>
+        <div class="cpt-rot">Foco</div>
+        <div class="cpt-seg">${[['execucao','Execução'],['default','Default'],['retake','Retake']].map(([k,n])=>`<button class="${tat.foco===k?'on':''}" data-cptfoco="${k}">${n}</button>`).join('')}</div>
+        <p class="dim cpx-nota">As mesmas regras do clube: agressividade rende com elenco de mira; o foco é pedra-papel-tesoura com o do adversário. No pré-jogo dá para mudar de novo.</p></div>
+      <div class="card cx-linha"><div class="cpx-eyebrow">O que vem</div>
+        <p class="dim">${esc(_textoFase(x))}. As séries da ${esc(info.nome)} param o relógio: no pré-jogo você confere a escalação, a tática e faz o veto; depois vê ao vivo (com pedido de tempo) ou simula.</p>
+        <div class="cpx-acoes"><button class="btn ghost sm" data-cptdeixar>Deixar a seleção</button></div></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- o pré-jogo da sua seleção ---------- */
+let PJS=null;
+function abrirPreJogoSelecao(pend,depois){
+  const pais=selecaoDoTecnico(), cv=(pend.ctx&&pend.ctx.conv)||{};
+  const A=timeDaSelecao(pend.a,cv[pend.a]), B=timeDaSelecao(pend.b,cv[pend.b]);
+  if(!A||!B){if(depois)depois();return;}
+  const meu=pais===pend.a?A:B, adv=meu===A?B:A;
+  const sair=entrarSelecoesEmCampo([A,B]);
+  const V=iniciarVeto(meu.id,adv.id,pend.ctx.bo,meu===A);
+  vetoAvancarAteMim(V);
+  PJS={pend,depois,A,B,meu,adv,V,sair,log:[]};
+  pintarPreJogoSelecao();
+}
+function _pjsRefazer(){
+  /* escalação ou tática mudou: o time da seleção em campo acompanha */
+  const {meu}=PJS, pais=meu.selecao;
+  const cv=convocacaoCongelada()||convocacaoDoTecnico(pais);
+  if(cv){meu.titulares=cv.titulares.slice();meu.elenco=cv.titulares.concat(cv.reservas);}
+  meu.tatica=Object.assign({},meu.tatica,G.manager.selecaoTatica||{},{scrim:0});
+  const rs=meu.titulares.map(i=>G.jogadores[i]).filter(Boolean);
+  const dist=distribuirFuncoes(rs);rs.forEach((p,i)=>{p.roleAtual=dist.atrib[i];});
+  meu.comps={};if(typeof compIA==='function')compIA(meu);
+  meu.sinergia=sinergiaSelecao(meu.titulares);
+}
+function pintarPreJogoSelecao(){
+  const {pend,meu,adv,V}=PJS, tat=Object.assign({agres:3,foco:'default'},G.manager.selecaoTatica||{});
+  const ovT=t=>Math.round(t.titulares.reduce((s,i)=>s+over(G.jogadores[i]),0)/5);
+  const passo=vetoPasso(V), minha=vetoMinhaVez(V), rest=vetoRestantes(V);
+  const cv=convocacaoCongelada();
+  const seq=V.seq.map(s=>`<span class="chip ${s.tipo==='ban'?'r':s.tipo==='dec'?'':'g'}">${s.tipo==='ban'?'✕':s.tipo==='dec'?'★':'✓'} ${esc(s.m)}${s.lado0?' · '+(s.lado0==='atk'?'ataque':'defesa'):''} <span class="dim">${s.tipo==='dec'?'decider':esc(s.t)}</span></span>`).join(' ');
+  const cic=cicloAtual();
+  pintarModal(`<div class="ovl"><div class="box wide dj-box dj-selecao" ${cic?`style="${fundoDaSede(cic,.9)}"`:''}>
+    <div class="cpx-eyebrow">Pré-jogo da seleção · ${esc(pend.ctx.nome||'')} · ${esc(pend.ctx.fase||'')} · MD${pend.ctx.bo}</div>
+    <div class="dj-vs">
+      <div class="dj-t">${escudoSelecao(meu.selecao,72)}<b>${esc(meu.nome)}</b><span class="dim">over ${ovT(meu)} · você no comando</span></div>
+      <div class="dj-x">×</div>
+      <div class="dj-t">${escudoSelecao(adv.selecao,72)}<b>${esc(adv.nome)}</b><span class="dim">over ${ovT(adv)} · tática ${adv.tatica.agres}/${esc(adv.tatica.foco)}</span></div>
+    </div>
+    <div class="cpt-pj">
+      <div><div class="cpt-rot">Os cinco</div>
+        ${meu.titulares.map(id=>{const p=G.jogadores[id];return `<div class="cpt-pj-j">${retrato(p,28)}<b>${esc(p.nome)}</b><span>${esc(p.roleAtual||p.role)} · ${over(p)}</span>
+          ${cv&&cv.reservas.length?`<select data-pjtroca="${id}"><option value="">titular</option>${cv.reservas.map(r=>`<option value="${r}">trocar por ${esc(G.jogadores[r].nome)} (${over(G.jogadores[r])})</option>`).join('')}</select>`:''}</div>`;}).join('')}
+        <div class="cpt-rot">Agressividade</div>
+        <div class="cpt-seg">${[1,2,3,4,5].map(v=>`<button class="${tat.agres===v?'on':''}" data-pjag="${v}">${v}</button>`).join('')}</div>
+        <div class="cpt-rot">Foco</div>
+        <div class="cpt-seg">${[['execucao','Execução'],['default','Default'],['retake','Retake']].map(([k,n])=>`<button class="${tat.foco===k?'on':''}" data-pjfoco="${k}">${n}</button>`).join('')}</div>
+      </div>
+      <div><div class="cpt-rot">Veto ${V.fim?'· fechado':minha?'· a sua vez: '+(passo.tipo==='ban'?'banir':passo.tipo==='pick'?'escolher':'lado'):''}</div>
+        <div class="cpt-veto-seq">${seq||'<span class="dim">Ninguém vetou ainda.</span>'}</div>
+        ${!V.fim&&minha&&passo.tipo==='lado'?`<div class="cpt-seg"><button data-pjlado="atk">Começar no ataque</button><button data-pjlado="def">Começar na defesa</button></div>`
+          :!V.fim&&minha?`<div class="cpt-mapas">${rest.map(m=>`<button class="cpt-mapa" data-pjmapa="${esc(m)}" style="${fundoMapa(m,0.55)}"><b>${esc(m)}</b><span>${passo.tipo==='ban'?'banir':'escolher'}</span></button>`).join('')}</div>`:''}
+        ${V.fim?'':`<button class="btn ghost sm" data-pjauto>Veto automático</button>`}
+      </div>
+    </div>
+    <div class="dj-acoes">
+      <button class="btn ghost" id="pjsSim" ${V.fim?'':'disabled'}>Simular a série</button>
+      <button class="btn cpx-faixa-btn" id="pjsVivo" ${V.fim?'':'disabled'}>Ver ao vivo ›</button>
+    </div>
+  </div></div>`);
+  const md=$('#modal');
+  md.querySelectorAll('[data-pjmapa]').forEach(b=>b.onclick=()=>{vetoEscolher(V,b.dataset.pjmapa);vetoAvancarAteMim(V);pintarPreJogoSelecao();});
+  md.querySelectorAll('[data-pjlado]').forEach(b=>b.onclick=()=>{vetoEscolher(V,b.dataset.pjlado);vetoAvancarAteMim(V);pintarPreJogoSelecao();});
+  const au=md.querySelector('[data-pjauto]');if(au)au.onclick=()=>{let n=0;while(!V.fim&&n++<40)vetoEscolher(V,null);pintarPreJogoSelecao();};
+  md.querySelectorAll('[data-pjag]').forEach(b=>b.onclick=()=>{salvarTaticaDaSelecao({agres:+b.dataset.pjag});_pjsRefazer();pintarPreJogoSelecao();});
+  md.querySelectorAll('[data-pjfoco]').forEach(b=>b.onclick=()=>{salvarTaticaDaSelecao({foco:b.dataset.pjfoco});_pjsRefazer();pintarPreJogoSelecao();});
+  md.querySelectorAll('[data-pjtroca]').forEach(s=>s.onchange=()=>{if(!s.value)return;const r=trocarTitularCongelado(s.dataset.pjtroca,s.value);flash(r.ok?r.msg:r.motivo);_pjsRefazer();pintarPreJogoSelecao();});
+  const sim=$('#pjsSim');if(sim)sim.onclick=()=>comecarPreJogoSelecao(false);
+  const viv=$('#pjsVivo');if(viv)viv.onclick=()=>comecarPreJogoSelecao(true);
+}
+function comecarPreJogoSelecao(aoVivo){
+  const {pend,depois,A,B,meu,V,sair}=PJS;PJS=null;
+  $('#modal').innerHTML='';
+  const vr=vetoResultado(V);
+  const S=abrirSerie(A.id,B.id,pend.ctx.bo,{seq:vr.seq,mapas:vr.mapas,lados:vr.lados});
+  let ficha=null;
+  const fechar=S2=>{ficha=fecharSerieSelecaoConduzida(S2,A,B,pend);sair();
+    return Object.assign(consolidarSerie(S2),{aId:S2.aId,bId:S2.bId,bo:S2.bo,mapas:S2.mapas,wa:S2.wa,wb:S2.wb,veto:S2.veto.seq,ficha});};
+  if(!aoVivo){
+    while(!S.fim){if(!serieAbrirMapa(S))break;while(!S.M.fim)passoRound(S.M);serieFecharMapa(S);}
+    fechar(S);injetarSerieSelecao(ficha);
+    modalSerieSelecao(ficha,()=>{if(depois)depois();});
+    return;
+  }
+  partidaConduzida(S,{meuId:meu.id,nome:pend.ctx.nome,semana:G.semana,fechar,
+    verFicha:(r,d)=>{if(ficha)modalSerieSelecao(ficha,d);else if(d)d();},
+    aoFechar:()=>{if(depois)depois();}},()=>{if(ficha)injetarSerieSelecao(ficha);});
+}
+
+/* ---------- ligações ---------- */
+function ligarCopaTecnico(v,on){
+  on('[data-cpconv]',el=>{const [p,a]=el.dataset.cpconv.split('|');const r=responderConviteSelecao(p,a==='1');flash(r.ok?r.msg:r.motivo);
+    if(r.ok&&a==='1'){copaAba='minha';irPara('copa');}else render();});
+  on('[data-cpt]',el=>{const [id,est]=el.dataset.cpt.split('|');
+    CONV_TEC.tit.delete(id);CONV_TEC.res.delete(id);
+    if(est==='tit'){if(CONV_TEC.tit.size>=5)return flash('Já são 5 titulares: tire um antes.');CONV_TEC.tit.add(id);}
+    if(est==='res'){if(CONV_TEC.res.size>=SELECAO_TAMANHO-5)return flash('Já são 5 reservas.');CONV_TEC.res.add(id);}
+    render();});
+  on('[data-cptsug]',()=>{const s=_convocacao(selecaoDoTecnico());if(s)CONV_TEC={pais:s.pais,tit:new Set(s.titulares),res:new Set(s.reservas)};render();});
+  on('[data-cptsalvar]',()=>{const r=salvarConvocacaoDoTecnico([...CONV_TEC.tit],[...CONV_TEC.res]);flash(r.ok?r.msg:r.motivo);render();});
+  on('[data-cptag]',el=>{salvarTaticaDaSelecao({agres:+el.dataset.cptag});render();});
+  on('[data-cptfoco]',el=>{salvarTaticaDaSelecao({foco:el.dataset.cptfoco});render();});
+  on('[data-cptdeixar]',()=>{const r=deixarSelecao();flash(r.ok?r.msg:r.motivo);if(r.ok){copaAba='geral';CONV_TEC=null;}render();});
+  document.querySelectorAll('[data-cptroca]').forEach(s=>s.onchange=()=>{if(!s.value)return;const r=trocarTitularCongelado(s.dataset.cptroca,s.value);flash(r.ok?r.msg:r.motivo);render();});
+}
+
+
 /* ===== src/ui/copa.js ===== */
 /* ============================================================
    VALORANT WORLD CUP — o hub do evento (C4)
@@ -45825,9 +46208,11 @@ function capaCopa(x){
 /* ---------- a tela ---------- */
 function vCopa(){
   const x=_ctxCopa();
-  const corpo=copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
+  if(copaAba==='minha'&&!(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()))copaAba='geral';
+  const corpo=copaAba==='minha'?abaMinhaSelecao(x):copaAba==='chave'?abaChave(x):copaAba==='selecoes'?abaSelecoes(x):copaAba==='stats'?abaStats(x)
     :copaAba==='ranking'?abaRanking(x):copaAba==='legado'||copaAba==='campeoes'?abaLegado(x):copaAba==='amistoso'?cardAmistoso(x.sel):abaGeral(x);
-  return capaCopa(x)+`<div class="tabs cpx-abas">${COPA_ABAS.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''}">${n}</button>`).join('')}</div>`+corpo;
+  const abas=(typeof selecaoDoTecnico==='function'&&selecaoDoTecnico()?[['minha','Minha seleção']]:[]).concat(COPA_ABAS);
+  return capaCopa(x)+`<div class="tabs cpx-abas">${abas.map(([k,n])=>`<button data-cpaba="${k}" class="${copaAba===k?'on':''} ${k==='minha'?'cpx-aba-minha':''}">${n}</button>`).join('')}</div>`+corpo;
 }
 
 /* ---------- visão geral ---------- */
@@ -46170,6 +46555,7 @@ function ligarCopa(v,on){
   on('[data-cpjogo]',el=>_abrirJogo(el.dataset.cpjogo));
   on('[data-cpfinal]',el=>{const e=edicoesDaCopa().find(x=>x.ano===+el.dataset.cpfinal);if(e)modalSerieSelecao(e.final);});
   on('[data-cpficha]',el=>{const c=garantirCopa();modalSerieSelecao((c.amistosos||[])[+el.dataset.cpficha]);});
+  if(typeof ligarCopaTecnico==='function')ligarCopaTecnico(v,on);
   on('[data-cplsec]',el=>{copaLegadoSec=el.dataset.cplsec;render();});
   on('[data-cpmomento]',el=>{const [t,a]=el.dataset.cpmomento.split('|');reverMomentoCopa(t,+a);});
 }
@@ -47909,6 +48295,7 @@ function ligarEventos(){
    ============================================================ */
 let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
 /* modo jogador: a ficha do seu jogador na criação (core/jogador.js) */
+let escSelecao='';   /* a seleção que o treinador comanda desde o começo (C7) */
 let escJ={funcao:'Duelista',ag:['Jett','Raze','Neon'],estilo:'mira',inicio:'tier2',over:72,pot:88,nomeReal:''};
 /* modo: carreira normal, ou um cenário de desafio (core/desafios.js) */
 let escCenario=null;
@@ -47998,7 +48385,10 @@ function telaNovoJogo(){
     <div class="eyebrow" style="margin-top:14px">Estilo</div>
     <div class="nj-estilos">${ESTILOS_TREINADOR.map(e=>`
         <button class="nj-estilo ${escEstilo===e.id?'on':''}" data-estilo="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span>
-          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>`:''}
+          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Seleção (Valorant World Cup)</div>
+    <p class="dim" style="margin:-2px 0 8px">Comande só o clube ou o clube e uma seleção. Sem seleção agora, convites de federação chegam no começo de cada ciclo da Copa.</p>
+    <select id="njSelecao" class="nj-selecao"><option value="">Só o clube</option>${(typeof rankingPaises==='function'&&G&&G.copa?rankingPaises():COPA_SELECOES.map(s=>({pais:s[0],nome:(PAISES[s[0]]||s[0]),sigla:s[1]}))).map(r=>`<option value="${r.pais}" ${escSelecao===r.pais?'selected':''}>${esc(r.nome)} (${esc(r.sigla)})${r.pos?' · '+r.pos+'º no ranking':''}</option>`).join('')}</select>`:''}
     <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
@@ -48043,8 +48433,9 @@ function telaNovoJogo(){
   const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;
     const pa=$('#njPais');if(pa)escPais=pa.value;const id=$('#njIdade');if(id)escIdade=escPapel==='jogador'?clamp(parseInt(id.value)||19,15,40):clamp(parseInt(id.value)||34,22,70);
     const nr=$('#njNomeReal');if(nr)escJ.nomeReal=nr.value;
-    const ge=$('#njGenero');if(ge)escGenero=ge.value;};
-  ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
+    const ge=$('#njGenero');if(ge)escGenero=ge.value;
+    const se=$('#njSelecao');if(se)escSelecao=se.value;};
+  ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero','#njSelecao'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
   const inFoto=$('#njFoto');
   if(inFoto)inFoto.onchange=async()=>{guardaNome();
     try{escFoto=await fotoDoArquivo(inFoto.files[0]);telaNovoJogo();}catch(e){flash(e.message);}};
@@ -48072,6 +48463,7 @@ function telaNovoJogo(){
     iniciarGuia();
     criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
+    if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
     iniciarBase(T(G.meuTime));
     if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
     if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
@@ -48267,14 +48659,16 @@ function avancarComMotor(plano,depois){
   setTimeout(()=>{let r;try{r=avancar(plano);}finally{avisoMotor(false);}depois(r);},60);
 }
 function avancarComRitual(quantas){
-  if(usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: série sua pela seleção nesta semana (World Cup) abre o dia de
      jogo da seleção; depois dela, o avanço segue (pode haver outra na semana) */
-  const djs=typeof jogoDeSelecaoDoJogador==='function'?jogoDeSelecaoDoJogador():null;
-  if(djs&&typeof abrirDiaDeJogoSelecao==='function'){
-    abrirDiaDeJogoSelecao(djs,()=>avancarComRitual(quantas));
+  const djs=typeof jogoDeSelecaoDoUsuario==='function'?jogoDeSelecaoDoUsuario():null;
+  if(djs){
+    /* jogador convocado: o dia de jogo; técnico da seleção: o pré-jogo dela */
+    const abrirS=djs.papel==='tecnico'?abrirPreJogoSelecao:abrirDiaDeJogoSelecao;
+    abrirS(djs,()=>avancarComRitual(quantas));
     return;
   }
+  if(usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
   const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
   if(dj){
@@ -48364,14 +48758,14 @@ function avancarAteMeuJogo(){
   const comp=(Prefs.get('prePartida')&&typeof prePartidaDisponivel==='function')
     ?prePartidaDisponivel():null;
   if(comp||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
-     ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador())){avancarComRitual(1);return;}
+     ||(typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario())){avancarComRitual(1);return;}
   let n=0,r=null,pausou=false;
   while(n<SEMANAS_ANO){
     /* Nunca atravessa um jogo seu: com o ritual ligado, para na véspera e o
        próximo Avançar abre o relatório e o veto. Antes o laço só conferia
        antes do primeiro passo e adiantava por cima do jogo. */
     if(n>0&&((Prefs.get('prePartida')&&prePartidaDisponivel())||(typeof diaDeJogoDisponivel==='function'&&diaDeJogoDisponivel())
-       ||(typeof jogoDeSelecaoDoJogador==='function'&&jogoDeSelecaoDoJogador()))){pausou=true;break;}
+       ||(typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario()))){pausou=true;break;}
     r=avancar();n++;
     if(r&&r.parcial)break;                     /* semana parou antes de jogo seu */
     if(!r||r.tipo==='fim')break;

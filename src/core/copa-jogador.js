@@ -91,10 +91,24 @@ function aoEncerrarCopa(cic,ed){
    vem antes dela fica jogado (o relógio não joga de novo). */
 function jogoDeSelecaoDoJogador(){
   const p=_eu();
-  if(!p||!infoSelecao(p.pais)||typeof copaSemana!=='function')return null;
+  if(!p||!infoSelecao(p.pais))return null;
+  return _rodarCopaAte({pais:p.pais,id:p.id});
+}
+/* roda o ciclo da semana até a série marcada (ou até o fim, devolvendo null) */
+function _rodarCopaAte(alvo){
+  if(typeof copaSemana!=='function')return null;
   if(G.ano<COPA_PRIMEIRA-1||(G.semana||1)<ELIM_SEM_SORTEIO-2)return null;
-  G._copaPararEm={pais:p.pais,id:p.id};
+  G._copaPararEm=alvo;
   try{copaSemana();return null;}
   catch(e){if(e&&e.copaPendente)return e.copaPendente;throw e;}
   finally{G._copaPararEm=null;}
+}
+/* a próxima série sua nesta semana, como jogador ou como técnico da seleção */
+function jogoDeSelecaoDoUsuario(){
+  const j=jogoDeSelecaoDoJogador();
+  if(j)return Object.assign(j,{papel:'jogador'});
+  const pais=typeof selecaoDoTecnico==='function'?selecaoDoTecnico():null;
+  if(!pais)return null;
+  const t=_rodarCopaAte({pais,tecnico:true});
+  return t?Object.assign(t,{papel:'tecnico'}):null;
 }
