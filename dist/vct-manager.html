@@ -3353,6 +3353,42 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .pp-plano p{margin:6px 0}
 .pp-plano-bts{display:flex;gap:8px;flex-wrap:wrap}
 
+/* ============================================================
+   MODO JOGADOR (ui/jogador.js e a criação em newgame.js)
+   ============================================================ */
+.nj-ags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
+.nj-ags select{width:100%}
+.nj-niveis{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:8px}
+.nj-niveis .dim{grid-column:1/-1;margin:0}
+.nj-sl{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.nj-sl span{display:flex;justify-content:space-between}
+.nj-sl input{width:100%;accent-color:var(--teal)}
+.jg-hero{grid-template-columns:1fr}
+.jg-hero-in{display:flex;gap:22px;align-items:center;position:relative}
+.jg-carta{flex:none}
+.jg-quem{min-width:0}
+.jg-nick{font-size:42px;line-height:1;margin:6px 0 8px;letter-spacing:.01em}
+.jg-clube{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.jg-clube .chip.up{background:var(--teal-soft);color:var(--teal)}
+.jg-clube .chip.dn{background:var(--red-soft);color:var(--red)}
+.jg-num{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:13px;color:var(--tx2)}
+.jg-num b{color:var(--tx);font-size:16px;margin-left:4px}
+.jg-ag{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.jg-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:8px}
+.jg-st div{display:flex;flex-direction:column}
+.jg-st b{font-size:20px}
+.jg-st span{font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em}
+.jg-atr,.jg-agl{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;margin-top:8px;font-size:13px}
+.jg-atr-b{height:6px;background:var(--surf2);overflow:hidden}
+.jg-atr-b i{display:block;height:100%;background:var(--teal)}
+.jg-atr b,.jg-agl span{text-align:right}
+@media (max-width:760px){
+  .jg-hero-in{flex-direction:column;align-items:flex-start}
+  .jg-nick{font-size:32px}
+  .jg-st{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nj-ags,.nj-niveis{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body class="modo-menu">
@@ -15023,6 +15059,14 @@ function autoEscalar(t){
     if(!mudou)break;
   }
 
+  /* modo jogador: quem chegou prometido como titular joga a primeira
+     temporada no cinco (core/jogador.js; a titularidade de verdade é J4) */
+  const fixo=t.titularFixo;
+  if(fixo&&fixo.ano===G.ano&&el.some(p=>p.id===fixo.id)&&!esc.includes(fixo.id)){
+    let melhor=null;
+    for(let i=0;i<esc.length;i++){const tt=esc.slice();tt[i]=fixo.id;const n=notaEscalacao(tt);if(!melhor||n>melhor.n)melhor={tt,n};}
+    if(melhor)esc=melhor.tt;
+  }
   t.titulares=esc;
   /* registra em que função cada um vai jogar: é o que o motor de partida lê
      para cobrar o preço de atuar fora de posição */
@@ -16276,7 +16320,8 @@ function usarMotor(A,B){
   if(!motorDisponivel())return false;
   if(typeof Prefs==='undefined')return false;
   if(Prefs.get('motorTodas'))return true;
-  return !!Prefs.get('motorMinhas')&&!!G.meuTime&&(A.id===G.meuTime||B.id===G.meuTime);
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  return !!Prefs.get('motorMinhas')&&!!meu&&(A.id===meu||B.id===meu);
 }
 const motorMapaId=m=>String(m||'').toLowerCase();
 
@@ -16981,8 +17026,9 @@ function noticia(txt,o){
   const p=(o.p||[]).filter(id=>id&&G.jogadores[id]);
   const t=(o.t||[]).filter(id=>id&&G.times[id]).filter((x,i,a)=>a.indexOf(x)===i);
   const n={b:G.bloco,ano:G.ano,s:G.semana,txt,c:o.c||'outros'};
-  const eu=G.meuTime;
+  const eu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
   if(eu&&(t.includes(eu)||p.some(id=>{const j=G.jogadores[id];return j.timeId===eu||j.base===eu;})))n.meu=1;
+  if(G.voce&&p.includes(G.voce.id))n.meu=1;
   if(p.length)n.p=p;
   if(t.length)n.t=t;
   if(o.imp)n.imp=o.imp;
@@ -18848,7 +18894,8 @@ function prepararSemana(){
    no próximo passo dela. É o que permite a tela abrir o relatório e o veto
    ANTES de a partida ser jogada. Devolve null quando não há jogo seu. */
 function compromissoDaSemana(){
-  if(!G.meuTime)return null;
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  if(!meuId)return null;
   const {b}=prepararSemana();
   if(!b)return null;
   /* semana cujo calendário já não pede rodada nenhuma: nada vai ser jogado */
@@ -18856,13 +18903,13 @@ function compromissoDaSemana(){
   for(const s of b.stages){
     if(s.feito)continue;
     const rd=s.rodadaAtual||[];
-    const par=rd.find(x=>x.includes(G.meuTime));
+    const par=rd.find(x=>x.includes(meuId));
     if(!par)continue;
     const bo=((s.tipo==='ko'&&s.vivos.length<=2)||(s.tipo==='de'&&s.faseAtual==='gf'))
       ?Math.max(s.bo,5):s.bo;
     return{stage:s,aId:par[0],bId:par[1],bo,
-           advId:par[0]===G.meuTime?par[1]:par[0],
-           euSouA:par[0]===G.meuTime};
+           advId:par[0]===meuId?par[1]:par[0],
+           euSouA:par[0]===meuId};
   }
   return null;
 }
@@ -18944,7 +18991,8 @@ function avancar(plano){
           /* Grande final em Bo5, como no circuito de verdade. */
           const bo=((s.tipo==='ko'&&s.vivos.length<=2)||(s.tipo==='de'&&s.faseAtual==='gf'))
             ?Math.max(s.bo,5):s.bo;
-          const meuJogo=(a===G.meuTime||bb===G.meuTime);
+          const meuClube=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+          const meuJogo=!!meuClube&&(a===meuClube||bb===meuClube);
           const ctx={stage:s.id,nome:s.nome,semana:G.semana};
           if(meuJogo&&plano&&plano.veto&&plano.veto.mapas&&plano.veto.mapas.length
              &&plano.stageId===s.id)ctx.veto=plano.veto;
@@ -18967,7 +19015,7 @@ function avancar(plano){
           res.semana=G.semana;
           stageAplicar(s,res);
           resultados.push({stage:s,res});
-          if(a===G.meuTime||bb===G.meuTime)minhaPartida=res;
+          if(meuJogo)minhaPartida=res;
         }
         stageAvancar(s);
       }
@@ -19190,7 +19238,7 @@ function desenvolver(p,t){
 }
 function venderPorDinheiro(t){
   if(t.elenco.length<=5)return;
-  const cand=t.elenco.map(i=>G.jogadores[i]).filter(p=>!t.titulares.includes(p.id));
+  const cand=t.elenco.map(i=>G.jogadores[i]).filter(p=>!p.voce&&!t.titulares.includes(p.id));
   if(!cand.length)return;
   const p=cand.sort((a,b)=>b.valor-a.valor)[0];
   t.caixa+=p.valor*.8;liberar(p);
@@ -19284,13 +19332,13 @@ function mercadoIA(){
       const folga=folgaSalarial(t);
       if(folga<=0)break;
       const teto=Math.min(Math.max(60000,t.caixa*.35),folga*12);
-      const alvo=G.livres.map(i=>G.jogadores[i])
+      const alvo=livresIA()
         .filter(p=>p.role===falta||p.role==='Flex')
         .sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p,t)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
       const esc=alvo
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a,t)-salario(b,t))
+        ||livresIA().sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
+        ||livresIA().sort((a,b)=>salario(a,t)-salario(b,t))
             .find(p=>salario(p,t)*12<teto);
       if(!esc)break;
       contratar(esc,t,ri(1,3),salario(esc,t));
@@ -19305,7 +19353,7 @@ function mercadoIA(){
       const pior=t.titulares.map(i=>G.jogadores[i]).sort((a,b)=>over(a)-over(b))[0];
       if(!pior)continue;
       const tetoR=Math.min(t.caixa*.4,folgaSalarial(t)*12);
-      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
+      const alvo=livresIA().filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
         .sort((a,b)=>over(b)-over(a))[0];
       if(alvo)contratar(alvo,t,ri(2,3),salario(alvo,t));
     }
@@ -19353,7 +19401,7 @@ function reporElenco(t){
          melhor livre disponível, e no minuto seguinte o mesmo clube o
          recontratava. O buraco nunca fechava. Cinco em quadra continua vindo
          antes do orçamento — o que muda é quem entra. */
-      const disp=G.livres.map(i=>G.jogadores[i]).filter(Boolean)
+      const disp=livresIA().filter(Boolean)
         .sort((a,b)=>over(b)-over(a));
       const teto=folgaSalarial(t)*12;
       const livre=disp.find(p=>salario(p,t)*12<=teto)
@@ -19549,6 +19597,7 @@ function disposicaoDeVender(p){
   return d;
 }
 function topaVender(t,p){
+  if(p&&p.voce)return false;   /* modo jogador: propostas por você são da J5 */
   if(!p.timeId)return true;
   const d=disposicaoDeVender(p);
   if(d<=0)return false;if(d>=1)return true;
@@ -19999,6 +20048,7 @@ function mercadoTransferencias(){
          Seu elenco fica de fora: a IA não tira jogador seu pelas suas costas. */
       const cand=Object.values(G.jogadores).filter(p=>{
         if(p.timeId===G.meuTime)return false;
+        if(p.voce)return false;                   /* modo jogador: propostas por você são da J5 */
         if(p.base)return false;                   /* garoto de base não é mercado */
         if(p.lesao)return false;
         if(p.timeId&&p.contrato>2)return false;   /* contrato longo não sai */
@@ -21189,7 +21239,7 @@ function mercadoNaJanela(){
   if((G.semana||1)>=49)return 0;
   const chance=ultimoDiaDaJanela()?IA_PRAZO_FINAL:IA_JANELA_CHANCE;
   const ocupados=new Set(negociacoes().filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca').map(n=>n.jogadorId));
-  const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.base&&!p.lesao&&!p.emprestimo
+  const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.voce&&!p.base&&!p.lesao&&!p.emprestimo
     &&!p.preContrato&&!ocupados.has(p.id)&&!recemChegado(p)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){
@@ -24049,7 +24099,10 @@ const PAPEIS=[
    detalhe:'Modo com consequência: existe alguém acima de você.'},
   {id:'diretoria',nome:'Diretoria',
    resumo:'Sem metas e sem cobrança. Você responde a você mesmo e conduz o clube como quiser.',
-   detalhe:'Modo livre: ninguém te demite.'}
+   detalhe:'Modo livre: ninguém te demite.'},
+  {id:'jogador',nome:'Jogador',
+   resumo:'Você é um jogador do circuito: treina, joga as partidas na gameplay, negocia o seu contrato e constrói a carreira.',
+   detalhe:'O clube é dirigido pela IA, como todos os outros.'}
 ];
 function papelAtual(){return (G.manager&&G.manager.papel)||'diretoria';}
 function souTreinador(){return papelAtual()==='treinador';}
@@ -24446,6 +24499,123 @@ function situacaoManager(){
 }
 
 
+/* ===== src/core/jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — a base (J0 e J1)
+   ------------------------------------------------------------
+   Terceiro papel ao lado de Treinador e Diretoria: você é UM
+   jogador do circuito. O mundo é o mesmo — clubes, calendário,
+   mercado, torcida, imprensa —, mas ninguém do lado de lá é
+   você: o seu clube é dirigido pela IA como qualquer outro.
+
+   Por isso, no modo jogador, G.meuTime fica vazio. Tudo o que é
+   de quem DIRIGE um clube (escalação, tática, mercado, base,
+   finanças do clube) some sozinho, e a IA cuida do seu clube
+   sem exceção. O que é do jogador mora em G.voce:
+     G.voce = {id, desde, inicio, estilo, dificuldade}
+   e o registro do jogador em G.jogadores leva p.voce = true.
+
+   Enquanto contrato (J5) e aposentadoria (J7) não existem, a IA
+   não mexe em você: não vende, não dispensa, não aposenta, e o
+   seu contrato renova sozinho. As proteções ficam marcadas com
+   "modo jogador" no código para sair quando as etapas chegarem.
+   ============================================================ */
+
+function modoJogador(){return !!(typeof G!=='undefined'&&G&&G.voce);}
+function meuJogador(){return modoJogador()?G.jogadores[G.voce.id]||null:null;}
+function ehVoce(p){return !!(p&&p.voce);}
+function clubeDoJogador(){const p=meuJogador();return p&&p.timeId?G.times[p.timeId]||null:null;}
+/* o clube cujas partidas são "suas": o que você dirige, ou o do seu jogador */
+function clubeDoUsuario(){
+  if(typeof G==='undefined'||!G)return null;
+  if(G.meuTime)return G.meuTime;
+  const p=meuJogador();return p&&p.timeId?p.timeId:null;
+}
+/* agentes livres que a IA pode contratar (você não entra sem querer) */
+function livresIA(){return G.livres.map(i=>G.jogadores[i]).filter(p=>p&&!p.voce);}
+
+/* ---------- pontos de partida ----------
+   valores SUGERIDOS: a criação deixa mexer em tudo (over e potencial
+   livres), e o ponto de partida só decide onde você aparece no mundo */
+const INICIOS_JOGADOR=[
+  {id:'ranked',  nome:'Ranked',            resumo:'Sem clube, Radiante, sonhando com uma chance.', over:65, pot:92, tier:0},
+  {id:'tier2',   nome:'Challengers',       resumo:'Contratado por um clube do Tier 2, brigando por vaga.', over:72, pot:88, tier:2},
+  {id:'banco',   nome:'VCT no banco',      resumo:'Novato num clube da liga principal, começa como reserva.', over:78, pot:86, tier:1},
+  {id:'titular', nome:'VCT titular',       resumo:'Titular num clube da liga principal desde o primeiro jogo.', over:84, pot:90, tier:1, titular:true},
+  {id:'lenda',   nome:'Lenda',             resumo:'Um dos melhores do mundo, já no topo.', over:93, pot:98, tier:1, titular:true}
+];
+function inicioJogador(id){return INICIOS_JOGADOR.find(x=>x.id===id)||INICIOS_JOGADOR[1];}
+/* estilo de jogo: o talento de partida (a árvore cresce a partir dele, J3) */
+const ESTILOS_JOGADOR=[
+  {id:'entrada',  nome:'Entrada',   desc:'Abre o bomb e troca a primeira vida.', mais:'mov',    agres:+0.10},
+  {id:'suporte',  nome:'Suporte',   desc:'Utilidade na hora certa, joga para o time.', mais:'util', agres:-0.05},
+  {id:'ancora',   nome:'Âncora',    desc:'Segura o bomb sozinho e não se apavora.', mais:'clutch', agres:-0.10},
+  {id:'lurker',   nome:'Lurker',    desc:'Flanco, informação, tempo de jogo.', mais:'visao',  agres:-0.02},
+  {id:'mira',     nome:'Mira pura', desc:'Ganha duelo; o resto vem depois.', mais:'mira',   agres:+0.05}
+];
+function estiloJogador(id){return ESTILOS_JOGADOR.find(x=>x.id===id)||ESTILOS_JOGADOR[4];}
+
+/* ---------- criar a carreira ----------
+   o = {nick, nome, pais, idade, genero, foto, funcao, agentes:[nomes],
+        estilo, inicio, over, pot, timeId, atrib (opcional, manual)} */
+function criarCarreiraJogador(o){
+  const ini=inicioJogador(o.inicio), est=estiloJogador(o.estilo);
+  const funcao=ROLES.includes(o.funcao)?o.funcao:'Duelista';
+  const overAlvo=clamp(Math.round(o.over||ini.over),40,99);
+  const usados=new Set(Object.values(G.jogadores).map(p=>p.nome));
+  const tier=ini.tier||2;
+  const p=makePlayer(overAlvo,funcao,o.pais||'BR',clamp(parseInt(o.idade)||19,15,40),usados,tier);
+  p.nome=String(o.nick||'').trim().slice(0,20)||'Você';
+  p.nomeReal=String(o.nome||'').trim().slice(0,40)||null;
+  p.genero=o.genero==='f'?'f':'m';
+  if(o.foto)p.foto=o.foto;
+  p.voce=true;
+  /* atributos: os do perfil da função puxados pelo estilo, ou os que você montou */
+  if(o.atrib){for(const[k]of ATTRS)if(o.atrib[k]!=null)p.at[k]=clamp(Math.round(o.atrib[k]),25,99);}
+  else if(est.mais&&p.at[est.mais]!=null){p.at[est.mais]=clamp(p.at[est.mais]+4,25,99);aplicarOver(p,overAlvo);}
+  p.pot=clamp(Math.round(o.pot||ini.pot),over(p),99);
+  p.pico=over(p);
+  /* agentes: os que você escolheu, na ordem (o primeiro é o main) */
+  const ag=(o.agentes||[]).filter(Boolean).slice(0,5);
+  if(ag.length){p.agentes=ag;p.agenteNivel=null;if(typeof semearAgentes==='function')semearAgentes(p);}
+  ajustarSecundaria(p);
+  G.jogadores[p.id]=p;
+  G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
+  G.meuTime=null;
+  /* onde você aparece no mundo */
+  const t=o.timeId&&G.times[o.timeId];
+  if(t&&ini.tier){
+    /* elenco cheio: sai o reserva de menor over, como numa contratação */
+    if(t.elenco.length>=ELENCO_MAX){
+      const sai=t.elenco.map(i=>G.jogadores[i]).filter(x=>x&&!t.titulares.includes(x.id)).sort((a,b)=>over(a)-over(b))[0];
+      if(sai)liberar(sai);
+    }
+    contratar(p,t,2,salario(p,t));
+    if(ini.titular){
+      /* titular desde o primeiro jogo: entra no lugar do titular da mesma função de menor over */
+      const mesma=t.titulares.map(i=>G.jogadores[i]).filter(x=>x&&x.id!==p.id).sort((a,b)=>(a.role===funcao?0:1)-(b.role===funcao?0:1)||over(a)-over(b));
+      if(!t.titulares.includes(p.id)){
+        if(t.titulares.length>=5&&mesma[0])t.titulares=t.titulares.filter(x=>x!==mesma[0].id);
+        t.titulares.push(p.id);
+      }
+      t.titularFixo={id:p.id,ano:G.ano};   /* o técnico respeita a promessa na primeira temporada (J4 decide depois) */
+      autoEscalar(t);
+    }
+    p.moral=clamp(p.moral+.1,.2,1);
+  }else{
+    p.timeId=null;p.contrato=0;p.semLivre=0;
+    if(!G.livres.includes(p.id))G.livres.push(p.id);
+  }
+  p.salario=p.timeId?p.salario:0;
+  p.valor=valor(p);
+  if(typeof noticia==='function'){
+    if(p.timeId)noticia('✍️ '+p.nome+' assinou com o '+G.times[p.timeId].nome+(ini.titular?' e chega como titular.':'.'),{c:'mercado',p:[p.id],t:[p.timeId]});
+    else noticia('🎮 '+p.nome+' é o nome que sobe na ranked. Os olheiros já ouviram falar.',{c:'carreira',p:[p.id]});
+  }
+  return p;
+}
+
+
 /* ===== src/core/offseason.js ===== */
 /* ============================================================
    FIM DE TEMPORADA
@@ -24473,6 +24643,7 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
    divisão em vez de apodrecer num clube que não o sustenta. */
 function renovarSePuder(p){
   const t=G.times[p.timeId];
+  if(p.voce&&t){p.contrato=2;p.salario=salario(p,t);return true;}   /* modo jogador (J5) */
   if(!t){liberar(p);return false;}
   /* quem não quer ficar não fica, nem por dinheiro: a mesma régua da sua mesa */
   if(typeof interesseEmFicar==='function'&&t.elenco.length>5&&interesseEmFicar(p,t).nota<INTERESSE_MIN){liberar(p);return false;}
@@ -24508,8 +24679,8 @@ function ajustarFolha(){
     let guarda=0;
     while(t.elenco.length>4&&folhaAnual(t)>receitaLivre(t)*tetoFolhaDe(t)&&guarda++<8){
       const banco=t.elenco.map(i=>G.jogadores[i])
-        .filter(p=>p&&!(t.titulares||[]).includes(p.id));
-      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(Boolean))
+        .filter(p=>p&&!p.voce&&!(t.titulares||[]).includes(p.id));
+      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(p=>p&&!p.voce))
         .sort((a,b)=>b.salario-a.salario)[0];
       if(!alvo)break;
       liberar(alvo);cortes++;
@@ -24538,6 +24709,7 @@ function ajustarFolha(){
    some do mundo na virada. Era 170; 120 ainda é mercado farto e pesa menos no save. */
 const LIVRES_MAX=120;
 function chanceAposentadoria(p){
+  if(p&&p.voce)return 0;   /* modo jogador: você decide quando parar (J7) */
   let c=0;
   for(const[idade,ch]of APOS_IDADE)if(p.idade>=idade){c=ch;break;}
   /* O declínio só pesa quando já faz sentido pesar. Sem esta rampa, um jogador
@@ -24597,6 +24769,7 @@ function fimDeTemporada(){
     }
     /* pré-contrato assinado na temporada: ele se apresenta no clube novo */
     if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){}
+    else if(p.contrato===0&&p.timeId&&p.voce){p.contrato=2;p.salario=salario(p,G.times[p.timeId]);}   /* modo jogador: renova sozinho até a J5 */
     else if(p.contrato===0&&p.timeId){
       if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
@@ -24680,7 +24853,8 @@ function fimDeTemporada(){
   mercadoTransferencias();
   mercadoIA();
   if(G.livres.length>LIVRES_MAX){
-    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(over(b)+b.pot)-(over(a)+a.pot));
+    /* modo jogador: você nunca some do mundo por estar sem clube */
+    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(b.voce?1:0)-(a.voce?1:0)||(over(b)+b.pot)-(over(a)+a.pot));
     ordenados.slice(LIVRES_MAX).forEach(p=>{noticia('');
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[p.id];});
@@ -24690,7 +24864,7 @@ function fimDeTemporada(){
   const meuT=G.times[G.meuTime];
   if(meuT){
     while(meuT.elenco.length<5&&G.livres.length){
-      const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
+      const alvo=livresIA().sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p,meuT)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
       contratar(alvo,meuT,2,salario(alvo,meuT));
       noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});
@@ -27213,7 +27387,8 @@ function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.r
 function empacotarRun(nome){
   return{
     id:G.runId, versao:RUN_VERSAO, nome:nome||G.runNome||'Sem nome',
-    ano:G.ano, clube:G.meuTime?G.times[G.meuTime].nome:'—',
+    ano:G.ano, clube:G.meuTime?G.times[G.meuTime].nome
+      :(G.voce&&G.jogadores[G.voce.id])?'🎮 '+G.jogadores[G.voce.id].nome+(G.jogadores[G.voce.id].timeId&&G.times[G.jogadores[G.voce.id].timeId]?' · '+G.times[G.jogadores[G.voce.id].timeId].nome:' · sem clube'):'—',
     fase:G.calendario&&G.calendario[G.bloco]?G.calendario[G.bloco].nome:'',
     atualizado:Date.now(), semente:_s, estado:G
   };
@@ -27879,10 +28054,10 @@ function P(id){return G.jogadores[id];}
 function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
-function preRun(){return !G||!G.meuTime;}
+function preRun(){return !G||(!G.meuTime&&!G.voce);}
 function nomeTela(k){
   if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
-  const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
+  const it=(typeof navAtual==='function'?navAtual():NAV).find(x=>x[0]===k);return it?it[1]:'—';}
 
 /* raiz onde o conteúdo da tela atual está: os handlers de ligarEventos()
    valem nos dois shells, então precisam perguntar onde procurar. */
@@ -27975,7 +28150,10 @@ function render(){
             editor:vEditor,config:vConfig}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
-  const html=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
+  /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
+  const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
+  const html=(typeof guiaBanner==='function'&&!(typeof modoJogador==='function'&&modoJogador())?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
@@ -28000,14 +28178,14 @@ function irPara(k,semHist){
 function pintarSide(){
   const t=meu();
   const grupos=[];
-  NAV.forEach(([k,n,g,i])=>{
+  (typeof navAtual==='function'?navAtual():NAV).forEach(([k,n,g,i])=>{
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
   pintarRaiz($('#side'),
-    `<div class="side-org">${t?escudo(t,34):''}<div class="n">
-       <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>
-     <div class="side-nav">`+
+    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador():`<div class="side-org">${t?escudo(t,34):''}<div class="n">
+       <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
+     `<div class="side-nav">`+
     grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
       gr.itens.map(([k,n,i])=>{
         const av=avisoDaTela(k);
@@ -28045,7 +28223,8 @@ function pintarTop(){
       return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
         d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
-    <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
+    ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
+      :`<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>
@@ -28471,9 +28650,9 @@ function contarNumeros(raiz){
 
 /* ---------- momento: título do seu clube ---------- */
 let _titulosVistos=null;
-function titulosDoMeuClube(){return (G&&G.historico||[]).filter(h=>h&&!h.pre&&G.meuTime&&h.timeId===G.meuTime);}
+function titulosDoMeuClube(){const eu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G&&G.meuTime;return (G&&G.historico||[]).filter(h=>h&&!h.pre&&eu&&h.timeId===eu);}
 function conferirCelebracao(){
-  if(!G||!G.meuTime)return;
+  if(!G||!(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime))return;
   const tits=titulosDoMeuClube();
   if(_titulosVistos==null){_titulosVistos=tits.length;return;}
   const novos=tits.slice(_titulosVistos);_titulosVistos=tits.length;
@@ -28723,7 +28902,7 @@ function carreiraAberta(){
 
 /* ---------- transições de modo ---------- */
 function entrarNoJogo(){
-  if(!G||!G.meuTime){flash('Assuma um clube primeiro.');return;}
+  if(preRun()){flash('Assuma um clube primeiro.');return;}
   modo='jogo';
   if(typeof garantirManagerNaComissao==='function')garantirManagerNaComissao();
   if(typeof _titulosVistos!=='undefined')_titulosVistos=null;
@@ -28945,14 +29124,15 @@ function haQuanto(ms){
    Central monta a semana se ela ainda não foi montada; na tela inicial
    isso não pode acontecer (seria mexer na carreira sem você entrar). */
 function proximoDaCarreira(){
-  if(!G||!G.meuTime||!G.calendario)return null;
+  const meuId=G&&(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
+  if(!G||!meuId||!G.calendario)return null;
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
   if(b){
     for(const s of b.stages||[]){
       if(s.feito)continue;
-      const par=(s.rodadaAtual||[]).find(x=>x.includes(G.meuTime));
-      if(par)return{stage:s,adv:par[0]===G.meuTime?par[1]:par[0]};
+      const par=(s.rodadaAtual||[]).find(x=>x.includes(meuId));
+      if(par)return{stage:s,adv:par[0]===meuId?par[1]:par[0]};
     }
     return{agora:b};
   }
@@ -29274,14 +29454,15 @@ function proximoConfronto(){
      tentava adivinhar o resto por s.vivos, que não existe em grupo nem em
      chaveamento — o resultado é que a Central dizia "esperando o próximo
      torneio" nas semanas em que o clube tinha jogo marcado. */
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
   if(b)for(const s of b.stages){
     if(s.feito)continue;
     const rd=s.rodadaAtual||[];
-    const par=rd.find(x=>x.includes(G.meuTime));
-    if(par)return{stage:s,adv:par[0]===G.meuTime?par[1]:par[0]};
+    const par=rd.find(x=>x.includes(meuId));
+    if(par)return{stage:s,adv:par[0]===meuId?par[1]:par[0]};
     /* segue vivo no torneio mas não joga esta rodada: é bye */
-    const vivo=s.tipo==='de'?[...(s.ub||[]),...(s.lb||[]),...(s.fila||[])].includes(G.meuTime)
-              :s.tipo==='ko'?(s.vivos||[]).includes(G.meuTime)
+    const vivo=s.tipo==='de'?[...(s.ub||[]),...(s.lb||[]),...(s.fila||[])].includes(meuId)
+              :s.tipo==='ko'?(s.vivos||[]).includes(meuId)
               :false;
     if(vivo&&rd.length)return{stage:s,adv:null,bye:true};
   }
@@ -35837,11 +36018,12 @@ let aba=0;
    escudos, MVP com a carta, os mapas como abas com a imagem e o placar, a
    trilha de rounds com o jeito que cada um acabou e o box score com retrato. */
 function modalPartida(res){
-  const meuLadoA=res.aId===G.meuTime;
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  const meuLadoA=res.aId===meuId;
   const eu=meuLadoA?res.aId:res.bId, adv=meuLadoA?res.bId:res.aId;
   const A=T(eu),B=T(adv);
   const wEu=meuLadoA?res.wa:res.wb, wAd=meuLadoA?res.wb:res.wa;
-  const venceu=res.vencedor===G.meuTime;
+  const venceu=res.vencedor===meuId;
   const ia=Math.min(aba,res.mapas.length-1);
   const mp=res.mapas[ia];
   /* MVP com a soma da série */
@@ -37921,7 +38103,7 @@ function avFechar(){
    estiver ligada e a partida for sua. */
 function partidaAoVivo(res){
   if(!res||!res.mapas||!res.mapas.length)return modalPartida(res);
-  const souA=res.aId===G.meuTime;
+  const souA=res.aId===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
   const meu=G.times[souA?res.aId:res.bId], adv=G.times[souA?res.bId:res.aId];
   AV={
     res,souA,meu,adv,
@@ -37950,7 +38132,7 @@ function partidaAoVivo(res){
    motor, e não da tela.
    ============================================================ */
 function partidaConduzida(S,ctx,aoFim){
-  const souA=S.aId===G.meuTime;
+  const souA=S.aId===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
   const meu=G.times[souA?S.aId:S.bId], adv=G.times[souA?S.bId:S.aId];
   AV={
     S,ctx,aoFim,conduzida:true,
@@ -38333,6 +38515,147 @@ function avPintar(fim){
     Prefs.set('velocidadeAoVivo',String(AV.vel));
     avPintar();avAgendar(120);
   });
+}
+
+
+/* ===== src/ui/jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — as telas (J0)
+   ------------------------------------------------------------
+   A navegação do modo jogador é outra lista: as telas de quem
+   DIRIGE um clube (escalação, tática, estrutura, base, mercado do
+   clube, finanças do clube) não aparecem; no lugar delas entram
+   as do jogador. As telas do circuito (Competições, Estatísticas,
+   Prêmios, Notícias) são as mesmas, e a página do seu clube é a
+   página de clube de sempre.
+   As etapas seguintes acrescentam aqui: Semana e treinos (J3),
+   Relações (J4), Contrato e Finanças pessoais (J5), Mídia (J6).
+   ============================================================ */
+
+const NAV_JOGADOR=[
+  ['inicio','Central','Carreira','casa'],
+  ['perfil','Meu jogador','Carreira','elenco'],
+  ['meuclube','Meu clube','Carreira','vestiario'],
+  ['comp','Competições','Circuito','trofeu'],
+  ['stats','Estatísticas','Circuito','grafico'],
+  ['premios','Prêmios','Circuito','trofeu'],
+  ['news','Notícias','Circuito','jornal'],
+  ['config','Configurações','Sistema','engrenagem']
+];
+function navAtual(){return typeof modoJogador==='function'&&modoJogador()?NAV_JOGADOR:NAV;}
+/* telas do modo jogador: chave → função de pintura */
+function telaDoJogador(k){
+  return {inicio:vJCentral,perfil:vJPerfil,meuclube:vJMeuClube}[k]||null;
+}
+
+/* ---------- pedaços ---------- */
+function _jMedia(p){const s=p.temp||{};return s.maps?{acs:Math.round(s.acs/s.maps),kd:(s.k/Math.max(1,s.d)).toFixed(2)}:{acs:null,kd:null};}
+function _jSituacao(p,t){
+  if(!t)return{rot:'Sem clube',tom:'',txt:'Jogando ranked e esperando a chance. Os convites para teste chegam com a etapa de mercado.'};
+  if(p.lesao)return{rot:'Lesionado',tom:'dn',txt:'Fora por '+p.lesao+' semana'+(p.lesao>1?'s':'')+'.'};
+  if((t.titulares||[]).includes(p.id))return{rot:'Titular',tom:'up',txt:'Você está no cinco do '+t.nome+'.'};
+  return{rot:'Reserva',tom:'',txt:'O técnico escala pelo over, pela forma e pelo cansaço. Treinar e render nos jogos muda a sua situação.'};
+}
+function _jHero(p,t){
+  const cor=t?corDoClube(t):'#5a6b7d';
+  const sit=_jSituacao(p,t), md=_jMedia(p), o=over(p);
+  const fam=(p.agentes||[]).slice(0,3);
+  return `<section class="cx-hero jg-hero" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    <div class="jg-hero-in">
+      <div class="jg-carta">${cartaJogador(p,{w:150})}</div>
+      <div class="jg-quem">
+        <div class="eyebrow">${esc(p.roleAtual||p.role)}${p.nomeReal?' · '+esc(p.nomeReal):''} · ${p.idade} anos · ${esc(p.pais||'')}</div>
+        <h1 class="jg-nick">${esc(p.nome)}</h1>
+        <div class="jg-clube">${t?`${escudo(t,26)} <b>${esc(t.nome)}</b> <span class="dim">${esc(nomeLiga(t))}</span>`:'<span class="dim">Sem clube</span>'}
+          <span class="chip ${sit.tom}">${esc(sit.rot)}</span></div>
+        <div class="jg-num">
+          <span>Over <b class="num">${o}</b></span><span>Potencial <b class="num">${p.pot}</b></span>
+          ${md.acs!=null?`<span>ACS <b class="num">${md.acs}</b></span><span>K/D <b class="num">${md.kd}</b></span>`:''}
+          ${t?`<span>Contrato <b class="num">${p.contrato}</b> ano${p.contrato===1?'':'s'}</span><span>Salário <b class="num">${money(p.salario)}</b>/mês</span>`:''}
+        </div>
+        <div class="jg-ag">${fam.map(a=>`<span class="chip">${esc(a)}</span>`).join('')}</div>
+        <p class="dim" style="margin-top:6px">${esc(sit.txt)}</p>
+      </div>
+    </div></section>`;
+}
+function _jNoticiasSobre(p,n){
+  const lista=(G.noticias||[]).filter(x=>(x.p||[]).includes(p.id)).slice(0,n||6);
+  return `<div class="card"><div class="split"><div class="eyebrow">Falando de você</div><button class="btn ghost sm" data-ir="news">Notícias ›</button></div>
+    ${lista.length?`<div class="feed">${lista.map(x=>`<div><span class="dim">${x.ano} · sem ${x.s}</span> ${typeof iconizar==='function'?iconizar(esc(x.txt)):esc(x.txt)}</div>`).join('')}</div>`
+      :vazio('<b>Ninguém falou de você ainda.</b> Jogo grande, título e polêmica viram notícia.','jornal')}</div>`;
+}
+function _jTemporada(p){
+  const s=p.temp||{}, md=_jMedia(p);
+  const c=p.carreira||{};
+  const it=(r,v)=>`<div><b class="num">${v}</b><span>${r}</span></div>`;
+  return `<div class="card"><div class="eyebrow">Temporada ${G.ano}</div>
+    ${s.maps?`<div class="jg-st">${it('mapas',s.maps)}${it('abates',s.k)}${it('mortes',s.d)}${it('assist.',s.a)}${it('ACS',md.acs)}${it('first kills',s.fk||0)}${it('clutches',s.cl||0)}${it('MVP',s.mvp||0)}</div>`
+      :vazio('<b>Nenhum mapa jogado nesta temporada.</b>','grafico')}
+    ${c.maps?`<p class="dim" style="margin-top:8px">Carreira: ${c.maps} mapas · ${c.k}/${c.d} · ACS médio ${Math.round((c.acs||0)/c.maps)} · ${c.mvp||0} MVP</p>`:''}</div>`;
+}
+/* a tabela da liga do clube (a mesma conta da Central do técnico) */
+function _jTabela(t,px){
+  if(!t||typeof cardTabelaDaCasa!=='function')return '';
+  const metade=(G.semana||1)>=25?'2':'1', pre=(t.tier===1?'s':'c')+metade+'_';
+  const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
+  const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
+          ||(t.tier===1?acharStage('kg_'+t.regiao):null)||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
+  return cardTabelaDaCasa(t,rr);
+}
+
+/* o cartão do confronto é o da Central do técnico: tira os botões de técnico */
+function _jSemAcoesDeTecnico(html){
+  return String(html).replace(/<button[^>]*data-ir="(preparacao|mercado|elenco|vestiario|estrutura|base|financas|taticas|treino|comps)"[^>]*>[\s\S]*?<\/button>/g,'');
+}
+/* ---------- Central do jogador ---------- */
+function vJCentral(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  const t=clubeDoJogador();
+  const px=t?proximoConfronto():null;
+  return `${typeof faixaCircuito==='function'?faixaCircuito():''}
+    ${_jHero(p,t)}
+    ${t?`<div class="grid g2 cx-linha">${_jSemAcoesDeTecnico(cardConfronto(t,px))}${_jTabela(t,px)}</div>`
+       :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Por enquanto as semanas passam com você jogando ranked; os convites para teste e as propostas chegam com a etapa de mercado (J5).','jogar')}</div>`}
+    <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
+}
+
+/* ---------- Meu jogador ---------- */
+function vJPerfil(){
+  const p=meuJogador();
+  if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
+  const t=clubeDoJogador(), est=typeof estiloJogador==='function'&&G.voce?estiloJogador(G.voce.estilo):null;
+  const barra=(k,rot)=>{const v=p.at[k];return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i></div><b class="num">${v}</b></div>`;};
+  const fam=(p.agentes||[]).map(a=>{const n=typeof nivelAgente==='function'?nivelAgente(p,a):null;
+    return `<div class="jg-agl"><b>${esc(a)}</b><div class="jg-atr-b"><i style="width:${n||0}%"></i></div><span class="num">${n!=null?Math.round(n):'–'}</span></div>`;}).join('');
+  const hist=(p.hist||[]).slice().reverse();
+  return `${_jHero(p,t)}
+    <div class="grid g2 cx-linha">
+      <div class="card"><div class="eyebrow">Atributos</div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}
+        <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, cada ponto custa mais. A barra de XP e a árvore de talentos chegam com a semana de treino (J3).</p></div>
+      <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam||vazio('<b>Sem agentes.</b>','elenco')}
+        ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
+        <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
+    </div>
+    <div class="card"><div class="eyebrow">Carreira</div>
+      ${hist.length?`<table class="tbl"><thead><tr><th>Ano</th><th>Clube</th><th>Over</th><th>Mapas</th><th>K/D</th><th>ACS</th><th>MVP</th></tr></thead><tbody>
+        ${hist.map(h=>`<tr><td>${h.ano}</td><td>${esc(h.time||'')}</td><td class="num">${h.over}</td><td class="num">${h.maps||0}</td><td class="num">${h.k||0}/${h.d||0}</td><td class="num">${h.maps?Math.round(h.acs/h.maps):'–'}</td><td class="num">${h.mvp||0}</td></tr>`).join('')}</tbody></table>`
+        :vazio('<b>A primeira temporada está em andamento.</b> O histórico entra na virada do ano.','trofeu')}</div>`;
+}
+
+/* ---------- Meu clube: a página de clube de sempre ---------- */
+function vJMeuClube(){
+  const t=clubeDoJogador();
+  if(!t)return `<div class="card">${vazio('<b>Você ainda não tem clube.</b> Quando assinar, a página dele aparece aqui.','vestiario')}</div>`;
+  clubeVer=t.id;
+  return vClube();
+}
+
+/* ---------- a barra lateral do modo jogador mostra você ---------- */
+function sideCabecalhoJogador(){
+  const p=meuJogador();if(!p)return '';
+  const t=clubeDoJogador();
+  return `<div class="side-org">${t?escudo(t,34):''}<div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.nome:'sem clube')} · over ${over(p)}</span></div></div>`;
 }
 
 
@@ -39250,7 +39573,7 @@ function vRuns(){
     salvas <b>${modoTxt}</b>${Pasta.estado==='ligada'?` e na pasta <b>${esc(Pasta.nome)}</b>`:''}. O arquivo <code>.vctrun.json</code> é o backup de uma carreira.</p>
   ${cartaoPasta()}
 
-  ${G&&G.meuTime?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
+  ${G&&(G.meuTime||G.voce)?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
     <span class="chip t">em andamento</span></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
       <input type="text" id="runNome" style="width:260px" placeholder="Nome da run" value="${esc(G.runNome||'')}">
@@ -40067,6 +40390,8 @@ function ligarEventos(){
    NOVO JOGO
    ============================================================ */
 let escRegiao='AMER',escTier=1,escPapel='treinador',escNome='',escDif='normal',escSel=null;
+/* modo jogador: a ficha do seu jogador na criação (core/jogador.js) */
+let escJ={funcao:'Duelista',ag:['Jett','Raze','Neon'],estilo:'mira',inicio:'tier2',over:72,pot:88,nomeReal:''};
 /* modo: carreira normal, ou um cenário de desafio (core/desafios.js) */
 let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
@@ -40113,6 +40438,7 @@ function telaNovoJogo(){
   /* o cenário escolhe a divisão quando só faz sentido numa */
   if(cen&&G){const ok=tr=>G.regioes[escRegiao][tr===1?'t1':'t2'].some(id=>cen.filtro(T(id)));
     if(!ok(escTier)&&ok(escTier===1?2:1))escTier=escTier===1?2:1;}
+  if(escPapel==='jogador'){const ij=inicioJogador(escJ.inicio);if(ij.tier)escTier=ij.tier;}
   const times=G?G.regioes[escRegiao][escTier===1?'t1':'t2'].filter(id=>!cen||cen.filtro(T(id))).sort((a,b)=>T(b).prestigio-T(a).prestigio):[];
   /* clube em destaque na prévia: o escolhido, se ainda estiver na lista, ou o primeiro */
   const sel=times.includes(escSel)?escSel:times[0];
@@ -40130,9 +40456,10 @@ function telaNovoJogo(){
         ${escFoto?'<button class="btn ghost sm" id="njFotoTira">Tirar a foto</button>':'<span class="dim">opcional · PNG ou JPG</span>'}
       </div>
       <div class="nj-campos campos">
-        <label>Seu nome<input type="text" id="njNome" value="${esc(escNome)}" maxlength="28" placeholder="como a imprensa vai te chamar"></label>
+        <label>${escPapel==='jogador'?'Seu nick':'Seu nome'}<input type="text" id="njNome" value="${esc(escNome)}" maxlength="${escPapel==='jogador'?20:28}" placeholder="${escPapel==='jogador'?'o nome que aparece no placar':'como a imprensa vai te chamar'}"></label>
+        ${escPapel==='jogador'?`<label>Nome real<input type="text" id="njNomeReal" value="${esc(escJ.nomeReal)}" maxlength="40" placeholder="opcional"></label>`:''}
         <label>Nacionalidade${selectPais('id="njPais"',escPais)}</label>
-        <label>Idade<input type="number" id="njIdade" value="${escIdade}" min="22" max="70"></label>
+        <label>Idade<input type="number" id="njIdade" value="${escIdade}" min="${escPapel==='jogador'?15:22}" max="${escPapel==='jogador'?40:70}"></label>
         <label>Gênero<select id="njGenero"><option value="m" ${escGenero==='m'?'selected':''}>Masculino</option><option value="f" ${escGenero==='f'?'selected':''}>Feminino</option></select></label>
       </div>
     </div>
@@ -40143,6 +40470,7 @@ function telaNovoJogo(){
           <span>${esc(p.resumo)}</span>
           <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':' O coach do clube continua no cargo.'}</i>
         </button>`).join('')}</div>
+    ${escPapel==='jogador'?blocoJogadorNJ():''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:14px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
@@ -40156,18 +40484,22 @@ function telaNovoJogo(){
     <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
-    <div class="eyebrow" style="margin-top:16px">Modo de jogo</div>
+    ${escPapel==='jogador'?'':`<div class="eyebrow" style="margin-top:16px">Modo de jogo</div>
     <div class="nj-papeis">
       <button class="nj-papel ${!escCenario?'on':''}" data-cenario=""><b>Carreira</b><span>Escolha qualquer clube e escreva a sua história.</span></button>
       <button class="nj-papel ${escCenario?'on':''}" data-cenario="${escCenario||DESAFIOS[0].id}"><b>Cenário de desafio</b><span>Um começo difícil, com objetivo e prazo. A carreira continua depois.</span></button>
     </div>
     ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
         <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
-        <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}
-    <h2 class="sec" style="margin-top:18px">Escolha seu clube</h2>
-    <p class="dim">Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.</p>
+        <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}`}
+    ${escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
+    <h2 class="sec" style="margin-top:18px">Começar na ranked</h2>
+    <p class="dim">Sem clube. As semanas passam com você na ranked até chegar um convite para teste.</p>
+    <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" data-pick="">Começar a carreira ›</button></div>`:`
+    <h2 class="sec" style="margin-top:18px">${escPapel==='jogador'?'Escolha o seu clube':'Escolha seu clube'}</h2>
+    <p class="dim">${escPapel==='jogador'?'Você assina com o clube e a IA o dirige: escalação, comp, mercado e treino coletivo são do técnico dele.':'Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.'}</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
-    <div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2) — modo difícil']].map(([k,n])=>`<button data-tr="${k}" class="${escTier===k?'on':''}">${n}</button>`).join('')}</div>
+    ${escPapel==='jogador'?'':`<div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2) — modo difícil']].map(([k,n])=>`<button data-tr="${k}" class="${escTier===k?'on':''}">${n}</button>`).join('')}</div>`}
     <div class="nj-escolha">
       <div class="nj-grade">${times.map(id=>{const t=T(id);const ov=Math.round(t.titulares.reduce((s,i)=>s+over(P(i)),0)/5);
         return `<button class="nj-clube ${id===sel?'on':''}" data-njsel="${id}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
@@ -40179,9 +40511,9 @@ function telaNovoJogo(){
             <div class="nj-prev-k"><span>Prestígio <b class="num">${Math.round(t.prestigio)}</b></span><span>Over <b class="num">${ov}</b></span>
               <span>Caixa <b class="num">${money(t.caixa)}</b></span><span>Folha <b class="num">${money(fo)}/mês</b></span></div></div></div>
           <div class="nj-prev-cartas">${t.titulares.map(P).filter(Boolean).map(p=>cartaJogador(p,{w:66})).join('')}</div>
-          <button class="btn nj-assumir" data-pick="${t.id}">Assumir o ${esc(t.nome)} ›</button></div>`;})()
+          <button class="btn nj-assumir" data-pick="${t.id}">${escPapel==='jogador'?'Assinar com o '+esc(t.nome):'Assumir o '+esc(t.nome)} ›</button></div>`;})()
         :'<div class="nj-prev vazio">'+vazio('<b>Escolha um clube</b> na grade para ver o elenco.','clube')+'</div>'}
-    </div>
+    </div>`}
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>
@@ -40191,9 +40523,10 @@ function telaNovoJogo(){
      região no meio do preenchimento apagava o que a pessoa escreveu */
   if(antes){const o=$('#modal .ovl');if(o){o.scrollTop=rolA;const b=o.querySelector('.box');if(b)b.scrollTop=rolB;}}
   const guardaNome=()=>{const el=$('#njNome');if(el)escNome=el.value;
-    const pa=$('#njPais');if(pa)escPais=pa.value;const id=$('#njIdade');if(id)escIdade=clamp(parseInt(id.value)||34,22,70);
+    const pa=$('#njPais');if(pa)escPais=pa.value;const id=$('#njIdade');if(id)escIdade=escPapel==='jogador'?clamp(parseInt(id.value)||19,15,40):clamp(parseInt(id.value)||34,22,70);
+    const nr=$('#njNomeReal');if(nr)escJ.nomeReal=nr.value;
     const ge=$('#njGenero');if(ge)escGenero=ge.value;};
-  ['#njNome','#njPais','#njIdade','#njGenero'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
+  ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
   const inFoto=$('#njFoto');
   if(inFoto)inFoto.onchange=async()=>{guardaNome();
     try{escFoto=await fotoDoArquivo(inFoto.files[0]);telaNovoJogo();}catch(e){flash(e.message);}};
@@ -40201,8 +40534,12 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>{guardaNome();escModo=b.dataset.modo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
-    guardaNome();escPapel=b.dataset.papel;telaNovoJogo();});
+    guardaNome();const era=escPapel;escPapel=b.dataset.papel;
+    if(escPapel==='jogador'&&era!=='jogador'&&escIdade>30)escIdade=19;
+    if(era==='jogador'&&escPapel!=='jogador'&&escIdade<22)escIdade=34;
+    telaNovoJogo();});
   $('#modal').querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{guardaNome();escDif=b.dataset.dif;telaNovoJogo();});
+  ligarBlocoJogadorNJ(guardaNome);
   $('#modal').querySelectorAll('[data-cenario]').forEach(b=>b.onclick=()=>{guardaNome();escCenario=b.dataset.cenario||null;escSel=null;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{guardaNome();escRegiao=b.dataset.rg;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-njsel]').forEach(b=>b.onclick=()=>{guardaNome();escSel=b.dataset.njsel;telaNovoJogo();});
@@ -40210,6 +40547,7 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=fechar);
   $('#modal').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
     guardaNome();
+    if(escPapel==='jogador')return comecarCarreiraJogadorNJ(b.dataset.pick||null);
     G.meuTime=b.dataset.pick;
     G.iniciadaEm=Date.now();
     aplicarDificuldade(escDif,T(G.meuTime));
@@ -40233,6 +40571,57 @@ function telaNovoJogo(){
   });
 }
 
+/* ============================================================
+   MODO JOGADOR NA CRIAÇÃO (J1)
+   ============================================================ */
+function _todosAgentesNJ(){return [...new Set(Object.keys(AGENTS).filter(k=>k!=='Flex').flatMap(k=>AGENTS[k]))];}
+function blocoJogadorNJ(){
+  const funcs=['Duelista','Iniciador','Controlador','Sentinela','Flex'];
+  const todos=_todosAgentesNJ();
+  const sel=(i)=>`<select data-njag="${i}">${todos.map(a=>`<option ${escJ.ag[i]===a?'selected':''}>${esc(a)}</option>`).join('')}</select>`;
+  const ini=inicioJogador(escJ.inicio);
+  return `
+    <div class="eyebrow" style="margin-top:14px">Função</div>
+    <div class="nj-estilos">${funcs.map(f=>`<button class="nj-estilo ${escJ.funcao===f?'on':''}" data-njfun="${f}"><b>${esc(f)}</b><span>${esc({Duelista:'abre o bomb e ganha duelo',Iniciador:'informação e flash para o time',Controlador:'fecha a visão com smoke',Sentinela:'segura o bomb e o flanco',Flex:'joga onde o time precisar'}[f])}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Agentes</div>
+    <div class="campos nj-ags"><label>Main${sel(0)}</label><label>Segundo${sel(1)}</label><label>Terceiro${sel(2)}</label></div>
+    <div class="eyebrow" style="margin-top:14px">Estilo de jogo</div>
+    <div class="nj-estilos">${ESTILOS_JOGADOR.map(e=>`<button class="nj-estilo ${escJ.estilo===e.id?'on':''}" data-njest="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">De onde começa</div>
+    <div class="nj-papeis">${INICIOS_JOGADOR.map(x=>`<button class="nj-papel ${escJ.inicio===x.id?'on':''}" data-njini="${x.id}"><b>${esc(x.nome)} <span class="nj-ov">over ${x.over} · teto ${x.pot}</span></b><span>${esc(x.resumo)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Quão bom você começa</div>
+    <div class="nj-niveis">
+      <label class="nj-sl"><span>Over inicial <b class="num" id="njOverV">${escJ.over}</b></span><input type="range" min="45" max="97" value="${escJ.over}" id="njOver"></label>
+      <label class="nj-sl"><span>Potencial (teto) <b class="num" id="njPotV">${escJ.pot}</b></span><input type="range" min="50" max="99" value="${escJ.pot}" id="njPot"></label>
+      <p class="dim">Os valores do ponto de partida são sugestões: dá para começar uma promessa de teto altíssimo ou uma lenda pronta em qualquer lugar. Quanto mais longe o over está do potencial, mais espaço para evoluir.</p>
+    </div>`;
+}
+function ligarBlocoJogadorNJ(guardaNome){
+  const m=$('#modal');if(!m)return;
+  m.querySelectorAll('[data-njfun]').forEach(b=>b.onclick=()=>{guardaNome();escJ.funcao=b.dataset.njfun;
+    const sug=(AGENTS[escJ.funcao]||[]).slice(0,3);if(escJ.funcao!=='Flex'&&sug.length===3)escJ.ag=sug;telaNovoJogo();});
+  m.querySelectorAll('[data-njest]').forEach(b=>b.onclick=()=>{guardaNome();escJ.estilo=b.dataset.njest;telaNovoJogo();});
+  m.querySelectorAll('[data-njini]').forEach(b=>b.onclick=()=>{guardaNome();escJ.inicio=b.dataset.njini;
+    const ij=inicioJogador(escJ.inicio);escJ.over=ij.over;escJ.pot=ij.pot;escSel=null;telaNovoJogo();});
+  m.querySelectorAll('[data-njag]').forEach(s=>s.onchange=()=>{escJ.ag[+s.dataset.njag]=s.value;});
+  const ov=$('#njOver'),pt=$('#njPot');
+  if(ov)ov.oninput=()=>{escJ.over=+ov.value;$('#njOverV').textContent=escJ.over;if(escJ.pot<escJ.over){escJ.pot=escJ.over;if(pt)pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;}};
+  if(pt)pt.oninput=()=>{escJ.pot=Math.max(+pt.value,escJ.over);pt.value=escJ.pot;$('#njPotV').textContent=escJ.pot;};
+}
+function comecarCarreiraJogadorNJ(timeId){
+  G.iniciadaEm=Date.now();
+  aplicarDificuldade(escDif,null);
+  criarManager(escNome,'jogador',{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero});
+  const p=criarCarreiraJogador({nick:escNome,nome:escJ.nomeReal,pais:escPais,idade:escIdade,genero:escGenero,foto:escFoto,
+    funcao:escJ.funcao,agentes:[...new Set(escJ.ag)],estilo:escJ.estilo,inicio:escJ.inicio,over:escJ.over,pot:escJ.pot,
+    timeId,dificuldade:escDif});
+  salvarRun(G.runNome);
+  $('#modal').innerHTML='';
+  tela='inicio';hist=['inicio'];histPos=0;
+  entrarNoJogo();
+  flash(p.timeId?'Bem-vindo ao '+G.times[p.timeId].nome+', '+p.nome+'.':'A ranked é o seu palco agora, '+p.nome+'.');
+}
+
 
 /* ===== src/main.js ===== */
 /* ============================================================
@@ -40252,7 +40641,7 @@ async function boot(){
   const salva=listaRuns.find(r=>r.clube&&r.clube!=='—');
   let carregou=false;
   if(salva)carregou=await carregarRun(salva.id);
-  if(!carregou||!G||!G.meuTime)G=null;
+  if(!carregou||!G||(!G.meuTime&&!G.voce))G=null;
 
   modo='menu';telaMenu='menu';
   render();

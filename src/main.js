@@ -15,7 +15,7 @@ async function boot(){
   const salva=listaRuns.find(r=>r.clube&&r.clube!=='—');
   let carregou=false;
   if(salva)carregou=await carregarRun(salva.id);
-  if(!carregou||!G||!G.meuTime)G=null;
+  if(!carregou||!G||(!G.meuTime&&!G.voce))G=null;
 
   modo='menu';telaMenu='menu';
   render();

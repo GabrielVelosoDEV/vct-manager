@@ -169,6 +169,7 @@ function disposicaoDeVender(p){
   return d;
 }
 function topaVender(t,p){
+  if(p&&p.voce)return false;   /* modo jogador: propostas por você são da J5 */
   if(!p.timeId)return true;
   const d=disposicaoDeVender(p);
   if(d<=0)return false;if(d>=1)return true;
@@ -619,6 +620,7 @@ function mercadoTransferencias(){
          Seu elenco fica de fora: a IA não tira jogador seu pelas suas costas. */
       const cand=Object.values(G.jogadores).filter(p=>{
         if(p.timeId===G.meuTime)return false;
+        if(p.voce)return false;                   /* modo jogador: propostas por você são da J5 */
         if(p.base)return false;                   /* garoto de base não é mercado */
         if(p.lesao)return false;
         if(p.timeId&&p.contrato>2)return false;   /* contrato longo não sai */

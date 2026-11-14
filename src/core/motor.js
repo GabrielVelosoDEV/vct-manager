@@ -27,7 +27,8 @@ function usarMotor(A,B){
   if(!motorDisponivel())return false;
   if(typeof Prefs==='undefined')return false;
   if(Prefs.get('motorTodas'))return true;
-  return !!Prefs.get('motorMinhas')&&!!G.meuTime&&(A.id===G.meuTime||B.id===G.meuTime);
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  return !!Prefs.get('motorMinhas')&&!!meu&&(A.id===meu||B.id===meu);
 }
 const motorMapaId=m=>String(m||'').toLowerCase();
 

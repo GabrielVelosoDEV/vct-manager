@@ -24,6 +24,7 @@ const APOS_IDADE=[[42,1],[39,.34],[36,.16],[33,.06],[30,.02]];
    divisão em vez de apodrecer num clube que não o sustenta. */
 function renovarSePuder(p){
   const t=G.times[p.timeId];
+  if(p.voce&&t){p.contrato=2;p.salario=salario(p,t);return true;}   /* modo jogador (J5) */
   if(!t){liberar(p);return false;}
   /* quem não quer ficar não fica, nem por dinheiro: a mesma régua da sua mesa */
   if(typeof interesseEmFicar==='function'&&t.elenco.length>5&&interesseEmFicar(p,t).nota<INTERESSE_MIN){liberar(p);return false;}
@@ -59,8 +60,8 @@ function ajustarFolha(){
     let guarda=0;
     while(t.elenco.length>4&&folhaAnual(t)>receitaLivre(t)*tetoFolhaDe(t)&&guarda++<8){
       const banco=t.elenco.map(i=>G.jogadores[i])
-        .filter(p=>p&&!(t.titulares||[]).includes(p.id));
-      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(Boolean))
+        .filter(p=>p&&!p.voce&&!(t.titulares||[]).includes(p.id));
+      const alvo=(banco.length?banco:t.elenco.map(i=>G.jogadores[i]).filter(p=>p&&!p.voce))
         .sort((a,b)=>b.salario-a.salario)[0];
       if(!alvo)break;
       liberar(alvo);cortes++;
@@ -89,6 +90,7 @@ function ajustarFolha(){
    some do mundo na virada. Era 170; 120 ainda é mercado farto e pesa menos no save. */
 const LIVRES_MAX=120;
 function chanceAposentadoria(p){
+  if(p&&p.voce)return 0;   /* modo jogador: você decide quando parar (J7) */
   let c=0;
   for(const[idade,ch]of APOS_IDADE)if(p.idade>=idade){c=ch;break;}
   /* O declínio só pesa quando já faz sentido pesar. Sem esta rampa, um jogador
@@ -148,6 +150,7 @@ function fimDeTemporada(){
     }
     /* pré-contrato assinado na temporada: ele se apresenta no clube novo */
     if(p.contrato===0&&p.timeId&&p.preContrato&&typeof cumprirPreContrato==='function'&&cumprirPreContrato(p)){}
+    else if(p.contrato===0&&p.timeId&&p.voce){p.contrato=2;p.salario=salario(p,G.times[p.timeId]);}   /* modo jogador: renova sozinho até a J5 */
     else if(p.contrato===0&&p.timeId){
       if(p.timeId===G.meuTime){noticia('📄 '+p.nome+' deixou o clube: contrato encerrado.',{c:'mercado',p:[p.id],t:[G.meuTime]});liberar(p);}
       else if(rnd()<.82)renovarSePuder(p);
@@ -231,7 +234,8 @@ function fimDeTemporada(){
   mercadoTransferencias();
   mercadoIA();
   if(G.livres.length>LIVRES_MAX){
-    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(over(b)+b.pot)-(over(a)+a.pot));
+    /* modo jogador: você nunca some do mundo por estar sem clube */
+    const ordenados=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>(b.voce?1:0)-(a.voce?1:0)||(over(b)+b.pot)-(over(a)+a.pot));
     ordenados.slice(LIVRES_MAX).forEach(p=>{noticia('');
       if(typeof esquecerJogador==='function')esquecerJogador(p.id);
       delete G.jogadores[p.id];});
@@ -241,7 +245,7 @@ function fimDeTemporada(){
   const meuT=G.times[G.meuTime];
   if(meuT){
     while(meuT.elenco.length<5&&G.livres.length){
-      const alvo=G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a))
+      const alvo=livresIA().sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p,meuT)*12<Math.max(0,meuT.caixa)*.5)||G.jogadores[G.livres[G.livres.length-1]];
       contratar(alvo,meuT,2,salario(alvo,meuT));
       noticia('⚠ Elenco abaixo do mínimo: a diretoria contratou '+alvo.nome+' em caráter emergencial.',{c:'clube',p:[alvo.id],t:[meuT.id]});

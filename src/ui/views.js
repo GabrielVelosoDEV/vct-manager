@@ -45,14 +45,15 @@ function proximoConfronto(){
      tentava adivinhar o resto por s.vivos, que não existe em grupo nem em
      chaveamento — o resultado é que a Central dizia "esperando o próximo
      torneio" nas semanas em que o clube tinha jogo marcado. */
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
   if(b)for(const s of b.stages){
     if(s.feito)continue;
     const rd=s.rodadaAtual||[];
-    const par=rd.find(x=>x.includes(G.meuTime));
-    if(par)return{stage:s,adv:par[0]===G.meuTime?par[1]:par[0]};
+    const par=rd.find(x=>x.includes(meuId));
+    if(par)return{stage:s,adv:par[0]===meuId?par[1]:par[0]};
     /* segue vivo no torneio mas não joga esta rodada: é bye */
-    const vivo=s.tipo==='de'?[...(s.ub||[]),...(s.lb||[]),...(s.fila||[])].includes(G.meuTime)
-              :s.tipo==='ko'?(s.vivos||[]).includes(G.meuTime)
+    const vivo=s.tipo==='de'?[...(s.ub||[]),...(s.lb||[]),...(s.fila||[])].includes(meuId)
+              :s.tipo==='ko'?(s.vivos||[]).includes(meuId)
               :false;
     if(vivo&&rd.length)return{stage:s,adv:null,bye:true};
   }

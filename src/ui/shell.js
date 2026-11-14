@@ -70,10 +70,10 @@ function P(id){return G.jogadores[id];}
 function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
-function preRun(){return !G||!G.meuTime;}
+function preRun(){return !G||(!G.meuTime&&!G.voce);}
 function nomeTela(k){
   if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
-  const it=NAV.find(x=>x[0]===k);return it?it[1]:'—';}
+  const it=(typeof navAtual==='function'?navAtual():NAV).find(x=>x[0]===k);return it?it[1]:'—';}
 
 /* raiz onde o conteúdo da tela atual está: os handlers de ligarEventos()
    valem nos dois shells, então precisam perguntar onde procurar. */
@@ -166,7 +166,10 @@ function render(){
             editor:vEditor,config:vConfig}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
-  const html=(typeof guiaBanner==='function'?guiaBanner(tela):'')+(fn||vInicio)();
+  /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
+  const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
+  const html=(typeof guiaBanner==='function'&&!(typeof modoJogador==='function'&&modoJogador())?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
@@ -191,14 +194,14 @@ function irPara(k,semHist){
 function pintarSide(){
   const t=meu();
   const grupos=[];
-  NAV.forEach(([k,n,g,i])=>{
+  (typeof navAtual==='function'?navAtual():NAV).forEach(([k,n,g,i])=>{
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
   pintarRaiz($('#side'),
-    `<div class="side-org">${t?escudo(t,34):''}<div class="n">
-       <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>
-     <div class="side-nav">`+
+    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador():`<div class="side-org">${t?escudo(t,34):''}<div class="n">
+       <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
+     `<div class="side-nav">`+
     grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
       gr.itens.map(([k,n,i])=>{
         const av=avisoDaTela(k);
@@ -236,7 +239,8 @@ function pintarTop(){
       return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
         d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
-    <div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>
+    ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
+      :`<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>

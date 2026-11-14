@@ -421,7 +421,7 @@ function mercadoNaJanela(){
   if((G.semana||1)>=49)return 0;
   const chance=ultimoDiaDaJanela()?IA_PRAZO_FINAL:IA_JANELA_CHANCE;
   const ocupados=new Set(negociacoes().filter(n=>n.fase==='clube'||n.fase==='jogador'||n.fase==='troca').map(n=>n.jogadorId));
-  const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.base&&!p.lesao&&!p.emprestimo
+  const cand=Object.values(G.jogadores).filter(p=>p.timeId!==G.meuTime&&!p.voce&&!p.base&&!p.lesao&&!p.emprestimo
     &&!p.preContrato&&!ocupados.has(p.id)&&!recemChegado(p)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){

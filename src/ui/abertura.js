@@ -47,14 +47,15 @@ function haQuanto(ms){
    Central monta a semana se ela ainda não foi montada; na tela inicial
    isso não pode acontecer (seria mexer na carreira sem você entrar). */
 function proximoDaCarreira(){
-  if(!G||!G.meuTime||!G.calendario)return null;
+  const meuId=G&&(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
+  if(!G||!meuId||!G.calendario)return null;
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
   if(b){
     for(const s of b.stages||[]){
       if(s.feito)continue;
-      const par=(s.rodadaAtual||[]).find(x=>x.includes(G.meuTime));
-      if(par)return{stage:s,adv:par[0]===G.meuTime?par[1]:par[0]};
+      const par=(s.rodadaAtual||[]).find(x=>x.includes(meuId));
+      if(par)return{stage:s,adv:par[0]===meuId?par[1]:par[0]};
     }
     return{agora:b};
   }

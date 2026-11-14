@@ -316,8 +316,9 @@ function noticia(txt,o){
   const p=(o.p||[]).filter(id=>id&&G.jogadores[id]);
   const t=(o.t||[]).filter(id=>id&&G.times[id]).filter((x,i,a)=>a.indexOf(x)===i);
   const n={b:G.bloco,ano:G.ano,s:G.semana,txt,c:o.c||'outros'};
-  const eu=G.meuTime;
+  const eu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
   if(eu&&(t.includes(eu)||p.some(id=>{const j=G.jogadores[id];return j.timeId===eu||j.base===eu;})))n.meu=1;
+  if(G.voce&&p.includes(G.voce.id))n.meu=1;
   if(p.length)n.p=p;
   if(t.length)n.t=t;
   if(o.imp)n.imp=o.imp;

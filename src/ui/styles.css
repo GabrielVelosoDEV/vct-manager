@@ -3318,3 +3318,39 @@ body.sem-anim .mg-card-arte svg{animation:none}
 .pp-plano{border-left:4px solid var(--teal)}
 .pp-plano p{margin:6px 0}
 .pp-plano-bts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   MODO JOGADOR (ui/jogador.js e a criação em newgame.js)
+   ============================================================ */
+.nj-ags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
+.nj-ags select{width:100%}
+.nj-niveis{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:8px}
+.nj-niveis .dim{grid-column:1/-1;margin:0}
+.nj-sl{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.nj-sl span{display:flex;justify-content:space-between}
+.nj-sl input{width:100%;accent-color:var(--teal)}
+.jg-hero{grid-template-columns:1fr}
+.jg-hero-in{display:flex;gap:22px;align-items:center;position:relative}
+.jg-carta{flex:none}
+.jg-quem{min-width:0}
+.jg-nick{font-size:42px;line-height:1;margin:6px 0 8px;letter-spacing:.01em}
+.jg-clube{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.jg-clube .chip.up{background:var(--teal-soft);color:var(--teal)}
+.jg-clube .chip.dn{background:var(--red-soft);color:var(--red)}
+.jg-num{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:13px;color:var(--tx2)}
+.jg-num b{color:var(--tx);font-size:16px;margin-left:4px}
+.jg-ag{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.jg-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:8px}
+.jg-st div{display:flex;flex-direction:column}
+.jg-st b{font-size:20px}
+.jg-st span{font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em}
+.jg-atr,.jg-agl{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;margin-top:8px;font-size:13px}
+.jg-atr-b{height:6px;background:var(--surf2);overflow:hidden}
+.jg-atr-b i{display:block;height:100%;background:var(--teal)}
+.jg-atr b,.jg-agl span{text-align:right}
+@media (max-width:760px){
+  .jg-hero-in{flex-direction:column;align-items:flex-start}
+  .jg-nick{font-size:32px}
+  .jg-st{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nj-ags,.nj-niveis{grid-template-columns:1fr}
+}

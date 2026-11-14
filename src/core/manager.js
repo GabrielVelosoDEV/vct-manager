@@ -22,7 +22,10 @@ const PAPEIS=[
    detalhe:'Modo com consequência: existe alguém acima de você.'},
   {id:'diretoria',nome:'Diretoria',
    resumo:'Sem metas e sem cobrança. Você responde a você mesmo e conduz o clube como quiser.',
-   detalhe:'Modo livre: ninguém te demite.'}
+   detalhe:'Modo livre: ninguém te demite.'},
+  {id:'jogador',nome:'Jogador',
+   resumo:'Você é um jogador do circuito: treina, joga as partidas na gameplay, negocia o seu contrato e constrói a carreira.',
+   detalhe:'O clube é dirigido pela IA, como todos os outros.'}
 ];
 function papelAtual(){return (G.manager&&G.manager.papel)||'diretoria';}
 function souTreinador(){return papelAtual()==='treinador';}

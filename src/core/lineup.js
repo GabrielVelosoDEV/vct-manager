@@ -118,6 +118,14 @@ function autoEscalar(t){
     if(!mudou)break;
   }
 
+  /* modo jogador: quem chegou prometido como titular joga a primeira
+     temporada no cinco (core/jogador.js; a titularidade de verdade é J4) */
+  const fixo=t.titularFixo;
+  if(fixo&&fixo.ano===G.ano&&el.some(p=>p.id===fixo.id)&&!esc.includes(fixo.id)){
+    let melhor=null;
+    for(let i=0;i<esc.length;i++){const tt=esc.slice();tt[i]=fixo.id;const n=notaEscalacao(tt);if(!melhor||n>melhor.n)melhor={tt,n};}
+    if(melhor)esc=melhor.tt;
+  }
   t.titulares=esc;
   /* registra em que função cada um vai jogar: é o que o motor de partida lê
      para cobrar o preço de atuar fora de posição */

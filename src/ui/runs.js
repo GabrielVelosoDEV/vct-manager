@@ -32,7 +32,7 @@ function vRuns(){
     salvas <b>${modoTxt}</b>${Pasta.estado==='ligada'?` e na pasta <b>${esc(Pasta.nome)}</b>`:''}. O arquivo <code>.vctrun.json</code> é o backup de uma carreira.</p>
   ${cartaoPasta()}
 
-  ${G&&G.meuTime?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
+  ${G&&(G.meuTime||G.voce)?`<div class="card"><div class="split"><div class="eyebrow">Run atual</div>
     <span class="chip t">em andamento</span></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
       <input type="text" id="runNome" style="width:260px" placeholder="Nome da run" value="${esc(G.runNome||'')}">

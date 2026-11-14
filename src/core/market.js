@@ -21,13 +21,13 @@ function mercadoIA(){
       const folga=folgaSalarial(t);
       if(folga<=0)break;
       const teto=Math.min(Math.max(60000,t.caixa*.35),folga*12);
-      const alvo=G.livres.map(i=>G.jogadores[i])
+      const alvo=livresIA()
         .filter(p=>p.role===falta||p.role==='Flex')
         .sort((a,b)=>over(b)-over(a))
         .find(p=>salario(p,t)*12<teto&&Math.abs(over(p)-t.prestigio)<16);
       const esc=alvo
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
-        ||G.livres.map(i=>G.jogadores[i]).sort((a,b)=>salario(a,t)-salario(b,t))
+        ||livresIA().sort((a,b)=>over(b)-over(a)).find(p=>salario(p,t)*12<teto)
+        ||livresIA().sort((a,b)=>salario(a,t)-salario(b,t))
             .find(p=>salario(p,t)*12<teto);
       if(!esc)break;
       contratar(esc,t,ri(1,3),salario(esc,t));
@@ -42,7 +42,7 @@ function mercadoIA(){
       const pior=t.titulares.map(i=>G.jogadores[i]).sort((a,b)=>over(a)-over(b))[0];
       if(!pior)continue;
       const tetoR=Math.min(t.caixa*.4,folgaSalarial(t)*12);
-      const alvo=G.livres.map(i=>G.jogadores[i]).filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
+      const alvo=livresIA().filter(p=>over(p)>over(pior)+3&&salario(p,t)*12<tetoR)
         .sort((a,b)=>over(b)-over(a))[0];
       if(alvo)contratar(alvo,t,ri(2,3),salario(alvo,t));
     }
@@ -90,7 +90,7 @@ function reporElenco(t){
          melhor livre disponível, e no minuto seguinte o mesmo clube o
          recontratava. O buraco nunca fechava. Cinco em quadra continua vindo
          antes do orçamento — o que muda é quem entra. */
-      const disp=G.livres.map(i=>G.jogadores[i]).filter(Boolean)
+      const disp=livresIA().filter(Boolean)
         .sort((a,b)=>over(b)-over(a));
       const teto=folgaSalarial(t)*12;
       const livre=disp.find(p=>salario(p,t)*12<=teto)

@@ -156,9 +156,9 @@ function contarNumeros(raiz){
 
 /* ---------- momento: título do seu clube ---------- */
 let _titulosVistos=null;
-function titulosDoMeuClube(){return (G&&G.historico||[]).filter(h=>h&&!h.pre&&G.meuTime&&h.timeId===G.meuTime);}
+function titulosDoMeuClube(){const eu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G&&G.meuTime;return (G&&G.historico||[]).filter(h=>h&&!h.pre&&eu&&h.timeId===eu);}
 function conferirCelebracao(){
-  if(!G||!G.meuTime)return;
+  if(!G||!(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime))return;
   const tits=titulosDoMeuClube();
   if(_titulosVistos==null){_titulosVistos=tits.length;return;}
   const novos=tits.slice(_titulosVistos);_titulosVistos=tits.length;

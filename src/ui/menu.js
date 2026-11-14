@@ -53,7 +53,7 @@ function carreiraAberta(){
 
 /* ---------- transições de modo ---------- */
 function entrarNoJogo(){
-  if(!G||!G.meuTime){flash('Assuma um clube primeiro.');return;}
+  if(preRun()){flash('Assuma um clube primeiro.');return;}
   modo='jogo';
   if(typeof garantirManagerNaComissao==='function')garantirManagerNaComissao();
   if(typeof _titulosVistos!=='undefined')_titulosVistos=null;

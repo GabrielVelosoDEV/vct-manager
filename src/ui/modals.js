@@ -406,11 +406,12 @@ let aba=0;
    escudos, MVP com a carta, os mapas como abas com a imagem e o placar, a
    trilha de rounds com o jeito que cada um acabou e o box score com retrato. */
 function modalPartida(res){
-  const meuLadoA=res.aId===G.meuTime;
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  const meuLadoA=res.aId===meuId;
   const eu=meuLadoA?res.aId:res.bId, adv=meuLadoA?res.bId:res.aId;
   const A=T(eu),B=T(adv);
   const wEu=meuLadoA?res.wa:res.wb, wAd=meuLadoA?res.wb:res.wa;
-  const venceu=res.vencedor===G.meuTime;
+  const venceu=res.vencedor===meuId;
   const ia=Math.min(aba,res.mapas.length-1);
   const mp=res.mapas[ia];
   /* MVP com a soma da série */

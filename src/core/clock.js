@@ -48,7 +48,8 @@ function prepararSemana(){
    no próximo passo dela. É o que permite a tela abrir o relatório e o veto
    ANTES de a partida ser jogada. Devolve null quando não há jogo seu. */
 function compromissoDaSemana(){
-  if(!G.meuTime)return null;
+  const meuId=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  if(!meuId)return null;
   const {b}=prepararSemana();
   if(!b)return null;
   /* semana cujo calendário já não pede rodada nenhuma: nada vai ser jogado */
@@ -56,13 +57,13 @@ function compromissoDaSemana(){
   for(const s of b.stages){
     if(s.feito)continue;
     const rd=s.rodadaAtual||[];
-    const par=rd.find(x=>x.includes(G.meuTime));
+    const par=rd.find(x=>x.includes(meuId));
     if(!par)continue;
     const bo=((s.tipo==='ko'&&s.vivos.length<=2)||(s.tipo==='de'&&s.faseAtual==='gf'))
       ?Math.max(s.bo,5):s.bo;
     return{stage:s,aId:par[0],bId:par[1],bo,
-           advId:par[0]===G.meuTime?par[1]:par[0],
-           euSouA:par[0]===G.meuTime};
+           advId:par[0]===meuId?par[1]:par[0],
+           euSouA:par[0]===meuId};
   }
   return null;
 }
@@ -144,7 +145,8 @@ function avancar(plano){
           /* Grande final em Bo5, como no circuito de verdade. */
           const bo=((s.tipo==='ko'&&s.vivos.length<=2)||(s.tipo==='de'&&s.faseAtual==='gf'))
             ?Math.max(s.bo,5):s.bo;
-          const meuJogo=(a===G.meuTime||bb===G.meuTime);
+          const meuClube=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+          const meuJogo=!!meuClube&&(a===meuClube||bb===meuClube);
           const ctx={stage:s.id,nome:s.nome,semana:G.semana};
           if(meuJogo&&plano&&plano.veto&&plano.veto.mapas&&plano.veto.mapas.length
              &&plano.stageId===s.id)ctx.veto=plano.veto;
@@ -167,7 +169,7 @@ function avancar(plano){
           res.semana=G.semana;
           stageAplicar(s,res);
           resultados.push({stage:s,res});
-          if(a===G.meuTime||bb===G.meuTime)minhaPartida=res;
+          if(meuJogo)minhaPartida=res;
         }
         stageAvancar(s);
       }
@@ -390,7 +392,7 @@ function desenvolver(p,t){
 }
 function venderPorDinheiro(t){
   if(t.elenco.length<=5)return;
-  const cand=t.elenco.map(i=>G.jogadores[i]).filter(p=>!t.titulares.includes(p.id));
+  const cand=t.elenco.map(i=>G.jogadores[i]).filter(p=>!p.voce&&!t.titulares.includes(p.id));
   if(!cand.length)return;
   const p=cand.sort((a,b)=>b.valor-a.valor)[0];
   t.caixa+=p.valor*.8;liberar(p);

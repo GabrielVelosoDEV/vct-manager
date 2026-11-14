@@ -31,7 +31,7 @@ function avFechar(){
    estiver ligada e a partida for sua. */
 function partidaAoVivo(res){
   if(!res||!res.mapas||!res.mapas.length)return modalPartida(res);
-  const souA=res.aId===G.meuTime;
+  const souA=res.aId===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
   const meu=G.times[souA?res.aId:res.bId], adv=G.times[souA?res.bId:res.aId];
   AV={
     res,souA,meu,adv,
@@ -60,7 +60,7 @@ function partidaAoVivo(res){
    motor, e não da tela.
    ============================================================ */
 function partidaConduzida(S,ctx,aoFim){
-  const souA=S.aId===G.meuTime;
+  const souA=S.aId===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime);
   const meu=G.times[souA?S.aId:S.bId], adv=G.times[souA?S.bId:S.aId];
   AV={
     S,ctx,aoFim,conduzida:true,
