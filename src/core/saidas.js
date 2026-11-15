@@ -257,6 +257,7 @@ function aceitarProposta(id){
     : executarEmprestimo(p,destino,pr);
   if(!r)return{ok:false,erro:'A negociação não pôde ser concluída.'};
   if(pr.tipo==='compra'&&pr.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,pr.revenda);
+  if(pr.tipo==='compra'&&origem.id===G.meuTime&&typeof relVenda==='function')relVenda(destino,p);
   if(p.pedidoSaida&&pr.tipo==='compra')delete p.pedidoSaida;
   delete p.anuncio;
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);

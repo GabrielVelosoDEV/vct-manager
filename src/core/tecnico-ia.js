@@ -470,6 +470,7 @@ function contratarTecnico(id,perguntadas){
   if(t.caixa<f.taxa)return{ok:false,erro:'Caixa insuficiente para a taxa de liberação.'};
   /* sair do banco: o seu cadastro deixa a comissão sem passar pelo mercado */
   _tirarDonoDoBanco(t);
+  if(m.timeId&&typeof relTecnicoRoubado==='function')relTecnicoRoubado(G.times[m.timeId],m);
   executarPropostaStaff(m,t,'tecnico',f.taxa,f.sal,2);
   x.confianca=confiancaDeChegada(f,perguntadas||[]);
   x.exige={verbaMin:f.verbaMin,naoInterferir:f.naoInterferir};

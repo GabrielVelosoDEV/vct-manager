@@ -117,7 +117,10 @@ function abrirNegociacao(p,dest){
     taxa:0,viaMulta:false,contraJog:null,
     hist:[],ano:G.ano,semana:G.semana};
   n.pacClubeMax=n.pacClube;n.pacJogMax=n.pacJog;
-  if(origem){
+  if(origem&&typeof donoFechaPorta==='function'&&donoFechaPorta(origem,dest)){
+    n.pedidaClube=multaDe(p);n.porta=true;
+    _fala(n,'clube',textoPorta(origem));
+  }else if(origem){
     _fala(n,'clube',ps.id==='intransferivel'
       ?'Ele não está à venda. Só sai pela multa rescisória de '+dinheiro(multaDe(p))+'.'
       :'Para conversar sobre '+p.nome+', pensamos em '+dinheiro(n.pedidaClube)+'.');
@@ -208,17 +211,25 @@ function proporAoClube(n,taxa,revenda){
   revenda=(typeof REVENDA_OPCOES!=='undefined'&&REVENDA_OPCOES.includes(+revenda))?+revenda:0;
   _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+(revenda?', mais '+revenda+'% de uma venda futura':'')+'.',{valor:taxa});
   if(taxa>=multa)return pagarMulta(n,true);
-  const minimo=ps.id==='intransferivel'?multa:_arred(preco*_ocultoClube(p,dest),500);
+  /* o dono de lá: a relação com você e o perfil dele (core/donos-ia.js) */
+  const origemN=n.origemId?G.times[n.origemId]:null;
+  if(typeof donoFechaPorta==='function'&&donoFechaPorta(origemN,dest)){
+    _fala(n,'clube',textoPorta(origemN));
+    return{ok:true,resposta:'recusa',valor:multa};
+  }
+  const fd=typeof fatorDonoVenda==='function'?fatorDonoVenda(origemN,dest,p):1;
+  const minimo=ps.id==='intransferivel'?multa:Math.min(multa,_arred(preco*_ocultoClube(p,dest)*fd,500));
   /* a revenda vale dinheiro para quem vende: a oferta conta como maior */
   const equiv=revenda&&ps.id!=='intransferivel'?taxa*(1+revenda/100*pesoRevenda(p)):taxa;
   if(equiv>=minimo){
-    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';
+    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';n.precoRef=preco;
     _fala(n,'clube','Fechado: '+dinheiro(taxa)+(revenda?' e '+revenda+'% de revenda':'')+'. Podem falar com o jogador.');
     _abrirJogador(n);
     return{ok:true,resposta:'aceita',valor:taxa};
   }
   const ofensa=equiv<preco*NEG_OFENSA;
   n.pacClube-=ofensa?2:1;
+  if(ofensa&&!n.ofendeu&&typeof relOfensa==='function'){n.ofendeu=true;relOfensa(origemN,p);}
   if(n.pacClube<=0){
     _fala(n,'clube',ofensa?'Isso é uma piada. Não temos mais o que conversar.':'Não chegamos a um acordo.');
     _encerrar(n,'clube');
@@ -398,6 +409,7 @@ function concluirNegociacao(n,oferta,a){
   /* quem chega empolgado chega motivado */
   if(empolgado)p.moral=clamp(p.moral+0.05,0.05,1);
   registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
+  if(origem&&dest.id===G.meuTime&&typeof relDepoisDaCompra==='function')relDepoisDaCompra(n,origem,n.taxa||0,n.precoRef||n.taxa||0,n.viaMulta);
   if(origem&&n.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,n.revenda);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
     (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',

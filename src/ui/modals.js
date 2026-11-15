@@ -897,7 +897,7 @@ function modalVeredito(v){
   const bateu=principal&&principal.cumprida;
   const tom=v.demitido?'ruim':bateu?'bom':v.avisado?'ruim':'neutro';
   const titulo=v.demitido?'Você está demitido'
-    :v.meio?(v.delta>=0?'A diretoria aprova o primeiro semestre':v.avisado?'Último aviso':'A diretoria cobra')
+    :v.meio?(v.delta>=0?((typeof chefeDoClube==='function'&&chefeDoClube()||{curto:'A diretoria'}).curto)+' aprova o primeiro semestre':v.avisado?'Último aviso':((typeof chefeDoClube==='function'&&chefeDoClube()||{curto:'A diretoria'}).curto)+' cobra')
     :bateu?'Temporada aprovada'
     :v.avisado?'Último aviso':'Temporada abaixo do esperado';
   const tomFinal=v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom;

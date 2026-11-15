@@ -279,7 +279,8 @@ function vInicio(){
     <div class="split">
       <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();
           return mm?` · coach <b class="num">${overStaff(mm)}</b>${G.manager.modo==='lenda'?' · lenda':''}`:'';})()}</div>
-        <div style="margin-top:4px">${esc(sit.texto)}</div></div></div>
+        <div style="margin-top:4px">${esc(sit.texto)}</div>
+        ${sit.chefe?`<div class="dim mgr-chefe">Quem cobra: <a href="#" data-ir-tela="donos">${esc(sit.chefe.d.nome)}</a> · ${esc((PERFIS_DONO[sit.chefe.perfil]||{nome:''}).nome.toLowerCase())}</div>`:''}</div></div>
       ${sit.livre?'':`<div class="mgr-conf">${medidor('<span class="dim">confiança</span>',sit.confianca/100,54)}</div>`}
     </div>
     ${sit.demitido?`<div class="mgr-ofertas">

@@ -112,6 +112,10 @@ function _semanaEliminatorias(cic){
 
 /* ---------- domingo da 45: convites e sorteio ---------- */
 function sortearEliminatorias(cic){
+  /* país que caiu abaixo do mínimo no meio do ano (aposentadoria, livre
+     cortado) completa a lista antes do sorteio: sem isso ele ficava fora e
+     a Copa saía com 30 seleções */
+  if(typeof orientarNacionalidadesCopa==='function')orientarNacionalidadesCopa();
   cic.convidadas=convidadasDaCopa(cic.ano);
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
   cic.grupos=gruposEliminatorias(cic.ano,cic.convidadas)

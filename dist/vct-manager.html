@@ -4685,6 +4685,27 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .emp-fim h2{color:var(--red)}
 .emp-fim .btn{margin-top:12px}
 
+/* ---------- Donos (fase 5) ---------- */
+.dn-grid{grid-template-columns:1fr;gap:16px;margin-top:12px}
+.dn-linha{display:grid;grid-template-columns:50px minmax(170px,1.3fr) minmax(150px,1fr) 110px 180px 190px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.dn-linha:first-child{border-top:0}
+.dn-linha.meu{background:rgba(24,229,180,.05)}
+.dn-q{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:13px;min-width:0}
+.dn-q .dim{font-size:12px}
+.dn-c{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;min-width:0}
+.dn-c span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dn-c:hover span{color:var(--red)}
+.dn-rel{display:flex;flex-direction:column;gap:3px}
+.dn-rel-b{position:relative;height:6px;background:var(--panel2)}
+.dn-rel-b i{position:absolute;top:0;bottom:0}
+.dn-rel-b span{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line2)}
+.dn-rel-t{font-size:11.5px}
+.dn-a{display:flex;gap:6px;justify-content:flex-end}
+.dn-log{display:grid;grid-template-columns:80px 1fr 50px;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:12.5px;align-items:center}
+.dn-log b{text-align:right}
+.mgr-chefe{margin-top:4px;font-size:12.5px}
+.mgr-chefe a{color:inherit;text-decoration:underline}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -15914,7 +15935,11 @@ function aplicarDificuldade(id,t){
   return d;
 }
 /* Quanto uma queda de confiança pesa. Ganho de confiança não muda. */
-function pesoDaCobranca(delta){return delta<0?delta*dificuldade().cobranca:delta;}
+function pesoDaCobranca(delta){
+  /* o perfil do dono do clube também pesa (core/donos-ia.js) */
+  const k=typeof fatorCobrancaDono==='function'?fatorCobrancaDono(delta):1;
+  return (delta<0?delta*dificuldade().cobranca:delta)*k;
+}
 
 
 /* ===== src/core/padrao.js ===== */
@@ -22551,6 +22576,7 @@ function contratarTecnico(id,perguntadas){
   if(t.caixa<f.taxa)return{ok:false,erro:'Caixa insuficiente para a taxa de liberação.'};
   /* sair do banco: o seu cadastro deixa a comissão sem passar pelo mercado */
   _tirarDonoDoBanco(t);
+  if(m.timeId&&typeof relTecnicoRoubado==='function')relTecnicoRoubado(G.times[m.timeId],m);
   executarPropostaStaff(m,t,'tecnico',f.taxa,f.sal,2);
   x.confianca=confiancaDeChegada(f,perguntadas||[]);
   x.exige={verbaMin:f.verbaMin,naoInterferir:f.naoInterferir};
@@ -23019,6 +23045,202 @@ function decidirCarta(r,id,sim){
     if(f.ofertas)gerarOfertas('conselho');
     if(f.dividendo)G.manager.patrimonio=(G.manager.patrimonio||0)+Math.round(f.dividendo*fatiasDaOrg(t).minha);
   }else if(f.naoHumor)e.humor=clamp(e.humor+f.naoHumor,0,100);
+}
+
+
+/* ===== src/core/donos-ia.js ===== */
+/* ============================================================
+   OS OUTROS DONOS EM AÇÃO (fase 5 do modo Dono)
+   ------------------------------------------------------------
+   Cada clube tem dono (core/donos.js). Aqui eles passam a agir:
+
+   · RELACIONAMENTO com você, de −100 a 100, por clube (G.relDonos).
+     Sobe com negócio justo, venda para eles e um jantar de negócios;
+     cai com proposta humilhante, multa paga por cima deles, técnico
+     roubado, provocação e vitória em clássico. Abaixo de −50 o dono
+     fecha a porta: só vende pela multa. Vale em qualquer papel que
+     dirige clube (Treinador e Dono); no Treinador o chefe é o dono
+     do seu clube, e a relação com ele é a confiança de sempre.
+
+   · NO PRÓPRIO CLUBE, pelo perfil: o ambicioso troca de técnico no
+     meio da campanha ruim, o paciente segura; dono quebrado vende a
+     organização para um grupo novo, que chega com dinheiro.
+
+   · O PREÇO: o perfil e a relação mexem no mínimo que o dono aceita
+     pelo jogador (o investidor vende mais fácil, o ambicioso cobra
+     mais pelo titular, o midiático segura o ídolo).
+
+   Tudo sai de hash de (ano, semana, clube): não toca o gerador.
+   ============================================================ */
+const REL_PORTA=-50, REL_MAX=100;
+const NOMES_GRUPOS_DONOS=['Grupo Altamira','Kestrel Holdings','Solaris Media','Ponte Alta Investimentos','Boreal Entertainment',
+  'Tessera Group','Magnólia Participações','Orion Sports Capital','Cardeal Holdings','Sextante Media Group'];
+
+function _hDono(s){return typeof _hashTxt==='function'?_hashTxt(s):0;}
+function relDonos(){return G.relDonos||(G.relDonos={});}
+function relDono(t){return t&&relDonos()[t.id]!=null?relDonos()[t.id]:0;}
+function logDonos(){return G.logDonos||(G.logDonos=[]);}
+function registrarDono(t,txt,d){
+  logDonos().unshift({ano:G.ano,semana:G.semana,timeId:t?t.id:null,dono:t&&t.dono?t.dono.nome:null,txt,d:d||0});
+  if(G.logDonos.length>80)G.logDonos.length=80;
+}
+/* só mexe com donos dos outros clubes, e só quando você dirige um */
+function mexerRelDono(t,d,txt){
+  if(!t||!d||!G.meuTime||t.id===G.meuTime||!t.dono||t.dono.voce)return;
+  const r=relDonos();
+  r[t.id]=clamp(Math.round(((r[t.id]||0)+d)*10)/10,-REL_MAX,REL_MAX);
+  if(txt)registrarDono(t,txt,d);
+}
+function rotuloRel(v){return v>=50?'Aliado':v>=20?'Amistoso':v>-20?'Neutro':v>REL_PORTA?'Frio':'Porta fechada';}
+function donoFechaPorta(origem,dest){
+  return !!origem&&!!dest&&dest.id===G.meuTime&&relDono(origem)<=REL_PORTA;
+}
+/* quanto o dono pede a mais (ou a menos) pelo jogador, para o seu clube */
+function fatorDonoVenda(origem,dest,p){
+  if(!origem||!dest||dest.id!==G.meuTime||!origem.dono)return 1;
+  let k=1;
+  const r=relDono(origem);
+  if(r<0)k*=1+(-r)/250;           /* −50 → +20% */
+  else if(r>=40)k*=0.95;
+  const pf=origem.dono.perfil, tit=(origem.titulares||[]).includes(p.id);
+  if(pf==='investidor')k*=0.96;
+  if(pf==='ambicioso'&&tit)k*=1.10;
+  if(pf==='midiatico'&&(p.fama||0)>=60)k*=1.12;
+  if(pf==='economico'&&!tit)k*=0.95;
+  return k;
+}
+function textoPorta(origem){
+  const d=origem&&origem.dono;
+  return (d?d.nome:'O dono')+' não vende para o seu clube'+(relDono(origem)<=-80?' nem para salvar a própria vida':'')+'. Só pela multa rescisória.';
+}
+
+/* ---------- ganchos de negócio ---------- */
+function relDepoisDaCompra(n,origem,taxa,preco,viaMulta){
+  if(!origem)return;
+  if(viaMulta)mexerRelDono(origem,-8,'Pagou a multa de '+(G.jogadores[n.jogadorId]||{}).nome+' por cima dele.');
+  else if(taxa>=preco*0.95)mexerRelDono(origem,4,'Negócio justo por '+(G.jogadores[n.jogadorId]||{}).nome+'.');
+  else mexerRelDono(origem,1,'Fechou negócio por '+(G.jogadores[n.jogadorId]||{}).nome+'.');
+}
+function relOfensa(origem,p){mexerRelDono(origem,-6,'Proposta humilhante por '+(p?p.nome:'um jogador')+'.');}
+function relVenda(destino,p){mexerRelDono(destino,3,'Vendeu '+(p?p.nome:'um jogador')+' para ele.');}
+function relTecnicoRoubado(origem,m){mexerRelDono(origem,-10,'Levou '+(m?m.nome:'o técnico')+' do clube dele.');}
+
+/* clássico: mesma liga e os dois entre os grandes, ou muitos encontros */
+function ehClassico(a,b){
+  if(!a||!b||a.regiao!==b.regiao||a.tier!==b.tier)return false;
+  if((a.prestigio||0)>=72&&(b.prestigio||0)>=72)return true;
+  const pais=typeof paisDoClube==='function'?paisDoClube(a)===paisDoClube(b):false;
+  return pais&&(a.prestigio||0)>=60&&(b.prestigio||0)>=60;
+}
+function relDepoisDoJogo(res){
+  if(!res||!G.meuTime)return;
+  const eu=G.meuTime, adv=res.aId===eu?res.bId:res.bId===eu?res.aId:null;
+  if(!adv||res.wo)return;
+  const t=G.times[adv],ganhei=res.vencedor===eu||res.winner===eu;
+  if(!t)return;
+  const cl=ehClassico(G.times[eu],t);
+  if(ganhei)mexerRelDono(t,cl?-3:-1,cl?'Perdeu o clássico para você.':null);
+  else mexerRelDono(t,0.5,null);
+}
+
+/* ---------- ações de dono para dono (modo Dono) ---------- */
+function _chaveTemporada(t,acao){return acao+'|'+t.id+'|'+G.ano;}
+function acoesFeitas(){return G.acoesDonos||(G.acoesDonos={});}
+function jantarDeNegocios(id){
+  const t=G.times[id],eu=G.times[G.meuTime];
+  if(!t||!eu||t.id===eu.id)return{ok:false,erro:'Clube inválido.'};
+  const k=_chaveTemporada(t,'jantar');
+  if(acoesFeitas()[k])return{ok:false,erro:'Vocês já jantaram nesta temporada.'};
+  const custo=eu.tier===1?25000:8000;
+  if(eu.caixa<custo)return{ok:false,erro:'Caixa insuficiente.'};
+  eu.caixa-=custo;acoesFeitas()[k]=1;
+  const pf=t.dono.perfil, h=_hDono(k)%100;
+  const d=(pf==='investidor'?10:pf==='midiatico'?8:pf==='paciente'?7:pf==='economico'?5:4)+Math.round(h/25);
+  mexerRelDono(t,d,'Jantar de negócios.');
+  return{ok:true,msg:'Jantar com '+t.dono.nome+': relação +'+d+'.'};
+}
+function provocarDono(id){
+  const t=G.times[id],eu=G.times[G.meuTime];
+  if(!t||!eu||t.id===eu.id)return{ok:false,erro:'Clube inválido.'};
+  const k=_chaveTemporada(t,'provoca');
+  if(acoesFeitas()[k])return{ok:false,erro:'Você já provocou esse dono nesta temporada.'};
+  acoesFeitas()[k]=1;
+  const cl=ehClassico(eu,t);
+  mexerRelDono(t,-12,'Provocação na imprensa.');
+  eu.torcida=clamp((eu.torcida||0)+(cl?3:1),0,typeof TORCIDA_MAX!=='undefined'?TORCIDA_MAX:100);
+  noticia('🎙 '+(G.manager?G.manager.nome:'O dono')+' provoca '+t.dono.nome+' ('+t.nome+') na imprensa'+(cl?': o clássico esquentou.':'.'),{c:'clube',t:[eu.id,t.id]});
+  return{ok:true,msg:'A torcida gostou'+(cl?' (clássico: +3)':' (+1)')+'. '+t.dono.nome+' não esqueceu.'};
+}
+
+/* ---------- os donos no próprio clube ----------
+   Uma vez por semana, para os clubes da IA. */
+function _campanha(t){const c=t.temporada||{v:0,d:0};return{v:c.v||0,d:c.d||0,j:(c.v||0)+(c.d||0)};}
+function _trocarTecnicoIA(t,motivo){
+  const atual=typeof membroDe==='function'?membroDe(t,'tecnico'):null;
+  if(!atual||atual.voce)return false;
+  const folgaAno=typeof folgaSalarial==='function'?folgaSalarial(t)*12:Infinity;
+  const teto=Math.min(Math.max(40000,t.caixa*0.25),Math.max(0,folgaAno+atual.salario*12));
+  const cand=(G.staffLivres||[]).map(i=>G.staff[i]).filter(m=>m&&!m.voce&&m.cargo==='tecnico'&&salarioStaff(m)*12<teto)
+    .sort((a,b)=>overStaff(b)-overStaff(a))[0];
+  if(!cand||overStaff(cand)<overStaff(atual)-6)return false;
+  const multa=Math.round(atual.salario*Math.max(1,atual.contrato)*4);
+  t.caixa-=multa;
+  liberarStaff(atual.id);
+  moverStaff(cand.id,t.id,'tecnico');
+  registrarDono(t,'Demitiu '+atual.nome+' ('+motivo+') e contratou '+cand.nome+'.');
+  noticia('✂ '+t.dono.nome+' perde a paciência e demite '+atual.nome+' do '+t.nome+' ('+motivo+'). Chega '+cand.nome+'.',{c:'mercado',t:[t.id],imp:1});
+  t.trocouTecnicoAno=G.ano;
+  return true;
+}
+function semanaDosDonos(){
+  if(!G.times)return;
+  for(const id in G.times){
+    const t=G.times[id];
+    if(!t.dono||t.dono.voce||id===G.meuTime)continue;
+    const pf=t.dono.perfil, c=_campanha(t);
+    /* troca de técnico: ambicioso no meio da campanha ruim, os outros só no fundo do poço */
+    /* só nos fechamentos de etapa: depois do Kickoff, do Stage 1 e no meio do Stage 2 */
+    if(t.trocouTecnicoAno!==G.ano&&c.j>=6&&[14,26,38].includes(G.semana||1)){
+      const ruim=c.d-c.v;
+      const limite=pf==='ambicioso'?4:pf==='midiatico'?5:pf==='paciente'?99:7;
+      if(ruim>=limite&&(_hDono(id+'|tec|'+G.ano+'|'+G.semana)%100)<(pf==='ambicioso'?55:35))_trocarTecnicoIA(t,pf==='ambicioso'?'campanha abaixo da ambição dele':'campanha ruim');
+    }
+  }
+}
+/* virada de temporada: dono quebrado vende a organização */
+function viradaDosDonos(){
+  for(const id in G.times){
+    const t=G.times[id];
+    if(!t.dono||t.dono.voce||id===G.meuTime||t.dono.exId)continue;
+    const rec=typeof receitaAnual==='function'?receitaAnual(t):500000;
+    if(t.caixa<-rec*0.25&&(_hDono(id+'|venda|'+G.ano)%100)<60){
+      const antigo=t.dono;
+      const nome=NOMES_GRUPOS_DONOS[_hDono(id+'|grupo|'+G.ano)%NOMES_GRUPOS_DONOS.length];
+      const perfis=Object.keys(PERFIS_DONO);
+      (t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},antigo));
+      t.dono={tipo:'empresa',nome,perfil:perfis[_hDono(nome+G.ano)%perfis.length],desde:G.ano+1,base:false};
+      const injecao=Math.round((Math.abs(t.caixa)+rec*0.3)/5000)*5000;
+      t.caixa+=injecao;
+      registrarDono(t,antigo.nome+' vende a organização para '+nome+', que entra com '+money(injecao)+'.');
+      noticia('🏢 '+antigo.nome+', no vermelho, vende o '+t.nome+' para o '+nome+'. O grupo novo entra com '+money(injecao)+'.',{c:'mercado',t:[t.id],imp:2});
+    }
+  }
+  /* as relações esfriam com o tempo */
+  const r=relDonos();for(const k in r)r[k]=Math.round(r[k]*0.8*10)/10;
+}
+
+/* ---------- modo Treinador: o chefe é o dono ---------- */
+function chefeDoClube(t){
+  t=t||(G.meuTime&&G.times[G.meuTime]);
+  const d=t&&t.dono;
+  if(!d||d.voce)return null;
+  return{nome:d.tipo==='pessoa'||d.exId?d.nome:'A diretoria da '+d.nome,curto:d.tipo==='pessoa'||d.exId?d.nome.split(' (')[0]:'A diretoria',perfil:d.perfil,d};
+}
+/* o perfil do dono pesa na cobrança do treinador */
+function fatorCobrancaDono(delta){
+  const c=chefeDoClube();if(!c)return 1;
+  if(delta<0)return c.perfil==='ambicioso'?1.25:c.perfil==='paciente'?0.8:c.perfil==='midiatico'?1.1:1;
+  return c.perfil==='paciente'?1.1:1;
 }
 
 
@@ -24186,7 +24408,7 @@ function avancar(plano){
           res.semana=G.semana;
           stageAplicar(s,res);
           resultados.push({stage:s,res});
-          if(meuJogo)minhaPartida=res;
+          if(meuJogo){minhaPartida=res;if(typeof relDepoisDoJogo==='function')relDepoisDoJogo(res);}
         }
         stageAvancar(s);
       }
@@ -24220,6 +24442,8 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   /* semana que andou em turnos: o fechamento é o último terço do mercado */
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}
+  /* os donos dos outros clubes agem: troca de técnico (core/donos-ia.js) */
+  if(typeof semanaDosDonos==='function')semanaDosDonos();
   if(typeof fotoDoRanking==='function')fotoDoRanking();
   if(typeof pagarMetasDaSemana==='function')pagarMetasDaSemana();
   if(typeof radarSemanal==='function')radarSemanal();
@@ -25377,7 +25601,10 @@ function abrirNegociacao(p,dest){
     taxa:0,viaMulta:false,contraJog:null,
     hist:[],ano:G.ano,semana:G.semana};
   n.pacClubeMax=n.pacClube;n.pacJogMax=n.pacJog;
-  if(origem){
+  if(origem&&typeof donoFechaPorta==='function'&&donoFechaPorta(origem,dest)){
+    n.pedidaClube=multaDe(p);n.porta=true;
+    _fala(n,'clube',textoPorta(origem));
+  }else if(origem){
     _fala(n,'clube',ps.id==='intransferivel'
       ?'Ele não está à venda. Só sai pela multa rescisória de '+dinheiro(multaDe(p))+'.'
       :'Para conversar sobre '+p.nome+', pensamos em '+dinheiro(n.pedidaClube)+'.');
@@ -25468,17 +25695,25 @@ function proporAoClube(n,taxa,revenda){
   revenda=(typeof REVENDA_OPCOES!=='undefined'&&REVENDA_OPCOES.includes(+revenda))?+revenda:0;
   _fala(n,'voce','Oferecemos '+dinheiro(taxa)+' por '+p.nome+(revenda?', mais '+revenda+'% de uma venda futura':'')+'.',{valor:taxa});
   if(taxa>=multa)return pagarMulta(n,true);
-  const minimo=ps.id==='intransferivel'?multa:_arred(preco*_ocultoClube(p,dest),500);
+  /* o dono de lá: a relação com você e o perfil dele (core/donos-ia.js) */
+  const origemN=n.origemId?G.times[n.origemId]:null;
+  if(typeof donoFechaPorta==='function'&&donoFechaPorta(origemN,dest)){
+    _fala(n,'clube',textoPorta(origemN));
+    return{ok:true,resposta:'recusa',valor:multa};
+  }
+  const fd=typeof fatorDonoVenda==='function'?fatorDonoVenda(origemN,dest,p):1;
+  const minimo=ps.id==='intransferivel'?multa:Math.min(multa,_arred(preco*_ocultoClube(p,dest)*fd,500));
   /* a revenda vale dinheiro para quem vende: a oferta conta como maior */
   const equiv=revenda&&ps.id!=='intransferivel'?taxa*(1+revenda/100*pesoRevenda(p)):taxa;
   if(equiv>=minimo){
-    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';
+    n.taxa=taxa;n.revenda=revenda;n.fase='jogador';n.precoRef=preco;
     _fala(n,'clube','Fechado: '+dinheiro(taxa)+(revenda?' e '+revenda+'% de revenda':'')+'. Podem falar com o jogador.');
     _abrirJogador(n);
     return{ok:true,resposta:'aceita',valor:taxa};
   }
   const ofensa=equiv<preco*NEG_OFENSA;
   n.pacClube-=ofensa?2:1;
+  if(ofensa&&!n.ofendeu&&typeof relOfensa==='function'){n.ofendeu=true;relOfensa(origemN,p);}
   if(n.pacClube<=0){
     _fala(n,'clube',ofensa?'Isso é uma piada. Não temos mais o que conversar.':'Não chegamos a um acordo.');
     _encerrar(n,'clube');
@@ -25658,6 +25893,7 @@ function concluirNegociacao(n,oferta,a){
   /* quem chega empolgado chega motivado */
   if(empolgado)p.moral=clamp(p.moral+0.05,0.05,1);
   registrarTransferencia(p,origem,dest,n.taxa||0,n.viaMulta?'multa':origem?'compra':'livre');
+  if(origem&&dest.id===G.meuTime&&typeof relDepoisDaCompra==='function')relDepoisDaCompra(n,origem,n.taxa||0,n.precoRef||n.taxa||0,n.viaMulta);
   if(origem&&n.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,n.revenda);
   noticia('✍ '+p.nome+' ('+de+') assinou com '+dest.nome+
     (n.viaMulta?' — multa rescisória de '+dinheiro(n.taxa)+' paga':n.taxa?' por '+dinheiro(n.taxa):' — livre')+'.',
@@ -27188,6 +27424,7 @@ function aceitarProposta(id){
     : executarEmprestimo(p,destino,pr);
   if(!r)return{ok:false,erro:'A negociação não pôde ser concluída.'};
   if(pr.tipo==='compra'&&pr.revenda&&typeof fixarRevenda==='function')fixarRevenda(p,origem.id,pr.revenda);
+  if(pr.tipo==='compra'&&origem.id===G.meuTime&&typeof relVenda==='function')relVenda(destino,p);
   if(p.pedidoSaida&&pr.tipo==='compra')delete p.pedidoSaida;
   delete p.anuncio;
   G.propostas=(G.propostas||[]).filter(x=>x.jogadorId!==p.id);
@@ -29575,7 +29812,7 @@ function cobrancaDoMeioDoAno(){
     confianca:m.confianca,delta};
   const demitido=m.confianca<=CONF_MIN;
   if(demitido)demitirManager(t);
-  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
+  noticia('🏢 Balanço do meio do ano: confiança '+(typeof chefeDoClube==='function'&&chefeDoClube()?'de '+chefeDoClube().curto:'da diretoria')+' '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
   return{...registro,demitido,avisado:!demitido&&m.confianca<=CONF_PISO_DEMISSAO};
 }
 
@@ -29703,12 +29940,15 @@ function situacaoManager(){
     ofertas:ofertasDeEmprego()};
   const c=m.confianca;
   const tom=c>=70?'bom':c>=35?'neutro':'ruim';
-  const texto=c>=80?'A diretoria confia no trabalho.'
-    :c>=55?'A diretoria está satisfeita, sem euforia.'
-    :c>=35?'A diretoria observa de perto.'
-    :c>=CONF_PISO_DEMISSAO?'A diretoria está impaciente.'
+  /* quem cobra é o dono do clube (core/donos-ia.js) */
+  const chefe=typeof chefeDoClube==='function'?chefeDoClube():null;
+  const quem=chefe?chefe.curto:'A diretoria';
+  const texto=c>=80?quem+' confia no seu trabalho.'
+    :c>=55?quem+' gosta do que vê, sem euforia.'
+    :c>=35?quem+' observa de perto.'
+    :c>=CONF_PISO_DEMISSAO?quem+' está impaciente.'
     :'Cadeira ameaçada. Outro ano assim e acabou.';
-  return{papel:'Treinador',livre:false,confianca:c,tom,texto,metas:m.metas};
+  return{papel:'Treinador',livre:false,confianca:c,tom,texto,metas:m.metas,chefe};
 }
 
 
@@ -31923,15 +32163,16 @@ function orientarNacionalidadesCopa(soEstes){
     if(R)p.regiaoOrigem=R.id;
     feitos++;
   }
-  /* País que nem com todos os livres chega a 7 (Geórgia e El Salvador não
-     têm jogador real nenhum na base): na criação do mundo, ganha agentes
-     livres novos, gerados num sorteio local para o resto do mundo seguir
-     na mesma sequência. Na virada do ano isso não acontece: lá só os
-     novos livres são orientados. */
-  if(falta.length&&!soEstes&&typeof makePlayer==='function'){
+  /* País que nem com todos os livres chega a 7: ganha agentes livres
+     novos, gerados num sorteio local para o resto do mundo seguir na mesma
+     sequência. Vale na criação do mundo e também na virada do ano: com as
+     aposentadorias, um país pequeno (Egito, Marrocos) podia cair abaixo do
+     mínimo sem doador entre os livres novos, ficar fora das eliminatórias e
+     deixar a Copa com 30 seleções. */
+  if(falta.length&&typeof makePlayer==='function'){
     for(let i=0;falta.length;i++){
       const para=falta.shift();
-      comSorteioLocal('copa-extra|'+para+'|'+i,()=>{
+      comSorteioLocal('copa-extra|'+para+'|'+i+(soEstes||G.copa?'|'+G.ano+'|'+G.semana:''),()=>{
         const alvo=overLivreGerado();
         const p=makePlayer(alvo,pick(ROLES),para,ri(16,20),usados,2);
         aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
@@ -32337,6 +32578,10 @@ function _semanaEliminatorias(cic){
 
 /* ---------- domingo da 45: convites e sorteio ---------- */
 function sortearEliminatorias(cic){
+  /* país que caiu abaixo do mínimo no meio do ano (aposentadoria, livre
+     cortado) completa a lista antes do sorteio: sem isso ele ficava fora e
+     a Copa saía com 30 seleções */
+  if(typeof orientarNacionalidadesCopa==='function')orientarNacionalidadesCopa();
   cic.convidadas=convidadasDaCopa(cic.ano);
   cic.pontosNoSorteio=Object.assign({},garantirCopa().ranking);
   cic.grupos=gruposEliminatorias(cic.ano,cic.convidadas)
@@ -33602,6 +33847,8 @@ function fimDeTemporada(){
   /* aporte dos donos e compras de vaga, com a temporada já avaliada e antes
      de o patrocínio do ano novo ser recalculado (core/organizacoes.js) */
   if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();
+  /* donos quebrados vendem a organização; as relações esfriam (core/donos-ia.js) */
+  if(typeof viradaDosDonos==='function')viradaDosDonos();
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};delete t.woTemporada;
@@ -36758,6 +37005,7 @@ const NAV=[
   ['stats','Estatísticas','Circuito','grafico'],
   ['premios','Prêmios','Circuito','trofeu'],
   ['news','Notícias','Circuito','jornal'],
+  ['donos','Donos','Circuito','gravata'],
   ['mercado','Mercado','Gestão','troca'],
   ['financas','Finanças','Gestão','dinheiro'],
   ['editor','Banco de dados','Sistema','banco'],
@@ -36900,7 +37148,7 @@ function render(){
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
-            tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null}[tela]
+            tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null,donos:typeof vDonos==='function'?vDonos:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null)
     ||(String(tela).startsWith('selecao:')&&typeof vSelecao==='function'?(selecaoVer=String(tela).slice(8),vSelecao):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
@@ -36918,6 +37166,7 @@ function render(){
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
   if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
+  if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
 }
 function irPara(k,semHist){
@@ -39928,7 +40177,8 @@ function vInicio(){
     <div class="split">
       <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();
           return mm?` · coach <b class="num">${overStaff(mm)}</b>${G.manager.modo==='lenda'?' · lenda':''}`:'';})()}</div>
-        <div style="margin-top:4px">${esc(sit.texto)}</div></div></div>
+        <div style="margin-top:4px">${esc(sit.texto)}</div>
+        ${sit.chefe?`<div class="dim mgr-chefe">Quem cobra: <a href="#" data-ir-tela="donos">${esc(sit.chefe.d.nome)}</a> · ${esc((PERFIS_DONO[sit.chefe.perfil]||{nome:''}).nome.toLowerCase())}</div>`:''}</div></div>
       ${sit.livre?'':`<div class="mgr-conf">${medidor('<span class="dim">confiança</span>',sit.confianca/100,54)}</div>`}
     </div>
     ${sit.demitido?`<div class="mgr-ofertas">
@@ -44860,6 +45110,66 @@ function cardEmpresa(t){
 }
 
 
+/* ===== src/ui/donos-tela.js ===== */
+/* ============================================================
+   DONOS — a tela dos donos do circuito (fase 5 do modo Dono)
+   ------------------------------------------------------------
+   Todos os donos por região: quem é, o perfil, a relação com
+   você e o que andaram fazendo. No modo Dono, dá para chamar um
+   para jantar ou provocar na imprensa (uma vez por temporada).
+   ============================================================ */
+let donosReg=null, donosTier=1;
+
+function _barraRel(v){
+  const w=Math.abs(v)/2, cor=v>=20?'var(--teal)':v>REL_PORTA?'var(--amber)':'var(--red)';
+  return `<div class="dn-rel" title="${esc(rotuloRel(v))}: ${Math.round(v)}"><div class="dn-rel-b"><i style="${v>=0?'left:50%':'right:50%'};width:${w}%;background:${cor}"></i><span></span></div>
+    <span class="dn-rel-t ${v>=20?'up':v<=REL_PORTA?'dn':''}">${esc(rotuloRel(v))}</span></div>`;
+}
+function vDonos(){
+  const eu=meu();
+  const regs=REGIONS.map(r=>r.id);
+  if(!donosReg)donosReg=eu?eu.regiao:regs[0];
+  const souDonoAqui=typeof souDono==='function'&&souDono();
+  const lista=(G.regioes[donosReg]&&G.regioes[donosReg][donosTier===1?'t1':'t2']||[]).map(id=>G.times[id]).filter(Boolean)
+    .sort((a,b)=>(b.prestigio||0)-(a.prestigio||0));
+  const linha=t=>{
+    const d=t.dono||{},pf=PERFIS_DONO[d.perfil]||{nome:'—',desc:''};
+    const meuC=eu&&t.id===eu.id;
+    const v=relDono(t);
+    const feito=k=>(G.acoesDonos||{})[k+'|'+t.id+'|'+G.ano];
+    return `<div class="dn-linha ${meuC?'meu':''}">
+      <div class="dn-r">${typeof retratoDono==='function'?retratoDono(d,t,46):''}</div>
+      <div class="dn-q"><b>${esc(d.nome||'—')}</b>${d.voce?' <span class="chip up">você</span>':''}
+        <span class="dim">${esc(rotuloTipoDono(d))}${d.desde?' · desde '+d.desde:''}</span></div>
+      <div class="dn-c" data-ir-tela="clube:${t.id}">${escudo(t,24)} <span>${esc(t.nome)}</span></div>
+      <div class="dn-p"><span class="dono-tag">${esc(pf.nome)}</span></div>
+      <div class="dn-v">${meuC?(typeof souTreinador==='function'&&souTreinador()?'<span class="dim">seu chefe</span>':'<span class="dim">seu clube</span>'):eu?_barraRel(v):''}</div>
+      <div class="dn-a">${souDonoAqui&&eu&&!meuC?`<button class="btn ghost sm" data-dnjanta="${t.id}" ${feito('jantar')?'disabled':''}>Jantar</button>
+        <button class="btn ghost sm" data-dnprovoca="${t.id}" ${feito('provoca')?'disabled':''}>Provocar</button>`:''}</div>
+    </div>`;
+  };
+  const log=logDonos().filter(x=>!x.timeId||!G.times[x.timeId]||G.times[x.timeId].regiao===donosReg).slice(0,14);
+  return `<div class="eyebrow">Circuito</div><h2 class="sec">Donos</h2>
+  <p class="dim" style="max-width:820px">Cada organização tem dono, com perfil próprio. A relação com você mexe no preço que eles pedem pelos jogadores; abaixo de ${REL_PORTA} o dono fecha a porta e só vende pela multa. Negócio justo e venda para eles aproximam; proposta humilhante, multa paga por cima, técnico levado e clássico perdido afastam.</p>
+  <div class="tabs">${regs.map(r=>`<button class="${donosReg===r?'on':''}" data-dnreg="${r}">${esc((REGIONS.find(x=>x.id===r)||{}).nome||r)}</button>`).join('')}
+    <span style="flex:1"></span>${[1,2].map(k=>`<button class="${donosTier===k?'on':''}" data-dntier="${k}">${k===1?'Liga principal':'Challengers'}</button>`).join('')}</div>
+  <div class="grid dn-grid">
+    <div class="card dn-lista">${lista.map(linha).join('')||'<p class="dim">Nenhum clube.</p>'}</div>
+    <div class="card"><div class="eyebrow">Movimentos dos donos</div>
+      ${log.length?log.map(x=>`<div class="dn-log"><span class="dim num">S${x.semana} ${x.ano}</span><span>${x.timeId&&G.times[x.timeId]?escudo(G.times[x.timeId],16)+' ':''}${x.dono?'<b>'+esc(x.dono)+'</b> · ':''}${esc(x.txt)}</span>${x.d?`<b class="num ${x.d>0?'up':'dn'}">${x.d>0?'+':''}${x.d}</b>`:'<b></b>'}</div>`).join('')
+        :'<p class="dim">Nada ainda nesta região.</p>'}</div>
+  </div>`;
+}
+function ligarDonos(v){
+  v.querySelectorAll('[data-dnreg]').forEach(b=>b.onclick=()=>{donosReg=b.dataset.dnreg;render();});
+  v.querySelectorAll('[data-dntier]').forEach(b=>b.onclick=()=>{donosTier=+b.dataset.dntier;render();});
+  v.querySelectorAll('[data-dnjanta]').forEach(b=>b.onclick=()=>{const r=jantarDeNegocios(b.dataset.dnjanta);flash(r.ok?r.msg:r.erro);render();});
+  v.querySelectorAll('[data-dnprovoca]').forEach(b=>b.onclick=async()=>{
+    if(!await confirmar('Provocar o dono na imprensa? A torcida gosta; ele não esquece (relação −12).','Provocar'))return;
+    const r=provocarDono(b.dataset.dnprovoca);flash(r.ok?r.msg:r.erro);render();});
+}
+
+
 /* ===== src/ui/cerimonia.js ===== */
 /* ============================================================
    CERIMÔNIA DE ENCERRAMENTO — telas que você passa uma a uma
@@ -45935,7 +46245,7 @@ function modalVeredito(v){
   const bateu=principal&&principal.cumprida;
   const tom=v.demitido?'ruim':bateu?'bom':v.avisado?'ruim':'neutro';
   const titulo=v.demitido?'Você está demitido'
-    :v.meio?(v.delta>=0?'A diretoria aprova o primeiro semestre':v.avisado?'Último aviso':'A diretoria cobra')
+    :v.meio?(v.delta>=0?((typeof chefeDoClube==='function'&&chefeDoClube()||{curto:'A diretoria'}).curto)+' aprova o primeiro semestre':v.avisado?'Último aviso':((typeof chefeDoClube==='function'&&chefeDoClube()||{curto:'A diretoria'}).curto)+' cobra')
     :bateu?'Temporada aprovada'
     :v.avisado?'Último aviso':'Temporada abaixo do esperado';
   const tomFinal=v.meio&&!v.demitido?(v.delta>=0?'bom':v.avisado?'ruim':'neutro'):tom;

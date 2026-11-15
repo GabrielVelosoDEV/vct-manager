@@ -25,4 +25,8 @@ function aplicarDificuldade(id,t){
   return d;
 }
 /* Quanto uma queda de confiança pesa. Ganho de confiança não muda. */
-function pesoDaCobranca(delta){return delta<0?delta*dificuldade().cobranca:delta;}
+function pesoDaCobranca(delta){
+  /* o perfil do dono do clube também pesa (core/donos-ia.js) */
+  const k=typeof fatorCobrancaDono==='function'?fatorCobrancaDono(delta):1;
+  return (delta<0?delta*dificuldade().cobranca:delta)*k;
+}

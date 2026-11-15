@@ -178,7 +178,7 @@ function avancar(plano){
           res.semana=G.semana;
           stageAplicar(s,res);
           resultados.push({stage:s,res});
-          if(meuJogo)minhaPartida=res;
+          if(meuJogo){minhaPartida=res;if(typeof relDepoisDoJogo==='function')relDepoisDoJogo(res);}
         }
         stageAvancar(s);
       }
@@ -212,6 +212,8 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   /* semana que andou em turnos: o fechamento é o último terço do mercado */
   G._fracaoMercado=G.turnoUsado?1/TURNOS_SEMANA:1;
   try{semana();}finally{G._fracaoMercado=1;}
+  /* os donos dos outros clubes agem: troca de técnico (core/donos-ia.js) */
+  if(typeof semanaDosDonos==='function')semanaDosDonos();
   if(typeof fotoDoRanking==='function')fotoDoRanking();
   if(typeof pagarMetasDaSemana==='function')pagarMetasDaSemana();
   if(typeof radarSemanal==='function')radarSemanal();

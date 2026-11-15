@@ -204,15 +204,16 @@ function orientarNacionalidadesCopa(soEstes){
     if(R)p.regiaoOrigem=R.id;
     feitos++;
   }
-  /* País que nem com todos os livres chega a 7 (Geórgia e El Salvador não
-     têm jogador real nenhum na base): na criação do mundo, ganha agentes
-     livres novos, gerados num sorteio local para o resto do mundo seguir
-     na mesma sequência. Na virada do ano isso não acontece: lá só os
-     novos livres são orientados. */
-  if(falta.length&&!soEstes&&typeof makePlayer==='function'){
+  /* País que nem com todos os livres chega a 7: ganha agentes livres
+     novos, gerados num sorteio local para o resto do mundo seguir na mesma
+     sequência. Vale na criação do mundo e também na virada do ano: com as
+     aposentadorias, um país pequeno (Egito, Marrocos) podia cair abaixo do
+     mínimo sem doador entre os livres novos, ficar fora das eliminatórias e
+     deixar a Copa com 30 seleções. */
+  if(falta.length&&typeof makePlayer==='function'){
     for(let i=0;falta.length;i++){
       const para=falta.shift();
-      comSorteioLocal('copa-extra|'+para+'|'+i,()=>{
+      comSorteioLocal('copa-extra|'+para+'|'+i+(soEstes||G.copa?'|'+G.ano+'|'+G.semana:''),()=>{
         const alvo=overLivreGerado();
         const p=makePlayer(alvo,pick(ROLES),para,ri(16,20),usados,2);
         aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);

@@ -295,6 +295,8 @@ function fimDeTemporada(){
   /* aporte dos donos e compras de vaga, com a temporada já avaliada e antes
      de o patrocínio do ano novo ser recalculado (core/organizacoes.js) */
   if(typeof viradaDasOrganizacoes==='function')viradaDasOrganizacoes();
+  /* donos quebrados vendem a organização; as relações esfriam (core/donos-ia.js) */
+  if(typeof viradaDosDonos==='function')viradaDosDonos();
   for(const id in G.times){
     const t=G.times[id];
     t.temporada={v:0,d:0,mv:0,md:0,pts:0};delete t.woTemporada;

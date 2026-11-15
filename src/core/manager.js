@@ -303,7 +303,7 @@ function cobrancaDoMeioDoAno(){
     confianca:m.confianca,delta};
   const demitido=m.confianca<=CONF_MIN;
   if(demitido)demitirManager(t);
-  noticia('🏢 Balanço do meio do ano: confiança da diretoria '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
+  noticia('🏢 Balanço do meio do ano: confiança '+(typeof chefeDoClube==='function'&&chefeDoClube()?'de '+chefeDoClube().curto:'da diretoria')+' '+(delta>=0?'+':'')+delta+' → '+m.confianca+'.',{c:'clube',t:[t.id],imp:2});
   return{...registro,demitido,avisado:!demitido&&m.confianca<=CONF_PISO_DEMISSAO};
 }
 
@@ -431,10 +431,13 @@ function situacaoManager(){
     ofertas:ofertasDeEmprego()};
   const c=m.confianca;
   const tom=c>=70?'bom':c>=35?'neutro':'ruim';
-  const texto=c>=80?'A diretoria confia no trabalho.'
-    :c>=55?'A diretoria está satisfeita, sem euforia.'
-    :c>=35?'A diretoria observa de perto.'
-    :c>=CONF_PISO_DEMISSAO?'A diretoria está impaciente.'
+  /* quem cobra é o dono do clube (core/donos-ia.js) */
+  const chefe=typeof chefeDoClube==='function'?chefeDoClube():null;
+  const quem=chefe?chefe.curto:'A diretoria';
+  const texto=c>=80?quem+' confia no seu trabalho.'
+    :c>=55?quem+' gosta do que vê, sem euforia.'
+    :c>=35?quem+' observa de perto.'
+    :c>=CONF_PISO_DEMISSAO?quem+' está impaciente.'
     :'Cadeira ameaçada. Outro ano assim e acabou.';
-  return{papel:'Treinador',livre:false,confianca:c,tom,texto,metas:m.metas};
+  return{papel:'Treinador',livre:false,confianca:c,tom,texto,metas:m.metas,chefe};
 }
