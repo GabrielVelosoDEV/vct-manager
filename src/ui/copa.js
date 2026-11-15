@@ -211,7 +211,7 @@ function cardSelecao(x){
       <h2>${esc(info.nome)}</h2>
       <div class="cpx-sel-chips"><span class="cpx-sit ${cls}">${esc(sit)}</span><span>${rk?rk.pos+'º no ranking · '+rk.pts+' pts':''}</span>${tit?`<span class="cpx-tit-m">${'★'.repeat(Math.min(tit,5))} ${tit} título${tit>1?'s':''}</span>`:''}</div></div>
       <select class="cpx-sel-troca" data-cptroca>${[x.rk.find(r=>r.pais===pais)].concat(outras).map(r=>`<option value="${r.pais}" ${r.pais===pais?'selected':''}>${esc(r.nome)}</option>`).join('')}</select></div>
-    <div class="cpx-staffs">${pessoa(tec,'Técnico')}${pessoa(ana,'Analista')}</div>
+    <div class="cpx-staffs">${pessoa(tec,'Técnico')}${pessoa(ana,'Analista')}<button class="btn sm cpx-sel-pag" data-irsel="${pais}">Página da seleção ›</button></div>
     <div class="cpx-eyebrow">${cv?'Convocação da Copa':'Convocação de hoje'} · ${c?c.titulares.length+c.reservas.length:0} jogadores</div>
     ${c?`<div class="cpx-conv"><div class="cpx-conv-col"><span class="cpx-rot">Titulares</span>${c.titulares.map(i=>linha(i,true)).join('')}</div>
       <div class="cpx-conv-col"><span class="cpx-rot">Reservas</span>${c.reservas.map(i=>linha(i,false)).join('')}</div></div>
@@ -340,7 +340,7 @@ function abaSelecoes(x){
   const grupos=[['vivo','Na Copa'],['','Nas eliminatórias'],['fora','Fora'],['','No ciclo']];
   const sit=p=>_situacao(x,p);
   const lad=r=>{const [c,t]=sit(r.pais);const tit=titulosMundiais(r.pais);
-    return `<div class="cpx-lad ${r.pais===x.sel?'me':''}" data-copapais="${r.pais}" data-cpaba="geral">
+    return `<div class="cpx-lad ${r.pais===x.sel?'me':''}" data-irsel="${r.pais}">
       ${escudoSelecao(r.pais,64)}<b>${esc(r.nome)}</b><span>${bandeira(r.pais)} ${esc(r.sigla)} · ${r.pos}º</span>
       <em class="cpx-sit ${c}">${esc(t)}</em>${tit?`<i class="cpx-lad-t">${'★'.repeat(Math.min(tit,5))}</i>`:''}</div>`;};
   const porCont=Object.keys(COPA_CONTINENTES).map(k=>[k,x.rk.filter(r=>r.cont===k)]);
@@ -377,7 +377,7 @@ function abaStats(x){
       ${tabela('MVP de série','mvp',v=>v,s=>s.mvp>0)}
       <div class="card cpx-lider"><div class="cpx-eyebrow">Seleções</div>
         <table class="tbl"><thead><tr><th></th><th class="c">Séries</th><th class="c">V</th><th class="c">Mapas</th><th class="c">Rounds</th></tr></thead><tbody>
-        ${tl.map(t=>`<tr data-copapais="${t.pais}" style="cursor:pointer"><td>${escudoSelecao(t.pais,22)} <b>${esc(_nomeSel(t.pais))}</b></td><td class="c num">${t.s}</td><td class="c num">${t.v}</td>
+        ${tl.map(t=>`<tr data-irsel="${t.pais}" style="cursor:pointer"><td>${escudoSelecao(t.pais,22)} <b>${esc(_nomeSel(t.pais))}</b></td><td class="c num">${t.s}</td><td class="c num">${t.v}</td>
           <td class="c num">${t.mp}:${t.mc}</td><td class="c num">${t.rp}:${t.rc}</td></tr>`).join('')}</tbody></table></div>
     </div>`;
 }
@@ -386,7 +386,7 @@ function abaStats(x){
 function abaRanking(x){
   const c=garantirCopa(), antes=c.rankingUltimaEdicao||{};
   const linha=r=>{const d=antes[r.pais]!=null?r.pts-antes[r.pais]:0, tit=titulosMundiais(r.pais), [cls,sit]=_situacao(x,r.pais);
-    return `<tr class="${r.pais===x.sel?'me':''}" data-copapais="${r.pais}" style="cursor:pointer">
+    return `<tr class="${r.pais===x.sel?'me':''}" data-irsel="${r.pais}" style="cursor:pointer">
       <td class="num cpx-rk-p">${r.pos}</td><td><span class="cpx-rk-s">${escudoSelecao(r.pais,30)}<span><b>${esc(r.nome)}</b><em>${bandeira(r.pais)} ${esc(r.sigla)} · ${esc(COPA_CONTINENTES[r.cont])}</em></span></span></td>
       <td class="num">${forcaSelecao(r.pais)}</td><td class="num"><b>${r.pts}</b></td>
       <td class="num ${d>0?'up':d<0?'dn':'dim'}">${d>0?'▲ '+d:d<0?'▼ '+(-d):'—'}</td>

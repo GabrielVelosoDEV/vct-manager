@@ -74,3 +74,24 @@ const SELECAO_TAMANHO=10, SELECAO_MINIMO=7;
 const ELIM_DIAS={sorteio:[45,6],r1:[[46,1],[46,3]],r2:[46,5],classificados:[46,6]};
 const COPA_DIAS={sorteio:[45,6],g1:[46,1],g2:[46,3],g3:[46,5],
   oitavas:[47,1],quartas:[47,3],semis:[47,5],bronze:[48,5],final:[48,6]};
+
+/* CORES DAS SELEÇÕES — [principal, secundária, terceira], das bandeiras e dos
+   uniformes. A principal pinta a moldura da carta da seleção e o topo da
+   página; a secundária vira o brilho; a terceira entra só na faixa. Os tons
+   escuros de bandeira foram clareados para a moldura não sumir no fundo. */
+const CORES_SELECAO={
+  CN:['#DE2910','#FFDE00','#FFDE00'], KR:['#CD2E3A','#2A5FC9','#FFFFFF'], BR:['#009C3B','#FFDF00','#2A4FB0'],
+  US:['#B22234','#4A5AA8','#FFFFFF'], TR:['#E30A17','#FFFFFF','#FFFFFF'], JP:['#BC002D','#FFFFFF','#FFFFFF'],
+  PH:['#1F55C2','#FCD116','#CE1126'], RU:['#1F5BC4','#FFFFFF','#D52B1E'], TH:['#A51931','#F4F5F8','#2D3A8C'],
+  CA:['#D80621','#FFFFFF','#FFFFFF'], CL:['#D52B1E','#FFFFFF','#1F4FB0'], DE:['#DD0000','#FFCE00','#1A1A1A'],
+  PL:['#DC143C','#FFFFFF','#FFFFFF'], IN:['#FF9933','#FFFFFF','#138808'], FR:['#1F66C9','#FFFFFF','#EF4135'],
+  ES:['#AA151B','#F1BF00','#F1BF00'], ID:['#CE1126','#FFFFFF','#FFFFFF'], TW:['#1A3FBF','#FFFFFF','#FE0000'],
+  SG:['#EF3340','#FFFFFF','#FFFFFF'], MY:['#CC0001','#FFCC00','#1A2A99'], FI:['#1E5BB8','#FFFFFF','#FFFFFF'],
+  GB:['#C8102E','#FFFFFF','#1E4FA8'], AU:['#00843D','#FFCD00','#FFCD00'], CZ:['#1F5AA8','#FFFFFF','#D7141A'],
+  AR:['#5FA2DB','#FFFFFF','#F6B40E'], MX:['#006847','#FFFFFF','#CE1126'], LT:['#FDB913','#006A44','#C1272D'],
+  SE:['#006AA7','#FECC00','#FECC00'], IT:['#1A5FC4','#FFFFFF','#009246'], DK:['#C8102E','#FFFFFF','#FFFFFF'],
+  CO:['#FCD116','#1F4FB0','#CE1126'], UA:['#1F6FD1','#FFD700','#FFD700'], SA:['#0A8A45','#FFFFFF','#FFFFFF'],
+  NL:['#FF6C00','#FFFFFF','#21468B'], HK:['#DE2910','#FFFFFF','#FFFFFF'], GE:['#E8112D','#FFFFFF','#FFFFFF'],
+  SV:['#1A5BD1','#FFFFFF','#FFFFFF'], RO:['#1E4FB0','#FCD116','#CE1126'], VN:['#DA251D','#FFFF00','#FFFF00'],
+  PT:['#C8102E','#FFE000','#006600']
+};

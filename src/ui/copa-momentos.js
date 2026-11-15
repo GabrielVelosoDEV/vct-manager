@@ -42,10 +42,10 @@ function fimMomentosCopa(){
 function _cicloDoMomento(m){return cicloDaCopa(m.ano,false);}
 function escudoSelecao(pais,px,cls){
   const src=ASSETS.logoSelecao(pais);
-  if(src)return `<img class="cpx-escudo ${cls||''}" src="${src}" alt="" style="width:${px}px;height:${px}px">`;
+  if(src)return `<img class="cpx-escudo ${cls||''}" data-sel="${pais}" src="${src}" alt="" style="width:${px}px;height:${px}px">`;
   const b=ASSETS.bandeira(pais);
-  if(b)return `<span class="cpx-escudo cpx-escudo-b ${cls||''}" style="width:${px}px;height:${px}px"><img src="${b}" alt=""></span>`;
-  return `<span class="cpx-escudo cpx-escudo-e ${cls||''}" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.6)}px">${emojiBandeira(pais)}</span>`;
+  if(b)return `<span class="cpx-escudo cpx-escudo-b ${cls||''}" data-sel="${pais}" style="width:${px}px;height:${px}px"><img src="${b}" alt=""></span>`;
+  return `<span class="cpx-escudo cpx-escudo-e ${cls||''}" data-sel="${pais}" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.6)}px">${emojiBandeira(pais)}</span>`;
 }
 function logoDaEdicao(cic){return ASSETS.copa('sede-'+ASSETS.slug(cic.nomeSede))||ASSETS.copa('logo');}
 function fundoDaSede(cic,forca){

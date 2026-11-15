@@ -80,6 +80,7 @@ function clubeVisto(){const id=typeof clubeDoUsuario==='function'?clubeDoUsuario
 function preRun(){return !G||(!G.meuTime&&!G.voce);}
 function nomeTela(k){
   if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
+  if(String(k).startsWith('selecao:')){const i=typeof infoSelecao==='function'&&infoSelecao(String(k).slice(8));return i?'Seleção · '+i.nome:'Seleção';}
   const it=(typeof navAtual==='function'?navAtual():NAV).find(x=>x[0]===k);return it?it[1]:'—';}
 
 /* raiz onde o conteúdo da tela atual está: os handlers de ligarEventos()
@@ -171,16 +172,18 @@ function render(){
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null}[tela]
-    ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null);
+    ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null)
+    ||(String(tela).startsWith('selecao:')&&typeof vSelecao==='function'?(selecaoVer=String(tela).slice(8),vSelecao):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
-  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:');
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:')&&!String(tela).startsWith('selecao:');
   const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
   if(typeof ligarClubes==='function')ligarClubes(v);
+  if(typeof ligarSelecoes==='function')ligarSelecoes(v);
   if(typeof animarTela==='function')animarTela(v,tela,como);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
@@ -212,7 +215,7 @@ function pintarSide(){
     grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
       gr.itens.map(([k,n,i])=>{
         const av=avisoDaTela(k);
-        return `<a href="#" data-t="${k}" class="${tela===k?'on':''}">${ico(i)}<span>${n}</span>${
+        return `<a href="#" data-t="${k}" class="${tela===k||(k==='copa'&&String(tela).startsWith('selecao:'))?'on':''}">${ico(i)}<span>${n}</span>${
           av?`<span class="aviso">${av}</span>`:''}</a>`;
       }).join('')).join('')+
     `</div>
