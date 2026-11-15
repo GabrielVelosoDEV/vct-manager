@@ -29,14 +29,14 @@ const antes = Object.fromEntries(Object.values(m.G.jogadores).map(p => [p.id, {p
 m.orientar = orig;
 m.criarMundo(semente);
 const G = m.G;
-let mudaram = 0, reaisMudaram = 0, outros = 0;
+let mudaram = 0, reaisMudaram = 0, outros = 0, extras = 0;
 for (const p of Object.values(G.jogadores)) {
   const a = antes[p.id];
-  if (!a) { outros++; continue; }
+  if (!a) { if (p.extraCopa) extras++; else outros++; continue; }
   if (a.pais !== p.pais) { mudaram++; if (p.real) reaisMudaram++; }
   if (a.over !== m.over(p) || a.time !== p.timeId) outros++;
 }
-console.log(`mundo ${semente}: ${Object.keys(G.jogadores).length} jogadores · ${mudaram} agentes livres gerados mudaram de país · reais mexidos ${reaisMudaram} · outras diferenças ${outros}\n`);
+console.log(`mundo ${semente}: ${Object.keys(G.jogadores).length} jogadores · ${mudaram} agentes livres gerados mudaram de país · ${extras} livres criados para país sem jogador · reais mexidos ${reaisMudaram} · outras diferenças ${outros}\n`);
 ok(reaisMudaram === 0, 'jogador real mudou de nacionalidade');
 ok(outros === 0, 'o mundo mudou além da nacionalidade dos livres');
 

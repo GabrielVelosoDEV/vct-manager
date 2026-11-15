@@ -119,8 +119,8 @@ function regiaoDoPais(c){
   const R=(typeof REGIONS!=='undefined'?REGIONS:[]).find(r=>(r.paises||[]).includes(c));
   if(R)return R.id;
   if(PAISES_LATAM.includes(c)||['US','CA','BR'].includes(c))return 'AMER';
-  if(['KR','JP','TH','VN','ID','PH','SG','MY','IN','TW','HK','AU','NZ'].includes(c))return 'PAC';
-  return c==='CN'?'CN':'EMEA';
+  if(['KR','JP','TH','VN','ID','PH','SG','MY','IN','TW','HK','AU','NZ','KH','MN'].includes(c))return 'PAC';
+  return c==='CN'||c==='MO'?'CN':'EMEA';
 }
 const NOME_REGIAO_IMP={LATAM:'América Latina',AMER:'Américas',EMEA:'EMEA',PAC:'Pacífico',CN:'China'};
 function personalidades(){

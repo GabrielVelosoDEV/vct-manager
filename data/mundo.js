@@ -65,7 +65,7 @@ const FLAG={BR:'🇧🇷',US:'🇺🇸',CA:'🇨🇦',AR:'🇦🇷',CL:'🇨🇱
   MA:'🇲🇦',EG:'🇪🇬',ZA:'🇿🇦',NZ:'🇳🇿',HK:'🇭🇰',TW:'🇹🇼',KZ:'🇰🇿',LV:'🇱🇻',LT:'🇱🇹',EE:'🇪🇪',IE:'🇮🇪',
   RU:'🇷🇺',AM:'🇦🇲',MD:'🇲🇩',MK:'🇲🇰',ME:'🇲🇪',TN:'🇹🇳',DZ:'🇩🇿',SA:'🇸🇦',AE:'🇦🇪',QA:'🇶🇦',JO:'🇯🇴',
   IS:'🇮🇸',HU:'🇭🇺',SK:'🇸🇰',SI:'🇸🇮',HR:'🇭🇷',BA:'🇧🇦',AL:'🇦🇱',CY:'🇨🇾',LU:'🇱🇺',BY:'🇧🇾',GE:'🇬🇪',
-  AZ:'🇦🇿',UZ:'🇺🇿',PK:'🇵🇰',BD:'🇧🇩',LK:'🇱🇰',NP:'🇳🇵',MM:'🇲🇲',KH:'🇰🇭',BN:'🇧🇳',UY:'🇺🇾',PY:'🇵🇾',
+  AZ:'🇦🇿',UZ:'🇺🇿',PK:'🇵🇰',BD:'🇧🇩',LK:'🇱🇰',NP:'🇳🇵',MM:'🇲🇲',KH:'🇰🇭',BN:'🇧🇳',LB:'🇱🇧',MO:'🇲🇴',MN:'🇲🇳',KG:'🇰🇬',UY:'🇺🇾',PY:'🇵🇾',
   BO:'🇧🇴',EC:'🇪🇨',VE:'🇻🇪',GT:'🇬🇹',CR:'🇨🇷',PA:'🇵🇦',DO:'🇩🇴',PR:'🇵🇷',JM:'🇯🇲',HN:'🇭🇳',SV:'🇸🇻'};
 
 
@@ -82,7 +82,7 @@ const PAISES={
   ES:'Espanha',US:'Estados Unidos',EE:'Estônia',PH:'Filipinas',FI:'Finlândia',FR:'França',
   GE:'Geórgia',GR:'Grécia',GT:'Guatemala',HN:'Honduras',HK:'Hong Kong',HU:'Hungria',
   ID:'Indonésia',IE:'Irlanda',IS:'Islândia',IL:'Israel',IT:'Itália',JM:'Jamaica',JP:'Japão',
-  JO:'Jordânia',LV:'Letônia',LT:'Lituânia',LU:'Luxemburgo',MK:'Macedônia do Norte',
+  JO:'Jordânia',LV:'Letônia',LB:'Líbano',LT:'Lituânia',LU:'Luxemburgo',MK:'Macedônia do Norte',MO:'Macau',
   MY:'Malásia',MA:'Marrocos',MM:'Mianmar',MD:'Moldávia',MN:'Mongólia',ME:'Montenegro',
   MX:'México',NP:'Nepal',NO:'Noruega',NZ:'Nova Zelândia',PA:'Panamá',PK:'Paquistão',
   PY:'Paraguai',NL:'Países Baixos',PE:'Peru',PL:'Polônia',PR:'Porto Rico',PT:'Portugal',

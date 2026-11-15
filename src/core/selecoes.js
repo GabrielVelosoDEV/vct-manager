@@ -204,6 +204,25 @@ function orientarNacionalidadesCopa(soEstes){
     if(R)p.regiaoOrigem=R.id;
     feitos++;
   }
+  /* País que nem com todos os livres chega a 7 (Geórgia e El Salvador não
+     têm jogador real nenhum na base): na criação do mundo, ganha agentes
+     livres novos, gerados num sorteio local para o resto do mundo seguir
+     na mesma sequência. Na virada do ano isso não acontece: lá só os
+     novos livres são orientados. */
+  if(falta.length&&!soEstes&&typeof makePlayer==='function'){
+    for(let i=0;falta.length;i++){
+      const para=falta.shift();
+      comSorteioLocal('copa-extra|'+para+'|'+i,()=>{
+        const alvo=overLivreGerado();
+        const p=makePlayer(alvo,pick(ROLES),para,ri(16,20),usados,2);
+        aplicarOver(p,alvo);p.pot=potencialDe(alvo,p.idade,2);
+        const R=typeof REGIONS!=='undefined'&&REGIONS.find(r=>r.paises.includes(para));
+        p.contrato=0;p.regiaoOrigem=R?R.id:null;p.extraCopa=true;
+        G.jogadores[p.id]=p;G.livres.push(p.id);
+      });
+      feitos++;
+    }
+  }
   if(feitos)_convSemana={g:null,chave:'',mapa:{}};
   return feitos;
 }
