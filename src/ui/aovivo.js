@@ -117,8 +117,8 @@ function avPassoConduzido(){
       avPintar(true);return;
     }
     AV.linhas=[];AV.roundIdx=0;AV.streak=0;AV.ultimo=null;
-    if(AV.velAntes!=null){AV.vel=AV.velAntes;AV.velAntes=null;}   /* mapa novo: a transmissão volta ao ritmo */
-    avPintar();avAgendar(1200/AV.vel);return;
+    AV.turbo=false;              /* mapa novo: a transmissão volta ao ritmo */
+    avPintar();avAgendar(1200*AV.vel);return;
   }
   /* modo jogador: round seu abre a gameplay e a transmissão espera (ui/diadejogo.js) */
   if(S.jogador&&typeof avTalvezJogar==='function'&&avTalvezJogar())return;
@@ -137,8 +137,8 @@ function avPassoConduzido(){
       if(AV.aoFim)AV.aoFim(res);
       avPintar(true);return;
     }
-    AV.linhas=[];AV.roundIdx=0;
-    avPintar();avAgendar(1600/AV.vel);return;
+    AV.linhas=[];AV.roundIdx=0;AV.turbo=false;
+    avPintar();avAgendar(1600*AV.vel);return;   /* respiro entre mapas */
   }
   const vencedorMeu=AV.souA?h.v:!h.v;
   if(AV.ultimo===vencedorMeu)AV.streak++;else AV.streak=1;
@@ -155,13 +155,14 @@ function avPassoConduzido(){
       lado:l.lado,placar:l.placar,tempo:true});
   }
   AV.roundIdx++;
+  /* mapa que você jogou inteiro: as linhas dele só são escritas, sem espera */
   if(S.M.fim){                /* o round que acabou de sair fechou o mapa */
     avPintar();
-    avAgendar(900/AV.vel);
+    avAgendar(AV.turbo?40:900*AV.vel);
     return;
   }
   avPintar();
-  avAgendar((AV_MS_BASE+(AV_MS_PICO-AV_MS_BASE)*l.peso)*AV.vel);
+  avAgendar(AV.turbo?40:(AV_MS_BASE+(AV_MS_PICO-AV_MS_BASE)*l.peso)*AV.vel);
 }
 /* O pedido de tempo. Só existe no modo conduzido — no modo que apenas revela
    uma partida já resolvida ele não teria como mudar nada, e um botão que não
@@ -277,7 +278,7 @@ function avPasso(){
       fecho:narrarFimDeMapa(mapa,AV.souA,AV.meu.tag,AV.adv.tag)});
     AV.mapaIdx++;AV.roundIdx=0;AV.linhas=[];
     if(AV.mapaIdx>=AV.res.mapas.length){AV.fim=true;avPintar(true);return;}
-    avPintar();avAgendar(1600/AV.vel);   /* respiro entre mapas */
+    avPintar();avAgendar(1600*AV.vel);   /* respiro entre mapas */
     return;
   }
   const l=narr[AV.roundIdx];

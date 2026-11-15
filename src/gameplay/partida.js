@@ -161,6 +161,9 @@ GP._novoRoundPartida = function (J) {
       if (!e.bot) e.cmd.ang = e.ang;
     });
   }
+  /* o que cada um tinha antes de comprar: é a régua da loja (vender devolve o
+     que foi comprado neste round, e a arma que você trouxe volta para a mão) */
+  for (const e of J.ents) GP._marcarCompra(e);
   GP._comprarTodos(J);
   /* a spike vai para um atacante (de preferência quem não abre o bomb) */
   const atk = J.ents.filter(e => e.time === GP._timeAtk(J));
@@ -222,6 +225,71 @@ GP._comprarTodos = function (J) {
   }
 };
 GP._ganhar = (e, v) => { e.creditos = Math.min(GP.ECON.max, e.creditos + v); };
+
+/* ---------- a loja do jogador (fase de compra) ----------
+   O bot compra sozinho (_comprarTodos), e você começa com a mesma compra
+   que ele faria no seu lugar. Na loja dá para trocar tudo: o que foi
+   comprado neste round se vende pelo preço cheio enquanto a compra
+   estiver aberta; a arma que você trouxe do round anterior volta para a
+   mão quando você vende a que comprou por cima dela. */
+GP._marcarCompra = function (e) {
+  const cl = a => a ? {id: a.id} : null;
+  e._compra = {primaria: cl(e.armas.primaria), secundaria: cl(e.armas.secundaria), escudo: e.escudo || 0, cargas: {...(e.cargas || {})}};
+};
+GP.slotDaArma = id => GP.ARMAS[id].tipo === 'pistola' ? 'secundaria' : 'primaria';
+GP.lojaAberta = (J, e) => !!(J && J.modo === 'partida' && J.round && J.round.fase === 'compra' && e && e.vivo && e._compra);
+/* o que já foi pago neste slot e volta se vender */
+GP._pagoNoSlot = function (e, slot) {
+  const a = e.armas[slot], antes = e._compra && e._compra[slot];
+  if (!a || (antes && antes.id === a.id)) return 0;
+  return GP.ARMAS[a.id].preco;
+};
+GP._pagoEscudo = e => (e.escudo || 0) > ((e._compra && e._compra.escudo) || 0) ? (e.escudo >= GP.ESCUDOS.pesado ? GP.PRECO_ESCUDO.pesado : GP.PRECO_ESCUDO.leve) : 0;
+GP.venderSlot = function (J, e, slot) {
+  if (!GP.lojaAberta(J, e)) return false;
+  const v = GP._pagoNoSlot(e, slot); if (!v) return false;
+  e.creditos += v;
+  const antes = e._compra[slot];
+  if (antes) GP._darArma(e, antes.id, slot); else e.armas[slot] = slot === 'secundaria' ? {id: 'classic', municao: GP.ARMAS.classic.pente, reserva: GP.ARMAS.classic.reserva} : null;
+  e.slot = e.armas.primaria ? 'primaria' : 'secundaria';
+  return true;
+};
+GP.comprarArma = function (J, e, id) {
+  if (!GP.lojaAberta(J, e) || !GP.ARMAS[id]) return {ok: false};
+  const slot = GP.slotDaArma(id), A = GP.ARMAS[id], atual = e.armas[slot];
+  if (atual && atual.id === id) return GP.venderSlot(J, e, slot) ? {ok: true, vendeu: true} : {ok: false};
+  if (e.creditos + GP._pagoNoSlot(e, slot) < A.preco) return {ok: false, motivo: 'créditos'};
+  GP.venderSlot(J, e, slot);
+  e.creditos -= A.preco;
+  GP._darArma(e, id, slot);
+  e.slot = e.armas.primaria ? 'primaria' : 'secundaria';
+  return {ok: true};
+};
+GP.comprarEscudo = function (J, e, nivel) {
+  if (!GP.lojaAberta(J, e) || !GP.ESCUDOS[nivel]) return {ok: false};
+  const pago = GP._pagoEscudo(e), base = e._compra.escudo || 0, alvo = GP.ESCUDOS[nivel];
+  if (e.escudo === alvo && pago) { e.creditos += pago; e.escudo = base; return {ok: true, vendeu: true}; }
+  if (base >= alvo) return {ok: false};
+  if (e.creditos + pago < GP.PRECO_ESCUDO[nivel]) return {ok: false, motivo: 'créditos'};
+  e.creditos += pago; e.creditos -= GP.PRECO_ESCUDO[nivel]; e.escudo = alvo;
+  return {ok: true};
+};
+GP.comprarCarga = function (J, e, k, mais) {
+  if (!GP.lojaAberta(J, e)) return {ok: false};
+  const h = GP.HABS[e.agente] && GP.HABS[e.agente][k];
+  if (!h || !h.cargas || !GP.CUSTO_HAB[k]) return {ok: false};
+  e.cargas = e.cargas || {c: 0, q: 0, e: 0, x: 0};
+  if (mais) {
+    if (e.cargas[k] >= h.cargas || e.creditos < GP.CUSTO_HAB[k]) return {ok: false};
+    e.creditos -= GP.CUSTO_HAB[k]; e.cargas[k]++;
+  } else {
+    if (e.cargas[k] <= (e._compra.cargas[k] || 0)) return {ok: false};
+    e.creditos += GP.CUSTO_HAB[k]; e.cargas[k]--;
+  }
+  return {ok: true};
+};
+/* pronto: a compra acaba para todo mundo e o round começa */
+GP.encerrarCompra = function (J) { if (J.round && J.round.fase === 'compra') J.round.ate = J.t; };
 
 /* ---------- a cada passo ---------- */
 GP._fluxoPartida = function (J, dt) {

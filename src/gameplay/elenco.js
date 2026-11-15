@@ -101,8 +101,16 @@ GP.timeReal = function (sigla) {
    soma melhor meta do mapa + o quanto cada um domina o boneco. */
 GP.MAX_POR_PAPEL = 2;
 GP._papelDe = ag => GP.AGENTES[ag].papel;
+/* agentes fixos sem repetição: o segundo do mesmo boneco vira escolha livre */
+GP._semRepetir = function (fixos) {
+  const vistos = new Set();
+  return (fixos || []).slice(0, 5).map(a => a && GP.AGENTES[a] && !vistos.has(a) ? (vistos.add(a), a) : null);
+};
 GP.compDoMapa = function (mapa, rnd, fixos) {
-  const meta = GP.META_MAPA[mapa] || {}, time = (fixos || []).filter(Boolean).slice(0, 5);
+  /* cada fixo fica na posição do jogador dele; os vazios são sorteados */
+  const pos = GP._semRepetir(fixos);
+  const meta = GP.META_MAPA[mapa] || {}, time = pos.filter(Boolean);
+  const nFixos = time.length;
   const conta = p => time.filter(a => GP._papelDe(a) === p).length;
   const sortear = filtro => {
     const op = Object.keys(GP.AGENTES).filter(a => GP.HABS[a] && !time.includes(a) && filtro(a) && conta(GP._papelDe(a)) < GP.MAX_POR_PAPEL);
@@ -126,7 +134,8 @@ GP.compDoMapa = function (mapa, rnd, fixos) {
   }
   for (const p of papeis) while (time.length < 5 && conta(p) < quer[p]) time.push(sortear(a => GP._papelDe(a) === p));
   while (time.length < 5) time.push(sortear(() => true));
-  return time;
+  const novos = time.slice(nFixos); let k = 0;
+  return [0, 1, 2, 3, 4].map(i => pos[i] || novos[k++]);
 };
 /* o quanto o jogador domina o agente: o main vale mais (ordem dos mains) */
 GP._dominio = function (jog, ag) {
@@ -136,7 +145,7 @@ GP._dominio = function (jog, ag) {
 };
 GP.compDoElenco = function (mapa, jogadores, rnd, fixos) {
   const meta = GP.META_MAPA[mapa] || {};
-  fixos = fixos || [];
+  fixos = GP._semRepetir(fixos);
   const opcoes = jogadores.map((j, i) => {
     if (fixos[i]) return [{ag: fixos[i], nota: 0}];
     const cand = new Set([...(j.agentes || []), ...Object.keys(meta).filter(a => GP._dominio(j, a) != null)]);

@@ -55,9 +55,29 @@ function compDe(t,mapa){
    ele sabe jogar — ninguém entra em quadra sem boneco. */
 function agenteDe(t,mapa,p){
   if(!p)return null;
-  const c=(t.comps&&t.comps[mapa])||{};
+  /* titular: o agente sai da comp do TIME, sem repetir boneco */
+  if(t&&(t.titulares||[]).includes(p.id)){const a=agentesDoTime(t,mapa)[p.id];if(a)return a;}
+  const c=(t&&t.comps&&t.comps[mapa])||{};
   if(c[p.id]&&funcaoConhece(c[p.id]))return c[p.id];
   return melhorAgenteDe(p);
+}
+/* Os cinco agentes do time no mapa, um de cada. Primeiro quem tem agente
+   marcado na comp (na ordem do cinco); depois os outros, cada um com o
+   melhor do próprio pool que ainda está livre, e na falta dele um agente da
+   função. Antes cada jogador escolhia sozinho e dois duelistas podiam
+   entrar de Jett — na gameplay apareciam dois bonecos iguais no mesmo time. */
+function agentesDoTime(t,mapa){
+  const c=(t.comps&&t.comps[mapa])||{}, out={}, usados=new Set();
+  const tit=(t.titulares||[]).map(id=>G.jogadores[id]).filter(Boolean);
+  for(const p of tit){const a=c[p.id];if(a&&funcaoConhece(a)&&!usados.has(a)){out[p.id]=a;usados.add(a);}}
+  const todos=Object.values(AGENTS).flat();
+  for(const p of tit){
+    if(out[p.id])continue;
+    const pool=(p.agentes||[]).slice().sort((a,b)=>nivelAgente(p,b)-nivelAgente(p,a));
+    const a=pool.find(x=>!usados.has(x))||(AGENTS[p.roleAtual||p.role]||[]).find(x=>!usados.has(x))||todos.find(x=>!usados.has(x))||null;
+    out[p.id]=a;if(a)usados.add(a);
+  }
+  return out;
 }
 function melhorAgenteDe(p){
   const pool=(p.agentes||[]).slice();

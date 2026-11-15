@@ -55,7 +55,10 @@ function avTalvezJogar(){
   avPintar();
   GP.jogarNoManager(S.M.J,{euMid:S.jogador.euMid,ate}).then(()=>{
     AV.jogando=false;
-    if(ate==='mapa'){S.jogador.mapaJogado=S.idx;AV.velAntes=AV.vel;AV.vel=0.06;}   /* as linhas do mapa jogado passam rápido */
+    /* mapa jogado inteiro: as linhas dele são escritas de uma vez (sem refazer
+       o mapa em câmera rápida) e a série segue no ritmo normal. Antes a
+       velocidade ia a 0,06 e o respiro entre mapas virava 26 s de tela parada. */
+    if(ate==='mapa'){S.jogador.mapaJogado=S.idx;AV.turbo=true;}
     avPassoConduzido();
   }).catch(e=>{AV.jogando=false;console.error(e);avPassoConduzido();});
   return true;

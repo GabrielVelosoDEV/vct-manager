@@ -180,3 +180,51 @@
 #gpCamada .gp-evo-l .sobe i{color:#18e5b4;font-style:normal}
 #gpCamada .gp-evo-l .desce i{color:#ff4655;font-style:normal}
 #gpCamada .gp-carreira .gp-dim{margin:4px 0 8px}
+#gpCamada /* ---------- loja (fase de compra) ---------- */
+.gp-loja{position:fixed;inset:0;z-index:4;background:rgba(6,10,14,.74);backdrop-filter:blur(2px);display:grid;place-items:center;cursor:default}
+#gpCamada .gp-loja-in{width:min(1080px,94vw);max-height:92vh;overflow:auto;background:rgba(22,34,46,.96);border:1px solid var(--line2);border-top:3px solid var(--red);padding:20px 22px}
+#gpCamada .gp-loja-topo{display:flex;align-items:center;gap:24px;margin-bottom:14px}
+#gpCamada .gp-loja-topo>div:first-child{flex:1}
+#gpCamada .gp-loja-topo h2{font-size:44px;color:var(--ouro);margin:0}
+#gpCamada .gp-loja-tempo{text-align:center}
+#gpCamada .gp-loja-tempo b{display:block;font-size:30px;line-height:1}
+#gpCamada .gp-loja-tempo span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+#gpCamada .gp-loja-topo .gp-acoes{display:flex;gap:10px;align-items:center;margin:0}
+#gpCamada .gp-loja-topo .gp-jogar{font-size:22px;padding:8px 30px}
+#gpCamada .gp-loja-grade{display:grid;grid-template-columns:1.35fr 1fr;gap:20px}
+#gpCamada .gp-loja-g{margin-bottom:12px}
+#gpCamada .gp-loja-itens{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#gpCamada .gp-loja-lado .gp-loja-itens{grid-template-columns:repeat(2,1fr)}
+#gpCamada .gp-item{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;min-height:92px;background:var(--panel2);border:1px solid var(--line2);text-align:left;transition:border-color .12s,background .12s}
+#gpCamada .gp-item:hover:not([disabled]){border-color:var(--tx2);background:#223345}
+#gpCamada .gp-item img{height:34px;max-width:100%;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+#gpCamada .gp-item-sem{display:block;height:34px}
+#gpCamada .gp-item b{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;font-weight:400;letter-spacing:.05em;line-height:1}
+#gpCamada .gp-item span{font-size:12px;color:var(--tx2)}
+#gpCamada .gp-item em{position:absolute;bottom:8px;right:10px;font-style:normal;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+#gpCamada .gp-item.tem{border-color:var(--teal);background:rgba(24,229,180,.08)}
+#gpCamada .gp-item.caro{opacity:.38;cursor:not-allowed}
+#gpCamada .gp-esc-ic{display:block;width:26px;height:30px;margin-bottom:6px;background:var(--tx2);clip-path:polygon(50% 0,100% 18%,92% 70%,50% 100%,8% 70%,0 18%)}
+#gpCamada .gp-esc-ic.pesado{background:var(--ouro)}
+#gpCamada .gp-loja-hab{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+#gpCamada .gp-loja-hab-ic{position:relative;width:40px;height:40px;display:grid;place-items:center;background:rgba(10,16,22,.8);border:1px solid var(--line2);flex:none}
+#gpCamada .gp-loja-hab-ic img{width:28px;height:28px}
+#gpCamada .gp-loja-hab-ic i{width:14px;height:14px;border:2px solid var(--line2);transform:rotate(45deg)}
+#gpCamada .gp-loja-hab-ic kbd{position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);font-size:9px;padding:0 3px;background:var(--panel);border:1px solid var(--line2)}
+#gpCamada .gp-loja-hab-n{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+#gpCamada .gp-loja-hab-n b{font-size:13px}
+#gpCamada .gp-loja-hab-n span{font-size:11px;color:var(--tx2)}
+#gpCamada .gp-loja-hab-n em{display:flex;gap:4px;margin-top:3px}
+#gpCamada .gp-loja-hab-n em i{width:9px;height:9px;border:1px solid var(--tx2);transform:rotate(45deg)}
+#gpCamada .gp-loja-hab-n em i.on{background:var(--teal);border-color:var(--teal)}
+#gpCamada .gp-hab-bt{display:flex;gap:6px}
+#gpCamada .gp-hab-bt button{width:30px;height:30px;border:1px solid var(--line2);font-size:18px;line-height:1;color:var(--tx)}
+#gpCamada .gp-hab-bt button:hover:not([disabled]){border-color:var(--teal);color:var(--teal)}
+#gpCamada .gp-hab-bt button[disabled]{opacity:.3;cursor:not-allowed}
+#gpCamada .gp-loja-lado .gp-dim{font-size:11px}
+#gpCamada .gp-loja-time{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+#gpCamada .gp-loja-time span{display:flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;background:rgba(10,16,22,.6);border:1px solid var(--line);font-size:12px}
+#gpCamada .gp-loja-time i{font-style:normal;color:var(--ouro)}
+#gpCamada .gp-loja-time em{font-style:normal;color:var(--dim)}
+#gpCamada .gp-loja-r{width:24px;height:24px;object-fit:cover;border-radius:2px}
+#gpCamada .gp-loja-nota{font-size:11.5px;margin-top:10px}

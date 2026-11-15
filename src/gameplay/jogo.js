@@ -244,6 +244,10 @@ GP._comando = function () {
 
 GP._quadro = function (agora) {
   const S = GP.S; if (!S) return;
+  /* um laço só: partida nova com o laço anterior ainda vivo (fim de partida
+     que continuava pedindo quadro) rodava o mesmo quadro duas vezes */
+  if (GP._ultQuadro === agora) return;
+  GP._ultQuadro = agora;
   const J = S.J;
   let dt = Math.min(0.1, (agora - S.ult) / 1000); S.ult = agora;
   if (!S.pausa && !J.fim) {
@@ -373,6 +377,7 @@ GP._hud = function () {
     fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '');
     return;
   }
+  if (partida) GP._loja();
   if (partida) {
     const nos = eu.time, sp = J.spike;
     if (R.fase === 'compra') faixa = (R.n === 1 ? GP.NOME_MAPA[J.m.nome] + ' — ' : '') + 'Round ' + R.n + ' · ' + (J.lados[nos] === 'atk' ? 'ataque' : 'defesa') + ' · compra ' + ({pistola: 'de pistola', cheia: 'cheia', forca: 'forçada', eco: 'econômica'}[J.compra[nos]] || '');
@@ -391,6 +396,88 @@ GP._hud = function () {
   else if (R.fase === 'fim' && R.vencedor) faixa = R.vencedor === 'eu' ? 'Round seu' : R.vencedor === 'eles' ? 'Round perdido' : 'Tempo esgotado';
   const fx = $gp('#gpFaixa');
   fx.textContent = faixa; fx.className = 'gp-faixa' + (faixa ? ' on' : '') + (R.vencedor === 'eu' ? ' ok' : R.vencedor === 'eles' ? ' no' : '');
+};
+
+/* ---------- a loja (fase de compra da partida 5v5) ----------
+   Abre sozinha no começo de cada round seu: armas, escudo e as cargas
+   das habilidades, com os créditos do round. Clicar no que você comprou
+   neste round vende de volta. B fecha e abre; Pronto começa o round. */
+GP.COMPRA_JOGADOR = 25;
+GP._lojaGrupos = [['Pistolas', ['classic', 'ghost', 'sheriff']], ['Submetralhadora', ['spectre']], ['Rifles', ['phantom', 'vandal']], ['Sniper', ['operator']]];
+GP._loja = function () {
+  const S = GP.S; if (!S) return;
+  const J = S.J, eu = J.eu, R = J.round;
+  let el = document.getElementById('gpLoja');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'gpLoja'; el.className = 'gp-loja'; el.hidden = true;
+    (document.getElementById('gpCamada') || document.body).appendChild(el);
+    el.addEventListener('mousedown', ev => ev.stopPropagation());
+    el.addEventListener('click', ev => {
+      const S2 = GP.S; if (!S2) return;
+      const b = ev.target.closest('[data-gpcompra],[data-gplojapronto],[data-gplojafecha]'); if (!b) return;
+      const J2 = S2.J, e2 = J2.eu;
+      if (b.dataset.gplojapronto != null) { GP.encerrarCompra(J2); S2.lojaFechada = true; }
+      else if (b.dataset.gplojafecha != null) S2.lojaFechada = true;
+      else {
+        const [tipo, id, op] = b.dataset.gpcompra.split(':');
+        if (tipo === 'arma') GP.comprarArma(J2, e2, id);
+        else if (tipo === 'esc') GP.comprarEscudo(J2, e2, id);
+        else if (tipo === 'hab') GP.comprarCarga(J2, e2, id, op === '+');
+      }
+      S2.lojaDe = null; GP._loja();
+    });
+  }
+  /* round novo: a loja abre de novo */
+  if (S.lojaRound !== R.n) { S.lojaRound = R.n; S.lojaFechada = false; }
+  const mostra = !J.espectador && !S.botAssumiu && !S.pausa && GP.lojaAberta(J, eu) && !S.lojaFechada;
+  if (!mostra) { if (!el.hidden) el.hidden = true; return; }
+  const resta = Math.max(0, Math.ceil(R.ate - J.t));
+  const assin = [eu.creditos, eu.escudo, eu.armas.primaria && eu.armas.primaria.id, eu.armas.secundaria && eu.armas.secundaria.id, JSON.stringify(eu.cargas), resta, R.n].join('|');
+  el.hidden = false;
+  if (S.lojaDe === assin) return;
+  S.lojaDe = assin;
+  const A = GP.ARMAS, img = id => GP.temImagem('armas', id) ? `<img src="${GP.manifesto().armas[id].src}" alt="">` : `<i class="gp-item-sem"></i>`;
+  const item = id => {
+    const slot = GP.slotDaArma(id), tem = eu.armas[slot] && eu.armas[slot].id === id, vende = tem && GP._pagoNoSlot(eu, slot) > 0;
+    const pode = tem || eu.creditos + GP._pagoNoSlot(eu, slot) >= A[id].preco;
+    return `<button class="gp-item ${tem ? 'tem' : ''} ${pode ? '' : 'caro'}" data-gpcompra="arma:${id}" ${pode ? '' : 'disabled'}>${img(id)}
+      <b>${A[id].nome}</b><span class="num">${A[id].preco ? '¤ ' + A[id].preco : 'grátis'}</span>${tem ? `<em>${vende ? 'vender' : 'na mão'}</em>` : ''}</button>`;
+  };
+  const esc = n => {
+    const alvo = GP.ESCUDOS[n], tem = eu.escudo === alvo, base = eu._compra.escudo || 0, pago = GP._pagoEscudo(eu);
+    const pode = tem || (base < alvo && eu.creditos + pago >= GP.PRECO_ESCUDO[n]);
+    return `<button class="gp-item gp-item-esc ${tem ? 'tem' : ''} ${pode ? '' : 'caro'}" data-gpcompra="esc:${n}" ${pode ? '' : 'disabled'}><i class="gp-esc-ic ${n}"></i>
+      <b>${n === 'leve' ? 'Escudo leve' : 'Escudo pesado'}</b><span class="num">¤ ${GP.PRECO_ESCUDO[n]} · ${alvo}</span>${tem ? `<em>${pago ? 'vender' : 'já tem'}</em>` : ''}</button>`;
+  };
+  const H = GP.HABS[eu.agente] || {};
+  const hab = k => {
+    const h = H[k]; if (!h) return '';
+    const ic = GP.agenteImg(eu.agente, k), n = (eu.cargas && eu.cargas[k]) || 0;
+    const custo = GP.CUSTO_HAB[k];
+    const acoes = custo && h.cargas ? `<span class="gp-hab-bt"><button data-gpcompra="hab:${k}:-" ${n > ((eu._compra.cargas || {})[k] || 0) ? '' : 'disabled'}>−</button><button data-gpcompra="hab:${k}:+" ${n < h.cargas && eu.creditos >= custo ? '' : 'disabled'}>+</button></span>`
+      : `<span class="gp-dim">${k === 'e' ? 'grátis a cada round' : k === 'x' ? `ultimate · ${Math.min(GP.PONTOS_ULT || 5, eu.pontosUlt || 0)}/${GP.PONTOS_ULT || 5} pontos` : ''}</span>`;
+    const cargas = h.cargas > 0 ? `<em>${'<i class="on"></i>'.repeat(Math.min(n, h.cargas))}${'<i></i>'.repeat(Math.max(0, h.cargas - n))}</em>` : '';
+    return `<div class="gp-loja-hab"><span class="gp-loja-hab-ic">${ic ? `<img src="${ic.src}" alt="">` : '<i></i>'}<kbd>${k.toUpperCase()}</kbd></span>
+      <span class="gp-loja-hab-n"><b>${escGP(h.nome || '')}</b>${custo && h.cargas ? `<span class="num">¤ ${custo} por carga</span>` : ''}${cargas}</span>${acoes}</div>`;
+  };
+  const time = J.ents.filter(o => o.time === eu.time && o !== eu);
+  const lado = J.lados[eu.time] === 'atk' ? 'ataque' : 'defesa';
+  el.innerHTML = `<div class="gp-loja-in">
+    <div class="gp-loja-topo">
+      <div><div class="gp-eyebrow">Loja · round ${R.n} · ${lado}</div><h2 class="num">¤ ${eu.creditos}</h2></div>
+      <div class="gp-loja-tempo"><b class="num">${resta}</b><span>segundos de compra</span></div>
+      <div class="gp-acoes"><button class="gp-sec-bt" data-gplojafecha>Fechar (B)</button><button class="gp-jogar" data-gplojapronto>Pronto ›</button></div>
+    </div>
+    <div class="gp-loja-grade">
+      <div class="gp-loja-armas">${GP._lojaGrupos.map(([n, ids]) => `<div class="gp-loja-g"><div class="gp-eyebrow">${n}</div><div class="gp-loja-itens">${ids.map(item).join('')}</div></div>`).join('')}</div>
+      <div class="gp-loja-lado">
+        <div class="gp-loja-g"><div class="gp-eyebrow">Escudo</div><div class="gp-loja-itens">${esc('leve')}${esc('pesado')}</div></div>
+        <div class="gp-loja-g"><div class="gp-eyebrow">Habilidades · ${escGP((GP.AGENTES[eu.agente] || {}).nome || '')}</div>${['c', 'q', 'e', 'x'].map(hab).join('')}</div>
+      </div>
+    </div>
+    <div class="gp-loja-time">${time.map(o => `<span>${o.agente ? GP._rostoAgente(o.agente, 'gp-loja-r') : ''}<b>${escGP(o.nome)}</b><i class="num">¤ ${o.creditos}</i><em>${A[(o.armas.primaria || o.armas.secundaria || {id: 'classic'}).id].nome}${o.escudo ? ' · ' + o.escudo : ''}</em></span>`).join('')}</div>
+    <p class="gp-dim gp-loja-nota">Você começa com a compra que o time faria no seu lugar. Clique no que comprou neste round para vender pelo preço cheio. B abre e fecha a loja.</p>
+  </div>`;
 };
 
 /* ---------- fim: números e o que treinar ---------- */
@@ -597,6 +684,8 @@ GP._ouvir = function () {
     if (!GP.S) return;
     if (e.code === 'Escape') { GP.pausar(!GP.S.pausa); e.preventDefault(); return; }
     if (GP.S.pausa) return;
+    /* B abre e fecha a loja na fase de compra */
+    if (e.code === 'KeyB' && !e.repeat && !GP.S.J.espectador) { GP.S.lojaFechada = !GP.S.lojaFechada; GP.S.lojaDe = null; GP._loja(); e.preventDefault(); return; }
     GP.S.ui.teclas[e.code] = true;
     if (GP.S.J.espectador) { GP._teclaEspectador(e); return; }
     const c = GP.S.J.eu.cmd;
@@ -670,10 +759,17 @@ GP.jogarNoManager = async function (J, o) {
   /* o seu boneco passa a ser seu */
   const eraEu = J.eu;
   J.eu = eu; eu.bot = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.atirar = false; eu.cmd.ang = eu.ang;
+  /* a compra do motor do manager dura um segundo; com você em quadra, abre a
+     loja com tempo de verdade (Pronto encerra antes) */
+  const compraAntes = J.tempoCompra;
+  if (!o.treino && J.modo === 'partida') {
+    J.tempoCompra = Math.max(J.tempoCompra || 0, GP.COMPRA_JOGADOR);
+    if (J.round && J.round.fase === 'compra') J.round.ate = Math.max(J.round.ate, J.t + GP.COMPRA_JOGADOR);
+  }
   return new Promise(ok => {
     GP.S = {J, R, cam: {x: eu.x, y: eu.y, escala: 1}, ui: {mouse: null, teclas: {}, poligono: [[0, 0]], botao: false, direito: false},
       ult: performance.now(), acum: 0, pausa: false, hudEm: 0, eventosVistos: J.eventos.length, feed: [], vel: 1, livre: false,
-      embutido: true, treino: o.treino || null, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu,
+      embutido: true, treino: o.treino || null, ateHist: o.ate === 'mapa' ? Infinity : J.historico.length + 1, eraEu, euEnt: eu, compraAntes,
       aoFim: () => ok({jogou: true, bot: !!GP.S && GP.S.botAssumiu})};
     c.hidden = false;
     $gp('#gpEspec').hidden = true; $gp('#gpMenu').hidden = true; $gp('#gpFim').hidden = true; $gp('#gpPausa').hidden = true;
@@ -696,6 +792,8 @@ GP._encerrarEmbutido = function () {
   eu.bot = true; eu.cmd.atirar = false; eu.cmd.mx = eu.cmd.my = 0; eu.cmd.hab = null;
   if (eu.ia) { eu.ia.caminho = null; eu.ia.lanca = null; }
   J.eu = S.eraEu || J.ents[0];
+  if (S.compraAntes != null) J.tempoCompra = S.compraAntes;
+  const lj = document.getElementById('gpLoja'); if (lj) lj.hidden = true;
   GP._raiz().classList.remove('gp-jogando');
   const c = document.getElementById('gpCamada'); if (c) c.hidden = true;
   const fim = S.aoFim;
