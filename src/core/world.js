@@ -190,6 +190,7 @@ function criarMundo(seedVal){
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
   /* dono de bolso fundo e compras de vaga marcadas (data/organizacoes.js) */
   if(typeof aplicarOrganizacoesIniciais==='function')aplicarOrganizacoesIniciais();
+  if(typeof aplicarDonosIniciais==='function')aplicarDonosIniciais();
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e

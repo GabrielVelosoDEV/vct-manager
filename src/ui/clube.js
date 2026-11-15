@@ -148,7 +148,7 @@ function vClube(){
     <div class="cl-marca" aria-hidden="true">${escudo(t,340)}</div>
     <div class="cl-escudo">${escudo(t,112)}</div>
     <div class="cl-id">
-      <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · de ${esc(t.dono.nome)}`:''}</div>
+      <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · ${t.dono.voce?'seu clube':'de '+esc(t.dono.nome)}`:''}</div>
       <h1 class="cl-nome">${esc(t.nome)} <span>${esc(t.tag)}</span></h1>
       <div class="cl-kpis">
         <div><span>Prestígio</span><b class="num">${Math.round(t.prestigio)}</b></div>
@@ -157,6 +157,7 @@ function vClube(){
         <div><span>Títulos</span><b class="num">${tits.length}</b></div>
         <div><span>Técnico</span><b>${esc(tecNome)}</b></div>
         <div><span>Patrocínio máster</span><b>${mk?esc(mk.nome):'—'}</b></div>
+        <div><span>Dono</span><b>${t.dono?esc(t.dono.nome):'—'}</b></div>
       </div>
       ${tits.length?`<div class="cl-mini-trof">${tits.slice(0,8).map(h=>imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),20,h.ano+' · '+h.evento)).join('')}</div>`:''}
     </div>
@@ -179,6 +180,7 @@ function vClube(){
       ${temps.length?`<div class="card"><div class="eyebrow">Temporadas</div>${temps.map(linhaTemporadaClube).join('')}</div>`:''}
     </div>
     <div>
+      ${typeof cardDono==='function'?cardDono(t):''}
       ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
       ${!gere?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}

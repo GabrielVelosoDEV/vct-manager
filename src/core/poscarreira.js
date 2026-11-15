@@ -107,7 +107,7 @@ function voltaParaCasa(m,destino){return !!(m&&m.ex&&destino&&(m.ex.clubes||[]).
 /* ---------- dono de clube ---------- */
 function comprarClube(p){
   const reg=regiaoDoJogador(p);
-  const livre=t=>!t.dono&&t.regiao===reg;
+  const livre=t=>(typeof clubeSemDonoForte==='function'?clubeSemDonoForte(t):!t.dono)&&t.regiao===reg;
   let cands=Object.values(G.times).filter(t=>livre(t)&&t.tier===2);
   if(!cands.length)cands=Object.values(G.times).filter(t=>livre(t)).sort((a,b)=>a.prestigio-b.prestigio).slice(0,3);
   if(!cands.length)return null;
@@ -116,7 +116,8 @@ function comprarClube(p){
   t.caixa+=aporte;
   t.torcida=clamp((t.torcida||0)+8,typeof pisoTorcida==='function'?pisoTorcida(t):0,typeof TORCIDA_MAX!=='undefined'?TORCIDA_MAX:100);
   t.prestigio=clamp(t.prestigio+3,20,99);
-  t.dono={nome:p.nome,pais:p.pais,desde:G.ano,exId:p.id,aporte};
+  if(t.dono)(t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},t.dono));
+  t.dono={tipo:'pessoa',nome:p.nome,pais:p.pais,desde:G.ano,exId:p.id,aporte,perfil:'paciente'};
   (G.donos=G.donos||[]).push({nome:p.nome,timeId:t.id,ano:G.ano});
   noticia('🏢 '+p.nome+' se aposenta e compra o '+t.nome+': aporte de '+money(aporte)+' e o clube vira o projeto dele.',
     {c:'carreira',t:[t.id],imp:3});

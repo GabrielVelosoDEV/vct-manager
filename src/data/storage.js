@@ -285,7 +285,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=15;
+const RUN_VERSAO=16;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -452,6 +452,8 @@ function migrarRun(reg){
     /* v15: a chegada de cada um ao clube atual, tirada do registro de
        transferências (quem já trocou duas vezes na janela para de trocar) */
     if(de<15&&typeof migrarChegadas==='function')migrarChegadas();
+    /* v16: todo clube tem dono (data/donos.js); o modo Diretoria vira modo Dono */
+    if(de<16&&typeof migrarDonos==='function')migrarDonos();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;

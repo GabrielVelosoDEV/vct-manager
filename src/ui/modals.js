@@ -909,7 +909,7 @@ function modalVeredito(v){
       <circle cx="60" cy="60" r="${R}" class="v" style="stroke:${corConf};--de:${(C*de/100).toFixed(1)};--para:${(C*para/100).toFixed(1)};--c:${C.toFixed(1)}"/>
     </svg><div class="ver-conf-n"><b class="num" data-conta>${para}</b><span class="${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta}</span></div>
     <div class="eyebrow">Confiança</div></div>`;
-  const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
+  const dono=t&&t.dono&&t.dono.exId?G.jogadores[t.dono.exId]:null;
   const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
   abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
     <div class="ver-topo">${t&&typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ver-fundo cn-direita',foco:'placa',ansioso:true}):''}
@@ -922,8 +922,10 @@ function modalVeredito(v){
       </div>
       ${anel}
     </div>
-    ${t&&t.dono?`<div class="ver-dono">${dono?retrato(dono,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
-      <div>O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</div></div></div>`:''}
+    ${t&&t.dono&&!t.dono.voce?`<div class="ver-dono">${dono?retrato(dono,44):typeof retratoDono==='function'?retratoDono(t.dono,t,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
+      <div>${t.dono.exId?`O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.`
+        :t.dono.tipo==='pessoa'?`O dono do clube, <b>${esc(t.dono.nome)}</b>${t.dono.empresa?' ('+esc(t.dono.empresa)+')':''}.`
+        :`A diretoria da <b>${esc(t.dono.nome)}</b>, que controla o ${esc(t.nome)}.`}</div></div></div>`:''}
     <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
       ${v.metas.map(x=>`<div class="ver-meta ${x.cumprida===null?'n':x.cumprida?'ok':'no'}">${icMeta(x)}
         <div><b>${esc(x.texto)}</b><div class="dim">${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}${x.resultado?' — '+esc(x.resultado):''}</div></div></div>`).join('')}

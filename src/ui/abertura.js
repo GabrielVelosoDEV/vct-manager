@@ -117,7 +117,7 @@ function cartaoCarreira(){
       <div class="mn-c-marca" aria-hidden="true">${escudo(t,180)}</div>
       <div class="mn-c-cab"><span class="eyebrow">Sua carreira</span><span class="mn-c-hora">${salva?'salvo '+esc(haQuanto(salva.atualizado)):''}</span></div>
       <div class="mn-c-clube">${escudo(t,58)}<div><b>${esc(t.nome)}</b><span>${esc(nomeLiga(t))}</span></div></div>
-      ${g.nome?`<div class="mn-c-mgr">${foto}<span><b>${esc(g.nome)}</b> · ${souTreinador()?'treinador':'diretoria'}${mm?` · coach <b class="num">${overStaff(mm)}</b>`:''}</span></div>`:''}
+      ${g.nome?`<div class="mn-c-mgr">${foto}<span><b>${esc(g.nome)}</b> · ${souTreinador()?'treinador':'dono'}${mm?` · coach <b class="num">${overStaff(mm)}</b>`:''}</span></div>`:''}
       <div class="mn-c-nums">
         <div><span>Temporada</span><b class="num">${G.ano} · S${G.semana||1}</b></div>
         <div><span>Posição</span><b class="num">${pos&&(tp.v+tp.d)>0?pos.pos+'º de '+pos.de:'—'}</b></div>

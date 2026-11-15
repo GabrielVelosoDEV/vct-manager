@@ -67,6 +67,7 @@ function aplicarAquisicao(t,e){
     t.torcida=clamp(Math.round((t.torcida||0)*0.5+alvo*0.5),typeof pisoTorcida==='function'?pisoTorcida(t):0,TORCIDA_MAX);
   }
   if(t.tier===1&&pf)t.prestigio=clamp(t.prestigio+(pf.porte-3)*2,20,99);
+  if(typeof donoDaAquisicao==='function')donoDaAquisicao(t,e);
   e.feita={ano:G.ano,clube:t.id};
   const meu=t.id===G.meuTime;
   const txt=e.tipo==='fusao'

@@ -7,9 +7,12 @@
                 cada temporada, é avaliado no fim, e pode ser
                 demitido. É o modo com consequência.
 
-     DIRETORIA  não responde a ninguém. Sem meta, sem cobrança,
-                sem demissão. É o modo livre — quem manda é você,
-                e não existe alguém acima para cobrar.
+     DONO       é dono da organização (era o modo Diretoria). Três
+                variantes: LIVRE faz tudo, sem meta e sem cobrança
+                (o modo Diretoria de antes, o mais acessível); PURO
+                e DONO-TÉCNICO são o modo de gestão de verdade, com
+                técnico IA, empresa e risco de perder o time (ver o
+                planejamento do modo Dono; chegam por fases).
 
    As metas são de propósito SIMPLES: posição na liga e um alvo
    de bônus. Meta complicada vira planilha, e ninguém joga um
@@ -20,14 +23,23 @@ const PAPEIS=[
   {id:'treinador',nome:'Treinador',
    resumo:'A diretoria define metas todo ano e cobra no fim da temporada. Falhar seguido custa o emprego.',
    detalhe:'Modo com consequência: existe alguém acima de você.'},
-  {id:'diretoria',nome:'Diretoria',
-   resumo:'Sem metas e sem cobrança. Você responde a você mesmo e conduz o clube como quiser.',
-   detalhe:'Modo livre: ninguém te demite.'},
+  {id:'dono',nome:'Dono',
+   resumo:'Você é o dono da organização: decide quem treina, quanto se gasta e para onde o clube vai.',
+   detalhe:'Ninguém acima de você, só o caixa e quem investe.'},
   {id:'jogador',nome:'Jogador',
    resumo:'Você é um jogador do circuito: treina, joga as partidas na gameplay, negocia o seu contrato e constrói a carreira.',
    detalhe:'O clube é dirigido pela IA, como todos os outros.'}
 ];
-function papelAtual(){return (G.manager&&G.manager.papel)||'diretoria';}
+function papelAtual(){const p=(G.manager&&G.manager.papel)||'dono';return p==='diretoria'?'dono':p;}
+function souDono(){return papelAtual()==='dono';}
+/* Variantes do modo Dono. Só a Livre está pronta: as outras entram com o
+   técnico IA (fase 3) e a empresa (fase 4) do planejamento. */
+const VARIANTES_DONO=[
+  {id:'livre',nome:'Dono livre',resumo:'Você faz tudo: escala, monta a tática, joga as partidas e cuida do clube. Sem metas, sem cobrança, sem falência.',detalhe:'O mais acessível.'},
+  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico e cuida da empresa; o time é dele. Você assiste às partidas.',detalhe:'Em construção.',emBreve:true},
+  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'Em construção.',emBreve:true}
+];
+function varianteDono(id){return VARIANTES_DONO.find(x=>x.id===id&&!x.emBreve)||VARIANTES_DONO[0];}
 function souTreinador(){return papelAtual()==='treinador';}
 
 /* Trajetória do treinador: começar no topo ou subir trabalhando. */
@@ -47,7 +59,8 @@ function modoTreinador(id){return MODOS_TREINADOR.find(x=>x.id===id)||MODOS_TREI
 function estiloTreinador(id){return ESTILOS_TREINADOR.find(x=>x.id===id)||ESTILOS_TREINADOR[0];}
 
 function criarManager(nome,papel,opc){
-  const p=PAPEIS.some(x=>x.id===papel)?papel:'diretoria';
+  if(papel==='diretoria')papel='dono';
+  const p=PAPEIS.some(x=>x.id===papel)?papel:'dono';
   opc=opc||{};
   G.manager={
     nome:String(nome||'').trim().slice(0,28)||'Manager',
@@ -57,6 +70,7 @@ function criarManager(nome,papel,opc){
     modo:modoTreinador(opc.modo).id, estilo:estiloTreinador(opc.estilo).id,
     foto:opc.foto||null, staffId:null
   };
+  if(p==='dono'){G.manager.variante=varianteDono(opc.variante).id;G.manager.perfilDono=opc.perfilDono||'paciente';}
   return G.manager;
 }
 
@@ -397,8 +411,8 @@ function assumirClube(id){
 function situacaoManager(){
   const m=G.manager;
   if(!m)return null;
-  if(!souTreinador())return{papel:'Diretoria',livre:true,
-    texto:'Sem metas e sem cobrança — o clube é conduzido do jeito que você decidir.'};
+  if(!souTreinador())return{papel:'Dono',livre:true,
+    texto:'Sem metas e sem cobrança — o clube é seu e vai para onde você decidir.'};
   /* Demitido é um ESTADO, não um evento que passa.
 
      Antes a demissão só existia dentro do modal do veredito: quem fechasse o

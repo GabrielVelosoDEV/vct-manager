@@ -217,7 +217,7 @@ function jogarColetiva(ctx,fim,dados){
     /* placa com o nome */
     cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2-120,314,240,28);
     cx.fillStyle='#0F1923';cx.font='400 20px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';
-    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria'))).toUpperCase(),MG_W/2,335);
+    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'dono'))).toUpperCase(),MG_W/2,335);
     if(dados.mvp){cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2+150,314,130,28);cx.fillStyle='#0F1923';cx.fillText(dados.mvp.nome.toUpperCase(),MG_W/2+215,335);}
     /* microfones */
     COL_IMPRENSA.slice(0,5).forEach(([,,c2],k)=>{const x=MG_W/2-110+k*55,y=232+(k%2)*8;

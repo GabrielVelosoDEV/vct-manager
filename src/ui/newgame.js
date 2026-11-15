@@ -9,6 +9,8 @@ let escJ={funcao:'Duelista',ag:['Jett','Raze','Neon'],estilo:'mira',inicio:'tier
 let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
 let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
+/* modo Dono: variante e estilo de gestão */
+let escVariante='livre',escPerfilDono='paciente';
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
@@ -81,9 +83,18 @@ function telaNovoJogo(){
         <button class="nj-papel ${escPapel===p.id?'on':''}" data-papel="${p.id}">
           <b>${esc(p.nome)}</b>
           <span>${esc(p.resumo)}</span>
-          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':' O coach do clube continua no cargo.'}</i>
+          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':p.id==='dono'?' O dono de antes sai; o coach continua no cargo.':' O coach do clube continua no cargo.'}</i>
         </button>`).join('')}</div>
     ${escPapel==='jogador'?blocoJogadorNJ():''}
+    ${escPapel==='dono'?`
+    <div class="eyebrow" style="margin-top:14px">Como você comanda</div>
+    <div class="nj-papeis">${VARIANTES_DONO.map(v=>`
+        <button class="nj-papel ${escVariante===v.id?'on':''} ${v.emBreve?'nj-embreve':''}" data-variante="${v.id}" ${v.emBreve?'disabled':''}>
+          <b>${esc(v.nome)}${v.emBreve?' <span class="nj-ov">em construção</span>':''}</b>
+          <span>${esc(v.resumo)}</span><i>${esc(v.detalhe)}</i></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Seu estilo de gestão</div>
+    <div class="nj-estilos">${Object.entries(PERFIS_DONO).map(([k,pf])=>`
+        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>`:''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:14px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
@@ -150,6 +161,8 @@ function telaNovoJogo(){
   const tiraFoto=$('#njFotoTira');if(tiraFoto)tiraFoto.onclick=()=>{guardaNome();escFoto=null;telaNovoJogo();};
   $('#modal').querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>{guardaNome();escModo=b.dataset.modo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-variante]').forEach(b=>b.onclick=()=>{guardaNome();escVariante=b.dataset.variante;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-perfildono]').forEach(b=>b.onclick=()=>{guardaNome();escPerfilDono=b.dataset.perfildono;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();const era=escPapel;escPapel=b.dataset.papel;
     if(escPapel==='jogador'&&era!=='jogador'&&escIdade>30)escIdade=19;
@@ -169,7 +182,7 @@ function telaNovoJogo(){
     G.iniciadaEm=Date.now();
     aplicarDificuldade(escDif,T(G.meuTime));
     iniciarGuia();
-    criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
+    criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo,variante:escVariante,perfilDono:escPerfilDono});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
     iniciarBase(T(G.meuTime));
@@ -177,8 +190,9 @@ function telaNovoJogo(){
     if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
-    noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
-            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
+    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
+    noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+T(G.meuTime).nome+'.'
+      :'🏛 '+eu.nome+' é o novo dono do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
     if(souTreinador()&&eu.metas.length)
       noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
     salvarRun(G.runNome);

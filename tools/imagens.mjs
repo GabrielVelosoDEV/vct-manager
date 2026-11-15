@@ -37,17 +37,18 @@ const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'')
 
 /* Ordem de preferência quando o mesmo nome existe em dois formatos. */
 const FORMATOS=['webp','png','jpg','jpeg','svg'];
-const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','imprensa','ui','bandeiras','logo-selecoes','copa'];
+const PASTAS=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','imprensa','ui','bandeiras','logo-selecoes','copa','donos'];
 
 /* ---------- a base: quem deveria ter imagem ---------- */
 const ctx={};vm.createContext(ctx);
-for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/organizacoes.js','data/elencos.js','data/comissao.js','data/sedes.js','data/copa.js','data/imprensa.js','src/core/torneios.js']){
+for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js','data/times.js','data/organizacoes.js','data/elencos.js','data/comissao.js','data/sedes.js','data/copa.js','data/imprensa.js','data/donos.js','src/core/torneios.js']){
   const p=resolve(raiz,f);
   if(existsSync(p))vm.runInContext(readFileSync(p,'utf8')+
     ';this.TIMES_REAIS=typeof TIMES_REAIS!=="undefined"?TIMES_REAIS:this.TIMES_REAIS;'+
     'this.ELENCOS_REAIS=typeof ELENCOS_REAIS!=="undefined"?ELENCOS_REAIS:this.ELENCOS_REAIS;'+
     'this.ORGANIZACOES=typeof ORGANIZACOES!=="undefined"?ORGANIZACOES:this.ORGANIZACOES;'+
     'this.ENTRANTES=typeof ENTRANTES!=="undefined"?ENTRANTES:this.ENTRANTES;'+
+    'this.DONOS=typeof DONOS!=="undefined"?DONOS:this.DONOS;'+
     'this.COMISSAO_REAL=typeof COMISSAO_REAL!=="undefined"?COMISSAO_REAL:this.COMISSAO_REAL;'+
     'this.DEPTOS=typeof DEPTOS!=="undefined"?DEPTOS:this.DEPTOS;'+
     'this.AGENTS=typeof AGENTS!=="undefined"?AGENTS:this.AGENTS;'+
@@ -66,7 +67,7 @@ for(const f of ['src/core/estrutura.js','data/mundo.js','data/patrocinadores.js'
     'this.montarTorneios=typeof montarTorneios!=="undefined"?montarTorneios:this.montarTorneios;',ctx);
 }
 /* Cada mapa: slug → rótulo. `grupo` separa a LISTA.md por clube/região. */
-const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','bandeiras','logo-selecoes','copa'];
+const PASTAS_BASE=['logos','players','staff','torneios','agentes','marcas','mapas','cidades','trofeus','estrutura','cenas','veiculos','bandeiras','logo-selecoes','copa','donos'];
 const base=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 const grupo=Object.fromEntries(PASTAS_BASE.map(d=>[d,new Map()]));
 for(const r in ctx.TIMES_REAIS||{})for(const d of ['t1','t2'])
@@ -166,6 +167,9 @@ for(const [c,sig] of ctx.COPA_SELECOES||[]){
   C('premio-time-ideal','Prêmios da Copa','seleção (time ideal) da Copa');
   for(const [c,nome] of ctx.COPA_SEDES||[])C('sede-'+slug(nome),'Logo de cada sede',nome+' ('+c+')');
 }
+/* donos de organização que são pessoas (data/donos.js); empresa não tem foto */
+for(const tag in ctx.DONOS||{}){const d=ctx.DONOS[tag];if(d.tipo!=='pessoa')continue;
+  base.donos.set(slug(d.nome),d.nome+' ('+tag+(d.empresa?', '+d.empresa:'')+')');grupo.donos.set(slug(d.nome),'');}
 for(const role in ctx.AGENTS||{})if(role!=='Flex')for(const a of ctx.AGENTS[role]){
   base.agentes.set(slug(a),a);grupo.agentes.set(slug(a),role);
 }
@@ -206,8 +210,8 @@ const MIDIA={
 writeFileSync(resolve(raiz,'data/midia.js'),saida);
 
 /* ---------- relatório ---------- */
-const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus',estrutura:'Estrutura do clube',cenas:'Cenas da interface',veiculos:'Veículos de imprensa',bandeiras:'Bandeiras nacionais','logo-selecoes':'Escudos das seleções',copa:'Valorant World Cup'};
-const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu',estrutura:'id do departamento',cenas:'id da cena',veiculos:'id do veículo',bandeiras:'código ISO de duas letras do país','logo-selecoes':'sigla de três letras da seleção',copa:'id da arte'};
+const ROTULO={logos:'Escudos',players:'Jogadores',staff:'Comissão',torneios:'Torneios',agentes:'Agentes',marcas:'Patrocinadores',mapas:'Mapas',cidades:'Cidades-sede',trofeus:'Troféus',estrutura:'Estrutura do clube',cenas:'Cenas da interface',veiculos:'Veículos de imprensa',bandeiras:'Bandeiras nacionais','logo-selecoes':'Escudos das seleções',copa:'Valorant World Cup',donos:'Donos das organizações'};
+const DICA={logos:'tag do time',players:'nick do jogador',staff:'nick da pessoa',torneios:'id do torneio',agentes:'nome do agente',marcas:'nome da marca',mapas:'nome do mapa',cidades:'nome da cidade',trofeus:'nome do troféu',estrutura:'id do departamento',cenas:'id da cena',veiculos:'id do veículo',bandeiras:'código ISO de duas letras do país','logo-selecoes':'sigla de três letras da seleção',copa:'id da arte',donos:'nome do dono'};
 let semDono=0;
 console.log(`data/midia.js gravado — ${chaves.length} imagem(ns).\n`);
 /* LISTA.md em cada pasta: o nome exato de cada arquivo que o jogo procura,

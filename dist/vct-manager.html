@@ -4511,6 +4511,18 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .cpx-sel-pag{margin-left:auto;align-self:center}
 .cpx-lad[data-irsel]{cursor:pointer}
 
+/* ============ donos ============ */
+.dono-ret{object-fit:cover;flex:none;border-radius:10px;background:#111A22}
+.dono-card{border-left:3px solid var(--clube,#5B6B7A)}
+.dono-topo{display:flex;align-items:center;gap:14px;margin:8px 0 10px}
+.dono-topo>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.dono-nome{font-size:17px}
+.dono-perfil{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:var(--panel2,#16212B)}
+.dono-tag{align-self:flex-start;font:800 10.5px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  padding:4px 8px;color:#fff;background:color-mix(in srgb,var(--clube,#5B6B7A) 55%,#111A22)}
+.dono-bolso,.dono-ant{margin-top:8px;font-size:12px}
+.nj-papel.nj-embreve{opacity:.5;cursor:not-allowed}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -13204,6 +13216,135 @@ const ENTRANTES=[
 ];
 
 
+/* ===== data/donos.js ===== */
+/* ============================================================
+   DONOS DAS ORGANIZAÇÕES
+   ------------------------------------------------------------
+   Tier 1: a lista que você montou (donostier1.docx, 15/11/2026).
+   Challengers e entrantes: pesquisa de 15/11/2026, a conferir —
+   quem não foi confirmado entra como a própria organização.
+
+   tipo     'pessoa'  o rosto do clube é uma pessoa (nome e foto)
+            'empresa' controlado por uma empresa: mostra a empresa
+            'org'     dono não confirmado: mostra a organização
+   nome     o que aparece como "dono"
+   junto    outras pessoas associadas à propriedade (texto livre)
+   empresa  a empresa controladora, quando há
+   perfil   o ESTILO DE GESTÃO que a IA usa para este clube (não é um
+            juízo sobre a pessoa real; troque à vontade):
+              ambicioso · paciente · investidor · economico · midiatico
+   foto     assets/donos/<slug do nome>.<ext>, como a dos jogadores;
+            sem foto, um retrato com as iniciais nas cores do clube
+
+   As chaves são as siglas da base (data/times.js) e as dos entrantes
+   (data/organizacoes.js), que ganham o dono quando compram a vaga.
+   ============================================================ */
+const PERFIS_DONO={
+  ambicioso:{nome:'Ambicioso', desc:'Gasta acima do caixa e troca de técnico rápido atrás de título.'},
+  paciente :{nome:'Paciente',  desc:'Projeto longo: segura técnico, aposta na base e aceita ano ruim.'},
+  investidor:{nome:'Investidor',desc:'Compra barato e vende caro: o clube é um ativo que precisa dar retorno.'},
+  economico:{nome:'Econômico', desc:'Folha enxuta e contas em dia; raramente paga o preço de um craque.'},
+  midiatico:{nome:'Midiático', desc:'Marca e torcida em primeiro lugar: contratação que vira manchete.'}
+};
+
+const DONOS={
+/* ---------------- VCT Americas ---------------- */
+  '100T':{tipo:'pessoa', nome:'Matthew "Nadeshot" Haag', empresa:'100 Thieves LLC', junto:'e outros coproprietários', perfil:'midiatico'},
+  C9   :{tipo:'pessoa', nome:'Jack Etienne', empresa:'Cloud9 Esports Inc.', perfil:'paciente'},
+  EG   :{tipo:'empresa',nome:'PEAK6 Investments', junto:'grupo de investimentos', perfil:'investidor'},
+  FUR  :{tipo:'pessoa', nome:'Jaime Pádua', empresa:'FURIA Esports', junto:'André Akkari e Cris Guedes', perfil:'paciente'},
+  'KRÜ':{tipo:'pessoa', nome:'Sergio "Kun" Agüero', empresa:'Slak Esports Europa', junto:'Lionel Messi', perfil:'midiatico'},
+  LEV  :{tipo:'pessoa', nome:'Fernando Diez', empresa:'Leviatán', perfil:'paciente'},
+  LOUD :{tipo:'pessoa', nome:'Bruno PlayHard', empresa:'LOUD Ltd.', junto:'Jean Ortega e Matthew Ho', perfil:'midiatico'},
+  MIBR :{tipo:'empresa',nome:'Spun Mídia', junto:'grupo empresarial', perfil:'ambicioso'},
+  NRG  :{tipo:'pessoa', nome:'Andy Miller', empresa:'Grey Matter Capital', junto:'Mark Mastrov', perfil:'investidor'},
+  SEN  :{tipo:'pessoa', nome:'Rob Moore', empresa:'Sentinels Corporation', perfil:'ambicioso'},
+  G2   :{tipo:'pessoa', nome:'Jens Hilgers', empresa:'G Esports Holding GmbH', perfil:'investidor'},
+  ENVY :{tipo:'pessoa', nome:'Mike "Hastr0" Rufail', empresa:'Envy Gaming', perfil:'paciente'},
+/* ---------------- VCT EMEA ---------------- */
+  BBL  :{tipo:'org',    nome:'BBL Esports', junto:'fundadores turcos da organização', perfil:'economico'},
+  FNC  :{tipo:'pessoa', nome:'Sam Mathews', empresa:'Fnatic Ltd.', perfil:'paciente'},
+  FUT  :{tipo:'empresa',nome:'Futbolist Sportif Hizmetler A.Ş.', junto:'empresários turcos', perfil:'economico'},
+  KC   :{tipo:'pessoa', nome:'Kameto', empresa:'Karmine Corp SAS', junto:'Prime', perfil:'midiatico'},
+  NAVI :{tipo:'pessoa', nome:'Maksym Krippa', empresa:'Natus Vincere Esport CY Ltd.', perfil:'ambicioso'},
+  TH   :{tipo:'pessoa', nome:'Antonio Catena', empresa:'Team Heretics S.L.', perfil:'paciente'},
+  TL   :{tipo:'empresa',nome:'aXiomatic Gaming', junto:'investidores liderados por Peter Guber e Ted Leonsis', perfil:'investidor'},
+  VIT  :{tipo:'pessoa', nome:'Nicolas Maurer', empresa:'Team Vitality', junto:'Fabien Devide', perfil:'ambicioso'},
+  GX   :{tipo:'empresa',nome:'JRJ Group', junto:'grupo empresarial', perfil:'investidor'},
+  M8   :{tipo:'pessoa', nome:'Squeezie', empresa:'OZI', junto:'Gotaga e Brawks', perfil:'midiatico'},
+  PCF  :{tipo:'org',    nome:'PCIFIC Esports', junto:'proprietários não confirmados', perfil:'economico'},
+  EF   :{tipo:'org',    nome:'Eternal Fire', junto:'fundada por jogadores e empresários turcos', perfil:'paciente'},
+  AUR  :{tipo:'org',    nome:'Aurora Gaming', perfil:'ambicioso'},
+/* ---------------- VCT Pacific ---------------- */
+  DFM  :{tipo:'pessoa', nome:'Nobuyuki Umezaki', empresa:'DetonatioN Inc.', perfil:'paciente'},
+  KRX  :{tipo:'empresa',nome:'DRX Corp.', perfil:'paciente'},
+  GEN  :{tipo:'pessoa', nome:'Kevin Chou', empresa:'KSV eSports Korea', perfil:'investidor'},
+  GE   :{tipo:'pessoa', nome:'Rushindra Sinha', empresa:'Global Esports', perfil:'ambicioso'},
+  PRX  :{tipo:'pessoa', nome:'Nikhil Hathiramani', empresa:'IMPLS Entertainment', junto:'Matt Djojonegoro, Harley Örwall e Gad Tan', perfil:'paciente'},
+  RRQ  :{tipo:'pessoa', nome:'Andrian Pauline', empresa:'PT Qeon Interactive', junto:'Riki Kawano Suliawan', perfil:'midiatico'},
+  T1   :{tipo:'empresa',nome:'SK Telecom', empresa:'SK Telecom CS T1', junto:'Comcast', perfil:'paciente'},
+  TS   :{tipo:'pessoa', nome:'John Yao', empresa:'Secret Esports LLC', perfil:'economico'},
+  ZETA :{tipo:'empresa',nome:'GANYMEDE Inc.', junto:'grupo fundador', perfil:'midiatico'},
+  FS   :{tipo:'org',    nome:'FULL SENSE', junto:'proprietários não confirmados', perfil:'economico'},
+  NS   :{tipo:'empresa',nome:'Nongshim Corporation', perfil:'paciente'},
+  VL   :{tipo:'empresa',nome:'CELLORB Inc.', perfil:'economico'},
+  CR   :{tipo:'org',    nome:'Crazy Raccoon', perfil:'ambicioso'},
+/* ---------------- VCT China ---------------- */
+  AG   :{tipo:'empresa',nome:'Orinno Capital', perfil:'investidor'},
+  BLG  :{tipo:'empresa',nome:'Bilibili Inc.', perfil:'ambicioso'},
+  EDG  :{tipo:'empresa',nome:'SUPERGEN Inc.', perfil:'paciente'},
+  FPX  :{tipo:'empresa',nome:'FunPlus', perfil:'investidor'},
+  JDG  :{tipo:'empresa',nome:'JD.com Inc.', perfil:'ambicioso'},
+  NOVA :{tipo:'empresa',nome:'Imperium Group', perfil:'economico'},
+  TEC  :{tipo:'empresa',nome:'Titan Sports', perfil:'economico'},
+  TE   :{tipo:'empresa',nome:'Trace Culture', perfil:'paciente'},
+  TYL  :{tipo:'empresa',nome:'Tailu Technology Ltd.', perfil:'paciente'},
+  DRG  :{tipo:'empresa',nome:'Renren Sports Culture', perfil:'economico'},
+  XLG  :{tipo:'empresa',nome:'XILONG INT', perfil:'investidor'},
+  WBG  :{tipo:'empresa',nome:'Weibo', perfil:'ambicioso'},
+/* ---------------- Challengers (a conferir) ---------------- */
+  M80  :{tipo:'pessoa', nome:'Marco Mereu', empresa:'M80', perfil:'economico'},
+  SRB  :{tipo:'empresa',nome:'Shopify', perfil:'investidor'},
+  RED  :{tipo:'org',    nome:'RED Canids', perfil:'midiatico'},
+  FX   :{tipo:'empresa',nome:'W7M Investments Group', junto:'o Fluxo de Nobru', perfil:'midiatico'},
+  '2G' :{tipo:'org',    nome:'2Game Esports', perfil:'economico'},
+  BST  :{tipo:'pessoa', nome:'Papo', empresa:'BESTIA', perfil:'midiatico'},
+  SAD  :{tipo:'org',    nome:'SaD Esports', perfil:'economico'},
+  NBG  :{tipo:'org',    nome:'Nightblood Gaming', perfil:'economico'},
+  EP   :{tipo:'org',    nome:'Enterprise Esports', perfil:'economico'},
+  FF   :{tipo:'org',    nome:'Fire Flux Esports', perfil:'economico'},
+  JL   :{tipo:'org',    nome:'Joblife', perfil:'economico'},
+  SGE  :{tipo:'empresa',nome:'Eintracht Frankfurt', junto:'o clube de futebol', perfil:'paciente'},
+  MISA :{tipo:'org',    nome:'Misa Esports', perfil:'economico'},
+  MDR  :{tipo:'org',    nome:'Mandatory', perfil:'midiatico'},
+  MIR  :{tipo:'org',    nome:'MIR', perfil:'economico'},
+  ONG  :{tipo:'org',    nome:'ONSIDE GAMING', perfil:'economico'},
+  DK   :{tipo:'empresa',nome:'Dplus', perfil:'paciente'},
+  FL   :{tipo:'org',    nome:'FENNEL', perfil:'midiatico'},
+  RC   :{tipo:'org',    nome:'REJECT', perfil:'paciente'},
+  GAM  :{tipo:'org',    nome:'GAM Esports', perfil:'economico'},
+  QTD  :{tipo:'org',    nome:'QT DIG∞', perfil:'economico'},
+  XIP  :{tipo:'org',    nome:'Xipto Esports', perfil:'economico'},
+  RA   :{tipo:'org',    nome:'Rare Atom', perfil:'economico'},
+  WOL  :{tipo:'empresa',nome:'Fosun International', perfil:'investidor'},
+  KBG  :{tipo:'org',    nome:'KeepBest Gaming', perfil:'economico'},
+  AT   :{tipo:'org',    nome:'A Team', perfil:'economico'},
+  AQ   :{tipo:'org',    nome:'Any Questions Gaming', perfil:'economico'},
+  WSIG :{tipo:'empresa',nome:'Invictus Gaming', perfil:'ambicioso'},
+  ODG  :{tipo:'org',    nome:'Octagonal Disposition Gaming', perfil:'economico'},
+  VLG  :{tipo:'org',    nome:'Victory No Limits Gaming', perfil:'economico'},
+/* ---------------- entrantes (data/organizacoes.js) ---------------- */
+  PAIN :{tipo:'pessoa', nome:'Arthur "PAADA" Zarzur', empresa:'paiN Gaming', perfil:'paciente'},
+  '9Z' :{tipo:'pessoa', nome:'Frankkaster', empresa:'9z Team', perfil:'midiatico'},
+  LNS  :{tipo:'pessoa', nome:'Thyak', empresa:'Lyon Gaming', perfil:'ambicioso'},
+  NIP  :{tipo:'empresa',nome:'NIP Group', perfil:'investidor'},
+  FLC  :{tipo:'org',    nome:'Team Falcons', perfil:'ambicioso'},
+  FAZE :{tipo:'empresa',nome:'GameSquare', perfil:'midiatico'},
+  SPT  :{tipo:'org',    nome:'Team Spirit', perfil:'paciente'},
+  HLE  :{tipo:'empresa',nome:'Hanwha Life', perfil:'ambicioso'}
+};
+
+
 /* ===== data/comissao.js ===== */
 /* ============================================================
    COMISSÃO TÉCNICA REAL — por tag de clube
@@ -17211,6 +17352,7 @@ function criarMundo(seedVal){
   for(const id in G.times){const t=G.times[id];if(!t.pais&&!t.paisSede)t.paisSede=paisDoClube(t)||null;}
   /* dono de bolso fundo e compras de vaga marcadas (data/organizacoes.js) */
   if(typeof aplicarOrganizacoesIniciais==='function')aplicarOrganizacoesIniciais();
+  if(typeof aplicarDonosIniciais==='function')aplicarDonosIniciais();
   /* a comissão precisa de todos os times já criados para semear por prestígio */
   montarStaff();
   /* patrocínio por último: quem escolhe primeiro é o clube mais atraente, e
@@ -21483,6 +21625,7 @@ function aplicarAquisicao(t,e){
     t.torcida=clamp(Math.round((t.torcida||0)*0.5+alvo*0.5),typeof pisoTorcida==='function'?pisoTorcida(t):0,TORCIDA_MAX);
   }
   if(t.tier===1&&pf)t.prestigio=clamp(t.prestigio+(pf.porte-3)*2,20,99);
+  if(typeof donoDaAquisicao==='function')donoDaAquisicao(t,e);
   e.feita={ano:G.ano,clube:t.id};
   const meu=t.id===G.meuTime;
   const txt=e.tipo==='fusao'
@@ -21497,6 +21640,76 @@ function migrarOrganizacoes(){
   if(!Array.isArray(G.aquisicoes))
     G.aquisicoes=(typeof ENTRANTES!=='undefined'?ENTRANTES:[]).map(e=>({...e,janela:[Math.max(e.janela[0],G.ano),Math.max(e.janela[1],G.ano+2)],feita:null}));
 }
+
+
+/* ===== src/core/donos.js ===== */
+/* ============================================================
+   DONOS — quem é dono de cada organização (data/donos.js)
+   ------------------------------------------------------------
+   Todo clube tem t.dono: {tipo, nome, empresa?, junto?, perfil,
+   desde, ...}. Na criação do mundo vem da base; quando uma
+   organização compra a vaga (core/organizacoes.js) o dono dela
+   chega junto; quando um ex-jogador compra um clube
+   (core/poscarreira.js) ele vira o dono, com exId. No modo Dono,
+   o dono do seu clube é você (voce:true).
+
+   Nada aqui sorteia: o motor continua com o gerador intacto.
+   ============================================================ */
+function dadoDono(tag){
+  return (typeof DONOS!=='undefined'&&DONOS[tag])||null;
+}
+/* o dono da base para uma sigla; sem dado, a própria organização */
+function novoDono(tag,nomeOrg,desde){
+  const d=dadoDono(tag);
+  const o=d?Object.assign({},d):{tipo:'org',nome:nomeOrg||tag,perfil:'economico'};
+  o.desde=desde==null?null:desde;o.base=!!d;
+  if(!PERFIS_DONO[o.perfil])o.perfil='economico';
+  return o;
+}
+function aplicarDonosIniciais(){
+  for(const id in G.times){
+    const t=G.times[id];
+    if(t.dono&&(t.dono.exId||t.dono.voce))continue;
+    t.dono=novoDono(t.tagOriginal||t.tag,t.nome,null);
+  }
+}
+/* save de antes dos donos: quem não tem ganha o da base; ex-jogador dono fica */
+function migrarDonos(){
+  for(const id in G.times){
+    const t=G.times[id];
+    if(t.dono&&!t.dono.tipo)t.dono=Object.assign({tipo:'pessoa',perfil:'paciente'},t.dono);
+    if(!t.dono)t.dono=novoDono(t.tag,t.nome,null);
+  }
+  if(G.manager&&G.manager.papel==='diretoria')G.manager.papel='dono';
+  if(G.manager&&G.manager.papel==='dono'&&!G.manager.variante)G.manager.variante='livre';
+  const meu=G.meuTime&&G.times[G.meuTime];
+  if(meu&&G.manager&&G.manager.papel==='dono')tornarVoceDono(meu);
+}
+/* no modo Dono, o dono do seu clube é você; o anterior fica registrado */
+function tornarVoceDono(t){
+  if(!t||!G.manager)return;
+  if(t.dono&&!t.dono.voce)(t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},t.dono));
+  const m=G.manager;
+  t.dono={tipo:'pessoa',nome:m.nome,pais:m.pais||null,foto:m.foto||null,perfil:m.perfilDono||'paciente',
+    desde:G.ano,voce:true};
+}
+/* a organização que compra a vaga traz o dono dela */
+function donoDaAquisicao(t,e){
+  if(t.dono&&t.dono.voce)return;
+  if(t.dono)(t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},t.dono));
+  t.dono=novoDono(e.tag,e.nome,G.ano);
+}
+function donoDe(t){return t&&t.dono?t.dono:null;}
+/* "Bruno PlayHard (LOUD Ltd.)", "Shopify", "a própria organização" */
+function nomeDono(d){return d?d.nome:'—';}
+function rotuloTipoDono(d){
+  if(!d)return '';
+  if(d.voce)return 'você';
+  if(d.exId)return 'ex-jogador';
+  return d.tipo==='empresa'?'empresa controladora':d.tipo==='org'?'a própria organização':'dono';
+}
+/* clubes que podem ser comprados por um ex-jogador: sem dono de verdade */
+function clubeSemDonoForte(t){return !t.dono||(t.dono.tipo==='org'&&!t.dono.voce);}
 
 
 /* ===== src/core/projeto.js ===== */
@@ -26489,7 +26702,7 @@ function voltaParaCasa(m,destino){return !!(m&&m.ex&&destino&&(m.ex.clubes||[]).
 /* ---------- dono de clube ---------- */
 function comprarClube(p){
   const reg=regiaoDoJogador(p);
-  const livre=t=>!t.dono&&t.regiao===reg;
+  const livre=t=>(typeof clubeSemDonoForte==='function'?clubeSemDonoForte(t):!t.dono)&&t.regiao===reg;
   let cands=Object.values(G.times).filter(t=>livre(t)&&t.tier===2);
   if(!cands.length)cands=Object.values(G.times).filter(t=>livre(t)).sort((a,b)=>a.prestigio-b.prestigio).slice(0,3);
   if(!cands.length)return null;
@@ -26498,7 +26711,8 @@ function comprarClube(p){
   t.caixa+=aporte;
   t.torcida=clamp((t.torcida||0)+8,typeof pisoTorcida==='function'?pisoTorcida(t):0,typeof TORCIDA_MAX!=='undefined'?TORCIDA_MAX:100);
   t.prestigio=clamp(t.prestigio+3,20,99);
-  t.dono={nome:p.nome,pais:p.pais,desde:G.ano,exId:p.id,aporte};
+  if(t.dono)(t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},t.dono));
+  t.dono={tipo:'pessoa',nome:p.nome,pais:p.pais,desde:G.ano,exId:p.id,aporte,perfil:'paciente'};
   (G.donos=G.donos||[]).push({nome:p.nome,timeId:t.id,ano:G.ano});
   noticia('🏢 '+p.nome+' se aposenta e compra o '+t.nome+': aporte de '+money(aporte)+' e o clube vira o projeto dele.',
     {c:'carreira',t:[t.id],imp:3});
@@ -27747,9 +27961,12 @@ function narrarFimDeMapa(mapa,souA,meuTag,advTag){
                 cada temporada, é avaliado no fim, e pode ser
                 demitido. É o modo com consequência.
 
-     DIRETORIA  não responde a ninguém. Sem meta, sem cobrança,
-                sem demissão. É o modo livre — quem manda é você,
-                e não existe alguém acima para cobrar.
+     DONO       é dono da organização (era o modo Diretoria). Três
+                variantes: LIVRE faz tudo, sem meta e sem cobrança
+                (o modo Diretoria de antes, o mais acessível); PURO
+                e DONO-TÉCNICO são o modo de gestão de verdade, com
+                técnico IA, empresa e risco de perder o time (ver o
+                planejamento do modo Dono; chegam por fases).
 
    As metas são de propósito SIMPLES: posição na liga e um alvo
    de bônus. Meta complicada vira planilha, e ninguém joga um
@@ -27760,14 +27977,23 @@ const PAPEIS=[
   {id:'treinador',nome:'Treinador',
    resumo:'A diretoria define metas todo ano e cobra no fim da temporada. Falhar seguido custa o emprego.',
    detalhe:'Modo com consequência: existe alguém acima de você.'},
-  {id:'diretoria',nome:'Diretoria',
-   resumo:'Sem metas e sem cobrança. Você responde a você mesmo e conduz o clube como quiser.',
-   detalhe:'Modo livre: ninguém te demite.'},
+  {id:'dono',nome:'Dono',
+   resumo:'Você é o dono da organização: decide quem treina, quanto se gasta e para onde o clube vai.',
+   detalhe:'Ninguém acima de você, só o caixa e quem investe.'},
   {id:'jogador',nome:'Jogador',
    resumo:'Você é um jogador do circuito: treina, joga as partidas na gameplay, negocia o seu contrato e constrói a carreira.',
    detalhe:'O clube é dirigido pela IA, como todos os outros.'}
 ];
-function papelAtual(){return (G.manager&&G.manager.papel)||'diretoria';}
+function papelAtual(){const p=(G.manager&&G.manager.papel)||'dono';return p==='diretoria'?'dono':p;}
+function souDono(){return papelAtual()==='dono';}
+/* Variantes do modo Dono. Só a Livre está pronta: as outras entram com o
+   técnico IA (fase 3) e a empresa (fase 4) do planejamento. */
+const VARIANTES_DONO=[
+  {id:'livre',nome:'Dono livre',resumo:'Você faz tudo: escala, monta a tática, joga as partidas e cuida do clube. Sem metas, sem cobrança, sem falência.',detalhe:'O mais acessível.'},
+  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico e cuida da empresa; o time é dele. Você assiste às partidas.',detalhe:'Em construção.',emBreve:true},
+  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'Em construção.',emBreve:true}
+];
+function varianteDono(id){return VARIANTES_DONO.find(x=>x.id===id&&!x.emBreve)||VARIANTES_DONO[0];}
 function souTreinador(){return papelAtual()==='treinador';}
 
 /* Trajetória do treinador: começar no topo ou subir trabalhando. */
@@ -27787,7 +28013,8 @@ function modoTreinador(id){return MODOS_TREINADOR.find(x=>x.id===id)||MODOS_TREI
 function estiloTreinador(id){return ESTILOS_TREINADOR.find(x=>x.id===id)||ESTILOS_TREINADOR[0];}
 
 function criarManager(nome,papel,opc){
-  const p=PAPEIS.some(x=>x.id===papel)?papel:'diretoria';
+  if(papel==='diretoria')papel='dono';
+  const p=PAPEIS.some(x=>x.id===papel)?papel:'dono';
   opc=opc||{};
   G.manager={
     nome:String(nome||'').trim().slice(0,28)||'Manager',
@@ -27797,6 +28024,7 @@ function criarManager(nome,papel,opc){
     modo:modoTreinador(opc.modo).id, estilo:estiloTreinador(opc.estilo).id,
     foto:opc.foto||null, staffId:null
   };
+  if(p==='dono'){G.manager.variante=varianteDono(opc.variante).id;G.manager.perfilDono=opc.perfilDono||'paciente';}
   return G.manager;
 }
 
@@ -28137,8 +28365,8 @@ function assumirClube(id){
 function situacaoManager(){
   const m=G.manager;
   if(!m)return null;
-  if(!souTreinador())return{papel:'Diretoria',livre:true,
-    texto:'Sem metas e sem cobrança — o clube é conduzido do jeito que você decidir.'};
+  if(!souTreinador())return{papel:'Dono',livre:true,
+    texto:'Sem metas e sem cobrança — o clube é seu e vai para onde você decidir.'};
   /* Demitido é um ESTADO, não um evento que passa.
 
      Antes a demissão só existia dentro do modal do veredito: quem fechasse o
@@ -34567,7 +34795,7 @@ const Prefs={
 };
 
 /* ---------- serialização da run ---------- */
-const RUN_VERSAO=15;
+const RUN_VERSAO=16;
 function novaRunId(){return 'run_'+Date.now().toString(36)+'_'+Math.floor(Math.random()*1e4).toString(36);}
 function empacotarRun(nome){
   return{
@@ -34734,6 +34962,8 @@ function migrarRun(reg){
     /* v15: a chegada de cada um ao clube atual, tirada do registro de
        transferências (quem já trocou duas vezes na janela para de trocar) */
     if(de<15&&typeof migrarChegadas==='function')migrarChegadas();
+    /* v16: todo clube tem dono (data/donos.js); o modo Diretoria vira modo Dono */
+    if(de<16&&typeof migrarDonos==='function')migrarDonos();
   }finally{ _s=guarda; }
   reg.versao=RUN_VERSAO;
   return de;
@@ -36438,7 +36668,7 @@ function cartaoCarreira(){
       <div class="mn-c-marca" aria-hidden="true">${escudo(t,180)}</div>
       <div class="mn-c-cab"><span class="eyebrow">Sua carreira</span><span class="mn-c-hora">${salva?'salvo '+esc(haQuanto(salva.atualizado)):''}</span></div>
       <div class="mn-c-clube">${escudo(t,58)}<div><b>${esc(t.nome)}</b><span>${esc(nomeLiga(t))}</span></div></div>
-      ${g.nome?`<div class="mn-c-mgr">${foto}<span><b>${esc(g.nome)}</b> · ${souTreinador()?'treinador':'diretoria'}${mm?` · coach <b class="num">${overStaff(mm)}</b>`:''}</span></div>`:''}
+      ${g.nome?`<div class="mn-c-mgr">${foto}<span><b>${esc(g.nome)}</b> · ${souTreinador()?'treinador':'dono'}${mm?` · coach <b class="num">${overStaff(mm)}</b>`:''}</span></div>`:''}
       <div class="mn-c-nums">
         <div><span>Temporada</span><b class="num">${G.ano} · S${G.semana||1}</b></div>
         <div><span>Posição</span><b class="num">${pos&&(tp.v+tp.d)>0?pos.pos+'º de '+pos.de:'—'}</b></div>
@@ -41233,7 +41463,7 @@ function jogarColetiva(ctx,fim,dados){
     /* placa com o nome */
     cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2-120,314,240,28);
     cx.fillStyle='#0F1923';cx.font='400 20px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';
-    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria'))).toUpperCase(),MG_W/2,335);
+    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'dono'))).toUpperCase(),MG_W/2,335);
     if(dados.mvp){cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2+150,314,130,28);cx.fillStyle='#0F1923';cx.fillText(dados.mvp.nome.toUpperCase(),MG_W/2+215,335);}
     /* microfones */
     COL_IMPRENSA.slice(0,5).forEach(([,,c2],k)=>{const x=MG_W/2-110+k*55,y=232+(k%2)*8;
@@ -42686,7 +42916,7 @@ function vClube(){
     <div class="cl-marca" aria-hidden="true">${escudo(t,340)}</div>
     <div class="cl-escudo">${escudo(t,112)}</div>
     <div class="cl-id">
-      <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · de ${esc(t.dono.nome)}`:''}</div>
+      <div class="eyebrow">${esc(nomeLiga(t))}${t.dono?` · ${t.dono.voce?'seu clube':'de '+esc(t.dono.nome)}`:''}</div>
       <h1 class="cl-nome">${esc(t.nome)} <span>${esc(t.tag)}</span></h1>
       <div class="cl-kpis">
         <div><span>Prestígio</span><b class="num">${Math.round(t.prestigio)}</b></div>
@@ -42695,6 +42925,7 @@ function vClube(){
         <div><span>Títulos</span><b class="num">${tits.length}</b></div>
         <div><span>Técnico</span><b>${esc(tecNome)}</b></div>
         <div><span>Patrocínio máster</span><b>${mk?esc(mk.nome):'—'}</b></div>
+        <div><span>Dono</span><b>${t.dono?esc(t.dono.nome):'—'}</b></div>
       </div>
       ${tits.length?`<div class="cl-mini-trof">${tits.slice(0,8).map(h=>imgTrofeu(h.trofeu||trofeuDoTitulo(h.ano,h.evento),20,h.ano+' · '+h.evento)).join('')}</div>`:''}
     </div>
@@ -42717,6 +42948,7 @@ function vClube(){
       ${temps.length?`<div class="card"><div class="eyebrow">Temporadas</div>${temps.map(linhaTemporadaClube).join('')}</div>`:''}
     </div>
     <div>
+      ${typeof cardDono==='function'?cardDono(t):''}
       ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
       ${!gere?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
@@ -42728,6 +42960,45 @@ function ligarClube(v,on){
   if(!String(tela).startsWith('clube:'))return;
   on('[data-ctroca]',el=>{if(typeof modalTroca==='function')modalTroca(clubeVer,el.dataset.ctroca);});
   on('[data-irtela]',el=>irPara(el.dataset.irtela));
+}
+
+
+/* ===== src/ui/donos.js ===== */
+/* ============================================================
+   DONOS NA TELA — retrato e cartão do dono (core/donos.js)
+   ============================================================ */
+/* retrato: a sua foto, a do ex-jogador, a da pasta assets/donos, ou as
+   iniciais nas cores do clube (empresa ganha um prédio no lugar) */
+function retratoDono(d,t,px){
+  px=px||56;
+  if(!d)return '';
+  const cor=t&&typeof corDoClube==='function'?corDoClube(t):'#5B6B7A';
+  const ini=String(d.nome||'?').replace(/"[^"]*"/g,'').trim().split(/\s+/).filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const fb=svgURI(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="#111A22"/>
+    <rect x="3" y="3" width="58" height="58" rx="8" fill="none" stroke="${cor}" stroke-width="2.5"/>
+    ${d.tipo==='pessoa'?`<text x="32" y="41" text-anchor="middle" font-family="Inter,Arial" font-weight="800" font-size="22" fill="#fff">${esc(ini||'?')}</text>`
+      :`<path d="M20 48V22l12-6 12 6v26z M26 28h4v4h-4z M34 28h4v4h-4z M26 36h4v4h-4z M34 36h4v4h-4z" fill="${cor}" fill-rule="evenodd"/>`}</svg>`);
+  let src='';
+  if(d.voce&&d.foto)src=d.foto;
+  else if(d.exId&&G.jogadores[d.exId]&&typeof retrato==='function')return retrato(G.jogadores[d.exId],px);
+  else if(d.tipo==='pessoa'&&ASSETS.tem('donos',d.nome))src=ASSETS.arq('donos',d.nome);
+  return `<img class="dono-ret" src="${src||fb}" alt="" style="width:${px}px;height:${px}px" onerror="this.onerror=null;this.src='${fb}'">`;
+}
+function cardDono(t){
+  const d=t&&t.dono;if(!d)return '';
+  const pf=PERFIS_DONO[d.perfil]||null;
+  const desde=d.desde?`desde ${d.desde}`:'';
+  const ant=(t.donosAntigos||[]).slice(-3).reverse();
+  return `<div class="card dono-card" style="--clube:${corDoClube(t)}">
+    <div class="eyebrow">Dono</div>
+    <div class="dono-topo">${retratoDono(d,t,72)}<div>
+      <b class="dono-nome">${esc(d.nome)}${d.voce?' <span class="chip up">você</span>':''}</b>
+      <span class="dim">${esc(rotuloTipoDono(d))}${d.empresa&&d.tipo==='pessoa'?' · '+esc(d.empresa):''}${desde?' · '+desde:''}</span>
+      ${d.junto?`<span class="dim">com ${esc(d.junto)}</span>`:''}</div></div>
+    ${pf?`<div class="dono-perfil"><span class="dono-tag">${esc(pf.nome)}</span><span class="dim">${esc(pf.desc)}</span></div>`:''}
+    ${typeof bolsoDe==='function'&&bolsoDe(t)!==1?`<div class="dono-bolso dim">Bolso do dono: <b>${bolsoDe(t)>1?'acima do normal da divisão':'abaixo do normal da divisão'}</b> (${bolsoDe(t).toFixed(2).replace('.',',')}×)</div>`:''}
+    ${ant.length?`<div class="dono-ant dim">Antes: ${ant.map(a=>esc(a.nome)+(a.ate?' (até '+a.ate+')':'')).join(' · ')}</div>`:''}
+  </div>`;
 }
 
 
@@ -43818,7 +44089,7 @@ function modalVeredito(v){
       <circle cx="60" cy="60" r="${R}" class="v" style="stroke:${corConf};--de:${(C*de/100).toFixed(1)};--para:${(C*para/100).toFixed(1)};--c:${C.toFixed(1)}"/>
     </svg><div class="ver-conf-n"><b class="num" data-conta>${para}</b><span class="${v.delta>=0?'up':'dn'}">${v.delta>=0?'+':''}${v.delta}</span></div>
     <div class="eyebrow">Confiança</div></div>`;
-  const dono=t&&t.dono?G.jogadores[t.dono.exId]:null;
+  const dono=t&&t.dono&&t.dono.exId?G.jogadores[t.dono.exId]:null;
   const icMeta=x=>x.cumprida===null?'<i class="ver-ic n">–</i>':x.cumprida?`<i class="ver-ic ok">${ico('check')}</i>`:`<i class="ver-ic no">${ico('x')}</i>`;
   abrir(`<div class="ver ${tomFinal}" ${t?`style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}"`:''}>
     <div class="ver-topo">${t&&typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ver-fundo cn-direita',foco:'placa',ansioso:true}):''}
@@ -43831,8 +44102,10 @@ function modalVeredito(v){
       </div>
       ${anel}
     </div>
-    ${t&&t.dono?`<div class="ver-dono">${dono?retrato(dono,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
-      <div>O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.</div></div></div>`:''}
+    ${t&&t.dono&&!t.dono.voce?`<div class="ver-dono">${dono?retrato(dono,44):typeof retratoDono==='function'?retratoDono(t.dono,t,44):icone('gravata')}<div><span class="eyebrow">Quem assina</span>
+      <div>${t.dono.exId?`O presidente e dono do clube, <b>${esc(t.dono.nome)}</b> — ex-jogador, comprou o ${esc(t.nome)} em ${t.dono.desde}.`
+        :t.dono.tipo==='pessoa'?`O dono do clube, <b>${esc(t.dono.nome)}</b>${t.dono.empresa?' ('+esc(t.dono.empresa)+')':''}.`
+        :`A diretoria da <b>${esc(t.dono.nome)}</b>, que controla o ${esc(t.nome)}.`}</div></div></div>`:''}
     <div class="card flat"><div class="eyebrow">O que foi cobrado</div>
       ${v.metas.map(x=>`<div class="ver-meta ${x.cumprida===null?'n':x.cumprida?'ok':'no'}">${icMeta(x)}
         <div><b>${esc(x.texto)}</b><div class="dim">${x.cumprida===null?'Cancelada':x.cumprida?'Cumprida':'Não cumprida'}${x.resultado?' — '+esc(x.resultado):''}</div></div></div>`).join('')}
@@ -50056,6 +50329,8 @@ let escJ={funcao:'Duelista',ag:['Jett','Raze','Neon'],estilo:'mira',inicio:'tier
 let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
 let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
+/* modo Dono: variante e estilo de gestão */
+let escVariante='livre',escPerfilDono='paciente';
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
@@ -50128,9 +50403,18 @@ function telaNovoJogo(){
         <button class="nj-papel ${escPapel===p.id?'on':''}" data-papel="${p.id}">
           <b>${esc(p.nome)}</b>
           <span>${esc(p.resumo)}</span>
-          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':' O coach do clube continua no cargo.'}</i>
+          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':p.id==='dono'?' O dono de antes sai; o coach continua no cargo.':' O coach do clube continua no cargo.'}</i>
         </button>`).join('')}</div>
     ${escPapel==='jogador'?blocoJogadorNJ():''}
+    ${escPapel==='dono'?`
+    <div class="eyebrow" style="margin-top:14px">Como você comanda</div>
+    <div class="nj-papeis">${VARIANTES_DONO.map(v=>`
+        <button class="nj-papel ${escVariante===v.id?'on':''} ${v.emBreve?'nj-embreve':''}" data-variante="${v.id}" ${v.emBreve?'disabled':''}>
+          <b>${esc(v.nome)}${v.emBreve?' <span class="nj-ov">em construção</span>':''}</b>
+          <span>${esc(v.resumo)}</span><i>${esc(v.detalhe)}</i></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Seu estilo de gestão</div>
+    <div class="nj-estilos">${Object.entries(PERFIS_DONO).map(([k,pf])=>`
+        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>`:''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:14px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
@@ -50197,6 +50481,8 @@ function telaNovoJogo(){
   const tiraFoto=$('#njFotoTira');if(tiraFoto)tiraFoto.onclick=()=>{guardaNome();escFoto=null;telaNovoJogo();};
   $('#modal').querySelectorAll('[data-modo]').forEach(b=>b.onclick=()=>{guardaNome();escModo=b.dataset.modo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-variante]').forEach(b=>b.onclick=()=>{guardaNome();escVariante=b.dataset.variante;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-perfildono]').forEach(b=>b.onclick=()=>{guardaNome();escPerfilDono=b.dataset.perfildono;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();const era=escPapel;escPapel=b.dataset.papel;
     if(escPapel==='jogador'&&era!=='jogador'&&escIdade>30)escIdade=19;
@@ -50216,7 +50502,7 @@ function telaNovoJogo(){
     G.iniciadaEm=Date.now();
     aplicarDificuldade(escDif,T(G.meuTime));
     iniciarGuia();
-    criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo});
+    criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo,variante:escVariante,perfilDono:escPerfilDono});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
     iniciarBase(T(G.meuTime));
@@ -50224,8 +50510,9 @@ function telaNovoJogo(){
     if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
     montarMetas();
     const eu=G.manager;
-    noticia((souTreinador()?'👔 ':'🏛 ')+eu.nome+' assumiu como '+
-            (souTreinador()?'treinador':'diretoria')+' do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
+    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
+    noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+T(G.meuTime).nome+'.'
+      :'🏛 '+eu.nome+' é o novo dono do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
     if(souTreinador()&&eu.metas.length)
       noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
     salvarRun(G.runNome);

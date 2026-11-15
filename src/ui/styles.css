@@ -4476,3 +4476,15 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .sl-rodape{display:flex;justify-content:center;margin:6px 0 24px}
 .cpx-sel-pag{margin-left:auto;align-self:center}
 .cpx-lad[data-irsel]{cursor:pointer}
+
+/* ============ donos ============ */
+.dono-ret{object-fit:cover;flex:none;border-radius:10px;background:#111A22}
+.dono-card{border-left:3px solid var(--clube,#5B6B7A)}
+.dono-topo{display:flex;align-items:center;gap:14px;margin:8px 0 10px}
+.dono-topo>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.dono-nome{font-size:17px}
+.dono-perfil{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:var(--panel2,#16212B)}
+.dono-tag{align-self:flex-start;font:800 10.5px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  padding:4px 8px;color:#fff;background:color-mix(in srgb,var(--clube,#5B6B7A) 55%,#111A22)}
+.dono-bolso,.dono-ant{margin-top:8px;font-size:12px}
+.nj-papel.nj-embreve{opacity:.5;cursor:not-allowed}
