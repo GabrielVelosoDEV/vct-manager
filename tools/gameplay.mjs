@@ -200,5 +200,20 @@ for(const nome of nomes){
    GP._revelar(J,b,2);GP.atualizarVisaoDoJogador(J);ok(b._visivel,'visão: revelado não apareceu');}
   console.log('habilidades dos 29 agentes testadas');
 }
+/* munição: o jogador humano atira sem parar e nunca recarrega; o bot esvazia o pente e recarrega */
+{
+  const J=GP.montarDuelo({mapa:'ascent',arma:'vandal',semente:3});J.round.fase='ativo';
+  const eu=J.eu, bot=J.ents.find(x=>x!==eu);J.ents=[eu,bot];
+  const pente=GP.ARMAS.vandal.pente;
+  for(const e of [eu,bot]){e.equipaAte=0;e.cmd.atirar=true;e.bot=e===bot;}
+  let recEu=0,recBot=0;
+  for(let f=0;f<120*8;f++){for(const e of [eu,bot]){e.cmd.atirar=true;GP._aplicarComando(J,e,1/120);}J.t+=1/120;
+    if(eu.recarregaAte)recEu++;if(bot.recarregaAte)recBot++;}
+  ok(eu.st.tiros>pente*2,'munição: o jogador deu só '+eu.st.tiros+' tiros em 8 s');
+  ok(!recEu,'munição: o jogador recarregou');
+  ok(GP.armaDe(eu).municao===pente,'munição: o pente do jogador baixou');
+  ok(recBot>0&&bot.st.tiros<eu.st.tiros,'munição: o bot não recarregou');
+  console.log('munição: jogador '+eu.st.tiros+' tiros sem recarregar · bot '+bot.st.tiros+' tiros com recarga');
+}
 console.log(falhas?falhas+' falha(s)':'gameplay ok');
 process.exit(falhas?1:0);

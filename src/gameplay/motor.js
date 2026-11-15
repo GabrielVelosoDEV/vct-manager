@@ -216,6 +216,8 @@ GP._aplicarComando = function (J, e, dt) {
     const falta = Ad.pente - arm.municao, vem = Math.min(falta, arm.reserva);
     arm.municao += vem; arm.reserva -= vem; e.recarregaAte = 0;
   }
+  /* o jogador humano tem munição infinita: nunca recarrega (os bots seguem com pente e recarga) */
+  if (!e.bot) { arm.municao = Ad.pente; e.recarregaAte = 0; c.recarregar = false; }
   if ((c.recarregar || (arm.municao === 0 && c.atirar)) && !e.recarregaAte && arm.municao < Ad.pente && arm.reserva > 0) {
     e.recarregaAte = J.t + Ad.recarga; e.luneta = false;
   }
@@ -234,7 +236,7 @@ GP._atirar = function (J, e) {
   const Ad = GP.defArma(e), arm = GP.armaDe(e);
   const erro = GP.erroAtual(e, J.t);
   const ang = e.ang + GP._gauss(J.rnd) * (erro / 2) * Math.PI / 180;
-  arm.municao--; e.proxTiro = J.t + 1 / Ad.cadencia; e.ultimoTiro = J.t; e.st.tiros++;
+  if (e.bot) arm.municao--; e.proxTiro = J.t + 1 / Ad.cadencia; e.ultimoTiro = J.t; e.st.tiros++;
   if (GP.posTiro) GP.posTiro(J, e);
   e.spray = Math.min(Ad.erro.max, e.spray + Ad.erro.rajada * e.p.rajadaMult);
   if (Ad.luneta) e.luneta = false;

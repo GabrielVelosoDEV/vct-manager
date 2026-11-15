@@ -125,7 +125,7 @@ GP.menu = function () {
         ${GP._cartaoCarreira()}
         <div class="gp-teclas"><div class="gp-eyebrow">Controles</div>
           <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Shift</kbd> andar (sem barulho, mais preciso) · <kbd>Ctrl</kbd> agachar</p>
-          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>R</kbd> recarregar · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
+          <p><kbd>mouse</kbd> mirar · <kbd>clique</kbd> atirar · <kbd>botão direito</kbd> luneta (Operator) · <kbd>C</kbd><kbd>Q</kbd><kbd>E</kbd><kbd>X</kbd> habilidades (o cursor marca onde cai; a ultimate libera com 5 abates) · <kbd>F</kbd> usar (porta, botão, tirolesa, corda) · <kbd>1</kbd><kbd>2</kbd> trocar arma · <kbd>roda</kbd> zoom · <kbd>Esc</kbd> pausa</p>
           <p class="gp-dim">Correndo, o tiro abre. Pare (solte as teclas ou segure Shift) antes de atirar e dê rajadas curtas. O inimigo só aparece quando faz barulho (correndo, atirando, usando habilidade) ou quando é revelado. No Shift você não faz barulho, mas anda devagar e mira pior.</p></div>
       </div>`}
     </div>
@@ -346,7 +346,7 @@ GP._hud = function () {
     <div class="gp-modo">${eu.modo === 'corre' ? 'correndo' : eu.modo === 'anda' ? 'andando' : 'agachado'}${Math.hypot(eu.vx, eu.vy) > 3 ? ' · <em>tiro aberto</em>' : ''}</div>`;
   const silh = GP.temImagem('armas', arm.id) ? `<img class="gp-arma-img" src="${GP.manifesto().armas[arm.id].src}" alt="">` : '';
   $gp('#gpArma').innerHTML = `${silh}<div class="gp-arma-n">${A.nome}${eu.luneta ? ' · luneta' : ''}</div>
-    <div class="gp-mun"><b class="num">${arm.municao}</b><span class="num">/ ${arm.reserva}</span></div>
+    <div class="gp-mun"><b class="num">${eu.bot ? arm.municao : '∞'}</b>${eu.bot ? `<span class="num">/ ${arm.reserva}</span>` : ''}</div>
     <div class="gp-dim">${eu.recarregaAte ? 'recarregando…' : J.t < eu.equipaAte ? 'sacando…' : '1 primária · 2 pistola'}${J.modo === 'partida' ? ` · <b class="gp-cred">¤ ${eu.creditos}</b>` : ''}</div>`;
   if (eu.agente) {
     const HH = GP.HABS && GP.HABS[eu.agente];
