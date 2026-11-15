@@ -139,14 +139,14 @@ function vJPerfil(){
   const barra=(k,rot)=>{const v=p.at[k];
     const xp=typeof custoPonto==='function'&&k!=='lider'?Math.min(100,Math.round(((p.xp||{})[k]||0)/custoPonto(v,p)*100)):null;
     return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i>${xp!=null?`<em style="width:${xp}%"></em>`:''}</div><b class="num">${v}</b></div>`;};
-  const fam=(p.agentes||[]).map(a=>{const n=typeof nivelAgente==='function'?nivelAgente(p,a):null;
-    return `<div class="jg-agl"><b>${esc(a)}</b><div class="jg-atr-b"><i style="width:${n||0}%"></i></div><span class="num">${n!=null?Math.round(n):'–'}</span></div>`;}).join('');
+  const fam=(p.agentes||[]).map((a,i)=>{const n=typeof nivelAgente==='function'?Math.round(nivelAgente(p,a)):0;
+    return `<div class="jx-ag fixo ${i===0?'on':''}">${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${i===0?'<em>main</em>':''}</div>`;}).join('');
   const hist=(p.hist||[]).slice().reverse();
   return `${_jHero(p,t)}
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Atributos</div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}
+      <div class="card"><div class="eyebrow">Atributos</div><div class="jx-perfil-atr">${_jRadar(p)}<div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}</div></div>
         <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, o XP rende cada vez menos. A linha fina embaixo de cada barra é o XP até o próximo ponto; treinos, atividades e partidas enchem ela.</p></div>
-      <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam||vazio('<b>Sem agentes.</b>','elenco')}
+      <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam?`<div class="jx-ag-grade">${fam}</div>`:vazio('<b>Sem agentes.</b>','elenco')}
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
     </div>
@@ -158,6 +158,21 @@ function vJPerfil(){
         :vazio('<b>A primeira temporada está em andamento.</b> O histórico entra na virada do ano.','trofeu')}</div>`;
 }
 
+/* o radar dos oito atributos, com o desenho da sua função por baixo */
+function _jRadar(p){
+  const S=230,c=S/2,R=86,ks=ATTRS.map(a=>a[0]),n=ks.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n,r=R*clamp(v,0,100)/100;return [(c+Math.cos(a)*r).toFixed(1),(c+Math.sin(a)*r).toFixed(1)];};
+  const anel=f=>ks.map((_,i)=>pt(i,f*100).join(',')).join(' ');
+  const w=(typeof ROLE_W!=='undefined'&&ROLE_W[p.roleAtual||p.role])||{};
+  const mx=Math.max(...ks.map(k=>w[k]||0),0.01);
+  const ideal=ks.map((k,i)=>pt(i,40+60*(w[k]||0)/mx).join(',')).join(' ');
+  const meu=ks.map((k,i)=>pt(i,p.at[k]||0).join(',')).join(' ');
+  const rot=ks.map((k,i)=>{const [x,y]=pt(i,122);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${esc((ATTRS[i][1]||k).split(' ')[0].slice(0,6))}</text>`;}).join('');
+  return `<svg class="jx-radar" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">
+    ${[0.25,0.5,0.75,1].map(f=>`<polygon points="${anel(f)}" class="g"/>`).join('')}
+    ${ks.map((_,i)=>{const [x,y]=pt(i,100);return `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" class="g"/>`;}).join('')}
+    <polygon points="${ideal}" class="ideal"/><polygon points="${meu}" class="meu"/>${rot}</svg>`;
+}
 /* ---------- Meu clube: a página de clube de sempre ---------- */
 function vJMeuClube(){
   const t=clubeDoJogador();

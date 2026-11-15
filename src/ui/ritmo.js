@@ -132,7 +132,7 @@ function partituraFolga(J){
 /* foto da atividade por trás do jogo, apagada (ui/cenas.js) */
 let _ritmoCena=null;
 function jogarRitmo(ctx,J,fim){
-  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],meu()):null;
+  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],typeof clubeVisto==='function'?clubeVisto():meu()):null;
   const cx=ctx.cx,cv=ctx.cv,spb=60/J.bpm,total=J.compassos*4*spb;
   const notas=J.partitura(J).map(n=>Object.assign(n,{t:n.b*spb,res:null})).sort((a,b)=>a.t-b.t);
   const reais=notas.filter(n=>!n.eco);

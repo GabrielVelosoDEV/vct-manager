@@ -115,17 +115,18 @@ function abrirColetiva(){
 }
 
 function jogarColetiva(ctx,fim,dados){
-  const cx=ctx.cx,t=meu(),g=G.manager||{};
+  /* dados.t/foto/placa/marcas: a entrevista do modo jogador usa a mesma sala */
+  const cx=ctx.cx,t=dados.t!==undefined?dados.t:meu(),g=G.manager||{};
   const palco=ctx.cv.parentNode;
   const caixa=document.createElement('div');caixa.className='col';palco.appendChild(caixa);
   const carregar=src=>{if(!src)return null;const im=new Image();im.ok=false;im.onload=()=>{im.ok=true;};im.src=src;return im;};
   const mm=typeof membroManager==='function'&&membroManager();
-  const foto=carregar(g.foto||(mm&&mm.foto)||null);
+  const foto=carregar(dados.foto||g.foto||(mm&&mm.foto)||null);
   const fotoMvp=dados.mvp?carregar(ASSETS.foto(dados.mvp)):null;
-  const escudoT=carregar(ASSETS.logo(t));
-  const marcas=(typeof patrociniosDe==='function'?patrociniosDe(t):[]).map(x=>x.mk).filter(Boolean).slice(0,3)
+  const escudoT=t?carregar(ASSETS.logo(t)):null;
+  const marcas=(dados.marcas||(t&&typeof patrociniosDe==='function'?patrociniosDe(t):[]).map(x=>x.mk)).filter(Boolean).slice(0,3)
     .map(mk=>({mk,img:carregar(ASSETS.marca(mk))}));
-  const cor=corDoClube(t);
+  const cor=t?corDoClube(t):'#5a6b7d';
   let i=-1,tq=0,resp=null,fimJa=false,soma=0,tv=0,clima=0;
   const vals=[],flashes=[];
   if(MG)MG.coletiva={dados,get i(){return i;},responder:k=>responder(k)};   /* para os testes */
@@ -167,7 +168,7 @@ function jogarColetiva(ctx,fim,dados){
     const nota=clamp(soma/dados.perguntas.length,0,1);
     const boas=vals.filter(x=>x.v>=1).length,ruins=vals.filter(x=>x.v<0.4).length;
     const marcante=nota>=0.6?vals.find(x=>x.v>=1&&x.txt):vals.find(x=>x.v===0&&x.txt)||vals.find(x=>x.txt);
-    fim({nota,pts:Math.round(nota*1000+boas*50),modo:'coletiva',modoNome:t.tag,manchete:marcante&&marcante.txt,
+    fim({nota,pts:Math.round(nota*1000+boas*50),modo:'coletiva',modoNome:t?t.tag:'',manchete:marcante&&marcante.txt,vals,
       frase:nota>=0.93?'Dono da sala de imprensa':nota>=0.8?'Coletiva de líder':nota>=0.6?'Saiu bem na foto':nota>=0.35?'Coletiva morna':'Polêmica na coletiva',
       stats:[['Respostas boas',boas],['Mornas',vals.filter(x=>x.v===0.4).length],['Que pegaram mal',ruins],['Sem resposta',vals.filter(x=>!x.txt).length]]});
   };
@@ -216,7 +217,7 @@ function jogarColetiva(ctx,fim,dados){
     /* placa com o nome */
     cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2-120,314,240,28);
     cx.fillStyle='#0F1923';cx.font='400 20px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';
-    cx.fillText(((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria')).toUpperCase(),MG_W/2,335);
+    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria'))).toUpperCase(),MG_W/2,335);
     if(dados.mvp){cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2+150,314,130,28);cx.fillStyle='#0F1923';cx.fillText(dados.mvp.nome.toUpperCase(),MG_W/2+215,335);}
     /* microfones */
     COL_IMPRENSA.slice(0,5).forEach(([,,c2],k)=>{const x=MG_W/2-110+k*55,y=232+(k%2)*8;

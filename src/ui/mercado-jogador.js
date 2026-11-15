@@ -8,8 +8,8 @@ function _cartaoProposta(pr){
   const t=G.times[pr.clubeId], p=meuJogador();
   const resta=pr.validoAte-semAbs();
   const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
-  return `<div class="mj-prop ${pr.acordo?'acordo':''}">
-    <div class="mj-prop-top">${escudo(t,40)}<div><div class="eyebrow">${_TIPO_PROP[pr.tipo]||pr.tipo}${pr.preContrato?' · pré-contrato':''}</div><b class="mj-clube">${esc(t.nome)}</b>
+  return `<div class="mj-prop jx-prop ${pr.acordo?'acordo':''}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    <div class="mj-prop-top">${escudo(t,56)}<div><div class="eyebrow">${_TIPO_PROP[pr.tipo]||pr.tipo}${pr.preContrato?' · pré-contrato':''}</div><b class="mj-clube">${esc(t.nome)}</b>
       <span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div></div>
     ${pr.tipo==='teste'?`<p>Uma semana de teste: um duelo contra o nível do elenco deles (over ${overMedioTime(t)}). Passou, chega a proposta de contrato.</p>`
     :`<div class="mj-num">${lin('Salário',moneyJ(pr.salario)+'/mês')}${lin('Contrato',pr.anos+' ano'+(pr.anos>1?'s':''))}${lin('Multa',_MULTA_ROT[pr.multa]||'Padrão')}
@@ -56,29 +56,70 @@ function vJContrato(){
       :vazio(t?'<b>Nenhuma proposta agora.</b> Elas chegam na janela, no último ano de contrato ou quando você pede para ser negociado. Empresário e fama aceleram.':'<b>Nenhuma proposta agora.</b> Jogue ranked, faça lives e treine: os olheiros olham o over e o radar.','troca')}
   </div>`;
 }
+/* A mesa de negociação do treinador, vista do outro lado: a sala com a placa
+   do clube que quer você, de onde você sai e para onde vai, o que eles
+   oferecem e o que você pede, a paciência deles e a conversa. Com empresário,
+   ele lê a mesa e diz até onde dá para puxar. */
+let _mjChat={}, _mjPed={};
 function modalNegociar(id){
   const pr=propostasJogador().find(x=>x.id===id);if(!pr)return;
-  const t=G.times[pr.clubeId];
-  pintarModal(`<div class="ovl"><div class="box mj-neg"><div class="eyebrow">Negociar · ${esc(t.nome)}</div>
-    <h2>${_TIPO_PROP[pr.tipo]}</h2>
-    <div class="mj-form">
-      <label>Salário por mês<input type="number" id="mjSal" value="${pr.salario}" step="100" min="100"></label>
-      <label>Anos<select id="mjAnos">${[1,2,3,4].map(a=>`<option ${a===pr.anos?'selected':''}>${a}</option>`).join('')}</select></label>
-      <label>Multa<select id="mjMulta">${Object.entries(_MULTA_ROT).map(([k,v])=>`<option value="${k}" ${k===pr.multa?'selected':''}>${v}</option>`).join('')}</select></label>
-      <label>Bônus por título<input type="number" id="mjBonus" value="${pr.bonusTitulo||0}" step="500" min="0"></label>
-      <label class="mj-chk"><input type="checkbox" id="mjTit" ${pr.titular?'checked':''}> Cláusula de titular</label>
+  const p=meuJogador(), t=G.times[pr.clubeId], origem=p.timeId&&pr.tipo!=='renovacao'?G.times[p.timeId]:null;
+  const emp=G.voce.empresario, chat=_mjChat[id]=_mjChat[id]||[{de:'clube',txt:`${moneyJ(pr.salario)}/mês por ${pr.anos} ano${pr.anos>1?'s':''}${pr.taxa?` (e ${moneyJ(pr.taxa)} ao seu clube)`:''}. É a nossa proposta.`}];
+  const cena=typeof cenaFoto==='function'?cenaFoto('cenas','sala-negociacao',t,{cls:'neg-fundo',foco:95,ansioso:true}):'';
+  const lado=(time,rot,extra)=>`<div class="neg-lado">${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
+    <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
+  /* o seu último pedido continua no formulário (a recusa não apaga o que você digitou) */
+  const v=Object.assign({salario:pr.salario,anos:pr.anos,multa:pr.multa,bonusTitulo:pr.bonusTitulo||0,titular:!!pr.titular},pr.acordo?{}:(_mjPed[id]||{}));
+  const pac=Array.from({length:PACIENCIA_CLUBE},(_,i)=>`<i class="${i<pr.paciencia?'on':''}"></i>`).join('');
+  pintarModal(`<div class="ovl"><div class="box jx-neg">
+    <div class="neg-palco">${cena}
+      ${pr.tipo==='renovacao'?lado(t,'Renovar com',`<div class="dim neg-sub">hoje ${moneyJ(p.salario)}/mês</div>`):lado(origem,origem?'Você sai de':'Você está',origem?`<div class="dim neg-sub">contrato até ${p.contrato} ano${p.contrato>1?'s':''}</div>`:'<div class="dim neg-sub">sem taxa</div>')}
+      <div class="neg-centro">${cartaJogador(p,{w:140})}<div class="neg-perfil">${emp?`Empresário: <b>${esc(emp.nome)}</b>`:'Sem empresário'}</div></div>
+      <div class="neg-seta ${pr.acordo?'ok':''}"><span></span></div>
+      ${pr.tipo==='renovacao'?`<div class="neg-lado"><div class="eyebrow">Tipo</div><b>${_TIPO_PROP[pr.tipo]}</b></div>`:lado(t,'Proposta de',`<div class="dim neg-sub">${esc(nomeLiga(t))}</div>`)}
     </div>
-    <p class="dim">Multa baixa facilita a sua saída, e o clube cobra por isso; multa alta prende você, e o clube gosta. A cláusula de titular só sai para quem já ganhou a vaga. Bônus por título até dois salários. O clube tem ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.</p>
+    <div class="jx-neg-corpo">
+      <div class="jx-neg-form">
+        <div class="eyebrow">Seu pedido · ${_TIPO_PROP[pr.tipo]}</div>
+        <div class="jx-neg-linhas">
+          <label><span>Salário por mês</span><input type="number" id="mjSal" value="${v.salario}" step="100" min="100"><i class="dim">oferta ${moneyJ(pr.salario)}</i></label>
+          <label><span>Anos</span><select id="mjAnos">${[1,2,3,4].map(a=>`<option ${a===v.anos?'selected':''}>${a}</option>`).join('')}</select><i class="dim">oferta ${pr.anos}</i></label>
+          <label><span>Multa rescisória</span><select id="mjMulta">${Object.entries(_MULTA_ROT).map(([k,r])=>`<option value="${k}" ${k===v.multa?'selected':''}>${r}</option>`).join('')}</select><i class="dim">baixa facilita sair</i></label>
+          <label><span>Bônus por título</span><input type="number" id="mjBonus" value="${v.bonusTitulo||0}" step="500" min="0"><i class="dim">até 2 salários</i></label>
+          <label class="mj-chk"><input type="checkbox" id="mjTit" ${v.titular?'checked':''}> <span>Cláusula de titular</span><i class="dim">só para quem já ganhou a vaga</i></label>
+        </div>
+      </div>
+      <div class="jx-neg-lado">
+        <div class="jx-neg-pac"><span>Paciência do clube</span><div>${pac}</div></div>
+        ${emp?`<div class="jx-neg-term"><span>O que ${esc(emp.nome.split(' ')[0])} lê na mesa</span><div class="jx-neg-barra"><i class="ok"></i><i class="meio"></i><i class="alto"></i><b id="mjMarca"></b></div><em id="mjLeitura" class="dim"></em></div>`
+          :`<div class="jx-neg-term vazio"><span>Sem empresário você negocia no escuro.</span><em class="dim">Com um, ele mostra até onde dá para puxar (Contrato e mercado).</em></div>`}
+        <div class="neg-chat" id="mjChat">${chat.map(h=>`<div class="neg-msg m-${h.de}">${h.de==='voce'?'<span class="neg-quem">Você</span>':`<span class="neg-quem">${esc(t.tag)}</span>`}${esc(h.txt)}</div>`).join('')}</div>
+      </div>
+    </div>
     <p id="mjResp" class="mj-resp"></p>
-    <div class="dj-acoes"><button class="btn ghost" id="mjFechar">Fechar</button><button class="btn" id="mjEnviar">Enviar o pedido</button></div></div></div>`);
+    <div class="dj-acoes"><button class="btn ghost" id="mjFechar">Fechar</button><button class="btn" id="mjEnviar">${pr.acordo?'Assinar':'Enviar o pedido'}</button></div></div></div>`);
+  const ped=()=>({salario:+$('#mjSal').value,anos:+$('#mjAnos').value,multa:$('#mjMulta').value,bonusTitulo:+$('#mjBonus').value,titular:$('#mjTit').checked});
+  const ler=()=>{
+    const mk=$('#mjMarca');if(!mk||typeof tetoDoClube!=='function')return;
+    /* o empresário lê com a margem do nível dele: o bom erra pouco */
+    const r=_custoPedido(pr,ped())/Math.max(1,tetoDoClube(pr)), erro=(5-Math.min(5,emp.nivel||1))*0.03;
+    const pos=clamp((r-0.75)/0.6,0,1);
+    mk.style.left=(pos*100).toFixed(1)+'%';
+    $('#mjLeitura').textContent=r<=1-erro?'Eles devem topar.':r<=1.15?'No limite: vem contraproposta.':'Alto demais: pode irritar.';
+  };
+  document.querySelectorAll('#mjSal,#mjAnos,#mjMulta,#mjBonus,#mjTit').forEach(el=>{el.oninput=ler;el.onchange=ler;});ler();
+  const ch=$('#mjChat');if(ch)ch.scrollTop=ch.scrollHeight;
   $('#mjFechar').onclick=()=>{$('#modal').innerHTML='';render();};
+  const assinar=()=>{const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);delete _mjChat[id];$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
   $('#mjEnviar').onclick=()=>{
-    const r=negociarProposta(id,{salario:+$('#mjSal').value,anos:+$('#mjAnos').value,multa:$('#mjMulta').value,bonusTitulo:+$('#mjBonus').value,titular:$('#mjTit').checked});
-    const resp=$('#mjResp');resp.textContent=r.ok?r.msg:r.motivo;resp.className='mj-resp '+(r.fim==='acordo'?'up':r.fim==='retirada'?'dn':'');
-    if(r.fim==='acordo'||r.fim==='retirada'){
-      $('#mjEnviar').textContent=r.fim==='acordo'?'Assinar':'Ok';
-      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
-    }else if(r.fim==='contra'){const pr2=propostasJogador().find(x=>x.id===id);if(pr2)$('#mjSal').value=pr2.salario;}
+    if(pr.acordo){assinar();return;}
+    const q=ped();_mjPed[id]=q;
+    chat.push({de:'voce',txt:`Peço ${moneyJ(q.salario)}/mês por ${q.anos} ano${q.anos>1?'s':''}, multa ${String(_MULTA_ROT[q.multa]||q.multa).toLowerCase()}${q.bonusTitulo?`, ${moneyJ(q.bonusTitulo)} por título`:''}${q.titular?' e cláusula de titular':''}.`});
+    const r=negociarProposta(id,q);
+    chat.push({de:'clube',txt:r.ok?r.msg:r.motivo});
+    if(r.fim==='retirada'){delete _mjChat[id];pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">Negociação · ${esc(t.nome)}</div><h2 class="dn">${esc(r.msg)}</h2><div class="dj-acoes"><button class="btn" id="mjOk">Ok</button></div></div></div>`);$('#mjOk').onclick=()=>{$('#modal').innerHTML='';render();};return;}
+    modalNegociar(id);
+    if(r.fim==='acordo'){const resp=$('#mjResp');if(resp){resp.textContent='Acordo fechado. É só assinar.';resp.className='mj-resp up';}}
   };
 }
 function jogarTeste(id){
@@ -104,17 +145,28 @@ function vJFinancas(){
   const cx=caixaJogador(), renda=rendaMensal(), gasto=gastoMensal(), s=setupJogador(), st=staffPessoal(), ev=estiloVida();
   const ext=(G.voce.extrato||[]).slice(0,16);
   const num=(r,v,cls)=>`<div><b class="num ${cls||''}">${v}</b><span>${r}</span></div>`;
-  return `<section class="card sj-topo"><div class="eyebrow">Finanças pessoais</div>
+  /* o patrimônio semana a semana, de trás para frente pelo extrato */
+  const todos=(G.voce.extrato||[]).slice(0,40);let saldo=cx;const serie=[cx];
+  for(const x of todos){saldo-=x.valor;serie.push(saldo);}serie.reverse();
+  const W=520,H=120,mn=Math.min(0,...serie),mx=Math.max(1,...serie);
+  const X=i=>(i/Math.max(1,serie.length-1)*W).toFixed(1),Y=v=>(H-6-(v-mn)/(mx-mn||1)*(H-16)).toFixed(1);
+  const linha=serie.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+  const graf=serie.length>1?`<svg class="jx-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="jxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18E5B4" stop-opacity=".35"/><stop offset="1" stop-color="#18E5B4" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="0,${H} ${linha} ${W},${H}" fill="url(#jxg)"/><polyline points="${linha}" fill="none" stroke="#18E5B4" stroke-width="2"/>${mn<0?`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(255,70,85,.5)" stroke-dasharray="4 4"/>`:''}</svg>`:'';
+  const FOTO_STAFF={personal:'academia',psicologo:'mente',fisio:'saude'};
+  const fotoP=k=>typeof cenaFoto==='function'?cenaFoto('estrutura',k,clubeDoJogador(),{foco:40}):'';
+  return `<section class="card sj-topo jx-fin"><div class="split"><div class="eyebrow">Finanças pessoais</div><span class="dim">patrimônio nas últimas ${Math.max(0,serie.length-1)} semanas</span></div>
+      ${graf}
       <div class="jg-st mj-fin">${num('patrimônio',moneyJ(cx),cx<0?'dn':'')}${num('salário por mês',moneyJ(renda))}${num('gastos por mês',moneyJ(gasto))}${num('sobra por mês',moneyJ(renda-gasto),renda-gasto<0?'dn':'up')}${num('patrocínios por mês',moneyJ(typeof patrociniosMensais==='function'?patrociniosMensais():0))}</div>
       <p class="dim">Entram salário, a sua parte dos prêmios do clube (titular leva o dobro de quem está no banco), bônus por título e lives. Saem comissão do empresário, staff pessoal, estilo de vida e o setup. No vermelho, o staff vai embora e o padrão de vida desce.</p></section>
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Setup</div>
+      <div class="card jx-setup"><span class="jx-setup-f com-cena">${fotoP('equip')}</span><div class="eyebrow">Setup</div>
         ${SETUP_ITENS.map(it=>{const n=s[it.id]||0, prox=it.niveis[n];
           return `<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${n?esc(it.niveis[n-1].txt):'o básico'}</span><p class="dim">${esc(it.desc)} Nível ${n}/${it.niveis.length}.</p></div>
             ${prox?`<button class="btn sm" data-mjsetup="${it.id}">${esc(prox.txt)} · ${moneyJ(prox.preco)}</button>`:'<span class="chip up">no topo</span>'}</div>`;}).join('')}
       </div>
       <div class="card"><div class="eyebrow">Staff pessoal</div>
-        ${STAFF_PESSOAL.map(it=>`<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${moneyJ(it.mes)}/mês</span><p class="dim">${esc(it.desc)}</p></div>
+        ${STAFF_PESSOAL.map(it=>`<div class="mj-item jx-staff ${st[it.id]?'on':''}"><span class="jx-staff-f com-cena">${fotoP(FOTO_STAFF[it.id])}</span><div><b>${esc(it.nome)}</b> <span class="dim">${moneyJ(it.mes)}/mês</span><p class="dim">${esc(it.desc)}</p></div>
           <button class="btn ${st[it.id]?'ghost':''} sm" data-mjstaff="${it.id}">${st[it.id]?'Dispensar':'Contratar'}</button></div>`).join('')}
         <div class="eyebrow" style="margin-top:14px">Estilo de vida</div>
         <div class="dj-modos">${ESTILOS_VIDA.map(e=>`<button class="nj-papel ${ev.id===e.id?'on':''}" data-mjvida="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span><i>${moneyJ(e.mes)}/mês</i></button>`).join('')}</div>

@@ -4097,6 +4097,254 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .cpx-pr-barra i:nth-child(3){background:#8fa3b8}.cpx-pr-barra i:nth-child(4){background:#5f7488;color:#eef3f8}
 .cpx-pr-meu{display:flex;align-items:center;gap:8px;color:var(--tx)}.cpx-pr-meu svg{width:16px;height:16px;color:#e2b45a}
 
+/* ============================================================
+   MODO JOGADOR · telas refeitas (jx-)
+   ============================================================ */
+@keyframes jxSobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes jxAnel{from{stroke-dasharray:0 var(--c)}}
+@keyframes jxBrilho{0%,100%{box-shadow:0 0 0 0 rgba(24,229,180,0)}50%{box-shadow:0 0 0 4px rgba(24,229,180,.12)}}
+@keyframes jxPulso{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.jx-hero{position:relative;overflow:hidden;margin-bottom:18px;padding:22px 24px;border:1px solid rgba(var(--clube-rgb),.35);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(var(--clube-rgb),.28) 0%,rgba(var(--clube-rgb),.08) 40%,transparent 66%),linear-gradient(100deg,var(--panel) 0%,var(--bg2,#0f1923) 100%)}
+.jx-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--clube);z-index:2}
+.jx-hero>.cn{position:absolute;inset:0;opacity:.55}
+.jx-hero.com-cena::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,18,24,.96) 0%,rgba(11,18,24,.86) 45%,rgba(11,18,24,.35) 100%);pointer-events:none}
+.jx-hero-in{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:26px;align-items:center}
+.jx-hero-t h2{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.03em;line-height:1;margin:4px 0 10px}
+.jx-hero-nota{margin:10px 0 8px;max-width:640px}
+.jx-hero-carta{animation:jxSobe .5s .1s both}
+.jx-vs{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.jx-vs b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.05em}
+.jx-vs>span{color:var(--red);font-weight:700}
+.jx-vs i{font-style:normal;margin-left:8px}
+.jx-anel{position:relative;width:132px;height:132px;flex:none}
+.jx-anel-v{animation:jxAnel 1s ease-out both}
+.jx-anel-t{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.jx-anel-t b{font-size:38px;line-height:1}
+.jx-anel-t span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.jx-grupo{margin-bottom:18px}
+.jx-grupo-t{display:flex;align-items:baseline;gap:14px;margin:0 0 10px}
+.jx-grupo-t .eyebrow{margin:0}
+.jx-at-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.jx-at{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);overflow:hidden;
+  animation:jxSobe .45s calc(var(--i,0)*60ms) both;transition:border-color .15s,transform .15s}
+.jx-at:hover{border-color:var(--line2);transform:translateY(-2px)}
+.jx-at.off{opacity:.55}
+.jx-at.feita{border-color:rgba(24,229,180,.45)}
+.jx-at-foto{position:relative;display:block;height:108px;overflow:hidden;background:#0b1218 center/cover no-repeat}
+.jx-at-foto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,24,0) 35%,rgba(22,34,46,1) 100%)}
+.jx-at-foto .cn{position:absolute;inset:0}
+.jx-at-foto.vazio{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(255,70,85,.18),transparent 70%),#101a24}
+.jx-at-foto.vazio i svg{width:40px;height:40px;color:var(--tx2)}
+.jx-mapa{filter:saturate(1.05)}
+.jx-at-mapa{position:absolute;left:12px;top:10px;z-index:1;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;text-shadow:0 2px 6px rgba(0,0,0,.8)}
+.jx-at-sobre{position:absolute;right:12px;top:10px;z-index:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+.jx-at-cab{display:flex;align-items:center;gap:8px;padding:2px 14px 0;margin-top:-18px;position:relative;z-index:1}
+.jx-at-cab b{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.04em;flex:1}
+.jx-at-ic{width:30px;height:30px;display:grid;place-items:center;background:var(--red);clip-path:polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)}
+.jx-at-ic svg{width:17px;height:17px;color:#fff}
+.jx-en{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:var(--amber,#E2B45A)}
+.jx-en svg{width:13px;height:13px}
+.jx-tipo{position:absolute;top:10px;right:10px;z-index:2;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;background:rgba(11,18,24,.75);border:1px solid var(--line2)}
+.jx-tipo.minigame{color:var(--teal);border-color:rgba(24,229,180,.4)}
+.jx-tipo.gameplay{color:#fff;border-color:rgba(255,70,85,.5)}
+.jx-feito{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#0b1218;background:var(--teal);padding:3px 8px}
+.jx-feito svg{width:12px;height:12px}
+.jx-at>p{padding:6px 14px 0;font-size:12.5px;margin:0;min-height:38px}
+.jx-atrs{display:grid;gap:5px;padding:10px 14px 0}
+.jx-atr{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:11.5px;color:var(--tx2)}
+.jx-atr b.num{font-size:12px;color:var(--tx)}
+.jx-atr span b{color:var(--red);font-size:8px;vertical-align:middle}
+.jx-atr u{grid-column:1/-1;height:4px;background:rgba(255,255,255,.07);text-decoration:none}
+.jx-atr u i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--amber,#E2B45A));animation:barEnche .8s ease-out both}
+.jx-live span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)}
+.jx-live svg{width:14px;height:14px;color:var(--amber,#E2B45A)}
+.jx-at-b{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px 14px;margin-top:auto;align-items:center}
+.jx-at-b .btn svg{width:13px;height:13px;margin-right:2px;vertical-align:-2px}
+.jx-motivo{margin:-6px 14px 12px;font-size:11.5px;color:var(--red)}
+.jx-motivo.neutro{color:var(--dim)}
+.jx-ags{margin-bottom:18px}
+.jx-ags.off{opacity:.6}
+.jx-ag-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:12px}
+.jx-ag{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px 10px;background:var(--panel2);border:1px solid var(--line);transition:border-color .15s,transform .15s}
+.jx-ag:hover{transform:translateY(-2px);border-color:var(--line2)}
+.jx-ag.on{border-color:var(--red);background:rgba(255,70,85,.08);animation:jxBrilho 2s infinite}
+.jx-ag img{width:58px;height:58px;object-fit:cover;object-position:top;border-radius:4px}
+.jx-ag b{font-size:12px}
+.jx-ag u{width:100%;height:4px;background:rgba(255,255,255,.08);text-decoration:none}
+.jx-ag u i{display:block;height:100%;background:var(--teal)}
+.jx-ag span{font-size:10.5px;color:var(--dim)}
+.jx-ag em{position:absolute;top:4px;right:4px;font-style:normal;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber,#E2B45A)}
+.jx-tls{display:flex;flex-direction:column;gap:10px}
+.jx-tl{display:grid;grid-template-columns:30px 1fr;gap:10px;animation:jxSobe .4s calc(var(--i,0)*70ms) both}
+.jx-tl-ic{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--panel2)}
+.jx-tl-ic svg{width:15px;height:15px;color:var(--teal)}
+.jx-tl .dim{display:block;font-size:11.5px}
+.jx-xp{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.jx-xp i{font-style:normal;font-size:11px;padding:2px 7px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--tx2)}
+.jx-xp i.up{color:var(--teal);border-color:rgba(24,229,180,.4)}
+.jx-atrs-todos{grid-template-columns:1fr 1fr;padding:6px 0 0}
+/* relações */
+.rl-hero-in{grid-template-columns:auto minmax(0,1fr) auto}
+.rl-tec-foto img{width:104px;height:130px;object-fit:cover;border:1px solid rgba(var(--clube-rgb),.5);box-shadow:0 10px 26px rgba(0,0,0,.5);animation:jxSobe .5s both}
+.rl-conf2{display:flex;align-items:center;gap:14px}
+.rl-conf2 b{font-size:16px;display:block}
+.rl-conf2 span{font-size:12px}
+.rl-anel text{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;fill:var(--tx)}
+.rl-chance2{display:flex;flex-direction:column;align-items:flex-end;text-align:right;padding:14px 18px;background:rgba(11,18,24,.7);border:1px solid var(--line2);animation:jxSobe .5s .15s both}
+.rl-chance2 span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.rl-chance2 b{font-size:52px;line-height:1;margin:4px 0}
+.rl-chance2.up b{color:var(--teal)}.rl-chance2.dn b{color:var(--red)}
+.rl-chance2 i{font-style:normal;font-size:12px}
+.rl-grade{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-bottom:16px}
+.rl-acoes2{display:grid;gap:8px;margin-top:10px}
+.rl-acao{display:grid;grid-template-columns:36px 1fr;gap:12px;text-align:left;padding:12px 14px;background:var(--panel2);border:1px solid var(--line);transition:border-color .15s,background .15s,transform .15s}
+button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24,229,180,.06);transform:translateX(3px)}
+.rl-acao.arrisca:hover:not([disabled]){border-color:var(--red);background:rgba(255,70,85,.06)}
+.rl-acao[disabled],.rl-acao.off{opacity:.45;cursor:not-allowed}
+.rl-acao b{font-size:14px}
+.rl-acao p{margin:2px 0 0;font-size:12px;color:var(--tx2)}
+.rl-acao-ic{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(11,18,24,.6)}
+.rl-acao-ic svg{width:18px;height:18px;color:var(--teal)}
+.rl-acao.arrisca .rl-acao-ic svg{color:var(--red)}
+.rl-acao-b{display:flex;gap:8px;margin-top:8px}
+.rl-ev2{margin-bottom:16px;border-left:3px solid var(--amber,#E2B45A)}
+.rl-evi2{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.rl-evi2:first-of-type{border-top:0}
+.rl-evi-f img{width:64px;height:64px;object-fit:cover}
+.rl-evi-f.vazio{display:grid;place-items:center;width:64px;height:64px;background:var(--panel2)}
+.rl-evi2 p{margin:4px 0 8px}
+.rl-acoes3{display:flex;gap:8px;flex-wrap:wrap}
+.rl-dicas{display:flex;flex-direction:column;gap:2px;margin-top:8px;font-size:11.5px}
+.rl-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:12px 0}
+.rl-col{position:relative;display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--panel2);border:1px solid var(--line);animation:jxSobe .45s calc(var(--i,0)*60ms) both}
+.rl-col.tit{border-color:rgba(var(--clube-rgb,255,70,85),.4)}
+.rl-col-f{position:relative;align-self:center;cursor:pointer}
+.rl-col-f img{width:84px;height:84px;object-fit:cover;border-radius:50%;border:2px solid var(--line2)}
+.rl-col.tit .rl-col-f img{border-color:var(--teal)}
+.rl-col-tag{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;background:var(--teal);color:#0b1218;font-weight:700;white-space:nowrap}
+.rl-col-tag.igl{bottom:auto;top:-4px;background:var(--amber,#E2B45A)}
+.rl-col-t{text-align:center}
+.rl-col-t b{display:block;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.04em}
+.rl-col-t span{font-size:12px;color:var(--tx2)}
+.rl-col-m{display:flex;justify-content:space-around;align-items:center}
+.rl-col-m>div{display:flex;flex-direction:column;align-items:center;gap:2px}
+.rl-col-m span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.rl-col-m b{font-size:20px}
+.rl-col-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.rl-col-b .btn svg{width:12px;height:12px;vertical-align:-2px}
+.rl-col-ja{text-align:center;font-size:11px}
+.rl-modal{position:relative;overflow:hidden;width:min(760px,94vw);padding:0!important}
+.rl-modal>.cn{position:absolute;inset:0;opacity:.5}
+.rl-modal.com-cena::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,18,24,.92),rgba(11,18,24,.7));pointer-events:none}
+.rl-modal-in{position:relative;z-index:1;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;padding:26px}
+.rl-modal-f{display:flex;flex-direction:column;align-items:center;gap:8px;animation:jxSobe .4s both}
+.rl-modal-f img{width:120px;height:150px;object-fit:cover;border:1px solid var(--line2);box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.rl-modal-f b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em}
+.rl-balao{position:relative;padding:16px 18px;background:var(--panel);border:1px solid var(--line2);font-size:16px;line-height:1.45;margin:8px 0 14px;animation:jxSobe .4s .12s both}
+.rl-balao::before{content:"";position:absolute;left:-9px;top:22px;width:16px;height:16px;background:var(--panel);border-left:1px solid var(--line2);border-bottom:1px solid var(--line2);transform:rotate(45deg)}
+/* fama e mídia */
+.md-hero-in{grid-template-columns:auto minmax(0,1fr) auto}
+.md-foto img{width:112px;height:112px;object-fit:cover;border-radius:50%;border:3px solid var(--clube);box-shadow:0 0 0 6px rgba(var(--clube-rgb),.15),0 12px 28px rgba(0,0,0,.5);animation:jxSobe .5s both}
+.md-hero h2 small{font-family:Inter,sans-serif;font-size:14px;letter-spacing:.02em;color:var(--tx2)}
+.md-medidores{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:10px 12px;align-items:center}
+.md-medidores b{display:block;font-size:13.5px}
+.md-medidores span{font-size:11.5px}
+.md-hero-pat{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right;padding:14px 16px;background:rgba(11,18,24,.72);border:1px solid var(--line2);min-width:220px}
+.md-hero-pat>span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.md-hero-pat>b{font-size:30px;color:var(--amber,#E2B45A)}
+.md-logos{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px}
+.md-logos img{width:74px;height:37px;object-fit:contain;background:rgba(255,255,255,.06);padding:3px}
+.md-logos i{font-style:normal;font-size:12px}
+.md-posts2{display:grid;gap:8px;margin:10px 0}
+.md-post2{display:grid;gap:6px;text-align:left;padding:12px 14px;background:var(--panel2);border:1px solid var(--line);transition:transform .15s,border-color .15s}
+.md-post2:hover{transform:translateX(3px)}
+.md-post2.humilde:hover{border-color:var(--teal)}.md-post2.confiante:hover{border-color:var(--amber,#E2B45A)}.md-post2.provocador:hover{border-color:var(--red)}
+.md-post-av{display:flex;align-items:center;gap:8px}
+.md-post-av img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.md-post-av i{font-style:normal;color:var(--dim);font-size:12px}
+.md-post-txt{font-size:14px}
+.md-post-tom{font-size:11.5px;color:var(--tx2)}
+.md-post2.humilde .md-post-tom{color:var(--teal)}.md-post2.provocador .md-post-tom{color:var(--red)}
+.md-ent2{position:relative;overflow:hidden}
+.md-ent2>.cn{position:absolute;inset:0;opacity:.35}
+.md-ent2.tem::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,34,46,.55),rgba(22,34,46,.95));pointer-events:none}
+.md-ent2-in{position:relative;z-index:1}
+.md-ent2-in h3{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.04em;margin:4px 0 6px}
+.md-ent2-in .btn svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+.md-pats2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:10px}
+.md-pat2{position:relative;display:grid;grid-template-columns:150px 1fr;grid-template-rows:auto auto auto;gap:6px 14px;padding:14px;background:var(--panel2);border:1px solid var(--line);animation:jxSobe .4s both}
+.md-pat2.on{border-color:rgba(24,229,180,.35)}
+.md-pat2.oferta{border-color:rgba(226,180,90,.45);background:linear-gradient(135deg,rgba(226,180,90,.08),transparent 55%),var(--panel2)}
+.md-pat-logo{grid-row:1/3;display:grid;place-items:center;background:rgba(255,255,255,.05);padding:8px}
+.md-pat-logo img{width:130px;height:65px;object-fit:contain}
+.md-pat-t b{display:block;font-size:16px}
+.md-pat-t span{display:block;font-size:12px;color:var(--tx2)}
+.md-pat-v b{font-size:22px;color:var(--amber,#E2B45A)}
+.md-pat-v span{display:block;font-size:11.5px;color:var(--tx2)}
+.md-pat-v span.up{color:var(--teal)}.md-pat-v span.dn{color:var(--red)}
+.md-pat2>.btn,.md-pat-b,.md-pat-troca{grid-column:1/-1}
+.md-pat-b{display:flex;gap:8px}
+.md-pat-troca{margin:0;font-size:12px;color:var(--tx2)}
+.md-pat-troca select{margin-left:6px;max-width:100%}
+.md-pat-novo{position:absolute;top:-9px;right:12px;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;background:var(--amber,#E2B45A);color:#0b1218;font-weight:700}
+.md-est{display:inline-flex;gap:3px;margin-left:6px;vertical-align:1px}
+.md-est i{width:7px;height:7px;transform:rotate(45deg);background:rgba(255,255,255,.14)}
+.md-est i.on{background:var(--amber,#E2B45A)}
+.md-feed{display:grid;gap:10px}
+.md-feed-i{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start}
+.md-feed-i p{margin:2px 0 0}
+.md-feed-i img{border-radius:50%}
+/* contrato e negociação do jogador */
+.jx-prop{position:relative;border-top:3px solid var(--clube)!important;background:radial-gradient(120% 120% at 0% 0%,rgba(var(--clube-rgb),.16),transparent 55%),var(--panel2)!important;animation:jxSobe .4s both}
+.jx-prop .mj-prop-top img{filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.jx-neg{width:min(1000px,96vw);padding:0!important;overflow:hidden}
+.jx-neg .neg-palco{padding:22px 26px;min-height:230px}
+.jx-neg-corpo{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;padding:18px 24px 6px}
+.jx-neg-linhas{display:grid;gap:8px;margin-top:8px}
+.jx-neg-linhas label{display:grid;grid-template-columns:150px 1fr;grid-template-rows:auto auto;gap:2px 12px;align-items:center;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)}
+.jx-neg-linhas label>span{font-size:12.5px;color:var(--tx2)}
+.jx-neg-linhas label>i{grid-column:2;font-style:normal;font-size:11px}
+.jx-neg-linhas .mj-chk{grid-template-columns:auto 1fr}
+.jx-neg-linhas .mj-chk>i{grid-column:1/-1}
+.jx-neg-pac{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--tx2);margin-bottom:12px}
+.jx-neg-pac div{display:flex;gap:6px}
+.jx-neg-pac i{width:12px;height:12px;transform:rotate(45deg);border:1px solid var(--line2)}
+.jx-neg-pac i.on{background:var(--amber,#E2B45A);border-color:var(--amber,#E2B45A)}
+.jx-neg-term{padding:10px 12px;background:rgba(11,18,24,.6);border:1px solid var(--line2);margin-bottom:6px}
+.jx-neg-term>span{display:block;font-size:12px;color:var(--tx2);margin-bottom:8px}
+.jx-neg-term em{font-style:normal;font-size:12.5px}
+.jx-neg-barra{position:relative;display:grid;grid-template-columns:42% 25% 33%;height:10px;margin-bottom:8px}
+.jx-neg-barra i.ok{background:rgba(24,229,180,.55)}.jx-neg-barra i.meio{background:rgba(226,180,90,.55)}.jx-neg-barra i.alto{background:rgba(255,70,85,.55)}
+.jx-neg-barra b{position:absolute;top:-5px;width:3px;height:20px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.7);transition:left .25s;transform:translateX(-50%)}
+.jx-neg .neg-chat{max-height:170px}
+.jx-neg .mj-resp,.jx-neg .dj-acoes{padding:0 24px}
+.jx-neg .dj-acoes{padding-bottom:20px}
+.jx-perfil-atr{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.jx-radar .g{fill:none;stroke:rgba(255,255,255,.08)}
+.jx-radar .ideal{fill:rgba(226,180,90,.06);stroke:rgba(226,180,90,.45);stroke-dasharray:4 3}
+.jx-radar .meu{fill:rgba(255,70,85,.22);stroke:var(--red);stroke-width:2;transform-origin:50% 50%;animation:jxRadar .7s ease-out both}
+.jx-radar text{font-size:9.5px;fill:var(--tx2);letter-spacing:.04em;text-transform:uppercase}
+@keyframes jxRadar{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+.jx-ag.fixo{cursor:default}
+.jx-graf{display:block;width:100%;height:120px;margin:10px 0 6px}
+.jx-graf polyline{stroke-dasharray:2000;animation:jxLinha 1.2s ease-out both}
+@keyframes jxLinha{from{stroke-dashoffset:2000}to{stroke-dashoffset:0}}
+.jx-staff{display:grid!important;grid-template-columns:64px 1fr auto;gap:12px;align-items:center}
+.jx-staff-f{position:relative;width:64px;height:48px;overflow:hidden;background:var(--panel2)}
+.jx-staff-f .cn{position:absolute;inset:0}
+.jx-staff.on .jx-staff-f{outline:2px solid var(--teal)}
+.jx-setup{position:relative;overflow:hidden}
+.jx-setup-f{position:relative;display:block;height:96px;margin:-18px -18px 14px;overflow:hidden}
+.jx-setup-f .cn{position:absolute;inset:0}
+.jx-setup-f::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--panel) 100%)}
+
+/* Central: mídia com as marcas que procuram você; link de talentos */
+.md-cen{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.md-cen-l{display:flex;gap:8px}
+.md-mini{display:grid;place-items:center;width:56px;height:56px;background:var(--panel2);border:1px solid var(--line);animation:jxSobe .4s ease both}
+.card a[data-ir]{color:var(--teal,#3ad1b0);text-decoration:none;border-bottom:1px dashed currentColor}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -29319,13 +29567,17 @@ function _marcasPossiveis(p){
   if(!G.marcas)return[];
   const pais=p.pais, reg=p.timeId?G.times[p.timeId].regiao:(typeof regiaoDoPaisMarca==='function'?regiaoDoPaisMarca(pais):null);
   const ja=new Set([...patrociniosJogador().map(x=>x.marca),...ofertasPatrocinio().map(x=>x.marca)]);
-  const setores=new Set(patrociniosJogador().map(x=>(G.marcas[x.marca]||{}).setor));
-  return Object.values(G.marcas).filter(m=>!ja.has(m.id)&&!setores.has(m.setor)&&
+  /* setor ocupado: só entra marca maior que a que você tem nele (é a troca) */
+  const nivelNoSetor={};for(const x of patrociniosJogador()){const m=G.marcas[x.marca];if(m)nivelNoSetor[m.setor]=Math.max(nivelNoSetor[m.setor]||0,m.nivel||1);}
+  const rompidas=(G.voce&&G.voce.rompidas)||{};
+  return Object.values(G.marcas).filter(m=>!ja.has(m.id)&&!(m.setor in nivelNoSetor&&(m.nivel||1)<=nivelNoSetor[m.setor])&&
+    !(rompidas[m.id]&&_sAbsF()-rompidas[m.id]<SEMANAS_ANO)&&
     (m.regiao==='GLOBAL'||(reg&&m.regiao===reg))&&(!m.paises||!m.paises.length||m.paises.includes(pais)))
     .filter(m=>{const e=exigenciaMarca(m);return famaJogador()>=e.fama&&imagemJogador()>=e.imagem;});
 }
 function gerarPatrocinios(p){
-  if(patrociniosJogador().length+ofertasPatrocinio().length>=PATROCINIOS_MAX+1)return;
+  /* com as três vagas cheias ainda chega oferta: a marca melhor é motivo para romper uma */
+  if(ofertasPatrocinio().length>=2)return;
   const f=famaJogador();
   if(_sorteFama('patroc')>0.04+f*0.0035)return;
   const lista=_marcasPossiveis(p).sort((a,b)=>(b.nivel-a.nivel)||(_sorteFama('m'+a.id)-_sorteFama('m'+b.id)));
@@ -29334,16 +29586,44 @@ function gerarPatrocinios(p){
   const m=lista[Math.min(lista.length-1,Math.floor(_sorteFama('qual')*3))];
   ofertasPatrocinio().push({id:'po'+_sAbsF()+m.id,marca:m.id,mes:valorMarca(m),anos:1+(_sorteFama('anosm')<0.4?1:0),validoAte:_sAbsF()+3});
 }
-function aceitarPatrocinio(id){
+/* Romper um contrato: a multa são dois meses do valor dele, e a marca
+   não volta a procurar você por um ano. */
+const PATROC_MULTA_MESES=2;
+function multaPatrocinio(x){return Math.max(1000,Math.round((x.mes||0)*PATROC_MULTA_MESES/100)*100);}
+function romperPatrocinio(marcaId,silencioso){
+  const x=patrociniosJogador().find(c=>c.marca===marcaId);
+  if(!x)return{ok:false,motivo:'Esse contrato não existe.'};
+  const m=G.marcas&&G.marcas[marcaId], multa=multaPatrocinio(x);
+  if(typeof caixaJogador==='function'&&caixaJogador()<multa)return{ok:false,motivo:`A multa é ${typeof moneyJ==='function'?moneyJ(multa):multa}; você tem ${typeof moneyJ==='function'?moneyJ(caixaJogador()):''}.`};
+  if(typeof lancar==='function')lancar(-multa,`Multa: rompeu com ${m?m.nome:marcaId}`,'patrocinio');
+  G.voce.patroc=patrociniosJogador().filter(c=>c!==x);
+  (G.voce.rompidas=G.voce.rompidas||{})[marcaId]=_sAbsF();
+  mexerImagem(-1);
+  const p=meuJogador();
+  if(!silencioso&&typeof noticia==='function'&&m)noticia(`✂️ ${p.nome} rompe o patrocínio com ${m.nome}.`,{c:'carreira',p:[p.id],imp:1});
+  return{ok:true,multa,msg:`Contrato com ${m?m.nome:marcaId} rompido. Multa de ${typeof moneyJ==='function'?moneyJ(multa):multa}.`};
+}
+/* o que aceitar esta oferta exige: o contrato do mesmo setor sai; com as
+   vagas cheias, um contrato escolhido sai */
+function trocaDoPatrocinio(o){
+  const m=G.marcas&&G.marcas[o.marca];if(!m)return null;
+  const mesmo=patrociniosJogador().find(x=>(G.marcas[x.marca]||{}).setor===m.setor);
+  return{mesmoSetor:mesmo||null,cheio:!mesmo&&patrociniosJogador().length>=PATROCINIOS_MAX};
+}
+function aceitarPatrocinio(id,trocar){
   const o=ofertasPatrocinio().find(x=>x.id===id);
   if(!o)return{ok:false,motivo:'Essa oferta não existe mais.'};
-  if(patrociniosJogador().length>=PATROCINIOS_MAX)return{ok:false,motivo:`No máximo ${PATROCINIOS_MAX} patrocinadores ao mesmo tempo.`};
+  const tr=trocaDoPatrocinio(o);
+  const sai=tr&&tr.mesmoSetor?tr.mesmoSetor.marca:tr&&tr.cheio?trocar:null;
+  if(tr&&tr.cheio&&!trocar)return{ok:false,motivo:`No máximo ${PATROCINIOS_MAX} patrocinadores: escolha qual contrato romper.`};
+  if(sai){const r=romperPatrocinio(sai,true);if(!r.ok)return r;}
   const m=G.marcas[o.marca];
   patrociniosJogador().push({marca:o.marca,mes:o.mes,ate:_sAbsF()+o.anos*SEMANAS_ANO,desde:_sAbsF()});
   G.voce.ofertasPatroc=ofertasPatrocinio().filter(x=>x!==o);
   const p=meuJogador();
-  if(typeof noticia==='function')noticia(`🤝 ${m.nome} fecha patrocínio pessoal com ${p.nome}.`,{c:'carreira',p:[p.id],imp:1});
-  return{ok:true,msg:`${m.nome}: ${typeof moneyJ==='function'?moneyJ(o.mes):o.mes}/mês por ${o.anos} ano${o.anos>1?'s':''}.`};
+  const saiu=sai&&G.marcas[sai];
+  if(typeof noticia==='function')noticia(saiu?`🤝 ${p.nome} troca a ${saiu.nome} pela ${m.nome} no patrocínio pessoal.`:`🤝 ${m.nome} fecha patrocínio pessoal com ${p.nome}.`,{c:'carreira',p:[p.id],imp:1});
+  return{ok:true,msg:`${saiu?`Saiu a ${saiu.nome}. `:''}${m.nome}: ${typeof moneyJ==='function'?moneyJ(o.mes):o.mes}/mês por ${o.anos} ano${o.anos>1?'s':''}.`};
 }
 function recusarPatrocinio(id){G.voce.ofertasPatroc=ofertasPatrocinio().filter(x=>x.id!==id);return{ok:true,msg:'Oferta recusada.'};}
 function patrociniosMensais(){return patrociniosJogador().reduce((s,x)=>s+x.mes,0);}
@@ -29368,7 +29648,7 @@ function pagarPatrocinios(p){
 function assistenteDePatrocinio(){
   if(!G.voce||G.voce.autoContrato!==true)return;
   const o=ofertasPatrocinio().filter(x=>_sAbsF()-(x.validoAte-3)>=2).sort((a,b)=>b.mes-a.mes)[0];
-  if(o&&patrociniosJogador().length<PATROCINIOS_MAX)aceitarPatrocinio(o.id);
+  if(o){const tr=trocaDoPatrocinio(o);if(tr&&!tr.mesmoSetor&&!tr.cheio)aceitarPatrocinio(o.id);}
 }
 
 
@@ -39271,7 +39551,7 @@ function partituraFolga(J){
 /* foto da atividade por trás do jogo, apagada (ui/cenas.js) */
 let _ritmoCena=null;
 function jogarRitmo(ctx,J,fim){
-  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],meu()):null;
+  _ritmoCena=typeof cenaCanvas==='function'&&typeof CENA_ATIVIDADE!=='undefined'?cenaCanvas('cenas',CENA_ATIVIDADE[J.id],typeof clubeVisto==='function'?clubeVisto():meu()):null;
   const cx=ctx.cx,cv=ctx.cv,spb=60/J.bpm,total=J.compassos*4*spb;
   const notas=J.partitura(J).map(n=>Object.assign(n,{t:n.b*spb,res:null})).sort((a,b)=>a.t-b.t);
   const reais=notas.filter(n=>!n.eco);
@@ -40508,17 +40788,18 @@ function abrirColetiva(){
 }
 
 function jogarColetiva(ctx,fim,dados){
-  const cx=ctx.cx,t=meu(),g=G.manager||{};
+  /* dados.t/foto/placa/marcas: a entrevista do modo jogador usa a mesma sala */
+  const cx=ctx.cx,t=dados.t!==undefined?dados.t:meu(),g=G.manager||{};
   const palco=ctx.cv.parentNode;
   const caixa=document.createElement('div');caixa.className='col';palco.appendChild(caixa);
   const carregar=src=>{if(!src)return null;const im=new Image();im.ok=false;im.onload=()=>{im.ok=true;};im.src=src;return im;};
   const mm=typeof membroManager==='function'&&membroManager();
-  const foto=carregar(g.foto||(mm&&mm.foto)||null);
+  const foto=carregar(dados.foto||g.foto||(mm&&mm.foto)||null);
   const fotoMvp=dados.mvp?carregar(ASSETS.foto(dados.mvp)):null;
-  const escudoT=carregar(ASSETS.logo(t));
-  const marcas=(typeof patrociniosDe==='function'?patrociniosDe(t):[]).map(x=>x.mk).filter(Boolean).slice(0,3)
+  const escudoT=t?carregar(ASSETS.logo(t)):null;
+  const marcas=(dados.marcas||(t&&typeof patrociniosDe==='function'?patrociniosDe(t):[]).map(x=>x.mk)).filter(Boolean).slice(0,3)
     .map(mk=>({mk,img:carregar(ASSETS.marca(mk))}));
-  const cor=corDoClube(t);
+  const cor=t?corDoClube(t):'#5a6b7d';
   let i=-1,tq=0,resp=null,fimJa=false,soma=0,tv=0,clima=0;
   const vals=[],flashes=[];
   if(MG)MG.coletiva={dados,get i(){return i;},responder:k=>responder(k)};   /* para os testes */
@@ -40560,7 +40841,7 @@ function jogarColetiva(ctx,fim,dados){
     const nota=clamp(soma/dados.perguntas.length,0,1);
     const boas=vals.filter(x=>x.v>=1).length,ruins=vals.filter(x=>x.v<0.4).length;
     const marcante=nota>=0.6?vals.find(x=>x.v>=1&&x.txt):vals.find(x=>x.v===0&&x.txt)||vals.find(x=>x.txt);
-    fim({nota,pts:Math.round(nota*1000+boas*50),modo:'coletiva',modoNome:t.tag,manchete:marcante&&marcante.txt,
+    fim({nota,pts:Math.round(nota*1000+boas*50),modo:'coletiva',modoNome:t?t.tag:'',manchete:marcante&&marcante.txt,vals,
       frase:nota>=0.93?'Dono da sala de imprensa':nota>=0.8?'Coletiva de líder':nota>=0.6?'Saiu bem na foto':nota>=0.35?'Coletiva morna':'Polêmica na coletiva',
       stats:[['Respostas boas',boas],['Mornas',vals.filter(x=>x.v===0.4).length],['Que pegaram mal',ruins],['Sem resposta',vals.filter(x=>!x.txt).length]]});
   };
@@ -40609,7 +40890,7 @@ function jogarColetiva(ctx,fim,dados){
     /* placa com o nome */
     cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2-120,314,240,28);
     cx.fillStyle='#0F1923';cx.font='400 20px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';
-    cx.fillText(((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria')).toUpperCase(),MG_W/2,335);
+    cx.fillText((dados.placa||((g.nome||'Treinador')+' · '+(souTreinador()?'head coach':'diretoria'))).toUpperCase(),MG_W/2,335);
     if(dados.mvp){cx.fillStyle='#ECE8E1';cx.fillRect(MG_W/2+150,314,130,28);cx.fillStyle='#0F1923';cx.fillText(dados.mvp.nome.toUpperCase(),MG_W/2+215,335);}
     /* microfones */
     COL_IMPRENSA.slice(0,5).forEach(([,,c2],k)=>{const x=MG_W/2-110+k*55,y=232+(k%2)*8;
@@ -45360,14 +45641,14 @@ function vJPerfil(){
   const barra=(k,rot)=>{const v=p.at[k];
     const xp=typeof custoPonto==='function'&&k!=='lider'?Math.min(100,Math.round(((p.xp||{})[k]||0)/custoPonto(v,p)*100)):null;
     return `<div class="jg-atr"><span>${esc(rot)}</span><div class="jg-atr-b"><i style="width:${v}%"></i>${xp!=null?`<em style="width:${xp}%"></em>`:''}</div><b class="num">${v}</b></div>`;};
-  const fam=(p.agentes||[]).map(a=>{const n=typeof nivelAgente==='function'?nivelAgente(p,a):null;
-    return `<div class="jg-agl"><b>${esc(a)}</b><div class="jg-atr-b"><i style="width:${n||0}%"></i></div><span class="num">${n!=null?Math.round(n):'–'}</span></div>`;}).join('');
+  const fam=(p.agentes||[]).map((a,i)=>{const n=typeof nivelAgente==='function'?Math.round(nivelAgente(p,a)):0;
+    return `<div class="jx-ag fixo ${i===0?'on':''}">${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${i===0?'<em>main</em>':''}</div>`;}).join('');
   const hist=(p.hist||[]).slice().reverse();
   return `${_jHero(p,t)}
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Atributos</div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}
+      <div class="card"><div class="eyebrow">Atributos</div><div class="jx-perfil-atr">${_jRadar(p)}<div>${ATTRS.map(([k,r])=>barra(k,r)).join('')}</div></div>
         <p class="dim" style="margin-top:8px">Over ${over(p)} como ${esc(p.roleAtual||p.role)}${p.role2?' · também joga de '+esc(p.role2):''}. O potencial (${p.pot}) é o teto: perto dele, o XP rende cada vez menos. A linha fina embaixo de cada barra é o XP até o próximo ponto; treinos, atividades e partidas enchem ela.</p></div>
-      <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam||vazio('<b>Sem agentes.</b>','elenco')}
+      <div class="card"><div class="eyebrow">Agentes e estilo</div>${fam?`<div class="jx-ag-grade">${fam}</div>`:vazio('<b>Sem agentes.</b>','elenco')}
         ${est?`<p style="margin-top:10px"><b>${esc(est.nome)}</b> <span class="dim">— ${esc(est.desc)}</span></p>`:''}
         <p class="dim">Familiaridade de 0 a 100, a mesma do manager: jogar e treinar com o agente sobe.</p></div>
     </div>
@@ -45379,6 +45660,21 @@ function vJPerfil(){
         :vazio('<b>A primeira temporada está em andamento.</b> O histórico entra na virada do ano.','trofeu')}</div>`;
 }
 
+/* o radar dos oito atributos, com o desenho da sua função por baixo */
+function _jRadar(p){
+  const S=230,c=S/2,R=86,ks=ATTRS.map(a=>a[0]),n=ks.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n,r=R*clamp(v,0,100)/100;return [(c+Math.cos(a)*r).toFixed(1),(c+Math.sin(a)*r).toFixed(1)];};
+  const anel=f=>ks.map((_,i)=>pt(i,f*100).join(',')).join(' ');
+  const w=(typeof ROLE_W!=='undefined'&&ROLE_W[p.roleAtual||p.role])||{};
+  const mx=Math.max(...ks.map(k=>w[k]||0),0.01);
+  const ideal=ks.map((k,i)=>pt(i,40+60*(w[k]||0)/mx).join(',')).join(' ');
+  const meu=ks.map((k,i)=>pt(i,p.at[k]||0).join(',')).join(' ');
+  const rot=ks.map((k,i)=>{const [x,y]=pt(i,122);return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${esc((ATTRS[i][1]||k).split(' ')[0].slice(0,6))}</text>`;}).join('');
+  return `<svg class="jx-radar" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">
+    ${[0.25,0.5,0.75,1].map(f=>`<polygon points="${anel(f)}" class="g"/>`).join('')}
+    ${ks.map((_,i)=>{const [x,y]=pt(i,100);return `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" class="g"/>`;}).join('')}
+    <polygon points="${ideal}" class="ideal"/><polygon points="${meu}" class="meu"/>${rot}</svg>`;
+}
 /* ---------- Meu clube: a página de clube de sempre ---------- */
 function vJMeuClube(){
   const t=clubeDoJogador();
@@ -45626,51 +45922,159 @@ function _barraEnergia(s){
     <div class="sj-en-n"><b class="num">${pct}</b><span>de ${ini} de energia nesta semana</span></div></div>`;
 }
 
-/* ---------- Semana e treinos ---------- */
+/* ---------- Semana e treinos ----------
+   Cada atividade é um cartão com a foto de onde ela acontece (o CT do clube,
+   a sala de análise, o mapa da semana, a ranked, a live), o que ela treina
+   com a barra do seu atributo, e dois jeitos de fazer: jogando (a gameplay
+   ou um minigame do vestiário) ou simulando. */
+const SJ_FOTO={coletivo:['estrutura','treino'],vod:['estrutura','analise'],ranked:['cenas','ativ-ranked'],live:['cenas','ativ-stream']};
+const SJ_MINI={coletivo:'bootcamp',vod:'vod',utilidade:'enigmas',ranked:'ranked',live:'stream'};
+const SJ_ICONE={coletivo:'clube',range:'mira',duelo:'alvo',dm:'caveira',retake:'desarme',utilidade:'mapa',vod:'jogar',agente:'estrela',ranked:'controle',live:'microfone'};
+function _sjNomeMapa(id){return (typeof MAP_POOL!=='undefined'&&MAP_POOL.find(m=>m.toLowerCase()===id))||id;}
+function _sjFoto(a,t,mapaNome,adv){
+  const f=SJ_FOTO[a.id];
+  if(f&&typeof cenaFoto==='function'){const h=cenaFoto(f[0],f[1],t,{foco:a.id==='coletivo'?'placa':35});
+    if(h)return `<span class="jx-at-foto com-cena">${h}${a.id==='vod'&&adv?`<span class="jx-at-sobre">${escudo(adv,46)}</span>`:''}</span>`;}
+  if(['range','duelo','dm','retake','utilidade'].includes(a.id))
+    return `<span class="jx-at-foto jx-mapa" style="background-image:${urlCSS(ASSETS.mapa(mapaNome))}"><span class="jx-at-mapa">${esc(mapaNome)}</span></span>`;
+  return `<span class="jx-at-foto vazio"><i>${ico(SJ_ICONE[a.id]||'mira')}</i></span>`;
+}
+/* anel de energia */
+function _sjAnel(s){
+  const px=132,r=56,c=2*Math.PI*r,pct=clamp(s.energia/Math.max(1,s.ini),0,1),ini=clamp(s.ini/100,0,1);
+  const cor=s.energia<30?'var(--red)':s.energia<55?'var(--amber)':'var(--teal)';
+  return `<div class="jx-anel"><svg width="${px}" height="${px}" viewBox="0 0 ${px} ${px}">
+    <circle cx="66" cy="66" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
+    <circle cx="66" cy="66" r="${r}" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="10" stroke-dasharray="${(c*ini).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 66 66)"/>
+    <circle class="jx-anel-v" cx="66" cy="66" r="${r}" fill="none" stroke="${cor}" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${(c*pct*ini).toFixed(1)} ${c.toFixed(1)}" style="--c:${c.toFixed(1)}" transform="rotate(-90 66 66)"/></svg>
+    <div class="jx-anel-t"><b class="num">${Math.round(s.energia)}</b><span>energia</span></div></div>`;
+}
+/* o atributo que a atividade treina, com o quanto falta para o próximo ponto */
+function _sjAtrib(p,k,peso){
+  const n=_NOME_ATR()[k]||k, v=Math.round(p.at[k]||0), xp=(p.xp&&p.xp[k])||0, custo=typeof custoPonto==='function'?custoPonto(p.at[k]||0,p):15;
+  return `<div class="jx-atr" title="${esc(n)}: ${v} · ${Math.round(xp)}/${Math.round(custo)} de XP até o próximo ponto">
+    <span>${esc(n)}${peso>=0.5?' <b>●</b>':''}</span><b class="num">${v}</b><u><i style="width:${Math.round(clamp(xp/custo,0,1)*100)}%"></i></u></div>`;
+}
 function vJSemana(){
   const p=meuJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
   const s=semanaJogador(), t=clubeDoJogador(), adv=adversarioDaSemana(), rv=nivelDoRival();
   const lab=typeof rotuloSemana==='function'?rotuloSemana(G.ano,G.semana):'Semana '+G.semana;
-  const nomes=_NOME_ATR();
-  const card=a=>{
+  const mapaNome=_sjNomeMapa(mapaDoTreino());
+  const mini=typeof minigamesLigados!=='function'||minigamesLigados();
+  const cor=t?corDoClube(t):'#5a6b7d';
+  const card=(a,i)=>{
     const motivo=porqueNaoAtividade(a.id), feitas=vezesFeita(a.id);
-    const alvo=a.xp?Object.keys(a.xp).map(k=>nomes[k]||k).join(', '):a.id==='agente'?'familiaridade':a.id==='live'?'fãs e dinheiro':'';
     let botoes='';
-    if(a.grupo==='jogavel')botoes=`<button class="btn sm" data-sjjogar="${a.id}" ${motivo?'disabled':''}>Jogar</button><button class="btn ghost sm" data-sjsim="${a.id}" ${motivo?'disabled':''}>Simular (60%)</button>`;
-    else if(a.id==='agente'){
-      const pool=[...new Set([...(p.agentes||[]),...((typeof AGENTS!=='undefined'&&AGENTS[p.role])||[])])];
-      botoes=`<select id="sjAgente" ${motivo?'disabled':''}>${pool.map(x=>`<option>${esc(x)}</option>`).join('')}</select><button class="btn sm" data-sjfazer="agente" ${motivo?'disabled':''}>Treinar</button>`;
-    }else botoes=`<button class="btn sm" data-sjfazer="${a.id}" ${motivo?'disabled':''}>${a.grupo==='clube'?'Ir ao treino':'Fazer'}</button>`;
-    return `<div class="sj-at ${motivo?'off':''} ${feitas?'feita':''}">
-      <div class="sj-at-top"><b>${esc(a.nome)}</b><span class="chip">${custoEnergia(a)} energia</span></div>
-      <p class="dim">${esc(a.desc)}${a.id==='duelo'&&rv.over?` Rival de over ${rv.over}.`:''}${a.id==='vod'&&adv?` Adversário: ${esc(adv.nome)}.`:''}</p>
-      ${alvo?`<div class="sj-alvo">${esc(alvo)}</div>`:''}
-      <div class="sj-at-b">${botoes}${feitas?`<span class="dim">feito ${feitas}×${a.unico?'':' · repetir rende menos'}</span>`:''}</div>
-      ${motivo&&!feitas?`<div class="sj-motivo">${esc(motivo)}</div>`:''}</div>`;
+    if(a.grupo==='jogavel')botoes=`<button class="btn sm" data-sjjogar="${a.id}" ${motivo?'disabled':''}>${ico('jogar')} Jogar</button><button class="btn ghost sm" data-sjsim="${a.id}" ${motivo?'disabled':''}>Simular · 60%</button>`;
+    else if(a.id==='agente')botoes='';
+    else if(SJ_MINI[a.id]&&mini)botoes=`<button class="btn sm" data-sjmini="${a.id}" ${motivo?'disabled':''}>${ico('jogar')} ${a.id==='coletivo'?'Ir ao treino':'Jogar'}</button><button class="btn ghost sm" data-sjfazer="${a.id}" ${motivo?'disabled':''}>Simular · 60%</button>`;
+    else botoes=`<button class="btn sm" data-sjfazer="${a.id}" ${motivo?'disabled':''}>${a.grupo==='clube'?'Ir ao treino':'Fazer'}</button>`;
+    const extra=a.id==='duelo'&&rv.over?` Rival de over ${rv.over}.`:a.id==='vod'&&adv?` Adversário: ${esc(adv.nome)}.`:'';
+    const tipo=a.grupo==='jogavel'?'gameplay':SJ_MINI[a.id]&&mini?'minigame':'';
+    return `<article class="jx-at ${motivo?'off':''} ${feitas?'feita':''}" style="--i:${i}">
+      ${_sjFoto(a,t,mapaNome,adv)}
+      <div class="jx-at-cab"><span class="jx-at-ic">${ico(SJ_ICONE[a.id]||'mira')}</span><b>${esc(a.nome)}</b>
+        <span class="jx-en">${ico('fogo')} ${custoEnergia(a)}</span></div>
+      ${tipo?`<span class="jx-tipo ${tipo}">${tipo==='gameplay'?'gameplay':'minigame'}</span>`:''}
+      ${feitas?`<span class="jx-feito">${ico('check')} feito${feitas>1?' '+feitas+'×':''}</span>`:''}
+      <p class="dim">${esc(a.desc)}${extra}</p>
+      ${a.xp?`<div class="jx-atrs">${Object.entries(a.xp).sort((x,y)=>y[1]-x[1]).map(([k,w])=>_sjAtrib(p,k,w)).join('')}</div>`:a.id==='live'?`<div class="jx-atrs jx-live"><span>${ico('estrela')} ${fmtSeg(seguidores())} seguidores</span></div>`:''}
+      <div class="jx-at-b">${botoes}</div>
+      ${motivo&&!feitas?`<div class="jx-motivo">${esc(motivo)}</div>`:feitas&&!a.unico?'<div class="jx-motivo neutro">repetir rende menos</div>':''}</article>`;
   };
-  const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&(g!=='clube'||t));return l.length?`<div class="card"><div class="eyebrow">${titulo}</div>${sub?`<p class="dim">${sub}</p>`:''}<div class="sj-grid">${l.map(card).join('')}</div></div>`:'';};
-  const feitas=s.feitas.map(f=>{const a=ativJogador(f.id);
-    return `<div class="sj-feita"><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}<span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
-      <span>${_xpTexto(f.xp)}${f.fam?` familiaridade +${f.fam}`:''}${f.seg?` +${fmtSeg(f.seg)} seguidores`:''}${f.din?` · ${moneyJ(f.din)}`:''}</span>${_subiuTexto(f.subiu)}</div>`;}).join('');
+  /* treinar agente: o pool com retrato e familiaridade */
+  const ag=ativJogador('agente'), motivoAg=porqueNaoAtividade('agente');
+  const pool=[...new Set([...(p.agentes||[]),...((typeof AGENTS!=='undefined'&&AGENTS[p.role])||[])])];
+  const agSel=_sjAgSel&&pool.includes(_sjAgSel)?_sjAgSel:pool[0];
+  const nv=a=>typeof nivelAgente==='function'?Math.round(nivelAgente(p,a)):0;
+  const agentes=`<section class="card jx-ags ${motivoAg?'off':''}"><div class="split"><div><div class="eyebrow">Treinar um agente · ${custoEnergia(ag)} de energia</div>
+      <p class="dim">Familiaridade com um agente do seu pool, ou um novo da sua função (com 40 ele entra no pool e o técnico pode escalar).</p></div>
+      <div class="jx-at-b"><input type="hidden" id="sjAgente" value="${esc(agSel||'')}"><button class="btn sm" data-sjfazer="agente" ${motivoAg?'disabled':''}>Treinar ${esc(agSel||'')}</button></div></div>
+    <div class="jx-ag-grade">${pool.map(a=>{const n=nv(a),meu=(p.agentes||[]).includes(a);return `<button class="jx-ag ${a===agSel?'on':''} ${meu?'':'novo'}" data-sjag="${esc(a)}">
+      ${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${meu?'':'<em>novo</em>'}</button>`;}).join('')}</div>
+    ${motivoAg?`<div class="jx-motivo">${esc(motivoAg)}</div>`:''}</section>`;
+  const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&a.id!=='agente'&&(g!=='clube'||t));return l.length?`<section class="jx-grupo"><div class="jx-grupo-t"><div class="eyebrow">${titulo}</div>${sub?`<span class="dim">${sub}</span>`:''}</div><div class="jx-at-grade">${l.map(card).join('')}</div></section>`:'';};
+  const feitas=s.feitas.map((f,i)=>{const a=ativJogador(f.id);
+    return `<div class="jx-tl" style="--i:${i}"><span class="jx-tl-ic">${ico(SJ_ICONE[f.id]||'mira')}</span><div><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}
+      <span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
+      <div class="jx-xp">${Object.entries(f.xp||{}).filter(([,v])=>v>0.05).map(([k,v])=>`<i>${esc(_NOME_ATR()[k]||k)} +${v.toFixed(1)}</i>`).join('')}${f.fam?`<i>familiaridade +${f.fam}</i>`:''}${f.seg?`<i>+${fmtSeg(f.seg)} seguidores</i>`:''}${f.din?`<i>${moneyJ(f.din)}</i>`:''}${Object.entries(f.subiu||{}).map(([k,v])=>`<i class="up">${esc(_NOME_ATR()[k]||k)} +${v}</i>`).join('')}</div></div></div>`;}).join('');
   const u=G.voce.ultimaSemana;
-  return `<section class="card sj-topo">
-      <div class="split"><div><div class="eyebrow">Semana e treinos · ${esc(lab)}</div>
-        <h2 class="sj-tit">${adv?`Jogo nesta semana: ${esc(adv.nome)}`:t?'Semana sem jogo do seu clube':'Ranked e treino por conta própria'}</h2></div>
-        <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto?'checked':''}> Assistente monta a semana se eu não marcar nada</label></div>
-      ${_barraEnergia(s)}
-      <p class="dim">Cada atividade gasta energia; o que sobrar vira descanso quando a semana fechar. ${adv?'Abaixo de 40 de energia você chega ao jogo cansado e rende menos.':''} Treinar jogando rende mais que simular: o XP sai de como você jogou.</p>
-    </section>
-    ${grupo('clube','Treino do clube','O técnico conta presença. Faltar derruba a forma, e a forma pesa na escalação.')}
-    ${grupo('jogavel','Treinos jogáveis','Abrem a gameplay por cima do manager. Esc pausa e deixa encerrar.')}
-    ${grupo('clique','Fora do jogo')}
+  const foto=t&&typeof cenaFoto==='function'?cenaFoto('estrutura','treino',t,{cls:'cn-direita',foco:'placa'}):(typeof cenaFoto==='function'?cenaFoto('cenas','ativ-ranked',null,{cls:'cn-direita'}):'');
+  return `<section class="jx-hero ${foto?'com-cena':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">${foto}
+      <div class="jx-hero-in">
+        ${_sjAnel(s)}
+        <div class="jx-hero-t"><div class="eyebrow">Semana e treinos · ${esc(lab)}</div>
+          <h2>${adv?'Semana de jogo':t?'Semana sem jogo':'Ranked e treino por conta própria'}</h2>
+          ${adv?`<div class="jx-vs">${t?escudo(t,40):''}<b>${esc(t?t.tag:'')}</b><span>×</span><b>${esc(adv.tag)}</b>${escudo(adv,40)}<i class="dim">over ${overMedioTime(adv)} · ${esc(mapaNome)} no treino</i></div>`
+            :`<p class="dim">Treinos no ${esc(mapaNome)}. ${t?'Sem jogo: dá para gastar a energia toda.':'Ranked e lives sobem o radar dos olheiros.'}</p>`}
+          <p class="dim jx-hero-nota">Cada atividade gasta energia; o que sobra vira descanso. ${adv?'Abaixo de 40 você chega ao jogo cansado. ':''}Jogar rende mais que simular: o XP sai da sua nota.</p>
+          <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto?'checked':''}> Assistente monta a semana se eu não marcar nada</label>
+        </div>
+        <div class="jx-hero-carta">${typeof cartaJogador==='function'?cartaJogador(p,{w:118}):''}</div>
+      </div></section>
+    ${grupo('clube','Treino do clube','O técnico conta presença: faltar derruba a forma, e a forma pesa na escalação.')}
+    ${grupo('jogavel','Treinos jogáveis','Abrem a gameplay por cima do manager. Esc pausa.')}
+    ${grupo('clique','Fora do servidor','Minigames do vestiário: a nota vira XP.')}
+    ${agentes}
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas||vazio('<b>Nada ainda.</b> '+(G.voce.auto?'Se você avançar assim, o assistente faz uma semana padrão simulada.':'Se você avançar assim, a semana inteira vira descanso.'),'treino')}</div>
+      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas?`<div class="jx-tls">${feitas}</div>`:vazio('<b>Nada ainda.</b> '+(G.voce.auto?'Se você avançar assim, o assistente faz uma semana padrão simulada.':'Se você avançar assim, a semana inteira vira descanso.'),'treino')}</div>
       <div class="card"><div class="eyebrow">Semana passada</div>${u?`
         <p>${u.auto?'O assistente montou a semana. ':''}Gastou ${Math.round(u.ini-u.energia)} de ${Math.round(u.ini)} de energia.${u.coletivo===false?' <b class="dn">Faltou ao treino do clube.</b>':''}</p>
         ${u.partidas?`<p>${u.partidas.maps} mapa${u.partidas.maps>1?'s':''} jogado${u.partidas.maps>1?'s':''}: ${_xpTexto(u.partidas.xp)} ${_subiuTexto(u.partidas.subiu)}</p>`:'<p class="dim">Sem partida sua.</p>'}`
-        :vazio('<b>A primeira semana ainda não fechou.</b>','grafico')}</div>
+        :vazio('<b>A primeira semana ainda não fechou.</b>','grafico')}
+        <div class="eyebrow" style="margin-top:14px">Seus atributos</div>
+        <div class="jx-atrs jx-atrs-todos">${ATTRS.map(([k])=>_sjAtrib(p,k,0)).join('')}</div></div>
     </div>`;
+}
+let _sjAgSel=null;
+
+/* ---------- minigames da semana (os do vestiário, na visão do jogador) ----------
+   A nota do minigame vira a nota da atividade (core/semana-jogador.js). */
+function _sjParceiro(){
+  const p=meuJogador(), t=clubeDoJogador();
+  const l=t?(t.elenco||[]).filter(i=>i!==p.id).map(i=>G.jogadores[i]).filter(Boolean):[];
+  return l.sort((a,b)=>(typeof dupla==='function'?dupla(t,p.id,b.id)-dupla(t,p.id,a.id):0))[0]||null;
+}
+function jogarMiniDaSemana(id){
+  const motivo=porqueNaoAtividade(id);if(motivo){flash(motivo);return;}
+  if(typeof abrirMinigame!=='function'){const r=fazerAtividade(id,{simulado:true});flash(r.ok?'Feito.':r.motivo);render();return;}
+  const a=ativJogador(id), p=meuJogador(), t=clubeDoJogador(), adv=adversarioDaSemana();
+  const mapaNome=_sjNomeMapa(mapaDoTreino());
+  const f=SJ_FOTO[id];
+  const pseudo={tag:t?t.tag:p.nome,atividadePar:[p.id,(_sjParceiro()||{}).id].filter(Boolean)};
+  const J=typeof jogosRitmo==='function'?jogosRitmo(pseudo):{};
+  let jogo, titulo, desc, controles;
+  if(id==='vod'){
+    if(!adv){flash('Sem adversário nesta semana.');return;}
+    titulo='Revisão de VOD';desc=`Os VODs do <b>${esc(adv.nome)}</b>: 8 perguntas, ${QZ_SEG} segundos cada. A nota vira visão de jogo e leitura do adversário na partida.`;
+    controles=['1','2','3','4','Mouse'];
+    jogo=(ctx,fim)=>jogarQuiz(ctx,fim,montarQuiz(qzAdversario(adv),8),{rotulo:adv.tag,cor:corDoClube(adv)});
+  }else if(id==='utilidade'){
+    titulo='Lineups no '+mapaNome;desc=`Três enigmas de estudo do <b>${esc(mapaNome)}</b> em ${EN_TEMPO} segundos: a leitura do adversário, as smokes do bomb e o mapa embaralhado.`;
+    controles=['Mouse'];jogo=(ctx,fim)=>jogarEnigmas(ctx,fim,mapaNome);
+  }else{
+    const R=J[SJ_MINI[id]];if(!R){const r=fazerAtividade(id,{simulado:true});flash(r.ok?'Feito.':r.motivo);render();return;}
+    titulo=R.nome;desc=R.desc;controles=R.teclasTxt;jogo=(ctx,fim)=>jogarRitmo(ctx,R,fim);
+  }
+  abrirMinigame({
+    id:'sj-'+id,titulo,eyebrow:'Semana · '+a.nome,desc,controles,
+    fundo:()=>f&&typeof cenaFoto==='function'?cenaFoto(f[0],f[1],t,{cls:'cn-direita',foco:'placa',ansioso:true}):'',
+    arte:()=>'',
+    vale:()=>!porqueNaoAtividade(id),
+    efeitoTxt:()=>`Vale como <b>${esc(a.nome)}</b> desta semana (${custoEnergia(a)} de energia): a nota define o XP, de <b class="dn">30%</b> a <b class="up">140%</b> do normal. Simular rende 60%.`,
+    efeitoFeito:res=>{const fx=res.feito;if(!fx)return 'A atividade não pôde ser registrada.';
+      return `Rendeu <b class="${fx.mult>=0.6?'up':'dn'}">${Math.round(fx.mult*100)}%</b> do XP: ${_xpTexto(fx.xp)||'—'}${fx.seg?` · +${fmtSeg(fx.seg)} seguidores`:''}${fx.din?` · ${moneyJ(fx.din)}`:''} ${_subiuTexto(fx.subiu)}`;},
+    rotuloComissao:'Simular (60%)',msgComissao:'Atividade simulada: rendeu 60% do XP.',
+    comissao:()=>{fazerAtividade(id,{simulado:true});render();},
+    dica:()=>'',
+    registrar:(res,vale)=>{
+      if(vale){const r=fazerAtividade(id,{simulado:false,nota:res.nota});if(r.ok)res.feito=r.feito;}
+      return typeof registrarRecordeMini==='function'?registrarRecordeMini('sj-'+id,res.pts,res.nota):null;
+    },
+    jogar:jogo
+  });
 }
 
 /* abre a gameplay para um treino jogável */
@@ -45733,6 +46137,8 @@ function vJTalentos(){
 function ligarJogador(v,on){
   on('[data-sjjogar]',el=>jogarTreino(el.dataset.sjjogar));
   on('[data-sjsim]',el=>{const r=fazerAtividade(el.dataset.sjsim,{simulado:true});if(!r.ok)flash(r.motivo);render();});
+  on('[data-sjmini]',el=>jogarMiniDaSemana(el.dataset.sjmini));
+  on('[data-sjag]',el=>{_sjAgSel=el.dataset.sjag;render();});
   on('[data-sjfazer]',el=>{
     const id=el.dataset.sjfazer;
     const alvo=id==='agente'?(v.querySelector('#sjAgente')||{}).value:null;
@@ -45773,6 +46179,18 @@ function cardChanceDeJogar(compacto){
     ${compacto?'':`<div class="rl-fat">${ch.fatores.map(f=>`<div><span>${esc(f.rot)}</span><b class="num ${f.rot==='Over na função'?'':f.v>0?'up':f.v<0?'dn':''}">${f.rot==='Over na função'?f.v:(f.v>0?'+':'')+f.v}</b><i class="dim">${esc(f.txt)}</i></div>`).join('')}</div>
     <p class="dim">O técnico escala no começo de cada semana: over na função e cobertura, mais condição e confiança. Os números ao lado do over são pontos que ele soma ou tira.</p>`}</div>`;
 }
+/* ---------- Relações ----------
+   O técnico com a foto e a confiança no medidor, a chance de jogar, as
+   conversas como cartões (com o que cada uma arrisca à vista), os conflitos
+   do vestiário e os colegas como cartas, com a dupla de cada um com você. */
+const RL_ICONE={jogar:'jogar',funcao:'troca',feedback:'balao',reclamar:'alerta',apoiar:'aperto',cobrar:'alerta',duo:'controle'};
+function _rlAnel(v,px,tom){
+  const r=(px-8)/2,c=2*Math.PI*r,pct=clamp(v/100,0,1);
+  const cor=tom==='up'?'var(--teal)':tom==='dn'?'var(--red)':'var(--amber,#E2B45A)';
+  return `<svg class="rl-anel" width="${px}" height="${px}" viewBox="0 0 ${px} ${px}"><circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/>
+    <circle class="jx-anel-v" cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="${cor}" stroke-width="5" stroke-linecap="round" style="--c:${c.toFixed(1)}" stroke-dasharray="${(c*pct).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${px/2} ${px/2})"/>
+    <text x="${px/2}" y="${px/2+5}" text-anchor="middle">${Math.round(v)}</text></svg>`;
+}
 function vJRelacoes(){
   const p=meuJogador(), t=clubeDoJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
@@ -45780,47 +46198,74 @@ function vJRelacoes(){
   const conf=confTecnico(), conv=_conversou('tec');
   const opT=opcoesComTecnico();
   const ev=eventosJogador();
-  const log=(G.voce.relLog||[]).slice(0,8);
+  const log=(G.voce.relLog||[]).slice(0,6);
   const colegas=(t.elenco||[]).filter(i=>i!==p.id).map(i=>G.jogadores[i]).filter(Boolean)
     .sort((a,b)=>((t.titulares||[]).includes(b.id)-(t.titulares||[]).includes(a.id))||over(b)-over(a));
   const moralMed=Math.round((t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).reduce((s,x,_,a)=>s+x.moral/a.length,0)*100);
-  const tecnico=t.tecnico||(t.staff&&t.staff.nomeTecnico)||null;
-  return `<div class="grid g2 cx-linha">
-    <div class="card"><div class="eyebrow">O técnico${tecnico?' · '+esc(tecnico):''}</div>
-      <div class="rl-conf"><b class="num ${_tomConf(conf)}">${Math.round(conf)}</b><div><span>${esc(rotuloConf(conf))}</span>${_barraPct(conf,_tomConf(conf))}</div></div>
-      <div class="rl-ops">${opT.map(o=>o.id==='funcao'
-        ?`<div class="rl-op"><select id="rlFuncao" ${conv?'disabled':''}>${FUNCOES_BASE.filter(f=>f!==p.role).map(f=>`<option ${p.role2===f?'selected':''}>${f}</option>`).join('')}</select><button class="btn ghost sm" data-rltec="funcao" ${conv?'disabled':''} title="${esc(o.dica)}">${esc(o.rot)}</button></div>`
-        :`<button class="btn ${o.id==='reclamar'?'ghost':''} sm" data-rltec="${o.id}" ${conv||o.off?'disabled':''} title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}</div>
-      <p class="dim">${conv?'Você já falou com o técnico nesta semana.':'Uma conversa por semana. Passe o mouse para ver o que cada uma arrisca.'}</p>
+  const tec=typeof membroDe==='function'?membroDe(t,'tecnico'):null;
+  const cor=corDoClube(t);
+  const foto=typeof cenaFoto==='function'?cenaFoto('estrutura','gh',t,{cls:'cn-direita',foco:'placa'}):'';
+  const ch=typeof chanceDeJogar==='function'?chanceDeJogar():null;
+  const tomCh=ch?(ch.pct>=65?'up':ch.pct<35?'dn':''):'';
+  const opCard=o=>o.id==='funcao'
+    ?`<div class="rl-acao ${conv?'off':''}"><span class="rl-acao-ic">${ico(RL_ICONE[o.id])}</span><div><b>${esc(o.rot)}</b><p>${esc(o.dica)}</p>
+       <div class="rl-acao-b"><select id="rlFuncao" ${conv?'disabled':''}>${FUNCOES_BASE.filter(f=>f!==p.role).map(f=>`<option ${p.role2===f?'selected':''}>${f}</option>`).join('')}</select>
+       <button class="btn ghost sm" data-rltec="funcao" ${conv?'disabled':''}>Pedir</button></div></div></div>`
+    :`<button class="rl-acao ${o.id==='reclamar'?'arrisca':''}" data-rltec="${o.id}" ${conv||o.off?'disabled':''}><span class="rl-acao-ic">${ico(RL_ICONE[o.id]||'balao')}</span><div><b>${esc(o.rot)}</b><p>${esc(o.dica)}</p></div></button>`;
+  return `<section class="jx-hero rl-hero ${foto?'com-cena':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">${foto}
+    <div class="jx-hero-in rl-hero-in">
+      <div class="rl-tec-foto">${tec?retratoStaff(tec,104):''}</div>
+      <div class="jx-hero-t"><div class="eyebrow">O técnico · ${esc(t.nome)}</div>
+        <h2>${esc(tec?tec.nome:'Comissão técnica')}</h2>
+        <div class="rl-conf2">${_rlAnel(conf,74,_tomConf(conf))}<div><b>${esc(rotuloConf(conf))}</b><span class="dim">confiança dele em você · sobe com conversa boa, presença no treino e atuação</span></div></div>
+      </div>
+      ${ch?`<div class="rl-chance2 ${tomCh}"><span>chance de jogar a próxima</span><b class="num">${ch.pct}%</b>
+        <i class="dim">${ch.lesao?'lesionado':ch.dentro?'no cinco':'fora do cinco'}${ch.rival?' · vaga de '+esc(ch.rival.nome):''}</i></div>`:''}
+    </div></section>
+  <div class="rl-grade">
+    <section class="card"><div class="split"><div class="eyebrow">Conversar com o técnico</div><span class="dim">${conv?'Vocês já conversaram nesta semana.':'Uma conversa por semana.'}</span></div>
+      <div class="rl-acoes2">${opT.map(opCard).join('')}</div>
       ${log.length?`<div class="rl-log">${log.map(l=>`<div><span class="dim">${l.ano} · sem ${l.semana}</span> ${esc(l.txt)}${l.d?` <b class="${l.d>0?'up':'dn'}">${l.d>0?'+':''}${l.d}</b>`:''}</div>`).join('')}</div>`:''}
-    </div>
-    <div class="card">${cardChanceDeJogar(false)}</div>
+    </section>
+    <section class="card">${cardChanceDeJogar(false)}</section>
   </div>
-  ${ev.length?`<div class="card rl-ev"><div class="eyebrow">No vestiário</div>${ev.map(e=>{const C=CONFLITOS[e.tipo];
-    return `<div class="rl-evi"><b>${esc(C.titulo)}</b><p>${esc(e.txt)}</p><div class="rl-ops">${C.opcoes.map(o=>`<button class="btn ${o.id==='rebater'||o.id==='responder'?'ghost':''} sm" data-rlev="${e.id}:${o.id}" title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}</div></div>`;}).join('')}</div>`:''}
-  <div class="card"><div class="split"><div class="eyebrow">Colegas · ${esc(t.nome)}</div>
-      <span class="dim">Entrosamento do cinco ${Math.round(t.sinergia||0)} · moral média ${moralMed}%${t.seq?` · ${t.seq>0?t.seq+' vitória'+(t.seq>1?'s':'')+' seguida'+(t.seq>1?'s':''):(-t.seq)+' derrota'+(t.seq<-1?'s':'')+' seguida'+(t.seq<-1?'s':'')}`:''}</span></div>
-    <table class="tbl rl-tab"><thead><tr><th>Jogador</th><th>Função</th><th>Over</th><th>Dupla com você</th><th>Moral</th><th></th></tr></thead><tbody>
-    ${colegas.map(q=>{const d=Math.round(dupla(t,p.id,q.id)), ja=_conversou(q.id), tit=(t.titulares||[]).includes(q.id);
-      return `<tr><td><b>${esc(q.nome)}</b>${tit?' <span class="chip up">titular</span>':''}${q.id===t.igl?' <span class="chip">IGL</span>':''}</td><td>${esc(q.roleAtual||q.role)}</td><td class="num">${over(q)}</td>
-        <td><div class="rl-dupla">${_barraPct(d,d>=60?'up':d<30?'dn':'')}<span class="num">${d}</span></div></td><td class="num ${q.moral<0.45?'dn':''}">${Math.round(q.moral*100)}%</td>
-        <td class="rl-acoes">${opcoesComColega(q).map(o=>`<button class="btn ghost sm" data-rlcol="${q.id}:${o.id}" ${ja?'disabled':''} title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}</td></tr>`;}).join('')}
-    </tbody></table>
-    <p class="dim">A dupla é o entrosamento entre vocês dois, o mesmo número que o motor usa: entre titulares, ela vira o entrosamento do time. Uma conversa por colega por semana.</p></div>`;
+  ${ev.length?`<section class="card rl-ev2"><div class="eyebrow">No vestiário</div>${ev.map(e=>{const C=CONFLITOS[e.tipo], q=e.com&&G.jogadores[e.com];
+    return `<div class="rl-evi2">${q?`<span class="rl-evi-f">${retrato(q,64)}</span>`:`<span class="rl-evi-f vazio">${ico('alerta')}</span>`}<div><b>${esc(C.titulo)}</b><p>${esc(e.txt)}</p>
+      <div class="rl-acoes3">${C.opcoes.map(o=>`<button class="btn ${o.id==='rebater'||o.id==='responder'?'ghost':''} sm" data-rlev="${e.id}:${o.id}" title="${esc(o.dica)}">${esc(o.rot)}</button>`).join('')}</div>
+      <div class="dim rl-dicas">${C.opcoes.map(o=>`<span><b>${esc(o.rot)}:</b> ${esc(o.dica)}</span>`).join('')}</div></div></div>`;}).join('')}</section>`:''}
+  <section class="card"><div class="split"><div class="eyebrow">Colegas · ${esc(t.nome)}</div>
+      <span class="dim">Entrosamento do cinco <b>${Math.round(t.sinergia||0)}</b> · moral média <b>${moralMed}%</b>${t.seq?` · ${t.seq>0?t.seq+' vitória'+(t.seq>1?'s':'')+' seguida'+(t.seq>1?'s':''):(-t.seq)+' derrota'+(t.seq<-1?'s':'')+' seguida'+(t.seq<-1?'s':'')}`:''}</span></div>
+    <div class="rl-cols">${colegas.map((q,i)=>{const d=Math.round(dupla(t,p.id,q.id)), ja=_conversou(q.id), tit=(t.titulares||[]).includes(q.id);
+      return `<article class="rl-col ${tit?'tit':''}" style="--i:${i}">
+        <div class="rl-col-f jrow" data-p="${q.id}">${retrato(q,84)}${tit?'<span class="rl-col-tag">titular</span>':''}${q.id===t.igl?'<span class="rl-col-tag igl">IGL</span>':''}</div>
+        <div class="rl-col-t"><b>${esc(q.nome)}</b><span><span class="tag ${q.roleAtual||q.role}">${esc(q.roleAtual||q.role)}</span> over <b class="num">${over(q)}</b></span></div>
+        <div class="rl-col-m"><div>${_rlAnel(d,54,d>=60?'up':d<30?'dn':'')}<span>dupla</span></div>
+          <div><b class="num ${q.moral<0.45?'dn':q.moral>=0.7?'up':''}">${Math.round(q.moral*100)}%</b><span>moral</span></div></div>
+        <div class="rl-col-b">${opcoesComColega(q).map(o=>`<button class="btn ghost sm" data-rlcol="${q.id}:${o.id}" ${ja?'disabled':''} title="${esc(o.dica)}">${ico(RL_ICONE[o.id]||'balao')} ${esc(o.rot)}</button>`).join('')}</div>
+        ${ja?'<div class="rl-col-ja dim">já conversaram nesta semana</div>':''}</article>`;}).join('')}</div>
+    <p class="dim">A dupla é o entrosamento entre vocês dois, o mesmo número que o motor usa: entre titulares, vira o entrosamento do time. Uma conversa por colega por semana; passe o mouse no botão para ver o que ela faz.</p></section>`;
 }
 function ligarRelacoes(v,on){
+  const t=clubeDoJogador(), tec=t&&typeof membroDe==='function'?membroDe(t,'tecnico'):null;
   on('[data-rltec]',el=>{
     const op=el.dataset.rltec, extra=op==='funcao'?(v.querySelector('#rlFuncao')||{}).value:null;
     const r=conversarComTecnico(op,extra);
-    if(!r.ok)flash(r.motivo);else modalConversaJogador('O técnico',r.msg);
+    if(!r.ok)flash(r.motivo);else modalConversaJogador('O técnico',r.msg,{foto:tec?retratoStaff(tec,120):'',nome:tec?tec.nome:'Técnico',cena:['estrutura','analise']});
     render();
   });
-  on('[data-rlcol]',el=>{const [id,op]=el.dataset.rlcol.split(':');const r=conversarComColega(id,op);flash(r.ok?r.msg:r.motivo);render();});
-  on('[data-rlev]',el=>{const [id,op]=el.dataset.rlev.split(':');const r=resolverConflito(id,op);if(r.ok)modalConversaJogador('No vestiário',r.msg);else flash(r.motivo);render();});
+  on('[data-rlcol]',el=>{const [id,op]=el.dataset.rlcol.split(':');const q=G.jogadores[id];const r=conversarComColega(id,op);
+    if(!r.ok)flash(r.motivo);else modalConversaJogador(op==='duo'?'Duo na ranked':'Conversa',r.msg,{foto:q?retrato(q,120):'',nome:q?q.nome:'',cena:op==='duo'?['cenas','ativ-ranked']:['estrutura','gh']});render();});
+  on('[data-rlev]',el=>{const [id,op]=el.dataset.rlev.split(':');const r=resolverConflito(id,op);if(r.ok)modalConversaJogador('No vestiário',r.msg,{cena:['estrutura','gh']});else flash(r.motivo);render();});
 }
-function modalConversaJogador(titulo,msg){
-  pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">${esc(titulo)}</div><h2 class="rl-fala">${esc(msg)}</h2>
-    <div class="dj-acoes"><button class="btn" id="rlOk">Ok</button></div></div></div>`);
+/* a conversa numa cena: o lugar ao fundo, quem fala com a foto e a fala */
+function modalConversaJogador(titulo,msg,o){
+  o=o||{};
+  const t=clubeDoJogador();
+  const cena=o.cena&&typeof cenaFoto==='function'?cenaFoto(o.cena[0],o.cena[1],t,{foco:'placa',ansioso:true}):'';
+  pintarModal(`<div class="ovl"><div class="box rl-modal ${cena?'com-cena':''}">${cena}
+    <div class="rl-modal-in">${o.foto?`<div class="rl-modal-f">${o.foto}${o.nome?`<b>${esc(o.nome)}</b>`:''}</div>`:''}
+      <div class="rl-modal-t"><div class="eyebrow">${esc(titulo)}</div><div class="rl-balao">${esc(msg)}</div>
+        <div class="dj-acoes"><button class="btn" id="rlOk">Ok</button></div></div></div></div></div>`);
   $('#rlOk').onclick=()=>{$('#modal').innerHTML='';render();};
 }
 
@@ -45836,8 +46281,8 @@ function _cartaoProposta(pr){
   const t=G.times[pr.clubeId], p=meuJogador();
   const resta=pr.validoAte-semAbs();
   const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
-  return `<div class="mj-prop ${pr.acordo?'acordo':''}">
-    <div class="mj-prop-top">${escudo(t,40)}<div><div class="eyebrow">${_TIPO_PROP[pr.tipo]||pr.tipo}${pr.preContrato?' · pré-contrato':''}</div><b class="mj-clube">${esc(t.nome)}</b>
+  return `<div class="mj-prop jx-prop ${pr.acordo?'acordo':''}" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    <div class="mj-prop-top">${escudo(t,56)}<div><div class="eyebrow">${_TIPO_PROP[pr.tipo]||pr.tipo}${pr.preContrato?' · pré-contrato':''}</div><b class="mj-clube">${esc(t.nome)}</b>
       <span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div></div>
     ${pr.tipo==='teste'?`<p>Uma semana de teste: um duelo contra o nível do elenco deles (over ${overMedioTime(t)}). Passou, chega a proposta de contrato.</p>`
     :`<div class="mj-num">${lin('Salário',moneyJ(pr.salario)+'/mês')}${lin('Contrato',pr.anos+' ano'+(pr.anos>1?'s':''))}${lin('Multa',_MULTA_ROT[pr.multa]||'Padrão')}
@@ -45884,29 +46329,70 @@ function vJContrato(){
       :vazio(t?'<b>Nenhuma proposta agora.</b> Elas chegam na janela, no último ano de contrato ou quando você pede para ser negociado. Empresário e fama aceleram.':'<b>Nenhuma proposta agora.</b> Jogue ranked, faça lives e treine: os olheiros olham o over e o radar.','troca')}
   </div>`;
 }
+/* A mesa de negociação do treinador, vista do outro lado: a sala com a placa
+   do clube que quer você, de onde você sai e para onde vai, o que eles
+   oferecem e o que você pede, a paciência deles e a conversa. Com empresário,
+   ele lê a mesa e diz até onde dá para puxar. */
+let _mjChat={}, _mjPed={};
 function modalNegociar(id){
   const pr=propostasJogador().find(x=>x.id===id);if(!pr)return;
-  const t=G.times[pr.clubeId];
-  pintarModal(`<div class="ovl"><div class="box mj-neg"><div class="eyebrow">Negociar · ${esc(t.nome)}</div>
-    <h2>${_TIPO_PROP[pr.tipo]}</h2>
-    <div class="mj-form">
-      <label>Salário por mês<input type="number" id="mjSal" value="${pr.salario}" step="100" min="100"></label>
-      <label>Anos<select id="mjAnos">${[1,2,3,4].map(a=>`<option ${a===pr.anos?'selected':''}>${a}</option>`).join('')}</select></label>
-      <label>Multa<select id="mjMulta">${Object.entries(_MULTA_ROT).map(([k,v])=>`<option value="${k}" ${k===pr.multa?'selected':''}>${v}</option>`).join('')}</select></label>
-      <label>Bônus por título<input type="number" id="mjBonus" value="${pr.bonusTitulo||0}" step="500" min="0"></label>
-      <label class="mj-chk"><input type="checkbox" id="mjTit" ${pr.titular?'checked':''}> Cláusula de titular</label>
+  const p=meuJogador(), t=G.times[pr.clubeId], origem=p.timeId&&pr.tipo!=='renovacao'?G.times[p.timeId]:null;
+  const emp=G.voce.empresario, chat=_mjChat[id]=_mjChat[id]||[{de:'clube',txt:`${moneyJ(pr.salario)}/mês por ${pr.anos} ano${pr.anos>1?'s':''}${pr.taxa?` (e ${moneyJ(pr.taxa)} ao seu clube)`:''}. É a nossa proposta.`}];
+  const cena=typeof cenaFoto==='function'?cenaFoto('cenas','sala-negociacao',t,{cls:'neg-fundo',foco:95,ansioso:true}):'';
+  const lado=(time,rot,extra)=>`<div class="neg-lado">${time?escudo(time,64):'<div class="neg-semclube">SEM<br>CLUBE</div>'}
+    <div class="eyebrow">${rot}</div><b>${time?esc(time.nome):'Agente livre'}</b>${extra||''}</div>`;
+  /* o seu último pedido continua no formulário (a recusa não apaga o que você digitou) */
+  const v=Object.assign({salario:pr.salario,anos:pr.anos,multa:pr.multa,bonusTitulo:pr.bonusTitulo||0,titular:!!pr.titular},pr.acordo?{}:(_mjPed[id]||{}));
+  const pac=Array.from({length:PACIENCIA_CLUBE},(_,i)=>`<i class="${i<pr.paciencia?'on':''}"></i>`).join('');
+  pintarModal(`<div class="ovl"><div class="box jx-neg">
+    <div class="neg-palco">${cena}
+      ${pr.tipo==='renovacao'?lado(t,'Renovar com',`<div class="dim neg-sub">hoje ${moneyJ(p.salario)}/mês</div>`):lado(origem,origem?'Você sai de':'Você está',origem?`<div class="dim neg-sub">contrato até ${p.contrato} ano${p.contrato>1?'s':''}</div>`:'<div class="dim neg-sub">sem taxa</div>')}
+      <div class="neg-centro">${cartaJogador(p,{w:140})}<div class="neg-perfil">${emp?`Empresário: <b>${esc(emp.nome)}</b>`:'Sem empresário'}</div></div>
+      <div class="neg-seta ${pr.acordo?'ok':''}"><span></span></div>
+      ${pr.tipo==='renovacao'?`<div class="neg-lado"><div class="eyebrow">Tipo</div><b>${_TIPO_PROP[pr.tipo]}</b></div>`:lado(t,'Proposta de',`<div class="dim neg-sub">${esc(nomeLiga(t))}</div>`)}
     </div>
-    <p class="dim">Multa baixa facilita a sua saída, e o clube cobra por isso; multa alta prende você, e o clube gosta. A cláusula de titular só sai para quem já ganhou a vaga. Bônus por título até dois salários. O clube tem ${pr.paciencia} rodada${pr.paciencia>1?'s':''} de paciência.</p>
+    <div class="jx-neg-corpo">
+      <div class="jx-neg-form">
+        <div class="eyebrow">Seu pedido · ${_TIPO_PROP[pr.tipo]}</div>
+        <div class="jx-neg-linhas">
+          <label><span>Salário por mês</span><input type="number" id="mjSal" value="${v.salario}" step="100" min="100"><i class="dim">oferta ${moneyJ(pr.salario)}</i></label>
+          <label><span>Anos</span><select id="mjAnos">${[1,2,3,4].map(a=>`<option ${a===v.anos?'selected':''}>${a}</option>`).join('')}</select><i class="dim">oferta ${pr.anos}</i></label>
+          <label><span>Multa rescisória</span><select id="mjMulta">${Object.entries(_MULTA_ROT).map(([k,r])=>`<option value="${k}" ${k===v.multa?'selected':''}>${r}</option>`).join('')}</select><i class="dim">baixa facilita sair</i></label>
+          <label><span>Bônus por título</span><input type="number" id="mjBonus" value="${v.bonusTitulo||0}" step="500" min="0"><i class="dim">até 2 salários</i></label>
+          <label class="mj-chk"><input type="checkbox" id="mjTit" ${v.titular?'checked':''}> <span>Cláusula de titular</span><i class="dim">só para quem já ganhou a vaga</i></label>
+        </div>
+      </div>
+      <div class="jx-neg-lado">
+        <div class="jx-neg-pac"><span>Paciência do clube</span><div>${pac}</div></div>
+        ${emp?`<div class="jx-neg-term"><span>O que ${esc(emp.nome.split(' ')[0])} lê na mesa</span><div class="jx-neg-barra"><i class="ok"></i><i class="meio"></i><i class="alto"></i><b id="mjMarca"></b></div><em id="mjLeitura" class="dim"></em></div>`
+          :`<div class="jx-neg-term vazio"><span>Sem empresário você negocia no escuro.</span><em class="dim">Com um, ele mostra até onde dá para puxar (Contrato e mercado).</em></div>`}
+        <div class="neg-chat" id="mjChat">${chat.map(h=>`<div class="neg-msg m-${h.de}">${h.de==='voce'?'<span class="neg-quem">Você</span>':`<span class="neg-quem">${esc(t.tag)}</span>`}${esc(h.txt)}</div>`).join('')}</div>
+      </div>
+    </div>
     <p id="mjResp" class="mj-resp"></p>
-    <div class="dj-acoes"><button class="btn ghost" id="mjFechar">Fechar</button><button class="btn" id="mjEnviar">Enviar o pedido</button></div></div></div>`);
+    <div class="dj-acoes"><button class="btn ghost" id="mjFechar">Fechar</button><button class="btn" id="mjEnviar">${pr.acordo?'Assinar':'Enviar o pedido'}</button></div></div></div>`);
+  const ped=()=>({salario:+$('#mjSal').value,anos:+$('#mjAnos').value,multa:$('#mjMulta').value,bonusTitulo:+$('#mjBonus').value,titular:$('#mjTit').checked});
+  const ler=()=>{
+    const mk=$('#mjMarca');if(!mk||typeof tetoDoClube!=='function')return;
+    /* o empresário lê com a margem do nível dele: o bom erra pouco */
+    const r=_custoPedido(pr,ped())/Math.max(1,tetoDoClube(pr)), erro=(5-Math.min(5,emp.nivel||1))*0.03;
+    const pos=clamp((r-0.75)/0.6,0,1);
+    mk.style.left=(pos*100).toFixed(1)+'%';
+    $('#mjLeitura').textContent=r<=1-erro?'Eles devem topar.':r<=1.15?'No limite: vem contraproposta.':'Alto demais: pode irritar.';
+  };
+  document.querySelectorAll('#mjSal,#mjAnos,#mjMulta,#mjBonus,#mjTit').forEach(el=>{el.oninput=ler;el.onchange=ler;});ler();
+  const ch=$('#mjChat');if(ch)ch.scrollTop=ch.scrollHeight;
   $('#mjFechar').onclick=()=>{$('#modal').innerHTML='';render();};
+  const assinar=()=>{const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);delete _mjChat[id];$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
   $('#mjEnviar').onclick=()=>{
-    const r=negociarProposta(id,{salario:+$('#mjSal').value,anos:+$('#mjAnos').value,multa:$('#mjMulta').value,bonusTitulo:+$('#mjBonus').value,titular:$('#mjTit').checked});
-    const resp=$('#mjResp');resp.textContent=r.ok?r.msg:r.motivo;resp.className='mj-resp '+(r.fim==='acordo'?'up':r.fim==='retirada'?'dn':'');
-    if(r.fim==='acordo'||r.fim==='retirada'){
-      $('#mjEnviar').textContent=r.fim==='acordo'?'Assinar':'Ok';
-      $('#mjEnviar').onclick=()=>{if(r.fim==='acordo'){const a=aceitarPropostaJogador(id);flash(a.ok?a.msg:a.motivo);}$('#modal').innerHTML='';render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
-    }else if(r.fim==='contra'){const pr2=propostasJogador().find(x=>x.id===id);if(pr2)$('#mjSal').value=pr2.salario;}
+    if(pr.acordo){assinar();return;}
+    const q=ped();_mjPed[id]=q;
+    chat.push({de:'voce',txt:`Peço ${moneyJ(q.salario)}/mês por ${q.anos} ano${q.anos>1?'s':''}, multa ${String(_MULTA_ROT[q.multa]||q.multa).toLowerCase()}${q.bonusTitulo?`, ${moneyJ(q.bonusTitulo)} por título`:''}${q.titular?' e cláusula de titular':''}.`});
+    const r=negociarProposta(id,q);
+    chat.push({de:'clube',txt:r.ok?r.msg:r.motivo});
+    if(r.fim==='retirada'){delete _mjChat[id];pintarModal(`<div class="ovl"><div class="box sj-res"><div class="eyebrow">Negociação · ${esc(t.nome)}</div><h2 class="dn">${esc(r.msg)}</h2><div class="dj-acoes"><button class="btn" id="mjOk">Ok</button></div></div></div>`);$('#mjOk').onclick=()=>{$('#modal').innerHTML='';render();};return;}
+    modalNegociar(id);
+    if(r.fim==='acordo'){const resp=$('#mjResp');if(resp){resp.textContent='Acordo fechado. É só assinar.';resp.className='mj-resp up';}}
   };
 }
 function jogarTeste(id){
@@ -45932,17 +46418,28 @@ function vJFinancas(){
   const cx=caixaJogador(), renda=rendaMensal(), gasto=gastoMensal(), s=setupJogador(), st=staffPessoal(), ev=estiloVida();
   const ext=(G.voce.extrato||[]).slice(0,16);
   const num=(r,v,cls)=>`<div><b class="num ${cls||''}">${v}</b><span>${r}</span></div>`;
-  return `<section class="card sj-topo"><div class="eyebrow">Finanças pessoais</div>
+  /* o patrimônio semana a semana, de trás para frente pelo extrato */
+  const todos=(G.voce.extrato||[]).slice(0,40);let saldo=cx;const serie=[cx];
+  for(const x of todos){saldo-=x.valor;serie.push(saldo);}serie.reverse();
+  const W=520,H=120,mn=Math.min(0,...serie),mx=Math.max(1,...serie);
+  const X=i=>(i/Math.max(1,serie.length-1)*W).toFixed(1),Y=v=>(H-6-(v-mn)/(mx-mn||1)*(H-16)).toFixed(1);
+  const linha=serie.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+  const graf=serie.length>1?`<svg class="jx-graf" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="jxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18E5B4" stop-opacity=".35"/><stop offset="1" stop-color="#18E5B4" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="0,${H} ${linha} ${W},${H}" fill="url(#jxg)"/><polyline points="${linha}" fill="none" stroke="#18E5B4" stroke-width="2"/>${mn<0?`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(255,70,85,.5)" stroke-dasharray="4 4"/>`:''}</svg>`:'';
+  const FOTO_STAFF={personal:'academia',psicologo:'mente',fisio:'saude'};
+  const fotoP=k=>typeof cenaFoto==='function'?cenaFoto('estrutura',k,clubeDoJogador(),{foco:40}):'';
+  return `<section class="card sj-topo jx-fin"><div class="split"><div class="eyebrow">Finanças pessoais</div><span class="dim">patrimônio nas últimas ${Math.max(0,serie.length-1)} semanas</span></div>
+      ${graf}
       <div class="jg-st mj-fin">${num('patrimônio',moneyJ(cx),cx<0?'dn':'')}${num('salário por mês',moneyJ(renda))}${num('gastos por mês',moneyJ(gasto))}${num('sobra por mês',moneyJ(renda-gasto),renda-gasto<0?'dn':'up')}${num('patrocínios por mês',moneyJ(typeof patrociniosMensais==='function'?patrociniosMensais():0))}</div>
       <p class="dim">Entram salário, a sua parte dos prêmios do clube (titular leva o dobro de quem está no banco), bônus por título e lives. Saem comissão do empresário, staff pessoal, estilo de vida e o setup. No vermelho, o staff vai embora e o padrão de vida desce.</p></section>
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Setup</div>
+      <div class="card jx-setup"><span class="jx-setup-f com-cena">${fotoP('equip')}</span><div class="eyebrow">Setup</div>
         ${SETUP_ITENS.map(it=>{const n=s[it.id]||0, prox=it.niveis[n];
           return `<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${n?esc(it.niveis[n-1].txt):'o básico'}</span><p class="dim">${esc(it.desc)} Nível ${n}/${it.niveis.length}.</p></div>
             ${prox?`<button class="btn sm" data-mjsetup="${it.id}">${esc(prox.txt)} · ${moneyJ(prox.preco)}</button>`:'<span class="chip up">no topo</span>'}</div>`;}).join('')}
       </div>
       <div class="card"><div class="eyebrow">Staff pessoal</div>
-        ${STAFF_PESSOAL.map(it=>`<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${moneyJ(it.mes)}/mês</span><p class="dim">${esc(it.desc)}</p></div>
+        ${STAFF_PESSOAL.map(it=>`<div class="mj-item jx-staff ${st[it.id]?'on':''}"><span class="jx-staff-f com-cena">${fotoP(FOTO_STAFF[it.id])}</span><div><b>${esc(it.nome)}</b> <span class="dim">${moneyJ(it.mes)}/mês</span><p class="dim">${esc(it.desc)}</p></div>
           <button class="btn ${st[it.id]?'ghost':''} sm" data-mjstaff="${it.id}">${st[it.id]?'Dispensar':'Contratar'}</button></div>`).join('')}
         <div class="eyebrow" style="margin-top:14px">Estilo de vida</div>
         <div class="dj-modos">${ESTILOS_VIDA.map(e=>`<button class="nj-papel ${ev.id===e.id?'on':''}" data-mjvida="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span><i>${moneyJ(e.mes)}/mês</i></button>`).join('')}</div>
@@ -45976,62 +46473,111 @@ function ligarMercadoJogador(v,on){
    ============================================================ */
 const _TOM_ROT={humilde:'Humilde',confiante:'Confiante',provocador:'Provocador'};
 const _TOM_DICA={humilde:'Pouco alcance; imagem, técnico, colegas e torcida gostam.',confiante:'Alcance médio, sem efeito colateral.',provocador:'Muito alcance; a imagem cai e o técnico não gosta. Depois de derrota ou polêmica, vira polêmica.'};
+function _mdEstrelas(n){return `<span class="md-est" title="nível ${n||1} de 5">${[1,2,3,4,5].map(i=>`<i class="${i<=(n||1)?'on':''}"></i>`).join('')}</span>`;}
 function vJMidia(){
   const p=meuJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
-  const seg=seguidores(), f=famaJogador(), img=imagemJogador();
+  const seg=seguidores(), f=famaJogador(), img=imagemJogador(), t=clubeDoJogador();
   const post=G.voce.post, ent=G.voce.entrevista, pat=patrociniosJogador(), of=ofertasPatrocinio();
   const log=(G.voce.famaLog||[]).slice(0,6);
-  const manchetes=(G.noticias||[]).filter(n=>(n.p||[]).includes(p.id)).slice(0,10);
-  const num=(r,v,cls)=>`<div><b class="num ${cls||''}">${v}</b><span>${r}</span></div>`;
-  const marca=id=>(G.marcas&&G.marcas[id])||{nome:id,nivel:1,setor:''};
-  return `<section class="card sj-topo"><div class="eyebrow">Fama e mídia</div>
-      <div class="jg-st mj-fin">${num('seguidores',fmtSeg(seg))}${num('fama · '+rotuloFama(f),f)}${num('imagem · '+rotuloImagem(img),Math.round(img),img<-15?'dn':img>=15?'up':'')}${num('patrocínios',pat.length+'/'+PATROCINIOS_MAX)}${num('patrocínio por mês',moneyJ(patrociniosMensais()))}</div>
-      <div class="md-barras"><div><span>Fama</span>${_barraPct(f,f>=45?'up':'')}</div><div><span>Imagem</span>${_barraPct((img+100)/2,img<-15?'dn':img>=15?'up':'')}</div></div>
-      <p class="dim">A fama mede os seus seguidores: partidas boas, jogadas grandes, títulos, lives e ranked fazem crescer; fase ruim e sumiço derrubam. Ela traz propostas, empresário melhor e patrocínio. A imagem é como o público te vê: patrocinador grande quer imagem limpa.</p></section>
-    <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Redes</div>
-        ${post?`<p><b>${esc(POSTS[post.ctx].rot)}</b>: o que você posta?</p>
-          <div class="md-posts">${Object.keys(POST_EF).map(t=>`<button class="md-post ${t}" data-mdpost="${t}" title="${esc(_TOM_DICA[t])}"><b>${_TOM_ROT[t]}</b><span>“${esc(POSTS[post.ctx].tons[t])}”</span><i>${esc(_TOM_DICA[t])}</i></button>`).join('')}</div>
-          <button class="btn ghost sm" data-mdpost="nada">Não postar</button>`
-          :vazio('<b>Nada para postar agora.</b> Depois de vitória, derrota, jogada grande, título ou polêmica, o post aparece aqui.','jornal')}
-        ${log.length?`<div class="rl-log">${log.map(l=>`<div><span class="dim">${l.ano} · sem ${l.semana}</span> ${esc(l.txt)} <b class="${l.d>=0?'up':'dn'}">${l.d>=0?'+':''}${fmtSeg(l.d)}</b></div>`).join('')}</div>`:''}
+  const manchetes=(G.noticias||[]).filter(n=>(n.p||[]).includes(p.id)).slice(0,8);
+  const marca=id=>(G.marcas&&G.marcas[id])||{id,nome:id,nivel:1,setor:''};
+  const cor=t?corDoClube(t):'#5a6b7d';
+  const foto=typeof cenaFoto==='function'?cenaFoto('cenas','ativ-stream',t,{cls:'cn-direita',foco:'placa'}):'';
+  const meses=x=>Math.max(0,Math.ceil((x.ate-semAbs())/SEMANAS_ANO*12));
+  const contrato=x=>{const m=marca(x.marca),multa=multaPatrocinio(x);return `<article class="md-pat2 on">
+      <div class="md-pat-logo">${logoMarca(m,150)}</div>
+      <div class="md-pat-t"><b>${esc(m.nome)}</b><span>${esc(m.setor||'')} ${_mdEstrelas(m.nivel)}</span></div>
+      <div class="md-pat-v"><b class="num">${moneyJ(x.mes)}</b><span>por mês · ${meses(x)} ${meses(x)===1?'mês':'meses'} de contrato</span></div>
+      <button class="btn ghost sm" data-mdromper="${esc(x.marca)}" title="Dois meses do valor do contrato. A marca não volta a procurar você por um ano.">Romper · multa ${moneyJ(multa)}</button></article>`;};
+  const oferta=o=>{const m=marca(o.marca),e=exigenciaMarca(m),tr=trocaDoPatrocinio(o)||{};
+    const sai=tr.mesmoSetor?marca(tr.mesmoSetor.marca):null, ganho=tr.mesmoSetor?o.mes-tr.mesmoSetor.mes:o.mes;
+    return `<article class="md-pat2 oferta">
+      <span class="md-pat-novo">oferta · vale ${Math.max(1,o.validoAte-semAbs())} semana${o.validoAte-semAbs()>1?'s':''}</span>
+      <div class="md-pat-logo">${logoMarca(m,150)}</div>
+      <div class="md-pat-t"><b>${esc(m.nome)}</b><span>${esc(m.setor||'')} ${_mdEstrelas(m.nivel)}</span><span class="dim">pede fama ${e.fama} e imagem ${e.imagem}</span></div>
+      <div class="md-pat-v"><b class="num">${moneyJ(o.mes)}</b><span>por mês · ${o.anos} ano${o.anos>1?'s':''}</span>
+        ${sai?`<span class="${ganho>=0?'up':'dn'}">${ganho>=0?'+':''}${moneyJ(ganho)}/mês sobre a ${esc(sai.nome)}</span>`:''}</div>
+      ${sai?`<p class="md-pat-troca">Mesmo setor da <b>${esc(sai.nome)}</b>: aceitar rompe o contrato dela (multa ${moneyJ(multaPatrocinio(tr.mesmoSetor))}).</p>`:''}
+      ${tr.cheio?`<label class="md-pat-troca">As ${PATROCINIOS_MAX} vagas estão cheias. Romper: <select id="mdTroca-${o.id}">${pat.map(x=>{const mx=marca(x.marca);return `<option value="${esc(x.marca)}">${esc(mx.nome)} · ${moneyJ(x.mes)}/mês · multa ${moneyJ(multaPatrocinio(x))}</option>`;}).join('')}</select></label>`:''}
+      <div class="md-pat-b"><button class="btn sm" data-mdpat="${o.id}">${sai||tr.cheio?'Trocar e assinar':'Assinar'}</button><button class="btn ghost sm" data-mdpatno="${o.id}">Recusar</button></div></article>`;};
+  return `<section class="jx-hero md-hero ${foto?'com-cena':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">${foto}
+    <div class="jx-hero-in md-hero-in">
+      <div class="md-foto">${retrato(p,112)}</div>
+      <div class="jx-hero-t"><div class="eyebrow">Fama e mídia</div>
+        <h2><span class="num" data-conta-seg>${fmtSeg(seg)}</span> <small>seguidores</small></h2>
+        <div class="md-medidores">${_rlAnel(f,70,f>=45?'up':'')}<div><b>Fama · ${esc(rotuloFama(f))}</b><span class="dim">traz propostas, empresário e marcas</span></div>
+          ${_rlAnel((img+100)/2,70,img<-15?'dn':img>=15?'up':'')}<div><b>Imagem · ${esc(rotuloImagem(img))} (${Math.round(img)})</b><span class="dim">marca grande quer imagem limpa</span></div></div>
       </div>
-      <div class="card"><div class="eyebrow">Entrevista</div>
-        ${ent?`<p><b>${esc(ENTREVISTAS[ent.ctx].rot)}</b>: a imprensa quer falar com você.</p>
-          <div class="rl-ops"><button class="btn sm" data-mdent="abrir">Atender</button><button class="btn ghost sm" data-mdent="recusar">Recusar</button></div>
-          <p class="dim">Duas perguntas, três respostas cada: a madura melhora a imagem e o técnico gosta; a atravessada dá alcance e vira manchete.</p>`
-          :vazio('<b>Ninguém pediu entrevista.</b> Semana de destaque, sequência de derrotas, fase ruim, título e rumor de mercado trazem a imprensa.','info')}
-      </div></div>
-    <div class="card"><div class="eyebrow">Patrocínio pessoal</div>
-      ${pat.length?`<div class="md-pats">${pat.map(x=>{const m=marca(x.marca);return `<div class="md-pat on"><b>${esc(m.nome)}</b><span>${esc(m.setor||'')} · nível ${m.nivel}</span><span>${moneyJ(x.mes)}/mês · até ${Math.ceil((x.ate-semAbs())/SEMANAS_ANO*12)} meses</span></div>`;}).join('')}</div>`:''}
-      ${of.length?`<div class="md-pats">${of.map(o=>{const m=marca(o.marca),e=exigenciaMarca(m);return `<div class="md-pat"><b>${esc(m.nome)}</b><span>${esc(m.setor||'')} · nível ${m.nivel}</span>
-        <span>${moneyJ(o.mes)}/mês por ${o.anos} ano${o.anos>1?'s':''}</span><span class="dim">pede fama ${e.fama} e imagem ${e.imagem}</span>
-        <div class="rl-ops"><button class="btn sm" data-mdpat="${o.id}">Aceitar</button><button class="btn ghost sm" data-mdpatno="${o.id}">Recusar</button></div></div>`;}).join('')}</div>`:''}
-      ${!pat.length&&!of.length?vazio(`<b>Nenhuma marca por enquanto.</b> As marcas locais olham a partir de fama ${exigenciaMarca({nivel:1}).fama}; as globais, de ${exigenciaMarca({nivel:5}).fama}. Você está em ${f}.`,'dinheiro'):''}
-      <p class="dim">Até ${PATROCINIOS_MAX} marcas, uma por setor. Se a imagem despencar abaixo do que a marca aceita, ela rompe.</p></div>
-    <div class="card"><div class="eyebrow">O que dizem de você</div>
-      ${manchetes.length?`<div class="feed">${manchetes.map(x=>`<div><span class="dim">${x.ano} · sem ${x.s}</span> ${typeof iconizar==='function'?iconizar(esc(x.txt)):esc(x.txt)}</div>`).join('')}</div>`:vazio('<b>Silêncio na imprensa.</b>','jornal')}</div>`;
+      <div class="md-hero-pat"><span>patrocínio por mês</span><b class="num">${moneyJ(patrociniosMensais())}</b>
+        <div class="md-logos">${pat.map(x=>logoMarca(marca(x.marca),74)).join('')||'<i class="dim">nenhuma marca ainda</i>'}</div></div>
+    </div></section>
+  <div class="grid g2 cx-linha">
+    <section class="card md-redes"><div class="eyebrow">Redes</div>
+      ${post?`<p><b>${esc(POSTS[post.ctx].rot)}</b> — o que você posta?</p>
+        <div class="md-posts2">${Object.keys(POST_EF).map(k=>`<button class="md-post2 ${k}" data-mdpost="${k}"><span class="md-post-av">${retrato(p,36)}<b>${esc(p.nome)}</b><i>@${esc(String(p.nome).toLowerCase())}</i></span>
+          <span class="md-post-txt">“${esc(POSTS[post.ctx].tons[k])}”</span><span class="md-post-tom">${_TOM_ROT[k]} · ${esc(_TOM_DICA[k])}</span></button>`).join('')}</div>
+        <button class="btn ghost sm" data-mdpost="nada">Não postar</button>`
+        :vazio('<b>Nada para postar agora.</b> Depois de vitória, derrota, jogada grande, título ou polêmica, o post aparece aqui.','jornal')}
+      ${log.length?`<div class="rl-log">${log.map(l=>`<div><span class="dim">${l.ano} · sem ${l.semana}</span> ${esc(l.txt)} <b class="${l.d>=0?'up':'dn'}">${l.d>=0?'+':''}${fmtSeg(l.d)}</b></div>`).join('')}</div>`:''}
+    </section>
+    <section class="card md-ent2 ${ent?'tem':''}">${typeof cenaFoto==='function'&&ent?cenaFoto('cenas','palco-premios',t,{foco:30}):''}
+      <div class="md-ent2-in"><div class="eyebrow">Entrevista</div>
+      ${ent?`<h3>${esc(ENTREVISTAS[ent.ctx].rot)}</h3><p>A imprensa quer falar com você. Duas perguntas na sala de imprensa, com 15 segundos para responder: a resposta madura melhora a imagem e o técnico gosta; a atravessada dá alcance e vira manchete.</p>
+        <div class="rl-acoes3"><button class="btn" data-mdent="abrir">${ico('microfone')} Ir à sala de imprensa</button><button class="btn ghost sm" data-mdent="recusar">Recusar</button></div>`
+        :vazio('<b>Ninguém pediu entrevista.</b> Semana de destaque, sequência de derrotas, fase ruim, título e rumor de mercado trazem a imprensa.','info')}</div>
+    </section></div>
+  <section class="card"><div class="split"><div class="eyebrow">Patrocínio pessoal · ${pat.length}/${PATROCINIOS_MAX}</div><span class="dim">Uma marca por setor. Romper custa dois meses do contrato.</span></div>
+    ${pat.length?`<div class="md-pats2">${pat.map(contrato).join('')}</div>`:''}
+    ${of.length?`<div class="eyebrow" style="margin-top:14px">Ofertas</div><div class="md-pats2">${of.map(oferta).join('')}</div>`:''}
+    ${!pat.length&&!of.length?vazio(`<b>Nenhuma marca por enquanto.</b> As marcas locais olham a partir de fama ${exigenciaMarca({nivel:1}).fama}; as globais, de ${exigenciaMarca({nivel:5}).fama}. Você está em ${f}.`,'dinheiro'):''}
+    <p class="dim">Marca melhor do mesmo setor chega como oferta de troca. Se a imagem despencar abaixo do que a marca aceita, ela rompe sozinha.</p></section>
+  <section class="card"><div class="eyebrow">O que dizem de você</div>
+    ${manchetes.length?`<div class="md-feed">${manchetes.map(x=>`<div class="md-feed-i">${typeof avatarImprensa==='function'&&typeof autorDaNoticia==='function'&&autorDaNoticia(x)?avatarImprensa(autorDaNoticia(x),30):''}<div><span class="dim">${x.ano} · sem ${x.s}</span><p>${typeof iconizar==='function'?iconizar(esc(x.txt)):esc(x.txt)}</p></div></div>`).join('')}</div>`:vazio('<b>Silêncio na imprensa.</b>','jornal')}</section>`;
 }
+/* a entrevista na sala de imprensa da coletiva, na visão do jogador */
 function modalEntrevista(){
   const E=perguntasEntrevista();if(!E)return;
-  const ks=[];let i=0;
-  const pinta=()=>{
-    const q=E.perguntas[i];
-    pintarModal(`<div class="ovl"><div class="box md-ent"><div class="eyebrow">Entrevista · ${esc(E.rot)} · pergunta ${i+1} de ${E.perguntas.length}</div>
-      <h2 class="rl-fala">“${esc(q.p)}”</h2>
-      <div class="md-rs">${q.rs.map(r=>`<button class="col-r" data-mdr="${r.k}"><span>${esc(r.txt)}</span></button>`).join('')}</div></div></div>`);
-    document.querySelectorAll('[data-mdr]').forEach(b=>b.onclick=()=>{ks.push(+b.dataset.mdr);i++;
-      if(i<E.perguntas.length)pinta();
-      else{const r=responderEntrevista(ks);if(typeof modalConversaJogador==='function')modalConversaJogador('Entrevista',r.ok?r.msg:r.motivo);else{$('#modal').innerHTML='';render();}}});
-  };
-  pinta();
+  const p=meuJogador(), t=clubeDoJogador();
+  const jor=(typeof jornalistasDaRegiao==='function'&&t?jornalistasDaRegiao(t.regiao,typeof paisDoClube==='function'?paisDoClube(t):null).slice(0,6):[])
+    .map(j=>{const v=veiculo(j.veiculo);return [j.nome,v.nome,v.cor];});
+  const imp=jor.length>=2?jor:(typeof COL_IMPRENSA!=='undefined'?COL_IMPRENSA:[['Imprensa','',' #FF4655']]);
+  const VAL=[1,0.4,0];
+  const dados={t:t||null,foto:(typeof Imgs!=='undefined'&&Imgs.get('foto:'+ASSETS.slug(p.nome)))||p.foto||(typeof Rostos!=='undefined'&&Rostos.caminho(p))||(typeof ASSETS.foto==='function'?ASSETS.foto(p):null),placa:p.nome+' · '+(p.roleAtual||p.role),
+    marcas:patrociniosJogador().map(x=>G.marcas&&G.marcas[x.marca]).filter(Boolean),
+    perguntas:E.perguntas.map((q,i)=>({p:q.p,j:imp[i%imp.length],rs:q.rs.map(r=>({txt:r.txt,v:VAL[r.k],k:r.k}))}))};
+  if(typeof abrirMinigame!=='function'||typeof jogarColetiva!=='function')return;
+  abrirMinigame({
+    id:'entrevista',titulo:'Entrevista',eyebrow:'Sala de imprensa · '+E.rot,
+    desc:`${E.perguntas.length} perguntas, 15 segundos cada. A resposta madura melhora a imagem e o técnico gosta; a morna passa batida; a atravessada dá alcance, derruba a imagem e vira manchete.`,
+    controles:['1','2','3','Mouse'],
+    fundo:()=>typeof cenaFoto==='function'?cenaFoto('cenas','palco-premios',t,{cls:'cn-direita',foco:30,ansioso:true}):'',
+    arte:()=>'',
+    vale:()=>!!G.voce.entrevista,
+    efeitoTxt:()=>'Vale de uma vez: imagem, seguidores e a confiança do técnico.',
+    efeitoFeito:res=>esc(res.msgEnt||''),
+    rotuloComissao:'Recusar a entrevista',msgComissao:'Você recusou a entrevista.',
+    comissao:()=>{recusarEntrevista();render();},
+    dica:()=>'Clique na resposta ou use as teclas 1 a 3.',
+    registrar:(res,vale)=>{
+      if(vale&&G.voce.entrevista){const ks=(res.vals||[]).map(x=>x.v>=1?0:x.v>=0.4||!x.txt?1:2);
+        while(ks.length<E.perguntas.length)ks.push(1);
+        const r=responderEntrevista(ks);res.msgEnt=r.ok?r.msg:r.motivo;}
+      return typeof registrarRecordeMini==='function'?registrarRecordeMini('entrevista',res.pts,res.nota):null;
+    },
+    jogar:(c,fim)=>jogarColetiva(c,fim,dados)
+  });
 }
 function ligarMidia(v,on){
   on('[data-mdpost]',el=>{const t=el.dataset.mdpost;if(t==='nada'){G.voce.post=null;render();return;}const r=postarNasRedes(t);flash(r.ok?r.msg:r.motivo);render();});
   on('[data-mdent]',el=>{if(el.dataset.mdent==='abrir')modalEntrevista();else{const r=recusarEntrevista();flash(r.ok?r.msg:r.motivo);render();}});
-  on('[data-mdpat]',el=>{const r=aceitarPatrocinio(el.dataset.mdpat);flash(r.ok?r.msg:r.motivo);render();});
+  on('[data-mdpat]',el=>{const id=el.dataset.mdpat,sel=v.querySelector('#mdTroca-'+id);const r=aceitarPatrocinio(id,sel?sel.value:null);flash(r.ok?r.msg:r.motivo);render();});
   on('[data-mdpatno]',el=>{const r=recusarPatrocinio(el.dataset.mdpatno);flash(r.msg);render();});
+  on('[data-mdromper]',async el=>{
+    const x=patrociniosJogador().find(c=>c.marca===el.dataset.mdromper);if(!x)return;
+    const m=G.marcas[x.marca];
+    if(typeof confirmar==='function'&&!await confirmar(`Romper com a ${m?m.nome:x.marca}? A multa é de ${moneyJ(multaPatrocinio(x))} e a marca não volta a procurar você por um ano.`,'Romper'))return;
+    const r=romperPatrocinio(x.marca);flash(r.ok?r.msg:r.motivo);render();});
 }
 /* cartão da Central: o que a mídia pede de você */
 function _jCardMidia(p){
@@ -46041,7 +46587,8 @@ function _jCardMidia(p){
   if(G.voce.entrevista)itens.push('um pedido de entrevista');
   if(ofertasPatrocinio().length)itens.push(ofertasPatrocinio().length+' oferta'+(ofertasPatrocinio().length>1?'s':'')+' de patrocínio');
   if(!itens.length)return '';
-  return `<div class="card rl-ev"><div class="split"><div class="eyebrow">Mídia · ${fmtSeg(seguidores())} seguidores</div><button class="btn sm" data-ir="midia">Abrir ›</button></div><p>Você tem ${itens.join(', ')}.</p></div>`;
+  const logos=(typeof logoMarca==='function'?ofertasPatrocinio().map(o=>G.marcas[o.marca]).filter(Boolean).map(m=>`<span class="md-mini" title="${m.nome}">${logoMarca(m,48)}</span>`).join(''):'');
+  return `<div class="card rl-ev"><div class="split"><div class="eyebrow">Mídia · ${fmtSeg(seguidores())} seguidores</div><button class="btn sm" data-ir="midia">Abrir ›</button></div><div class="md-cen"><p>Você tem ${itens.join(', ')}.</p>${logos?`<div class="md-cen-l">${logos}</div>`:''}</div></div>`;
 }
 
 

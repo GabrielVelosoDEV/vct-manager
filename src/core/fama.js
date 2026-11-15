@@ -255,13 +255,17 @@ function _marcasPossiveis(p){
   if(!G.marcas)return[];
   const pais=p.pais, reg=p.timeId?G.times[p.timeId].regiao:(typeof regiaoDoPaisMarca==='function'?regiaoDoPaisMarca(pais):null);
   const ja=new Set([...patrociniosJogador().map(x=>x.marca),...ofertasPatrocinio().map(x=>x.marca)]);
-  const setores=new Set(patrociniosJogador().map(x=>(G.marcas[x.marca]||{}).setor));
-  return Object.values(G.marcas).filter(m=>!ja.has(m.id)&&!setores.has(m.setor)&&
+  /* setor ocupado: só entra marca maior que a que você tem nele (é a troca) */
+  const nivelNoSetor={};for(const x of patrociniosJogador()){const m=G.marcas[x.marca];if(m)nivelNoSetor[m.setor]=Math.max(nivelNoSetor[m.setor]||0,m.nivel||1);}
+  const rompidas=(G.voce&&G.voce.rompidas)||{};
+  return Object.values(G.marcas).filter(m=>!ja.has(m.id)&&!(m.setor in nivelNoSetor&&(m.nivel||1)<=nivelNoSetor[m.setor])&&
+    !(rompidas[m.id]&&_sAbsF()-rompidas[m.id]<SEMANAS_ANO)&&
     (m.regiao==='GLOBAL'||(reg&&m.regiao===reg))&&(!m.paises||!m.paises.length||m.paises.includes(pais)))
     .filter(m=>{const e=exigenciaMarca(m);return famaJogador()>=e.fama&&imagemJogador()>=e.imagem;});
 }
 function gerarPatrocinios(p){
-  if(patrociniosJogador().length+ofertasPatrocinio().length>=PATROCINIOS_MAX+1)return;
+  /* com as três vagas cheias ainda chega oferta: a marca melhor é motivo para romper uma */
+  if(ofertasPatrocinio().length>=2)return;
   const f=famaJogador();
   if(_sorteFama('patroc')>0.04+f*0.0035)return;
   const lista=_marcasPossiveis(p).sort((a,b)=>(b.nivel-a.nivel)||(_sorteFama('m'+a.id)-_sorteFama('m'+b.id)));
@@ -270,16 +274,44 @@ function gerarPatrocinios(p){
   const m=lista[Math.min(lista.length-1,Math.floor(_sorteFama('qual')*3))];
   ofertasPatrocinio().push({id:'po'+_sAbsF()+m.id,marca:m.id,mes:valorMarca(m),anos:1+(_sorteFama('anosm')<0.4?1:0),validoAte:_sAbsF()+3});
 }
-function aceitarPatrocinio(id){
+/* Romper um contrato: a multa são dois meses do valor dele, e a marca
+   não volta a procurar você por um ano. */
+const PATROC_MULTA_MESES=2;
+function multaPatrocinio(x){return Math.max(1000,Math.round((x.mes||0)*PATROC_MULTA_MESES/100)*100);}
+function romperPatrocinio(marcaId,silencioso){
+  const x=patrociniosJogador().find(c=>c.marca===marcaId);
+  if(!x)return{ok:false,motivo:'Esse contrato não existe.'};
+  const m=G.marcas&&G.marcas[marcaId], multa=multaPatrocinio(x);
+  if(typeof caixaJogador==='function'&&caixaJogador()<multa)return{ok:false,motivo:`A multa é ${typeof moneyJ==='function'?moneyJ(multa):multa}; você tem ${typeof moneyJ==='function'?moneyJ(caixaJogador()):''}.`};
+  if(typeof lancar==='function')lancar(-multa,`Multa: rompeu com ${m?m.nome:marcaId}`,'patrocinio');
+  G.voce.patroc=patrociniosJogador().filter(c=>c!==x);
+  (G.voce.rompidas=G.voce.rompidas||{})[marcaId]=_sAbsF();
+  mexerImagem(-1);
+  const p=meuJogador();
+  if(!silencioso&&typeof noticia==='function'&&m)noticia(`✂️ ${p.nome} rompe o patrocínio com ${m.nome}.`,{c:'carreira',p:[p.id],imp:1});
+  return{ok:true,multa,msg:`Contrato com ${m?m.nome:marcaId} rompido. Multa de ${typeof moneyJ==='function'?moneyJ(multa):multa}.`};
+}
+/* o que aceitar esta oferta exige: o contrato do mesmo setor sai; com as
+   vagas cheias, um contrato escolhido sai */
+function trocaDoPatrocinio(o){
+  const m=G.marcas&&G.marcas[o.marca];if(!m)return null;
+  const mesmo=patrociniosJogador().find(x=>(G.marcas[x.marca]||{}).setor===m.setor);
+  return{mesmoSetor:mesmo||null,cheio:!mesmo&&patrociniosJogador().length>=PATROCINIOS_MAX};
+}
+function aceitarPatrocinio(id,trocar){
   const o=ofertasPatrocinio().find(x=>x.id===id);
   if(!o)return{ok:false,motivo:'Essa oferta não existe mais.'};
-  if(patrociniosJogador().length>=PATROCINIOS_MAX)return{ok:false,motivo:`No máximo ${PATROCINIOS_MAX} patrocinadores ao mesmo tempo.`};
+  const tr=trocaDoPatrocinio(o);
+  const sai=tr&&tr.mesmoSetor?tr.mesmoSetor.marca:tr&&tr.cheio?trocar:null;
+  if(tr&&tr.cheio&&!trocar)return{ok:false,motivo:`No máximo ${PATROCINIOS_MAX} patrocinadores: escolha qual contrato romper.`};
+  if(sai){const r=romperPatrocinio(sai,true);if(!r.ok)return r;}
   const m=G.marcas[o.marca];
   patrociniosJogador().push({marca:o.marca,mes:o.mes,ate:_sAbsF()+o.anos*SEMANAS_ANO,desde:_sAbsF()});
   G.voce.ofertasPatroc=ofertasPatrocinio().filter(x=>x!==o);
   const p=meuJogador();
-  if(typeof noticia==='function')noticia(`🤝 ${m.nome} fecha patrocínio pessoal com ${p.nome}.`,{c:'carreira',p:[p.id],imp:1});
-  return{ok:true,msg:`${m.nome}: ${typeof moneyJ==='function'?moneyJ(o.mes):o.mes}/mês por ${o.anos} ano${o.anos>1?'s':''}.`};
+  const saiu=sai&&G.marcas[sai];
+  if(typeof noticia==='function')noticia(saiu?`🤝 ${p.nome} troca a ${saiu.nome} pela ${m.nome} no patrocínio pessoal.`:`🤝 ${m.nome} fecha patrocínio pessoal com ${p.nome}.`,{c:'carreira',p:[p.id],imp:1});
+  return{ok:true,msg:`${saiu?`Saiu a ${saiu.nome}. `:''}${m.nome}: ${typeof moneyJ==='function'?moneyJ(o.mes):o.mes}/mês por ${o.anos} ano${o.anos>1?'s':''}.`};
 }
 function recusarPatrocinio(id){G.voce.ofertasPatroc=ofertasPatrocinio().filter(x=>x.id!==id);return{ok:true,msg:'Oferta recusada.'};}
 function patrociniosMensais(){return patrociniosJogador().reduce((s,x)=>s+x.mes,0);}
@@ -304,5 +336,5 @@ function pagarPatrocinios(p){
 function assistenteDePatrocinio(){
   if(!G.voce||G.voce.autoContrato!==true)return;
   const o=ofertasPatrocinio().filter(x=>_sAbsF()-(x.validoAte-3)>=2).sort((a,b)=>b.mes-a.mes)[0];
-  if(o&&patrociniosJogador().length<PATROCINIOS_MAX)aceitarPatrocinio(o.id);
+  if(o){const tr=trocaDoPatrocinio(o);if(tr&&!tr.mesmoSetor&&!tr.cheio)aceitarPatrocinio(o.id);}
 }
