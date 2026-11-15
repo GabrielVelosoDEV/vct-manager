@@ -53,6 +53,10 @@ function aplicarTurno(r){
   if(!r)return;
   if(typeof relogioTocar==='function')relogioTocar();
   if(typeof conferirCelebracao==='function')conferirCelebracao();
+  /* modo Dono: fim da linha, conselho e avisos de caixa (ui/empresa.js) */
+  if(G&&G.fimDonoPendente&&typeof modalFimDono==='function'){const f=G.fimDonoPendente;G.fimDonoPendente=null;modalFimDono(f);}
+  else if(G&&G.conselhoPendente&&!$('#modal').innerHTML&&typeof modalConselho==='function'){const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r);}
+  else if(G&&G.avisoEmpresaPendente&&!$('#modal').innerHTML&&typeof modalAvisoEmpresa==='function'){const a=G.avisoEmpresaPendente;G.avisoEmpresaPendente=null;modalAvisoEmpresa(a);}
   if(G&&G.tecSaiuPendente){const s=G.tecSaiuPendente;G.tecSaiuPendente=null;
     if(!$('#modal').innerHTML&&typeof avisar==='function')avisar(s.nome+' pediu demissão. A confiança dele em você chegou ao fim. O auxiliar assume como interino até você contratar outro técnico em Comando técnico.','O técnico saiu');}
   if(Prefs.get('autosave'))salvarRun(G.runNome);
@@ -96,6 +100,11 @@ function avancarComRitual(quantas){
     const abrirS=djs.papel==='tecnico'?abrirPreJogoSelecao:abrirDiaDeJogoSelecao;
     abrirS(djs,()=>avancarComRitual(quantas));
     return;
+  }
+  /* modo Dono: o time acabou, ou o conselho ainda não se reuniu */
+  if(typeof timePerdido==='function'&&timePerdido()){modalFimDono(G.manager.empresa.perdeu);return;}
+  if(G.conselhoPendente&&typeof modalConselho==='function'){
+    const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r,()=>avancarComRitual(quantas));return;
   }
   /* modo Dono com técnico: sem mandato do ano, ele espera antes de a semana andar */
   if(typeof mandatoPendente==='function'&&mandatoPendente()&&typeof modalMandato==='function'){
@@ -183,6 +192,9 @@ function aplicarAvanco(r,quantas){
 /* pula as rodadas em que seu clube não joga, até o próximo compromisso dele
    ou até a virada de bloco — o que vier primeiro */
 function avancarAteMeuJogo(){
+  /* modo Dono: mandato, conselho e fim de carreira passam pelo ritual */
+  if((typeof timePerdido==='function'&&timePerdido())||G.conselhoPendente
+     ||(typeof mandatoPendente==='function'&&mandatoPendente())){avancarComRitual(1);return;}
   /* Na janela com turnos, o avanço rápido termina a semana em curso, mas para
      no turno em que chegar proposta por alguém seu: é a resposta que importa. */
   if(usarTurnos()){
@@ -216,6 +228,7 @@ function avancarAteMeuJogo(){
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
     if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
+    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente)break;   /* modo Dono */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

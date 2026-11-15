@@ -280,6 +280,8 @@ function semana(){
     /* modo Dono com técnico: os pedidos e a confiança dele (core/tecnico-ia.js) */
     const tecIAManda=id===G.meuTime&&typeof tecnicoComanda==='function'&&tecnicoComanda(t);
     if(id===G.meuTime&&typeof semanaTecnicoIA==='function')semanaTecnicoIA(t);
+    /* e a empresa: receitas novas, parcelas, conselho e o risco de quebrar (core/empresa.js) */
+    if(id===G.meuTime&&typeof semanaEmpresa==='function')semanaEmpresa(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);

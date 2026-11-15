@@ -4613,3 +4613,40 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 
 .ti-aviso a{color:var(--red)}
 .ti-ent-c h3 .bandeira{width:28px;height:auto;vertical-align:3px}
+
+/* ---------- Empresa (modo Dono, fase 4) ---------- */
+.emp-abas{margin-bottom:14px}
+.emp-alerta{display:flex;gap:10px;align-items:center;padding:12px 14px;margin-bottom:12px;background:rgba(255,176,32,.08);border-left:3px solid var(--amber)}
+.emp-alerta.ruim{background:rgba(255,70,85,.10);border-left-color:var(--red)}
+.emp-barra{height:14px;margin:10px 0 12px}
+.emp-comp{display:flex;flex-direction:column;gap:4px}
+.emp-comp>div{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;font-size:13px;padding:3px 0}
+.emp-comp i{width:10px;height:10px;border-radius:2px;display:block}
+.emp-fbar{display:flex;height:12px;background:var(--panel2);margin:8px 0 10px;overflow:hidden}
+.emp-fbar i{display:block;height:100%;background:var(--line2);border-right:1px solid var(--panel)}
+.emp-fbar i.eu{background:var(--teal)}
+.emp-rec td{padding:8px 4px}
+.emp-linha{margin-bottom:12px}
+.emp-linha p{margin:8px 0 0}
+.emp-prazos{display:flex;gap:6px;margin:8px 0 12px;flex-wrap:wrap}
+.emp-prazos .on{border-color:var(--red);color:var(--red)}
+.emp-div{display:grid;grid-template-columns:1fr auto auto 70px;gap:12px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-of{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-reu{margin-bottom:12px}
+.emp-reu-n{display:flex;flex-wrap:wrap;gap:22px;margin:10px 0;font-size:13px}
+.emp-reu-n b{font-size:18px;margin-left:4px}
+.emp-reu-c{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-cons{position:relative;overflow:hidden;margin:-4px}
+.emp-cons-f{position:absolute;inset:0;opacity:.12;pointer-events:none}
+.emp-cons-c{position:relative;padding:4px}
+.emp-cartas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.emp-carta{display:flex;flex-direction:column;gap:6px;padding:14px;background:var(--panel2);border:1px solid var(--line)}
+.emp-carta b{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;letter-spacing:.03em}
+.emp-carta p{margin:0;font-size:13px;flex:1}
+.emp-carta.sim{border-color:var(--teal)}.emp-carta.nao{opacity:.6}
+.emp-carta-a{display:flex;gap:6px}
+.emp-ic{width:48px;height:48px;display:grid;place-items:center;background:rgba(24,229,180,.12);color:var(--teal);border-radius:6px}
+.emp-ic .ic svg{width:26px;height:26px}
+.emp-fim{border-left:3px solid var(--red);padding:26px}
+.emp-fim h2{color:var(--red)}
+.emp-fim .btn{margin-top:12px}

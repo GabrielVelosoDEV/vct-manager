@@ -264,6 +264,7 @@ function vInicio(){
           ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
+  if(typeof timePerdido==='function'&&timePerdido())return telaFimDono(G.manager.empresa.perdeu);
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
@@ -272,6 +273,7 @@ function vInicio(){
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
+  ${typeof cardEmpresa==='function'?cardEmpresa(t):''}
   ${typeof cardTecnicoIA==='function'?cardTecnicoIA(t):''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">

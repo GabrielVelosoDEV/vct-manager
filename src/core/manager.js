@@ -33,12 +33,12 @@ const PAPEIS=[
 function papelAtual(){const p=(G.manager&&G.manager.papel)||'dono';return p==='diretoria'?'dono':p;}
 function souDono(){return papelAtual()==='dono';}
 /* Variantes do modo Dono. Livre é o modo Diretoria de antes; Puro e
-   Dono-técnico têm o técnico IA (core/tecnico-ia.js). A empresa (valor de
-   mercado, investidores, falência) chega na fase 4 do planejamento. */
+   Dono-técnico têm o técnico IA (core/tecnico-ia.js) e a empresa (core/empresa.js): valor de
+   mercado, investidores, conselho e o risco de perder o time. */
 const VARIANTES_DONO=[
   {id:'livre',nome:'Dono livre',resumo:'Você faz tudo: escala, monta a tática, joga as partidas e cuida do clube. Sem metas, sem cobrança, sem falência.',detalhe:'O mais acessível.'},
-  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico, dá a ele um mandato e uma verba e aprova os pedidos dele; o time é dele. Você assiste às partidas.',detalhe:'Gestão de verdade.'},
-  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'O mais completo.'}
+  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico, dá a ele um mandato e uma verba e aprova os pedidos dele; o time é dele. Você assiste às partidas e cuida da empresa.',detalhe:'Falência ou perda de controle encerram a carreira.'},
+  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'O mais completo. Falência ou perda de controle encerram a carreira.'}
 ];
 function varianteDono(id){return VARIANTES_DONO.find(x=>x.id===id&&!x.emBreve)||VARIANTES_DONO[0];}
 function souTreinador(){return papelAtual()==='treinador';}

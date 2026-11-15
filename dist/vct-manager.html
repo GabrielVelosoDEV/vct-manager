@@ -4648,6 +4648,43 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .ti-aviso a{color:var(--red)}
 .ti-ent-c h3 .bandeira{width:28px;height:auto;vertical-align:3px}
 
+/* ---------- Empresa (modo Dono, fase 4) ---------- */
+.emp-abas{margin-bottom:14px}
+.emp-alerta{display:flex;gap:10px;align-items:center;padding:12px 14px;margin-bottom:12px;background:rgba(255,176,32,.08);border-left:3px solid var(--amber)}
+.emp-alerta.ruim{background:rgba(255,70,85,.10);border-left-color:var(--red)}
+.emp-barra{height:14px;margin:10px 0 12px}
+.emp-comp{display:flex;flex-direction:column;gap:4px}
+.emp-comp>div{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;font-size:13px;padding:3px 0}
+.emp-comp i{width:10px;height:10px;border-radius:2px;display:block}
+.emp-fbar{display:flex;height:12px;background:var(--panel2);margin:8px 0 10px;overflow:hidden}
+.emp-fbar i{display:block;height:100%;background:var(--line2);border-right:1px solid var(--panel)}
+.emp-fbar i.eu{background:var(--teal)}
+.emp-rec td{padding:8px 4px}
+.emp-linha{margin-bottom:12px}
+.emp-linha p{margin:8px 0 0}
+.emp-prazos{display:flex;gap:6px;margin:8px 0 12px;flex-wrap:wrap}
+.emp-prazos .on{border-color:var(--red);color:var(--red)}
+.emp-div{display:grid;grid-template-columns:1fr auto auto 70px;gap:12px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-of{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-reu{margin-bottom:12px}
+.emp-reu-n{display:flex;flex-wrap:wrap;gap:22px;margin:10px 0;font-size:13px}
+.emp-reu-n b{font-size:18px;margin-left:4px}
+.emp-reu-c{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--line);font-size:13px}
+.emp-cons{position:relative;overflow:hidden;margin:-4px}
+.emp-cons-f{position:absolute;inset:0;opacity:.12;pointer-events:none}
+.emp-cons-c{position:relative;padding:4px}
+.emp-cartas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.emp-carta{display:flex;flex-direction:column;gap:6px;padding:14px;background:var(--panel2);border:1px solid var(--line)}
+.emp-carta b{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;letter-spacing:.03em}
+.emp-carta p{margin:0;font-size:13px;flex:1}
+.emp-carta.sim{border-color:var(--teal)}.emp-carta.nao{opacity:.6}
+.emp-carta-a{display:flex;gap:6px}
+.emp-ic{width:48px;height:48px;display:grid;place-items:center;background:rgba(24,229,180,.12);color:var(--teal);border-radius:6px}
+.emp-ic .ic svg{width:26px;height:26px}
+.emp-fim{border-left:3px solid var(--red);padding:26px}
+.emp-fim h2{color:var(--red)}
+.emp-fim .btn{margin-top:12px}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -22600,6 +22637,391 @@ function avaliarMandato(){
 }
 
 
+/* ===== src/core/empresa.js ===== */
+/* ============================================================
+   A ORGANIZAÇÃO COMO EMPRESA — modo Dono puro e Dono-técnico (fase 4)
+   ------------------------------------------------------------
+   O placar do dono é o VALOR DE MERCADO da organização, refeito
+   toda semana: vaga na liga + elenco + marca + caixa − dívida.
+
+   G.manager.empresa guarda:
+     hist          valor, caixa e dívida semana a semana (dois anos)
+     loja          nível 0..3 (0 = sem loja); rende com a torcida
+     criadores     criadores de conteúdo contratados (0..4)
+     emprestimos   [{id, saldo, parcela, juros, prazo, ano}]
+     investidores  [{id, nome, fatia, aporte, meta, falhas, ano}]
+     ofertas       propostas de investidores na mesa
+     humor         0..100: o conselho de sócios e investidores
+     negativas     semanas seguidas com caixa negativo
+     receitas      {ano, loja, itens, conteudo, juros, custos}
+     reunioes      as reuniões trimestrais do conselho
+     perdeu        {motivo, ano, semana}: a carreira acabou
+
+   Perder o time (só nas variantes com técnico; o Dono livre não quebra):
+     · FALÊNCIA: oito semanas seguidas no vermelho sem empréstimo
+       possível. No Fácil, um sócio-interventor salva uma vez.
+     · PERDA DE CONTROLE: os outros sócios somam mais da metade e o
+       humor do conselho fecha a temporada abaixo de 25.
+   Os dois chegam com avisos.
+
+   Nada sorteia: ofertas e cartas do conselho saem de hash.
+   ============================================================ */
+const EMP_HIST_MAX=SEMANAS_ANO*2;
+const LOJA_CUSTO={1:[150000,260000,420000],2:[40000,70000,120000]};
+const LOJA_POR_TORCIDA={1:1500,2:650};                 /* por ano, por nível */
+const ITENS_FIXO=60000, ITENS_POR_TORCIDA=2600, ITENS_TITULO=45000;
+const CRIADOR_SAL={1:6000,2:2400}, CRIADOR_REC={1:3500,2:1600}, CRIADOR_TORCIDA={1:400,2:250}, CRIADORES_MAX=4;
+const EMP_JUROS={facil:0.07,normal:0.10,dificil:0.13};
+const EMP_LIMITE=0.30;                                 /* do valor de mercado */
+const FALENCIA_SEMANAS=8;
+const HUMOR_INICIO=60, HUMOR_CONTROLE=25;
+const NOMES_INVESTIDORES=['Atlas Capital','Horizonte Ventures','Pico Partners','Quarta Onda Fundos','Meridiano Investimentos',
+  'Aurora Growth','Vértice Holdings','Lince Capital','Estuário Partners','Nexo Esports Fund','Farol Participações','Cobalto Capital'];
+
+function empresaAtiva(){return typeof donoComTecnico==='function'&&donoComTecnico()&&!!G.meuTime;}
+function _hEmp(s){return typeof _hashTxt==='function'?_hashTxt(s):0;}
+function empresa(){
+  const m=G.manager;if(!m)return null;
+  if(!m.empresa){
+    m.empresa={hist:[],loja:0,criadores:0,emprestimos:[],investidores:[],ofertas:[],humor:HUMOR_INICIO,negativas:0,
+      receitas:{ano:G.ano,loja:0,itens:0,conteudo:0,juros:0,custos:0},reunioes:[],seq:0};
+    /* quem assumiu um clube pronto também tem bolso: o patrimônio que sobrou da compra */
+    if(m.patrimonio==null)m.patrimonio=Math.round((G.dificuldade==='facil'?4500000:3000000));
+  }
+  const e=m.empresa;
+  e.emprestimos=e.emprestimos||[];e.investidores=e.investidores||[];e.ofertas=e.ofertas||[];e.reunioes=e.reunioes||[];
+  return e;
+}
+function _bonusOrigem(linha){
+  const o=G.manager&&G.manager.origem, p=G.manager&&G.manager.perfilDono;
+  let k=1;
+  if(o==='empresario'&&(linha==='loja'||linha==='patroc'))k+=0.15;
+  if(o==='criador'&&(linha==='loja'||linha==='conteudo'))k+=0.30;
+  if(o==='expro'&&linha==='loja')k-=0.10;
+  if(p==='midiatico'&&(linha==='loja'||linha==='conteudo'))k+=0.10;
+  return k;
+}
+
+/* ---------- valor de mercado ---------- */
+function valorVaga(t){return t.tier===1?6000000+(t.prestigio||50)*60000:600000+(t.prestigio||48)*10000;}
+function valorMarcaOrg(t){
+  const recentes=(t.titulos||[]).filter(x=>parseInt(String(x))>=G.ano-2).length;
+  return Math.round((t.torcida||0)*(t.tier===1?30000:8000)+recentes*250000+empresa().loja*(t.tier===1?120000:30000)
+    +empresa().criadores*(t.tier===1?40000:12000));
+}
+function valorElenco(t){return Math.round((t.elenco||[]).reduce((s,i)=>s+((G.jogadores[i]&&G.jogadores[i].valor)||0),0)*0.7);}
+function dividaTotal(){
+  const e=empresa(),d=G.manager&&G.manager.divida;
+  return Math.round((d&&d.saldo>0?d.saldo:0)+e.emprestimos.reduce((s,x)=>s+x.saldo,0));
+}
+function composicaoValor(t){
+  t=t||G.times[G.meuTime];
+  const c={vaga:valorVaga(t),elenco:valorElenco(t),marca:valorMarcaOrg(t),caixa:Math.round(t.caixa),divida:-dividaTotal()};
+  c.total=Math.max(0,c.vaga+c.elenco+c.marca+c.caixa+c.divida);
+  return c;
+}
+function valorDaOrg(t){return composicaoValor(t).total;}
+/* fatias: você, o sócio da fusão e os investidores */
+function fatiasDaOrg(t){
+  t=t||G.times[G.meuTime];
+  const e=empresa(), out=[];
+  for(const s of (t&&t.socios)||[])out.push({nome:s.nome,fatia:s.fatia,tipo:'socio'});
+  for(const i of e.investidores)out.push({nome:i.nome,fatia:i.fatia,tipo:'investidor',meta:i.meta});
+  const outros=out.reduce((s,x)=>s+x.fatia,0);
+  return{minha:Math.max(0,Math.round((1-outros)*1000)/1000),outros,lista:out};
+}
+
+/* ---------- receitas novas ---------- */
+function receitaLojaAno(t){const e=empresa();return e.loja?Math.round(e.loja*(t.torcida||0)*LOJA_POR_TORCIDA[t.tier===1?1:2]*_bonusOrigem('loja')):0;}
+function receitaItensAno(t){
+  if(t.tier!==1)return 0;   /* o repasse dos itens é das parceiras da liga */
+  const recentes=(t.titulos||[]).filter(x=>parseInt(String(x))>=G.ano-1).length;
+  return Math.round(ITENS_FIXO+(t.torcida||0)*ITENS_POR_TORCIDA+recentes*ITENS_TITULO);
+}
+function receitaConteudoAno(t){const e=empresa(),k=t.tier===1?1:2;return Math.round(e.criadores*(CRIADOR_REC[k]*12+(t.torcida||0)*CRIADOR_TORCIDA[k])*_bonusOrigem('conteudo'));}
+function custoConteudoAno(t){return empresa().criadores*CRIADOR_SAL[t.tier===1?1:2]*12;}
+function custoLojaAno(t){return Math.round(receitaLojaAno(t)*0.25);}
+function proximoNivelLoja(t){const e=empresa();return e.loja>=3?null:{nivel:e.loja+1,custo:LOJA_CUSTO[t.tier===1?1:2][e.loja]};}
+function melhorarLoja(){
+  const t=G.times[G.meuTime],e=empresa(),px=proximoNivelLoja(t);
+  if(!px)return{ok:false,erro:'A loja já está no nível máximo.'};
+  if(t.caixa<px.custo)return{ok:false,erro:'Caixa insuficiente: custa '+money(px.custo)+'.'};
+  t.caixa-=px.custo;e.loja=px.nivel;e.receitas.custos+=px.custo;
+  noticia('🛍 O '+t.nome+' '+(px.nivel===1?'abre a loja oficial':'amplia a loja oficial (nível '+px.nivel+')')+'.',{c:'clube',t:[t.id]});
+  return{ok:true,msg:px.nivel===1?'Loja aberta.':'Loja no nível '+px.nivel+'.'};
+}
+function mudarCriadores(d){
+  const t=G.times[G.meuTime],e=empresa();
+  const n=clamp(e.criadores+d,0,CRIADORES_MAX);
+  if(n===e.criadores)return{ok:false,erro:d>0?'No máximo '+CRIADORES_MAX+' criadores.':'Nenhum criador contratado.'};
+  e.criadores=n;
+  return{ok:true,msg:d>0?'Criador contratado: '+money(CRIADOR_SAL[t.tier===1?1:2])+'/mês.':'Contrato com um criador encerrado.'};
+}
+
+/* ---------- empréstimos ---------- */
+function jurosEmprestimo(){return EMP_JUROS[G.dificuldade]||EMP_JUROS.normal;}
+function limiteEmprestimo(t){
+  t=t||G.times[G.meuTime];
+  const c=composicaoValor(t);
+  const bruto=c.vaga+c.elenco+c.marca+Math.max(0,c.caixa);
+  return Math.max(0,Math.round((bruto*EMP_LIMITE-dividaTotal())/5000)*5000);
+}
+function tomarEmprestimo(valor,prazo){
+  const t=G.times[G.meuTime],e=empresa();
+  valor=Math.round((+valor||0)/5000)*5000;prazo=clamp(Math.round(+prazo||2),1,4);
+  if(valor<=0)return{ok:false,erro:'Escolha um valor.'};
+  if(valor>limiteEmprestimo(t))return{ok:false,erro:'O banco empresta no máximo '+money(limiteEmprestimo(t))+'.'};
+  const j=jurosEmprestimo(), total=Math.round(valor*(1+j*prazo));
+  const x={id:'emp'+(e.seq=(e.seq||0)+1),valor,saldo:total,parcela:Math.round(total/(prazo*SEMANAS_ANO)),juros:j,prazo,ano:G.ano,sem:G.semana};
+  e.emprestimos.push(x);t.caixa+=valor;
+  e.humor=clamp(e.humor-2,0,100);
+  noticia('🏦 O '+t.nome+' toma um empréstimo de '+money(valor)+' em '+prazo+' temporada'+(prazo>1?'s':'')+'.',{c:'clube',t:[t.id]});
+  return{ok:true,msg:'Empréstimo de '+money(valor)+'. Parcela de '+money(x.parcela)+' por semana.'};
+}
+function quitarEmprestimo(id){
+  const t=G.times[G.meuTime],e=empresa(),x=e.emprestimos.find(z=>z.id===id);
+  if(!x)return{ok:false,erro:'Empréstimo não encontrado.'};
+  /* quitar antes desconta metade dos juros que faltam */
+  const desc=Math.round(x.saldo-(x.saldo/(1+x.juros*x.prazo))*(1+x.juros*x.prazo/2));
+  const custo=Math.max(0,x.saldo-Math.max(0,desc));
+  if(t.caixa<custo)return{ok:false,erro:'Caixa insuficiente: quitar custa '+money(custo)+'.'};
+  t.caixa-=custo;e.emprestimos=e.emprestimos.filter(z=>z!==x);e.humor=clamp(e.humor+3,0,100);
+  return{ok:true,msg:'Empréstimo quitado por '+money(custo)+'.'};
+}
+
+/* ---------- investidores ---------- */
+const METAS_INVESTIDOR={
+  lucro:{nome:'Lucro',texto:'Fechar a temporada com mais caixa do que começou'},
+  torcida:{nome:'Torcida',texto:'Crescer a torcida em 5 pontos na temporada'},
+  posicao:{nome:'Resultado',texto:'Terminar a liga na metade de cima'},
+  titulo:{nome:'Título',texto:'Ganhar um título na temporada'}
+};
+function gerarOfertas(motivo){
+  const t=G.times[G.meuTime],e=empresa();
+  const fs=fatiasDaOrg(t);
+  const v=valorDaOrg(t);
+  const chave=G.ano+'|'+G.semana+'|'+(motivo||'');
+  const out=[];
+  for(const f of [0.10,0.20,0.30]){
+    if(fs.outros+f>0.85)continue;
+    const h=_hEmp(chave+'|'+f);
+    const nome=NOMES_INVESTIDORES[h%NOMES_INVESTIDORES.length];
+    const metas=Object.keys(METAS_INVESTIDOR).filter(k=>k!=='titulo'||t.tier===1&&t.prestigio>=75);
+    const meta=metas[(h>>>5)%metas.length];
+    const desconto=0.78+((h>>>9)%15)/100+(e.humor-50)/500;
+    out.push({id:'of'+(e.seq=(e.seq||0)+1),nome,fatia:f,aporte:Math.round(v*f*desconto/5000)*5000,meta,
+      silencioso:f===0.10&&((h>>>13)%3===0),ate:G.ano*SEMANAS_ANO+G.semana+6});
+  }
+  e.ofertas=out.filter(o=>!e.investidores.some(i=>i.nome===o.nome));
+  return e.ofertas;
+}
+function aceitarOferta(id){
+  const t=G.times[G.meuTime],e=empresa(),o=e.ofertas.find(x=>x.id===id);
+  if(!o)return{ok:false,erro:'A oferta não está mais na mesa.'};
+  const caixaAntes=t.caixa,torcidaAntes=t.torcida||0;
+  t.caixa+=o.aporte;
+  e.investidores.push({id:o.id,nome:o.nome,fatia:o.fatia,aporte:o.aporte,meta:o.silencioso?null:o.meta,falhas:0,ano:G.ano,
+    base:{caixa:caixaAntes,torcida:torcidaAntes,ano:G.ano}});
+  e.ofertas=e.ofertas.filter(x=>x!==o);
+  e.humor=clamp(e.humor+4,0,100);
+  noticia('💼 '+o.nome+' compra '+Math.round(o.fatia*100)+'% do '+t.nome+' por '+money(o.aporte)+'.',{c:'mercado',t:[t.id],imp:2});
+  const fs=fatiasDaOrg(t);
+  return{ok:true,msg:o.nome+' entrou com '+money(o.aporte)+'. Você fica com '+Math.round(fs.minha*100)+'%.'+(fs.minha<0.5?' Atenção: você não tem mais a maioria.':'')};
+}
+function recomprarFatia(id){
+  const t=G.times[G.meuTime],e=empresa(),i=e.investidores.find(x=>x.id===id);
+  if(!i)return{ok:false,erro:'Investidor não encontrado.'};
+  const preco=Math.round(valorDaOrg(t)*i.fatia*1.15/5000)*5000;
+  const pat=G.manager.patrimonio||0;
+  if(pat<preco)return{ok:false,erro:'A recompra custa '+money(preco)+' do seu patrimônio (você tem '+money(pat)+').'};
+  G.manager.patrimonio=pat-preco;
+  e.investidores=e.investidores.filter(x=>x!==i);
+  noticia('🔁 '+G.manager.nome+' recompra a fatia de '+i.nome+' no '+t.nome+'.',{c:'mercado',t:[t.id]});
+  return{ok:true,msg:'Fatia recomprada por '+money(preco)+'.'};
+}
+/* buscar investidor: uma vez por trimestre */
+function buscarInvestidores(){
+  const e=empresa(),k=G.ano+'-'+Math.ceil((G.semana||1)/13);
+  if(e.buscou===k)return{ok:false,erro:'O mercado já ouviu você neste trimestre. Tente no próximo.'};
+  e.buscou=k;
+  const of=gerarOfertas('busca');
+  return{ok:true,msg:of.length?of.length+' proposta'+(of.length>1?'s':'')+' na mesa.':'Ninguém quer entrar agora.'};
+}
+function aportePessoal(valor){
+  const t=G.times[G.meuTime],m=G.manager;
+  valor=Math.round((+valor||0)/5000)*5000;
+  if(valor<=0)return{ok:false,erro:'Escolha um valor.'};
+  if((m.patrimonio||0)<valor)return{ok:false,erro:'Seu patrimônio é '+money(m.patrimonio||0)+'.'};
+  m.patrimonio-=valor;t.caixa+=valor;
+  empresa().humor=clamp(empresa().humor+2,0,100);
+  return{ok:true,msg:money(valor)+' do seu bolso no caixa do clube.'};
+}
+function _metaCumprida(i,t){
+  const b=i.base&&i.base.ano===G.ano?i.base:{caixa:(i.caixaAno!=null?i.caixaAno:t.caixa),torcida:(i.torcidaAno!=null?i.torcidaAno:t.torcida)};
+  switch(i.meta){
+    case'lucro':return t.caixa>=b.caixa;
+    case'torcida':return (t.torcida||0)>=b.torcida+5;
+    case'posicao':{const{pos,de}=posicaoNaLiga(t);return pos<=Math.ceil(de/2);}
+    case'titulo':return (t.titulos||[]).some(x=>String(x).startsWith(String(G.ano)));
+  }
+  return true;
+}
+
+/* ---------- a semana ---------- */
+function semanaEmpresa(t){
+  if(!t||t.id!==G.meuTime||!empresaAtiva())return;
+  const e=empresa(),m=G.manager;
+  if(e.receitas.ano!==G.ano)e.receitas={ano:G.ano,loja:0,itens:0,conteudo:0,juros:0,custos:0};
+  /* receitas novas, por semana */
+  const loja=receitaLojaAno(t)-custoLojaAno(t), itens=receitaItensAno(t), cont=receitaConteudoAno(t)-custoConteudoAno(t);
+  const sem=v=>Math.round(v/SEMANAS_ANO);
+  t.caixa+=sem(loja)+sem(itens)+sem(cont);
+  e.receitas.loja+=sem(loja);e.receitas.itens+=sem(itens);e.receitas.conteudo+=sem(cont);
+  /* criadores trazem gente nova */
+  if(e.criadores)t.torcida=clamp((t.torcida||0)+e.criadores*0.04*_bonusOrigem('conteudo'),0,TORCIDA_MAX);
+  /* parcelas */
+  for(const x of e.emprestimos){
+    const v=Math.min(x.parcela,x.saldo);t.caixa-=v;x.saldo-=v;e.receitas.juros+=v;
+  }
+  const quitados=e.emprestimos.filter(x=>x.saldo<=0);
+  if(quitados.length){e.emprestimos=e.emprestimos.filter(x=>x.saldo>0);noticia('🏦 Um empréstimo do '+t.nome+' foi quitado.',{c:'clube',t:[t.id]});}
+  /* falência: oito semanas seguidas no vermelho, sem crédito */
+  if(t.caixa<0){
+    e.negativas++;
+    if(e.negativas===3||e.negativas===5||e.negativas===7){
+      const faltam=FALENCIA_SEMANAS-e.negativas;
+      noticia('⚠ Caixa do '+t.nome+' no vermelho há '+e.negativas+' semanas. Mais '+faltam+' e a organização quebra. Empréstimo, aporte ou venda.',{c:'clube',t:[t.id],imp:3});
+      G.avisoEmpresaPendente={tipo:'falencia',semanas:e.negativas,faltam};
+    }
+    if(e.negativas>=FALENCIA_SEMANAS&&limiteEmprestimo(t)<Math.abs(t.caixa))_quebrar(t);
+  }else e.negativas=0;
+  /* propostas vencidas saem da mesa */
+  const agoraAbs=G.ano*SEMANAS_ANO+G.semana;
+  e.ofertas=e.ofertas.filter(o=>!o.ate||o.ate>=agoraAbs);
+  /* conselho no fim de cada trimestre */
+  if(G.semana%13===0&&!e.perdeu)G.conselhoPendente=montarConselho(t);
+  /* histórico do valor */
+  const c=composicaoValor(t);
+  const ult=e.hist[e.hist.length-1];
+  const reg={a:G.ano,s:G.semana,v:c.total,c:c.caixa,d:-c.divida};
+  if(ult&&ult.a===reg.a&&ult.s===reg.s)e.hist[e.hist.length-1]=reg;else e.hist.push(reg);
+  if(e.hist.length>EMP_HIST_MAX)e.hist.splice(0,e.hist.length-EMP_HIST_MAX);
+  e.pico=Math.max(e.pico||0,c.total);
+  /* o herdeiro recebe da família no começo do ano */
+  if(G.semana===1&&m.origem==='herdeiro'&&m.mesadaAno!==G.ano){m.mesadaAno=G.ano;m.patrimonio=(m.patrimonio||0)+1200000;}
+}
+function _quebrar(t){
+  const e=empresa();
+  if(G.dificuldade==='facil'&&!e.interventor){
+    /* no Fácil, uma vez: um sócio-interventor cobre o rombo e fica com uma fatia */
+    const aporte=Math.round((Math.abs(t.caixa)+Math.max(200000,receitaAnual(t)*0.15))/5000)*5000;
+    t.caixa+=aporte;e.negativas=0;e.interventor=true;
+    e.investidores.push({id:'interv',nome:'Sócio-interventor',fatia:0.25,aporte,meta:'lucro',falhas:0,ano:G.ano,base:{caixa:t.caixa,torcida:t.torcida,ano:G.ano}});
+    e.humor=clamp(e.humor-15,0,100);
+    noticia('🛟 Um sócio-interventor salva o '+t.nome+' da falência: entra com '+money(aporte)+' e fica com 25%.',{c:'clube',t:[t.id],imp:3});
+    G.avisoEmpresaPendente={tipo:'interventor',aporte};
+    return;
+  }
+  perderOTime('falencia');
+}
+function perderOTime(motivo){
+  const t=G.times[G.meuTime],e=empresa();
+  if(e.perdeu)return;
+  e.perdeu={motivo,ano:G.ano,semana:G.semana,valor:valorDaOrg(t),pico:e.pico||0,clube:t.nome,anos:G.ano-(G.manager.desde||G.ano)};
+  /* o clube ganha outro dono */
+  if(t.dono&&t.dono.voce){(t.donosAntigos=t.donosAntigos||[]).push(Object.assign({ate:G.ano},t.dono));}
+  t.dono={tipo:'empresa',nome:motivo==='falencia'?'Massa falida (administração judicial)':'Conselho de investidores',perfil:'economico',desde:G.ano};
+  noticia(motivo==='falencia'
+    ?'📉 Fim da linha: o '+t.nome+' quebra e '+G.manager.nome+' perde a organização.'
+    :'📉 O conselho do '+t.nome+' afasta '+G.manager.nome+': os investidores assumem o controle.',{c:'clube',t:[t.id],imp:3});
+  G.fimDonoPendente=e.perdeu;
+}
+function timePerdido(){return !!(G&&G.manager&&G.manager.empresa&&G.manager.empresa.perdeu);}
+
+/* ---------- o conselho trimestral ----------
+   Um balanço e até três cartas de decisão. As cartas saem do momento do
+   clube (caixa, dívida, torcida) e de um hash do trimestre. */
+function _cartasConselho(t,e,res){
+  const T1=t.tier===1, cartas=[];
+  const div=e.emprestimos.reduce((s,x)=>s+x.saldo,0);
+  if(res<0)cartas.push({id:'cortar',titulo:'Cortar custos',txt:'Os investidores querem enxugar: menos scrims pagos e viagens. Economiza agora, mas o elenco sente.',
+    sim:'Cortar',nao:'Manter',efeito:{caixa:Math.round(custeioSemanal(t)*6),moral:-0.04,humor:5}});
+  if(div>0&&t.caixa>div*0.3)cartas.push({id:'amortizar',titulo:'Amortizar a dívida',txt:'Usar parte do caixa para abater '+money(Math.round(div*0.25))+' dos empréstimos.',
+    sim:'Amortizar',nao:'Agora não',efeito:{amortizar:Math.round(div*0.25),humor:5}});
+  cartas.push({id:'marca',titulo:'Campanha de marca',txt:'Uma campanha com a torcida: '+money(T1?120000:35000)+' por mais gente na arquibancada e nas redes.',
+    sim:'Investir',nao:'Recusar',efeito:{caixa:-(T1?120000:35000),torcida:3,humor:res<0?-3:0}});
+  if(t.caixa>(T1?1500000:400000))cartas.push({id:'dividendo',titulo:'Dividendos aos sócios',txt:'Distribuir '+money(Math.round(t.caixa*0.08))+' aos sócios. A sua parte vai para o seu patrimônio; o conselho adora, o caixa nem tanto.',
+    sim:'Distribuir',nao:'Reinvestir',efeito:{caixa:-Math.round(t.caixa*0.08),dividendo:Math.round(t.caixa*0.08),humor:10,naoHumor:-2}});
+  cartas.push({id:'bonus',titulo:'Bônus ao elenco',txt:'Um bônus por desempenho de '+money(T1?80000:20000)+' para o vestiário.',
+    sim:'Pagar',nao:'Não pagar',efeito:{caixa:-(T1?80000:20000),moral:0.05}});
+  if(fatiasDaOrg(t).outros<0.6)cartas.push({id:'rodada',titulo:'Rodada de investimento',txt:'Fundos querem conversar. Abrir a rodada traz propostas para a mesa (em Empresa › Dinheiro).',
+    sim:'Abrir',nao:'Fechar a porta',efeito:{ofertas:true}});
+  const h=_hEmp(t.id+'|conselho|'+G.ano+'|'+G.semana);
+  const fixas=cartas.filter(c=>c.id==='cortar'||c.id==='amortizar');
+  const resto=cartas.filter(c=>!fixas.includes(c)).sort((a,b)=>(_hEmp(a.id+h)%97)-(_hEmp(b.id+h)%97));
+  return [...fixas,...resto].slice(0,3);
+}
+function montarConselho(t){
+  const e=empresa();
+  const tri=Math.round(G.semana/13);
+  const antes=e.hist.find(x=>x.a===G.ano&&x.s===Math.max(1,G.semana-13))||e.hist[0]||{v:valorDaOrg(t),c:t.caixa};
+  const c=composicaoValor(t);
+  const res=Math.round(c.caixa-antes.c);
+  /* o humor: resultado do trimestre e a cara do conselho */
+  const fs=fatiasDaOrg(t);
+  let d=res>=0?3+Math.min(5,res/Math.max(50000,receitaAnual(t)*0.05)):-3-Math.min(9,-res/Math.max(50000,receitaAnual(t)*0.05));
+  if(G.manager.origem==='fundo')d*=d<0?1.5:1;
+  if(G.manager.perfilDono==='paciente'&&d<0)d*=0.7;
+  if(G.dificuldade==='facil'&&d<0)d*=0.7;
+  if(!fs.lista.length)d*=0.5;   /* sem sócio, o conselho é só você */
+  e.humor=clamp(Math.round(e.humor+d),0,100);
+  const r={ano:G.ano,tri,semana:G.semana,valor:c.total,valorAntes:antes.v,resultado:res,caixa:c.caixa,divida:-c.divida,
+    humor:e.humor,delta:Math.round(d),cartas:_cartasConselho(t,e,res),decisoes:{}};
+  /* fim do ano: as metas dos investidores */
+  if(tri===4){
+    r.metas=[];
+    let falhou=false;
+    for(const i of e.investidores){
+      if(!i.meta)continue;
+      const ok=_metaCumprida(i,t);
+      i.falhas=ok?0:(i.falhas||0)+1;
+      if(!ok)falhou=true;
+      r.metas.push({nome:i.nome,texto:METAS_INVESTIDOR[i.meta].texto,ok,falhas:i.falhas});
+      e.humor=clamp(e.humor+(ok?6:-8*(i.falhas>=2?1.6:1)),0,100);
+      i.caixaAno=null;i.torcidaAno=null;i.base={caixa:t.caixa,torcida:t.torcida||0,ano:G.ano+1};
+    }
+    r.humor=e.humor;
+    /* perda de controle: os outros têm a maioria e o conselho fecha o ano sem paciência */
+    if(fs.minha<0.5&&e.humor<HUMOR_CONTROLE){
+      if(e.avisoControle){r.afastado=true;perderOTime('controle');}
+      else{e.avisoControle=G.ano;r.ultimato=true;
+        noticia('⚠ O conselho do '+t.nome+' dá um ultimato a '+G.manager.nome+': mais um ano assim e ele é afastado.',{c:'clube',t:[t.id],imp:3});}
+    }else if(e.humor>=HUMOR_CONTROLE+10)e.avisoControle=null;
+  }
+  e.reunioes.unshift(r);e.reunioes.length=Math.min(e.reunioes.length,12);
+  return r;
+}
+function decidirCarta(r,id,sim){
+  const t=G.times[G.meuTime],e=empresa(),c=r&&r.cartas.find(x=>x.id===id);
+  if(!c||r.decisoes[id]!=null)return;
+  r.decisoes[id]=!!sim;
+  const f=c.efeito;
+  if(sim){
+    if(f.caixa)t.caixa+=f.caixa;
+    if(f.moral)for(const pid of t.elenco){const p=G.jogadores[pid];if(p)p.moral=clamp(p.moral+f.moral,0.2,1);}
+    if(f.torcida)t.torcida=clamp((t.torcida||0)+f.torcida,0,TORCIDA_MAX);
+    if(f.humor)e.humor=clamp(e.humor+f.humor,0,100);
+    if(f.amortizar){
+      let resta=Math.min(f.amortizar,Math.max(0,t.caixa));t.caixa-=resta;
+      for(const x of e.emprestimos){const v=Math.min(resta,x.saldo);x.saldo-=v;resta-=v;}
+      e.emprestimos=e.emprestimos.filter(x=>x.saldo>0);
+    }
+    if(f.ofertas)gerarOfertas('conselho');
+    if(f.dividendo)G.manager.patrimonio=(G.manager.patrimonio||0)+Math.round(f.dividendo*fatiasDaOrg(t).minha);
+  }else if(f.naoHumor)e.humor=clamp(e.humor+f.naoHumor,0,100);
+}
+
+
 /* ===== src/core/projeto.js ===== */
 /* ============================================================
    O PROJETO DO CLUBE — a visão de três temporadas
@@ -23866,6 +24288,8 @@ function semana(){
     /* modo Dono com técnico: os pedidos e a confiança dele (core/tecnico-ia.js) */
     const tecIAManda=id===G.meuTime&&typeof tecnicoComanda==='function'&&tecnicoComanda(t);
     if(id===G.meuTime&&typeof semanaTecnicoIA==='function')semanaTecnicoIA(t);
+    /* e a empresa: receitas novas, parcelas, conselho e o risco de quebrar (core/empresa.js) */
+    if(id===G.meuTime&&typeof semanaEmpresa==='function')semanaEmpresa(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
@@ -28881,12 +29305,12 @@ const PAPEIS=[
 function papelAtual(){const p=(G.manager&&G.manager.papel)||'dono';return p==='diretoria'?'dono':p;}
 function souDono(){return papelAtual()==='dono';}
 /* Variantes do modo Dono. Livre é o modo Diretoria de antes; Puro e
-   Dono-técnico têm o técnico IA (core/tecnico-ia.js). A empresa (valor de
-   mercado, investidores, falência) chega na fase 4 do planejamento. */
+   Dono-técnico têm o técnico IA (core/tecnico-ia.js) e a empresa (core/empresa.js): valor de
+   mercado, investidores, conselho e o risco de perder o time. */
 const VARIANTES_DONO=[
   {id:'livre',nome:'Dono livre',resumo:'Você faz tudo: escala, monta a tática, joga as partidas e cuida do clube. Sem metas, sem cobrança, sem falência.',detalhe:'O mais acessível.'},
-  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico, dá a ele um mandato e uma verba e aprova os pedidos dele; o time é dele. Você assiste às partidas.',detalhe:'Gestão de verdade.'},
-  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'O mais completo.'}
+  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico, dá a ele um mandato e uma verba e aprova os pedidos dele; o time é dele. Você assiste às partidas e cuida da empresa.',detalhe:'Falência ou perda de controle encerram a carreira.'},
+  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'O mais completo. Falência ou perda de controle encerram a carreira.'}
 ];
 function varianteDono(id){return VARIANTES_DONO.find(x=>x.id===id&&!x.emBreve)||VARIANTES_DONO[0];}
 function souTreinador(){return papelAtual()==='treinador';}
@@ -36476,7 +36900,7 @@ function render(){
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
-            tecnico:typeof vTecnico==='function'?vTecnico:null}[tela]
+            tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null)
     ||(String(tela).startsWith('selecao:')&&typeof vSelecao==='function'?(selecaoVer=String(tela).slice(8),vSelecao):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
@@ -36493,6 +36917,7 @@ function render(){
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
   if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
+  if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
 }
 function irPara(k,semHist){
@@ -39488,6 +39913,7 @@ function vInicio(){
           ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
+  if(typeof timePerdido==='function'&&timePerdido())return telaFimDono(G.manager.empresa.perdeu);
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   ${typeof avisoWO==='function'?avisoWO(t):''}
   ${heroClube(t,rr)}
@@ -39496,6 +39922,7 @@ function vInicio(){
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
+  ${typeof cardEmpresa==='function'?cardEmpresa(t):''}
   ${typeof cardTecnicoIA==='function'?cardTecnicoIA(t):''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">
@@ -44184,6 +44611,7 @@ function navDono(base){
     if(manda&&(it[0]==='vestiario'||it[0]==='preparacao'))continue;
     out.push(it);
     if(it[0]==='inicio')out.push(['tecnico','Comando técnico','Clube','tatica']);
+    if(it[0]==='financas'&&typeof empresaAtiva==='function'&&empresaAtiva())out.push(['empresa','Empresa','Gestão','grafico']);
   }
   return out;
 }
@@ -44209,6 +44637,226 @@ function modalBalancoTecnico(b){
   </div>`);
   const ir=$('#balIr');if(ir)ir.onclick=()=>{$('#modal').innerHTML='';irPara('tecnico');};
   $('#balOk').onclick=()=>fechar();
+}
+
+
+/* ===== src/ui/empresa.js ===== */
+/* ============================================================
+   EMPRESA — a tela do dono como empresário (fase 4)
+   ------------------------------------------------------------
+   Quatro abas: Visão geral (valor de mercado, composição, fatias,
+   alertas), Comercial (loja, itens, criadores), Dinheiro
+   (empréstimos, investidores, aporte do seu bolso) e Conselho
+   (as reuniões trimestrais). O núcleo mora em core/empresa.js.
+   ============================================================ */
+let empAba='geral';
+
+function graficoValor(e){
+  const W=760,H=200,pl=60,pr=14,pt=14,pb=24;
+  const pts=e.hist.slice(-SEMANAS_ANO);
+  if(pts.length<2)return '<p class="dim">O gráfico começa a desenhar depois da primeira semana.</p>';
+  const vs=pts.map(x=>x.v);
+  let mn=Math.min(...vs),mx=Math.max(...vs);const f=(mx-mn)*0.12||mx*0.05||100000;mn=Math.max(0,mn-f);mx+=f;
+  const X=i=>pl+i/(pts.length-1)*(W-pl-pr),Y=v=>pt+(mx-v)/(mx-mn)*(H-pt-pb);
+  const d=pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x.v).toFixed(1)).join(' ');
+  const area=d+` L${X(pts.length-1).toFixed(1)} ${(H-pb).toFixed(1)} L${X(0).toFixed(1)} ${(H-pb).toFixed(1)} Z`;
+  const ticks=[mn,(mn+mx)/2,mx];
+  const marcas=pts.map((x,i)=>({x,i})).filter(o=>o.x.s===1||o.i===0||o.i===pts.length-1);
+  const ult=pts[pts.length-1];
+  return `<svg class="fin-graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Valor de mercado">
+    <defs><linearGradient id="empG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--teal)" stop-opacity=".32"/><stop offset="1" stop-color="var(--teal)" stop-opacity="0"/></linearGradient></defs>
+    ${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="g"/><text x="${pl-6}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end" class="t">${money(v)}</text>`).join('')}
+    ${marcas.map(o=>`<text x="${X(o.i).toFixed(1)}" y="${H-6}" text-anchor="${o.i===0?'start':o.i===pts.length-1?'end':'middle'}" class="t">S${o.x.s} ${o.x.a}</text>`).join('')}
+    <path d="${area}" fill="url(#empG)"/><path d="${d}" class="real" style="stroke:var(--teal)"/>
+    <circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(ult.v).toFixed(1)}" r="4.5" class="hoje"/>
+  </svg>`;
+}
+function _alertasEmpresa(t,e){
+  const out=[];
+  if(e.negativas>0)out.push(`<div class="emp-alerta ruim">${icone('alerta')} <span>Caixa no vermelho há <b>${e.negativas}</b> semana${e.negativas>1?'s':''}. Com ${FALENCIA_SEMANAS} seguidas e sem crédito, a organização quebra${G.dificuldade==='facil'&&!e.interventor?' (no Fácil, um sócio-interventor salva uma vez)':''}.</span></div>`);
+  const fs=fatiasDaOrg(t);
+  if(fs.minha<0.5)out.push(`<div class="emp-alerta ${e.humor<HUMOR_CONTROLE+10?'ruim':''}">${icone('alerta')} <span>Você tem ${Math.round(fs.minha*100)}%: os outros sócios têm a maioria. Se o humor do conselho fechar o ano abaixo de ${HUMOR_CONTROLE}, ${e.avisoControle?'você é afastado':'vem um ultimato'}.</span></div>`);
+  return out.join('');
+}
+function _abaGeral(t,e){
+  const c=composicaoValor(t),fs=fatiasDaOrg(t);
+  const ant=e.hist.find(x=>x.a===G.ano-1&&x.s===G.semana)||e.hist[0];
+  const delta=ant?c.total-ant.v:0;
+  const partes=[['Vaga na liga',c.vaga,'#4C8DFF'],['Elenco',c.elenco,'#9B6BFF'],['Marca',c.marca,'#E2B45A'],['Caixa',Math.max(0,c.caixa),'#18E5B4']];
+  const soma=partes.reduce((s,x)=>s+x[1],0)||1;
+  return `${_alertasEmpresa(t,e)}
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="kpi teal"><div class="lb">Valor de mercado</div><div class="vl">${money(c.total)}</div><div class="sb"><span class="${delta>=0?'up':'dn'}">${delta>=0?'+':''}${money(delta)}</span> desde ${ant?'S'+ant.s+' '+ant.a:'o início'}</div></div>
+    <div class="kpi"><div class="lb">Caixa</div><div class="vl">${money(t.caixa)}</div><div class="sb">seu patrimônio: ${money(G.manager.patrimonio||0)}</div></div>
+    <div class="kpi red"><div class="lb">Dívida</div><div class="vl">${money(-c.divida)}</div><div class="sb">crédito livre ${money(limiteEmprestimo(t))}</div></div>
+    <div class="kpi"><div class="lb">Humor do conselho</div><div class="vl">${Math.round(e.humor)}</div><div class="sb">${e.humor>=65?'satisfeito':e.humor>=45?'atento':e.humor>=HUMOR_CONTROLE?'impaciente':'em revolta'}</div></div>
+  </div>
+  <div class="grid g2 fin-topo">
+    <div class="card"><div class="eyebrow">Valor de mercado</div>${graficoValor(e)}</div>
+    <div class="card"><div class="eyebrow">Do que é feito</div>
+      <div class="fin-barra emp-barra">${partes.filter(x=>x[1]>0).map(x=>`<i style="width:${(x[1]/soma*100).toFixed(2)}%;background:${x[2]}" title="${esc(x[0])}: ${money(x[1])}"></i>`).join('')}</div>
+      <div class="emp-comp">${partes.map(x=>`<div><i style="background:${x[2]}"></i><span>${esc(x[0])}</span><b class="num">${money(x[1])}</b></div>`).join('')}
+        <div><i style="background:var(--red)"></i><span>Dívida</span><b class="num dn">${money(c.divida)}</b></div></div>
+      <div class="eyebrow" style="margin-top:16px">Quem é dono</div>
+      <div class="emp-fatias"><div class="emp-fbar"><i class="eu" style="width:${(fs.minha*100).toFixed(1)}%"></i>${fs.lista.map((x,i)=>`<i style="width:${(x.fatia*100).toFixed(1)}%;opacity:${0.85-i*0.12}" title="${esc(x.nome)}"></i>`).join('')}</div>
+        <div class="emp-comp"><div><i style="background:var(--teal)"></i><span>${esc(G.manager.nome)} (você)</span><b class="num">${Math.round(fs.minha*100)}%</b></div>
+        ${fs.lista.map(x=>`<div><i style="background:var(--line2)"></i><span>${esc(x.nome)} <span class="dim">${x.tipo==='socio'?'sócio da fusão':'investidor'+(x.meta?' · meta: '+esc(METAS_INVESTIDOR[x.meta].nome.toLowerCase()):'')}</span></span><b class="num">${Math.round(x.fatia*100)}%</b></div>`).join('')}</div></div>
+    </div>
+  </div>`;
+}
+function _abaComercial(t,e){
+  const px=proximoNivelLoja(t);
+  const linhas=[
+    ['Patrocínio',receitaPatrocinio(t),'contratos com as marcas (Finanças)'],
+    ['Aporte da liga',aporteLiga(t),t.tier===1?'o piso da franquia':'a ajuda do Challengers'],
+    ['Loja e uniformes',receitaLojaAno(t)-custoLojaAno(t),e.loja?'nível '+e.loja+', líquido do custo':'sem loja aberta'],
+    ['Itens do jogo',receitaItensAno(t),t.tier===1?'o repasse dos itens com a marca do clube':'só parceiras da liga recebem'],
+    ['Conteúdo',receitaConteudoAno(t)-custoConteudoAno(t),e.criadores?e.criadores+' criador'+(e.criadores>1?'es':'')+', líquido dos salários':'nenhum criador contratado']
+  ];
+  return `<div class="grid g2">
+    <div class="card"><div class="eyebrow">Receitas por ano, no ritmo de hoje</div>
+      <table class="tb emp-rec">${linhas.map(l=>`<tr><td><b>${esc(l[0])}</b><div class="dim">${esc(l[2])}</div></td><td class="r num ${l[1]<0?'dn':''}">${money(l[1])}</td></tr>`).join('')}</table>
+      <p class="dim">Em ${G.ano} até agora: loja ${money(e.receitas.loja)}, itens ${money(e.receitas.itens)}, conteúdo ${money(e.receitas.conteudo)}.</p></div>
+    <div>
+      <div class="card emp-linha"><div class="split"><div><div class="eyebrow">Loja oficial</div><b>${e.loja?'Nível '+e.loja+' de 3':'Fechada'}</b></div>
+        ${px?`<button class="btn sm" id="empLoja">${e.loja?'Ampliar':'Abrir'} · ${money(px.custo)}</button>`:'<span class="chip up">no máximo</span>'}</div>
+        <p class="dim">Camisa, moletom e coleção. Rende pela torcida; quanto maior a loja, mais vende (e mais custa manter). ${_bonusOrigem('loja')>1?'Sua origem ajuda: +'+Math.round((_bonusOrigem('loja')-1)*100)+'%.':''}</p></div>
+      <div class="card emp-linha"><div class="split"><div><div class="eyebrow">Criadores de conteúdo</div><b>${e.criadores} de ${CRIADORES_MAX}</b></div>
+        <div><button class="btn ghost sm" id="empCriMenos" ${e.criadores?'':'disabled'}>−</button> <button class="btn sm" id="empCriMais" ${e.criadores>=CRIADORES_MAX?'disabled':''}>Contratar · ${money(CRIADOR_SAL[t.tier===1?1:2])}/mês</button></div></div>
+        <p class="dim">Lives, vídeos e bastidores. Cada um traz torcida nova toda semana e uma receita que cobre o salário com folga quando a torcida é grande.</p></div>
+      <div class="card emp-linha"><div class="eyebrow">Itens do jogo</div>
+        <p class="dim">${t.tier===1?'Parceiras da liga recebem uma parte da venda dos itens com a marca. Cresce com a torcida e com título.':'Só as parceiras da liga principal recebem. Suba para o Tier 1 para entrar.'}</p></div>
+    </div></div>`;
+}
+function _abaDinheiro(t,e){
+  const lim=limiteEmprestimo(t), j=jurosEmprestimo();
+  const fin=G.manager.divida&&G.manager.divida.saldo>0?G.manager.divida:null;
+  return `<div class="grid g2">
+    <div class="card"><div class="eyebrow">Empréstimo</div>
+      <p class="dim">O banco empresta até ${Math.round(EMP_LIMITE*100)}% do valor da organização, menos o que você já deve. Juros de ${Math.round(j*100)}% por temporada; a parcela sai do caixa toda semana.</p>
+      ${lim>0?`<label class="og-range"><span>Valor <b class="num" id="empEmpN">${money(Math.min(lim,Math.round(lim/2/5000)*5000))}</b> <span class="dim">· até ${money(lim)}</span></span>
+        <input type="range" id="empEmpV" min="5000" max="${lim}" step="5000" value="${Math.min(lim,Math.round(lim/2/5000)*5000)}"></label>
+        <div class="emp-prazos">${[1,2,3,4].map(p=>`<button class="btn ghost sm ${p===2?'on':''}" data-empprazo="${p}">${p} temporada${p>1?'s':''}</button>`).join('')}</div>
+        <button class="btn" id="empEmp">Tomar empréstimo</button>`:'<p><b>Sem crédito agora.</b> A dívida já encosta no limite.</p>'}
+      ${fin||e.emprestimos.length?`<div class="eyebrow" style="margin-top:14px">O que você deve</div>
+        ${fin?`<div class="emp-div"><span>Financiamento da compra</span><span class="num">${money(fin.saldo)}</span><span class="dim num">${money(fin.parcela)}/sem.</span><span></span></div>`:''}
+        ${e.emprestimos.map(x=>`<div class="emp-div"><span>Empréstimo de ${x.ano}</span><span class="num">${money(x.saldo)}</span><span class="dim num">${money(x.parcela)}/sem.</span><button class="btn ghost sm" data-empquita="${x.id}">Quitar</button></div>`).join('')}`:''}
+    </div>
+    <div class="card"><div class="split"><div class="eyebrow">Investidores</div><button class="btn ghost sm" id="empBusca">Buscar investidor</button></div>
+      <p class="dim">Um investidor compra uma fatia com dinheiro novo e, quase sempre, uma meta por temporada. Meta perdida azeda o conselho; se os outros sócios tiverem a maioria, o conselho pode afastar você.</p>
+      ${e.ofertas.length?e.ofertas.map(o=>`<div class="emp-of"><div><b>${esc(o.nome)}</b><div class="dim">${Math.round(o.fatia*100)}% por <b class="num">${money(o.aporte)}</b> · ${o.silencioso?'sócio silencioso, sem meta':'meta: '+esc(METAS_INVESTIDOR[o.meta].texto.toLowerCase())}</div></div>
+        <button class="btn sm" data-empaceita="${o.id}">Aceitar</button></div>`).join(''):'<p class="dim">Nenhuma proposta na mesa.</p>'}
+      ${e.investidores.length?`<div class="eyebrow" style="margin-top:14px">Na sociedade</div>${e.investidores.map(i=>`<div class="emp-of"><div><b>${esc(i.nome)}</b> <span class="dim">${Math.round(i.fatia*100)}% · entrou em ${i.ano} com ${money(i.aporte)}</span>
+        <div class="dim">${i.meta?'Meta: '+esc(METAS_INVESTIDOR[i.meta].texto.toLowerCase())+(i.falhas?' · <span class="dn">'+i.falhas+' temporada(s) perdida(s)</span>':''):'Sem meta'}</div></div>
+        ${i.id==='interv'?'':`<button class="btn ghost sm" data-emprecompra="${i.id}">Recomprar</button>`}</div>`).join('')}`:''}
+    </div>
+    <div class="card"><div class="eyebrow">Do seu bolso</div>
+      <p class="dim">Seu patrimônio pessoal é <b class="num">${money(G.manager.patrimonio||0)}</b>${G.manager.origem==='herdeiro'?' (a família repõe '+money(1200000)+' todo começo de ano)':''}. Pôr dinheiro seu no clube não dilui ninguém e acalma o conselho.</p>
+      ${(G.manager.patrimonio||0)>=5000?`<label class="og-range"><span>Aporte <b class="num" id="empApN">${money(Math.min(G.manager.patrimonio,500000))}</b></span>
+        <input type="range" id="empApV" min="5000" max="${Math.round(G.manager.patrimonio/5000)*5000}" step="5000" value="${Math.min(Math.round(G.manager.patrimonio/5000)*5000,500000)}"></label>
+        <button class="btn ghost" id="empAp">Aportar no clube</button>`:''}</div>
+  </div>`;
+}
+function _abaConselho(t,e){
+  if(!e.reunioes.length)return `<div class="card"><p class="dim">O conselho se reúne no fim de cada trimestre (semanas 13, 26, 39 e 52): balanço, humor dos sócios e até três decisões.</p></div>`;
+  return e.reunioes.map(r=>`<div class="card emp-reu"><div class="split"><div class="eyebrow">${r.tri}º trimestre de ${r.ano}</div><span class="dim">humor ${r.humor} (${r.delta>=0?'+':''}${r.delta})</span></div>
+    <div class="emp-reu-n"><span>Valor <b class="num">${money(r.valor)}</b></span><span>Resultado <b class="num ${r.resultado<0?'dn':'up'}">${money(r.resultado)}</b></span><span>Caixa <b class="num">${money(r.caixa)}</b></span></div>
+    ${r.cartas.map(c=>`<div class="emp-reu-c"><b>${esc(c.titulo)}</b><span class="${r.decisoes[c.id]==null?'dim':r.decisoes[c.id]?'up':''}">${r.decisoes[c.id]==null?'sem decisão':r.decisoes[c.id]?esc(c.sim):esc(c.nao)}</span></div>`).join('')}
+    ${(r.metas||[]).map(m=>`<div class="emp-reu-c"><span>${esc(m.nome)}: ${esc(m.texto.toLowerCase())}</span><span class="${m.ok?'up':'dn'}">${m.ok?'cumprida':'perdida'}</span></div>`).join('')}
+    ${r.ultimato?'<div class="emp-alerta ruim">Ultimato: mais um ano assim e você é afastado.</div>':''}</div>`).join('');
+}
+function vEmpresa(){
+  const t=meu();
+  if(!t||!empresaAtiva())return `<div class="card"><p>A empresa é do modo Dono puro e do Dono-técnico.</p></div>`;
+  const e=empresa();
+  if(e.perdeu)return telaFimDono(e.perdeu);
+  const abas=[['geral','Visão geral'],['comercial','Comercial'],['dinheiro','Dinheiro'],['conselho','Conselho']];
+  const corpo={geral:_abaGeral,comercial:_abaComercial,dinheiro:_abaDinheiro,conselho:_abaConselho}[empAba]||_abaGeral;
+  return `<div class="eyebrow">Gestão · ${esc(t.nome)}</div><h2 class="sec">Empresa</h2>
+    <div class="tabs emp-abas">${abas.map(([k,n])=>`<button class="${empAba===k?'on':''}" data-empaba="${k}">${n}</button>`).join('')}</div>
+    ${corpo(t,e)}`;
+}
+function ligarEmpresa(v){
+  const b=(s,f)=>{const x=v.querySelector(s);if(x)x.onclick=f;};
+  const fl=r=>{flash(r.ok?r.msg:r.erro);render();};
+  b('#fimMenu',()=>sairParaMenu());
+  v.querySelectorAll('[data-empaba]').forEach(x=>x.onclick=()=>{empAba=x.dataset.empaba;render();});
+  b('#empLoja',()=>fl(melhorarLoja()));
+  b('#empCriMais',()=>fl(mudarCriadores(1)));
+  b('#empCriMenos',()=>fl(mudarCriadores(-1)));
+  let prazo=2;
+  v.querySelectorAll('[data-empprazo]').forEach(x=>x.onclick=()=>{prazo=+x.dataset.empprazo;v.querySelectorAll('[data-empprazo]').forEach(y=>y.classList.toggle('on',y===x));});
+  const rg=v.querySelector('#empEmpV');if(rg)rg.oninput=()=>{v.querySelector('#empEmpN').textContent=money(+rg.value);};
+  b('#empEmp',async()=>{const val=+rg.value,j=jurosEmprestimo();
+    if(!await confirmar('Tomar '+money(val)+' em '+prazo+' temporada(s)? Você devolve '+money(Math.round(val*(1+j*prazo)))+'.','Tomar'))return;fl(tomarEmprestimo(val,prazo));});
+  v.querySelectorAll('[data-empquita]').forEach(x=>x.onclick=()=>fl(quitarEmprestimo(x.dataset.empquita)));
+  b('#empBusca',()=>fl(buscarInvestidores()));
+  v.querySelectorAll('[data-empaceita]').forEach(x=>x.onclick=async()=>{
+    const o=empresa().ofertas.find(z=>z.id===x.dataset.empaceita);if(!o)return;
+    if(!await confirmar(o.nome+' entra com '+money(o.aporte)+' por '+Math.round(o.fatia*100)+'% da organização. Você fica com '+Math.round((fatiasDaOrg().minha-o.fatia)*100)+'%.','Aceitar'))return;
+    fl(aceitarOferta(o.id));});
+  v.querySelectorAll('[data-emprecompra]').forEach(x=>x.onclick=async()=>{
+    if(!await confirmar('Recomprar a fatia com dinheiro do seu patrimônio, pagando 15% acima do valor de mercado?','Recomprar'))return;
+    fl(recomprarFatia(x.dataset.emprecompra));});
+  const ap=v.querySelector('#empApV');if(ap)ap.oninput=()=>{v.querySelector('#empApN').textContent=money(+ap.value);};
+  b('#empAp',()=>fl(aportePessoal(+ap.value)));
+}
+
+/* ---------- a reunião do conselho ---------- */
+function modalConselho(r,depois){
+  const t=meu();
+  const fim=()=>{$('#modal').innerHTML='';if(depois)depois();else render();};
+  const pinta=()=>{
+    abrir(`<div class="emp-cons">
+      ${t&&typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'emp-cons-f cn-direita',foco:'placa'}):''}
+      <div class="emp-cons-c">
+      <div class="eyebrow">${esc(t?t.nome:'')} · ${r.tri}º trimestre de ${r.ano}</div><h2 class="sec">Reunião do conselho</h2>
+      <div class="emp-reu-n"><span>Valor <b class="num">${money(r.valor)}</b> <small class="${r.valor>=r.valorAntes?'up':'dn'}">${r.valor>=r.valorAntes?'+':''}${money(r.valor-r.valorAntes)}</small></span>
+        <span>Resultado do trimestre <b class="num ${r.resultado<0?'dn':'up'}">${money(r.resultado)}</b></span>
+        <span>Humor <b class="num">${empresa().humor}</b> <small class="${r.delta>=0?'up':'dn'}">${r.delta>=0?'+':''}${r.delta}</small></span></div>
+      ${(r.metas||[]).length?`<div class="eyebrow" style="margin-top:12px">Metas dos investidores</div>${r.metas.map(m=>`<div class="emp-reu-c"><span>${esc(m.nome)}: ${esc(m.texto.toLowerCase())}</span><span class="${m.ok?'up':'dn'}">${m.ok?'cumprida':'perdida'+(m.falhas>=2?' de novo':'')}</span></div>`).join('')}`:''}
+      ${r.ultimato?'<div class="emp-alerta ruim">Ultimato: os outros sócios têm a maioria e perderam a paciência. Mais um ano assim e você é afastado.</div>':''}
+      <div class="eyebrow" style="margin-top:14px">Decisões</div>
+      <div class="emp-cartas">${r.cartas.map(c=>{const d=r.decisoes[c.id];return `<div class="emp-carta ${d==null?'':d?'sim':'nao'}">
+        <b>${esc(c.titulo)}</b><p>${esc(c.txt)}</p>
+        ${d==null?`<div class="emp-carta-a"><button class="btn sm" data-cs="${c.id}">${esc(c.sim)}</button><button class="btn ghost sm" data-cn="${c.id}">${esc(c.nao)}</button></div>`
+          :`<span class="chip ${d?'up':''}">${esc(d?c.sim:c.nao)}</span>`}</div>`;}).join('')}</div>
+      <div class="og-pe"><span class="og-pe-c dim">Carta sem decisão conta como recusada.</span><button class="btn" id="consFim">Encerrar a reunião</button></div>
+    </div></div>`,true);
+    document.querySelectorAll('[data-cs]').forEach(x=>x.onclick=()=>{decidirCarta(r,x.dataset.cs,true);pinta();});
+    document.querySelectorAll('[data-cn]').forEach(x=>x.onclick=()=>{decidirCarta(r,x.dataset.cn,false);pinta();});
+    $('#consFim').onclick=()=>{for(const c of r.cartas)if(r.decisoes[c.id]==null)decidirCarta(r,c.id,false);fim();};
+  };
+  pinta();
+}
+
+/* ---------- perder o time ---------- */
+function telaFimDono(f){
+  return `<div class="card emp-fim"><div class="eyebrow">${esc(f.clube)} · ${f.ano}</div>
+    <h2 class="sec">${f.motivo==='falencia'?'A organização quebrou':'Você foi afastado'}</h2>
+    <p>${f.motivo==='falencia'?'Oito semanas no vermelho, sem crédito e sem quem cobrisse. A organização foi para a administração judicial e você perdeu o time.'
+      :'Os outros sócios tinham a maioria e o conselho perdeu a paciência. Os investidores assumiram o controle e você perdeu o time.'}</p>
+    <div class="emp-reu-n"><span>Temporadas no comando <b class="num">${Math.max(1,f.anos+1)}</b></span><span>Valor no fim <b class="num">${money(f.valor)}</b></span><span>Maior valor <b class="num">${money(f.pico)}</b></span></div>
+    <p class="dim">A carreira de dono acaba aqui. O save continua aberto para consulta; para jogar de novo, comece uma carreira nova no menu principal.</p>
+    <button class="btn" id="fimMenu">Voltar ao menu principal</button></div>`;
+}
+function modalFimDono(f){
+  abrir(telaFimDono(f));
+  const b=$('#fimMenu');if(b)b.onclick=()=>{$('#modal').innerHTML='';sairParaMenu();};
+}
+function modalAvisoEmpresa(a){
+  if(a.tipo==='interventor')return avisar('Um sócio-interventor cobriu o rombo com '+money(a.aporte)+' e ficou com 25% da organização. Isso só acontece uma vez.','Salvo da falência');
+  return avisar('O caixa está no vermelho há '+a.semanas+' semanas. Mais '+a.faltam+' e, sem crédito, a organização quebra e você perde o time. Saídas: empréstimo, aporte do seu bolso, investidor ou venda de jogador (Empresa › Dinheiro).','Risco de falência');
+}
+function cardEmpresa(t){
+  if(!t||!empresaAtiva())return '';
+  const e=empresa(),c=composicaoValor(t);
+  const ant=e.hist.length>4?e.hist[e.hist.length-5]:null;
+  return `<div class="card ti-mini emp-mini" data-ir-tela="empresa">
+    <div class="ti-mini-r"><div class="emp-ic">${icone('grafico')}</div></div>
+    <div class="ti-mini-c"><div class="eyebrow">Valor de mercado</div><b class="num">${money(c.total)}</b>
+      <span class="dim">${ant?`<span class="${c.total>=ant.v?'up':'dn'}">${c.total>=ant.v?'+':''}${money(c.total-ant.v)}</span> em quatro semanas · `:''}humor do conselho ${Math.round(e.humor)}${e.negativas?' · <span class="dn">caixa no vermelho há '+e.negativas+' sem.</span>':''}</span></div>
+  </div>`;
 }
 
 
@@ -52110,6 +52758,10 @@ function aplicarTurno(r){
   if(!r)return;
   if(typeof relogioTocar==='function')relogioTocar();
   if(typeof conferirCelebracao==='function')conferirCelebracao();
+  /* modo Dono: fim da linha, conselho e avisos de caixa (ui/empresa.js) */
+  if(G&&G.fimDonoPendente&&typeof modalFimDono==='function'){const f=G.fimDonoPendente;G.fimDonoPendente=null;modalFimDono(f);}
+  else if(G&&G.conselhoPendente&&!$('#modal').innerHTML&&typeof modalConselho==='function'){const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r);}
+  else if(G&&G.avisoEmpresaPendente&&!$('#modal').innerHTML&&typeof modalAvisoEmpresa==='function'){const a=G.avisoEmpresaPendente;G.avisoEmpresaPendente=null;modalAvisoEmpresa(a);}
   if(G&&G.tecSaiuPendente){const s=G.tecSaiuPendente;G.tecSaiuPendente=null;
     if(!$('#modal').innerHTML&&typeof avisar==='function')avisar(s.nome+' pediu demissão. A confiança dele em você chegou ao fim. O auxiliar assume como interino até você contratar outro técnico em Comando técnico.','O técnico saiu');}
   if(Prefs.get('autosave'))salvarRun(G.runNome);
@@ -52153,6 +52805,11 @@ function avancarComRitual(quantas){
     const abrirS=djs.papel==='tecnico'?abrirPreJogoSelecao:abrirDiaDeJogoSelecao;
     abrirS(djs,()=>avancarComRitual(quantas));
     return;
+  }
+  /* modo Dono: o time acabou, ou o conselho ainda não se reuniu */
+  if(typeof timePerdido==='function'&&timePerdido()){modalFimDono(G.manager.empresa.perdeu);return;}
+  if(G.conselhoPendente&&typeof modalConselho==='function'){
+    const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r,()=>avancarComRitual(quantas));return;
   }
   /* modo Dono com técnico: sem mandato do ano, ele espera antes de a semana andar */
   if(typeof mandatoPendente==='function'&&mandatoPendente()&&typeof modalMandato==='function'){
@@ -52240,6 +52897,9 @@ function aplicarAvanco(r,quantas){
 /* pula as rodadas em que seu clube não joga, até o próximo compromisso dele
    ou até a virada de bloco — o que vier primeiro */
 function avancarAteMeuJogo(){
+  /* modo Dono: mandato, conselho e fim de carreira passam pelo ritual */
+  if((typeof timePerdido==='function'&&timePerdido())||G.conselhoPendente
+     ||(typeof mandatoPendente==='function'&&mandatoPendente())){avancarComRitual(1);return;}
   /* Na janela com turnos, o avanço rápido termina a semana em curso, mas para
      no turno em que chegar proposta por alguém seu: é a resposta que importa. */
   if(usarTurnos()){
@@ -52273,6 +52933,7 @@ function avancarAteMeuJogo(){
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
     if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
+    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente)break;   /* modo Dono */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

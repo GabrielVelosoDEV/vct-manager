@@ -249,6 +249,7 @@ function navDono(base){
     if(manda&&(it[0]==='vestiario'||it[0]==='preparacao'))continue;
     out.push(it);
     if(it[0]==='inicio')out.push(['tecnico','Comando técnico','Clube','tatica']);
+    if(it[0]==='financas'&&typeof empresaAtiva==='function'&&empresaAtiva())out.push(['empresa','Empresa','Gestão','grafico']);
   }
   return out;
 }
