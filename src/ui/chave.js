@@ -79,7 +79,7 @@ function rotulosDaChave(esq){
 
 function chaveDesenhada(s,opc){
   opc=opc||{};
-  const eu=meu&&meu();
+  const eu=typeof clubeVisto==='function'?clubeVisto():null;
   const esq=chaveDoStage(s);
   if(!esq.length)return '';
   rotulosDaChave(esq);
@@ -209,7 +209,7 @@ function chaveDesenhada(s,opc){
 
 /* ---------- fase suíça em colunas por campanha ---------- */
 function suicoDesenhado(s){
-  const eu=meu&&meu();
+  const eu=typeof clubeVisto==='function'?clubeVisto():null;
   const reg={};s.times.forEach(id=>reg[id]={v:0,d:0});
   const rodadas=[];
   for(const r of s.resultados||[]){

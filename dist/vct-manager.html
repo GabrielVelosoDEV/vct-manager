@@ -20264,7 +20264,7 @@ function torcidaPosSerie(res,decisiva){
     }
     /* quem saiu do clube sai da boca da torcida */
     for(const id in f.jog)if(!(t.elenco||[]).includes(id))delete f.jog[id];
-    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
+    if(t.id===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime))registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
   }
 }
 
@@ -21469,21 +21469,50 @@ function blocoDaSemana(sem){
 function proximoBloco(sem){
   return G.calendario.find(b=>b.ini>sem)||null;
 }
+/* O próximo bloco em que o CLUBE joga. Bloco montado: está entre os times.
+   Ainda por montar: a liga regional do tier dele, e o Masters se já tem a
+   vaga. Antes a Central de um clube do Challengers dizia "Kickoff em 4
+   semanas" e "Masters" — torneios em que ele nunca entraria. */
+function proximoBlocoDoClube(sem,id){
+  const t=id&&G.times[id];if(!t)return proximoBloco(sem);
+  const q=G.qual||{};
+  return G.calendario.find(b=>{
+    if(b.ini<=sem)return false;
+    if(b.stages&&b.stages.length)return b.stages.some(s=>(s.times||[]).includes(id));
+    if(['kickGrupos','stage1','stage2'].includes(b.montar))return true;
+    if(b.montar==='m1Suico')return (q.masters1||[]).includes(id);
+    if(b.montar==='m2Suico')return (q.masters2||[]).includes(id);
+    if(b.montar==='ascension')return t.tier===2;
+    return false;
+  })||null;
+}
 /* Quantos passam de cada grupo. Quatro por grupo em liga de 12, para o playoff
    sair com oito — que é o tamanho da dupla eliminação real. */
 function novoGrupos(o){return novoStage(Object.assign({tipo:'grupos',bo:3,nGrupos:2,rotulo:'Grupos'},o));}
 function novoDE(o){return novoStage(Object.assign({tipo:'de',bo:3},o));}
 function montarBloco(b){
+  /* O Challengers também abre o ano com Kickoff: antes o Tier 2 passava as
+     15 primeiras semanas sem jogo nenhum, esperando o Split 1. Dois grupos
+     de quatro, passam dois de cada, e a dupla eliminação dos quatro. */
   if(b.montar==='kickGrupos'){
-    b.stages=REGIONS.map(R=>novoGrupos({id:'kg_'+R.id,nome:'Kickoff '+R.nome+' · Grupos',
-      regiao:R.id,tier:1,passam:4,times:G.regioes[R.id].t1.slice()}));
+    b.stages=[
+      ...REGIONS.map(R=>novoGrupos({id:'kg_'+R.id,nome:'Kickoff '+R.nome+' · Grupos',
+        regiao:R.id,tier:1,passam:4,times:G.regioes[R.id].t1.slice()})),
+      ...REGIONS.map(R=>novoGrupos({id:'ckg_'+R.id,nome:'Kickoff · '+nomeT2(R),
+        regiao:R.id,tier:2,passam:2,times:G.regioes[R.id].t2.slice()}))
+    ];
   }
   if(b.montar==='kickPO'){
-    b.stages=REGIONS.map(R=>{
+    const st=[];
+    REGIONS.forEach(R=>{
       const g=acharStage('kg_'+R.id);
-      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
-        times:(g&&g.classificados||[]).slice(0,8)});
+      st.push(novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
+        times:(g&&g.classificados||[]).slice(0,8)}));
+      const c=acharStage('ckg_'+R.id);
+      if(c)st.push(novoDE({id:'ckick_'+R.id,nome:'Kickoff · '+nomeT2(R),rotulo:'Playoffs',regiao:R.id,tier:2,
+        times:(c.classificados||[]).slice(0,4)}));
     });
+    b.stages=st;
   }
   if(b.montar==='stage1'||b.montar==='stage2'){
     const n=b.montar==='stage1'?1:2;
@@ -27409,7 +27438,7 @@ function criarCarreiraJogador(o){
   G.jogadores[p.id]=p;
   G.voce={id:p.id,desde:G.ano,inicio:ini.id,estilo:est.id,dificuldade:o.dificuldade||'normal'};
   p.pico=Math.max(p.pico||0,over(p));p.xp={};
-  G.voce.caixa=typeof CAIXA_INICIAL!=='undefined'?(CAIXA_INICIAL[ini.id]||5000):5000;G.voce.autoContrato=true;
+  G.voce.caixa=typeof CAIXA_INICIAL!=='undefined'?(CAIXA_INICIAL[ini.id]||5000):5000;G.voce.autoContrato=!!o.automatico;G.voce.autoV2=true;   /* o assistente de contrato é opcional: começa desligado */
   G.voce.vida=['ranked','tier2'].includes(ini.id)?'simples':'confortavel';
   if(typeof darTalentoDoEstilo==='function')darTalentoDoEstilo(p);   /* o estilo dá o talento de partida (core/talentos.js) */
   G.meuTime=null;
@@ -28454,19 +28483,41 @@ function _piorTitularDaFuncao(t,p){
 /* quanto o clube t quer você: >0 quer. Mais alto, mais quer. */
 function interesseDoClube(t,p){
   if(!t||t.id===p.timeId||(t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return -99;
-  const ganho=over(p)-_piorTitularDaFuncao(t,p);
+  /* da ranked, o olheiro chama para testar quem está perto do nível: o
+     teste é justamente para ver de perto */
+  const ganho=over(p)-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  /* clube que já te testou há pouco não chama de novo */
+  const ult=G.voce&&G.voce.testados&&G.voce.testados[t.id];
+  if(!p.timeId&&ult&&_sAbs()-ult<12)return -99;
   const sal=salario(p,t);
   const folga=typeof folgaSalarial==='function'?folgaSalarial(t):sal;
   if(folga<sal*0.75)return -99;
   /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
   if(t.tier===1&&over(p)<74)return -99;
-  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20);
+  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
+}
+/* De onde vem o interesse: primeiro os clubes do seu país, depois os da sua
+   região. Clube de outra região só olha quem é de nível mundial — ninguém
+   atravessa o mundo para fazer teste com um garoto da ranked. */
+function _pesoGeografico(t,p){
+  const casa=typeof paisDoClube==='function'?paisDoClube(t):t.pais;
+  if(casa&&casa===p.pais)return 6;
+  const reg=typeof regiaoDoPais==='function'?regiaoDoPais(p.pais):null;
+  if(!reg||t.regiao===reg)return 0.5;
+  if(!p.timeId)return -99;                         /* da ranked, só a sua região chama */
+  return over(p)>=85?-2:over(p)>=80?-5:-99;
 }
 function clubesInteressadosJogador(p,n){
   return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
 
+/* um dos que querem, puxado para o topo da lista (o clube do seu país vem antes) */
+function _escolherInteressado(p,n,chave){
+  const l=clubesInteressadosJogador(p,n);if(!l.length)return null;
+  const r=_sorteMerc(chave);
+  return l[Math.min(l.length-1,Math.floor(r*r*l.length))];
+}
 /* ---------- propostas ---------- */
 function propostasJogador(){
   if(!G.voce)return[];
@@ -28502,11 +28553,14 @@ function gerarPropostasSemana(p){
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
-      const c=clubesInteressadosJogador(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressadosJogador(p,4).length))];
+      const c=_escolherInteressado(p,4,'qual');
       if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
-        /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
-        if(emp>=3||over(p)>=_piorTitularDaFuncao(c.t,p)+3)_novaProposta('livre',c.t,p);
-        else _novaProposta('teste',c.t,p,{validoAte:_sAbs()+2});
+        /* quem vem da ranked passa por teste antes do contrato; só um jogador
+           já consagrado (over 80+) recebe contrato direto */
+        if(over(p)>=80)_novaProposta('livre',c.t,p);
+        else{_novaProposta('teste',c.t,p,{validoAte:_sAbs()+2});
+          (G.voce.testados=G.voce.testados||{})[c.t.id]=_sAbs();
+          if(typeof noticia==='function')noticia(`📋 O ${c.t.nome} chamou ${p.nome} para uma semana de teste. Veja em Contrato e mercado.`,{c:'carreira',p:[p.id],t:[c.t.id],imp:2});}
       }
     }
     return;
@@ -28515,7 +28569,7 @@ function gerarPropostasSemana(p){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
     if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=clubesInteressadosJogador(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressadosJogador(p,5).length))];
+      const c=_escolherInteressado(p,5,'qualt');
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -28645,7 +28699,8 @@ function simularTeste(id){
   const pr=propostasJogador().find(x=>x.id===id&&x.tipo==='teste');
   if(!pr)return{ok:false,motivo:'Esse teste não existe mais.'};
   const t=G.times[pr.clubeId], p=meuJogador();
-  const chance=Math.max(0.1,Math.min(0.9,0.5+(over(p)-_piorTitularDaFuncao(t,p))*0.08));
+  /* o teste mede potencial também: quem está a poucos pontos do cinco tem chance de verdade */
+  const chance=Math.max(0.15,Math.min(0.9,0.5+(over(p)-_piorTitularDaFuncao(t,p)+4)*0.07+((p.pot||0)-over(p))*0.01));
   return resolverTeste(id,_sorteMerc('teste'+id)<chance);
 }
 
@@ -28728,7 +28783,7 @@ function viradaContratoJogador(p){
   if(!p||!p.voce||!p.timeId||p.contrato>0)return false;
   const t=G.times[p.timeId];
   const renov=propostasJogador().find(x=>x.tipo==='renovacao'&&x.clubeId===t.id);
-  if(renov&&G.voce.autoContrato!==false){
+  if(renov&&G.voce.autoContrato===true){
     aceitarPropostaJogador(renov.id);
     if(typeof noticia==='function')noticia(`O assistente aceitou a renovação de ${p.nome} com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
     return true;
@@ -28737,11 +28792,12 @@ function viradaContratoJogador(p){
   liberar(p);p.clausulas=null;G.voce.propostas=[];G.voce.eventos=[];
   return true;
 }
-/* o assistente de contrato, para quem está livre: depois de duas semanas
-   sem decidir, fica com a melhor proposta (e simula o teste) */
+/* o assistente de contrato — só quando você liga (Contrato e mercado):
+   renova com o seu clube, e livre fica com a melhor proposta depois de duas
+   semanas (e simula o teste); oito semanas no banco, busca uma saída */
 const ASSISTENTE_BANCO=8;   /* semanas seguidas no banco até o assistente buscar a saída */
 function assistenteDeContrato(p){
-  if(!G.voce||G.voce.autoContrato===false||!p)return;
+  if(!G.voce||G.voce.autoContrato!==true||!p)return;
   const lista=propostasJogador();
   if(p.timeId){
     /* encostado no banco: pede para ser negociado e aceita a melhor transferência
@@ -29067,7 +29123,7 @@ function pagarPatrocinios(p){
 }
 /* assistente: aceita a melhor oferta de patrocínio que ficou parada */
 function assistenteDePatrocinio(){
-  if(!G.voce||G.voce.autoContrato===false)return;
+  if(!G.voce||G.voce.autoContrato!==true)return;
   const o=ofertasPatrocinio().filter(x=>_sAbsF()-(x.validoAte-3)>=2).sort((a,b)=>b.mes-a.mes)[0];
   if(o&&patrociniosJogador().length<PATROCINIOS_MAX)aceitarPatrocinio(o.id);
 }
@@ -31203,12 +31259,21 @@ function montarTorneios(){
     add('kickoff_'+R.id,'Kickoff '+R.nome,'Kickoff',R.id,1,100000);
     add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,160000);
     add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,160000);
+    add('kickoffc_'+R.id,'Kickoff · '+R.t2,'Kickoff',R.id,2,30000);
     add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,40000);
     add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,40000);
     add('asc_'+R.id,'Ascension '+R.nome,'Ascension',R.id,2,130000);
   }
   G.torneios=T;
   return T;
+}
+/* Torneio que entrou no catálogo depois (o Kickoff do Challengers): save
+   antigo ganha a entrada, sem mexer no que você editou. */
+function completarTorneios(){
+  if(!G||!G.torneios)return 0;
+  const atual=G.torneios, novo=montarTorneios();G.torneios=atual;
+  let n=0;for(const id in novo)if(!atual[id]){atual[id]=novo[id];n++;}
+  return n;
 }
 /* Saves e bases de antes do torneio por evento tinham uma entrada para os
    playoffs (po1_, cp1_…) separada do Stage/Split. O prêmio que estava nela (e
@@ -31232,7 +31297,7 @@ function categoriaTorneio(id){
   const direto={champions:'champions',masters1:'masters',masters2:'masters'}[id];
   if(direto)return direto;
   const pre=String(id).split('_')[0];
-  return {kickoff:'kickoff',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
+  return {kickoff:'kickoff',kickoffc:'chall',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
 }
 /* tabela de premiação de um stage, já em dinheiro, a partir do catálogo */
 function premiosDoStage(s){
@@ -31246,7 +31311,7 @@ function premiosDoStage(s){
 }
 
 /* traduz o id do stage no calendário para a chave do catálogo */
-const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
+const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',ckick:'kickoffc',ckg:'kickoffc',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
                        c1:'split1',c2:'split2',cp1:'split1',cp2:'split2',asc:'asc'};
 function torneioDeStage(idStage){
   const direto={masters1:'masters1',masters2:'masters2',champs:'champions',
@@ -31330,8 +31395,10 @@ function edRemoverAgente(role,nome){
 
 /* Nome de um bloco do calendário com a sede: "Masters Osaka · Suíço" em vez
    de "Masters I · Suíço". Os blocos são fixos (calendar.js); a cidade é do ano. */
-function nomeBloco(b){
+function nomeBloco(b,t){
   if(!b)return '';
+  /* para um clube do Challengers, o bloco é o torneio dele */
+  if(t&&t.tier===2)return String(b.nome).replace(/^Stage (\d)/,'Split $1').replace(/^Kickoff\b/,'Kickoff Challengers');
   const k=/^Masters II\b/.test(b.nome)?'masters2':/^Masters I\b/.test(b.nome)?'masters1':/^Champions\b/.test(b.nome)?'champions':null;
   const n=k&&typeof nomeDoAno==='function'?nomeDoAno(k):null;
   if(!n)return b.nome;
@@ -31378,7 +31445,7 @@ function nomeBloco(b){
 const SEDE_EVENTOS=['masters1','masters2','champions'];
 const SEDE_PESO_FORA_DA_MAIOR=2;
 const SEDE_ANOS_SEM_REPETIR=2;
-const SEDE_REGIONAIS=['stage2','kickoff','stage1','split1','split2','asc'];
+const SEDE_REGIONAIS=['stage2','kickoff','stage1','split1','split2','asc','kickoffc'];
 const SEDE_REGIOES=['AMER','EMEA','PAC','CN'];
 /* país → região do circuito, para as cidades do catálogo */
 const REGIAO_DA_CIDADE={BR:'AMER',US:'AMER',CA:'AMER',MX:'AMER',AR:'AMER',CL:'AMER',CO:'AMER',PE:'AMER',
@@ -31510,7 +31577,7 @@ function nomeComSede(torneioId,ano){
    para a mesma cidade (hash do nome), entre as que existirem na pasta.
    Regionais: um por torneio e região. Prêmios da temporada: premio-<tipo>. */
 const TROFEU_VARIANTES_MAX=10;
-const TROFEU_PREFIXO={kickoff:'kickoff',stage1:'stage1',stage2:'stage2',
+const TROFEU_PREFIXO={kickoff:'kickoff',kickoffc:'challengers',stage1:'stage1',stage2:'stage2',
                       split1:'challengers',split2:'challengers',asc:'ascension'};
 const TROFEU_REGIAO={AMER:'amer',EMEA:'emea',PAC:'pac',CN:'cn'};
 function _variantesTrofeu(tipo){
@@ -33328,7 +33395,7 @@ function trofeuDoTitulo(ano,evento){
   const reg=typeof REGIONS!=='undefined'?REGIONS.find(R=>ev.includes(R.nome)||ev.includes(R.nome.replace(/^VCT /,''))||(R.t2&&ev.includes(R.t2))):null;
   const suf=reg&&typeof TROFEU_REGIAO!=='undefined'?TROFEU_REGIAO[reg.id]:null;
   if(suf){
-    if(/^Kickoff/.test(ev))return 'kickoff-'+suf;
+    if(/^Kickoff/.test(ev)&&!/Challengers/.test(ev))return 'kickoff-'+suf;
     m=ev.match(/Stage (\d)/);if(m)return 'stage'+m[1]+'-'+suf;
     if(/Split|Challengers/.test(ev))return 'challengers-'+suf;
     if(/Ascension/.test(ev))return 'ascension-'+suf;
@@ -33712,6 +33779,10 @@ function migrarRun(reg){
     }
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();
+    if(typeof completarTorneios==='function')completarTorneios();
+    /* modo jogador: o assistente de contrato virou opcional e começava ligado
+       sem você saber — trocava de clube sozinho. Desliga uma vez. */
+    if(G.voce&&!G.voce.autoV2){G.voce.autoV2=true;G.voce.autoContrato=false;}
     if(!G.agentes)montarAgentes();
     if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
     if(!G.sedes)G.sedes={};
@@ -34314,6 +34385,9 @@ function P(id){return G.jogadores[id];}
 function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
+/* o clube que a tela destaca como "seu": o que você gere ou, no modo jogador,
+   o clube em que você joga. Só para mostrar — ação de gestão continua em meu(). */
+function clubeVisto(){const id=typeof clubeDoUsuario==='function'?clubeDoUsuario():(G&&G.meuTime);return id?T(id):null;}
 function preRun(){return !G||(!G.meuTime&&!G.voce);}
 function nomeTela(k){
   if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}
@@ -35449,7 +35523,7 @@ function tabelaDaCasaMenu(t){
   const metade=(G.semana||1)>=25?'2':'1';
   const pre=(t.tier===1?'s':'c')+metade+'_';
   return acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-    ||(t.tier===1?acharStage('kg_'+t.regiao):null);
+    ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao);
 }
 
 /* ---------- cartões do palco ---------- */
@@ -35544,7 +35618,7 @@ function cartaoProximo(){
     return `<article class="mn-card mn-c-jogo" ${sede?`style="${fundoCidade(sede.slug,0.8)}"`:''}>
       <div class="mn-c-cab"><span class="eyebrow">Próximo compromisso</span></div>
       <div class="mn-c-conta"><b class="num">${px.semanas}</b><span>semana${px.semanas===1?'':'s'}</span></div>
-      <div class="mn-c-onde"><b>${esc(nomeBloco(b))}</b><span>${esc(rotuloPeriodo(G.ano,b.ini,b.fim))}${sede?' · '+esc(sede.nome):''}</span></div>
+      <div class="mn-c-onde"><b>${esc(nomeBloco(b,t))}</b><span>${esc(rotuloPeriodo(G.ano,b.ini,b.fim))}${sede?' · '+esc(sede.nome):''}</span></div>
     </article>`;
   }
   return `<article class="mn-card mn-c-jogo"><div class="mn-c-cab"><span class="eyebrow">Próximo compromisso</span></div>
@@ -35747,7 +35821,7 @@ function circuitoDoBloco(b){
   if(/Masters/.test(n))return{cor:'var(--c-masters)',ic:'estrela'};
   if(/Kickoff/.test(n))return{cor:'var(--c-kickoff)',ic:'bandeira'};
   if(/Ascension/.test(n))return{cor:'var(--c-ascension)',ic:'sobe'};
-  if(/Stage|Split/.test(n))return{cor:meu()&&meu().tier===2?'var(--c-challengers)':'var(--c-stage)',ic:'jogar'};
+  if(/Stage|Split/.test(n))return{cor:clubeVisto()&&clubeVisto().tier===2?'var(--c-challengers)':'var(--c-stage)',ic:'jogar'};
   return{cor:'var(--dim)',ic:'ciclo'};
 }
 function faixaCircuito(){
@@ -35765,7 +35839,7 @@ function faixaCircuito(){
     const cc=circuitoDoBloco(b);
     return `<div class="tl-item ${est} ${grande(b)?'major':''}" style="--cor:${cc.cor}">
       <div class="q">${ico(cc.ic)}${quando}</div>
-      <div class="n">${esc(nomeBloco(b))}</div>
+      <div class="n">${esc(nomeBloco(b,typeof clubeVisto==='function'?clubeVisto():null))}</div>
       <div class="d">${rotuloPeriodo(G.ano,b.ini,b.fim)}</div></div>`;
   }).join('')+`</div>`;
 }
@@ -35795,7 +35869,7 @@ function proximoConfronto(){
   }
   /* Sem jogo nesta semana, o que interessa é QUANDO volta a ter. Antes a tela
      dizia só "sem jogo nesta fase", que não ajuda a decidir nada. */
-  const nb=proximoBloco(G.semana||1);
+  const nb=meuId&&typeof proximoBlocoDoClube==='function'?proximoBlocoDoClube(G.semana||1,meuId):proximoBloco(G.semana||1);
   if(nb)return{espera:nb,semanas:nb.ini-(G.semana||1)};
   return null;
 }
@@ -36132,7 +36206,7 @@ function agentesParaComp(p){
 /* vComp mora em ui/competicoes.js (pacote 3) */
 let compAba='minha';
 function renderStage(s,semFaixa){
-  const t=meu();
+  const t=clubeVisto()||{id:null,tier:1};
   const corpo=s.tipo==='grupos'?corpoGrupos(s,t)
              :s.tipo==='de'?corpoChave(s,t)
              :s.tipo==='swiss'?corpoSwiss(s,t)
@@ -36386,7 +36460,7 @@ function vTreino(){
   ${px&&!px.espera?`<div class="card flat" style="border-left:4px solid var(--red)">
     <b>Tem jogo nesta semana</b> — ${px.bye?'bye':'contra '+esc(nomeT(px.adv))}. Quem treina pesado
     entra cansado, e cansaço é o que mais custa partida.</div>`
-   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera))}</b> em ${px.semanas}
+   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera,t))}</b> em ${px.semanas}
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
   ${typeof cardRange==='function'?cardRange(t):''}
 
@@ -37209,7 +37283,7 @@ function sedeDoBloco(b,t){
   if(s0)return sedeDe(s0.torneioId);
   const n=b.nome||'',r=t.regiao,t2=t.tier===2;
   const id=/^Masters II\b/.test(n)?'masters2':/^Masters I\b/.test(n)?'masters1':/^Champions/.test(n)?'champions'
-    :/^Kickoff/.test(n)?'kickoff_'+r:/^Stage 1/.test(n)?(t2?'split1_':'stage1_')+r
+    :/^Kickoff/.test(n)?(t2?'kickoffc_':'kickoff_')+r:/^Stage 1/.test(n)?(t2?'split1_':'stage1_')+r
     :/^Stage 2/.test(n)?(t2?'split2_':'stage2_')+r:/^Ascension/.test(n)?'asc_'+r:null;
   return id?sedeDe(id):null;
 }
@@ -37232,7 +37306,7 @@ function cardConfronto(t,px){
     return `<div class="card cx-prox cx-espera" ${sede?`style="${fundoCidade(sede.slug,0.82)}"`:''}>
       <div class="eyebrow">Próximo compromisso</div>
       <div class="cx-conta"><span class="num" data-conta>${px.semanas}</span><span>semana${px.semanas===1?'':'s'}</span></div>
-      <h3 class="sub" style="margin:0">${esc(nomeBloco(b))}</h3>
+      <h3 class="sub" style="margin:0">${esc(nomeBloco(b,t))}</h3>
       <p class="dim" style="margin:4px 0 0">${rotuloPeriodo(G.ano,b.ini,b.fim)}${sede?' · '+esc(sede.nome):''}</p>
       <p class="dim" style="margin-top:10px">Até lá o elenco treina, quem está machucado se recupera e o mercado continua girando.</p>
       <div class="vs-acoes"><button class="btn ghost sm" data-ir="preparacao">Planejar a semana</button>
@@ -37386,7 +37460,7 @@ function vInicio(){
   const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
   /* nos playoffs do Kickoff o Stage 1 ainda não existe: vale a fase de grupos dele */
   const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-          ||(t.tier===1?acharStage('kg_'+t.regiao):null)
+          ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
@@ -37797,7 +37871,7 @@ function vNews(){
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
   <div class="fd">
     <nav class="fd-nav">${abas.map(([k,n,ic])=>{
-      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===G.meuTime).length:noticiasDaAba(k).length;
+      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime)).length:noticiasDaAba(k).length;
       return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${ico(ic)}<span>${n}</span>${q?`<i class="num">${q}</i>`:''}</button>`;}).join('')}</nav>
     <div class="fd-col">
       ${newsAba==='torcida'&&typeof abaTorcidaHTML==='function'?abaTorcidaHTML():`
@@ -37986,7 +38060,9 @@ function painelTorcidaClube(t,souEu){
 
 /* ---------- aba Torcida das Notícias ---------- */
 function abaTorcidaHTML(){
-  const t=meu();
+  /* no modo jogador, a torcida é a do seu clube (e sem clube não tem torcida) */
+  const id=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime, t=id?T(id):null;
+  if(!t)return vazio('<b>Sem clube, sem torcida.</b> Ela aparece quando você assinar com um time.','clube');
   const lista=(G.torcidaFeed||[]).filter(e=>e.t===t.id).slice(0,newsLimite);
   return `<div class="card flat">${climaTorcidaHTML(t)}</div>
     ${lista.length?lista.map(e=>blocoTorcida(e)).join('')
@@ -40632,7 +40708,7 @@ let compFiltro='todos', compSel=null, compSelAba='chave';
 function torneiosDoBloco(b){
   const R=REGIONS.map(r=>r.id);
   switch(b.montar){
-    case 'kickGrupos':case 'kickPO':return R.map(r=>'kickoff_'+r);
+    case 'kickGrupos':case 'kickPO':return[...R.map(r=>'kickoff_'+r),...R.map(r=>'kickoffc_'+r)];
     case 'm1Suico':case 'm1PO':return['masters1'];
     case 'm2Suico':case 'm2PO':return['masters2'];
     case 'stage1':case 'po1':return[...R.map(r=>'stage1_'+r),...R.map(r=>'split1_'+r)];
@@ -40986,7 +41062,7 @@ function chipsFiltro(attr,atual,ops){
 
 function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
 function linhaJogadorMini(p,valor,i,extra){
-  return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
+  return `<tr class="jrow ${p.timeId===_meuIdComp()?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
     <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
     ${extra||''}<td class="r num"><b>${valor}</b></td></tr>`;
 }
@@ -41023,7 +41099,7 @@ function mundoGeral(){
       ${seq&&(seq.seq||0)>=3?`<div class="mg-clube" style="margin-top:12px">${escudo(seq,40)}<div><b>${esc(seq.nome)}</b>
         <div class="num">${seq.seq} vitórias seguidas</div></div></div>`:''}</div>
     <div class="card"><div class="eyebrow">Top 5 do ranking mundial</div>
-      <table><tbody>${rk.slice(0,5).map((t,i)=>`<tr class="${t.id===G.meuTime?'me':''}"><td class="num dim">${i+1}</td>
+      <table><tbody>${rk.slice(0,5).map((t,i)=>`<tr class="${t.id===_meuIdComp()?'me':''}"><td class="num dim">${i+1}</td>
         <td>${timeInline(t.id,20)}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td></tr>`).join('')}</tbody></table>
       <button class="btn ghost sm" data-mundo="ranking" style="margin-top:8px">Ver o ranking inteiro</button></div>
   </div>`;
@@ -41079,7 +41155,7 @@ function mundoTitulos(){
       <div class="tit-galeria">${l.map(x=>{const c=(x.timeId&&G.times[x.timeId])||(typeof acharClubePorNome==='function'?acharClubePorNome(x.campeao):null);
         const v=x.vice&&typeof acharClubePorNome==='function'?acharClubePorNome(x.vice):null;
         const ev=x.ano===G.ano&&x.torneioId?` data-evento="${esc(x.torneioId)}"`:'';
-        return `<div class="tit-pec ${c&&c.id===G.meuTime?'meu':''} ${ev?'abre':''} ${ehInternacional(x.evento)?'intl':''}"${ev}>
+        return `<div class="tit-pec ${c&&c.id===_meuIdComp()?'meu':''} ${ev?'abre':''} ${ehInternacional(x.evento)?'intl':''}"${ev}>
           <div class="tit-trof">${imgTrofeu(trofeuDoTitulo(x.ano,x.evento),48,x.evento)}</div>
           <div class="tit-ped">${c?escudo(c,26):''}<b>${esc(x.campeao)}</b></div>
           <div class="tit-ev">${esc(x.evento)}</div>
@@ -41105,9 +41181,9 @@ function mundoRecordes(){
     if(!lista.length)return `<div class="card flat"><div class="eyebrow">${rot}</div><div class="dim">—</div></div>`;
     const x1=lista[0];
     return `<div class="card flat rec-card"><div class="eyebrow">${rot}</div>
-      <div class="rec-top ${x1.t&&x1.t.id===G.meuTime?'me':''}"><span class="rec-img">${img(x1,56)}</span>
+      <div class="rec-top ${x1.t&&x1.t.id===_meuIdComp()?'me':''}"><span class="rec-img">${img(x1,56)}</span>
         <div>${nome(x1)}</div><b class="num">${x1.v}</b></div>
-      <table><tbody>${lista.slice(1).map((x,i)=>`<tr class="${x.t&&x.t.id===G.meuTime?'me':''}"><td class="num dim">${i+2}</td><td>${nome(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('')}</tbody></table></div>`;
+      <table><tbody>${lista.slice(1).map((x,i)=>`<tr class="${x.t&&x.t.id===_meuIdComp()?'me':''}"><td class="num dim">${i+2}</td><td>${nome(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('')}</tbody></table></div>`;
   };
   const nT=x=>timeInline(x.t.id,18),nJ=x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`;
   const pOver=r.over&&vivoPorNome(r.over.nome),pTr=r.transferencia&&vivoPorNome(r.transferencia.nome);
@@ -41151,7 +41227,7 @@ function mundoRanking(){
   const setaVar=dv=>dv>0?`<span class="up">▲ ${dv}</span>`:dv<0?`<span class="dn">▼ ${-dv}</span>`:'<span class="dim">—</span>';
   const deg=(t,k)=>{if(!t)return '<div class="rk-deg vazio"></div>';
     const cor=corDoClube(t);
-    return `<div class="rk-deg d${k} ${t.id===G.meuTime?'me':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    return `<div class="rk-deg d${k} ${t.id===_meuIdComp()?'me':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
       <div class="rk-esc">${escudo(t,k===1?96:72)}</div>
       <b class="rk-nome">${linkClube(t)}</b>
       <div class="rk-sub"><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span> ${setaVar(varDe(t))}</div>
@@ -41166,7 +41242,7 @@ function mundoRanking(){
   <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
     <th class="c">Variação</th><th class="c sem-ord">Forma</th><th class="sem-ord">12 meses</th></tr></thead><tbody>
   ${rk.slice(3).map(t=>{const i=posMundo.get(t.id),dv=varDe(t);
-    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i}">${selo(i,i<=3?'top':'')}</td><td>${celClube(t.id,24)}</td>
+    return `<tr class="${t.id===_meuIdComp()?'me':''}"><td data-v="${i}">${selo(i,i<=3?'top':'')}</td><td>${celClube(t.id,24)}</td>
       <td><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span></td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
       <td class="c num" data-v="${dv}">${setaVar(dv)}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
   </tbody></table></div>`;
@@ -41238,7 +41314,7 @@ function podioPremio(lista){
   const deg=(f,k)=>{
     if(!f)return `<div class="pr-deg d${k+1} vazio"></div>`;
     const n=notaPremio(f.n);
-    return `<div class="pr-deg d${k+1} ${f.timeId===G.meuTime?'me':''}">
+    return `<div class="pr-deg d${k+1} ${f.timeId===_meuIdComp()?'me':''}">
       <div class="pr-quem">${nomePremiado(f)}<div class="dim">${esc(f.tag)} · ${f.role}</div>
         <div class="num pr-n">${txtNota(f.n)}${k&&n!=null&&n1!=null?` <span class="dn">−${(n1-n).toFixed(1).replace('.',',')}</span>`:''}</div></div>
       <div class="pr-bloco"><span>${k+1}</span></div></div>`;};
@@ -41419,7 +41495,7 @@ function rotulosDaChave(esq){
 
 function chaveDesenhada(s,opc){
   opc=opc||{};
-  const eu=meu&&meu();
+  const eu=typeof clubeVisto==='function'?clubeVisto():null;
   const esq=chaveDoStage(s);
   if(!esq.length)return '';
   rotulosDaChave(esq);
@@ -41549,7 +41625,7 @@ function chaveDesenhada(s,opc){
 
 /* ---------- fase suíça em colunas por campanha ---------- */
 function suicoDesenhado(s){
-  const eu=meu&&meu();
+  const eu=typeof clubeVisto==='function'?clubeVisto():null;
   const reg={};s.times.forEach(id=>reg[id]={v:0,d:0});
   const rodadas=[];
   for(const r of s.resultados||[]){
@@ -41673,6 +41749,9 @@ function vClube(){
   const t=G.times[clubeVer];
   if(!t)return `<div class="card flat"><div class="empty">Clube não encontrado.</div></div>`;
   const eu=meu(),souEu=eu&&t.id===eu.id;
+  /* modo jogador: não há clube seu para gerir — a página é só leitura,
+     sem negociar, trocar ou relatório do analista */
+  const gere=!!eu&&!souEu;
   const tec=typeof membroDe==='function'?membroDe(t,'tecnico'):null;
   const tecNome=souEu&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido?G.manager.nome+' (você)':tec?tec.nome:'vago';
   const mk=t.patrocinios&&typeof marca==='function'?marca(t.patrocinios.master):null;
@@ -41686,7 +41765,7 @@ function vClube(){
   const elenco=(t.elenco||[]).map(P).filter(Boolean);
   const infoJ=p=>`<div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
       <div class="cl-j-info"><span class="num">${money(p.salario||0)}</span><span class="dim">/mês</span> · <span class="num">${money(p.valor||0)}</span></div>
-      ${souEu?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
+      ${!gere?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
         <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}`;
   const cartas=elenco.length?escalacaoHTML(t,{extra:infoJ}):'';
 
@@ -41755,7 +41834,7 @@ function vClube(){
     ${souEu?`<button class="btn ghost sm" data-irtela="historia">História do clube</button>`:''}
   </div>
   <div class="card cl-elenco-card"><div class="split"><div class="eyebrow">Elenco</div>
-    <span class="dim">${elenco.length} jogadores${souEu?'':' · negociar abre a mesa; troca monta uma proposta'}</span></div>
+    <span class="dim">${elenco.length} jogadores${gere?' · negociar abre a mesa; troca monta uma proposta':''}</span></div>
     ${cartas||'<div class="empty">Sem jogadores.</div>'}
     <div class="cl-coms">${comissao}</div></div>
   <div class="grid g2">
@@ -41772,7 +41851,7 @@ function vClube(){
     </div>
     <div>
       ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
-      ${souEu?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
+      ${!gere?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
     </div>
   </div>`;
@@ -42104,7 +42183,8 @@ function confirmar(texto,sim){
 
 function modalJogador(id){
   const p=P(id);if(!p)return;
-  const t=meu();
+  /* no modo jogador não há clube seu para gerir: a ficha é só leitura */
+  const ger=meu(), t=ger||{id:'\u0000',staff:{}};
   const barra=(k)=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
     <span style="width:118px;font-size:11.5px">${ATTRS.find(a=>a[0]===k)[1]}</span>
     <div class="mj-attr" style="flex:1"><i style="width:${p.at[k]}%;--h:${Math.round(clamp((p.at[k]-40)/55,0,1)*150)}"></i></div>
@@ -42187,8 +42267,8 @@ function modalJogador(id){
       <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar (a moral cai)</button></div>`:''}</div>`:''}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
-    ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
+    ${ger&&p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
+    ${ger&&p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
     ${p.timeId===t.id&&p.emprestimo&&p.emprestimo.opcaoCompra&&G.janela?`<button class="btn teal" data-opcao="${p.id}">Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const bt=$('#mjTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);
@@ -44989,13 +45069,15 @@ function _jTabela(t,px){
   const metade=(G.semana||1)>=25?'2':'1', pre=(t.tier===1?'s':'c')+metade+'_';
   const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
   const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-          ||(t.tier===1?acharStage('kg_'+t.regiao):null)||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
+          ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   return cardTabelaDaCasa(t,rr);
 }
 
 /* o cartão do confronto é o da Central do técnico: tira os botões de técnico */
 function _jSemAcoesDeTecnico(html){
-  return String(html).replace(/<button[^>]*data-ir="(preparacao|mercado|elenco|vestiario|estrutura|base|financas|taticas|treino|comps)"[^>]*>[\s\S]*?<\/button>/g,'');
+  return String(html).replace(/<button[^>]*data-ir="(preparacao|mercado|elenco|vestiario|estrutura|base|financas|taticas|treino|comps)"[^>]*>[\s\S]*?<\/button>/g,'')
+    /* o veto é do técnico: para você, o botão leva ao dia de jogo */
+    .replace(/Ir para o veto ›/g,'Ir para o dia de jogo ›');
 }
 /* ---------- Central do jogador ---------- */
 function vJCentral(){
@@ -45540,7 +45622,7 @@ function vJContrato(){
           <button class="btn ghost sm" data-mjsaida="forcar" title="Se você está no banco ou na geladeira, o clube rescinde. Titular, não: e o técnico fecha a cara.">Forçar a saída</button></div>
         ${pediu?'<p class="dim">Você pediu para sair: o clube sabe e vende mais fácil.</p>':''}`
       :`<p><b>Sem clube.</b> Ranked, olheiros e convites para teste. A ranked e a fama sobem o seu radar (hoje ${Math.round(G.voce.radar||0)}).</p>`}
-      <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato!==false?'checked':''}> Assistente de contrato: aceita a renovação do meu clube e, se eu estiver livre, a melhor proposta, quando eu não decidir</label>
+      <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato===true?'checked':''}> Assistente de contrato (desligado = só você decide): aceita a renovação do meu clube; livre, faz os testes e fica com a melhor proposta; e, depois de 8 semanas no banco, aceita uma saída para jogar</label>
     </div>
     <div class="card"><div class="eyebrow">Empresário</div>
       ${e?`<p><b>${esc(e.nome)}</b> · ${esc(EMPRESARIO_NIVEIS[e.nivel].nome)} · ${Math.round(e.comissao*100)}% do salário</p>
@@ -47883,9 +47965,12 @@ function ligarEventos(){
   if(!v)return;
   const on=(sel,f)=>v.querySelectorAll(sel).forEach(el=>el.onclick=e=>{e.stopPropagation();f(el);});
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
-  if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
-  if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
-  if(typeof ligarClube==='function'&&t)ligarClube(v,on);
+  /* as telas do circuito (competições, mundo, página de clube) são de todo
+     mundo: no modo jogador não há clube seu para gerir, mas elas funcionam */
+  const circuito=t||(typeof modoJogador==='function'&&modoJogador());
+  if(typeof ligarCompeticoes==='function'&&circuito)ligarCompeticoes(v,on);
+  if(typeof ligarMundo==='function'&&circuito)ligarMundo(v,on);
+  if(typeof ligarClube==='function'&&circuito)ligarClube(v,on);
   if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
   if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);

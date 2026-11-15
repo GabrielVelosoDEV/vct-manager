@@ -28,7 +28,7 @@ for (const ini of m.INICIOS_JOGADOR) {
   const regiao = 'AMER', tier = ini.tier;
   const clube = tier ? G.regioes[regiao][tier === 1 ? 't1' : 't2'].map(id => G.times[id]).sort((a, b) => b.prestigio - a.prestigio)[2] : null;
   m.criarManager('Teste', 'jogador', {});
-  const p = m.criarCarreiraJogador({nick: 'Voce' + ini.id, pais: 'BR', idade: 19, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+  const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce' + ini.id, pais: 'BR', idade: 19, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
     estilo: 'mira', inicio: ini.id, over: ini.over, pot: ini.pot, timeId: clube && clube.id});
   const id = p.id, overIni = m.over(p);
   ok(G.meuTime === null, 'modo jogador deixou G.meuTime preenchido');

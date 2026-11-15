@@ -30,7 +30,7 @@ function rodar(modo) {
   const clube = Object.values(G.regioes).flatMap(r => r.t1).map(id => G.times[id]).sort((a, b) => b.elenco.length - a.elenco.length || b.prestigio - a.prestigio)[0];
   const pior = Math.min(...clube.titulares.map(i => m.over(G.jogadores[i])));
   const alvo = ov === 'auto' ? pior - 2 : +ov;
-  const p = m.criarCarreiraJogador({nick: 'Voce', pais: 'BR', idade: 20, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+  const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce', pais: 'BR', idade: 20, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
     estilo: 'mira', inicio: 'banco', over: alvo, pot: 90, timeId: clube.id});
   if (modo === 'brigao') G.voce.auto = false;
   const ano0 = G.ano;

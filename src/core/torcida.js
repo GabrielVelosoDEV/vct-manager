@@ -111,7 +111,7 @@ function torcidaPosSerie(res,decisiva){
     }
     /* quem saiu do clube sai da boca da torcida */
     for(const id in f.jog)if(!(t.elenco||[]).includes(id))delete f.jog[id];
-    if(t.id===G.meuTime)registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
+    if(t.id===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime))registrarConversa(t,adv,res,{esp,ganhou,wEu,wEle,notas,antes,decisiva,classico:cl?cl.nome:null});
   }
 }
 

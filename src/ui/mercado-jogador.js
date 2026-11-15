@@ -41,7 +41,7 @@ function vJContrato(){
           <button class="btn ghost sm" data-mjsaida="forcar" title="Se você está no banco ou na geladeira, o clube rescinde. Titular, não: e o técnico fecha a cara.">Forçar a saída</button></div>
         ${pediu?'<p class="dim">Você pediu para sair: o clube sabe e vende mais fácil.</p>':''}`
       :`<p><b>Sem clube.</b> Ranked, olheiros e convites para teste. A ranked e a fama sobem o seu radar (hoje ${Math.round(G.voce.radar||0)}).</p>`}
-      <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato!==false?'checked':''}> Assistente de contrato: aceita a renovação do meu clube e, se eu estiver livre, a melhor proposta, quando eu não decidir</label>
+      <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato===true?'checked':''}> Assistente de contrato (desligado = só você decide): aceita a renovação do meu clube; livre, faz os testes e fica com a melhor proposta; e, depois de 8 semanas no banco, aceita uma saída para jogar</label>
     </div>
     <div class="card"><div class="eyebrow">Empresário</div>
       ${e?`<p><b>${esc(e.nome)}</b> · ${esc(EMPRESARIO_NIVEIS[e.nivel].nome)} · ${Math.round(e.comissao*100)}% do salário</p>

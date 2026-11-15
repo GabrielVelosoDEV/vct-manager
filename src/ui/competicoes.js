@@ -17,7 +17,7 @@ let compFiltro='todos', compSel=null, compSelAba='chave';
 function torneiosDoBloco(b){
   const R=REGIONS.map(r=>r.id);
   switch(b.montar){
-    case 'kickGrupos':case 'kickPO':return R.map(r=>'kickoff_'+r);
+    case 'kickGrupos':case 'kickPO':return[...R.map(r=>'kickoff_'+r),...R.map(r=>'kickoffc_'+r)];
     case 'm1Suico':case 'm1PO':return['masters1'];
     case 'm2Suico':case 'm2PO':return['masters2'];
     case 'stage1':case 'po1':return[...R.map(r=>'stage1_'+r),...R.map(r=>'split1_'+r)];

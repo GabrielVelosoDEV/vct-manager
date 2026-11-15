@@ -25,7 +25,7 @@ const G = m.G;
 m.criarManager('Teste', 'jogador', {});
 const tier = ini === 'ranked' ? 0 : ini === 'challengers' ? 2 : 1;
 const clube = tier ? G.regioes.AMER[tier === 1 ? 't1' : 't2'].map(id => G.times[id]).sort((a, b) => b.prestigio - a.prestigio)[4] : null;
-const p = m.criarCarreiraJogador({nick: 'Voce', pais: 'BR', idade: 20, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce', pais: 'BR', idade: 20, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
   estilo: 'mira', inicio: ini, over: +ov, pot: 90, timeId: clube && clube.id});
 const visto = new Set(), tipos = {}, fins = {}, trocas = [];
 const caixa0 = m.caixaJogador();

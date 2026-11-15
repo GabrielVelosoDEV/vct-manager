@@ -302,7 +302,7 @@ function pagarPatrocinios(p){
 }
 /* assistente: aceita a melhor oferta de patrocínio que ficou parada */
 function assistenteDePatrocinio(){
-  if(!G.voce||G.voce.autoContrato===false)return;
+  if(!G.voce||G.voce.autoContrato!==true)return;
   const o=ofertasPatrocinio().filter(x=>_sAbsF()-(x.validoAte-3)>=2).sort((a,b)=>b.mes-a.mes)[0];
   if(o&&patrociniosJogador().length<PATROCINIOS_MAX)aceitarPatrocinio(o.id);
 }

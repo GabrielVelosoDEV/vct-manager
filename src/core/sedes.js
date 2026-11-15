@@ -36,7 +36,7 @@
 const SEDE_EVENTOS=['masters1','masters2','champions'];
 const SEDE_PESO_FORA_DA_MAIOR=2;
 const SEDE_ANOS_SEM_REPETIR=2;
-const SEDE_REGIONAIS=['stage2','kickoff','stage1','split1','split2','asc'];
+const SEDE_REGIONAIS=['stage2','kickoff','stage1','split1','split2','asc','kickoffc'];
 const SEDE_REGIOES=['AMER','EMEA','PAC','CN'];
 /* país → região do circuito, para as cidades do catálogo */
 const REGIAO_DA_CIDADE={BR:'AMER',US:'AMER',CA:'AMER',MX:'AMER',AR:'AMER',CL:'AMER',CO:'AMER',PE:'AMER',
@@ -168,7 +168,7 @@ function nomeComSede(torneioId,ano){
    para a mesma cidade (hash do nome), entre as que existirem na pasta.
    Regionais: um por torneio e região. Prêmios da temporada: premio-<tipo>. */
 const TROFEU_VARIANTES_MAX=10;
-const TROFEU_PREFIXO={kickoff:'kickoff',stage1:'stage1',stage2:'stage2',
+const TROFEU_PREFIXO={kickoff:'kickoff',kickoffc:'challengers',stage1:'stage1',stage2:'stage2',
                       split1:'challengers',split2:'challengers',asc:'ascension'};
 const TROFEU_REGIAO={AMER:'amer',EMEA:'emea',PAC:'pac',CN:'cn'};
 function _variantesTrofeu(tipo){

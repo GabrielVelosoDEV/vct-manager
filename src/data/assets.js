@@ -312,7 +312,7 @@ function trofeuDoTitulo(ano,evento){
   const reg=typeof REGIONS!=='undefined'?REGIONS.find(R=>ev.includes(R.nome)||ev.includes(R.nome.replace(/^VCT /,''))||(R.t2&&ev.includes(R.t2))):null;
   const suf=reg&&typeof TROFEU_REGIAO!=='undefined'?TROFEU_REGIAO[reg.id]:null;
   if(suf){
-    if(/^Kickoff/.test(ev))return 'kickoff-'+suf;
+    if(/^Kickoff/.test(ev)&&!/Challengers/.test(ev))return 'kickoff-'+suf;
     m=ev.match(/Stage (\d)/);if(m)return 'stage'+m[1]+'-'+suf;
     if(/Split|Challengers/.test(ev))return 'challengers-'+suf;
     if(/Ascension/.test(ev))return 'ascension-'+suf;

@@ -360,6 +360,10 @@ function migrarRun(reg){
     }
     if(typeof G.semana!=='number'||!(G.semana>=1&&G.semana<=SEMANAS_ANO))G.semana=1;
     if(!G.torneios)montarTorneios();
+    if(typeof completarTorneios==='function')completarTorneios();
+    /* modo jogador: o assistente de contrato virou opcional e começava ligado
+       sem você saber — trocava de clube sozinho. Desliga uma vez. */
+    if(G.voce&&!G.voce.autoV2){G.voce.autoV2=true;G.voce.autoContrato=false;}
     if(!G.agentes)montarAgentes();
     if(!Array.isArray(G.cidades)||!G.cidades.length)montarCidades();
     if(!G.sedes)G.sedes={};

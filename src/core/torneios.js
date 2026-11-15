@@ -31,12 +31,21 @@ function montarTorneios(){
     add('kickoff_'+R.id,'Kickoff '+R.nome,'Kickoff',R.id,1,100000);
     add('stage1_'+R.id,'Stage 1 · '+R.nome,'Stage 1',R.id,1,160000);
     add('stage2_'+R.id,'Stage 2 · '+R.nome,'Stage 2',R.id,1,160000);
+    add('kickoffc_'+R.id,'Kickoff · '+R.t2,'Kickoff',R.id,2,30000);
     add('split1_'+R.id,'Split 1 · '+R.t2,'Split 1',R.id,2,40000);
     add('split2_'+R.id,'Split 2 · '+R.t2,'Split 2',R.id,2,40000);
     add('asc_'+R.id,'Ascension '+R.nome,'Ascension',R.id,2,130000);
   }
   G.torneios=T;
   return T;
+}
+/* Torneio que entrou no catálogo depois (o Kickoff do Challengers): save
+   antigo ganha a entrada, sem mexer no que você editou. */
+function completarTorneios(){
+  if(!G||!G.torneios)return 0;
+  const atual=G.torneios, novo=montarTorneios();G.torneios=atual;
+  let n=0;for(const id in novo)if(!atual[id]){atual[id]=novo[id];n++;}
+  return n;
 }
 /* Saves e bases de antes do torneio por evento tinham uma entrada para os
    playoffs (po1_, cp1_…) separada do Stage/Split. O prêmio que estava nela (e
@@ -60,7 +69,7 @@ function categoriaTorneio(id){
   const direto={champions:'champions',masters1:'masters',masters2:'masters'}[id];
   if(direto)return direto;
   const pre=String(id).split('_')[0];
-  return {kickoff:'kickoff',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
+  return {kickoff:'kickoff',kickoffc:'chall',stage1:'po',stage2:'po',split1:'chall',split2:'chall',asc:'ascension'}[pre]||null;
 }
 /* tabela de premiação de um stage, já em dinheiro, a partir do catálogo */
 function premiosDoStage(s){
@@ -74,7 +83,7 @@ function premiosDoStage(s){
 }
 
 /* traduz o id do stage no calendário para a chave do catálogo */
-const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
+const PREFIXO_TORNEIO={kick:'kickoff',kg:'kickoff',ckick:'kickoffc',ckg:'kickoffc',s1:'stage1',s2:'stage2',po1:'stage1',po2:'stage2',
                        c1:'split1',c2:'split2',cp1:'split1',cp2:'split2',asc:'asc'};
 function torneioDeStage(idStage){
   const direto={masters1:'masters1',masters2:'masters2',champs:'champions',
@@ -158,8 +167,10 @@ function edRemoverAgente(role,nome){
 
 /* Nome de um bloco do calendário com a sede: "Masters Osaka · Suíço" em vez
    de "Masters I · Suíço". Os blocos são fixos (calendar.js); a cidade é do ano. */
-function nomeBloco(b){
+function nomeBloco(b,t){
   if(!b)return '';
+  /* para um clube do Challengers, o bloco é o torneio dele */
+  if(t&&t.tier===2)return String(b.nome).replace(/^Stage (\d)/,'Split $1').replace(/^Kickoff\b/,'Kickoff Challengers');
   const k=/^Masters II\b/.test(b.nome)?'masters2':/^Masters I\b/.test(b.nome)?'masters1':/^Champions\b/.test(b.nome)?'champions':null;
   const n=k&&typeof nomeDoAno==='function'?nomeDoAno(k):null;
   if(!n)return b.nome;

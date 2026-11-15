@@ -59,21 +59,50 @@ function blocoDaSemana(sem){
 function proximoBloco(sem){
   return G.calendario.find(b=>b.ini>sem)||null;
 }
+/* O próximo bloco em que o CLUBE joga. Bloco montado: está entre os times.
+   Ainda por montar: a liga regional do tier dele, e o Masters se já tem a
+   vaga. Antes a Central de um clube do Challengers dizia "Kickoff em 4
+   semanas" e "Masters" — torneios em que ele nunca entraria. */
+function proximoBlocoDoClube(sem,id){
+  const t=id&&G.times[id];if(!t)return proximoBloco(sem);
+  const q=G.qual||{};
+  return G.calendario.find(b=>{
+    if(b.ini<=sem)return false;
+    if(b.stages&&b.stages.length)return b.stages.some(s=>(s.times||[]).includes(id));
+    if(['kickGrupos','stage1','stage2'].includes(b.montar))return true;
+    if(b.montar==='m1Suico')return (q.masters1||[]).includes(id);
+    if(b.montar==='m2Suico')return (q.masters2||[]).includes(id);
+    if(b.montar==='ascension')return t.tier===2;
+    return false;
+  })||null;
+}
 /* Quantos passam de cada grupo. Quatro por grupo em liga de 12, para o playoff
    sair com oito — que é o tamanho da dupla eliminação real. */
 function novoGrupos(o){return novoStage(Object.assign({tipo:'grupos',bo:3,nGrupos:2,rotulo:'Grupos'},o));}
 function novoDE(o){return novoStage(Object.assign({tipo:'de',bo:3},o));}
 function montarBloco(b){
+  /* O Challengers também abre o ano com Kickoff: antes o Tier 2 passava as
+     15 primeiras semanas sem jogo nenhum, esperando o Split 1. Dois grupos
+     de quatro, passam dois de cada, e a dupla eliminação dos quatro. */
   if(b.montar==='kickGrupos'){
-    b.stages=REGIONS.map(R=>novoGrupos({id:'kg_'+R.id,nome:'Kickoff '+R.nome+' · Grupos',
-      regiao:R.id,tier:1,passam:4,times:G.regioes[R.id].t1.slice()}));
+    b.stages=[
+      ...REGIONS.map(R=>novoGrupos({id:'kg_'+R.id,nome:'Kickoff '+R.nome+' · Grupos',
+        regiao:R.id,tier:1,passam:4,times:G.regioes[R.id].t1.slice()})),
+      ...REGIONS.map(R=>novoGrupos({id:'ckg_'+R.id,nome:'Kickoff · '+nomeT2(R),
+        regiao:R.id,tier:2,passam:2,times:G.regioes[R.id].t2.slice()}))
+    ];
   }
   if(b.montar==='kickPO'){
-    b.stages=REGIONS.map(R=>{
+    const st=[];
+    REGIONS.forEach(R=>{
       const g=acharStage('kg_'+R.id);
-      return novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
-        times:(g&&g.classificados||[]).slice(0,8)});
+      st.push(novoDE({id:'kick_'+R.id,nome:'Kickoff '+R.nome,rotulo:'Playoffs',regiao:R.id,tier:1,
+        times:(g&&g.classificados||[]).slice(0,8)}));
+      const c=acharStage('ckg_'+R.id);
+      if(c)st.push(novoDE({id:'ckick_'+R.id,nome:'Kickoff · '+nomeT2(R),rotulo:'Playoffs',regiao:R.id,tier:2,
+        times:(c.classificados||[]).slice(0,4)}));
     });
+    b.stages=st;
   }
   if(b.montar==='stage1'||b.montar==='stage2'){
     const n=b.montar==='stage1'?1:2;

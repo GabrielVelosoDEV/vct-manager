@@ -7,9 +7,12 @@ function ligarEventos(){
   if(!v)return;
   const on=(sel,f)=>v.querySelectorAll(sel).forEach(el=>el.onclick=e=>{e.stopPropagation();f(el);});
   if(typeof ligarVestiario==='function'&&t)ligarVestiario(v,on);
-  if(typeof ligarCompeticoes==='function'&&t)ligarCompeticoes(v,on);
-  if(typeof ligarMundo==='function'&&t)ligarMundo(v,on);
-  if(typeof ligarClube==='function'&&t)ligarClube(v,on);
+  /* as telas do circuito (competições, mundo, página de clube) são de todo
+     mundo: no modo jogador não há clube seu para gerir, mas elas funcionam */
+  const circuito=t||(typeof modoJogador==='function'&&modoJogador());
+  if(typeof ligarCompeticoes==='function'&&circuito)ligarCompeticoes(v,on);
+  if(typeof ligarMundo==='function'&&circuito)ligarMundo(v,on);
+  if(typeof ligarClube==='function'&&circuito)ligarClube(v,on);
   if(typeof ligarPedidos==='function'&&t)ligarPedidos(v,on);
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
   if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);

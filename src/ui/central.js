@@ -84,7 +84,7 @@ function sedeDoBloco(b,t){
   if(s0)return sedeDe(s0.torneioId);
   const n=b.nome||'',r=t.regiao,t2=t.tier===2;
   const id=/^Masters II\b/.test(n)?'masters2':/^Masters I\b/.test(n)?'masters1':/^Champions/.test(n)?'champions'
-    :/^Kickoff/.test(n)?'kickoff_'+r:/^Stage 1/.test(n)?(t2?'split1_':'stage1_')+r
+    :/^Kickoff/.test(n)?(t2?'kickoffc_':'kickoff_')+r:/^Stage 1/.test(n)?(t2?'split1_':'stage1_')+r
     :/^Stage 2/.test(n)?(t2?'split2_':'stage2_')+r:/^Ascension/.test(n)?'asc_'+r:null;
   return id?sedeDe(id):null;
 }
@@ -107,7 +107,7 @@ function cardConfronto(t,px){
     return `<div class="card cx-prox cx-espera" ${sede?`style="${fundoCidade(sede.slug,0.82)}"`:''}>
       <div class="eyebrow">Próximo compromisso</div>
       <div class="cx-conta"><span class="num" data-conta>${px.semanas}</span><span>semana${px.semanas===1?'':'s'}</span></div>
-      <h3 class="sub" style="margin:0">${esc(nomeBloco(b))}</h3>
+      <h3 class="sub" style="margin:0">${esc(nomeBloco(b,t))}</h3>
       <p class="dim" style="margin:4px 0 0">${rotuloPeriodo(G.ano,b.ini,b.fim)}${sede?' · '+esc(sede.nome):''}</p>
       <p class="dim" style="margin-top:10px">Até lá o elenco treina, quem está machucado se recupera e o mercado continua girando.</p>
       <div class="vs-acoes"><button class="btn ghost sm" data-ir="preparacao">Planejar a semana</button>
@@ -261,7 +261,7 @@ function vInicio(){
   const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
   /* nos playoffs do Kickoff o Stage 1 ainda não existe: vale a fase de grupos dele */
   const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-          ||(t.tier===1?acharStage('kg_'+t.regiao):null)
+          ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)
           ||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   const sit=typeof situacaoManager==='function'?situacaoManager():null;
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}

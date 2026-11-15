@@ -155,7 +155,7 @@ function vNews(){
   return `<div class="eyebrow">Imprensa</div><h2 class="sec">Notícias</h2>
   <div class="fd">
     <nav class="fd-nav">${abas.map(([k,n,ic])=>{
-      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===G.meuTime).length:noticiasDaAba(k).length;
+      const q=k==='tudo'?0:k==='torcida'?(G.torcidaFeed||[]).filter(e=>e.t===(typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime)).length:noticiasDaAba(k).length;
       return `<button data-newsaba="${k}" class="${newsAba===k?'on':''}">${ico(ic)}<span>${n}</span>${q?`<i class="num">${q}</i>`:''}</button>`;}).join('')}</nav>
     <div class="fd-col">
       ${newsAba==='torcida'&&typeof abaTorcidaHTML==='function'?abaTorcidaHTML():`

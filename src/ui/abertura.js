@@ -68,7 +68,7 @@ function tabelaDaCasaMenu(t){
   const metade=(G.semana||1)>=25?'2':'1';
   const pre=(t.tier===1?'s':'c')+metade+'_';
   return acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-    ||(t.tier===1?acharStage('kg_'+t.regiao):null);
+    ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao);
 }
 
 /* ---------- cartões do palco ---------- */
@@ -163,7 +163,7 @@ function cartaoProximo(){
     return `<article class="mn-card mn-c-jogo" ${sede?`style="${fundoCidade(sede.slug,0.8)}"`:''}>
       <div class="mn-c-cab"><span class="eyebrow">Próximo compromisso</span></div>
       <div class="mn-c-conta"><b class="num">${px.semanas}</b><span>semana${px.semanas===1?'':'s'}</span></div>
-      <div class="mn-c-onde"><b>${esc(nomeBloco(b))}</b><span>${esc(rotuloPeriodo(G.ano,b.ini,b.fim))}${sede?' · '+esc(sede.nome):''}</span></div>
+      <div class="mn-c-onde"><b>${esc(nomeBloco(b,t))}</b><span>${esc(rotuloPeriodo(G.ano,b.ini,b.fim))}${sede?' · '+esc(sede.nome):''}</span></div>
     </article>`;
   }
   return `<article class="mn-card mn-c-jogo"><div class="mn-c-cab"><span class="eyebrow">Próximo compromisso</span></div>

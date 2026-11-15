@@ -115,7 +115,9 @@ function painelTorcidaClube(t,souEu){
 
 /* ---------- aba Torcida das Notícias ---------- */
 function abaTorcidaHTML(){
-  const t=meu();
+  /* no modo jogador, a torcida é a do seu clube (e sem clube não tem torcida) */
+  const id=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime, t=id?T(id):null;
+  if(!t)return vazio('<b>Sem clube, sem torcida.</b> Ela aparece quando você assinar com um time.','clube');
   const lista=(G.torcidaFeed||[]).filter(e=>e.t===t.id).slice(0,newsLimite);
   return `<div class="card flat">${climaTorcidaHTML(t)}</div>
     ${lista.length?lista.map(e=>blocoTorcida(e)).join('')

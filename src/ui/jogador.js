@@ -92,13 +92,15 @@ function _jTabela(t,px){
   const metade=(G.semana||1)>=25?'2':'1', pre=(t.tier===1?'s':'c')+metade+'_';
   const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
   const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)
-          ||(t.tier===1?acharStage('kg_'+t.regiao):null)||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
+          ||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao)||acharStage((t.tier===1?'s2_':'c2_')+t.regiao);
   return cardTabelaDaCasa(t,rr);
 }
 
 /* o cartão do confronto é o da Central do técnico: tira os botões de técnico */
 function _jSemAcoesDeTecnico(html){
-  return String(html).replace(/<button[^>]*data-ir="(preparacao|mercado|elenco|vestiario|estrutura|base|financas|taticas|treino|comps)"[^>]*>[\s\S]*?<\/button>/g,'');
+  return String(html).replace(/<button[^>]*data-ir="(preparacao|mercado|elenco|vestiario|estrutura|base|financas|taticas|treino|comps)"[^>]*>[\s\S]*?<\/button>/g,'')
+    /* o veto é do técnico: para você, o botão leva ao dia de jogo */
+    .replace(/Ir para o veto ›/g,'Ir para o dia de jogo ›');
 }
 /* ---------- Central do jogador ---------- */
 function vJCentral(){

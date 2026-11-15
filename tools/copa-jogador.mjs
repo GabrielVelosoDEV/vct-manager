@@ -30,7 +30,7 @@ const G = m.G;
 m.criarManager('Teste', 'jogador', {});
 const I = m.INICIOS_JOGADOR.find(x => x.id === 'lenda');
 const clube = G.regioes.AMER.t1.map(id => G.times[id]).sort((a, b) => b.prestigio - a.prestigio)[2];
-const p = m.criarCarreiraJogador({nick: 'Voce', pais, idade: 22, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce', pais, idade: 22, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
   estilo: 'mira', inicio: 'lenda', over: 97, pot: 99, timeId: clube.id});
 console.log(`jogador ${p.nome} (${pais}) over ${m.over(p)} no ${clube.nome}`);
 

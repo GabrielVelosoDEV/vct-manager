@@ -155,19 +155,41 @@ function _piorTitularDaFuncao(t,p){
 /* quanto o clube t quer você: >0 quer. Mais alto, mais quer. */
 function interesseDoClube(t,p){
   if(!t||t.id===p.timeId||(t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return -99;
-  const ganho=over(p)-_piorTitularDaFuncao(t,p);
+  /* da ranked, o olheiro chama para testar quem está perto do nível: o
+     teste é justamente para ver de perto */
+  const ganho=over(p)-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  /* clube que já te testou há pouco não chama de novo */
+  const ult=G.voce&&G.voce.testados&&G.voce.testados[t.id];
+  if(!p.timeId&&ult&&_sAbs()-ult<12)return -99;
   const sal=salario(p,t);
   const folga=typeof folgaSalarial==='function'?folgaSalarial(t):sal;
   if(folga<sal*0.75)return -99;
   /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
   if(t.tier===1&&over(p)<74)return -99;
-  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20);
+  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
+}
+/* De onde vem o interesse: primeiro os clubes do seu país, depois os da sua
+   região. Clube de outra região só olha quem é de nível mundial — ninguém
+   atravessa o mundo para fazer teste com um garoto da ranked. */
+function _pesoGeografico(t,p){
+  const casa=typeof paisDoClube==='function'?paisDoClube(t):t.pais;
+  if(casa&&casa===p.pais)return 6;
+  const reg=typeof regiaoDoPais==='function'?regiaoDoPais(p.pais):null;
+  if(!reg||t.regiao===reg)return 0.5;
+  if(!p.timeId)return -99;                         /* da ranked, só a sua região chama */
+  return over(p)>=85?-2:over(p)>=80?-5:-99;
 }
 function clubesInteressadosJogador(p,n){
   return Object.values(G.times).map(t=>({t,i:interesseDoClube(t,p)})).filter(x=>x.i>0)
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
 
+/* um dos que querem, puxado para o topo da lista (o clube do seu país vem antes) */
+function _escolherInteressado(p,n,chave){
+  const l=clubesInteressadosJogador(p,n);if(!l.length)return null;
+  const r=_sorteMerc(chave);
+  return l[Math.min(l.length-1,Math.floor(r*r*l.length))];
+}
 /* ---------- propostas ---------- */
 function propostasJogador(){
   if(!G.voce)return[];
@@ -203,11 +225,14 @@ function gerarPropostasSemana(p){
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
-      const c=clubesInteressadosJogador(p,4)[Math.floor(_sorteMerc('qual')*Math.min(4,clubesInteressadosJogador(p,4).length))];
+      const c=_escolherInteressado(p,4,'qual');
       if(c&&!_jaTem('teste',c.t.id)&&!_jaTem('livre',c.t.id)){
-        /* olheiro sem certeza chama para teste; com empresário bom ou over alto, contrato direto */
-        if(emp>=3||over(p)>=_piorTitularDaFuncao(c.t,p)+3)_novaProposta('livre',c.t,p);
-        else _novaProposta('teste',c.t,p,{validoAte:_sAbs()+2});
+        /* quem vem da ranked passa por teste antes do contrato; só um jogador
+           já consagrado (over 80+) recebe contrato direto */
+        if(over(p)>=80)_novaProposta('livre',c.t,p);
+        else{_novaProposta('teste',c.t,p,{validoAte:_sAbs()+2});
+          (G.voce.testados=G.voce.testados||{})[c.t.id]=_sAbs();
+          if(typeof noticia==='function')noticia(`📋 O ${c.t.nome} chamou ${p.nome} para uma semana de teste. Veja em Contrato e mercado.`,{c:'carreira',p:[p.id],t:[c.t.id],imp:2});}
       }
     }
     return;
@@ -216,7 +241,7 @@ function gerarPropostasSemana(p){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
     if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=clubesInteressadosJogador(p,5)[Math.floor(_sorteMerc('qualt')*Math.min(5,clubesInteressadosJogador(p,5).length))];
+      const c=_escolherInteressado(p,5,'qualt');
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -346,7 +371,8 @@ function simularTeste(id){
   const pr=propostasJogador().find(x=>x.id===id&&x.tipo==='teste');
   if(!pr)return{ok:false,motivo:'Esse teste não existe mais.'};
   const t=G.times[pr.clubeId], p=meuJogador();
-  const chance=Math.max(0.1,Math.min(0.9,0.5+(over(p)-_piorTitularDaFuncao(t,p))*0.08));
+  /* o teste mede potencial também: quem está a poucos pontos do cinco tem chance de verdade */
+  const chance=Math.max(0.15,Math.min(0.9,0.5+(over(p)-_piorTitularDaFuncao(t,p)+4)*0.07+((p.pot||0)-over(p))*0.01));
   return resolverTeste(id,_sorteMerc('teste'+id)<chance);
 }
 
@@ -429,7 +455,7 @@ function viradaContratoJogador(p){
   if(!p||!p.voce||!p.timeId||p.contrato>0)return false;
   const t=G.times[p.timeId];
   const renov=propostasJogador().find(x=>x.tipo==='renovacao'&&x.clubeId===t.id);
-  if(renov&&G.voce.autoContrato!==false){
+  if(renov&&G.voce.autoContrato===true){
     aceitarPropostaJogador(renov.id);
     if(typeof noticia==='function')noticia(`O assistente aceitou a renovação de ${p.nome} com o ${t.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});
     return true;
@@ -438,11 +464,12 @@ function viradaContratoJogador(p){
   liberar(p);p.clausulas=null;G.voce.propostas=[];G.voce.eventos=[];
   return true;
 }
-/* o assistente de contrato, para quem está livre: depois de duas semanas
-   sem decidir, fica com a melhor proposta (e simula o teste) */
+/* o assistente de contrato — só quando você liga (Contrato e mercado):
+   renova com o seu clube, e livre fica com a melhor proposta depois de duas
+   semanas (e simula o teste); oito semanas no banco, busca uma saída */
 const ASSISTENTE_BANCO=8;   /* semanas seguidas no banco até o assistente buscar a saída */
 function assistenteDeContrato(p){
-  if(!G.voce||G.voce.autoContrato===false||!p)return;
+  if(!G.voce||G.voce.autoContrato!==true||!p)return;
   const lista=propostasJogador();
   if(p.timeId){
     /* encostado no banco: pede para ser negociado e aceita a melhor transferência

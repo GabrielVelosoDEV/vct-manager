@@ -141,7 +141,8 @@ function confirmar(texto,sim){
 
 function modalJogador(id){
   const p=P(id);if(!p)return;
-  const t=meu();
+  /* no modo jogador não há clube seu para gerir: a ficha é só leitura */
+  const ger=meu(), t=ger||{id:'\u0000',staff:{}};
   const barra=(k)=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
     <span style="width:118px;font-size:11.5px">${ATTRS.find(a=>a[0]===k)[1]}</span>
     <div class="mj-attr" style="flex:1"><i style="width:${p.at[k]}%;--h:${Math.round(clamp((p.at[k]-40)/55,0,1)*150)}"></i></div>
@@ -224,8 +225,8 @@ function modalJogador(id){
       <button class="btn ghost sm" data-psaida="nao:${p.id}">Negar (a moral cai)</button></div>`:''}</div>`:''}
   ${p.timeId===t.id?blocoConversa(t,p):''}
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-    ${p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
-    ${p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
+    ${ger&&p.timeId&&p.timeId!==t.id&&!p.base&&G.janela?`<button class="btn ghost" id="mjTroca">Propor troca</button>`:''}
+    ${ger&&p.timeId!==t.id&&!p.base?`<button class="btn" data-prop="${p.id}">${negociacaoAtivaDe(p.id)?'Voltar à negociação':'Negociar'}</button>`:''}
     ${p.timeId===t.id&&p.emprestimo&&p.emprestimo.opcaoCompra&&G.janela?`<button class="btn teal" data-opcao="${p.id}">Exercer opção (${money(p.emprestimo.opcaoCompra)})</button>`:''}
     <button class="btn ghost" data-close>Fechar</button></div>`,true);
   const bt=$('#mjTroca');if(bt)bt.onclick=()=>modalTroca(p.timeId,p.id);

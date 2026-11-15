@@ -11,7 +11,7 @@ function circuitoDoBloco(b){
   if(/Masters/.test(n))return{cor:'var(--c-masters)',ic:'estrela'};
   if(/Kickoff/.test(n))return{cor:'var(--c-kickoff)',ic:'bandeira'};
   if(/Ascension/.test(n))return{cor:'var(--c-ascension)',ic:'sobe'};
-  if(/Stage|Split/.test(n))return{cor:meu()&&meu().tier===2?'var(--c-challengers)':'var(--c-stage)',ic:'jogar'};
+  if(/Stage|Split/.test(n))return{cor:clubeVisto()&&clubeVisto().tier===2?'var(--c-challengers)':'var(--c-stage)',ic:'jogar'};
   return{cor:'var(--dim)',ic:'ciclo'};
 }
 function faixaCircuito(){
@@ -29,7 +29,7 @@ function faixaCircuito(){
     const cc=circuitoDoBloco(b);
     return `<div class="tl-item ${est} ${grande(b)?'major':''}" style="--cor:${cc.cor}">
       <div class="q">${ico(cc.ic)}${quando}</div>
-      <div class="n">${esc(nomeBloco(b))}</div>
+      <div class="n">${esc(nomeBloco(b,typeof clubeVisto==='function'?clubeVisto():null))}</div>
       <div class="d">${rotuloPeriodo(G.ano,b.ini,b.fim)}</div></div>`;
   }).join('')+`</div>`;
 }
@@ -59,7 +59,7 @@ function proximoConfronto(){
   }
   /* Sem jogo nesta semana, o que interessa é QUANDO volta a ter. Antes a tela
      dizia só "sem jogo nesta fase", que não ajuda a decidir nada. */
-  const nb=proximoBloco(G.semana||1);
+  const nb=meuId&&typeof proximoBlocoDoClube==='function'?proximoBlocoDoClube(G.semana||1,meuId):proximoBloco(G.semana||1);
   if(nb)return{espera:nb,semanas:nb.ini-(G.semana||1)};
   return null;
 }
@@ -396,7 +396,7 @@ function agentesParaComp(p){
 /* vComp mora em ui/competicoes.js (pacote 3) */
 let compAba='minha';
 function renderStage(s,semFaixa){
-  const t=meu();
+  const t=clubeVisto()||{id:null,tier:1};
   const corpo=s.tipo==='grupos'?corpoGrupos(s,t)
              :s.tipo==='de'?corpoChave(s,t)
              :s.tipo==='swiss'?corpoSwiss(s,t)
@@ -650,7 +650,7 @@ function vTreino(){
   ${px&&!px.espera?`<div class="card flat" style="border-left:4px solid var(--red)">
     <b>Tem jogo nesta semana</b> — ${px.bye?'bye':'contra '+esc(nomeT(px.adv))}. Quem treina pesado
     entra cansado, e cansaço é o que mais custa partida.</div>`
-   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera))}</b> em ${px.semanas}
+   :px&&px.espera?`<div class="card flat"><b>${esc(nomeBloco(px.espera,t))}</b> em ${px.semanas}
     semana${px.semanas===1?'':'s'} — é agora que dá para trabalhar sem pagar caro no sábado.</div>`:''}
   ${typeof cardRange==='function'?cardRange(t):''}
 

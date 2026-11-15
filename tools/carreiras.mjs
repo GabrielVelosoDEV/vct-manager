@@ -63,7 +63,7 @@ if (isMainThread) {
   m.criarManager('Teste', 'jogador', {});
   const I = m.INICIOS_JOGADOR.find(x => x.id === ini);
   const clube = I.tier ? G.regioes.AMER[I.tier === 1 ? 't1' : 't2'].map(id => G.times[id]).sort((a, b) => b.prestigio - a.prestigio)[3] : null;
-  const p = m.criarCarreiraJogador({nick: 'Voce', pais: 'BR', idade: 18, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+  const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce', pais: 'BR', idade: 18, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
     estilo: 'mira', inicio: ini, over: I.over, pot: I.pot, timeId: clube && clube.id});
   const id = p.id;
   let semanas = 0, primeiroClube = p.timeId ? 0 : null, tier1 = null, salMax = p.salario || 0, mapas = 0;

@@ -41,7 +41,7 @@ function podioPremio(lista){
   const deg=(f,k)=>{
     if(!f)return `<div class="pr-deg d${k+1} vazio"></div>`;
     const n=notaPremio(f.n);
-    return `<div class="pr-deg d${k+1} ${f.timeId===G.meuTime?'me':''}">
+    return `<div class="pr-deg d${k+1} ${f.timeId===_meuIdComp()?'me':''}">
       <div class="pr-quem">${nomePremiado(f)}<div class="dim">${esc(f.tag)} · ${f.role}</div>
         <div class="num pr-n">${txtNota(f.n)}${k&&n!=null&&n1!=null?` <span class="dn">−${(n1-n).toFixed(1).replace('.',',')}</span>`:''}</div></div>
       <div class="pr-bloco"><span>${k+1}</span></div></div>`;};

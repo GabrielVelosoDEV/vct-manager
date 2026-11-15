@@ -27,7 +27,7 @@ function rodar(modo) {
   m.criarManager('Teste', 'jogador', {});
   const tier = ini === 'ranked' ? 0 : ini === 'challengers' ? 2 : 1;
   const clube = tier ? G.regioes.AMER[tier === 1 ? 't1' : 't2'].map(id => G.times[id]).sort((a, b) => b.prestigio - a.prestigio)[2] : null;
-  const p = m.criarCarreiraJogador({nick: 'Voce', pais: 'BR', idade: +idade, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
+  const p = m.criarCarreiraJogador({automatico: true, nick: 'Voce', pais: 'BR', idade: +idade, funcao: 'Duelista', agentes: ['Jett', 'Raze', 'Neon'],
     estilo: 'mira', inicio: ini, over: +ov, pot: +pot, timeId: clube && clube.id});
   if (modo === 'nada') G.voce.auto = false;
   const o0 = m.over(p), ano0 = G.ano, at0 = {...p.at};

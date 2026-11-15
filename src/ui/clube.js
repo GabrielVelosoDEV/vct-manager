@@ -78,6 +78,9 @@ function vClube(){
   const t=G.times[clubeVer];
   if(!t)return `<div class="card flat"><div class="empty">Clube não encontrado.</div></div>`;
   const eu=meu(),souEu=eu&&t.id===eu.id;
+  /* modo jogador: não há clube seu para gerir — a página é só leitura,
+     sem negociar, trocar ou relatório do analista */
+  const gere=!!eu&&!souEu;
   const tec=typeof membroDe==='function'?membroDe(t,'tecnico'):null;
   const tecNome=souEu&&G.manager&&G.manager.papel==='treinador'&&!G.manager.demitido?G.manager.nome+' (você)':tec?tec.nome:'vago';
   const mk=t.patrocinios&&typeof marca==='function'?marca(t.patrocinios.master):null;
@@ -91,7 +94,7 @@ function vClube(){
   const elenco=(t.elenco||[]).map(P).filter(Boolean);
   const infoJ=p=>`<div class="cl-j-info dim">${p.idade}a · contrato ${p.contrato}a</div>
       <div class="cl-j-info"><span class="num">${money(p.salario||0)}</span><span class="dim">/mês</span> · <span class="num">${money(p.valor||0)}</span></div>
-      ${souEu?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
+      ${!gere?'':`<div class="cl-j-bt"><button class="btn ghost sm" data-prop="${p.id}">Negociar</button>
         <button class="btn ghost sm" data-ctroca="${p.id}">Troca</button></div>`}`;
   const cartas=elenco.length?escalacaoHTML(t,{extra:infoJ}):'';
 
@@ -160,7 +163,7 @@ function vClube(){
     ${souEu?`<button class="btn ghost sm" data-irtela="historia">História do clube</button>`:''}
   </div>
   <div class="card cl-elenco-card"><div class="split"><div class="eyebrow">Elenco</div>
-    <span class="dim">${elenco.length} jogadores${souEu?'':' · negociar abre a mesa; troca monta uma proposta'}</span></div>
+    <span class="dim">${elenco.length} jogadores${gere?' · negociar abre a mesa; troca monta uma proposta':''}</span></div>
     ${cartas||'<div class="empty">Sem jogadores.</div>'}
     <div class="cl-coms">${comissao}</div></div>
   <div class="grid g2">
@@ -177,7 +180,7 @@ function vClube(){
     </div>
     <div>
       ${typeof painelTorcidaClube==='function'?painelTorcidaClube(t,souEu):''}
-      ${souEu?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
+      ${!gere?'':`<div class="card"><div class="eyebrow">Contra o ${esc(eu?eu.nome:'')}</div>${confronto}</div>
       <div class="card"><div class="eyebrow">Preparo por mapa · relatório do seu analista</div>${leitura}</div>`}
     </div>
   </div>`;

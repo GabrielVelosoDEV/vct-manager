@@ -74,6 +74,9 @@ function P(id){return G.jogadores[id];}
 function nomeT(id){const t=T(id);return t?t.nome:'—';}
 function tagT(id){const t=T(id);return t?t.tag:'???';}
 function meu(){return G&&G.meuTime?T(G.meuTime):null;}
+/* o clube que a tela destaca como "seu": o que você gere ou, no modo jogador,
+   o clube em que você joga. Só para mostrar — ação de gestão continua em meu(). */
+function clubeVisto(){const id=typeof clubeDoUsuario==='function'?clubeDoUsuario():(G&&G.meuTime);return id?T(id):null;}
 function preRun(){return !G||(!G.meuTime&&!G.voce);}
 function nomeTela(k){
   if(String(k).startsWith('clube:')){const t=G&&G.times[String(k).slice(6)];return t?t.nome:'Clube';}

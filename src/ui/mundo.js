@@ -11,7 +11,7 @@ function chipsFiltro(attr,atual,ops){
 
 function ehInternacional(ev){return /^(Champions|Masters|Valorant Champions)/.test(ev||'');}
 function linhaJogadorMini(p,valor,i,extra){
-  return `<tr class="jrow ${p.timeId===G.meuTime?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
+  return `<tr class="jrow ${p.timeId===_meuIdComp()?'me':''}" data-p="${p.id}"><td class="num dim">${i+1}</td>
     <td>${retrato(p,22)} <b>${esc(p.nome)}</b> ${bandeira(p.pais)} <span class="dim">${p.timeId?esc(tagT(p.timeId)):'livre'}</span></td>
     ${extra||''}<td class="r num"><b>${valor}</b></td></tr>`;
 }
@@ -48,7 +48,7 @@ function mundoGeral(){
       ${seq&&(seq.seq||0)>=3?`<div class="mg-clube" style="margin-top:12px">${escudo(seq,40)}<div><b>${esc(seq.nome)}</b>
         <div class="num">${seq.seq} vitórias seguidas</div></div></div>`:''}</div>
     <div class="card"><div class="eyebrow">Top 5 do ranking mundial</div>
-      <table><tbody>${rk.slice(0,5).map((t,i)=>`<tr class="${t.id===G.meuTime?'me':''}"><td class="num dim">${i+1}</td>
+      <table><tbody>${rk.slice(0,5).map((t,i)=>`<tr class="${t.id===_meuIdComp()?'me':''}"><td class="num dim">${i+1}</td>
         <td>${timeInline(t.id,20)}</td><td class="r num"><b>${Math.round(eloDe(t))}</b></td></tr>`).join('')}</tbody></table>
       <button class="btn ghost sm" data-mundo="ranking" style="margin-top:8px">Ver o ranking inteiro</button></div>
   </div>`;
@@ -104,7 +104,7 @@ function mundoTitulos(){
       <div class="tit-galeria">${l.map(x=>{const c=(x.timeId&&G.times[x.timeId])||(typeof acharClubePorNome==='function'?acharClubePorNome(x.campeao):null);
         const v=x.vice&&typeof acharClubePorNome==='function'?acharClubePorNome(x.vice):null;
         const ev=x.ano===G.ano&&x.torneioId?` data-evento="${esc(x.torneioId)}"`:'';
-        return `<div class="tit-pec ${c&&c.id===G.meuTime?'meu':''} ${ev?'abre':''} ${ehInternacional(x.evento)?'intl':''}"${ev}>
+        return `<div class="tit-pec ${c&&c.id===_meuIdComp()?'meu':''} ${ev?'abre':''} ${ehInternacional(x.evento)?'intl':''}"${ev}>
           <div class="tit-trof">${imgTrofeu(trofeuDoTitulo(x.ano,x.evento),48,x.evento)}</div>
           <div class="tit-ped">${c?escudo(c,26):''}<b>${esc(x.campeao)}</b></div>
           <div class="tit-ev">${esc(x.evento)}</div>
@@ -130,9 +130,9 @@ function mundoRecordes(){
     if(!lista.length)return `<div class="card flat"><div class="eyebrow">${rot}</div><div class="dim">—</div></div>`;
     const x1=lista[0];
     return `<div class="card flat rec-card"><div class="eyebrow">${rot}</div>
-      <div class="rec-top ${x1.t&&x1.t.id===G.meuTime?'me':''}"><span class="rec-img">${img(x1,56)}</span>
+      <div class="rec-top ${x1.t&&x1.t.id===_meuIdComp()?'me':''}"><span class="rec-img">${img(x1,56)}</span>
         <div>${nome(x1)}</div><b class="num">${x1.v}</b></div>
-      <table><tbody>${lista.slice(1).map((x,i)=>`<tr class="${x.t&&x.t.id===G.meuTime?'me':''}"><td class="num dim">${i+2}</td><td>${nome(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('')}</tbody></table></div>`;
+      <table><tbody>${lista.slice(1).map((x,i)=>`<tr class="${x.t&&x.t.id===_meuIdComp()?'me':''}"><td class="num dim">${i+2}</td><td>${nome(x)}</td><td class="r num"><b>${x.v}</b></td></tr>`).join('')}</tbody></table></div>`;
   };
   const nT=x=>timeInline(x.t.id,18),nJ=x=>`<b>${esc(x.nome)}</b>${x.lenda?' <span class="chip">Hall da Fama</span>':''}`;
   const pOver=r.over&&vivoPorNome(r.over.nome),pTr=r.transferencia&&vivoPorNome(r.transferencia.nome);
@@ -176,7 +176,7 @@ function mundoRanking(){
   const setaVar=dv=>dv>0?`<span class="up">▲ ${dv}</span>`:dv<0?`<span class="dn">▼ ${-dv}</span>`:'<span class="dim">—</span>';
   const deg=(t,k)=>{if(!t)return '<div class="rk-deg vazio"></div>';
     const cor=corDoClube(t);
-    return `<div class="rk-deg d${k} ${t.id===G.meuTime?'me':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    return `<div class="rk-deg d${k} ${t.id===_meuIdComp()?'me':''}" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
       <div class="rk-esc">${escudo(t,k===1?96:72)}</div>
       <b class="rk-nome">${linkClube(t)}</b>
       <div class="rk-sub"><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span> ${setaVar(varDe(t))}</div>
@@ -191,7 +191,7 @@ function mundoRanking(){
   <div class="card flat"><table class="wide tb ordenavel"><thead><tr><th>#</th><th>Clube</th><th>Liga</th><th class="r">Rating</th>
     <th class="c">Variação</th><th class="c sem-ord">Forma</th><th class="sem-ord">12 meses</th></tr></thead><tbody>
   ${rk.slice(3).map(t=>{const i=posMundo.get(t.id),dv=varDe(t);
-    return `<tr class="${t.id===G.meuTime?'me':''}"><td data-v="${i}">${selo(i,i<=3?'top':'')}</td><td>${celClube(t.id,24)}</td>
+    return `<tr class="${t.id===_meuIdComp()?'me':''}"><td data-v="${i}">${selo(i,i<=3?'top':'')}</td><td>${celClube(t.id,24)}</td>
       <td><span class="chip reg-${t.regiao}">${esc(nomeLiga(t).replace(/^VCT /,''))}</span></td><td class="r num"><b>${Math.round(eloDe(t))}</b></td>
       <td class="c num" data-v="${dv}">${setaVar(dv)}</td><td class="c">${formaRecente(t.id,5)}</td><td>${sparkElo(t.id)}</td></tr>`;}).join('')}
   </tbody></table></div>`;
