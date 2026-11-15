@@ -150,13 +150,13 @@ function criarMundo(seedVal){
   /* Reais sem clube, se o elencos.js trouxer a chave LIVRE. Vêm antes dos
      gerados para que o nick real nunca perca a vaga para um sorteado. */
   if(typeof ELENCOS_REAIS!=='undefined'&&ELENCOS_REAIS.LIVRE){
-    for(const[nick,roleDado,ovDado,idadeDada,paisDado,potDado]of ELENCOS_REAIS.LIVRE){
+    for(const[nick,roleDado,ovDado,idadeDada,paisDado,potDado,generoDado]of ELENCOS_REAIS.LIVRE){
       const R=pick(REGIONS);
       const role=roleDado||pick(ROLES);
       const idade=idadeDada||ri(19,28);
       const ov=ovDado||overAlvo('jogador',2,ri(45,58),3);
       const p=makePlayer(ov,role,paisDado||pick(R.paises),idade,usadosP,ovDado>=FAIXAS.jogador[1][0]?1:2);
-      p.nome=nick;usadosP.add(nick);p.real=true;
+      p.nome=nick;usadosP.add(nick);p.real=true;if(generoDado==='f')p.genero='f';
       darMainsReais(p);
       if(paisDado)p.paisReal=true;
       aplicarOver(p,ov);if(ovDado)p.overFixo=true;
