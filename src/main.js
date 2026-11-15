@@ -53,6 +53,8 @@ function aplicarTurno(r){
   if(!r)return;
   if(typeof relogioTocar==='function')relogioTocar();
   if(typeof conferirCelebracao==='function')conferirCelebracao();
+  if(G&&G.tecSaiuPendente){const s=G.tecSaiuPendente;G.tecSaiuPendente=null;
+    if(!$('#modal').innerHTML&&typeof avisar==='function')avisar(s.nome+' pediu demissão. A confiança dele em você chegou ao fim. O auxiliar assume como interino até você contratar outro técnico em Comando técnico.','O técnico saiu');}
   if(Prefs.get('autosave'))salvarRun(G.runNome);
   if(modo==='jogo'){pintarTop();pintarSide();render();}
   /* World Cup em novembro: um momento do evento (sorteio, os 32…) num dia da janela */
@@ -94,6 +96,10 @@ function avancarComRitual(quantas){
     const abrirS=djs.papel==='tecnico'?abrirPreJogoSelecao:abrirDiaDeJogoSelecao;
     abrirS(djs,()=>avancarComRitual(quantas));
     return;
+  }
+  /* modo Dono com técnico: sem mandato do ano, ele espera antes de a semana andar */
+  if(typeof mandatoPendente==='function'&&mandatoPendente()&&typeof modalMandato==='function'){
+    modalMandato(()=>avancarComRitual(quantas));return;
   }
   if(usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
@@ -148,10 +154,15 @@ function aplicarAvanco(r,quantas){
       const ano=G.cerimoniaPendente;G.cerimoniaPendente=null;
       const reg=(G.premios||[]).find(x=>x.ano===ano);
       const v=G.vereditoPendente;G.vereditoPendente=null;
-      abrirCerimonia(reg,()=>{if(v)modalVeredito(v);else render();},!!v);
+      abrirCerimonia(reg,()=>{if(v)modalVeredito(v);
+        else if(G.balancoTecnicoPendente&&typeof modalBalancoTecnico==='function'){const b=G.balancoTecnicoPendente;G.balancoTecnicoPendente=null;modalBalancoTecnico(b);}
+        else render();},!!v);
     }else if(G&&G.vereditoPendente){
       const v=G.vereditoPendente;G.vereditoPendente=null;
       modalVeredito(v);
+    }else if(G&&G.balancoTecnicoPendente&&typeof modalBalancoTecnico==='function'){
+      const b=G.balancoTecnicoPendente;G.balancoTecnicoPendente=null;
+      modalBalancoTecnico(b);
     }
   };
   /* Valorant World Cup: os momentos do evento (sede, sorteio, a campeã…)

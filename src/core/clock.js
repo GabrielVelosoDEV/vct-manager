@@ -128,6 +128,8 @@ function avancar(plano){
 
   /* modo jogador: o técnico do seu clube escala no começo da semana (core/relacoes.js) */
   if(!em&&G.voce&&typeof escalarClubeDoJogador==='function')escalarClubeDoJogador();
+  /* modo Dono com técnico: ele fecha o cinco antes da rodada */
+  if(!em&&typeof escalarPeloTecnico==='function')escalarPeloTecnico();
   const resultados=[];let minhaPartida=null;
   if(b){
     /* O número de rodadas da semana é decidido UMA vez, no começo dela: numa
@@ -275,6 +277,9 @@ function semana(){
        aproximado. */
     t.caixa+= t.patroc/SEMANAS_ANO - (folha*12)/SEMANAS_ANO - custeio;
     if(id===G.meuTime&&typeof cobrarDividaDono==='function')cobrarDividaDono(t);
+    /* modo Dono com técnico: os pedidos e a confiança dele (core/tecnico-ia.js) */
+    const tecIAManda=id===G.meuTime&&typeof tecnicoComanda==='function'&&tecnicoComanda(t);
+    if(id===G.meuTime&&typeof semanaTecnicoIA==='function')semanaTecnicoIA(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
@@ -284,7 +289,7 @@ function semana(){
     /* o seu clube: o auxiliar monta a semana pelo modo escolhido (core/plano.js),
        e a foto de antes vira o relatório da semana de treino */
     const fotoAntes=id===G.meuTime&&typeof fotoTreino==='function'?fotoTreino(t):null;
-    if(id===G.meuTime&&typeof aplicarModoSemana==='function')aplicarModoSemana(t);
+    if(id===G.meuTime&&!tecIAManda&&typeof aplicarModoSemana==='function')aplicarModoSemana(t);
     if(typeof planoIA==='function')planoIA(t);
     if(typeof aplicarTreinoSemanal==='function')aplicarTreinoSemanal(t);
     if(typeof aplicarMiniMapa==='function')aplicarMiniMapa(t);
@@ -293,7 +298,7 @@ function semana(){
     if(typeof limparComps==='function')limparComps(t);
     if(typeof compIA==='function')compIA(t);
     if(typeof taticaIA==='function')taticaIA(t);
-    if(id===G.meuTime&&typeof atualizarEstilo==='function')atualizarEstilo(t);
+    if(id===G.meuTime&&!tecIAManda&&typeof atualizarEstilo==='function')atualizarEstilo(t);
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));

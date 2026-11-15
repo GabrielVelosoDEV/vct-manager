@@ -171,7 +171,8 @@ function render(){
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
   const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
-            editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null}[tela]
+            editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
+            tecnico:typeof vTecnico==='function'?vTecnico:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null)
     ||(String(tela).startsWith('selecao:')&&typeof vSelecao==='function'?(selecaoVer=String(tela).slice(8),vSelecao):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
@@ -187,6 +188,8 @@ function render(){
   if(typeof animarTela==='function')animarTela(v,tela,como);
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
+  if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
+  v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
 }
 function irPara(k,semHist){
   const de=tela;

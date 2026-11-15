@@ -17,6 +17,8 @@ let PP=null;   /* {comp, V, etapa:'relatorio'|'veto'|'comps'} */
 function prePartidaDisponivel(){
   if(!G||!G.meuTime)return null;
   if(typeof compromissoDaSemana!=='function')return null;
+  /* modo Dono com técnico: o veto e o plano são dele; você assiste */
+  if(typeof tecnicoComanda==='function'&&tecnicoComanda(G.times[G.meuTime]))return null;
   /* sem cinco não há veto nem transmissão: a semana roda e o jogo é W.O. */
   if(typeof emCondicaoDeJogo==='function'&&!emCondicaoDeJogo(G.times[G.meuTime]))return null;
   return compromissoDaSemana();

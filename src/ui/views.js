@@ -156,7 +156,9 @@ function vElenco(){
     <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
     <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
-  ${escalacaoHTML(t,{editavel:true,botoes:'<button class="btn ghost sm" id="autoEsc">Escalação automática</button>'})}
+  ${typeof tecnicoComanda==='function'&&tecnicoComanda(t)
+    ?`<div class="card ti-aviso">${icone('info')} <span>Quem escala é ${esc((tecnicoAtual(t)||{nome:'o interino'}).nome)}. Para mudar o cinco, interfira em <a href="#" data-ir-tela="tecnico">Comando técnico</a>.</span></div>`+escalacaoHTML(t,{editavel:false})
+    :escalacaoHTML(t,{editavel:true,botoes:'<button class="btn ghost sm" id="autoEsc">Escalação automática</button>'})}
   ${resumoElenco(t)}
   <div class="card"><div class="split"><div><div class="eyebrow">A semana do elenco</div>
     <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div></div>

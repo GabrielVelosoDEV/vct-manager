@@ -4540,3 +4540,76 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .og-pe-c{margin-left:auto;white-space:nowrap}
 .og-pe .btn{white-space:nowrap}
 .og-pe .nj-assumir{width:auto;flex:0 0 auto}
+
+/* ---------- Comando técnico (modo Dono com técnico IA) ---------- */
+.ti-hero{position:relative;overflow:hidden;padding:22px 24px;border-left:3px solid var(--clube,var(--red));
+  background:linear-gradient(100deg,rgba(var(--clube-rgb,255,70,85),.16),transparent 60%),var(--panel)}
+.ti-hero .ti-fundo{position:absolute;inset:0;opacity:.09;pointer-events:none}
+.ti-hero-c{position:relative;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:center}
+.ti-quem{display:flex;gap:18px;align-items:center}
+.ti-quem .retrato{border-radius:6px}
+.ti-nome .bandeira{width:30px;height:auto;vertical-align:4px;border-radius:2px}
+.ti-nome{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;letter-spacing:.02em;margin:2px 0 6px;cursor:pointer}
+.ti-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ti-chips .ov{font-size:20px;padding:2px 8px}
+.ti-exige{margin-top:8px;font-size:12.5px}
+.ti-vazio{width:84px;height:84px;display:grid;place-items:center;background:var(--panel2);border:1px dashed var(--line);border-radius:6px;color:var(--dim)}
+.ti-vazio.p{width:48px;height:48px}
+.ti-vazio .ic svg{width:34px;height:34px}
+.ti-conf-b{position:relative;height:10px;background:var(--panel2);border-radius:5px;overflow:hidden;margin:8px 0 6px}
+.ti-conf-b i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;transition:width .4s}
+.ti-conf-l{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--red);opacity:.8}
+.ti-conf-t{display:flex;align-items:baseline;gap:10px}
+.ti-conf-t b{font-size:28px}
+.ti-acoes{position:relative;display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.ti-acoes .dim{font-weight:400;margin-left:6px}
+.ti-mandato.pend{border-left:3px solid var(--amber)}
+.ti-md{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+.ti-md>div{display:flex;flex-direction:column;gap:3px;padding:12px 14px;background:var(--panel2)}
+.ti-md>div b{font-size:15px}
+.ti-md .dim{font-size:12px}
+.ti-ped{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.ti-ped:first-of-type{border-top:0}
+.ti-ped-ic{width:32px;height:32px;display:grid;place-items:center;background:var(--panel2);border-radius:50%}
+.ti-ped.aberto .ti-ped-ic{background:rgba(255,70,85,.18);color:var(--red)}
+.ti-ped.cumprido{opacity:.75}.ti-ped.negado,.ti-ped.expirou,.ti-ped.falhou{opacity:.55}
+.ti-ped-c{font-size:13px;display:flex;flex-direction:column;gap:3px}
+.ti-ped-s{display:flex;align-items:center;gap:6px;font-size:12px}
+.ti-ped-a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ti-int-l{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.ti-int{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 4px;background:var(--panel2);border-left:3px solid var(--amber);font-size:13px}
+.ti-int.veto{border-left-color:var(--red)}
+.ti-int button{background:none;border:0;color:var(--dim);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.ti-int-f{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ti-int-f select{flex:1;min-width:200px}
+.ti-log>div{display:grid;grid-template-columns:90px 1fr 50px;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:13px}
+.ti-log>div:first-child{border-top:0}
+.ti-log b{text-align:right}
+.ti-bal{display:grid;grid-template-columns:50px 1fr 90px 140px;gap:10px;padding:5px 0;font-size:13px}
+.ti-aviso{display:flex;align-items:center;gap:10px;border-left:3px solid var(--amber)}
+.ti-mini{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer}
+.ti-mini:hover{background:var(--panel2)}
+.ti-mini-c{display:flex;flex-direction:column;gap:2px}
+.ti-op3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ti-op4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ti-op{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 14px;background:var(--panel2);border:1px solid var(--line);color:inherit;cursor:pointer;font:inherit}
+.ti-op b{font-family:'Bebas Neue',Impact,sans-serif;font-size:19px;letter-spacing:.03em}
+.ti-op.on{border-color:var(--red);background:rgba(255,70,85,.12)}
+.ti-op.on b{color:var(--red)}
+.ti-ent-abas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.ti-ent-abas button{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line);color:inherit;cursor:pointer;font:inherit;text-align:left}
+.ti-ent-abas button span{flex:1}
+.ti-ent-abas button.on{border-color:var(--red)}
+.ti-ent-g{display:grid;grid-template-columns:260px 1fr;gap:20px}
+.ti-ent-c{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px;background:var(--panel2)}
+.ti-ent-c h3{font-family:'Bebas Neue',Impact,sans-serif;font-size:28px;margin:4px 0 0}
+.ti-ent-d{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.6}
+.ti-ent-q{display:flex;flex-direction:column;gap:10px}
+.ti-ent-r{padding:10px 14px;border-left:3px solid var(--line);background:rgba(255,255,255,.02)}
+.ti-ent-r p{margin:4px 0 0;font-style:italic}
+.ti-ent-ps{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.ti-balanco .ti-md{margin-top:14px}
+.ti-balanco.bom h2{color:var(--teal)}.ti-balanco.ruim h2{color:var(--red)}
+
+.ti-aviso a{color:var(--red)}
+.ti-ent-c h3 .bandeira{width:28px;height:auto;vertical-align:3px}

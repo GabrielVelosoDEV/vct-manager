@@ -375,7 +375,7 @@ function limparComps(t){
    para trocar um boneco. */
 const COMP_IA_INTERVALO=4;
 function compIA(t){
-  if(!t||t.id===G.meuTime)return null;
+  if(!t||(t.id===G.meuTime&&!(typeof tecnicoComanda==='function'&&tecnicoComanda(t))))return null;
   const ativos=G.mapasAtivos||[];
   const assin=(t.titulares||[]).join(',')+'|'+ativos.join(',')+'|'+JSON.stringify(G.meta||{});
   const semana=(G.ano||0)*100+(G.semana||0);

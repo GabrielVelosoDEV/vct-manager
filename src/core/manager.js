@@ -32,12 +32,13 @@ const PAPEIS=[
 ];
 function papelAtual(){const p=(G.manager&&G.manager.papel)||'dono';return p==='diretoria'?'dono':p;}
 function souDono(){return papelAtual()==='dono';}
-/* Variantes do modo Dono. Só a Livre está pronta: as outras entram com o
-   técnico IA (fase 3) e a empresa (fase 4) do planejamento. */
+/* Variantes do modo Dono. Livre é o modo Diretoria de antes; Puro e
+   Dono-técnico têm o técnico IA (core/tecnico-ia.js). A empresa (valor de
+   mercado, investidores, falência) chega na fase 4 do planejamento. */
 const VARIANTES_DONO=[
   {id:'livre',nome:'Dono livre',resumo:'Você faz tudo: escala, monta a tática, joga as partidas e cuida do clube. Sem metas, sem cobrança, sem falência.',detalhe:'O mais acessível.'},
-  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico e cuida da empresa; o time é dele. Você assiste às partidas.',detalhe:'Em construção.',emBreve:true},
-  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'Em construção.',emBreve:true}
+  {id:'puro',nome:'Dono puro',resumo:'Você contrata o técnico, dá a ele um mandato e uma verba e aprova os pedidos dele; o time é dele. Você assiste às partidas.',detalhe:'Gestão de verdade.'},
+  {id:'hibrido',nome:'Dono-técnico',resumo:'Tudo do dono puro, e você pode demitir o técnico e sentar no banco quando quiser, com custo.',detalhe:'O mais completo.'}
 ];
 function varianteDono(id){return VARIANTES_DONO.find(x=>x.id===id&&!x.emBreve)||VARIANTES_DONO[0];}
 function souTreinador(){return papelAtual()==='treinador';}
@@ -411,8 +412,11 @@ function assumirClube(id){
 function situacaoManager(){
   const m=G.manager;
   if(!m)return null;
-  if(!souTreinador())return{papel:'Dono',livre:true,
-    texto:'Sem metas e sem cobrança — o clube é seu e vai para onde você decidir.'};
+  if(!souTreinador()){
+    /* com técnico IA, a relação com ele tem card próprio na Central */
+    if(typeof donoComTecnico==='function'&&donoComTecnico())return null;
+    return{papel:'Dono',livre:true,texto:'Sem metas e sem cobrança — o clube é seu e vai para onde você decidir.'};
+  }
   /* Demitido é um ESTADO, não um evento que passa.
 
      Antes a demissão só existia dentro do modal do veredito: quem fechasse o

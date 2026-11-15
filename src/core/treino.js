@@ -463,7 +463,7 @@ function mapaDaSemanaIA(t){
    ausência. Prioridade simples e legível: elenco cansado descansa, elenco novo
    treina atributo, e o mapa da semana sai do pool de conforto do clube. */
 function planoIA(t){
-  if(!t||t.id===G.meuTime)return null;
+  if(!t||(t.id===G.meuTime&&!(typeof tecnicoComanda==='function'&&tecnicoComanda(t))))return null;
   const pl=planoDe(t);
   const tit=(t.titulares||[]).map(i=>G.jogadores[i]).filter(Boolean);
   const fadigaMedia=tit.length?tit.reduce((s,p)=>s+p.fadiga,0)/tit.length:0;

@@ -187,7 +187,7 @@ function focoNatural(t){
   return perfil>=3?'execucao':perfil<=-3?'retake':'default';
 }
 function taticaIA(t){
-  if(!t||t.id===G.meuTime)return null;
+  if(!t||(t.id===G.meuTime&&!(typeof tecnicoComanda==='function'&&tecnicoComanda(t))))return null;
   /* agressividade: o elenco decide, porque é o elenco que paga */
   const perfil=(typeof perfilAgressivo==='function')?perfilAgressivo(t):0;
   t.tatica.agres=clamp(3+Math.round(perfil/5),1,5);

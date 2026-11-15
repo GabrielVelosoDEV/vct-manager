@@ -21,6 +21,11 @@ const GUIA_TELAS={
   financas:'Patrocínio, torcida e liga pagam a folha. Fique de olho no teto: a diretoria não aceita estourar o caixa.',
   comp:'Todos os torneios do circuito, com tabela, chaveamento e campeões. O seu aparece primeiro.'
 };
+const GUIA_TELAS_DONO={
+  tecnico:'O técnico decide escalação, tática, treino e veto. Você entrega o mandato, responde aos pedidos dele e decide se interfere — interferir funciona, mas custa a confiança dele.',
+  elenco:'O cinco é escolhido pelo técnico toda semana. Daqui você só olha; para mudar, interfira em Comando técnico.',
+  mercado:'A negociação é sua. Quando o técnico pede um reforço e você aprova, o pedido aparece em Pedidos com as respostas dos clubes.'
+};
 /* Primeiros passos da Central: cada um se marca sozinho quando acontece. */
 const GUIA_PASSOS_TECNICO=[
   {id:'elenco', texto:'Confira a escalação',             tela:'elenco'},
@@ -31,6 +36,22 @@ const GUIA_PASSOS_TECNICO=[
   {id:'mercado',texto:'Dê uma olhada no mercado',        tela:'mercado'},
   {id:'partida',texto:'Jogue a primeira partida com relatório e veto'}
 ];
+/* modo Dono com técnico IA: quem escala é ele, os passos são de dono */
+const GUIA_PASSOS_DONO=[
+  {id:'tecnico', texto:'Conheça o seu técnico',              tela:'tecnico'},
+  {id:'mandato', texto:'Entregue o mandato da temporada',    tela:'tecnico'},
+  {id:'elenco',  texto:'Veja o cinco que ele escalou',       tela:'elenco'},
+  {id:'pedido',  texto:'Responda a um pedido do técnico',    tela:'tecnico'},
+  {id:'mercado', texto:'Dê uma olhada no mercado',           tela:'mercado'},
+  {id:'partida', texto:'Assista à primeira partida'}
+];
+function _guiaDonoAuto(){
+  if(!G.guia||typeof tecIA!=='function')return;
+  const v=G.guia.vistos,x=tecIA(),t=G.times[G.meuTime];
+  if(!mandatoPendente())v.mandato=true;
+  if(x.pedidos.some(p=>p.status!=='aberto'))v.pedido=true;
+  if(t&&t.temporada&&(t.temporada.v+t.temporada.d)>0)v.partida=true;
+}
 /* modo jogador: as dicas e os primeiros passos são outros */
 const GUIA_TELAS_JOGADOR={
   inicio:'A Central do jogador: a sua situação no clube, a chance de jogar, o próximo jogo e o que estão falando de você. O botão Avançar passa a semana.',
@@ -64,7 +85,8 @@ function guiaAtivo(){
 function guiaMarcar(k){if(G&&G.guia&&G.guia.vistos)G.guia.vistos[k]=true;}
 /* Aviso no topo da tela, até você dizer que entendeu. */
 function guiaBanner(k){
-  const textos=typeof modoJogador==='function'&&modoJogador()?GUIA_TELAS_JOGADOR:GUIA_TELAS;
+  const textos=typeof modoJogador==='function'&&modoJogador()?GUIA_TELAS_JOGADOR
+    :typeof donoComTecnico==='function'&&donoComTecnico()?Object.assign({},GUIA_TELAS,GUIA_TELAS_DONO):GUIA_TELAS;
   if(!guiaAtivo()||!textos[k]||G.guia.ok[k])return '';
   return `<div class="guia"><span class="guia-tag">Dica</span><span>${esc(textos[k])}</span>
     <button class="btn sm ghost" data-guiaok="${k}">Entendi</button></div>`;
@@ -74,7 +96,9 @@ function guiaPassosHTML(){
   const v=G.guia.vistos;
   const jog=typeof modoJogador==='function'&&modoJogador();
   if(jog)_guiaJogadorAuto();
-  const GUIA_PASSOS=jog?GUIA_PASSOS_JOGADOR:GUIA_PASSOS_TECNICO;
+  const dono=!jog&&typeof donoComTecnico==='function'&&donoComTecnico();
+  if(dono)_guiaDonoAuto();
+  const GUIA_PASSOS=jog?GUIA_PASSOS_JOGADOR:dono?GUIA_PASSOS_DONO:GUIA_PASSOS_TECNICO;
   const feitos=GUIA_PASSOS.filter(p=>v[p.id]).length;
   if(feitos===GUIA_PASSOS.length)return '';
   return `<div class="card guia-card"><div class="eyebrow">Primeiros passos · ${feitos} de ${GUIA_PASSOS.length}</div>

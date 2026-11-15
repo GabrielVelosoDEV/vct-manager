@@ -29,7 +29,7 @@ const NAV_JOGADOR=[
   ['news','Notícias','Circuito','jornal'],
   ['config','Configurações','Sistema','engrenagem']
 ];
-function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return NAV;}
+function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return typeof navDono==='function'&&G&&G.meuTime?navDono(NAV):NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   /* depois de parar, só o legado e o circuito (ui/legado.js) */

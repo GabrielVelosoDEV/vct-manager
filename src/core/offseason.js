@@ -274,6 +274,8 @@ function fimDeTemporada(){
      t.temporada para saber em que posição o clube terminou. */
   if(typeof avaliarTemporada==='function'&&G.manager&&!G.manager.demitido)
     G.vereditoPendente=avaliarTemporada();
+  /* modo Dono com técnico: o balanço do mandato */
+  if(typeof avaliarMandato==='function'){const bm=avaliarMandato();if(bm)G.balancoTecnicoPendente=bm;}
   /* o projeto de três temporadas: balanço do ano e, no último, o veredito do
      ciclo. Mexe na mesma confiança, então o veredito mostra a soma. */
   if(typeof avaliarProjeto==='function'&&G.meuTime&&!(G.manager&&G.manager.demitido)){
