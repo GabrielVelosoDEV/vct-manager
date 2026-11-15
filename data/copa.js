@@ -6,7 +6,9 @@
    As sedes seguem esta ordem e recomeçam depois da 20ª edição.
 
    As 40 seleções são os países com mais jogadores reais na base
-   (data/elencos.js). Os 20 primeiros fecham 7 só com reais; os outros
+   (data/elencos.js). Egito e Marrocos entraram em 15/11/2026 no lugar de
+   Geórgia e El Salvador, que ficaram sem jogador real depois da revisão
+   de nacionalidades pelo VLR. Os 20 primeiros fecham 7 só com reais; os outros
    completam com os agentes livres gerados que toda carreira nova já
    sorteia (core/selecoes.js orienta a nacionalidade deles).
 
@@ -38,7 +40,7 @@ const COPA_SELECOES=[
   ['FI','FIN','EMEA'],['GB','GBR','EMEA'],['AU','AUS','AP'],['CZ','CZE','EMEA'],['AR','ARG','AMER'],
   ['MX','MEX','AMER'],['LT','LTU','EMEA'],['SE','SWE','EMEA'],['IT','ITA','EMEA'],['DK','DEN','EMEA'],
   ['CO','COL','AMER'],['UA','UKR','EMEA'],['SA','KSA','EMEA'],['NL','NED','EMEA'],['HK','HKG','AP'],
-  ['GE','GEO','EMEA'],['SV','SLV','AMER'],['RO','ROU','EMEA'],['VN','VIE','AP'],['PT','POR','EMEA']
+  ['EG','EGY','EMEA'],['MA','MAR','EMEA'],['RO','ROU','EMEA'],['VN','VIE','AP'],['PT','POR','EMEA']
 ];
 /* formato da Copa: 8 grupos de 4 em MD3, os dois primeiros avançam; daí em
    diante (oitavas, quartas, semis, disputa do bronze e final) tudo em MD5 */
@@ -91,7 +93,7 @@ const CORES_SELECAO={
   AR:['#5FA2DB','#FFFFFF','#F6B40E'], MX:['#006847','#FFFFFF','#CE1126'], LT:['#FDB913','#006A44','#C1272D'],
   SE:['#006AA7','#FECC00','#FECC00'], IT:['#1A5FC4','#FFFFFF','#009246'], DK:['#C8102E','#FFFFFF','#FFFFFF'],
   CO:['#FCD116','#1F4FB0','#CE1126'], UA:['#1F6FD1','#FFD700','#FFD700'], SA:['#0A8A45','#FFFFFF','#FFFFFF'],
-  NL:['#FF6C00','#FFFFFF','#21468B'], HK:['#DE2910','#FFFFFF','#FFFFFF'], GE:['#E8112D','#FFFFFF','#FFFFFF'],
-  SV:['#1A5BD1','#FFFFFF','#FFFFFF'], RO:['#1E4FB0','#FCD116','#CE1126'], VN:['#DA251D','#FFFF00','#FFFF00'],
+  NL:['#FF6C00','#FFFFFF','#21468B'], HK:['#DE2910','#FFFFFF','#FFFFFF'], EG:['#CE1126','#FFFFFF','#C9A13B'],
+  MA:['#C1272D','#1E8A4C','#E2B45A'], RO:['#1E4FB0','#FCD116','#CE1126'], VN:['#DA251D','#FFFF00','#FFFF00'],
   PT:['#C8102E','#FFE000','#006600']
 };

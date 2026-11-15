@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/cidades/` com o nome exato da lista. O nome é
 nome da cidade em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-63/63 com imagem.
+65/65 com imagem.
 
 ## Champions (e Masters)
 
@@ -82,3 +82,5 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `moscou.jpg` — Moscou (RU)
 - [x] `mumbai.jpg` — Mumbai (IN)
 - [x] `sydney.jpg` — Sydney (AU)
+- [x] `cairo.jpg` — Cairo (EG)
+- [x] `marrakech.jpg` — Marrakech (MA)

@@ -87,7 +87,10 @@ const SEDES=[
 const SEDES_COPA=[
   {nome:'Moscou',pais:'RU',maior:true},
   {nome:'Mumbai',pais:'IN',maior:true},
-  {nome:'Sydney',pais:'AU',maior:true}
+  {nome:'Sydney',pais:'AU',maior:true},
+  /* não são sede (ainda): a cidade que dá o fundo da página da seleção */
+  {nome:'Cairo',pais:'EG',maior:true},
+  {nome:'Marrakech',pais:'MA',maior:true}
 ];
 /* países-sede em que a Copa não vai para a maior cidade de Champions */
 const SEDE_COPA_NO_PAIS={BR:'Rio de Janeiro'};

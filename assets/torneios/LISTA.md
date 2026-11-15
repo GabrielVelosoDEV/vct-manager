@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/torneios/` com o nome exato da lista. O nome �
 id do torneio em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-43/43 com imagem.
+43/47 com imagem.
 
 ## Internacional
 
@@ -19,6 +19,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `kickoff-amer.png` — Kickoff VCT Americas
 - [x] `stage1-amer.png` — Stage 1 · VCT Americas
 - [x] `stage2-amer.png` — Stage 2 · VCT Americas
+- [ ] `kickoffc-amer.png` — Kickoff · Challengers Americas
 - [x] `split1-amer.png` — Split 1 · Challengers Americas
 - [x] `split2-amer.png` — Split 2 · Challengers Americas
 - [x] `asc-amer.png` — Ascension VCT Americas
@@ -32,6 +33,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `kickoff-emea.png` — Kickoff VCT EMEA
 - [x] `stage1-emea.png` — Stage 1 · VCT EMEA
 - [x] `stage2-emea.png` — Stage 2 · VCT EMEA
+- [ ] `kickoffc-emea.png` — Kickoff · Challengers EMEA
 - [x] `split1-emea.png` — Split 1 · Challengers EMEA
 - [x] `split2-emea.png` — Split 2 · Challengers EMEA
 - [x] `asc-emea.png` — Ascension VCT EMEA
@@ -45,6 +47,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `kickoff-pac.png` — Kickoff VCT Pacific
 - [x] `stage1-pac.png` — Stage 1 · VCT Pacific
 - [x] `stage2-pac.png` — Stage 2 · VCT Pacific
+- [ ] `kickoffc-pac.png` — Kickoff · Challengers Pacific
 - [x] `split1-pac.png` — Split 1 · Challengers Pacific
 - [x] `split2-pac.png` — Split 2 · Challengers Pacific
 - [x] `asc-pac.png` — Ascension VCT Pacific
@@ -58,6 +61,7 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `kickoff-cn.png` — Kickoff VCT China
 - [x] `stage1-cn.png` — Stage 1 · VCT China
 - [x] `stage2-cn.png` — Stage 2 · VCT China
+- [ ] `kickoffc-cn.png` — Kickoff · Challengers China
 - [x] `split1-cn.png` — Split 1 · Challengers China
 - [x] `split2-cn.png` — Split 2 · Challengers China
 - [x] `asc-cn.png` — Ascension VCT China
