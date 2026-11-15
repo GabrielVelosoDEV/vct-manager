@@ -193,6 +193,7 @@ function render(){
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
+  if(typeof ligarAgendaDono==='function')ligarAgendaDono(v);
 }
 function irPara(k,semHist){
   const de=tela;

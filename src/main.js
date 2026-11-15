@@ -56,6 +56,7 @@ function aplicarTurno(r){
   /* modo Dono: fim da linha, conselho e avisos de caixa (ui/empresa.js) */
   if(G&&G.fimDonoPendente&&typeof modalFimDono==='function'){const f=G.fimDonoPendente;G.fimDonoPendente=null;modalFimDono(f);}
   else if(G&&G.conselhoPendente&&!$('#modal').innerHTML&&typeof modalConselho==='function'){const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r);}
+  else if(G&&G.criseNova&&!$('#modal').innerHTML&&typeof abrirCrise==='function'){G.criseNova=false;abrirCrise();}
   else if(G&&G.avisoEmpresaPendente&&!$('#modal').innerHTML&&typeof modalAvisoEmpresa==='function'){const a=G.avisoEmpresaPendente;G.avisoEmpresaPendente=null;modalAvisoEmpresa(a);}
   if(G&&G.tecSaiuPendente){const s=G.tecSaiuPendente;G.tecSaiuPendente=null;
     if(!$('#modal').innerHTML&&typeof avisar==='function')avisar(s.nome+' pediu demissão. A confiança dele em você chegou ao fim. O auxiliar assume como interino até você contratar outro técnico em Comando técnico.','O técnico saiu');}
@@ -228,7 +229,7 @@ function avancarAteMeuJogo(){
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
     if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
-    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente)break;   /* modo Dono */
+    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente||G.criseNova)break;   /* modo Dono */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

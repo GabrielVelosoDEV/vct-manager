@@ -4706,6 +4706,35 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .mgr-chefe{margin-top:4px;font-size:12.5px}
 .mgr-chefe a{color:inherit;text-decoration:underline}
 
+/* ---------- Minigames de gestão (fase 6) ---------- */
+.uni-g{display:grid;grid-template-columns:300px 1fr;gap:22px}
+.uni-prev{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;background:radial-gradient(70% 60% at 50% 35%,rgba(255,255,255,.07),transparent),var(--panel2)}
+.uni-svg{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45))}
+.uni-pesq{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.uni-pesq b{font-size:22px}
+.uni-moda{font-size:12px;text-align:center}
+.uni-op{display:flex;flex-direction:column;gap:8px}
+.uni-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.uni-btns.c3{grid-template-columns:repeat(3,1fr)}
+.uni-pills{display:flex;flex-wrap:wrap;gap:6px}
+.uni-pills .on{border-color:var(--red);color:var(--red)}
+.mp-g{display:grid;grid-template-columns:260px 1fr;gap:20px}
+.mp-marca{display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--panel2)}
+.mp-marca img{max-width:160px;max-height:60px;object-fit:contain}
+.mp-pac{display:flex;align-items:center;gap:6px;font-size:12.5px}
+.mp-pac i{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block}
+.mp-pac i.on{background:var(--teal)}
+.mp-conv{display:flex;flex-direction:column;gap:10px}
+.mp-hist{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;padding:4px}
+.mp-fala{max-width:80%;padding:10px 14px;font-size:13.5px;background:var(--panel2);border-left:3px solid var(--line2)}
+.mp-fala.voce{align-self:flex-end;border-left:0;border-right:3px solid var(--red)}
+.mp-fala.marca{border-left-color:var(--amber)}
+.ag-dono .ag-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
+.ag-dono .ag-item:first-of-type{border-top:0}
+.ag-dono .ag-item.urg{color:var(--red)}
+.ag-com{margin-top:16px}
+.ag-uni{display:flex;gap:10px;align-items:center;margin-bottom:10px;font-size:13px}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -23244,6 +23273,358 @@ function fatorCobrancaDono(delta){
 }
 
 
+/* ===== src/core/gestao-mini.js ===== */
+/* ============================================================
+   MINIGAMES DE GESTÃO — fase 6 do modo Dono
+   ------------------------------------------------------------
+   Cinco momentos de dono, cada um com um minigame e a opção de
+   delegar a um funcionário (resultado médio):
+
+     Lançamento de uniforme  duas janelas por ano (semanas 1–8 e
+                             27–34): modelo, cores, preço e tiragem;
+                             a coleção vende ao longo de oito semanas
+     Fan fest                uma vez por temporada: local, atrações e
+                             ingresso; o dia em ritmo decide o público
+     Pitch para investidores coletiva com os investidores: as respostas
+                             mexem no preço da fatia e na meta
+     Mesa de patrocínio      uma vez por temporada: renegociar o máster
+                             (aumento e duração), com a paciência da marca
+     Crise de imagem         evento: responder em coletiva antes de a
+                             crise crescer
+
+   O estado mora em G.manager.empresa.mini. O que parece sorte sai de
+   hash: o gerador do mundo não anda.
+   ============================================================ */
+const UNI_JANELAS=[[1,8],[27,34]], UNI_SEMANAS=8;
+const UNI_MODELOS={
+  classico:{nome:'Clássico',desc:'Listras limpas e escudo no peito. Vende sempre, raramente explode.',apelo:1.00},
+  street:{nome:'Street',desc:'Corte largo, estampa grande. Pega o público jovem.',apelo:0.95},
+  retro:{nome:'Retrô',desc:'Inspirado no primeiro uniforme do clube. Nostalgia vende.',apelo:0.92},
+  ousado:{nome:'Ousado',desc:'Grafismo forte e assimétrico. Ou vira febre, ou encalha.',apelo:0.85}
+};
+const UNI_CORES={
+  clube:{nome:'Cores do clube',apelo:1.10},
+  invertida:{nome:'Invertida',apelo:1.00},
+  edicao:{nome:'Edição preta e dourada',apelo:1.12,custo:6}
+};
+const UNI_PRECOS={1:[59,79,99,129],2:[39,59,79,99]};
+const UNI_TIRAGENS={1:[1000,2500,5000,9000],2:[300,800,1600,3000]};
+const UNI_CUSTO=22;
+
+const FF_LOCAIS={
+  pequena:{nome:'Arena pequena',cap:{1:1500,2:400},custo:{1:40000,2:10000}},
+  media:{nome:'Ginásio',cap:{1:4000,2:1000},custo:{1:110000,2:28000}},
+  grande:{nome:'Arena grande',cap:{1:10000,2:2500},custo:{1:260000,2:65000}}
+};
+const FF_ATRACOES={
+  autografos:{nome:'Sessão de autógrafos',custo:{1:10000,2:3000},apelo:0.15,desc:'O elenco inteiro na mesa. O vestiário gosta.'},
+  show:{nome:'Show de abertura',custo:{1:60000,2:15000},apelo:0.35,desc:'Um artista conhecido abre o evento.'},
+  torneio:{nome:'Torneio de fãs',custo:{1:20000,2:6000},apelo:0.20,desc:'Os fãs jogam; o campeão enfrenta o time.'},
+  trofeus:{nome:'Exposição de troféus',custo:{1:5000,2:2000},apelo:0.10,desc:'A sala dos títulos aberta ao público.'}
+};
+const FF_PRECOS={1:[15,30,50],2:[10,20,35]};
+
+function _hMini(s){return typeof _hashTxt==='function'?_hashTxt(s):0;}
+function miniDono(){
+  const e=typeof empresa==='function'?empresa():null;if(!e)return null;
+  if(!e.mini)e.mini={colecoes:[],fanfest:null,patroc:null,crise:null,crises:[],pitch:null};
+  e.mini.colecoes=e.mini.colecoes||[];e.mini.crises=e.mini.crises||[];
+  return e.mini;
+}
+function _tierK(t){return t&&t.tier===1?1:2;}
+
+/* ---------- uniforme ---------- */
+function janelaUniforme(){
+  const s=G.semana||1;
+  const i=UNI_JANELAS.findIndex(([a,b])=>s>=a&&s<=b);
+  return i<0?null:{i,chave:G.ano+'-'+i,ini:UNI_JANELAS[i][0],fim:UNI_JANELAS[i][1]};
+}
+function uniformeDisponivel(){
+  const j=janelaUniforme();if(!j||!empresaAtiva())return null;
+  if(empresa().loja<1)return null;
+  return miniDono().colecoes.some(c=>c.chave===j.chave)?null:j;
+}
+/* a moda do ano: um modelo está em alta e outro em baixa */
+function modaDoAno(){
+  const ks=Object.keys(UNI_MODELOS),h=_hMini('moda|'+(G.seed||0)+'|'+G.ano);
+  const alta=ks[h%ks.length];let baixa=ks[(h>>>4)%ks.length];if(baixa===alta)baixa=ks[(ks.indexOf(alta)+1)%ks.length];
+  return{alta,baixa};
+}
+function apeloUniforme(o){
+  const m=UNI_MODELOS[o.modelo]||UNI_MODELOS.classico, c=UNI_CORES[o.cores]||UNI_CORES.clube, moda=modaDoAno();
+  let a=m.apelo*c.apelo;
+  if(o.modelo===moda.alta)a*=o.modelo==='ousado'?1.45:1.25;
+  if(o.modelo===moda.baixa)a*=o.modelo==='ousado'?0.6:0.82;
+  return a;
+}
+function demandaUniforme(t,o){
+  const k=_tierK(t),loja=empresa().loja||1;
+  const preco=o.preco||UNI_PRECOS[k][1], ref=UNI_PRECOS[k][1];
+  const base=(t.torcida||0)*(k===1?25:8)*(1+0.25*(loja-1));
+  const bonus=typeof _bonusOrigem==='function'?_bonusOrigem('loja'):1;
+  return Math.round(base*apeloUniforme(o)*Math.pow(ref/preco,1.4)*bonus);
+}
+/* a pesquisa com a torcida: uma faixa em volta da demanda, mais larga sem nota */
+function pesquisaUniforme(t,o){const d=demandaUniforme(t,o);return{min:Math.round(d*0.8/50)*50,max:Math.round(d*1.2/50)*50};}
+function lancarUniforme(o,delegado){
+  const t=G.times[G.meuTime],j=uniformeDisponivel();
+  if(!t||!j)return{ok:false,erro:'Fora da janela de lançamento (ou sem loja aberta).'};
+  const k=_tierK(t);
+  if(delegado){
+    /* o gerente da loja: modelo clássico, cores do clube, preço do meio, tiragem pela demanda */
+    o={modelo:'classico',cores:'clube',preco:UNI_PRECOS[k][1]};
+    const d=demandaUniforme(t,o);o.tiragem=UNI_TIRAGENS[k].reduce((b,x)=>Math.abs(x-d)<Math.abs(b-d)?x:b,UNI_TIRAGENS[k][0]);
+  }
+  const custoU=UNI_CUSTO+((UNI_CORES[o.cores]||{}).custo||0);
+  const custo=o.tiragem*custoU;
+  if(t.caixa<custo)return{ok:false,erro:'A produção custa '+money(custo)+'.'};
+  t.caixa-=custo;
+  const c={chave:j.chave,ano:G.ano,ini:G.semana,modelo:o.modelo,cores:o.cores,preco:o.preco,tiragem:o.tiragem,custo,
+    demanda:demandaUniforme(t,o),vendidos:0,receita:0,fim:false,delegado:!!delegado};
+  miniDono().colecoes.unshift(c);miniDono().colecoes.length=Math.min(miniDono().colecoes.length,8);
+  noticia('👕 O '+t.nome+' lança a coleção '+UNI_MODELOS[o.modelo].nome.toLowerCase()+' ('+UNI_CORES[o.cores].nome.toLowerCase()+') por '+money(o.preco)+'.',{c:'clube',t:[t.id]});
+  return{ok:true,msg:'Coleção lançada: '+o.tiragem+' peças produzidas por '+money(custo)+'.'};
+}
+/* venda semana a semana: metade nas duas primeiras semanas */
+const UNI_CURVA=[0.28,0.20,0.14,0.11,0.09,0.07,0.06,0.05];
+function semanaUniformes(t){
+  for(const c of miniDono().colecoes){
+    if(c.fim)continue;
+    const w=(G.ano*SEMANAS_ANO+G.semana)-(c.ano*SEMANAS_ANO+c.ini);
+    if(w<0)continue;
+    if(w>=UNI_SEMANAS){
+      /* fim da coleção: o que sobrou vai para a liquidação a 30% */
+      const sobra=c.tiragem-c.vendidos, liq=Math.round(sobra*c.preco*0.3);
+      t.caixa+=liq;c.receita+=liq;c.sobra=sobra;c.fim=true;
+      const lucro=c.receita-c.custo;
+      const enc=sobra/c.tiragem;
+      t.torcida=clamp((t.torcida||0)+(apeloUniforme(c)-1)*4-(c.preco>=UNI_PRECOS[_tierK(t)][3]?1:0)+(enc<0.1?1:0),0,TORCIDA_MAX);
+      if(typeof empresa==='function')empresa().receitas.loja+=lucro;
+      noticia('👕 Fim da coleção do '+t.nome+': '+c.vendidos+' peças vendidas'+(sobra?', '+sobra+' na liquidação':'')+' · '+(lucro>=0?'lucro':'prejuízo')+' de '+money(Math.abs(lucro))+'.',{c:'clube',t:[t.id]});
+      continue;
+    }
+    const quer=Math.round(c.demanda*UNI_CURVA[w]);
+    const v=Math.min(quer,c.tiragem-c.vendidos);
+    c.vendidos+=v;c.receita+=v*c.preco;t.caixa+=v*c.preco;
+    if(v<quer)c.esgotou=c.esgotou||G.semana;
+  }
+}
+
+/* ---------- fan fest ---------- */
+function fanFestDisponivel(){
+  if(!empresaAtiva())return false;
+  const f=miniDono().fanfest;
+  return !(f&&f.ano===G.ano)&&(G.semana||1)<=48;
+}
+function custoFanFest(t,o){
+  const k=_tierK(t),L=FF_LOCAIS[o.local]||FF_LOCAIS.pequena;
+  return L.custo[k]+(o.atracoes||[]).reduce((s,a)=>s+((FF_ATRACOES[a]||{}).custo||{})[k]||0,0);
+}
+function demandaFanFest(t,o){
+  const k=_tierK(t),preco=o.preco||FF_PRECOS[k][1];
+  const titulos=(t.titulos||[]).length;
+  const apelo=(o.atracoes||[]).reduce((s,a)=>s+(a==='trofeus'&&!titulos?0.02:(FF_ATRACOES[a]||{}).apelo||0),0);
+  return Math.round((t.torcida||0)*(k===1?110:35)*(1+apelo)*Math.pow(FF_PRECOS[k][1]/preco,1.2));
+}
+/* nota 0..1 do dia (o jogo de ritmo, ou 0,5 se delegado) */
+function realizarFanFest(o,nota,delegado){
+  const t=G.times[G.meuTime];if(!t||!fanFestDisponivel())return{ok:false,erro:'O fan fest desta temporada já aconteceu.'};
+  const k=_tierK(t),L=FF_LOCAIS[o.local]||FF_LOCAIS.pequena;
+  const custo=custoFanFest(t,o);
+  if(t.caixa<custo)return{ok:false,erro:'O evento custa '+money(custo)+'.'};
+  nota=clamp(delegado?0.5:+nota||0,0,1);
+  const dem=demandaFanFest(t,o);
+  const publico=Math.min(L.cap[k],Math.round(dem*(0.8+0.4*nota)));
+  const ocup=publico/L.cap[k];
+  const receita=publico*o.preco+publico*(k===1?12:5);
+  t.caixa+=receita-custo;
+  const dt=(ocup>=0.7?2:ocup>=0.4?1:-1)+nota*3;
+  t.torcida=clamp((t.torcida||0)+dt,0,TORCIDA_MAX);
+  if((o.atracoes||[]).includes('autografos'))for(const id of t.elenco){const p=G.jogadores[id];if(p)p.moral=clamp(p.moral+0.02+nota*0.02,0.2,1);}
+  const r={ano:G.ano,semana:G.semana,local:o.local,atracoes:o.atracoes||[],preco:o.preco,publico,cap:L.cap[k],ocup,receita,custo,lucro:receita-custo,torcida:Math.round(dt*10)/10,nota,delegado:!!delegado};
+  miniDono().fanfest=r;
+  if(typeof empresa==='function')empresa().receitas.eventos=(empresa().receitas.eventos||0)+r.lucro;
+  noticia('🎪 Fan fest do '+t.nome+': '+publico+' pessoas na '+L.nome.toLowerCase()+(ocup>=0.95?' lotada':'')+'. '+(r.lucro>=0?'Lucro':'Prejuízo')+' de '+money(Math.abs(r.lucro))+'.',{c:'clube',t:[t.id],imp:2});
+  return{ok:true,r,msg:publico+' pessoas, '+(r.lucro>=0?'lucro de ':'prejuízo de ')+money(Math.abs(r.lucro))+', torcida '+(dt>=0?'+':'')+dt.toFixed(1)+'.'};
+}
+
+/* ---------- pitch para investidores ----------
+   Quatro perguntas; cada uma tem uma resposta ambiciosa, uma equilibrada
+   e uma prudente. O que agrada depende do perfil do fundo. */
+const PERFIS_INVEST={
+  crescimento:{nome:'Fundo de crescimento',quer:'amb',dica:'Quer ouvir sobre escala, títulos e expansão.'},
+  conservador:{nome:'Fundo conservador',quer:'pru',dica:'Quer ouvir sobre contas, risco e caixa.'},
+  family:{nome:'Family office',quer:'equ',dica:'Quer um projeto equilibrado, sem loucura e sem medo.'}
+};
+const PERGUNTAS_PITCH=[
+  ['Por que investir no {clube} agora?',{amb:'Porque em dois anos isso aqui vale o dobro. Vamos brigar por título.',equ:'Temos base sólida e espaço para crescer com o seu capital.',pru:'Porque as contas estão em dia e o risco é baixo.'}],
+  ['O que vocês fazem com o dinheiro?',{amb:'Reforço de peso já na próxima janela.',equ:'Metade em elenco, metade em estrutura e marca.',pru:'Reserva de caixa e dívida mais curta.'}],
+  ['E se a temporada for ruim?',{amb:'Não vai ser. Montamos para ganhar.',equ:'Temos plano B: a base e a marca seguram o valor.',pru:'O caixa aguenta dois anos ruins sem vender ninguém.'}],
+  ['Qual retorno vocês prometem?',{amb:'O maior do circuito. Esports é crescimento.',equ:'Valorização constante, com dividendo quando der.',pru:'Pouco, mas certo. Dividendo todo ano.'}],
+  ['Quem decide no dia a dia?',{amb:'Eu. Rápido e sem comitê.',equ:'Eu, com o conselho informado de tudo.',pru:'O conselho aprova as decisões grandes.'}],
+  ['Vocês venderiam um craque para fechar as contas?',{amb:'Nunca. Craque é o que valoriza a marca.',equ:'Só se a proposta for muito acima do valor.',pru:'Sim. A saúde financeira vem primeiro.'}]
+];
+function perfilInvestidorDoTrimestre(){
+  const ks=Object.keys(PERFIS_INVEST);
+  return ks[_hMini('pitch|'+G.meuTime+'|'+G.ano+'|'+Math.ceil((G.semana||1)/13))%ks.length];
+}
+/* depois do pitch: ofertas com o preço mexido pela nota e a meta pelo tom */
+function aplicarPitch(nota,tom){
+  const r=typeof buscarInvestidores==='function'?buscarInvestidores():{ok:false};
+  if(!r.ok)return r;
+  const e=empresa();
+  const meta=tom==='amb'?(G.times[G.meuTime].tier===1&&G.times[G.meuTime].prestigio>=75?'titulo':'posicao'):tom==='pru'?'lucro':'torcida';
+  for(const o of e.ofertas){
+    o.aporte=Math.round(o.aporte*(0.88+0.3*clamp(nota,0,1))/5000)*5000;
+    if(!o.silencioso)o.meta=meta;
+    o.pitch=true;
+  }
+  miniDono().pitch={ano:G.ano,nota,tom};
+  return{ok:true,msg:e.ofertas.length+' proposta'+(e.ofertas.length>1?'s':'')+' na mesa depois do pitch.'};
+}
+
+/* ---------- mesa de patrocínio ---------- */
+function mesaPatrocinioDisponivel(){
+  if(!empresaAtiva())return null;
+  const t=G.times[G.meuTime],c=typeof contratoDe==='function'?contratoDe(t,'master'):null;
+  if(!c)return null;
+  const p=miniDono().patroc;
+  if(p&&p.ano===G.ano)return null;
+  return c;
+}
+/* o máximo de aumento que a marca aceita (fração), escondido do jogador */
+function tetoPatrocinio(t,c){
+  const tor=(t.torcida||0)-((c.torcidaMin||0)+PATROC_QUEDA_TORCIDA);
+  const tit=(t.titulos||[]).filter(x=>parseInt(String(x))>=G.ano-1).length;
+  let k=0.04+Math.max(0,tor)*0.005+tit*0.05+((atratividade(t)||1)-1)*0.08;
+  const o=G.manager&&G.manager.origem;
+  if(o==='empresario')k+=0.06;
+  if(o==='criador')k-=0.04;
+  k+=((_hMini('mk|'+c.marca+'|'+G.ano)%100)/100-0.5)*0.06;
+  return clamp(k,0.02,0.35);
+}
+function abrirMesaPatrocinio(){
+  const t=G.times[G.meuTime],c=mesaPatrocinioDisponivel();
+  if(!c)return null;
+  const m=miniDono();
+  if(!m.mesa||m.mesa.ano!==G.ano)m.mesa={ano:G.ano,paciencia:3,teto:tetoPatrocinio(t,c),hist:[],contra:null};
+  return m.mesa;
+}
+/* pct: aumento pedido (0,10 = 10%); anos: temporadas a mais no contrato */
+function proporPatrocinio(pct,anos){
+  const t=G.times[G.meuTime],c=mesaPatrocinioDisponivel(),mesa=abrirMesaPatrocinio();
+  if(!c||!mesa)return{ok:false,erro:'Não há o que negociar agora.'};
+  pct=clamp(Math.round(pct*100)/100,0,0.6);anos=clamp(Math.round(anos||0),0,2);
+  const mk=marca(c.marca);
+  /* contrato mais longo vale para a marca: cada ano a mais abre 3 pontos */
+  const teto=mesa.teto+anos*0.03;
+  mesa.hist.push({de:'voce',txt:'Propomos +'+Math.round(pct*100)+'% no fixo'+(anos?' e mais '+anos+' temporada'+(anos>1?'s':'')+' de contrato':'')+'.'});
+  if(pct<=teto){
+    _fecharPatrocinio(t,c,pct,anos);
+    mesa.hist.push({de:'marca',txt:'Fechado. A '+(mk?mk.nome:'marca')+' segue no peito do '+t.nome+'.'});
+    return{ok:true,resposta:'aceita',msg:'Contrato renovado: +'+Math.round(pct*100)+'% no fixo.'};
+  }
+  const ofensa=pct>teto*1.8+0.05;
+  mesa.paciencia-=ofensa?2:1;
+  if(mesa.paciencia<=0){
+    miniDono().patroc={ano:G.ano,pct:0,anos:0,falhou:true};
+    mesa.hist.push({de:'marca',txt:ofensa?'Assim não dá. Mantemos o contrato como está.':'Não chegamos a um acordo. O contrato segue como está.'});
+    return{ok:true,resposta:'encerrada',msg:'A marca encerrou a conversa. O contrato segue igual.'};
+  }
+  mesa.contra=Math.max(0,Math.round(teto*100-((_hMini(c.marca+'|'+mesa.paciencia)%3)))/100);
+  mesa.contraAnos=anos;
+  mesa.hist.push({de:'marca',txt:(ofensa?'Isso está muito acima do que o clube entrega. ':'')+'Podemos chegar a +'+Math.round(mesa.contra*100)+'%'+(anos?' com os '+anos+' anos a mais':'')+'.'});
+  return{ok:true,resposta:'contra',valor:mesa.contra,msg:'Contraproposta: +'+Math.round(mesa.contra*100)+'%.'};
+}
+function _fecharPatrocinio(t,c,pct,anos){
+  c.valor=Math.round(c.valor*(1+pct)/1000)*1000;
+  c.fixo=Math.round(c.fixo*(1+pct)/1000)*1000;
+  if(anos)c.ate=Math.max(c.ate||G.ano,G.ano)+anos;
+  t.patroc=receitaCaixa(t);
+  miniDono().patroc={ano:G.ano,pct,anos};
+  noticia('🤝 '+(G.manager?G.manager.nome:'O dono')+' renova o máster do '+t.nome+': +'+Math.round(pct*100)+'% no fixo'+(anos?', contrato até '+c.ate:'')+'.',{c:'clube',t:[t.id]});
+}
+function delegarPatrocinio(){
+  const t=G.times[G.meuTime],c=mesaPatrocinioDisponivel();if(!c)return{ok:false,erro:'Não há o que negociar agora.'};
+  const pct=Math.round(tetoPatrocinio(t,c)*0.5*100)/100;
+  _fecharPatrocinio(t,c,pct,0);
+  return{ok:true,msg:'O diretor comercial fechou +'+Math.round(pct*100)+'% no fixo.'};
+}
+
+/* ---------- crise de imagem ---------- */
+const CRISES={
+  polemica:{nome:'Polêmica nas redes',txt:p=>`${p} publicou uma provocação pesada contra a torcida de um rival. O vídeo viralizou.`,
+    perguntas:[['{p} vai ser punido?',['O clube não compactua com isso. Ele vai se desculpar e cumprir uma punição interna.','Vamos conversar com ele internamente.','Foi brincadeira. O pessoal leva tudo a sério demais.']],
+      ['A torcida rival pede respeito. O que você diz a ela?',['Rivalidade é dentro do servidor. Peço desculpas em nome do clube.','Respeitamos todas as torcidas.','Eles provocaram primeiro.']],
+      ['Isso afeta o vestiário?',['O grupo é maduro. Ele mesmo já reconheceu o erro.','Não comento o vestiário.','Afeta quem é fraco de cabeça.']]]},
+  vazamento:{nome:'Vazamento de salários',txt:()=>`A folha salarial do clube vazou num portal. Jogadores descobriram quanto o colega ganha.`,
+    perguntas:[['Os salários vazados são verdadeiros?',['Não comentamos valores, mas vamos apurar como isso saiu.','Sem comentários.','São, e todo mundo aqui ganha o que merece.']],
+      ['Tem jogador insatisfeito depois disso?',['Conversei com cada um. Contrato é individual e todos sabem disso.','É natural ter algum desconforto.','Quem estiver insatisfeito pode procurar outro clube.']],
+      ['O clube vai processar o portal?',['Nosso foco é proteger os jogadores, e o jurídico cuida do resto.','Estamos avaliando.','Vamos tirar esse portal do ar.']]]},
+  briga:{nome:'Briga no treino',txt:p=>`Uma discussão no treino entre ${p} e um colega terminou em empurrão. Alguém gravou.`,
+    perguntas:[['O que aconteceu no treino?',['Uma discussão que passou do ponto. Os dois já se acertaram.','Coisa de vestiário.','Quem não aguenta pressão não serve para esse clube.']],
+      ['Algum dos dois vai sair?',['Não. Os dois sabem onde erraram e seguem com a gente.','Vamos avaliar.','Se acontecer de novo, rua.']],
+      ['O ambiente está ruim?',['Está competitivo. A gente transforma isso em resultado.','Normal.','Ambiente ruim é de quem perde.']]]},
+  patrocinador:{nome:'Marca incomodada',txt:p=>`Uma marca do clube reclamou publicamente de uma live de ${p} com linguagem ofensiva.`,
+    perguntas:[['A marca pode sair?',['Já falamos com eles. O clube leva a parceria e a imagem a sério.','Vamos conversar com a marca.','Se quiser sair, tem fila de patrocinador.']],
+      ['{p} vai continuar fazendo live?',['Vai, com orientação da nossa equipe de conteúdo.','Isso é com ele.','Live é dele, ele fala o que quiser.']],
+      ['Qual o recado para os patrocinadores?',['Que a nossa marca tem regras, e elas valem para todos.','Seguimos parceiros.','Patrocinador entra sabendo como é esporte.']]]}
+};
+function crisePendente(){
+  if(!empresaAtiva())return null;
+  const c=miniDono().crise;
+  return c&&!c.fim?c:null;
+}
+function _sortearCrise(t){
+  const m=miniDono();
+  if(m.crise&&!m.crise.fim)return;
+  const ult=m.crises[0];
+  if(ult&&(G.ano*SEMANAS_ANO+G.semana)-(ult.ano*SEMANAS_ANO+ult.semana)<14)return;
+  const h=_hMini('crise|'+t.id+'|'+G.ano+'|'+G.semana);
+  if(h%100>=5)return;
+  const tipos=Object.keys(CRISES), tipo=tipos[(h>>>7)%tipos.length];
+  const el=(t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean);
+  const p=el.length?el[(h>>>11)%el.length]:null;
+  m.crise={tipo,ano:G.ano,semana:G.semana,ate:G.ano*SEMANAS_ANO+G.semana+2,jogador:p?p.id:null,nome:p?p.nome:'um jogador',fim:false};
+  noticia('🔥 '+CRISES[tipo].nome+' no '+t.nome+': '+CRISES[tipo].txt(p?p.nome:'um jogador'),{c:'clube',t:[t.id],imp:3});
+  G.criseNova=true;
+}
+/* nota 0..1 da coletiva (0,5 delegado; 0,25 se ninguém respondeu) */
+function resolverCrise(nota,como){
+  const t=G.times[G.meuTime],c=crisePendente();if(!t||!c)return null;
+  nota=clamp(nota,0,1);
+  const dt=Math.round((nota*5-3)*10)/10;            /* −3 a +2 */
+  const multa=Math.round((1-nota)*(t.patroc||0)*0.03/1000)*1000;
+  t.torcida=clamp((t.torcida||0)+dt,0,TORCIDA_MAX);
+  t.caixa-=multa;
+  const e=empresa();e.humor=clamp(e.humor+Math.round(nota*6-4),0,100);
+  const p=c.jogador&&G.jogadores[c.jogador];
+  if(p)p.moral=clamp(p.moral+(nota>=0.6?0.02:-0.05),0.2,1);
+  c.fim=true;c.nota=nota;c.como=como;c.efeito={torcida:dt,multa};
+  miniDono().crises.unshift(c);miniDono().crises.length=Math.min(miniDono().crises.length,10);
+  miniDono().crise=null;
+  noticia(nota>=0.6?'🧯 A resposta do '+t.nome+' apagou o incêndio: a crise passou.':nota>=0.35?'🧯 A crise no '+t.nome+' esfria, mas deixa marca.':'🔥 A resposta do '+t.nome+' piorou tudo: a crise cresce.',{c:'clube',t:[t.id],imp:2});
+  return c.efeito;
+}
+function semanaMiniDono(t){
+  if(!t||t.id!==G.meuTime||!empresaAtiva())return;
+  semanaUniformes(t);
+  const c=crisePendente();
+  if(c&&G.ano*SEMANAS_ANO+G.semana>c.ate)resolverCrise(0.25,'ignorada');
+  else _sortearCrise(t);
+}
+/* o que está esperando o dono, para a Central */
+function agendaDoDono(){
+  if(!empresaAtiva())return[];
+  const out=[];
+  const cr=crisePendente();if(cr)out.push({id:'crise',urg:true,txt:CRISES[cr.tipo].nome+': responda antes de a crise crescer.'});
+  const u=uniformeDisponivel();if(u)out.push({id:'uniforme',txt:'Janela de lançamento de uniforme aberta até a semana '+u.fim+'.'});
+  if(fanFestDisponivel())out.push({id:'fanfest',txt:'O fan fest desta temporada ainda não aconteceu.'});
+  if(mesaPatrocinioDisponivel())out.push({id:'patroc',txt:'O máster pode ser renegociado nesta temporada.'});
+  return out;
+}
+
+
 /* ===== src/core/projeto.js ===== */
 /* ============================================================
    O PROJETO DO CLUBE — a visão de três temporadas
@@ -24514,6 +24895,8 @@ function semana(){
     if(id===G.meuTime&&typeof semanaTecnicoIA==='function')semanaTecnicoIA(t);
     /* e a empresa: receitas novas, parcelas, conselho e o risco de quebrar (core/empresa.js) */
     if(id===G.meuTime&&typeof semanaEmpresa==='function')semanaEmpresa(t);
+    /* coleção à venda e crise de imagem (core/gestao-mini.js) */
+    if(id===G.meuTime&&typeof semanaMiniDono==='function')semanaMiniDono(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
@@ -37168,6 +37551,7 @@ function render(){
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
+  if(typeof ligarAgendaDono==='function')ligarAgendaDono(v);
 }
 function irPara(k,semHist){
   const de=tela;
@@ -40171,6 +40555,7 @@ function vInicio(){
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
+  ${typeof cardAgendaDono==='function'?cardAgendaDono():''}
   ${typeof cardEmpresa==='function'?cardEmpresa(t):''}
   ${typeof cardTecnicoIA==='function'?cardTecnicoIA(t):''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
@@ -41920,11 +42305,11 @@ function desenharStream(cx,s){
   fundoGradiente(cx,'#120B1E','#0B1218',s.pulso,'rgba(155,107,255,A)');
   /* moldura da live: câmera, chat e espectadores */
   cx.fillStyle='#0A0710';cx.fillRect(40,40,520,200);cx.strokeStyle='rgba(155,107,255,.6)';cx.lineWidth=2;cx.strokeRect(40,40,520,200);
-  cx.fillStyle='rgba(155,107,255,.15)';cx.font='400 70px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';cx.fillText((J.tag||'VCT')+' AO VIVO',300,160);
+  cx.fillStyle='rgba(155,107,255,.15)';cx.font='400 70px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';cx.fillText(J.telao||((J.tag||'VCT')+' AO VIVO'),300,160);
   cx.fillStyle='#FF4655';cx.beginPath();cx.arc(62,62,6,0,Math.PI*2);cx.fill();
-  cx.fillStyle='#ECE8E1';cx.font='700 12px Inter, sans-serif';cx.textAlign='left';cx.fillText('AO VIVO',74,66);
-  const esp=Math.round(1200+s.combo*137+s.t*40);
-  cx.fillText(esp.toLocaleString('pt-BR')+' espectadores',440,66);
+  cx.fillStyle='#ECE8E1';cx.font='700 12px Inter, sans-serif';cx.textAlign='left';cx.fillText(J.selo||'AO VIVO',74,66);
+  const esp=Math.round((J.publicoBase||1200)+s.combo*137+s.t*40);
+  cx.fillText(esp.toLocaleString('pt-BR')+' '+(J.publicoRot||'espectadores'),J.publicoRot?430:440,66);
   cx.fillStyle='#0A0710';cx.fillRect(600,40,320,200);cx.strokeStyle='rgba(255,255,255,.1)';cx.strokeRect(600,40,320,200);
   const msgs=J.chat;
   for(let i=0;i<6;i++){const k=Math.floor(s.beat)-i;if(k<0)break;const m=msgs[(k*7)%msgs.length];
@@ -44976,7 +45361,8 @@ function _abaComercial(t,e){
         <p class="dim">Lives, vídeos e bastidores. Cada um traz torcida nova toda semana e uma receita que cobre o salário com folga quando a torcida é grande.</p></div>
       <div class="card emp-linha"><div class="eyebrow">Itens do jogo</div>
         <p class="dim">${t.tier===1?'Parceiras da liga recebem uma parte da venda dos itens com a marca. Cresce com a torcida e com título.':'Só as parceiras da liga principal recebem. Suba para o Tier 1 para entrar.'}</p></div>
-    </div></div>`;
+    </div></div>
+    ${typeof comercialMiniHTML==='function'?comercialMiniHTML(t):''}`;
 }
 function _abaDinheiro(t,e){
   const lim=limiteEmprestimo(t), j=jurosEmprestimo();
@@ -44992,7 +45378,7 @@ function _abaDinheiro(t,e){
         ${fin?`<div class="emp-div"><span>Financiamento da compra</span><span class="num">${money(fin.saldo)}</span><span class="dim num">${money(fin.parcela)}/sem.</span><span></span></div>`:''}
         ${e.emprestimos.map(x=>`<div class="emp-div"><span>Empréstimo de ${x.ano}</span><span class="num">${money(x.saldo)}</span><span class="dim num">${money(x.parcela)}/sem.</span><button class="btn ghost sm" data-empquita="${x.id}">Quitar</button></div>`).join('')}`:''}
     </div>
-    <div class="card"><div class="split"><div class="eyebrow">Investidores</div><button class="btn ghost sm" id="empBusca">Buscar investidor</button></div>
+    <div class="card"><div class="split"><div class="eyebrow">Investidores</div><button class="btn ghost sm" id="empBusca">Apresentar aos investidores</button></div>
       <p class="dim">Um investidor compra uma fatia com dinheiro novo e, quase sempre, uma meta por temporada. Meta perdida azeda o conselho; se os outros sócios tiverem a maioria, o conselho pode afastar você.</p>
       ${e.ofertas.length?e.ofertas.map(o=>`<div class="emp-of"><div><b>${esc(o.nome)}</b><div class="dim">${Math.round(o.fatia*100)}% por <b class="num">${money(o.aporte)}</b> · ${o.silencioso?'sócio silencioso, sem meta':'meta: '+esc(METAS_INVESTIDOR[o.meta].texto.toLowerCase())}</div></div>
         <button class="btn sm" data-empaceita="${o.id}">Aceitar</button></div>`).join(''):'<p class="dim">Nenhuma proposta na mesa.</p>'}
@@ -45040,7 +45426,7 @@ function ligarEmpresa(v){
   b('#empEmp',async()=>{const val=+rg.value,j=jurosEmprestimo();
     if(!await confirmar('Tomar '+money(val)+' em '+prazo+' temporada(s)? Você devolve '+money(Math.round(val*(1+j*prazo)))+'.','Tomar'))return;fl(tomarEmprestimo(val,prazo));});
   v.querySelectorAll('[data-empquita]').forEach(x=>x.onclick=()=>fl(quitarEmprestimo(x.dataset.empquita)));
-  b('#empBusca',()=>fl(buscarInvestidores()));
+  b('#empBusca',()=>typeof abrirPitch==='function'?abrirPitch():fl(buscarInvestidores()));
   v.querySelectorAll('[data-empaceita]').forEach(x=>x.onclick=async()=>{
     const o=empresa().ofertas.find(z=>z.id===x.dataset.empaceita);if(!o)return;
     if(!await confirmar(o.nome+' entra com '+money(o.aporte)+' por '+Math.round(o.fatia*100)+'% da organização. Você fica com '+Math.round((fatiasDaOrg().minha-o.fatia)*100)+'%.','Aceitar'))return;
@@ -45167,6 +45553,285 @@ function ligarDonos(v){
   v.querySelectorAll('[data-dnprovoca]').forEach(b=>b.onclick=async()=>{
     if(!await confirmar('Provocar o dono na imprensa? A torcida gosta; ele não esquece (relação −12).','Provocar'))return;
     const r=provocarDono(b.dataset.dnprovoca);flash(r.ok?r.msg:r.erro);render();});
+}
+
+
+/* ===== src/ui/gestao-mini.js ===== */
+/* ============================================================
+   MINIGAMES DE GESTÃO — as telas (fase 6 do modo Dono)
+   ------------------------------------------------------------
+   Uniforme (montagem visual), fan fest (planejar + ritmo), pitch e
+   crise (coletiva) e a mesa de patrocínio. O núcleo mora em
+   core/gestao-mini.js; os jogos reaproveitam o motor de minigames
+   (ui/minigames.js), o ritmo (ui/ritmo.js) e a coletiva (ui/coletiva.js).
+   ============================================================ */
+let UNI=null, FF=null;
+
+/* ---------- uniforme ---------- */
+function _corSec(t){return (t.cor2)||(typeof CORES_CLUBES!=='undefined'&&CORES_CLUBES[t.tag]&&CORES_CLUBES[t.tag][1])||'#ECE8E1';}
+function camisaSVG(t,o,px){
+  const c1=o.cores==='edicao'?'#0E0F12':o.cores==='invertida'?_corSec(t):corDoClube(t);
+  const c2=o.cores==='edicao'?'#C9A13B':o.cores==='invertida'?corDoClube(t):_corSec(t);
+  const id='uni'+Math.abs(_hMini(t.id+o.modelo+o.cores)%99999);
+  const padrao={
+    classico:`<path d="M70 52h12v120H70zM94 52h12v120H94zM118 52h12v120h-12z" fill="${c2}" opacity=".85"/>`,
+    street:`<path d="M40 110 L160 70 L160 98 L40 138Z" fill="${c2}"/><text x="100" y="150" text-anchor="middle" font-family="Bebas Neue,Impact" font-size="30" fill="${c2}" opacity=".9">${esc(t.tag)}</text>`,
+    retro:`<path d="M40 60h120v18H40z" fill="${c2}"/><path d="M40 84h120v6H40z" fill="${c2}" opacity=".6"/><circle cx="100" cy="122" r="22" fill="none" stroke="${c2}" stroke-width="4"/>`,
+    ousado:`<path d="M40 50 L120 50 L60 180 L40 180Z" fill="${c2}" opacity=".9"/><path d="M130 50 L160 50 L160 120Z" fill="${c2}" opacity=".55"/><path d="M95 180 L160 92 L160 180Z" fill="${c2}" opacity=".35"/>`
+  }[o.modelo]||'';
+  return `<svg viewBox="0 0 200 200" width="${px||220}" height="${px||220}" class="uni-svg"><defs><clipPath id="${id}"><path d="M60 22 L80 14 Q100 28 120 14 L140 22 L182 52 L164 86 L150 78 L150 186 L50 186 L50 78 L36 86 L18 52Z"/></clipPath></defs>
+    <g clip-path="url(#${id})"><rect width="200" height="200" fill="${c1}"/>${padrao}</g>
+    <path d="M60 22 L80 14 Q100 28 120 14 L140 22 L182 52 L164 86 L150 78 L150 186 L50 186 L50 78 L36 86 L18 52Z" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+    <path d="M80 14 Q100 34 120 14" fill="none" stroke="${c2}" stroke-width="4"/>
+    <image href="${ASSETS.logo(t)}" x="108" y="54" width="26" height="26"/></svg>`;
+}
+function abrirUniforme(){
+  const t=meu(),j=uniformeDisponivel();
+  if(!t||!j){avisar('O lançamento de uniforme abre nas semanas 1 a 8 e 27 a 34, com a loja aberta.');return;}
+  const k=_tierK(t);
+  UNI=UNI&&UNI.chave===j.chave?UNI:{chave:j.chave,modelo:'classico',cores:'clube',preco:UNI_PRECOS[k][1],tiragem:UNI_TIRAGENS[k][1]};
+  pintarUniforme();
+}
+function pintarUniforme(){
+  const t=meu(),k=_tierK(t),o=UNI;
+  const pq=pesquisaUniforme(t,o), custo=o.tiragem*(UNI_CUSTO+((UNI_CORES[o.cores]||{}).custo||0));
+  const vendaMed=Math.min(o.tiragem,Math.round((pq.min+pq.max)/2));
+  const moda=modaDoAno();
+  pintarModal(`<div class="ovl uni-ovl"><div class="box wide">
+    <div class="eyebrow">Loja oficial · ${esc(t.nome)}</div><h2 class="sec">Lançamento de uniforme</h2>
+    <div class="uni-g">
+      <div class="uni-prev">${camisaSVG(t,o,240)}
+        <div class="uni-pesq"><div class="eyebrow">Pesquisa com a torcida</div>
+          <b class="num">${pq.min} a ${pq.max}</b><span class="dim">peças em oito semanas</span>
+          ${pq.max<o.tiragem*0.8?'<span class="dn">A tiragem passa da procura: vai sobrar estoque.</span>':pq.min>o.tiragem?'<span class="up">Vai esgotar: dá para produzir mais.</span>':''}</div>
+        <div class="dim uni-moda">Tendência do ano: <b>${esc(UNI_MODELOS[moda.alta].nome)}</b> em alta, ${esc(UNI_MODELOS[moda.baixa].nome.toLowerCase())} em baixa.</div></div>
+      <div class="uni-op">
+        <div class="eyebrow">Modelo</div>
+        <div class="uni-btns">${Object.entries(UNI_MODELOS).map(([id,m])=>`<button class="ti-op ${o.modelo===id?'on':''}" data-unimod="${id}"><b>${esc(m.nome)}</b><small class="dim">${esc(m.desc)}</small></button>`).join('')}</div>
+        <div class="eyebrow">Cores</div>
+        <div class="uni-btns c3">${Object.entries(UNI_CORES).map(([id,c])=>`<button class="ti-op ${o.cores===id?'on':''}" data-unicor="${id}"><b>${esc(c.nome)}</b>${c.custo?`<small class="dim">+${money(c.custo)} por peça</small>`:''}</button>`).join('')}</div>
+        <div class="eyebrow">Preço</div>
+        <div class="uni-pills">${UNI_PRECOS[k].map(p=>`<button class="btn ghost sm ${o.preco===p?'on':''}" data-unipreco="${p}">${money(p)}</button>`).join('')}</div>
+        <div class="eyebrow">Tiragem</div>
+        <div class="uni-pills">${UNI_TIRAGENS[k].map(n=>`<button class="btn ghost sm ${o.tiragem===n?'on':''}" data-unitir="${n}">${n} peças</button>`).join('')}</div>
+        <div class="og-conta" style="margin-top:12px">
+          <div><span>Produção</span><b class="num dn">${money(custo)}</b></div>
+          <div><span>Venda estimada (${vendaMed} peças)</span><b class="num">${money(vendaMed*o.preco)}</b></div>
+          <div class="tot"><span>Resultado estimado</span><b class="num ${vendaMed*o.preco-custo>=0?'up':'dn'}">${money(vendaMed*o.preco-custo)}</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="og-pe"><button class="btn ghost" id="uniFecha">Fechar</button><button class="btn ghost" id="uniDelega">Deixar o gerente da loja decidir</button>
+      <span class="og-pe-c dim">caixa ${money(t.caixa)}</span><button class="btn" id="uniLanca">Lançar a coleção</button></div>
+  </div></div>`);
+  const on=(s,f)=>document.querySelectorAll(s).forEach(b=>b.onclick=()=>{f(b);pintarUniforme();});
+  on('[data-unimod]',b=>UNI.modelo=b.dataset.unimod);
+  on('[data-unicor]',b=>UNI.cores=b.dataset.unicor);
+  on('[data-unipreco]',b=>UNI.preco=+b.dataset.unipreco);
+  on('[data-unitir]',b=>UNI.tiragem=+b.dataset.unitir);
+  $('#uniFecha').onclick=()=>fechar();
+  $('#uniDelega').onclick=()=>{const r=lancarUniforme(null,true);$('#modal').innerHTML='';flash(r.ok?r.msg:r.erro);render();};
+  $('#uniLanca').onclick=()=>{const r=lancarUniforme(UNI,false);if(!r.ok){avisar(r.erro);return;}$('#modal').innerHTML='';flash(r.msg);render();};
+}
+
+/* ---------- fan fest ---------- */
+function abrirFanFest(){
+  const t=meu();if(!t||!fanFestDisponivel()){avisar('O fan fest desta temporada já aconteceu.');return;}
+  const k=_tierK(t);
+  FF=FF&&FF.ano===G.ano?FF:{ano:G.ano,local:'media',atracoes:['autografos'],preco:FF_PRECOS[k][1]};
+  pintarFanFest();
+}
+function pintarFanFest(){
+  const t=meu(),k=_tierK(t),o=FF,L=FF_LOCAIS[o.local];
+  const dem=demandaFanFest(t,o),custo=custoFanFest(t,o);
+  const pub=[Math.min(L.cap[k],Math.round(dem*0.8)),Math.min(L.cap[k],Math.round(dem*1.2))];
+  const rec=p=>p*o.preco+p*(k===1?12:5);
+  pintarModal(`<div class="ovl ff-ovl"><div class="box wide">
+    <div class="eyebrow">Evento da temporada · ${esc(t.nome)}</div><h2 class="sec">Fan fest</h2>
+    <p class="dim">Monte o evento e depois viva o dia: um jogo de ritmo com o hype da arquibancada. Quanto melhor a sua nota, mais gente aparece e mais a torcida cresce.</p>
+    <div class="eyebrow">Local</div>
+    <div class="ti-op3">${Object.entries(FF_LOCAIS).map(([id,l])=>`<button class="ti-op ${o.local===id?'on':''}" data-fflocal="${id}"><b>${esc(l.nome)}</b><span>${l.cap[k].toLocaleString('pt-BR')} lugares</span><small class="dim">${money(l.custo[k])}</small></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:12px">Atrações</div>
+    <div class="ti-op4">${Object.entries(FF_ATRACOES).map(([id,a])=>`<button class="ti-op ${o.atracoes.includes(id)?'on':''}" data-ffatr="${id}"><b>${esc(a.nome)}</b><small class="dim">${esc(a.desc)} ${money(a.custo[k])}</small></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:12px">Ingresso</div>
+    <div class="uni-pills">${FF_PRECOS[k].map(p=>`<button class="btn ghost sm ${o.preco===p?'on':''}" data-ffpreco="${p}">${money(p)}</button>`).join('')}</div>
+    <div class="og-conta" style="margin-top:12px">
+      <div><span>Custo do evento</span><b class="num dn">${money(custo)}</b></div>
+      <div><span>Procura estimada</span><b class="num">${dem.toLocaleString('pt-BR')} pessoas</b></div>
+      <div><span>Público esperado</span><b class="num">${pub[0].toLocaleString('pt-BR')} a ${pub[1].toLocaleString('pt-BR')}</b></div>
+      <div class="tot"><span>Resultado esperado</span><b class="num">${money(rec(pub[0])-custo)} a ${money(rec(pub[1])-custo)}</b></div>
+    </div>
+    <div class="og-pe"><button class="btn ghost" id="ffFecha">Fechar</button><span class="og-pe-c dim">caixa ${money(t.caixa)}</span><button class="btn" id="ffVai">Ir para o dia do evento</button></div>
+  </div></div>`);
+  const on=(s,f)=>document.querySelectorAll(s).forEach(b=>b.onclick=()=>{f(b);pintarFanFest();});
+  on('[data-fflocal]',b=>FF.local=b.dataset.fflocal);
+  on('[data-ffatr]',b=>{const a=b.dataset.ffatr,i=FF.atracoes.indexOf(a);if(i>=0)FF.atracoes.splice(i,1);else FF.atracoes.push(a);});
+  on('[data-ffpreco]',b=>FF.preco=+b.dataset.ffpreco);
+  $('#ffFecha').onclick=()=>fechar();
+  $('#ffVai').onclick=()=>{if(t.caixa<custo){avisar('O evento custa '+money(custo)+'.');return;}diaDoFanFest();};
+}
+function diaDoFanFest(){
+  const t=meu(),o=Object.assign({},FF);
+  const base=jogosRitmo(t).stream;
+  const J=Object.assign({},base,{id:'fanfest',nome:'Fan fest',tag:t.tag,telao:t.tag+' FAN FEST',selo:'NO PALCO',publicoRot:'na arena',
+    publicoBase:Math.round(FF_LOCAIS[o.local].cap[_tierK(t)]*0.4),
+    emotes:['GG','HYPE','BORA','UHUU','ACE','GOAT','CAMPEÃO','LOUCO'],
+    chat:[['arquibancada','BORAAAA'],['fila_do_autografo','olha ele ali!'],['familia_toda','primeira vez num evento'],['fã_desde_2021','que festa'],
+      ['caravana','viemos de longe'],['cosplay_jett','foto foto foto'],['locutor','barulho aí!'],['torcida_organizada','VAMOOOO']],
+    desc:'O dia do evento. Puxe a arquibancada no tempo dos gritos e segure no <b>hype</b> quando a galera explodir.'});
+  abrirMinigame({
+    id:'fanfest',titulo:'Fan fest',eyebrow:esc(t.nome)+' · '+FF_LOCAIS[o.local].nome,
+    desc:J.desc,controles:J.teclasTxt,
+    arte:()=>`<svg viewBox="0 0 200 120">${[0,1,2,3,4,5,6,7].map(i=>`<circle cx="${40+i*20}" cy="${84-(i%3)*10}" r="9" fill="${['#FF4655','#E2B45A','#18E5B4','#4C8DFF'][i%4]}" opacity=".7"/>`).join('')}<rect x="60" y="20" width="80" height="36" rx="4" fill="none" stroke="#ECE8E1" opacity=".6"/></svg>`,
+    vale:()=>fanFestDisponivel(),
+    efeitoTxt:()=>'A nota do dia mexe no público (de 80% a 120% da procura) e na torcida que o evento traz.',
+    efeitoFeito:res=>{const r=res.efeito;return r?`<b>${r.publico.toLocaleString('pt-BR')}</b> pessoas (${Math.round(r.ocup*100)}% da casa) · ${r.lucro>=0?'lucro':'prejuízo'} de <b class="${r.lucro>=0?'up':'dn'}">${money(Math.abs(r.lucro))}</b> · torcida <b class="up">+${r.torcida}</b>.`:'—';},
+    rotuloComissao:'Deixar a produtora tocar o dia',msgComissao:'A produtora conduziu o evento.',
+    comissao:()=>{const r=realizarFanFest(o,0,true);if(r.ok)flash(r.msg);else avisar(r.erro);},
+    dica:()=>'Espaço no tempo dos gritos; segure no hype.',
+    registrar:(res,vale)=>{
+      const bateu=registrarRecordeMini('fanfest',res.pts,res.nota);
+      if(vale){const r=realizarFanFest(o,res.nota,false);res.efeito=r.ok?r.r:null;}
+      return bateu;
+    },
+    jogar:(ctx,fim)=>jogarRitmo(ctx,J,fim)
+  });
+}
+
+/* ---------- coletivas: pitch e crise ---------- */
+const CONTATOS_INVEST=[['Helena Duarte','#18E5B4'],['Marcus Reis','#4C8DFF'],['Sofia Tanaka','#E2B45A'],['Daniel Kerr','#9B6BFF']];
+function abrirPitch(){
+  const t=meu(),e=empresa(),k=G.ano+'-'+Math.ceil((G.semana||1)/13);
+  if(e.buscou===k){avisar('O mercado já ouviu você neste trimestre. Tente no próximo.');return;}
+  const pf=PERFIS_INVEST[perfilInvestidorDoTrimestre()];
+  const h=_hMini('pitchq|'+t.id+'|'+k);
+  const qs=PERGUNTAS_PITCH.slice().sort((a,b)=>(_hMini(a[0]+h)%97)-(_hMini(b[0]+h)%97)).slice(0,4);
+  const v=tom=>tom===pf.quer?1:(pf.quer==='equ'||tom==='equ')?0.4:0;
+  const tomDe={};
+  const perguntas=qs.map(([p,rs],i)=>{
+    const ordem=['amb','equ','pru'].sort((a,b)=>(_hMini(a+p+h)%13)-(_hMini(b+p+h)%13));
+    ordem.forEach(x=>tomDe[rs[x]]=x);
+    return{j:[CONTATOS_INVEST[i%4][0],pf.nome,CONTATOS_INVEST[i%4][1]],p:p.replace(/\{clube\}/g,t.nome),rs:ordem.map(x=>({txt:rs[x],v:v(x)}))};
+  });
+  abrirMinigame({
+    id:'pitch',titulo:'Pitch para investidores',eyebrow:esc(pf.nome),
+    desc:`Quatro perguntas de quem pode comprar uma fatia do ${esc(t.nome)}. ${esc(pf.dica)} Cada resposta é ambiciosa, equilibrada ou prudente; o tom das suas respostas decide a meta que eles vão pedir.`,
+    controles:['1','2','3','Mouse'],
+    arte:()=>`<svg viewBox="0 0 200 120"><rect x="60" y="30" width="80" height="54" rx="4" fill="none" stroke="#ECE8E1" opacity=".6"/><path d="M68 74 L88 58 L104 66 L132 40" stroke="#18E5B4" stroke-width="4" fill="none"/></svg>`,
+    vale:()=>empresa().buscou!==G.ano+'-'+Math.ceil((G.semana||1)/13),
+    efeitoTxt:()=>'A nota mexe no quanto eles pagam pela fatia (de −12% a +18%); o tom define a meta.',
+    efeitoFeito:res=>res.efeito?esc(res.efeito):'—',
+    rotuloComissao:'Deixar o diretor financeiro apresentar',msgComissao:'O diretor financeiro fez a apresentação.',
+    comissao:()=>{const r=buscarInvestidores();flash(r.ok?r.msg:r.erro);},
+    dica:()=>'Clique na resposta ou use as teclas 1 a 3.',
+    registrar:(res,vale)=>{
+      const bateu=registrarRecordeMini('pitch',res.pts,res.nota);
+      if(vale){
+        const c={amb:0,equ:0,pru:0};for(const x of res.vals||[])if(x.txt&&tomDe[x.txt])c[tomDe[x.txt]]++;
+        const tom=Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
+        const r=aplicarPitch(res.nota,tom);
+        res.efeito=(r.ok?r.msg:r.erro)+' Meta pedida: '+(tom==='amb'?'resultado esportivo':tom==='pru'?'lucro':'torcida')+'. Veja em Empresa › Dinheiro.';
+      }
+      return bateu;
+    },
+    jogar:(ctx,fim)=>jogarColetiva(ctx,fim,{perguntas,t,placa:(G.manager.nome||'Dono')+' · dono'})
+  });
+}
+function abrirCrise(){
+  const t=meu(),c=crisePendente();if(!t||!c)return;
+  const C=CRISES[c.tipo];
+  const perguntas=C.perguntas.map(([p,rs],i)=>({j:COL_IMPRENSA[(i+_hMini(c.tipo))%COL_IMPRENSA.length],p:p.replace(/\{p\}/g,c.nome),
+    rs:rs.map((txt,k)=>({txt,v:COL_VALOR[k]})).sort((a,b)=>(_hMini(a.txt)%7)-(_hMini(b.txt)%7))}));
+  abrirMinigame({
+    id:'crise',titulo:C.nome,eyebrow:'Crise de imagem · '+esc(t.nome),
+    desc:esc(C.txt(c.nome))+' A imprensa quer ouvir o dono. O tom decide se a crise passa ou cresce.',
+    controles:['1','2','3','Mouse'],
+    arte:()=>`<svg viewBox="0 0 200 120"><path d="M100 18 C120 50 140 58 128 86 C120 104 80 104 72 86 C62 62 92 52 100 18Z" fill="#FF4655" opacity=".75"/><path d="M100 56 C110 72 112 80 106 90 C100 98 92 94 92 86 C92 76 100 70 100 56Z" fill="#E2B45A"/></svg>`,
+    vale:()=>!!crisePendente(),
+    efeitoTxt:()=>'A nota mexe na torcida (de −3 a +2), na marca (multa dos patrocinadores) e no humor do conselho.',
+    efeitoFeito:res=>{const e=res.efeito;return e?`Torcida <b class="${e.torcida>=0?'up':'dn'}">${e.torcida>=0?'+':''}${e.torcida}</b>${e.multa?` · patrocinadores cobram <b class="dn">${money(e.multa)}</b>`:''}.`:'—';},
+    rotuloComissao:'Deixar a assessoria responder',msgComissao:'A assessoria soltou uma nota oficial.',
+    comissao:()=>{resolverCrise(0.5,'assessoria');render();},
+    dica:()=>'Clique na resposta ou use as teclas 1 a 3.',
+    registrar:(res,vale)=>{
+      const bateu=registrarRecordeMini('crise',res.pts,res.nota);
+      if(vale){res.efeito=resolverCrise(res.nota,'coletiva');
+        if(res.manchete)noticia('🎙 '+(G.manager.nome||'O dono')+' sobre a crise: "'+res.manchete+'"',{c:'clube',t:[t.id],imp:2});}
+      return bateu;
+    },
+    jogar:(ctx,fim)=>jogarColetiva(ctx,fim,{perguntas,t,placa:(G.manager.nome||'Dono')+' · dono'})
+  });
+}
+
+/* ---------- mesa de patrocínio ---------- */
+let MP={pct:0.12,anos:0};
+function abrirPatrocinioMesa(){
+  const t=meu(),c=mesaPatrocinioDisponivel();
+  if(!c){avisar('O máster já foi negociado nesta temporada (ou o clube está sem máster).');return;}
+  abrirMesaPatrocinio();
+  pintarMesaPatroc();
+}
+function pintarMesaPatroc(){
+  const t=meu(),c=contratoDe(t,'master'),m=miniDono(),mesa=m.mesa,mk=c&&marca(c.marca);
+  const fechada=!mesaPatrocinioDisponivel();
+  pintarModal(`<div class="ovl mp-ovl"><div class="box wide">
+    <div class="eyebrow">Mesa de patrocínio · ${esc(t.nome)}</div><h2 class="sec">Renegociar o máster</h2>
+    <div class="mp-g">
+      <div class="mp-marca">${mk&&typeof ASSETS!=='undefined'&&ASSETS.marca?`<img src="${ASSETS.marca(mk)}" alt="">`:''}<b>${esc(mk?mk.nome:'Marca')}</b>
+        <span class="dim">${esc(mk?mk.setor||'':'')}</span>
+        <div class="og-conta"><div><span>Fixo por ano</span><b class="num">${money(c?c.fixo:0)}</b></div>
+          <div><span>Contrato até</span><b class="num">${c?c.ate:'—'}</b></div>
+          <div><span>Torcida hoje</span><b class="num">${Math.round(t.torcida||0)}</b></div></div>
+        <div class="mp-pac">Paciência da marca ${[0,1,2].map(i=>`<i class="${i<(mesa?mesa.paciencia:0)?'on':''}"></i>`).join('')}</div></div>
+      <div class="mp-conv">
+        <div class="mp-hist">${(mesa?mesa.hist:[]).map(h=>`<div class="mp-fala ${h.de}">${esc(h.txt)}</div>`).join('')||'<p class="dim">A marca está na sala. Torcida que cresceu, título recente e a sua origem pesam no quanto ela aceita.</p>'}</div>
+        ${fechada?'':`<label class="og-range"><span>Aumento no fixo <b class="num" id="mpPctN">+${Math.round(MP.pct*100)}%</b> <span class="dim">· ${money(Math.round((c?c.fixo:0)*MP.pct))} a mais por ano</span></span>
+          <input type="range" id="mpPct" min="0" max="40" step="1" value="${Math.round(MP.pct*100)}"></label>
+          <div class="uni-pills">${[0,1,2].map(a=>`<button class="btn ghost sm ${MP.anos===a?'on':''}" data-mpanos="${a}">${a?'+'+a+' temporada'+(a>1?'s':''):'Mesma duração'}</button>`).join('')}</div>`}
+      </div>
+    </div>
+    <div class="og-pe"><button class="btn ghost" id="mpFecha">${fechada?'Fechar':'Sair da mesa'}</button>
+      ${fechada?'':`<button class="btn ghost" id="mpDelega">Deixar o diretor comercial</button>`}
+      <span class="og-pe-c"></span>
+      ${!fechada&&mesa&&mesa.contra!=null?`<button class="btn ghost" id="mpAceita">Aceitar +${Math.round(mesa.contra*100)}%</button>`:''}
+      ${fechada?'':'<button class="btn" id="mpPropoe">Propor</button>'}</div>
+  </div></div>`);
+  const r=$('#mpPct');if(r)r.oninput=()=>{MP.pct=+r.value/100;$('#mpPctN').textContent='+'+r.value+'%';};
+  document.querySelectorAll('[data-mpanos]').forEach(b=>b.onclick=()=>{MP.anos=+b.dataset.mpanos;pintarMesaPatroc();});
+  $('#mpFecha').onclick=()=>fechar();
+  const d=$('#mpDelega');if(d)d.onclick=()=>{const x=delegarPatrocinio();$('#modal').innerHTML='';flash(x.ok?x.msg:x.erro);render();};
+  const a=$('#mpAceita');if(a)a.onclick=()=>{proporPatrocinio(mesa.contra,mesa.contraAnos||0);pintarMesaPatroc();};
+  const p=$('#mpPropoe');if(p)p.onclick=()=>{proporPatrocinio(MP.pct,MP.anos);pintarMesaPatroc();};
+}
+
+/* ---------- Central e Empresa ---------- */
+const AGENDA_ABRE={crise:()=>abrirCrise(),uniforme:()=>abrirUniforme(),fanfest:()=>abrirFanFest(),patroc:()=>abrirPatrocinioMesa()};
+const AGENDA_BT={crise:'Responder',uniforme:'Montar coleção',fanfest:'Planejar',patroc:'Ir à mesa'};
+function cardAgendaDono(){
+  const a=typeof agendaDoDono==='function'?agendaDoDono():[];
+  if(!a.length)return '';
+  return `<div class="card ag-dono"><div class="eyebrow">Agenda do dono</div>
+    ${a.map(x=>`<div class="ag-item ${x.urg?'urg':''}"><span>${x.urg?icone('alerta')+' ':''}${esc(x.txt)}</span><button class="btn ${x.urg?'':'ghost'} sm" data-agenda="${x.id}">${AGENDA_BT[x.id]}</button></div>`).join('')}</div>`;
+}
+function ligarAgendaDono(v){
+  v.querySelectorAll('[data-agenda]').forEach(b=>b.onclick=()=>{const f=AGENDA_ABRE[b.dataset.agenda];if(f)f();});
+}
+function comercialMiniHTML(t){
+  const m=miniDono(),c=m.colecoes[0],ff=m.fanfest,pt=m.patroc;
+  const uni=uniformeDisponivel();
+  return `<div class="grid g3 ag-com">
+    <div class="card"><div class="eyebrow">Uniforme</div>
+      ${c?`<div class="ag-uni">${camisaSVG(t,c,84)}<div><b>${esc(UNI_MODELOS[c.modelo].nome)} · ${esc(UNI_CORES[c.cores].nome)}</b>
+        <div class="dim">${c.vendidos} de ${c.tiragem} peças a ${money(c.preco)}${c.fim?' · encerrada':c.esgotou?' · esgotada':''}</div>
+        <div class="dim">receita ${money(c.receita)} · produção ${money(c.custo)}</div></div></div>`:'<p class="dim">Nenhuma coleção lançada.</p>'}
+      ${uni?'<button class="btn sm" data-agenda="uniforme">Montar coleção</button>':`<p class="dim">${empresa().loja?'Janelas de lançamento: semanas 1 a 8 e 27 a 34.':'Abra a loja para lançar uniformes.'}</p>`}</div>
+    <div class="card"><div class="eyebrow">Fan fest</div>
+      ${ff&&ff.ano===G.ano?`<p><b>${ff.publico.toLocaleString('pt-BR')}</b> pessoas · ${ff.lucro>=0?'lucro':'prejuízo'} de ${money(Math.abs(ff.lucro))} · torcida +${ff.torcida}</p>`
+        :'<p class="dim">Uma vez por temporada. Local, atrações, ingresso e o dia em ritmo.</p><button class="btn sm" data-agenda="fanfest">Planejar</button>'}</div>
+    <div class="card"><div class="eyebrow">Máster</div>
+      ${pt&&pt.ano===G.ano?`<p>${pt.falhou?'A marca encerrou a conversa nesta temporada.':'Renovado com +'+Math.round(pt.pct*100)+'% no fixo.'}</p>`
+        :mesaPatrocinioDisponivel()?'<p class="dim">Uma vez por temporada, com a paciência da marca.</p><button class="btn sm" data-agenda="patroc">Ir à mesa</button>':'<p class="dim">Sem máster para negociar.</p>'}</div>
+  </div>`;
 }
 
 
@@ -53071,6 +53736,7 @@ function aplicarTurno(r){
   /* modo Dono: fim da linha, conselho e avisos de caixa (ui/empresa.js) */
   if(G&&G.fimDonoPendente&&typeof modalFimDono==='function'){const f=G.fimDonoPendente;G.fimDonoPendente=null;modalFimDono(f);}
   else if(G&&G.conselhoPendente&&!$('#modal').innerHTML&&typeof modalConselho==='function'){const r=G.conselhoPendente;G.conselhoPendente=null;modalConselho(r);}
+  else if(G&&G.criseNova&&!$('#modal').innerHTML&&typeof abrirCrise==='function'){G.criseNova=false;abrirCrise();}
   else if(G&&G.avisoEmpresaPendente&&!$('#modal').innerHTML&&typeof modalAvisoEmpresa==='function'){const a=G.avisoEmpresaPendente;G.avisoEmpresaPendente=null;modalAvisoEmpresa(a);}
   if(G&&G.tecSaiuPendente){const s=G.tecSaiuPendente;G.tecSaiuPendente=null;
     if(!$('#modal').innerHTML&&typeof avisar==='function')avisar(s.nome+' pediu demissão. A confiança dele em você chegou ao fim. O auxiliar assume como interino até você contratar outro técnico em Comando técnico.','O técnico saiu');}
@@ -53243,7 +53909,7 @@ function avancarAteMeuJogo(){
     if(r.minhaPartida)break;                   /* seu clube jogou */
     if(G.vereditoPendente||G.cerimoniaPendente)break;
     if(G.copaMomentos&&G.copaMomentos.length)break;   /* momento da World Cup */
-    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente)break;   /* modo Dono */
+    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente||G.criseNova)break;   /* modo Dono */
   }
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');

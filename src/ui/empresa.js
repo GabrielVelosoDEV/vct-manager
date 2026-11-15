@@ -83,7 +83,8 @@ function _abaComercial(t,e){
         <p class="dim">Lives, vídeos e bastidores. Cada um traz torcida nova toda semana e uma receita que cobre o salário com folga quando a torcida é grande.</p></div>
       <div class="card emp-linha"><div class="eyebrow">Itens do jogo</div>
         <p class="dim">${t.tier===1?'Parceiras da liga recebem uma parte da venda dos itens com a marca. Cresce com a torcida e com título.':'Só as parceiras da liga principal recebem. Suba para o Tier 1 para entrar.'}</p></div>
-    </div></div>`;
+    </div></div>
+    ${typeof comercialMiniHTML==='function'?comercialMiniHTML(t):''}`;
 }
 function _abaDinheiro(t,e){
   const lim=limiteEmprestimo(t), j=jurosEmprestimo();
@@ -99,7 +100,7 @@ function _abaDinheiro(t,e){
         ${fin?`<div class="emp-div"><span>Financiamento da compra</span><span class="num">${money(fin.saldo)}</span><span class="dim num">${money(fin.parcela)}/sem.</span><span></span></div>`:''}
         ${e.emprestimos.map(x=>`<div class="emp-div"><span>Empréstimo de ${x.ano}</span><span class="num">${money(x.saldo)}</span><span class="dim num">${money(x.parcela)}/sem.</span><button class="btn ghost sm" data-empquita="${x.id}">Quitar</button></div>`).join('')}`:''}
     </div>
-    <div class="card"><div class="split"><div class="eyebrow">Investidores</div><button class="btn ghost sm" id="empBusca">Buscar investidor</button></div>
+    <div class="card"><div class="split"><div class="eyebrow">Investidores</div><button class="btn ghost sm" id="empBusca">Apresentar aos investidores</button></div>
       <p class="dim">Um investidor compra uma fatia com dinheiro novo e, quase sempre, uma meta por temporada. Meta perdida azeda o conselho; se os outros sócios tiverem a maioria, o conselho pode afastar você.</p>
       ${e.ofertas.length?e.ofertas.map(o=>`<div class="emp-of"><div><b>${esc(o.nome)}</b><div class="dim">${Math.round(o.fatia*100)}% por <b class="num">${money(o.aporte)}</b> · ${o.silencioso?'sócio silencioso, sem meta':'meta: '+esc(METAS_INVESTIDOR[o.meta].texto.toLowerCase())}</div></div>
         <button class="btn sm" data-empaceita="${o.id}">Aceitar</button></div>`).join(''):'<p class="dim">Nenhuma proposta na mesa.</p>'}
@@ -147,7 +148,7 @@ function ligarEmpresa(v){
   b('#empEmp',async()=>{const val=+rg.value,j=jurosEmprestimo();
     if(!await confirmar('Tomar '+money(val)+' em '+prazo+' temporada(s)? Você devolve '+money(Math.round(val*(1+j*prazo)))+'.','Tomar'))return;fl(tomarEmprestimo(val,prazo));});
   v.querySelectorAll('[data-empquita]').forEach(x=>x.onclick=()=>fl(quitarEmprestimo(x.dataset.empquita)));
-  b('#empBusca',()=>fl(buscarInvestidores()));
+  b('#empBusca',()=>typeof abrirPitch==='function'?abrirPitch():fl(buscarInvestidores()));
   v.querySelectorAll('[data-empaceita]').forEach(x=>x.onclick=async()=>{
     const o=empresa().ofertas.find(z=>z.id===x.dataset.empaceita);if(!o)return;
     if(!await confirmar(o.nome+' entra com '+money(o.aporte)+' por '+Math.round(o.fatia*100)+'% da organização. Você fica com '+Math.round((fatiasDaOrg().minha-o.fatia)*100)+'%.','Aceitar'))return;

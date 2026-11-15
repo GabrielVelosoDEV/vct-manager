@@ -273,6 +273,7 @@ function vInicio(){
   ${typeof cardColetiva==='function'?cardColetiva():''}
   ${typeof cardDesafio==='function'?cardDesafio():''}
   ${typeof cardProjeto==='function'?cardProjeto(t):''}
+  ${typeof cardAgendaDono==='function'?cardAgendaDono():''}
   ${typeof cardEmpresa==='function'?cardEmpresa(t):''}
   ${typeof cardTecnicoIA==='function'?cardTecnicoIA(t):''}
   ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">

@@ -321,11 +321,11 @@ function desenharStream(cx,s){
   fundoGradiente(cx,'#120B1E','#0B1218',s.pulso,'rgba(155,107,255,A)');
   /* moldura da live: câmera, chat e espectadores */
   cx.fillStyle='#0A0710';cx.fillRect(40,40,520,200);cx.strokeStyle='rgba(155,107,255,.6)';cx.lineWidth=2;cx.strokeRect(40,40,520,200);
-  cx.fillStyle='rgba(155,107,255,.15)';cx.font='400 70px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';cx.fillText((J.tag||'VCT')+' AO VIVO',300,160);
+  cx.fillStyle='rgba(155,107,255,.15)';cx.font='400 70px "Bebas Neue", Impact, sans-serif';cx.textAlign='center';cx.fillText(J.telao||((J.tag||'VCT')+' AO VIVO'),300,160);
   cx.fillStyle='#FF4655';cx.beginPath();cx.arc(62,62,6,0,Math.PI*2);cx.fill();
-  cx.fillStyle='#ECE8E1';cx.font='700 12px Inter, sans-serif';cx.textAlign='left';cx.fillText('AO VIVO',74,66);
-  const esp=Math.round(1200+s.combo*137+s.t*40);
-  cx.fillText(esp.toLocaleString('pt-BR')+' espectadores',440,66);
+  cx.fillStyle='#ECE8E1';cx.font='700 12px Inter, sans-serif';cx.textAlign='left';cx.fillText(J.selo||'AO VIVO',74,66);
+  const esp=Math.round((J.publicoBase||1200)+s.combo*137+s.t*40);
+  cx.fillText(esp.toLocaleString('pt-BR')+' '+(J.publicoRot||'espectadores'),J.publicoRot?430:440,66);
   cx.fillStyle='#0A0710';cx.fillRect(600,40,320,200);cx.strokeStyle='rgba(255,255,255,.1)';cx.strokeRect(600,40,320,200);
   const msgs=J.chat;
   for(let i=0;i<6;i++){const k=Math.floor(s.beat)-i;if(k<0)break;const m=msgs[(k*7)%msgs.length];

@@ -284,6 +284,8 @@ function semana(){
     if(id===G.meuTime&&typeof semanaTecnicoIA==='function')semanaTecnicoIA(t);
     /* e a empresa: receitas novas, parcelas, conselho e o risco de quebrar (core/empresa.js) */
     if(id===G.meuTime&&typeof semanaEmpresa==='function')semanaEmpresa(t);
+    /* coleção à venda e crise de imagem (core/gestao-mini.js) */
+    if(id===G.meuTime&&typeof semanaMiniDono==='function')semanaMiniDono(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
