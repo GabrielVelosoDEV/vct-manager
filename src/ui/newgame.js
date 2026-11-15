@@ -10,7 +10,7 @@ let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
 let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
 /* modo Dono: variante e estilo de gestão */
-let escVariante='livre',escPerfilDono='paciente';
+let escVariante='livre',escPerfilDono='paciente',escComeco='assumir';
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
@@ -94,7 +94,12 @@ function telaNovoJogo(){
           <span>${esc(v.resumo)}</span><i>${esc(v.detalhe)}</i></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Seu estilo de gestão</div>
     <div class="nj-estilos">${Object.entries(PERFIS_DONO).map(([k,pf])=>`
-        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>`:''}
+        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Como você começa</div>
+    <div class="nj-papeis">
+      <button class="nj-papel ${escComeco==='assumir'?'on':''}" data-comeco="assumir"><b>Assumir uma organização</b><span>Escolha um clube que já existe: você compra o controle e o dono de antes sai.</span></button>
+      <button class="nj-papel ${escComeco==='criar'?'on':''}" data-comeco="criar"><b>Criar a sua</b><span>Monte a sua organização: origem do dinheiro, compra de vaga, fusão ou fundação do zero, nome, escudo e sede.</span></button>
+    </div>`:''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:14px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
@@ -119,7 +124,11 @@ function telaNovoJogo(){
     ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
         <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
         <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}`}
-    ${escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
+    ${escPapel==='dono'&&escComeco==='criar'?`
+    <h2 class="sec" style="margin-top:18px">Criar a sua organização</h2>
+    <p class="dim">Cinco passos: de onde vem o seu dinheiro, como você entra no circuito (compra de vaga, fusão ou fundação do zero), a cara da equipe, o dinheiro e o resumo.</p>
+    <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" id="njCriarOrg">Montar a organização ›</button></div>`
+    :escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
     <h2 class="sec" style="margin-top:18px">Começar na ranked</h2>
     <p class="dim">Sem clube. As semanas passam com você na ranked até chegar um convite para teste.</p>
     <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" data-pick="">Começar a carreira ›</button></div>`:`
@@ -163,6 +172,10 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-variante]').forEach(b=>b.onclick=()=>{guardaNome();escVariante=b.dataset.variante;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-perfildono]').forEach(b=>b.onclick=()=>{guardaNome();escPerfilDono=b.dataset.perfildono;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-comeco]').forEach(b=>b.onclick=()=>{guardaNome();escComeco=b.dataset.comeco;telaNovoJogo();});
+  const criarOrg=$('#njCriarOrg');if(criarOrg)criarOrg.onclick=()=>{guardaNome();
+    if(!String(escNome).trim())return flash('Escreva o seu nome primeiro.');
+    if(typeof telaCriarOrg==='function'){$('#modal').innerHTML='';telaCriarOrg();}};
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();const era=escPapel;escPapel=b.dataset.papel;
     if(escPapel==='jogador'&&era!=='jogador'&&escIdade>30)escIdade=19;
@@ -185,23 +198,28 @@ function telaNovoJogo(){
     criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo,variante:escVariante,perfilDono:escPerfilDono});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
-    iniciarBase(T(G.meuTime));
-    if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
-    if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
+    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
+    _finalizarInicio(T(G.meuTime),true);
+  });
+}
+/* o resto do começo de carreira, igual para quem assume e quem cria */
+function _finalizarInicio(t,anuncia){
+    iniciarBase(t);
+    if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,t);
+    if(typeof iniciarPlano==='function')iniciarPlano(t);
     montarMetas();
     const eu=G.manager;
-    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
-    noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+T(G.meuTime).nome+'.'
-      :'🏛 '+eu.nome+' é o novo dono do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
+    if(anuncia)noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+t.nome+'.'
+      :'🏛 '+eu.nome+' é o novo dono do '+t.nome+'.',{c:'clube',t:[t.id]});
     if(souTreinador()&&eu.metas.length)
-      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
+      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[t.id]});
     salvarRun(G.runNome);
     $('#modal').innerHTML='';
     tela='inicio';hist=['inicio'];histPos=0;
     entrarNoJogo();
-    flash('Boa sorte no comando do '+T(G.meuTime).nome+'.');
-  });
+    flash('Boa sorte no comando do '+t.nome+'.');
 }
+function _finalizarInicioDono(t){escCenario=null;_finalizarInicio(t,false);}
 
 /* ============================================================
    MODO JOGADOR NA CRIAÇÃO (J1)

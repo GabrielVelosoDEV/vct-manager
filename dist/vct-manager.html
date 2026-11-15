@@ -4523,6 +4523,58 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .dono-bolso,.dono-ant{margin-top:8px;font-size:12px}
 .nj-papel.nj-embreve{opacity:.5;cursor:not-allowed}
 
+/* ============ criar a sua organização ============ */
+.og-passos{display:flex;gap:6px;list-style:none;padding:0;margin:4px 0 16px}
+.og-passos li{flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel2,#16212B);font-size:12.5px;color:var(--dim,#8A97A3);border-bottom:2px solid transparent}
+.og-passos li b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#0B1116;font-size:12px}
+.og-passos li.feito{color:#fff;cursor:pointer}.og-passos li.feito b{background:var(--teal,#3AD1B0);color:#06231d}
+.og-passos li.on{color:#fff;border-bottom-color:var(--red,#FF4655)}.og-passos li.on b{background:var(--red,#FF4655)}
+.og-corpo{min-height:360px}
+.og-origens{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.og-origem{display:flex;flex-direction:column;gap:6px;text-align:left;padding:14px;background:var(--panel2,#16212B);border:1px solid var(--line);color:inherit;cursor:pointer}
+.og-origem.on{border-color:var(--red,#FF4655);background:color-mix(in srgb,var(--red,#FF4655) 10%,var(--panel2,#16212B))}
+.og-origem b{font-size:15px}.og-origem em{font-style:normal;font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;color:#E2B45A}
+.og-mais,.og-menos{font-size:12px;display:flex;gap:6px;align-items:flex-start}
+.og-mais{color:var(--green,#3FCF8E)}.og-menos{color:var(--dim,#8A97A3)}
+.og-entradas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.og-clubes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;max-height:420px;overflow:auto}
+.og-clube{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;background:var(--panel2,#16212B);border:1px solid var(--line);color:inherit;text-align:left;cursor:pointer}
+.og-clube.on{border-color:var(--red,#FF4655)}
+.og-clube.nao{opacity:.55}
+.og-c-n,.og-c-p{display:flex;flex-direction:column;gap:3px;min-width:0}
+.og-c-n span{display:flex;align-items:center;gap:6px;font-size:12px}
+.og-c-p{text-align:right;max-width:210px}.og-c-p span{font-size:11px}
+.og-c-p b{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px}
+.og-sai{display:flex;gap:14px;align-items:center;margin-top:12px;padding:14px;background:var(--panel2,#16212B)}
+.og-sai span{display:block;margin-top:4px}
+.og-equipe{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
+.og-equipe.og-off .og-campos input:disabled{opacity:.5}
+.og-escudo-prev{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px;background:radial-gradient(70% 70% at 50% 40%,rgba(255,255,255,.06),transparent),var(--panel2,#16212B);text-align:center}
+.og-escudo-prev img{width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+.og-escudo-prev.grande img{width:160px;height:160px}
+.og-escudo-prev span img,.og-escudo-prev.grande span img{width:18px;height:auto;filter:none;vertical-align:-2px;display:inline}
+.og-escudo-prev b{font-family:'Bebas Neue',Impact,sans-serif;font-size:24px;letter-spacing:.03em}
+.og-campos{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.og-campos input[type=color]{height:38px;padding:2px;width:100%}
+.og-formas{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.og-forma{width:56px;height:56px;padding:4px;background:var(--panel2,#16212B);border:1px solid var(--line);cursor:pointer}
+.og-forma.on{border-color:var(--red,#FF4655)}.og-forma img{width:100%;height:100%}
+.og-projs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.og-din{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}
+.og-range{display:flex;flex-direction:column;gap:6px;margin-top:10px}.og-range input{width:100%}
+.og-conta{display:flex;flex-direction:column;gap:2px;padding:12px 14px;background:var(--panel2,#16212B)}
+.og-conta>div{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px}
+.og-conta>div.tot{border-top:1px solid var(--line);padding-top:8px;font-weight:700}
+.og-conta b{font-family:'JetBrains Mono',monospace}
+.og-resumo{display:grid;grid-template-columns:240px 1fr;gap:20px}
+.og-linha{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.og-linha span{color:var(--dim,#8A97A3)}
+.og-erro{margin-top:10px;padding:10px 12px;background:color-mix(in srgb,var(--red,#FF4655) 14%,transparent);color:#fff;display:flex;gap:8px;align-items:center}
+.og-pe{display:flex;align-items:center;gap:12px;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.og-pe-c{margin-left:auto;white-space:nowrap}
+.og-pe .btn{white-space:nowrap}
+.og-pe .nj-assumir{width:auto;flex:0 0 auto}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -21712,6 +21764,210 @@ function rotuloTipoDono(d){
 function clubeSemDonoForte(t){return !t.dono||(t.dono.tipo==='org'&&!t.dono.voce);}
 
 
+/* ===== src/core/criacao-org.js ===== */
+/* ============================================================
+   MODO DONO — CRIAR A SUA ORGANIZAÇÃO (fase 2)
+   ------------------------------------------------------------
+   Quem escolhe "criar a sua" no modo Dono monta a persona (de onde
+   vem o dinheiro), escolhe como entra no circuito e desenha a
+   equipe. Três caminhos:
+
+     COMPRA  paga o preço da vaga de um clube. Leva vaga, elenco,
+             comissão e contratos; o clube vendido some do circuito
+             (a história dele fica para trás, guardada à parte) e a
+             torcida antiga começa desconfiada.
+     FUSÃO   paga bem menos e divide o clube com o dono antigo, que
+             vira sócio com 40%. Vaga, elenco, história e boa parte
+             da torcida ficam; o nome pode ser o seu, o dele ou os
+             dois juntos.
+     FUNDAR  paga a inscrição e entra no Challengers da região no
+             lugar do clube mais fraco, que sai do circuito com o
+             elenco liberado no mercado. Começa sem torcida, sem
+             patrocínio, sem história e com cinco agentes livres.
+
+   O dono do outro lado responde pelo perfil dele (data/donos.js):
+   quem é paciente não vende o projeto, quem é ambicioso só vende
+   caro e não aceita sócio, e assim por diante.
+
+   Dinheiro: o patrimônio vem da origem (× 1,5 no Fácil). Dá para
+   financiar até metade dele; o empréstimo é da organização e a
+   parcela sai do caixa toda semana (cobrarDividaDono).
+   Nada aqui usa o gerador do motor.
+   ============================================================ */
+const ORIGENS_DONO=[
+  {id:'herdeiro',  nome:'Herdeiro bilionário',  patrimonio:25000000, forte:'Aporte pessoal todo ano; pode cobrir prejuízo.', fraco:'Investidores e torcida desconfiam no começo.'},
+  {id:'empresario',nome:'Empresário',           patrimonio:12000000, forte:'+15% em patrocínio e loja; negocia melhor com marcas.', fraco:'Nenhum bônus esportivo.'},
+  {id:'criador',   nome:'Criador de conteúdo',  patrimonio: 6000000, forte:'Torcida e seguidores já no começo; loja e conteúdo rendem mais.', fraco:'Patrocinador tradicional pede mais para fechar.'},
+  {id:'expro',     nome:'Ex-jogador profissional',patrimonio:4000000,forte:'Jogadores aceitam mais fácil; você enxerga o potencial real.', fraco:'Menos dinheiro e menos contatos comerciais.'},
+  {id:'fundo',     nome:'Fundo de investimento',patrimonio:35000000, forte:'O maior caixa.', fraco:'O conselho cobra lucro todo trimestre.'},
+  {id:'futebol',   nome:'Clube de futebol',     patrimonio:15000000, forte:'Torcida de partida maior; saúde e base já no nível 3.', fraco:'Decisão grande demora para ser aprovada.'}
+];
+function origemDono(id){return ORIGENS_DONO.find(o=>o.id===id)||ORIGENS_DONO[1];}
+function patrimonioInicial(origem,facil){
+  return Math.round(origemDono(origem).patrimonio*(facil||(G&&G.dificuldade==='facil')?1.5:1));
+}
+const FUSAO_FATOR=0.45, FUSAO_FATIA=0.40, TAXA_FUNDACAO=400000;
+const FINANC_MAX=0.5, JUROS_DONO=0.12, PRAZO_DONO=3;
+
+/* ---------- preço e resposta do dono ---------- */
+function precoVaga(t){
+  if(!t)return 0;
+  const p=t.prestigio||50, tor=t.torcida||0;
+  const v=t.tier===1?6000000+p*60000+tor*30000:600000+p*10000+tor*8000;
+  return Math.round(v*(typeof bolsoDe==='function'?Math.max(1,bolsoDe(t)):1)/50000)*50000;
+}
+/* {aceita, preco, motivo} para 'compra' ou 'fusao' */
+function respostaDoDono(t,tipo){
+  const d=t&&t.dono||{perfil:'economico',tipo:'org'};
+  const base=precoVaga(t);
+  const preco=f=>Math.round(base*(tipo==='fusao'?FUSAO_FATOR:1)*f/50000)*50000;
+  if(d.voce)return{aceita:false,motivo:'É o seu clube.'};
+  if(tipo==='compra'&&t.tier===1&&d.tipo==='empresa'&&(t.bolso||1)>=1.7)
+    return{aceita:false,motivo:'A '+d.nome+' não vende: o clube é estratégico para a empresa.'};
+  switch(d.perfil){
+    case 'paciente':
+      return tipo==='compra'?{aceita:false,motivo:'Não vende o projeto; aceita conversar sobre fusão.'}
+        :{aceita:true,preco:preco(1),motivo:'Topa a fusão para o projeto ganhar fôlego.'};
+    case 'ambicioso':
+      return tipo==='fusao'?{aceita:false,motivo:'Não divide o comando com ninguém.'}
+        :{aceita:true,preco:preco(1.6),motivo:'Vende, mas só por muito acima do valor.'};
+    case 'midiatico':return{aceita:true,preco:preco(1.3),motivo:'Cobra caro pela marca e pela torcida.'};
+    case 'investidor':return{aceita:true,preco:preco(1),motivo:'Vende pelo valor de mercado: é negócio.'};
+    default:return{aceita:true,preco:preco(0.9),motivo:'Aceita um pouco abaixo do valor para fechar logo.'};
+  }
+}
+/* o clube que sai para a vaga aberta do Challengers: o mais fraco da região */
+function vagaParaFundar(regiao){
+  const ids=(G.regioes&&G.regioes[regiao]&&G.regioes[regiao].t2)||[];
+  return ids.map(T).filter(t=>t&&t.id!==G.meuTime&&!(t.dono&&t.dono.voce))
+    .sort((a,b)=>a.prestigio-b.prestigio||(a.torcida||0)-(b.torcida||0))[0]||null;
+}
+
+/* ---------- a conta antes de confirmar ---------- */
+function contaDaEntrada(o){
+  const pat=patrimonioInicial(o.origem,o.facil);
+  const emp=Math.round(pat*clamp(o.financiamento||0,0,FINANC_MAX)/50000)*50000;
+  let preco=0,clube=null,socio=null,ok=true,erro='';
+  if(o.entrada==='fundar'){
+    clube=vagaParaFundar(o.regiao);preco=TAXA_FUNDACAO;
+    if(!clube){ok=false;erro='Escolha a região onde a organização nasce.';}
+  }else{
+    clube=o.timeId&&G.times[o.timeId];
+    if(!clube){ok=false;erro='Escolha o clube.';}
+    else{const r=respostaDoDono(clube,o.entrada);
+      if(!r.aceita){ok=false;erro=r.motivo;}else preco=r.preco;
+      if(o.entrada==='fusao')socio={nome:clube.dono?clube.dono.nome:clube.nome,fatia:FUSAO_FATIA,perfil:clube.dono?clube.dono.perfil:'paciente'};}
+  }
+  const disponivel=pat+emp;
+  const aporte=clamp(Math.round(o.aporte||0),0,Math.max(0,disponivel-preco));
+  if(ok&&preco>disponivel){ok=false;erro='Faltam '+money(preco-disponivel)+' para pagar a entrada. Financie mais ou escolha outro caminho.';}
+  const caixaHerdado=o.entrada==='fundar'?0:(clube?clube.caixa:0);
+  const caixa=caixaHerdado+aporte;
+  const parcela=emp?Math.round(emp*(1+JUROS_DONO*PRAZO_DONO)/(PRAZO_DONO*SEMANAS_ANO)):0;
+  return{ok,erro,patrimonio:pat,emprestimo:emp,disponivel,preco,aporte,caixaHerdado,caixa,
+    restante:Math.max(0,disponivel-preco-aporte),parcela,socio,clube};
+}
+
+/* ---------- aplicar ---------- */
+function _separarHistoria(t){
+  const id=t.id, fantasma='ex:'+id;
+  for(const h of G.historico||[])if(h&&h.timeId===id)h.timeId=fantasma;
+  t.historiaAnterior={nome:t.nome,tag:t.tag,ate:G.ano,temporadas:t.temporadas||[]};
+  t.temporadas=[];
+}
+function _novaIdentidade(t,o){
+  (t.nomesAntigos=t.nomesAntigos||[]).push({nome:t.nome,tag:t.tag,ate:G.ano});
+  t.nome=String(o.nome).trim().slice(0,32);t.tag=String(o.tag).trim().toUpperCase().slice(0,4);
+  if(o.escudo||!o.manterEscudo){t.logo=o.escudo||null;t.logoArq=null;}
+  if(o.cor)t.cor=o.cor;
+  if(o.cor2)t.cor2=o.cor2;
+  if(o.pais){t.pais=o.pais;t.paisSede=o.pais;}
+  if(o.cidade)t.cidadeSede=String(o.cidade).slice(0,40);
+}
+function siglaLivre(tag,menos){
+  tag=String(tag||'').trim().toUpperCase();
+  return tag.length>=2&&!Object.values(G.times).some(t=>t.id!==menos&&String(t.tag).toUpperCase()===tag);
+}
+function criarOrganizacaoPropria(o){
+  const c=contaDaEntrada(o);
+  if(!c.ok)return{ok:false,erro:c.erro};
+  if(!String(o.nome||'').trim())return{ok:false,erro:'Dê um nome à organização.'};
+  const t=c.clube;
+  if(!(o.entrada==='fusao'&&o.nomeFusao==='dele')&&!siglaLivre(o.tag,t.id))return{ok:false,erro:'Sigla vazia ou já usada por outro clube.'};
+  const antes={nome:t.nome,dono:t.dono?t.dono.nome:null};
+  /* quem ia comprar ou se fundir com este clube durante a carreira desiste */
+  for(const e of G.aquisicoes||[])if(!e.feita&&e.de===(t.tagOriginal||t.tag))e.feita={ano:G.ano,sem:true,porVoce:true};
+  const piso=typeof pisoTorcida==='function'?pisoTorcida(t):0;
+  if(o.entrada==='compra'){
+    _separarHistoria(t);_novaIdentidade(t,o);
+    t.torcida=clamp(Math.round((t.torcida||0)*0.6),piso,TORCIDA_MAX);
+    t.prestigio=clamp(t.prestigio-5,20,99);
+  }else if(o.entrada==='fusao'){
+    if(o.nomeFusao==='dele'){if(o.cor)t.cor=o.cor;if(o.pais){t.pais=o.pais;t.paisSede=o.pais;}if(o.cidade)t.cidadeSede=o.cidade;}
+    else{
+      const nome=o.nomeFusao==='juntos'?(String(o.nome).trim()+' '+t.nome).slice(0,32):o.nome;
+      _novaIdentidade(t,Object.assign({},o,{nome,manterEscudo:true}));
+    }
+    t.torcida=clamp(Math.round((t.torcida||0)*0.85),piso,TORCIDA_MAX);
+    t.prestigio=clamp(t.prestigio-2,20,99);
+    t.socios=[{nome:c.socio.nome,fatia:FUSAO_FATIA,perfil:c.socio.perfil,desde:G.ano}];
+  }else{
+    /* fundar: o clube mais fraco sai e a vaga é sua, sem nada dele */
+    for(const pid of t.elenco.slice()){const p=G.jogadores[pid];if(!p)continue;
+      p.timeId=null;p.contrato=0;G.livres.push(pid);}
+    t.elenco=[];t.titulares=[];
+    if(t.base)t.base=[];
+    _separarHistoria(t);_novaIdentidade(t,o);
+    t.prestigio=30;t.torcida=piso;t.sinergia=20;t.duplas=null;
+    if(t.patrocinios)t.patrocinios={master:null,secundario:null,fornecedor:null};
+    if(typeof receitaCaixa==='function')t.patroc=receitaCaixa(t);
+    if(t.estrutura)for(const k in t.estrutura)t.estrutura[k]=1;
+    if(typeof semearDuplas==='function')semearDuplas(t);
+  }
+  t.caixa=c.caixa;
+  if(o.origem==='futebol'&&t.estrutura){t.estrutura.saude=Math.max(t.estrutura.saude||1,3);t.estrutura.academia=Math.max(t.estrutura.academia||1,3);}
+  if(o.origem==='criador')t.torcida=clamp((t.torcida||0)+12,piso,TORCIDA_MAX);
+  /* você vira o dono; quem era fica registrado (na fusão, vira sócio) */
+  G.meuTime=t.id;
+  const m=G.manager;
+  if(m){m.origem=origemDono(o.origem).id;m.patrimonio=c.restante;
+    m.divida=c.emprestimo?{saldo:Math.round(c.emprestimo*(1+JUROS_DONO*PRAZO_DONO)),parcela:c.parcela,desde:G.ano}:null;
+    m.entrada={tipo:o.entrada,ano:G.ano,preco:c.preco,de:antes.nome};}
+  if(typeof tornarVoceDono==='function')tornarVoceDono(t);
+  if(o.entrada==='fundar')_elencoInicial(t);
+  if(typeof autoEscalar==='function')autoEscalar(t);
+  const txt=o.entrada==='compra'?`🏢 ${m?m.nome:'Um novo dono'} compra a vaga do ${antes.nome} por ${money(c.preco)}: o clube passa a se chamar ${t.nome} (${t.tag}).`
+    :o.entrada==='fusao'?`🤝 ${antes.nome} se funde com a organização de ${m?m.nome:'um novo dono'}: o clube joga como ${t.nome} (${t.tag}), e ${c.socio.nome} fica com ${Math.round(FUSAO_FATIA*100)}%.`
+    :`🌱 Nasce o ${t.nome} (${t.tag}), de ${m?m.nome:'um novo dono'}: a organização entra no Challengers no lugar do ${antes.nome}, que deixa o circuito.`;
+  noticia(txt,{c:'mercado',t:[t.id],imp:3,meu:true});
+  return{ok:true,t};
+}
+/* fundar: cinco agentes livres da região, um por função quando dá, os
+   melhores que o caixa paga por uma temporada */
+function _elencoInicial(t){
+  const reg=t.regiao;
+  const livres=G.livres.map(i=>G.jogadores[i]).filter(p=>p&&!p.voce&&(typeof regiaoDoJogador!=='function'||regiaoDoJogador(p)===reg));
+  const teto=Math.max(2500,t.caixa/12/5/6);
+  const pode=p=>(typeof salario==='function'?salario(p,t):p.salario||0)<=teto;
+  const escolhidos=[];
+  for(const f of ['Duelista','Iniciador','Controlador','Sentinela']){
+    const p=livres.filter(x=>!escolhidos.includes(x)&&x.role===f&&pode(x)).sort((a,b)=>over(b)-over(a))[0];
+    if(p)escolhidos.push(p);
+  }
+  for(const p of livres.filter(x=>!escolhidos.includes(x)&&pode(x)).sort((a,b)=>over(b)-over(a))){if(escolhidos.length>=5)break;escolhidos.push(p);}
+  for(const p of G.livres.map(i=>G.jogadores[i]).filter(x=>x&&!x.voce&&!escolhidos.includes(x)).sort((a,b)=>over(b)-over(a))){if(escolhidos.length>=5)break;escolhidos.push(p);}
+  for(const p of escolhidos)contratar(p,t,1,typeof salario==='function'?salario(p,t):p.salario);
+}
+/* a parcela do financiamento sai do caixa toda semana */
+function cobrarDividaDono(t){
+  const d=G.manager&&G.manager.divida;
+  if(!d||!t||t.id!==G.meuTime||d.saldo<=0)return;
+  const v=Math.min(d.parcela,d.saldo);
+  t.caixa-=v;d.saldo-=v;
+  if(d.saldo<=0){G.manager.divida=null;noticia('🏦 O financiamento da organização foi quitado.',{c:'clube',t:[t.id],imp:1});}
+}
+
+
 /* ===== src/core/projeto.js ===== */
 /* ============================================================
    O PROJETO DO CLUBE — a visão de três temporadas
@@ -22972,6 +23228,7 @@ function semana(){
        o avanço era por rodada de torneio e o número de avanços por ano era
        aproximado. */
     t.caixa+= t.patroc/SEMANAS_ANO - (folha*12)/SEMANAS_ANO - custeio;
+    if(id===G.meuTime&&typeof cobrarDividaDono==='function')cobrarDividaDono(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
@@ -50330,7 +50587,7 @@ let escCenario=null;
 /* o seu treinador (manager.js): foto, país, idade, gênero, trajetória e estilo */
 let escFoto=null,escPais='BR',escIdade=34,escGenero='m',escModo='carreira',escEstilo='estrategista';
 /* modo Dono: variante e estilo de gestão */
-let escVariante='livre',escPerfilDono='paciente';
+let escVariante='livre',escPerfilDono='paciente',escComeco='assumir';
 /* foto do treinador: recorte 4:5 centrado, JPEG pequeno — vai dentro do save */
 function fotoDoArquivo(file){
   return new Promise((res,rej)=>{
@@ -50414,7 +50671,12 @@ function telaNovoJogo(){
           <span>${esc(v.resumo)}</span><i>${esc(v.detalhe)}</i></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Seu estilo de gestão</div>
     <div class="nj-estilos">${Object.entries(PERFIS_DONO).map(([k,pf])=>`
-        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>`:''}
+        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin-top:14px">Como você começa</div>
+    <div class="nj-papeis">
+      <button class="nj-papel ${escComeco==='assumir'?'on':''}" data-comeco="assumir"><b>Assumir uma organização</b><span>Escolha um clube que já existe: você compra o controle e o dono de antes sai.</span></button>
+      <button class="nj-papel ${escComeco==='criar'?'on':''}" data-comeco="criar"><b>Criar a sua</b><span>Monte a sua organização: origem do dinheiro, compra de vaga, fusão ou fundação do zero, nome, escudo e sede.</span></button>
+    </div>`:''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:14px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
@@ -50439,7 +50701,11 @@ function telaNovoJogo(){
     ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
         <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
         <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}`}
-    ${escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
+    ${escPapel==='dono'&&escComeco==='criar'?`
+    <h2 class="sec" style="margin-top:18px">Criar a sua organização</h2>
+    <p class="dim">Cinco passos: de onde vem o seu dinheiro, como você entra no circuito (compra de vaga, fusão ou fundação do zero), a cara da equipe, o dinheiro e o resumo.</p>
+    <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" id="njCriarOrg">Montar a organização ›</button></div>`
+    :escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
     <h2 class="sec" style="margin-top:18px">Começar na ranked</h2>
     <p class="dim">Sem clube. As semanas passam com você na ranked até chegar um convite para teste.</p>
     <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" data-pick="">Começar a carreira ›</button></div>`:`
@@ -50483,6 +50749,10 @@ function telaNovoJogo(){
   $('#modal').querySelectorAll('[data-estilo]').forEach(b=>b.onclick=()=>{guardaNome();escEstilo=b.dataset.estilo;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-variante]').forEach(b=>b.onclick=()=>{guardaNome();escVariante=b.dataset.variante;telaNovoJogo();});
   $('#modal').querySelectorAll('[data-perfildono]').forEach(b=>b.onclick=()=>{guardaNome();escPerfilDono=b.dataset.perfildono;telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-comeco]').forEach(b=>b.onclick=()=>{guardaNome();escComeco=b.dataset.comeco;telaNovoJogo();});
+  const criarOrg=$('#njCriarOrg');if(criarOrg)criarOrg.onclick=()=>{guardaNome();
+    if(!String(escNome).trim())return flash('Escreva o seu nome primeiro.');
+    if(typeof telaCriarOrg==='function'){$('#modal').innerHTML='';telaCriarOrg();}};
   $('#modal').querySelectorAll('[data-papel]').forEach(b=>b.onclick=()=>{
     guardaNome();const era=escPapel;escPapel=b.dataset.papel;
     if(escPapel==='jogador'&&era!=='jogador'&&escIdade>30)escIdade=19;
@@ -50505,23 +50775,28 @@ function telaNovoJogo(){
     criarManager(escNome,escPapel,{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,modo:escModo,estilo:escEstilo,variante:escVariante,perfilDono:escPerfilDono});
     if(typeof instalarManagerNoClube==='function')instalarManagerNoClube(T(G.meuTime));
     if(escSelecao&&escPapel==='treinador'&&typeof assumirSelecao==='function')assumirSelecao(escSelecao);
-    iniciarBase(T(G.meuTime));
-    if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,T(G.meuTime));
-    if(typeof iniciarPlano==='function')iniciarPlano(T(G.meuTime));
+    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
+    _finalizarInicio(T(G.meuTime),true);
+  });
+}
+/* o resto do começo de carreira, igual para quem assume e quem cria */
+function _finalizarInicio(t,anuncia){
+    iniciarBase(t);
+    if(escCenario&&typeof iniciarDesafio==='function')iniciarDesafio(escCenario,t);
+    if(typeof iniciarPlano==='function')iniciarPlano(t);
     montarMetas();
     const eu=G.manager;
-    if(souDono()&&typeof tornarVoceDono==='function')tornarVoceDono(T(G.meuTime));
-    noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+T(G.meuTime).nome+'.'
-      :'🏛 '+eu.nome+' é o novo dono do '+T(G.meuTime).nome+'.',{c:'clube',t:[G.meuTime]});
+    if(anuncia)noticia(souTreinador()?'👔 '+eu.nome+' assumiu como treinador do '+t.nome+'.'
+      :'🏛 '+eu.nome+' é o novo dono do '+t.nome+'.',{c:'clube',t:[t.id]});
     if(souTreinador()&&eu.metas.length)
-      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[G.meuTime]});
+      noticia('🎯 Meta da diretoria para '+G.ano+': '+eu.metas[0].texto+'.',{c:'clube',t:[t.id]});
     salvarRun(G.runNome);
     $('#modal').innerHTML='';
     tela='inicio';hist=['inicio'];histPos=0;
     entrarNoJogo();
-    flash('Boa sorte no comando do '+T(G.meuTime).nome+'.');
-  });
+    flash('Boa sorte no comando do '+t.nome+'.');
 }
+function _finalizarInicioDono(t){escCenario=null;_finalizarInicio(t,false);}
 
 /* ============================================================
    MODO JOGADOR NA CRIAÇÃO (J1)
@@ -50612,6 +50887,215 @@ function comecarCarreiraJogadorNJ(timeId){
   tela='inicio';hist=['inicio'];histPos=0;
   entrarNoJogo();
   flash(p.timeId?'Bem-vindo ao '+G.times[p.timeId].nome+', '+p.nome+'.':'A ranked é o seu palco agora, '+p.nome+'.');
+}
+
+
+/* ===== src/ui/org-nova.js ===== */
+/* ============================================================
+   MODO DONO — ASSISTENTE "CRIAR A SUA ORGANIZAÇÃO"
+   ------------------------------------------------------------
+   Cinco passos sobre core/criacao-org.js: origem, entrada,
+   equipe nova, dinheiro e resumo. Abre da tela de novo jogo
+   quando o papel é Dono e o começo é "criar a sua".
+   ============================================================ */
+let escOrg={passo:1,origem:'empresario',entrada:'compra',regiao:'AMER',tier:2,timeId:null,
+  nome:'',tag:'',cor:'#E2B45A',cor2:'#0F1923',forma:'escudo',upload:null,pais:'BR',cidade:'',
+  projeto:null,nomeFusao:'seu',financiamento:0,aporte:0};
+const FORMAS_ESCUDO={
+  escudo:'M50 4 L92 18 V50 C92 74 72 90 50 96 C28 90 8 74 8 50 V18 Z',
+  hexagono:'M50 4 L90 27 V73 L50 96 L10 73 V27 Z',
+  losango:'M50 3 L97 50 L50 97 L3 50 Z',
+  circulo:'M50 4 A46 46 0 1 1 49.9 4 Z'
+};
+/* o escudo gerado: forma, duas cores e a sigla */
+function escudoGerado(forma,cor,cor2,tag){
+  const d=FORMAS_ESCUDO[forma]||FORMAS_ESCUDO.escudo;
+  const s=esc(String(tag||'?').toUpperCase().slice(0,4));
+  const fs=s.length<=2?40:s.length===3?32:25;
+  return svgURI(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <defs><clipPath id="c"><path d="${d}"/></clipPath></defs>
+    <path d="${d}" fill="${cor2}"/>
+    <g clip-path="url(#c)"><path d="M-10 70 L110 30 L110 46 L-10 86 Z" fill="${cor}" opacity=".22"/></g>
+    <path d="${d}" fill="none" stroke="${cor}" stroke-width="5"/>
+    <path d="${d}" fill="none" stroke="${cor}" stroke-width="1.2" opacity=".55" transform="translate(50 50) scale(.84) translate(-50 -50)"/>
+    <text x="50" y="${50+fs*0.36}" text-anchor="middle" font-family="'Bebas Neue',Impact,Arial Black,sans-serif" font-size="${fs}" letter-spacing="1" fill="${cor}">${s}</text></svg>`);
+}
+function escudoDaOrg(){return escOrg.upload||escudoGerado(escOrg.forma,escOrg.cor,escOrg.cor2,escOrg.tag||'?');}
+/* escudo enviado: quadrado de 256 com o desenho inteiro dentro, fundo transparente */
+function escudoDoArquivo(file){
+  return new Promise((res,rej)=>{
+    if(!file||!(/^image\//.test(file.type||'')||/\.(png|jpe?g|webp|svg|gif)$/i.test(file.name||'')))return rej(new Error('Escolha uma imagem (PNG, JPG, WebP ou SVG).'));
+    const fr=new FileReader();
+    fr.onload=()=>{const im=new Image();im.onload=()=>{
+      const W=256,cv=document.createElement('canvas');cv.width=W;cv.height=W;
+      const e=Math.min(W/im.width,W/im.height),w=im.width*e,h=im.height*e;
+      cv.getContext('2d').drawImage(im,(W-w)/2,(W-h)/2,w,h);res(cv.toDataURL('image/png'));};
+      im.onerror=()=>rej(new Error('Não deu para ler essa imagem.'));im.src=fr.result;};
+    fr.onerror=()=>rej(new Error('Falha ao ler o arquivo.'));fr.readAsDataURL(file);
+  });
+}
+function _optsOrg(){return Object.assign({},escOrg,{facil:typeof escDif!=='undefined'&&escDif==='facil',escudo:escOrg.upload||escudoGerado(escOrg.forma,escOrg.cor,escOrg.cor2,escOrg.tag)});}
+function _tierDaOrg(){
+  if(escOrg.entrada==='fundar')return 2;
+  const t=escOrg.timeId&&G.times[escOrg.timeId];return t?t.tier:escOrg.tier;
+}
+const PASSOS_ORG=['Origem','Como entra','A equipe','Dinheiro','Resumo'];
+
+function telaCriarOrg(){
+  const o=escOrg, c=contaDaEntrada(_optsOrg());
+  const passo=o.passo;
+  const nav=`<ol class="og-passos">${PASSOS_ORG.map((n,i)=>`<li class="${i+1===passo?'on':i+1<passo?'feito':''}" data-ogir="${i+1}"><b>${i+1}</b>${esc(n)}</li>`).join('')}</ol>`;
+  let corpo='';
+  if(passo===1){
+    corpo=`<p class="dim">De onde vem o seu dinheiro. O patrimônio é seu; você decide no passo 4 quanto dele vai para a organização${escDif==='facil'?' (Fácil: patrimônio × 1,5)':''}.</p>
+      <div class="og-origens">${ORIGENS_DONO.map(x=>`<button class="og-origem ${o.origem===x.id?'on':''}" data-ogorigem="${x.id}">
+        <b>${esc(x.nome)}</b><em class="num">${money(patrimonioInicial(x.id,escDif==='facil'))}</em>
+        <span class="og-mais">${icone('sobe')} ${esc(x.forte)}</span><span class="og-menos">${icone('desce')} ${esc(x.fraco)}</span></button>`).join('')}</div>`;
+  }else if(passo===2){
+    const ent=[['compra','Comprar a vaga','Paga o preço da vaga. Leva vaga, elenco, comissão e contratos; o clube vendido some do circuito e a torcida antiga começa fria.'],
+      ['fusao','Fusão','Paga menos e divide o clube: o dono antigo vira sócio com 40%. Vaga, elenco, história e boa parte da torcida ficam.'],
+      ['fundar','Fundar do zero','Paga a inscrição ('+money(TAXA_FUNDACAO)+') e entra no Challengers no lugar do clube mais fraco da região. Sem torcida, sem patrocínio, com cinco agentes livres.']];
+    let lista='';
+    if(o.entrada==='fundar'){
+      const sai=vagaParaFundar(o.regiao);
+      lista=`<div class="tabs">${REGIONS.map(r=>`<button data-ogrg="${r.id}" class="${o.regiao===r.id?'on':''}">${esc(r.nome)}</button>`).join('')}</div>
+        ${sai?`<div class="og-sai">${escudo(sai,48)}<div><b>${esc(sai.nome)}</b> sai do circuito e abre a vaga.
+          <span class="dim">O elenco dele vai para o mercado; a vaga, a comissão e a estrutura mínima ficam com você.</span></div></div>`:''}`;
+    }else{
+      const ids=(G.regioes[o.regiao][o.tier===1?'t1':'t2']||[]).slice().sort((a,b)=>T(b).prestigio-T(a).prestigio);
+      lista=`<div class="tabs">${REGIONS.map(r=>`<button data-ogrg="${r.id}" class="${o.regiao===r.id?'on':''}">${esc(r.nome)}</button>`).join('')}</div>
+        <div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2)']].map(([k,n])=>`<button data-ogtr="${k}" class="${o.tier===k?'on':''}">${n}</button>`).join('')}</div>
+        <div class="og-clubes">${ids.map(id=>{const t=T(id),r=respostaDoDono(t,o.entrada),d=t.dono||{};const pf=PERFIS_DONO[d.perfil];
+          return `<button class="og-clube ${o.timeId===id?'on':''} ${r.aceita?'':'nao'}" data-ogclube="${id}" ${r.aceita?'':'title="'+esc(r.motivo)+'"'}>
+            ${escudo(t,40)}<div class="og-c-n"><b>${esc(t.nome)}</b><span class="dim">${typeof retratoDono==='function'?retratoDono(d,t,18):''} ${esc(d.nome||'—')}${pf?' · '+esc(pf.nome):''}</span></div>
+            <div class="og-c-p">${r.aceita?`<b class="num">${money(r.preco)}</b>`:'<b class="dn">não negocia</b>'}<span class="dim">${esc(r.motivo)}</span></div></button>`;}).join('')}</div>`;
+    }
+    corpo=`<div class="og-entradas">${ent.map(([k,n,d])=>`<button class="nj-papel ${o.entrada===k?'on':''}" data-ogent="${k}"><b>${n}</b><span>${d}</span></button>`).join('')}</div>${lista}`;
+  }else if(passo===3){
+    const t=o.timeId&&G.times[o.timeId];
+    const cid=(typeof cidades==='function'?cidades():[]).filter(x=>x.pais===o.pais);
+    const dele=o.entrada==='fusao'&&o.nomeFusao==='dele';
+    const projs=Object.entries(PROJETOS).filter(([k])=>!(k==='titulos'&&_tierDaOrg()!==1)&&!(k==='acesso'&&_tierDaOrg()!==2));
+    corpo=`${o.entrada==='fusao'&&t?`<div class="eyebrow">O nome depois da fusão</div><div class="og-entradas">
+        ${[['seu','O seu','O clube passa a ter o seu nome, sigla e escudo.'],['dele','Manter '+t.nome,'Fica o nome e o escudo dele; muda só o dono.'],['juntos','Os dois juntos','"'+(o.nome||'Seu nome')+' '+t.nome+'", com a sua sigla.']].map(([k,n,d])=>`<button class="nj-papel ${o.nomeFusao===k?'on':''}" data-ognf="${k}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>`:''}
+      <div class="og-equipe ${dele?'og-off':''}">
+        <div class="og-escudo-prev"><img src="${dele&&t?ASSETS.logo(t):escudoDaOrg()}" alt=""><b>${esc(dele&&t?t.nome:(o.nome||'Sua organização'))}</b></div>
+        <div class="campos og-campos">
+          <label>Nome<input type="text" id="ogNome" maxlength="32" value="${esc(o.nome)}" placeholder="como o circuito vai chamar" ${dele?'disabled':''}></label>
+          <label>Sigla<input type="text" id="ogTag" maxlength="4" value="${esc(o.tag)}" placeholder="2 a 4 letras" ${dele?'disabled':''}></label>
+          <label>Cor principal<input type="color" id="ogCor" value="${esc(o.cor)}"></label>
+          <label>Cor do fundo<input type="color" id="ogCor2" value="${esc(o.cor2)}"></label>
+          <label>País-sede${selectPais('id="ogPais"',o.pais)}</label>
+          <label>Cidade-sede${cid.length?`<select id="ogCidade"><option value="">—</option>${cid.map(x=>`<option ${o.cidade===x.nome?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>`:`<input type="text" id="ogCidade" maxlength="40" value="${esc(o.cidade)}" placeholder="a cidade da sede">`}</label>
+        </div>
+        <div class="og-formas">${dele?'':`<span class="eyebrow">Escudo</span>
+          ${Object.keys(FORMAS_ESCUDO).map(f=>`<button class="og-forma ${!o.upload&&o.forma===f?'on':''}" data-ogforma="${f}"><img src="${escudoGerado(f,o.cor,o.cor2,o.tag||'?')}" alt=""></button>`).join('')}
+          <label class="btn ghost sm">Enviar imagem<input type="file" id="ogUp" accept="image/*" hidden></label>
+          ${o.upload?'<button class="btn ghost sm" id="ogTiraUp">Usar o gerado</button>':''}`}</div>
+      </div>
+      <div class="eyebrow" style="margin-top:16px">Proposta da organização · três temporadas</div>
+      <div class="og-projs">${projs.map(([k,p])=>`<button class="nj-estilo ${o.projeto===k?'on':''}" data-ogproj="${k}"><b>${esc(p.nome)}</b><span>${esc(p.desc)}</span></button>`).join('')}</div>`;
+  }else if(passo===4){
+    const maxAp=Math.max(0,c.disponivel-c.preco);
+    corpo=`<div class="og-din">
+      <div class="og-din-l">
+        <label class="og-range"><span>Financiamento <b class="num">${Math.round(o.financiamento*100)}%</b> do patrimônio · ${money(c.emprestimo)}</span>
+          <input type="range" id="ogFin" min="0" max="${FINANC_MAX*100}" step="5" value="${Math.round(o.financiamento*100)}"></label>
+        <p class="dim">Empréstimo da organização a ${Math.round(JUROS_DONO*100)}% ao ano em ${PRAZO_DONO} temporadas. A parcela sai do caixa toda semana.</p>
+        <label class="og-range"><span>Aporte no caixa do clube <b class="num">${money(c.aporte)}</b></span>
+          <input type="range" id="ogAp" min="0" max="${maxAp}" step="50000" value="${Math.min(o.aporte,maxAp)}"></label>
+        <p class="dim">O que você põe na organização além da entrada. O que sobra fica no seu patrimônio, para cobrir crises depois.</p>
+      </div>
+      ${_contaOrgHTML(c)}</div>`;
+  }else{
+    const t=c.clube;
+    corpo=`<div class="og-resumo">
+      <div class="og-escudo-prev grande"><img src="${o.entrada==='fusao'&&o.nomeFusao==='dele'&&t?ASSETS.logo(t):escudoDaOrg()}" alt="">
+        <b>${esc(o.entrada==='fusao'&&o.nomeFusao==='dele'&&t?t.nome:o.entrada==='fusao'&&o.nomeFusao==='juntos'&&t?(o.nome+' '+t.nome):o.nome||'—')}</b>
+        <span class="dim">${esc(o.tag||'')}${o.cidade?' · '+esc(o.cidade):''} · ${bandeira(o.pais)}</span></div>
+      <div>
+        <div class="og-linha"><span>Dono</span><b>${esc(escNome||'Você')} · ${esc(origemDono(o.origem).nome)}</b></div>
+        <div class="og-linha"><span>Entrada</span><b>${o.entrada==='compra'?'Compra da vaga do '+esc(t?t.nome:'—'):o.entrada==='fusao'?'Fusão com o '+esc(t?t.nome:'—'):'Fundação no Challengers '+esc((REGIONS.find(r=>r.id===o.regiao)||{}).nome||'')}</b></div>
+        ${c.socio?`<div class="og-linha"><span>Sócio</span><b>${esc(c.socio.nome)} · ${Math.round(c.socio.fatia*100)}%</b></div>`:''}
+        <div class="og-linha"><span>Liga</span><b>${_tierDaOrg()===1?'Tier 1':'Challengers'}</b></div>
+        <div class="og-linha"><span>Proposta</span><b>${o.projeto?esc(PROJETOS[o.projeto].nome):'escolher depois'}</b></div>
+        ${_contaOrgHTML(c)}
+        ${c.ok?'':`<div class="og-erro">${icone('alerta')} ${esc(c.erro)}</div>`}
+      </div></div>`;
+  }
+  pintarModal(`<div class="ovl nj-ovl og-ovl"><div class="box wide">
+    <div class="eyebrow">Modo Dono · criar a sua organização</div><h2 class="sec">${esc(PASSOS_ORG[passo-1])}</h2>
+    ${nav}<div class="og-corpo">${corpo}</div>
+    <div class="og-pe"><button class="btn ghost" id="ogVolta">${passo===1?'Voltar ao novo jogo':'‹ Voltar'}</button>
+      <span class="og-pe-c dim">${c.preco?'Entrada '+money(c.preco)+' · ':''}disponível ${money(c.disponivel)}</span>
+      ${passo<5?`<button class="btn" id="ogVai">Próximo ›</button>`:`<button class="btn nj-assumir" id="ogComeca" ${c.ok?'':'disabled'}>Fundar e começar ›</button>`}</div>
+  </div></div>`);
+  _ligarCriarOrg();
+}
+function _contaOrgHTML(c){
+  return `<div class="og-conta">
+    <div><span>Patrimônio</span><b class="num">${money(c.patrimonio)}</b></div>
+    <div><span>+ Financiamento</span><b class="num">${money(c.emprestimo)}</b></div>
+    <div><span>− Entrada</span><b class="num dn">${money(c.preco)}</b></div>
+    <div><span>− Aporte no clube</span><b class="num">${money(c.aporte)}</b></div>
+    <div class="tot"><span>Fica com você</span><b class="num">${money(c.restante)}</b></div>
+    <div class="tot"><span>Caixa do clube</span><b class="num up">${money(c.caixa)}</b></div>
+    ${c.parcela?`<div><span>Parcela semanal</span><b class="num dn">${money(c.parcela)}</b></div>`:''}</div>`;
+}
+function _validarPassoOrg(){
+  const o=escOrg;
+  if(o.passo===2&&o.entrada!=='fundar'){
+    const t=o.timeId&&G.times[o.timeId];
+    if(!t)return 'Escolha o clube.';
+    const r=respostaDoDono(t,o.entrada);if(!r.aceita)return r.motivo;
+  }
+  if(o.passo===3&&!(o.entrada==='fusao'&&o.nomeFusao==='dele')){
+    if(!String(o.nome).trim())return 'Dê um nome à organização.';
+    if(!siglaLivre(o.tag,o.timeId))return 'Sigla de 2 a 4 letras que nenhum clube use.';
+  }
+  return '';
+}
+function _lerCamposOrg(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value:null;};
+  if(v('ogNome')!==null)escOrg.nome=v('ogNome');
+  if(v('ogTag')!==null)escOrg.tag=String(v('ogTag')).toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(v('ogCor'))escOrg.cor=v('ogCor');
+  if(v('ogCor2'))escOrg.cor2=v('ogCor2');
+  if(v('ogPais'))escOrg.pais=v('ogPais');
+  if(v('ogCidade')!==null)escOrg.cidade=v('ogCidade');
+}
+function _ligarCriarOrg(){
+  const m=$('#modal'),q=s=>m.querySelectorAll(s),re=()=>{_lerCamposOrg();telaCriarOrg();};
+  q('[data-ogorigem]').forEach(b=>b.onclick=()=>{escOrg.origem=b.dataset.ogorigem;re();});
+  q('[data-ogent]').forEach(b=>b.onclick=()=>{escOrg.entrada=b.dataset.ogent;if(escOrg.entrada==='fundar')escOrg.tier=2;re();});
+  q('[data-ogrg]').forEach(b=>b.onclick=()=>{escOrg.regiao=b.dataset.ogrg;escOrg.timeId=null;re();});
+  q('[data-ogtr]').forEach(b=>b.onclick=()=>{escOrg.tier=+b.dataset.ogtr;escOrg.timeId=null;re();});
+  q('[data-ogclube]').forEach(b=>b.onclick=()=>{escOrg.timeId=b.dataset.ogclube;re();});
+  q('[data-ognf]').forEach(b=>b.onclick=()=>{escOrg.nomeFusao=b.dataset.ognf;re();});
+  q('[data-ogforma]').forEach(b=>b.onclick=()=>{escOrg.forma=b.dataset.ogforma;escOrg.upload=null;re();});
+  q('[data-ogproj]').forEach(b=>b.onclick=()=>{escOrg.projeto=escOrg.projeto===b.dataset.ogproj?null:b.dataset.ogproj;re();});
+  q('[data-ogir]').forEach(b=>b.onclick=()=>{const n=+b.dataset.ogir;if(n<escOrg.passo){_lerCamposOrg();escOrg.passo=n;telaCriarOrg();}});
+  ['ogNome','ogTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.onchange=re;});
+  ['ogCor','ogCor2','ogPais','ogCidade'].forEach(id=>{const el=document.getElementById(id);if(el)el.onchange=re;});
+  const fin=document.getElementById('ogFin');if(fin)fin.oninput=()=>{escOrg.financiamento=(+fin.value)/100;re();};
+  const ap=document.getElementById('ogAp');if(ap)ap.onchange=()=>{escOrg.aporte=+ap.value;re();};
+  const up=document.getElementById('ogUp');if(up)up.onchange=async()=>{_lerCamposOrg();try{escOrg.upload=await escudoDoArquivo(up.files[0]);telaCriarOrg();}catch(e){flash(e.message);}};
+  const tu=document.getElementById('ogTiraUp');if(tu)tu.onclick=()=>{escOrg.upload=null;re();};
+  document.getElementById('ogVolta').onclick=()=>{_lerCamposOrg();if(escOrg.passo>1){escOrg.passo--;telaCriarOrg();}else{$('#modal').innerHTML='';telaNovoJogo();}};
+  const vai=document.getElementById('ogVai');
+  if(vai)vai.onclick=()=>{_lerCamposOrg();const e=_validarPassoOrg();if(e)return flash(e);escOrg.passo++;telaCriarOrg();};
+  const com=document.getElementById('ogComeca');
+  if(com)com.onclick=()=>{_lerCamposOrg();comecarComOrgPropria();};
+}
+function comecarComOrgPropria(){
+  G.iniciadaEm=Date.now();
+  aplicarDificuldade(escDif,null);
+  iniciarGuia();
+  criarManager(escNome,'dono',{foto:escFoto,pais:escPais,idade:escIdade,genero:escGenero,variante:escVariante,perfilDono:escPerfilDono});
+  const r=criarOrganizacaoPropria(_optsOrg());
+  if(!r.ok){flash(r.erro);return;}
+  if(escOrg.projeto&&typeof escolherProjeto==='function')escolherProjeto(escOrg.projeto);
+  _finalizarInicioDono(r.t);
 }
 
 

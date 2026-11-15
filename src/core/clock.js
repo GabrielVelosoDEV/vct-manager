@@ -274,6 +274,7 @@ function semana(){
        o avanço era por rodada de torneio e o número de avanços por ano era
        aproximado. */
     t.caixa+= t.patroc/SEMANAS_ANO - (folha*12)/SEMANAS_ANO - custeio;
+    if(id===G.meuTime&&typeof cobrarDividaDono==='function')cobrarDividaDono(t);
     /* entrosamento por dupla: scrims, insatisfeitos, função disputada,
        sequência de derrotas e a atividade da semana (core/vestiario.js) */
     if(typeof entrosamentoSemanal==='function')entrosamentoSemanal(t);
