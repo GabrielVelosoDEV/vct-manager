@@ -527,10 +527,17 @@ function rodapeMVP(s){
         em ${r.maps} mapas</div>
     </div></div>`;
 }
+/* saldo de rounds com uma barrinha que cresce do meio: para a direita é
+   saldo positivo, para a esquerda negativo (lê-se sem ler o número) */
+function saldoRounds(v,mx){
+  const pct=Math.round(Math.min(1,Math.abs(v)/Math.max(1,mx))*50);
+  return `<span class="sr"><span class="sr-b"><i class="${v>=0?'p':'n'}" style="width:${pct}%"></i></span><span class="sr-n ${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${v}</span></span>`;
+}
 /* ---------- fase de grupos ---------- */
 function corpoGrupos(s,t){
   const grupos=(s.grupos||[]).map(g=>{
     const ord=ordenarGrupo(g);
+    const mxR=Math.max(1,...ord.map(id=>Math.abs(g.tabela[id].rv-g.tabela[id].rd)));
     return `<div class="gr">
       <div class="gr-tit">${esc(g.nome)}</div>
       <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Mapas</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead><tbody>${ord.map((id,i)=>{
@@ -538,7 +545,7 @@ function corpoGrupos(s,t){
         return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}">
           <td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
           <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td>
-          <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
+          <td class="c num dim">${saldoRounds(x.rv-x.rd,mxR)}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
       </tbody></table></div>`;
   }).join('');
   return `<div class="grades">${grupos}</div>

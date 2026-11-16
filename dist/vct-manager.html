@@ -5533,6 +5533,21 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
   .top-avancar span img{width:14px;height:14px}
   .top-avancar{box-shadow:0 6px 20px -6px rgba(255,70,85,.6)}
 }
+/* saldo de rounds */
+.sr{display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.sr-b{position:relative;width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.06)}
+.sr-b::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.25)}
+.sr-b i{position:absolute;top:0;bottom:0;border-radius:3px}
+.sr-b i.p{left:50%;background:var(--teal)}
+.sr-b i.n{right:50%;background:var(--red)}
+.sr-n{min-width:30px;text-align:right}
+.sr-n.up{color:var(--teal)}.sr-n.dn{color:#ff7a7a}
+/* líderes: barra relativa ao primeiro */
+.lid-tab td{padding:8px 10px}
+.lid-tab .lid-bt{width:32%}
+.lid-tab .lid-bt i{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,rgba(255,255,255,.08),var(--clube,#8fa3b5));opacity:.8}
+.lid-tab tr:nth-child(1) td:first-child,.lid-tab tr:nth-child(2) td:first-child{color:var(--tx)}
+.lid-tab td:first-child{font-family:'Bebas Neue',sans-serif;font-size:17px}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -40316,10 +40331,17 @@ function rodapeMVP(s){
         em ${r.maps} mapas</div>
     </div></div>`;
 }
+/* saldo de rounds com uma barrinha que cresce do meio: para a direita é
+   saldo positivo, para a esquerda negativo (lê-se sem ler o número) */
+function saldoRounds(v,mx){
+  const pct=Math.round(Math.min(1,Math.abs(v)/Math.max(1,mx))*50);
+  return `<span class="sr"><span class="sr-b"><i class="${v>=0?'p':'n'}" style="width:${pct}%"></i></span><span class="sr-n ${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${v}</span></span>`;
+}
 /* ---------- fase de grupos ---------- */
 function corpoGrupos(s,t){
   const grupos=(s.grupos||[]).map(g=>{
     const ord=ordenarGrupo(g);
+    const mxR=Math.max(1,...ord.map(id=>Math.abs(g.tabela[id].rv-g.tabela[id].rd)));
     return `<div class="gr">
       <div class="gr-tit">${esc(g.nome)}</div>
       <table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">V–D</th><th class="c">Mapas</th><th class="c">Rounds</th><th class="c">Forma</th></tr></thead><tbody>${ord.map((id,i)=>{
@@ -40327,7 +40349,7 @@ function corpoGrupos(s,t){
         return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}">
           <td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
           <td class="c num"><b>${x.v}–${x.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td>
-          <td class="c num dim">${x.rv-x.rd>0?'+':''}${x.rv-x.rd}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
+          <td class="c num dim">${saldoRounds(x.rv-x.rd,mxR)}</td><td class="c">${formaRecente(id,5)}</td></tr>`;}).join('')}
       </tbody></table></div>`;
   }).join('');
   return `<div class="grades">${grupos}</div>
@@ -45254,7 +45276,8 @@ function mundoLideres(){
         <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${bandeira(p1.pais)}
           <div class="dim">${p1.timeId?escudo(G.times[p1.timeId],16)+' '+esc(tagT(p1.timeId)):'livre'} · ${esc(p1.role)}</div></div>
         <b class="lid-v num">${fmt(f(p1))}</b></div>`:''}
-      <table><tbody>${top.slice(1).map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i+1)).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
+      <table class="lid-tab"><tbody>${top.slice(1).map((p,i)=>{const vmx=f(top[0]),vmn=f(top[top.length-1]),pct=Math.round(25+75*((f(p)-vmn)/Math.max(1e-9,vmx-vmn)));
+        return linhaJogadorMini(p,fmt(f(p)),i+1,`<td class="lid-bt"><i style="width:${pct}%"></i></td>`);}).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
 }
 
 /* ---------- títulos ---------- */

@@ -84,7 +84,8 @@ function mundoLideres(){
         <div class="lid-q"><span class="lid-pos">1º</span><b>${esc(p1.nome)}</b> ${bandeira(p1.pais)}
           <div class="dim">${p1.timeId?escudo(G.times[p1.timeId],16)+' '+esc(tagT(p1.timeId)):'livre'} · ${esc(p1.role)}</div></div>
         <b class="lid-v num">${fmt(f(p1))}</b></div>`:''}
-      <table><tbody>${top.slice(1).map((p,i)=>linhaJogadorMini(p,fmt(f(p)),i+1)).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
+      <table class="lid-tab"><tbody>${top.slice(1).map((p,i)=>{const vmx=f(top[0]),vmn=f(top[top.length-1]),pct=Math.round(25+75*((f(p)-vmn)/Math.max(1e-9,vmx-vmn)));
+        return linhaJogadorMini(p,fmt(f(p)),i+1,`<td class="lid-bt"><i style="width:${pct}%"></i></td>`);}).join('')||(p1?'':'<tr><td class="dim">Sem dados.</td></tr>')}</tbody></table></div>`;}).join('')}</div>`;
 }
 
 /* ---------- títulos ---------- */

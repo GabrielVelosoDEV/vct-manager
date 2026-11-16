@@ -5499,3 +5499,18 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
   .top-avancar span img{width:14px;height:14px}
   .top-avancar{box-shadow:0 6px 20px -6px rgba(255,70,85,.6)}
 }
+/* saldo de rounds */
+.sr{display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.sr-b{position:relative;width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.06)}
+.sr-b::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.25)}
+.sr-b i{position:absolute;top:0;bottom:0;border-radius:3px}
+.sr-b i.p{left:50%;background:var(--teal)}
+.sr-b i.n{right:50%;background:var(--red)}
+.sr-n{min-width:30px;text-align:right}
+.sr-n.up{color:var(--teal)}.sr-n.dn{color:#ff7a7a}
+/* líderes: barra relativa ao primeiro */
+.lid-tab td{padding:8px 10px}
+.lid-tab .lid-bt{width:32%}
+.lid-tab .lid-bt i{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,rgba(255,255,255,.08),var(--clube,#8fa3b5));opacity:.8}
+.lid-tab tr:nth-child(1) td:first-child,.lid-tab tr:nth-child(2) td:first-child{color:var(--tx)}
+.lid-tab td:first-child{font-family:'Bebas Neue',sans-serif;font-size:17px}
