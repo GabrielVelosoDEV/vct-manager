@@ -4904,6 +4904,7 @@ body.tema-dono .ti-at u{background:linear-gradient(90deg,#C99A45,#F6DE9C)}
    NOVO JOGO — os três modos (ui/modos.js)
    O modal inteiro assume a cor do modo escolhido (--mc).
    ============================================================ */
+.nj-ovl.og-ovl{--mc:#E2B45A;--mc-tx:#17120A}
 .nj-ovl.nj-m-treinador{--mc:#FF4655;--mc2:#4C8DFF;--mc-tx:#fff}
 .nj-ovl.nj-m-jogador{--mc:#18E5B4;--mc2:#9B6BFF;--mc-tx:#06231C}
 .nj-ovl.nj-m-dono{--mc:#E2B45A;--mc2:#C99A45;--mc-tx:#17120A}
@@ -5230,7 +5231,7 @@ tr.me{background:linear-gradient(90deg,rgba(255,70,85,.13),rgba(255,70,85,.03) 6
 tr.me:hover{background:linear-gradient(90deg,rgba(255,70,85,.2),rgba(255,70,85,.05) 60%,transparent)}
 table.wide td{padding:9px 10px}table.wide th{padding:9px 10px}
 .linha-t{display:inline-flex;align-items:center;gap:10px}
-.linha-t .retrato,.linha-t img{border-radius:50%}
+.linha-t img.foto-j{border-radius:50%}
 .linha-t b{font-weight:600}
 th.ord{cursor:pointer;user-select:none}
 th.ord:hover{color:var(--tx)}
