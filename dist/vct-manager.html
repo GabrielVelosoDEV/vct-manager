@@ -4751,6 +4751,189 @@ button.rl-acao:hover:not([disabled]){border-color:var(--teal);background:rgba(24
 .dono-corp.p img{width:72%;height:72%;margin-top:0;padding:6%}
 .dono-corp.p b{display:none}
 
+/* ============================================================
+   MODO DONO — tema executivo (body.tema-dono)
+   Dourado no lugar do vermelho como cor de ação; vermelho fica só para
+   o que é ruim. Fundo de mármore escuro com veio dourado.
+   ============================================================ */
+body.tema-dono{--ac:#E2B45A;--ac-d:#C8943A;--ac-soft:rgba(226,180,90,.14);--ac-tx:#17120A}
+body.tema-dono.modo-jogo{background:
+  radial-gradient(1200px 560px at 82% -10%,rgba(226,180,90,.10),transparent 62%),
+  radial-gradient(900px 640px at 0% 110%,rgba(76,141,255,.05),transparent 60%),
+  linear-gradient(115deg,transparent 0 46%,rgba(226,180,90,.025) 46.2% 46.6%,transparent 47% 100%),
+  #0A0F14;background-attachment:fixed}
+body.tema-dono #side{background:linear-gradient(180deg,#0E141B 0,#0B1016 100%);border-right-color:rgba(226,180,90,.14)}
+body.tema-dono #top{background:linear-gradient(90deg,#0E141B,#101820);border-bottom-color:rgba(226,180,90,.16)}
+body.tema-dono #top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(226,180,90,.55),transparent)}
+body.tema-dono #side a.on{border-left-color:var(--ac);background:linear-gradient(90deg,var(--ac-soft),transparent)}
+body.tema-dono #side a.on svg{color:var(--ac)}
+body.tema-dono .side-grp{color:#8A7550}
+body.tema-dono .btn{background:linear-gradient(180deg,#EDC473,#C99A45);color:var(--ac-tx)}
+body.tema-dono .btn:hover:not(:disabled){background:linear-gradient(180deg,#F5D38C,#D5A650)}
+body.tema-dono .btn.ghost{background:transparent;color:var(--tx2)}
+body.tema-dono .btn.ghost:hover:not(:disabled){background:var(--panel2);color:var(--tx)}
+body.tema-dono .btn-fim:hover:not(:disabled){color:var(--ac);border-color:var(--ac)}
+body.tema-dono .eyebrow::before{color:var(--ac)}
+body.tema-dono .tabs button.on{border-bottom-color:var(--ac)}
+body.tema-dono .ti-op.on{border-color:var(--ac);background:var(--ac-soft)}
+body.tema-dono .ti-op.on b{color:var(--ac)}
+body.tema-dono .uni-pills .on,body.tema-dono .emp-prazos .on{border-color:var(--ac);color:var(--ac)}
+body.tema-dono .top-titulo{color:#F1E6CF}
+body.tema-dono .top-valor strong{color:var(--ac)}
+body.tema-dono .ovl .box{border-top:2px solid var(--ac)}
+body.tema-dono ::selection{background:var(--ac);color:var(--ac-tx)}
+
+/* barra lateral: o seu retrato */
+.side-dono{gap:12px}
+.side-dono-r{position:relative;flex:none}
+.side-dono-r .dono-ret{border-radius:50%;box-shadow:0 0 0 2px var(--ac,#E2B45A),0 4px 12px rgba(0,0,0,.5);object-fit:cover}
+.side-dono-esc{position:absolute;right:-6px;bottom:-4px;width:22px;height:22px;display:grid;place-items:center;
+  background:#0E141B;border-radius:50%;box-shadow:0 0 0 1px rgba(226,180,90,.5)}
+.side-dono-esc img{width:16px!important;height:16px!important}
+.side-dono .n span{color:var(--ac,#E2B45A)}
+
+/* ---------- o Escritório ---------- */
+@keyframes escSobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes escBrilho{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes escTraco{from{stroke-dashoffset:var(--len,600)}to{stroke-dashoffset:0}}
+@keyframes escZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
+.esc-hero{position:relative;overflow:hidden;margin-bottom:16px;border:1px solid rgba(226,180,90,.22);
+  background:linear-gradient(120deg,rgba(var(--clube-rgb),.22),transparent 55%),#0D141B;
+  box-shadow:0 30px 60px -36px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.esc-hero-f{position:absolute;inset:0;opacity:.42;animation:escZoom 14s ease-out both}
+.esc-hero-v{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,20,.96) 0,rgba(10,15,20,.82) 42%,rgba(10,15,20,.45) 75%,rgba(10,15,20,.7) 100%),
+  linear-gradient(0deg,rgba(10,15,20,.95),transparent 40%)}
+.esc-hero-c{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:28px 30px 18px}
+.esc-quem{display:flex;align-items:center;gap:22px;animation:escSobe .6s ease both}
+.esc-ret{position:relative;flex:none}
+.esc-ret .dono-ret{border-radius:10px;object-fit:cover;box-shadow:0 0 0 2px #E2B45A,0 0 0 6px rgba(226,180,90,.15),0 18px 34px rgba(0,0,0,.6)}
+.esc-ret-esc{position:absolute;right:-12px;bottom:-12px;width:52px;height:52px;display:grid;place-items:center;
+  background:radial-gradient(circle,#18222C,#0B1117);border-radius:50%;box-shadow:0 0 0 2px rgba(226,180,90,.6),0 8px 16px rgba(0,0,0,.6)}
+.esc-nome{font-size:56px;letter-spacing:.03em;margin:2px 0 4px;color:#F4EAD5;text-shadow:0 4px 18px rgba(0,0,0,.6)}
+.esc-cargo{font-size:15px;color:var(--tx2)}
+.esc-cargo b{color:var(--tx)}
+.esc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.esc-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.14);background:rgba(10,15,20,.55);color:var(--tx2)}
+.esc-tag.ouro{border-color:rgba(226,180,90,.6);color:#E2B45A;background:rgba(226,180,90,.10)}
+.esc-tag .ic svg{width:14px;height:14px}
+.esc-valor{text-align:right;animation:escSobe .7s .12s ease both}
+.esc-valor-l{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#C9B285}
+.esc-valor-n{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:.02em;
+  background:linear-gradient(90deg,#C99A45 0%,#F6DE9C 25%,#E2B45A 50%,#F6DE9C 75%,#C99A45 100%);background-size:200% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:escBrilho 6s linear infinite}
+.esc-valor-d{font-family:'JetBrains Mono',monospace;font-size:13px;margin:2px 0 6px}
+.esc-spark{display:block;margin-left:auto;color:#E2B45A}
+.esc-spark.cai{color:#FF6B6B}
+.esc-spark-l{stroke-dasharray:600;--len:600;animation:escTraco 1.4s .2s ease-out both}
+.esc-pills{position:relative;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(226,180,90,.18);background:rgba(8,12,16,.65);backdrop-filter:blur(4px)}
+.esc-pills>div{padding:12px 18px;display:flex;flex-direction:column;gap:3px;border-left:1px solid rgba(255,255,255,.05);animation:escSobe .5s ease both}
+.esc-pills>div:first-child{border-left:0}
+.esc-pills>div:nth-child(2){animation-delay:.05s}.esc-pills>div:nth-child(3){animation-delay:.1s}.esc-pills>div:nth-child(4){animation-delay:.15s}.esc-pills>div:nth-child(5){animation-delay:.2s}
+.esc-pills span{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.esc-pills b{font-size:17px}
+.esc-g1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.esc-g1>*{margin-bottom:16px}
+.esc-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.esc .card{animation:escSobe .55s ease both}
+.esc-g3 .card:nth-child(2){animation-delay:.06s}.esc-g3 .card:nth-child(3){animation-delay:.12s}
+.esc .eyebrow .ic svg{width:14px;height:14px;vertical-align:-2px}
+.esc-ag-l{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.esc-ag{display:grid;grid-template-columns:38px 1fr 18px;gap:12px;align-items:center;text-align:left;padding:10px 12px;
+  background:linear-gradient(90deg,rgba(226,180,90,.07),transparent 60%),var(--surf2,#1B2936);border:1px solid rgba(255,255,255,.06);
+  border-left:3px solid #E2B45A;color:var(--tx);font-size:13.5px;transition:transform .15s,border-color .15s;animation:escSobe .45s calc(var(--i)*.06s) ease both}
+.esc-ag:hover{transform:translateX(4px);border-color:rgba(226,180,90,.45)}
+.esc-ag.urg{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,70,85,.12),transparent 60%),var(--surf2,#1B2936)}
+.esc-ag-ic{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:rgba(226,180,90,.14);color:#E2B45A}
+.esc-ag.urg .esc-ag-ic{background:rgba(255,70,85,.16);color:var(--red)}
+.esc-ag-ic .ic svg{width:20px;height:20px}
+.esc-ag-s{color:var(--dim)}
+.esc-ag-s svg{width:16px;height:16px}
+.esc-vazio{padding:20px 0}
+.esc-jogo{display:flex;flex-direction:column}
+.esc-jogo>.card{flex:1;margin-bottom:0}
+.esc-assiste{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:12.5px;color:#E2B45A;border:1px solid rgba(226,180,90,.25);border-top:0;background:rgba(226,180,90,.06)}
+.esc-tec,.esc-cons,.esc-fat{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.esc-tec:hover,.esc-cons:hover,.esc-fat:hover{transform:translateY(-3px);box-shadow:0 18px 30px -18px rgba(0,0,0,.9),0 0 0 1px rgba(226,180,90,.3)}
+.esc-tec-c,.esc-cons-c{display:flex;align-items:center;gap:14px;margin-top:4px}
+.esc-tec-c>div{flex:1;display:flex;flex-direction:column;gap:3px}
+.esc-tec-c .ret,.esc-tec-c img{border-radius:8px}
+.esc-cons-c>div{display:flex;flex-direction:column;gap:4px}
+.esc-cons-c b,.esc-tec-c b{font-size:16px}
+.esc-anel-v{stroke-dashoffset:0;animation:escTraco 1.2s ease-out both;--len:var(--c)}
+.esc-anel-n{font-family:'Bebas Neue',sans-serif;font-size:22px;fill:var(--tx)}
+.esc-meta{margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:12.5px}
+.esc-meta i{grid-column:1/3;height:5px;background:var(--panel2);display:block}
+.esc-meta u{display:block;height:100%;background:linear-gradient(90deg,#C99A45,#F6DE9C);text-decoration:none}
+.esc-fat-c{display:flex;align-items:center;gap:16px;margin-top:4px}
+.esc-donut circle{transition:stroke-dasharray .6s}
+.esc-donut-n{font-family:'Bebas Neue',sans-serif;font-size:26px;fill:#F4EAD5}
+.esc-donut-t{font-size:10px;fill:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+.esc-fat-l{display:flex;flex-direction:column;gap:6px;font-size:12.5px;flex:1;min-width:0}
+.esc-fat-l>div{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center}
+.esc-fat-l i{width:10px;height:10px;border-radius:2px;display:block}
+/* cabeçalho das telas do dono */
+.esc-cab{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid rgba(226,180,90,.18);background:#0D141B;animation:escSobe .45s ease both}
+.esc-cab-f{position:absolute;inset:0;opacity:.28}
+.esc-cab::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,20,.95) 30%,rgba(10,15,20,.55));z-index:0}
+.esc-cab-c{position:relative;display:flex;align-items:center;gap:16px;padding:18px 22px}
+.esc-cab-c h2.sec{margin:0;font-size:36px;color:#F4EAD5}
+.esc-cab-c p{margin-top:4px;max-width:760px}
+.esc-cab-ic{width:52px;height:52px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle,rgba(226,180,90,.25),rgba(226,180,90,.06));box-shadow:0 0 0 1px rgba(226,180,90,.45);color:#E2B45A}
+.esc-cab-ic .ic svg{width:26px;height:26px}
+.tabs .ic svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+.dn-rede{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:0 0 14px}
+.dn-rede>div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px;background:var(--surf1,#15212C);border:1px solid rgba(255,255,255,.06)}
+.dn-rede b{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1}
+.dn-rede span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+body.tema-dono .dn-rede>div{border-top:2px solid rgba(226,180,90,.35)}
+body.tema-dono .tabs.tabs-ind::after{background:var(--ac)}
+body.tema-dono .tabs.tabs-ind button.on{border-bottom-color:transparent}
+.esc-jogo.manda [data-avancar],.esc-jogo.manda [data-ir="preparacao"],.esc-jogo.manda [data-quizvod]{display:none}
+/* comando técnico: dossiê do head coach */
+.ti-hero{background:radial-gradient(80% 140% at 0% 0%,rgba(var(--clube-rgb),.20),transparent 60%),linear-gradient(180deg,#121B24,#0F161E)}
+.ti-ret{position:relative;flex:none}
+.ti-ret img,.ti-ret .ret{border-radius:10px;box-shadow:0 0 0 2px rgba(255,255,255,.12),0 16px 30px -10px rgba(0,0,0,.8)}
+body.tema-dono .ti-ret img{box-shadow:0 0 0 2px #E2B45A,0 16px 30px -10px rgba(0,0,0,.8)}
+.ti-ats{display:grid;grid-template-columns:repeat(2,minmax(0,200px));gap:5px 18px;margin-top:12px}
+.ti-at{display:grid;grid-template-columns:62px 1fr 26px;gap:8px;align-items:center;font-size:11.5px;color:var(--tx2)}
+.ti-at i{height:5px;background:var(--panel2);display:block}
+.ti-at u{display:block;height:100%;background:linear-gradient(90deg,#4C8DFF,#18E5B4);text-decoration:none}
+body.tema-dono .ti-at u{background:linear-gradient(90deg,#C99A45,#F6DE9C)}
+.ti-at b{text-align:right;color:var(--tx)}
+.ti-hero-anel{display:flex;align-items:center;gap:14px;margin:6px 0 4px}
+.ti-hero-anel>div{display:flex;flex-direction:column;gap:3px}
+.ti-hero-anel b{font-size:18px}
+.ti-hero-anel .esc-anel-n{font-size:30px}
+.ti-hero-c{grid-template-columns:1fr 320px}
+/* boas-vindas do dono */
+@keyframes bvLinha{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes bvFade{from{opacity:0}to{opacity:1}}
+.bv-ovl{background:rgba(4,7,10,.82);display:grid;place-items:center;animation:bvFade .4s ease both}
+.bv-ovl.sai{animation:bvFade .26s ease reverse both}
+.bv{position:relative;width:min(860px,92vw);overflow:hidden;border:1px solid rgba(226,180,90,.35);background:#0B1117;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.95),0 0 0 1px rgba(226,180,90,.08)}
+.bv-f{position:absolute;inset:0;opacity:.5;animation:escZoom 9s ease-out both}
+.bv-v{position:absolute;inset:0;background:radial-gradient(70% 90% at 50% 30%,rgba(11,17,23,.55),rgba(11,17,23,.97) 75%)}
+.bv-c{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:38px 40px 34px;gap:8px}
+.bv-linha{width:220px;height:2px;background:linear-gradient(90deg,transparent,#E2B45A,transparent);transform-origin:center;animation:bvLinha .9s .1s ease both;margin-bottom:10px}
+.bv-ret{animation:escSobe .7s .2s ease both}
+.bv-ret .dono-ret{border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px #E2B45A,0 0 0 10px rgba(226,180,90,.14),0 24px 50px rgba(0,0,0,.7)}
+.bv-ey{margin-top:14px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#C9B285;animation:escSobe .6s .35s ease both}
+.bv-t{font-size:58px;letter-spacing:.03em;background:linear-gradient(90deg,#C99A45,#F6DE9C,#E2B45A,#F6DE9C,#C99A45);background-size:200% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:escSobe .7s .45s ease both,escBrilho 6s 1s linear infinite}
+.bv-s{font-size:16px;color:var(--tx2);animation:escSobe .6s .55s ease both}
+.bv-s b{color:var(--tx)}
+.bv-n{display:flex;gap:0;margin:18px 0 6px;border:1px solid rgba(226,180,90,.25);animation:escSobe .6s .7s ease both}
+.bv-n>div{display:flex;flex-direction:column;gap:3px;padding:12px 26px;border-left:1px solid rgba(226,180,90,.18)}
+.bv-n>div:first-child{border-left:0}
+.bv-n span{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.bv-n b{font-size:20px;color:#F4EAD5}
+.bv-p{max-width:620px;color:var(--tx2);font-size:13.5px;line-height:1.6;animation:escSobe .6s .85s ease both}
+.bv-b{margin-top:14px;padding:12px 26px;font-size:13px;animation:escSobe .6s 1s ease both;background:linear-gradient(180deg,#EDC473,#C99A45)!important;color:#17120A!important}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -14563,13 +14746,17 @@ const MIDIA={
     'copa/sede-russia':'png',
     'copa/sede-turquia':'png',
     'copa/trofeu':'png',
+    'donos/adrien-zerator-nougaret':'png',
     'donos/andrian-pauline':'png',
     'donos/andy-miller':'png',
     'donos/antonio-catena':'png',
     'donos/arthur-paada-zarzur':'png',
     'donos/bruno-playhard':'png',
+    'donos/daichi-ozizi-takano':'png',
+    'donos/felippe-corradini':'png',
     'donos/fernando-diez':'png',
     'donos/frankkaster':'png',
+    'donos/intouchaya-jijung-chinpinkyo':'png',
     'donos/jack-etienne':'png',
     'donos/jaime-padua':'png',
     'donos/jens-hilgers':'png',
@@ -14580,15 +14767,22 @@ const MIDIA={
     'donos/marco-mereu':'png',
     'donos/matthew-nadeshot-haag':'png',
     'donos/mike-hastr0-rufail':'png',
+    'donos/mosaad-aldossary':'png',
     'donos/nicolas-maurer':'png',
     'donos/nikhil-hathiramani':'png',
+    'donos/nikita-cheshir-chukalin':'png',
     'donos/nobuyuki-umezaki':'png',
     'donos/papo':'png',
+    'donos/rob-moore':'png',
     'donos/rushindra-sinha':'png',
+    'donos/ryo-takashima':'png',
     'donos/sam-mathews':'png',
     'donos/sergio-kun-aguero':'png',
+    'donos/shoya-kozan':'png',
     'donos/squeezie':'png',
     'donos/thyak':'png',
+    'donos/tk-nguyen':'png',
+    'donos/toma-tomy-abdellaoui':'png',
     'estrutura/academia':'webp',
     'estrutura/analise':'webp',
     'estrutura/equip':'webp',
@@ -37574,12 +37768,14 @@ function render(){
   if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
   else Base.fecharEdicao();
   if(modo==='menu'){renderMenu(trocouModo);return;}
+  if(typeof aplicarTemaDono==='function')aplicarTemaDono();
   pintarSide();pintarTop();
   const v=$('#view');
   /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
-  const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
+  const escritorio=typeof vEscritorio==='function'&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof donoComTecnico==='function'&&donoComTecnico();
+  const fn={inicio:escritorio?vEscritorio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
             tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null,donos:typeof vDonos==='function'?vDonos:null}[tela]
@@ -37599,6 +37795,7 @@ function render(){
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
   if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
+  if(typeof talvezBoasVindasDono==='function')talvezBoasVindasDono();
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
@@ -37625,7 +37822,9 @@ function pintarSide(){
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
   pintarRaiz($('#side'),
-    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador():`<div class="side-org">${t?escudo(t,34):''}<div class="n">
+    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador()
+     :t&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof sideCabecalhoDono==='function'?sideCabecalhoDono(t)
+     :`<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
      `<div class="side-nav">`+
     grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
@@ -37666,7 +37865,7 @@ function pintarTop(){
         d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
-      :`<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
+      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-bit top-valor">Valor<strong>${money(valorDaOrg(t))}</strong></div>`:''}<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>
@@ -38266,6 +38465,8 @@ const GUIA_TELAS={
   comp:'Todos os torneios do circuito, com tabela, chaveamento e campeões. O seu aparece primeiro.'
 };
 const GUIA_TELAS_DONO={
+  inicio:'O Escritório: o valor da organização, a agenda do dono, o próximo jogo (que você assiste), o técnico, o conselho e quem é dono de quanto. Clique nos cartões para ir direto ao assunto.',
+  empresa:'A empresa: valor de mercado, receitas (loja, itens, conteúdo, eventos), empréstimos, investidores e o conselho trimestral. Caixa no vermelho por oito semanas quebra a organização.',
   tecnico:'O técnico decide escalação, tática, treino e veto. Você entrega o mandato, responde aos pedidos dele e decide se interfere — interferir funciona, mas custa a confiança dele.',
   elenco:'O cinco é escolhido pelo técnico toda semana. Daqui você só olha; para mudar, interfira em Comando técnico.',
   mercado:'A negociação é sua. Quando o técnico pede um reforço e você aprova, o pedido aparece em Pedidos com as respostas dos clubes.'
@@ -45078,13 +45279,15 @@ function _cartaoTecnico(t,tec,x){
     <div class="eyebrow">Interino</div><h3 class="ti-nome">Auxiliar técnico</h3>
     <div class="dim">Sem head coach contratado. O auxiliar escala e treina, mas rende como uma comissão de nível 1.</div></div></div>`;
   const pf=perfilTecnico(tec);
-  return `<div class="ti-quem">${retratoStaff(tec,84)}<div>
+  const barras=ATTRS_STAFF.map(([k,n])=>`<div class="ti-at"><span>${esc(n.split(' ')[0])}</span><i><u style="width:${Math.round(tec.at[k])}%"></u></i><b class="num">${Math.round(tec.at[k])}</b></div>`).join('');
+  return `<div class="ti-quem"><div class="ti-ret">${retratoStaff(tec,112)}</div><div>
     <div class="eyebrow">Head coach · ${esc(pf.estilo)}</div>
     <h3 class="ti-nome" data-fichastaff="${tec.id}">${esc(tec.nome)} ${bandeira(tec.pais)}</h3>
     <div class="ti-chips"><span class="ov ${ovClass(overStaff(tec))}">${overStaff(tec)}</span>
       <span class="pill">${tec.idade} anos</span><span class="pill">contrato ${tec.contrato}a</span>
       <span class="pill">${money(tec.salario)}/mês</span><span class="pill">ego ${esc(pf.ego)}</span>
       <span class="pill">quer ${esc(PRIORIDADES_TEC[pf.prioridade].nome.toLowerCase())}</span></div>
+    <div class="ti-ats">${barras}</div>
     ${x.exige.verbaMin||x.exige.naoInterferir?`<div class="dim ti-exige">Assinou exigindo ${[x.exige.verbaMin?'verba mínima de '+money(x.exige.verbaMin):'',x.exige.naoInterferir?'não interferência':''].filter(Boolean).join(' e ')}.</div>`:''}
   </div></div>`;
 }
@@ -45146,11 +45349,13 @@ function vTecnico(){
     else acoes.push(`<button class="btn" id="tiContrata">Contratar um técnico</button>`);
     if(souHibrido())acoes.push(`<button class="btn ghost" id="tiBanco">Sentar no banco</button>`);
   }
-  return `<div class="eyebrow">Modo ${esc(varianteDono(G.manager.variante).nome)}</div><h2 class="sec">Comando técnico</h2>
+  return `${typeof cabecalhoDono==='function'?cabecalhoDono('Escritório · '+varianteDono(G.manager.variante).nome,'Comando técnico','Quem treina o time, o que você exige dele e o quanto ele confia em você.','tatica')
+      :`<div class="eyebrow">Modo ${esc(varianteDono(G.manager.variante).nome)}</div><h2 class="sec">Comando técnico</h2>`}
   <div class="card ti-hero" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
-    ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ti-fundo cn-direita',foco:'placa'}):''}
+    ${typeof cabecalhoDono==='function'?'':typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ti-fundo cn-direita',foco:'placa'}):''}
     <div class="ti-hero-c">${_cartaoTecnico(t,tec,x)}
-      ${!x.noBanco&&tec?`<div class="ti-hero-d"><div class="eyebrow">Confiança dele em você</div>${_barraConf(x.confianca)}</div>`:''}</div>
+      ${!x.noBanco&&tec?`<div class="ti-hero-d"><div class="eyebrow">Confiança dele em você</div>
+        <div class="ti-hero-anel">${typeof anelConf==='function'?anelConf(x.confianca,104,x.confianca>=60?'var(--teal)':x.confianca>=45?'var(--amber)':'var(--red)'):''}<div><b>${esc(rotuloConfTec(x.confianca))}</b><span class="dim">Abaixo de ${TEC_CONF_SAIDA} ele pede para sair.</span></div></div></div>`:''}</div>
     <div class="ti-acoes">${acoes.join('')}</div>
   </div>
   ${x.noBanco?'':_cardMandato(t,x)}
@@ -45462,10 +45667,11 @@ function vEmpresa(){
   if(!t||!empresaAtiva())return `<div class="card"><p>A empresa é do modo Dono puro e do Dono-técnico.</p></div>`;
   const e=empresa();
   if(e.perdeu)return telaFimDono(e.perdeu);
-  const abas=[['geral','Visão geral'],['comercial','Comercial'],['dinheiro','Dinheiro'],['conselho','Conselho']];
+  const abas=[['geral','Visão geral','grafico'],['comercial','Comercial','pasta'],['dinheiro','Dinheiro','dinheiro'],['conselho','Conselho','predio']];
   const corpo={geral:_abaGeral,comercial:_abaComercial,dinheiro:_abaDinheiro,conselho:_abaConselho}[empAba]||_abaGeral;
-  return `<div class="eyebrow">Gestão · ${esc(t.nome)}</div><h2 class="sec">Empresa</h2>
-    <div class="tabs emp-abas">${abas.map(([k,n])=>`<button class="${empAba===k?'on':''}" data-empaba="${k}">${n}</button>`).join('')}</div>
+  return `${typeof cabecalhoDono==='function'?cabecalhoDono('Escritório · '+t.nome,'Empresa','Valor de mercado, receitas, dinheiro de fora e o conselho de sócios. Aqui é onde a organização vira negócio.','grafico')
+      :`<div class="eyebrow">Gestão · ${esc(t.nome)}</div><h2 class="sec">Empresa</h2>`}
+    <div class="tabs emp-abas">${abas.map(([k,n,i])=>`<button class="${empAba===k?'on':''}" data-empaba="${k}">${icone(i)}${n}</button>`).join('')}</div>
     ${corpo(t,e)}`;
 }
 function ligarEmpresa(v){
@@ -45591,8 +45797,14 @@ function vDonos(){
     </div>`;
   };
   const log=logDonos().filter(x=>!x.timeId||!G.times[x.timeId]||G.times[x.timeId].regiao===donosReg).slice(0,14);
-  return `<div class="eyebrow">Circuito</div><h2 class="sec">Donos</h2>
-  <p class="dim" style="max-width:820px">Cada organização tem dono, com perfil próprio. A relação com você mexe no preço que eles pedem pelos jogadores; abaixo de ${REL_PORTA} o dono fecha a porta e só vende pela multa. Negócio justo e venda para eles aproximam; proposta humilhante, multa paga por cima, técnico levado e clássico perdido afastam.</p>
+  const txt=`Cada organização tem dono, com perfil próprio. A relação com você mexe no preço que eles pedem pelos jogadores; abaixo de ${REL_PORTA} o dono fecha a porta e só vende pela multa.`;
+  const dono=typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof cabecalhoDono==='function';
+  /* a sua rede no circuito: quantos donos em cada faixa de relação */
+  const todos=Object.values(G.times).filter(t=>t.dono&&!t.dono.voce&&(!eu||t.id!==eu.id));
+  const faixa=[['Aliados',v=>v>=50,'up'],['Amistosos',v=>v>=20&&v<50,''],['Neutros',v=>v>-20&&v<20,'dim'],['Frios',v=>v<=-20&&v>REL_PORTA,''],['Porta fechada',v=>v<=REL_PORTA,'dn']];
+  const rede=eu?`<div class="dn-rede">${faixa.map(([n,f,c])=>`<div><b class="num ${c}" data-conta>${todos.filter(t=>f(relDono(t))).length}</b><span>${n}</span></div>`).join('')}</div>`:'';
+  return `${dono?cabecalhoDono('Escritório · relações','Donos',txt,'aperto'):`<div class="eyebrow">Circuito</div><h2 class="sec">Donos</h2><p class="dim" style="max-width:820px">${txt}</p>`}
+  ${rede}
   <div class="tabs">${regs.map(r=>`<button class="${donosReg===r?'on':''}" data-dnreg="${r}">${esc((REGIONS.find(x=>x.id===r)||{}).nome||r)}</button>`).join('')}
     <span style="flex:1"></span>${[1,2].map(k=>`<button class="${donosTier===k?'on':''}" data-dntier="${k}">${k===1?'Liga principal':'Challengers'}</button>`).join('')}</div>
   <div class="grid dn-grid">
@@ -45888,6 +46100,239 @@ function comercialMiniHTML(t){
       ${pt&&pt.ano===G.ano?`<p>${pt.falhou?'A marca encerrou a conversa nesta temporada.':'Renovado com +'+Math.round(pt.pct*100)+'% no fixo.'}</p>`
         :mesaPatrocinioDisponivel()?'<p class="dim">Uma vez por temporada, com a paciência da marca.</p><button class="btn sm" data-agenda="patroc">Ir à mesa</button>':'<p class="dim">Sem máster para negociar.</p>'}</div>
   </div>`;
+}
+
+
+/* ===== src/ui/escritorio.js ===== */
+/* ============================================================
+   O ESCRITÓRIO — a cara do modo Dono
+   ------------------------------------------------------------
+   No modo Dono a carreira muda de roupa:
+     · tema executivo (body.tema-dono): dourado no lugar do vermelho,
+       fundo de mármore escuro, e a barra lateral com o seu retrato;
+     · menu reorganizado em Escritório, Clube, Negócios e Circuito;
+     · a Central vira o Escritório (Dono puro e Dono-técnico): o valor
+       da organização em destaque, a agenda, o técnico, o conselho e
+       quem é dono de quanto.
+   O Treinador e o Jogador não mudam em nada.
+   ============================================================ */
+Object.assign(ICONES,{
+  predio:'<path d="M4 21V4.5L13 3v18"/><path d="M13 8.5h7V21"/><path d="M7 7.5h3M7 11h3M7 14.5h3M16 12h1.5M16 15.5h1.5"/><path d="M2.5 21h19"/>',
+  coroa:'<path d="M3.5 8.5 7.5 12l4.5-6 4.5 6 4-3.5-1.8 9.5H5.3z"/><path d="M5.5 20.5h13"/>',
+  pasta:'<path d="M3.5 7.5h17V19h-17z"/><path d="M9 7.5V5h6v2.5"/><path d="M3.5 12.5h17"/>',
+  agenda:'<path d="M4 5.5h16V20H4z"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/><path d="M8 13.5h3M8 16.5h6"/>',
+  aperto:'<path d="M3 11.5 7.5 7l3.5 1.5L14.5 7l6.5 6.5-4 4-3-1.5-3 2-4.5-4.5z"/><path d="M11 8.5 8.5 11"/>'
+});
+
+function temaDonoAtivo(){return typeof souDono==='function'&&!!G&&!!G.manager&&souDono()&&!!G.meuTime&&!(typeof modoJogador==='function'&&modoJogador());}
+function aplicarTemaDono(){
+  if(typeof document==='undefined')return;
+  const on=modo==='jogo'&&temaDonoAtivo();
+  document.body.classList.toggle('tema-dono',on);
+  document.body.classList.toggle('tema-dono-ia',on&&typeof donoComTecnico==='function'&&donoComTecnico());
+}
+
+/* ---------- o menu do dono ---------- */
+function navDoDono(){
+  const manda=typeof tecnicoComanda==='function'&&tecnicoComanda(meu());
+  const ia=typeof donoComTecnico==='function'&&donoComTecnico();
+  const N=[['inicio','Escritório','Escritório','predio']];
+  if(ia){N.push(['empresa','Empresa','Escritório','grafico']);N.push(['tecnico','Comando técnico','Escritório','tatica']);}
+  N.push(['donos','Donos','Escritório','aperto']);
+  N.push(['elenco','Elenco','Clube','elenco']);
+  if(!manda){N.push(['vestiario','Vestiário','Clube','vestiario']);N.push(['preparacao','Treinamento','Clube','tatica']);}
+  N.push(['estrutura','Estrutura','Clube','estrutura'],['base','Base','Clube','base'],['historia','História','Clube','trofeu']);
+  N.push(['mercado','Mercado','Negócios','troca'],['financas','Finanças','Negócios','dinheiro']);
+  N.push(['comp','Competições','Circuito','trofeu'],['copa','World Cup','Circuito','estrela'],['stats','Estatísticas','Circuito','grafico'],
+    ['premios','Prêmios','Circuito','trofeu'],['news','Notícias','Circuito','jornal']);
+  N.push(['editor','Banco de dados','Sistema','banco'],['config','Configurações','Sistema','engrenagem']);
+  return N;
+}
+function sideCabecalhoDono(t){
+  const d=t&&t.dono;
+  return `<div class="side-org side-dono">
+    <div class="side-dono-r">${typeof retratoDono==='function'&&d?retratoDono(d,t,40):''}<span class="side-dono-esc">${escudo(t,18)}</span></div>
+    <div class="n"><b>${esc(G.manager.nome)}</b><span>dono · ${esc(t.tag)}</span></div></div>`;
+}
+
+/* ---------- pedaços visuais ---------- */
+function sparkValor(hist,w,h){
+  const pts=(hist||[]).slice(-26);
+  if(pts.length<2)return '';
+  const vs=pts.map(x=>x.v),mn=Math.min(...vs),mx=Math.max(...vs),amp=(mx-mn)||1;
+  const X=i=>(i/(pts.length-1))*w, Y=v=>h-4-((v-mn)/amp)*(h-8);
+  const d=pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x.v).toFixed(1)).join(' ');
+  const sobe=vs[vs.length-1]>=vs[0];
+  return `<svg class="esc-spark ${sobe?'sobe':'cai'}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">
+    <defs><linearGradient id="escSpk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#escSpk)"/><path class="esc-spark-l" d="${d}" fill="none" stroke="currentColor" stroke-width="2.2"/>
+    <circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(vs[vs.length-1]).toFixed(1)}" r="3.5" fill="currentColor"/></svg>`;
+}
+function donutFatias(fs,px){
+  const r=px/2-7,c=2*Math.PI*r;
+  const cores=['#E2B45A','#4C8DFF','#9B6BFF','#18E5B4','#FF8A3D','#FF4655'];
+  let off=0;
+  const seg=(f,cor)=>{const l=c*f,s=`<circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="${cor}" stroke-width="12" stroke-dasharray="${l.toFixed(1)} ${(c-l).toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 ${px/2} ${px/2})"/>`;off+=l;return s;};
+  return `<svg viewBox="0 0 ${px} ${px}" width="${px}" height="${px}" class="esc-donut">
+    <circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="var(--panel2)" stroke-width="12"/>
+    ${seg(fs.minha,cores[0])}${fs.lista.map((x,i)=>seg(x.fatia,cores[(i+1)%cores.length])).join('')}
+    <text x="${px/2}" y="${px/2+2}" text-anchor="middle" class="esc-donut-n">${Math.round(fs.minha*100)}%</text>
+    <text x="${px/2}" y="${px/2+18}" text-anchor="middle" class="esc-donut-t">é seu</text></svg>`;
+}
+function anelConf(v,px,cor){
+  const r=px/2-5,c=2*Math.PI*r,k=clamp(v,0,100)/100;
+  return `<svg viewBox="0 0 ${px} ${px}" width="${px}" height="${px}" class="esc-anel"><circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="var(--panel2)" stroke-width="5"/>
+    <circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="${cor}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(c*k).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${px/2} ${px/2})" class="esc-anel-v" style="--c:${c.toFixed(1)}"/>
+    <text x="${px/2}" y="${px/2+6}" text-anchor="middle" class="esc-anel-n">${Math.round(v)}</text></svg>`;
+}
+
+/* ---------- o Escritório ---------- */
+function _escHero(t,e){
+  const d=t.dono||{},m=G.manager,c=composicaoValor(t),fs=fatiasDaOrg(t);
+  const ant=e.hist.length>4?e.hist[e.hist.length-5]:e.hist[0];
+  const delta=ant?c.total-ant.v:0;
+  const pf=PERFIS_DONO[m.perfilDono]||{nome:''};
+  const org=typeof origemDono==='function'&&m.origem?origemDono(m.origem).nome:'';
+  const vari=varianteDono(m.variante).nome;
+  return `<section class="esc-hero" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'esc-hero-f',foco:'placa',ansioso:true}):''}
+    <div class="esc-hero-v"></div>
+    <div class="esc-hero-c">
+      <div class="esc-quem">
+        <div class="esc-ret">${typeof retratoDono==='function'?retratoDono(d,t,124):''}<span class="esc-ret-esc">${escudo(t,40)}</span></div>
+        <div class="esc-quem-t">
+          <div class="eyebrow">Escritório · ${esc(vari)}</div>
+          <h1 class="esc-nome">${esc(m.nome)}</h1>
+          <div class="esc-cargo">Dono do <b>${esc(t.nome)}</b>${d.desde?' desde '+d.desde:''}</div>
+          <div class="esc-tags"><span class="esc-tag ouro">${icone('coroa')} ${esc(pf.nome||'Dono')}</span>${org?`<span class="esc-tag">${esc(org)}</span>`:''}
+            <span class="esc-tag">${esc(nomeLiga?nomeLiga(t):'')}</span></div>
+        </div>
+      </div>
+      <div class="esc-valor">
+        <div class="esc-valor-l">Valor da organização</div>
+        <div class="esc-valor-n" data-conta>${money(c.total)}</div>
+        <div class="esc-valor-d ${delta>=0?'up':'dn'}">${delta>=0?'▲':'▼'} ${money(Math.abs(delta))} <span class="dim">em quatro semanas</span></div>
+        ${sparkValor(e.hist,260,64)}
+      </div>
+    </div>
+    <div class="esc-pills">
+      <div><span>Caixa</span><b class="num ${t.caixa<0?'dn':''}">${money(t.caixa)}</b></div>
+      <div><span>Dívida</span><b class="num">${money(-c.divida)}</b></div>
+      <div><span>Seu patrimônio</span><b class="num">${money(m.patrimonio||0)}</b></div>
+      <div><span>Sua fatia</span><b class="num">${Math.round(fs.minha*100)}%</b></div>
+      <div><span>Humor do conselho</span><b class="num">${Math.round(e.humor)}</b></div>
+    </div>
+  </section>`;
+}
+const AGENDA_IC={crise:'alerta',uniforme:'pasta',fanfest:'estrela',patroc:'aperto',mandato:'agenda',pedido:'tatica',conselho:'predio',tecnico:'elenco'};
+function _escAgenda(t){
+  const itens=(typeof agendaDoDono==='function'?agendaDoDono():[]).map(x=>Object.assign({},x));
+  const x=tecIA();
+  if(mandatoPendente())itens.unshift({id:'mandato',txt:'Entregue o mandato da temporada ao técnico.',urg:true,ir:'tecnico'});
+  const ab=x.pedidos.filter(p=>p.status==='aberto').length;
+  if(ab)itens.push({id:'pedido',txt:ab+' pedido'+(ab>1?'s':'')+' do técnico esperando resposta.',ir:'tecnico'});
+  if(!x.noBanco&&!tecnicoAtual(t))itens.unshift({id:'tecnico',txt:'Sem head coach: o interino segura o time.',urg:true,ir:'tecnico'});
+  const prox=13-((G.semana||1)%13||13);
+  return `<div class="card esc-agenda"><div class="split"><div class="eyebrow">${icone('agenda')} Agenda do dono</div><span class="dim">conselho em ${prox||13} semana${(prox||13)>1?'s':''}</span></div>
+    ${itens.length?`<div class="esc-ag-l">${itens.map((a,i)=>`<button class="esc-ag ${a.urg?'urg':''}" style="--i:${i}" ${a.ir?`data-ir-tela="${a.ir}"`:`data-agenda="${a.id}"`}>
+      <span class="esc-ag-ic">${icone(AGENDA_IC[a.id]||'info')}</span><span class="esc-ag-t">${esc(a.txt)}</span><span class="esc-ag-s">${ico('seta_d')}</span></button>`).join('')}</div>`
+      :'<p class="dim esc-vazio">Mesa limpa. Nada esperando por você esta semana.</p>'}</div>`;
+}
+function _escTecnico(t){
+  const x=tecIA(),tec=tecnicoAtual(t),md=x.mandato&&x.mandato.ano===G.ano?x.mandato:null;
+  const {pos,de}=posicaoNaLiga(t);
+  const cor=x.confianca>=60?'var(--teal)':x.confianca>=45?'var(--amber)':'var(--red)';
+  return `<div class="card esc-tec" data-ir-tela="tecnico">
+    <div class="eyebrow">${icone('tatica')} Comando técnico</div>
+    <div class="esc-tec-c">${x.noBanco?(typeof retratoManager==='function'?retratoManager(64):''):tec?retratoStaff(tec,64):`<div class="ti-vazio">${icone('elenco')}</div>`}
+      <div><b>${esc(x.noBanco?'Você, no banco':tec?tec.nome:'Interino')}</b>
+        <span class="dim">${x.noBanco?'O time é seu.':tec?esc(perfilTecnico(tec).estilo)+' · coach '+overStaff(tec):'Contrate um técnico.'}</span></div>
+      ${!x.noBanco&&tec?anelConf(x.confianca,62,cor):''}</div>
+    ${md?`<div class="esc-meta"><span>${esc(md.texto)}</span><b class="${pos<=md.alvo?'up':'dn'}">${pos}º de ${de}</b>
+      <i><u style="width:${clamp((de-pos+1)/(de-md.alvo+1),0,1)*100}%"></u></i></div>`:'<div class="esc-meta dim">Mandato da temporada ainda não entregue.</div>'}
+  </div>`;
+}
+function _escConselho(t,e){
+  const r=e.reunioes[0];
+  const humor=Math.round(e.humor);
+  const cor=humor>=65?'var(--teal)':humor>=45?'var(--amber)':'var(--red)';
+  return `<div class="card esc-cons" data-ir-tela="empresa">
+    <div class="eyebrow">${icone('predio')} Conselho</div>
+    <div class="esc-cons-c">${anelConf(humor,74,cor)}
+      <div><b>${humor>=65?'Satisfeito':humor>=45?'Atento':humor>=HUMOR_CONTROLE?'Impaciente':'Em revolta'}</b>
+        <span class="dim">${r?`Última reunião: ${r.tri}º tri de ${r.ano}, resultado ${money(r.resultado)}`:'A primeira reunião é no fim do trimestre.'}</span>
+        ${e.negativas?`<span class="dn">Caixa no vermelho há ${e.negativas} semana${e.negativas>1?'s':''}</span>`:''}</div></div>
+  </div>`;
+}
+function _escFatias(t){
+  const fs=fatiasDaOrg(t);
+  return `<div class="card esc-fat" data-ir-tela="empresa">
+    <div class="eyebrow">${icone('coroa')} Quem é dono</div>
+    <div class="esc-fat-c">${donutFatias(fs,112)}
+      <div class="esc-fat-l"><div><i style="background:#E2B45A"></i>${esc(G.manager.nome)}<b class="num">${Math.round(fs.minha*100)}%</b></div>
+        ${fs.lista.map((x,i)=>`<div><i style="background:${['#4C8DFF','#9B6BFF','#18E5B4','#FF8A3D','#FF4655'][i%5]}"></i>${esc(x.nome)}<b class="num">${Math.round(x.fatia*100)}%</b></div>`).join('')
+        ||'<div class="dim">Ninguém mais. A organização é toda sua.</div>'}</div></div>
+  </div>`;
+}
+function vEscritorio(){
+  const t=meu();
+  const e=empresa();
+  if(e.perdeu)return telaFimDono(e.perdeu);
+  const px=typeof proximoConfronto==='function'?proximoConfronto():null;
+  const metade=(G.semana||1)>=25?'2':'1';
+  const pre=(t.tier===1?'s':'c')+metade+'_';
+  const rrAgora=px&&px.stage&&(px.stage.tipo==='grupos'||px.stage.tipo==='rr')?px.stage:null;
+  const rr=rrAgora||acharStage(pre+t.regiao)||acharStage((t.tier===1?'s1_':'c1_')+t.regiao)||acharStage((t.tier===1?'kg_':'ckg_')+t.regiao);
+  return `<div class="esc">
+    ${faixaCircuito()}
+    ${_escHero(t,e)}
+    <div class="esc-g1">
+      ${_escAgenda(t)}
+      <div class="esc-jogo ${tecnicoComanda(t)?'manda':''}">${cardConfronto(t,px)}<div class="esc-assiste">${icone('olho')} ${tecnicoComanda(t)?'Você assiste: o técnico escala e veta.':'Você está no banco: o jogo é seu.'}</div></div>
+    </div>
+    <div class="esc-g3">${_escTecnico(t)}${_escConselho(t,e)}${_escFatias(t)}</div>
+    <div class="grid g2 cx-linha">${cardTabelaDaCasa(t,rr)}${cardImprensa()}</div>
+  </div>`;
+}
+
+/* ---------- cabeçalho das telas do dono ---------- */
+function cabecalhoDono(eyebrow,titulo,sub,icone_){
+  const t=meu();
+  return `<div class="esc-cab" style="--clube:${corDoClube(t)}">
+    ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'esc-cab-f',foco:'placa'}):''}
+    <div class="esc-cab-c"><span class="esc-cab-ic">${icone(icone_||'predio')}</span>
+      <div><div class="eyebrow">${esc(eyebrow)}</div><h2 class="sec">${esc(titulo)}</h2>${sub?`<p class="dim">${sub}</p>`:''}</div></div></div>`;
+}
+
+/* ---------- a chegada: a primeira vez no escritório ----------
+   Uma cena curta quando a carreira de dono começa (e em saves antigos de
+   dono, uma vez): o retrato, o clube e os números que agora são seus. */
+function talvezBoasVindasDono(){
+  if(!temaDonoAtivo()||!G.manager||G.manager.boasVindasDono)return;
+  if(typeof document==='undefined'||$('#modal').innerHTML)return;
+  G.manager.boasVindasDono=G.ano;
+  const t=meu(),d=t.dono||{},ia=typeof donoComTecnico==='function'&&donoComTecnico();
+  const tec=ia&&typeof tecnicoAtual==='function'?tecnicoAtual(t):null;
+  const valor=ia&&typeof valorDaOrg==='function'?valorDaOrg(t):null;
+  $('#modal').innerHTML=`<div class="ovl bv-ovl"><div class="bv" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+    ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'bv-f',foco:'placa',ansioso:true}):''}
+    <div class="bv-v"></div>
+    <div class="bv-c">
+      <div class="bv-linha"></div>
+      <div class="bv-ret">${typeof retratoDono==='function'?retratoDono(d,t,150):''}</div>
+      <div class="bv-ey">${esc(varianteDono(G.manager.variante).nome)} · temporada ${G.ano}</div>
+      <h1 class="bv-t">Bem-vindo ao escritório</h1>
+      <div class="bv-s">${esc(G.manager.nome)}, a partir de hoje o <b>${esc(t.nome)}</b> é seu.</div>
+      <div class="bv-n">
+        ${valor!=null?`<div><span>Valor da organização</span><b class="num">${money(valor)}</b></div>`:''}
+        <div><span>Caixa</span><b class="num">${money(t.caixa)}</b></div>
+        <div><span>${ia?'Head coach':'Comando'}</span><b>${esc(ia?(tec?tec.nome:'a contratar'):'você escala')}</b></div>
+      </div>
+      <p class="bv-p">${ia?'Você não escala nem monta tática: entrega um mandato ao técnico, aprova os pedidos dele, cuida da empresa e responde ao conselho. Se o caixa quebrar ou os sócios tomarem o controle, você perde o time.'
+        :'Sem metas e sem cobrança: você faz tudo, do mercado à escalação. O clube é seu e vai para onde você decidir.'}</p>
+      <button class="btn bv-b" id="bvEntrar">Entrar no escritório</button>
+    </div></div></div>`;
+  $('#bvEntrar').onclick=()=>{const o=$('#modal .ovl');if(o)o.classList.add('sai');setTimeout(()=>{$('#modal').innerHTML='';render();},260);};
 }
 
 
@@ -49088,7 +49533,7 @@ const NAV_JOGADOR=[
   ['news','Notícias','Circuito','jornal'],
   ['config','Configurações','Sistema','engrenagem']
 ];
-function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return typeof navDono==='function'&&G&&G.meuTime?navDono(NAV):NAV;}
+function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof navDoDono==='function'?navDoDono():NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   /* depois de parar, só o legado e o circuito (ui/legado.js) */

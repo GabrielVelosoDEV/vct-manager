@@ -22,6 +22,8 @@ const GUIA_TELAS={
   comp:'Todos os torneios do circuito, com tabela, chaveamento e campeões. O seu aparece primeiro.'
 };
 const GUIA_TELAS_DONO={
+  inicio:'O Escritório: o valor da organização, a agenda do dono, o próximo jogo (que você assiste), o técnico, o conselho e quem é dono de quanto. Clique nos cartões para ir direto ao assunto.',
+  empresa:'A empresa: valor de mercado, receitas (loja, itens, conteúdo, eventos), empréstimos, investidores e o conselho trimestral. Caixa no vermelho por oito semanas quebra a organização.',
   tecnico:'O técnico decide escalação, tática, treino e veto. Você entrega o mandato, responde aos pedidos dele e decide se interfere — interferir funciona, mas custa a confiança dele.',
   elenco:'O cinco é escolhido pelo técnico toda semana. Daqui você só olha; para mudar, interfira em Comando técnico.',
   mercado:'A negociação é sua. Quando o técnico pede um reforço e você aprova, o pedido aparece em Pedidos com as respostas dos clubes.'

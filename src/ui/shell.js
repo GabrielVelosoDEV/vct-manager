@@ -165,12 +165,14 @@ function render(){
   if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
   else Base.fecharEdicao();
   if(modo==='menu'){renderMenu(trocouModo);return;}
+  if(typeof aplicarTemaDono==='function')aplicarTemaDono();
   pintarSide();pintarTop();
   const v=$('#view');
   /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
      endereço antigo continua valendo e cai na aba certa */
   if(tela==='taticas'||tela==='treino'||tela==='comps'){prepAba=tela==='treino'?'semana':tela;tela='preparacao';}
-  const fn={inicio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
+  const escritorio=typeof vEscritorio==='function'&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof donoComTecnico==='function'&&donoComTecnico();
+  const fn={inicio:escritorio?vEscritorio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
             tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null,donos:typeof vDonos==='function'?vDonos:null}[tela]
@@ -190,6 +192,7 @@ function render(){
   if(typeof ligarOrdenacao==='function')ligarOrdenacao(v);
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
   if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
+  if(typeof talvezBoasVindasDono==='function')talvezBoasVindasDono();
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
@@ -216,7 +219,9 @@ function pintarSide(){
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
   pintarRaiz($('#side'),
-    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador():`<div class="side-org">${t?escudo(t,34):''}<div class="n">
+    (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador()
+     :t&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof sideCabecalhoDono==='function'?sideCabecalhoDono(t)
+     :`<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
      `<div class="side-nav">`+
     grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
@@ -257,7 +262,7 @@ function pintarTop(){
         d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
     <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
     ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
-      :`<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
+      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-bit top-valor">Valor<strong>${money(valorDaOrg(t))}</strong></div>`:''}<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
     <div class="top-acoes">
       <button class="btn ghost sm" id="btnSave">Salvar</button>
       <button class="btn" id="btnNext">Avançar</button>

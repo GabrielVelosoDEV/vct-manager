@@ -36,8 +36,14 @@ function vDonos(){
     </div>`;
   };
   const log=logDonos().filter(x=>!x.timeId||!G.times[x.timeId]||G.times[x.timeId].regiao===donosReg).slice(0,14);
-  return `<div class="eyebrow">Circuito</div><h2 class="sec">Donos</h2>
-  <p class="dim" style="max-width:820px">Cada organização tem dono, com perfil próprio. A relação com você mexe no preço que eles pedem pelos jogadores; abaixo de ${REL_PORTA} o dono fecha a porta e só vende pela multa. Negócio justo e venda para eles aproximam; proposta humilhante, multa paga por cima, técnico levado e clássico perdido afastam.</p>
+  const txt=`Cada organização tem dono, com perfil próprio. A relação com você mexe no preço que eles pedem pelos jogadores; abaixo de ${REL_PORTA} o dono fecha a porta e só vende pela multa.`;
+  const dono=typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof cabecalhoDono==='function';
+  /* a sua rede no circuito: quantos donos em cada faixa de relação */
+  const todos=Object.values(G.times).filter(t=>t.dono&&!t.dono.voce&&(!eu||t.id!==eu.id));
+  const faixa=[['Aliados',v=>v>=50,'up'],['Amistosos',v=>v>=20&&v<50,''],['Neutros',v=>v>-20&&v<20,'dim'],['Frios',v=>v<=-20&&v>REL_PORTA,''],['Porta fechada',v=>v<=REL_PORTA,'dn']];
+  const rede=eu?`<div class="dn-rede">${faixa.map(([n,f,c])=>`<div><b class="num ${c}" data-conta>${todos.filter(t=>f(relDono(t))).length}</b><span>${n}</span></div>`).join('')}</div>`:'';
+  return `${dono?cabecalhoDono('Escritório · relações','Donos',txt,'aperto'):`<div class="eyebrow">Circuito</div><h2 class="sec">Donos</h2><p class="dim" style="max-width:820px">${txt}</p>`}
+  ${rede}
   <div class="tabs">${regs.map(r=>`<button class="${donosReg===r?'on':''}" data-dnreg="${r}">${esc((REGIONS.find(x=>x.id===r)||{}).nome||r)}</button>`).join('')}
     <span style="flex:1"></span>${[1,2].map(k=>`<button class="${donosTier===k?'on':''}" data-dntier="${k}">${k===1?'Liga principal':'Challengers'}</button>`).join('')}</div>
   <div class="grid dn-grid">

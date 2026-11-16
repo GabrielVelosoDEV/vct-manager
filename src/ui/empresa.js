@@ -128,10 +128,11 @@ function vEmpresa(){
   if(!t||!empresaAtiva())return `<div class="card"><p>A empresa é do modo Dono puro e do Dono-técnico.</p></div>`;
   const e=empresa();
   if(e.perdeu)return telaFimDono(e.perdeu);
-  const abas=[['geral','Visão geral'],['comercial','Comercial'],['dinheiro','Dinheiro'],['conselho','Conselho']];
+  const abas=[['geral','Visão geral','grafico'],['comercial','Comercial','pasta'],['dinheiro','Dinheiro','dinheiro'],['conselho','Conselho','predio']];
   const corpo={geral:_abaGeral,comercial:_abaComercial,dinheiro:_abaDinheiro,conselho:_abaConselho}[empAba]||_abaGeral;
-  return `<div class="eyebrow">Gestão · ${esc(t.nome)}</div><h2 class="sec">Empresa</h2>
-    <div class="tabs emp-abas">${abas.map(([k,n])=>`<button class="${empAba===k?'on':''}" data-empaba="${k}">${n}</button>`).join('')}</div>
+  return `${typeof cabecalhoDono==='function'?cabecalhoDono('Escritório · '+t.nome,'Empresa','Valor de mercado, receitas, dinheiro de fora e o conselho de sócios. Aqui é onde a organização vira negócio.','grafico')
+      :`<div class="eyebrow">Gestão · ${esc(t.nome)}</div><h2 class="sec">Empresa</h2>`}
+    <div class="tabs emp-abas">${abas.map(([k,n,i])=>`<button class="${empAba===k?'on':''}" data-empaba="${k}">${icone(i)}${n}</button>`).join('')}</div>
     ${corpo(t,e)}`;
 }
 function ligarEmpresa(v){

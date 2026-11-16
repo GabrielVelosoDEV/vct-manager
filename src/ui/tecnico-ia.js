@@ -25,13 +25,15 @@ function _cartaoTecnico(t,tec,x){
     <div class="eyebrow">Interino</div><h3 class="ti-nome">Auxiliar técnico</h3>
     <div class="dim">Sem head coach contratado. O auxiliar escala e treina, mas rende como uma comissão de nível 1.</div></div></div>`;
   const pf=perfilTecnico(tec);
-  return `<div class="ti-quem">${retratoStaff(tec,84)}<div>
+  const barras=ATTRS_STAFF.map(([k,n])=>`<div class="ti-at"><span>${esc(n.split(' ')[0])}</span><i><u style="width:${Math.round(tec.at[k])}%"></u></i><b class="num">${Math.round(tec.at[k])}</b></div>`).join('');
+  return `<div class="ti-quem"><div class="ti-ret">${retratoStaff(tec,112)}</div><div>
     <div class="eyebrow">Head coach · ${esc(pf.estilo)}</div>
     <h3 class="ti-nome" data-fichastaff="${tec.id}">${esc(tec.nome)} ${bandeira(tec.pais)}</h3>
     <div class="ti-chips"><span class="ov ${ovClass(overStaff(tec))}">${overStaff(tec)}</span>
       <span class="pill">${tec.idade} anos</span><span class="pill">contrato ${tec.contrato}a</span>
       <span class="pill">${money(tec.salario)}/mês</span><span class="pill">ego ${esc(pf.ego)}</span>
       <span class="pill">quer ${esc(PRIORIDADES_TEC[pf.prioridade].nome.toLowerCase())}</span></div>
+    <div class="ti-ats">${barras}</div>
     ${x.exige.verbaMin||x.exige.naoInterferir?`<div class="dim ti-exige">Assinou exigindo ${[x.exige.verbaMin?'verba mínima de '+money(x.exige.verbaMin):'',x.exige.naoInterferir?'não interferência':''].filter(Boolean).join(' e ')}.</div>`:''}
   </div></div>`;
 }
@@ -93,11 +95,13 @@ function vTecnico(){
     else acoes.push(`<button class="btn" id="tiContrata">Contratar um técnico</button>`);
     if(souHibrido())acoes.push(`<button class="btn ghost" id="tiBanco">Sentar no banco</button>`);
   }
-  return `<div class="eyebrow">Modo ${esc(varianteDono(G.manager.variante).nome)}</div><h2 class="sec">Comando técnico</h2>
+  return `${typeof cabecalhoDono==='function'?cabecalhoDono('Escritório · '+varianteDono(G.manager.variante).nome,'Comando técnico','Quem treina o time, o que você exige dele e o quanto ele confia em você.','tatica')
+      :`<div class="eyebrow">Modo ${esc(varianteDono(G.manager.variante).nome)}</div><h2 class="sec">Comando técnico</h2>`}
   <div class="card ti-hero" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
-    ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ti-fundo cn-direita',foco:'placa'}):''}
+    ${typeof cabecalhoDono==='function'?'':typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'ti-fundo cn-direita',foco:'placa'}):''}
     <div class="ti-hero-c">${_cartaoTecnico(t,tec,x)}
-      ${!x.noBanco&&tec?`<div class="ti-hero-d"><div class="eyebrow">Confiança dele em você</div>${_barraConf(x.confianca)}</div>`:''}</div>
+      ${!x.noBanco&&tec?`<div class="ti-hero-d"><div class="eyebrow">Confiança dele em você</div>
+        <div class="ti-hero-anel">${typeof anelConf==='function'?anelConf(x.confianca,104,x.confianca>=60?'var(--teal)':x.confianca>=45?'var(--amber)':'var(--red)'):''}<div><b>${esc(rotuloConfTec(x.confianca))}</b><span class="dim">Abaixo de ${TEC_CONF_SAIDA} ele pede para sair.</span></div></div></div>`:''}</div>
     <div class="ti-acoes">${acoes.join('')}</div>
   </div>
   ${x.noBanco?'':_cardMandato(t,x)}
