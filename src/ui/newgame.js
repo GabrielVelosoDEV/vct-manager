@@ -67,49 +67,37 @@ function telaNovoJogo(){
     <div class="nj-topo"><div class="eyebrow">Novo jogo</div><h2 class="sec">Escolha o seu modo</h2>
       <p class="dim">O mesmo circuito, três jeitos de viver. Você pode trocar de modo antes de começar.</p></div>
     ${portaisDeModo(selT)}
+    <div class="cr-grid"><aside class="cr-aside">${previewPersonagem(selT)}</aside><div class="cr-passos">
     <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">1</span><div><b>${MODO_NJ[escPapel].secVoce}</b><span>${MODO_NJ[escPapel].secVoceSub}</span></div></div>
-    <div class="nj-perfil">
-      <div class="nj-foto nj-foto-${escPapel}">
-        <span class="nj-foto-selo">${icone(MODO_NJ[escPapel].ic)} ${MODO_NJ[escPapel].selo}</span>
-        <label class="nj-foto-img" title="Escolher foto">${escFoto?`<img src="${escFoto}" alt="">`:`<span>${icone('mais')}<b>Sua foto</b></span>`}
-          <input type="file" id="njFoto" accept="image/*" hidden></label>
-        ${escFoto?'<button class="btn ghost sm" id="njFotoTira">Tirar a foto</button>':'<span class="dim">opcional · PNG ou JPG</span>'}
-      </div>
-      <div class="nj-campos campos">
-        <label>${escPapel==='jogador'?'Seu nick':'Seu nome'}<input type="text" id="njNome" value="${esc(escNome)}" maxlength="${escPapel==='jogador'?20:28}" placeholder="${escPapel==='jogador'?'o nome que aparece no placar':'como a imprensa vai te chamar'}"></label>
-        ${escPapel==='jogador'?`<label>Nome real<input type="text" id="njNomeReal" value="${esc(escJ.nomeReal)}" maxlength="40" placeholder="opcional"></label>`:''}
-        <label>Nacionalidade${selectPais('id="njPais"',escPais)}</label>
-        <label>Idade<input type="number" id="njIdade" value="${escIdade}" min="${escPapel==='jogador'?15:22}" max="${escPapel==='jogador'?40:70}"></label>
-        <label>Gênero<select id="njGenero"><option value="m" ${escGenero==='m'?'selected':''}>Masculino</option><option value="f" ${escGenero==='f'?'selected':''}>Feminino</option></select></label>
-      </div>
-    </div>
+    ${camposPersonagem()}
     </section>
     <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">2</span><div><b>${MODO_NJ[escPapel].sec2}</b><span>${MODO_NJ[escPapel].sec2Sub}</span></div></div>
     ${escPapel==='jogador'?blocoJogadorNJ():''}
     ${escPapel==='dono'?`
     <div class="eyebrow" style="margin-top:4px">Como você comanda</div>
     <div class="nj-papeis">${VARIANTES_DONO.map(v=>`
-        <button class="nj-papel ${escVariante===v.id?'on':''} ${v.emBreve?'nj-embreve':''}" data-variante="${v.id}" ${v.emBreve?'disabled':''}>
+        <button class="nj-papel ${escVariante===v.id?'on':''} ${v.emBreve?'nj-embreve':''}" data-variante="${v.id}" ${v.emBreve?'disabled':''}>${icNJ(v.id)}
           <b>${esc(v.nome)}${v.emBreve?' <span class="nj-ov">em construção</span>':''}</b>
           <span>${esc(v.resumo)}</span><i>${esc(v.detalhe)}</i></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Seu estilo de gestão</div>
     <div class="nj-estilos">${Object.entries(PERFIS_DONO).map(([k,pf])=>`
-        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}"><b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>
+        <button class="nj-estilo ${escPerfilDono===k?'on':''}" data-perfildono="${k}">${icNJ(k)}<b>${esc(pf.nome)}</b><span>${esc(pf.desc)}</span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Como você começa</div>
     <div class="nj-papeis">
-      <button class="nj-papel ${escComeco==='assumir'?'on':''}" data-comeco="assumir"><b>Assumir uma organização</b><span>Escolha um clube que já existe: você compra o controle e o dono de antes sai.</span></button>
-      <button class="nj-papel ${escComeco==='criar'?'on':''}" data-comeco="criar"><b>Criar a sua</b><span>Monte a sua organização: origem do dinheiro, compra de vaga, fusão ou fundação do zero, nome, escudo e sede.</span></button>
+      <button class="nj-papel ${escComeco==='assumir'?'on':''}" data-comeco="assumir">${icNJ('assumir')}<b>Assumir uma organização</b><span>Escolha um clube que já existe: você compra o controle e o dono de antes sai.</span></button>
+      <button class="nj-papel ${escComeco==='criar'?'on':''}" data-comeco="criar">${icNJ('criar')}<b>Criar a sua</b><span>Monte a sua organização: origem do dinheiro, compra de vaga, fusão ou fundação do zero, nome, escudo e sede.</span></button>
     </div>`:''}
     ${escPapel==='treinador'?`
     <div class="eyebrow" style="margin-top:4px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
-        <button class="nj-papel ${escModo===md.id?'on':''}" data-modo="${md.id}">
-          <b>${esc(md.nome)} <span class="nj-ov">coach ${md.over[escTier]}${md.id==='carreira'?' → até '+md.pot:''}</span></b>
-          <span>${esc(md.resumo)}</span></button>`).join('')}</div>
+        <button class="nj-papel ${escModo===md.id?'on':''}" data-modo="${md.id}">${icNJ(md.id)}
+          <b>${esc(md.nome)}</b>
+          <span>${esc(md.resumo)}</span>
+          <span class="cr-traj"><em>coach ${md.over[escTier]}</em><i><u style="left:${Math.round((md.over[escTier]-40)/59*100)}%;width:${Math.max(2,Math.round((md.pot-md.over[escTier])/59*100))}%"></u><s style="left:${Math.round((md.over[escTier]-40)/59*100)}%"></s></i><em>até ${md.pot}</em></span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Estilo</div>
     <div class="nj-estilos">${ESTILOS_TREINADOR.map(e=>`
-        <button class="nj-estilo ${escEstilo===e.id?'on':''}" data-estilo="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span>
-          <i>${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])} +</i></button>`).join('')}</div>
+        <button class="nj-estilo ${escEstilo===e.id?'on':''}" data-estilo="${e.id}">${icNJ(e.id)}<b>${esc(e.nome)}</b><span>${esc(e.desc)}</span>
+          <span class="cr-delta"><i class="up">▲ ${esc(ATTRS_STAFF.find(a=>a[0]===e.mais)[1])}</i><i class="dn">▼ ${esc(ATTRS_STAFF.find(a=>a[0]===e.menos)[1])}</i></span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Seleção (Valorant World Cup)</div>
     <p class="dim" style="margin:-2px 0 8px">Comande só o clube ou o clube e uma seleção. Sem seleção agora, convites de federação chegam no começo de cada ciclo da Copa.</p>
     <select id="njSelecao" class="nj-selecao"><option value="">Só o clube</option>${(typeof rankingPaises==='function'&&G&&G.copa?rankingPaises():COPA_SELECOES.map(s=>({pais:s[0],nome:(PAISES[s[0]]||s[0]),sigla:s[1]}))).map(r=>`<option value="${r.pais}" ${escSelecao===r.pais?'selected':''}>${esc(r.nome)} (${esc(r.sigla)})${r.pos?' · '+r.pos+'º no ranking':''}</option>`).join('')}</select>`:''}
@@ -117,16 +105,17 @@ function telaNovoJogo(){
     <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">3</span><div><b>Dificuldade${escPapel==='jogador'?'':' e modo de jogo'}</b><span>${MODO_NJ[escPapel].sec3Sub}</span></div></div>
     <div class="eyebrow" style="margin-top:4px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
-      <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
+      <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}">${icNJ(k)}<b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span>${medidoresDif(k)}</button>`).join('')}</div>
     ${escPapel==='jogador'?'':`<div class="eyebrow" style="margin-top:16px">Modo de jogo</div>
     <div class="nj-papeis">
-      <button class="nj-papel ${!escCenario?'on':''}" data-cenario=""><b>Carreira</b><span>Escolha qualquer clube e escreva a sua história.</span></button>
-      <button class="nj-papel ${escCenario?'on':''}" data-cenario="${escCenario||DESAFIOS[0].id}"><b>Cenário de desafio</b><span>Um começo difícil, com objetivo e prazo. A carreira continua depois.</span></button>
+      <button class="nj-papel ${!escCenario?'on':''}" data-cenario="">${icNJ('carreira')}<b>Carreira</b><span>Escolha qualquer clube e escreva a sua história.</span></button>
+      <button class="nj-papel ${escCenario?'on':''}" data-cenario="${escCenario||DESAFIOS[0].id}"><span class="cr-tic">${icone('alvo')}</span><b>Cenário de desafio</b><span>Um começo difícil, com objetivo e prazo. A carreira continua depois.</span></button>
     </div>
     ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
         <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
         <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}`}
     </section>
+    </div></div>
     <section class="nj-sec nj-sec-clube"><div class="nj-sec-h"><span class="nj-n">4</span><div><b>${MODO_NJ[escPapel].sec4}</b><span>${MODO_NJ[escPapel].sec4Sub}</span></div></div>
     ${escPapel==='dono'&&escComeco==='criar'?`
     <h2 class="sec" style="margin-top:4px">Criar a sua organização</h2>
@@ -168,6 +157,12 @@ function telaNovoJogo(){
     const ge=$('#njGenero');if(ge)escGenero=ge.value;
     const se=$('#njSelecao');if(se)escSelecao=se.value;};
   ['#njNome','#njNomeReal','#njPais','#njIdade','#njGenero','#njSelecao'].forEach(sel=>{const el=$(sel);if(el){el.oninput=guardaNome;el.onchange=guardaNome;}});
+  /* a carta do personagem acompanha o que você digita */
+  const nIn=$('#njNome');if(nIn)nIn.addEventListener('input',()=>{const v=nIn.value.trim();const c=$('#crNome');if(c)c.textContent=v||(escPapel==='jogador'?'SEU NICK':'SEU NOME');
+    const cn=$('.crd-carta .carta-nome');if(cn)cn.textContent=v||'Você';});
+  const iIn=$('#njIdade');if(iIn)iIn.addEventListener('input',()=>{const a=$('#crIdadeN'),b=$('#crIdade');if(a)a.textContent=iIn.value;if(b)b.textContent=iIn.value+' anos';});
+  const pIn=$('#njPais');if(pIn)pIn.addEventListener('change',()=>{guardaNome();telaNovoJogo();});
+  $('#modal').querySelectorAll('[data-gen]').forEach(b=>b.onclick=()=>{guardaNome();escGenero=b.dataset.gen;telaNovoJogo();});
   const inFoto=$('#njFoto');
   if(inFoto)inFoto.onchange=async()=>{guardaNome();
     try{escFoto=await fotoDoArquivo(inFoto.files[0]);telaNovoJogo();}catch(e){flash(e.message);}};
@@ -232,17 +227,17 @@ function _todosAgentesNJ(){return [...new Set(Object.keys(AGENTS).filter(k=>k!==
 function blocoJogadorNJ(){
   const funcs=['Duelista','Iniciador','Controlador','Sentinela','Flex'];
   const todos=_todosAgentesNJ();
-  const sel=(i)=>`<select data-njag="${i}">${todos.map(a=>`<option ${escJ.ag[i]===a?'selected':''}>${esc(a)}</option>`).join('')}</select>`;
+  const sel=(i)=>`<span class="cr-agsel"><img src="${ASSETS.agente(escJ.ag[i])}" alt="" data-njagimg="${i}" onerror="this.style.opacity=0"><select data-njag="${i}">${todos.map(a=>`<option ${escJ.ag[i]===a?'selected':''}>${esc(a)}</option>`).join('')}</select></span>`;
   const ini=inicioJogador(escJ.inicio);
   return `
     <div class="eyebrow" style="margin-top:14px">Função</div>
-    <div class="nj-estilos">${funcs.map(f=>`<button class="nj-estilo ${escJ.funcao===f?'on':''}" data-njfun="${f}"><b>${esc(f)}</b><span>${esc({Duelista:'abre o bomb e ganha duelo',Iniciador:'informação e flash para o time',Controlador:'fecha a visão com smoke',Sentinela:'segura o bomb e o flanco',Flex:'joga onde o time precisar'}[f])}</span></button>`).join('')}</div>
+    <div class="nj-estilos">${funcs.map(f=>`<button class="nj-estilo ${escJ.funcao===f?'on':''}" data-njfun="${f}">${icNJ(f)}<b>${esc(f)}</b><span>${esc({Duelista:'abre o bomb e ganha duelo',Iniciador:'informação e flash para o time',Controlador:'fecha a visão com smoke',Sentinela:'segura o bomb e o flanco',Flex:'joga onde o time precisar'}[f])}</span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Agentes</div>
     <div class="campos nj-ags"><label>Main${sel(0)}</label><label>Segundo${sel(1)}</label><label>Terceiro${sel(2)}</label></div>
     <div class="eyebrow" style="margin-top:14px">Estilo de jogo</div>
-    <div class="nj-estilos">${ESTILOS_JOGADOR.map(e=>`<button class="nj-estilo ${escJ.estilo===e.id?'on':''}" data-njest="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span></button>`).join('')}</div>
+    <div class="nj-estilos">${ESTILOS_JOGADOR.map(e=>`<button class="nj-estilo ${escJ.estilo===e.id?'on':''}" data-njest="${e.id}">${icNJ(e.id)}<b>${esc(e.nome)}</b><span>${esc(e.desc)}</span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">De onde começa</div>
-    <div class="nj-papeis">${INICIOS_JOGADOR.map(x=>`<button class="nj-papel ${escJ.inicio===x.id?'on':''}" data-njini="${x.id}"><b>${esc(x.nome)} <span class="nj-ov">over ${x.over} · teto ${x.pot}</span></b><span>${esc(x.resumo)}</span></button>`).join('')}</div>
+    <div class="nj-papeis">${INICIOS_JOGADOR.map(x=>`<button class="nj-papel ${escJ.inicio===x.id?'on':''}" data-njini="${x.id}">${icNJ(x.id)}<b>${esc(x.nome)} <span class="nj-ov">over ${x.over} · teto ${x.pot}</span></b><span>${esc(x.resumo)}</span></button>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">Quão bom você começa</div>
     <div class="nj-niveis">
       <label class="nj-sl"><span>Over inicial <b class="num" id="njOverV">${escJ.over}</b></span><input type="range" min="45" max="97" value="${escJ.over}" id="njOver"></label>
@@ -292,7 +287,7 @@ function ligarBlocoJogadorNJ(guardaNome){
   m.querySelectorAll('[data-njest]').forEach(b=>b.onclick=()=>{guardaNome();escJ.estilo=b.dataset.njest;telaNovoJogo();});
   m.querySelectorAll('[data-njini]').forEach(b=>b.onclick=()=>{guardaNome();escJ.inicio=b.dataset.njini;
     const ij=inicioJogador(escJ.inicio);escJ.over=ij.over;escJ.pot=ij.pot;escSel=null;telaNovoJogo();});
-  m.querySelectorAll('[data-njag]').forEach(s=>s.onchange=()=>{escJ.ag[+s.dataset.njag]=s.value;});
+  m.querySelectorAll('[data-njag]').forEach(s=>s.onchange=()=>{escJ.ag[+s.dataset.njag]=s.value;telaNovoJogo();});
   const man=$('#njManual');
   if(man)man.onchange=()=>{escJ.atribManual=man.checked;const box=$('#njAtrib');if(box){box.innerHTML=man.checked?atribManualNJ():'';ligarAtribNJ();}};
   ligarAtribNJ();

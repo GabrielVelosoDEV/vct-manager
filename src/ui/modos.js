@@ -144,3 +144,88 @@ function salaTaticaHero(t,rr,sit){
     </div>
   </section>`;
 }
+
+/* ============================================================
+   NOVO JOGO — o criador de personagem
+   À esquerda, a sua carta ao vivo (crachá, player card ou retrato
+   do dono), que muda a cada escolha; à direita, as escolhas em
+   peças grandes com ícone, e não em campos de formulário.
+   ============================================================ */
+const IC_NJ={
+  estrategista:'mapa',tecnico:'mira',motivador:'vestiario',disciplinador:'relogio',carreira:'arvore',lenda:'estrela',
+  facil:'base',normal:'alvo',dificil:'fogo',
+  livre:'casa',puro:'predio',hibrido:'tatica',ambicioso:'fogo',paciente:'relogio',investidor:'grafico',economico:'dinheiro',midiatico:'estrela',
+  assumir:'aperto',criar:'mais',
+  Duelista:'fogo',Iniciador:'olho',Controlador:'mapa',Sentinela:'base',Flex:'troca',
+  entrada:'fogo',suporte:'elenco',ancora:'base',lurker:'olho',mira:'mira',
+  ranked:'mira',tier2:'trofeu',banco:'elenco',titular:'estrela'
+};
+function icNJ(k){return `<span class="cr-tic">${icone(IC_NJ[k]||'alvo')}</span>`;}
+function _fotoPrev(){
+  return `<label class="crd-foto" title="Escolher foto">${escFoto?`<img src="${escFoto}" alt="">`:`<span>${icone('mais')}<b>Sua foto</b></span>`}
+    <input type="file" id="njFoto" accept="image/*" hidden></label>`;
+}
+function previewPersonagem(selT){
+  const nome=esc(String(escNome||'').trim()||(escPapel==='jogador'?'SEU NICK':'SEU NOME'));
+  const pais=`<span class="crd-pais">${bandeira(escPais)} ${esc(PAISES[escPais]||escPais)}</span>`;
+  if(escPapel==='jogador'){
+    const fake={id:'njprev',nome:String(escNome||'').trim()||'Você',role:escJ.funcao,foto:escFoto||(typeof silhuetaCarta==='function'?silhuetaCarta():''),timeId:selT?selT.id:null,pais:escPais,genero:escGenero,idade:escIdade};
+    const ini=typeof inicioJogador==='function'?inicioJogador(escJ.inicio):{nome:''};
+    return `<div class="crd crd-jg">
+      <div class="crd-carta">${cartaJogador(fake,{w:230,o:escJ.over,semMundial:true})}<i class="crd-brilho"></i></div>
+      <label class="crd-trocafoto">${icone('caneta')} ${escFoto?'trocar foto':'pôr a sua foto'}<input type="file" id="njFoto" accept="image/*" hidden></label>
+      <div class="crd-nome" id="crNome">${nome}</div>
+      <div class="crd-sub">${pais}<span id="crIdade">${escIdade} anos</span></div>
+      <div class="crd-ags">${(escJ.ag||[]).map((a,i)=>`<span class="crd-ag ${i?'':'main'}"><img src="${ASSETS.agente(a)}" alt="" onerror="this.style.opacity=0"><b>${esc(a)}</b></span>`).join('')}</div>
+      <div class="crd-stats"><div><span>Over</span><b class="num">${escJ.over}</b></div><div><span>Teto</span><b class="num">${escJ.pot}</b></div><div><span>Começa</span><b>${esc(ini.nome)}</b></div></div>
+    </div>`;
+  }
+  if(escPapel==='dono'){
+    const v=typeof varianteDono==='function'?varianteDono(escVariante):{nome:''};
+    const pf=(typeof PERFIS_DONO!=='undefined'&&PERFIS_DONO[escPerfilDono])||{nome:''};
+    return `<div class="crd crd-dn">
+      <i class="crd-brilho"></i>
+      <div class="crd-topo"><span>PROPRIETÁRIO</span>${selT&&escComeco!=='criar'?escudo(selT,28):icone('coroa')}</div>
+      ${_fotoPrev()}
+      <div class="crd-nome" id="crNome">${nome}</div>
+      <div class="crd-sub">${pais}<span id="crIdade">${escIdade} anos</span></div>
+      <div class="crd-stats"><div><span>Comando</span><b>${esc(v.nome)}</b></div><div><span>Gestão</span><b>${esc(pf.nome)}</b></div>
+        <div><span>Organização</span><b>${escComeco==='criar'?'a fundar':selT?esc(selT.tag):'—'}</b></div></div>
+    </div>`;
+  }
+  const md=typeof modoTreinador==='function'?modoTreinador(escModo):{nome:'',over:{1:80,2:64}};
+  const est=typeof estiloTreinador==='function'?estiloTreinador(escEstilo):{nome:''};
+  return `<div class="crd crd-tr">
+    <span class="crd-clip"></span>
+    <div class="crd-topo"><span>VCT ${G?G.ano:''} · STAFF</span>${selT?escudo(selT,28):''}</div>
+    ${_fotoPrev()}
+    <div class="crd-nome" id="crNome">${nome}</div>
+    <div class="crd-cargo">HEAD COACH${selT?' · '+esc(selT.tag):''}</div>
+    <div class="crd-sub">${pais}<span id="crIdade">${escIdade} anos</span></div>
+    <div class="crd-stats"><div><span>Coach</span><b class="num">${md.over[escTier]||md.over[1]}</b></div><div><span>Estilo</span><b>${esc(est.nome)}</b></div><div><span>Trajetória</span><b>${esc(md.nome)}</b></div></div>
+    <div class="crd-barras" aria-hidden="true">${Array.from({length:34},(_,i)=>`<i style="width:${[1,2,1,3,1,2][i%6]}px"></i>`).join('')}</div>
+  </div>`;
+}
+/* a seção 1 em forma de criador: nome grande, país, idade e gênero */
+function camposPersonagem(){
+  const jog=escPapel==='jogador';
+  return `<div class="cr-campos">
+    <label class="cr-nome-l"><span>${jog?'Seu nick':'Seu nome'}</span>
+      <input type="text" id="njNome" class="cr-nome-in" value="${esc(escNome)}" maxlength="${jog?20:28}" placeholder="${jog?'o nome no placar':'como a imprensa vai te chamar'}" autocomplete="off"></label>
+    ${jog?`<label class="cr-c"><span>Nome real</span><input type="text" id="njNomeReal" value="${esc(escJ.nomeReal)}" maxlength="40" placeholder="opcional"></label>`:''}
+    <div class="cr-row">
+      <label class="cr-c"><span>Nacionalidade</span>${selectPais('id="njPais"',escPais)}</label>
+      <label class="cr-c"><span>Idade</span><div class="cr-idade"><input type="range" id="njIdade" value="${escIdade}" min="${jog?15:22}" max="${jog?40:70}"><b class="num" id="crIdadeN">${escIdade}</b></div></label>
+    </div>
+    <div class="cr-c"><span>Gênero</span><div class="cr-gen">
+      <button type="button" class="${escGenero==='m'?'on':''}" data-gen="m">Masculino</button><button type="button" class="${escGenero==='f'?'on':''}" data-gen="f">Feminino</button></div>
+      <select id="njGenero" hidden><option value="m" ${escGenero==='m'?'selected':''}>m</option><option value="f" ${escGenero==='f'?'selected':''}>f</option></select></div>
+    ${escFoto?'<button class="btn ghost sm cr-tira" id="njFotoTira">Tirar a foto</button>':''}
+  </div>`;
+}
+/* medidores da dificuldade */
+function medidoresDif(k){
+  const d=DIFICULDADES[k];
+  const m=(rot,v,max,inv)=>{const f=clamp(v/max,0,1);return `<span class="cr-med"><em>${rot}</em><i><u class="${inv?'inv':''}" style="width:${Math.round(f*100)}%"></u></i></span>`;};
+  return `<span class="cr-meds">${m('Caixa',d.caixa,1.5)}${m('Cobrança',d.cobranca,1.3,true)}${m('Salários',d.salario-0.8,0.3,true)}</span>`;
+}
