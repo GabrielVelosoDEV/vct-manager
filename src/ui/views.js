@@ -97,33 +97,6 @@ function cardTabelaDaCasa(t,rr){
    vestiario.js), entrosamento médio com os titulares, mapas jogados,
    contrato (aviso quando acaba em menos de um ano) e o peso do salário. */
 let elencoOrd='over', elencoFiltro='';
-function barraElenco(v,cls,rot){
-  const pct=Math.round(clamp(v,0,1)*100);
-  return `<div class="vb el-vb" title="${esc(rot||'')}"><i class="${cls||''}" style="width:${pct}%"></i><span>${pct}</span></div>`;
-}
-function linhaElenco(t,p,titular,maxSal){
-  const outros=t.titulares.filter(i=>i!==p.id);
-  const ent=outros.length&&typeof dupla==='function'?outros.reduce((s,i)=>s+dupla(t,p.id,i),0)/outros.length:null;
-  const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
-  const vence=p.contrato<=1;
-  return `<tr class="${titular?'':'el-res'}">
-    <td><span class="tag ${p.roleAtual||p.role}">${(p.roleAtual||p.role).slice(0,3)}</span></td>
-    <td><b class="jrow el-nome" data-p="${p.id}">${esc(p.nome)}</b> ${bandeira(p.pais)}
-      ${p.igl?'<span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão '+p.lesao+'</span>':''}
-      <div class="dim el-sub">${p.idade}a · pot ${p.pot}</div></td>
-    <td class="c">${ovTag(p)}</td>
-    <td>${barraElenco(p.forma,p.forma>=0.7?'g':p.forma<0.4?'r':'','Forma')}</td>
-    <td>${barraElenco(p.fadiga,p.fadiga>0.7?'r':'','Desgaste')}</td>
-    <td>${barraElenco(men,men>=0.7?'g':men<0.4?'r':'','Mental')}</td>
-    <td class="c num">${ent==null?'—':`<span class="vm-pill" style="background:${typeof corDaDupla==='function'?corDaDupla(ent):'transparent'}">${Math.round(ent)}</span>`}</td>
-    <td class="c num">${(p.temp&&p.temp.maps)||0}</td>
-    <td class="c num ${vence?'dn':''}" title="${vence?'Contrato acaba nesta temporada':''}">${vence?'⚠ ':''}${p.contrato}a</td>
-    <td><div class="el-sal"><div class="bar"><i style="width:${Math.round((p.salario||0)/Math.max(1,maxSal)*100)}%"></i></div>
-      <span class="num dim">${money(p.salario||0)}</span></div></td>
-    <td class="r el-bt">${titular?`<button class="btn ghost sm" data-igl="${p.id}">IGL</button>
-      <button class="btn ghost sm" data-banco="${p.id}">Banco</button>`
-      :`<button class="btn ghost sm" data-tit="${p.id}">Escalar</button>`}</td></tr>`;
-}
 function resumoElenco(t){
   const js=t.elenco.map(P).filter(Boolean);
   const funcoes=ROLES.filter(r=>r!=='Flex');
@@ -133,41 +106,119 @@ function resumoElenco(t){
   const flex=js.filter(p=>p.role==='Flex').length;
   const idade=js.length?js.reduce((s,p)=>s+p.idade,0)/js.length:0;
   const idTit=t.titulares.length?t.titulares.map(P).reduce((s,p)=>s+p.idade,0)/t.titulares.length:0;
-  const falta=cob.filter(c=>!c.ts).map(c=>'nenhum '+c.r.toLowerCase()+' entre os titulares')
-    .concat(cob.filter(c=>c.ts&&!c.rs).map(c=>'sem reserva de '+c.r.toLowerCase()));
   const sobra=cob.filter(c=>c.ts+c.rs>=3).map(c=>c.r.toLowerCase()+' ('+(c.ts+c.rs)+')');
   const vencem=js.filter(p=>p.contrato<=1);
   return `<div class="card"><div class="eyebrow">Resumo do elenco</div>
-    <div class="el-cob">${cob.map(c=>`<div class="${c.ts?'':'falta'}"><span class="tag ${c.r}">${c.r}</span>
-      <span><b class="num">${c.ts}</b> <span class="dim">titular${c.ts===1?'':'es'}</span> · <b class="num">${c.rs}</b> <span class="dim">no banco</span></span></div>`).join('')}
-      ${flex?`<div><span class="tag Flex">Flex</span><span><b class="num">${flex}</b> <span class="dim">no elenco, cobre qualquer função</span></span></div>`:''}</div>
+    <div class="el-cob">${cob.map(c=>`<div class="el-cobf ec-${c.r} ${c.ts?'':'falta'} ${c.ts&&!c.rs?'fino':''}"><span class="el-cobn">${c.r}</span>
+      <span class="el-cobv"><b class="num">${c.ts}</b><i>titular${c.ts===1?'':'es'}</i></span><span class="el-cobv r"><b class="num">${c.rs}</b><i>no banco</i></span>
+      <span class="el-cobs">${!c.ts?'ninguém na função':!c.rs?'sem reserva':'coberto'}</span></div>`).join('')}
+      ${flex?`<div class="el-cobf ec-Flex"><span class="el-cobn">Flex</span><span class="el-cobv"><b class="num">${flex}</b><i>no elenco</i></span><span class="el-cobs">cobre qualquer função</span></div>`:''}</div>
     <div class="el-res-l">
       <div><span class="dim">Idade média</span><b class="num">${idade.toFixed(1)}</b><span class="dim">titulares ${idTit.toFixed(1)}</span></div>
-      <div><span class="dim">Falta</span><b>${falta.length?esc(falta.join(' · ')):'nada'}</b></div>
       <div><span class="dim">Sobra</span><b>${sobra.length?esc(sobra.join(' · ')):'nada'}</b></div>
       <div><span class="dim">Contratos no fim</span><b class="${vencem.length?'dn':''}">${vencem.length?esc(vencem.map(p=>p.nome).join(', ')):'nenhum'}</b></div>
     </div></div>`;
 }
+/* ---------- o painel do elenco ----------
+   Antes eram duas tabelas que repetiam metade das colunas ("A semana do
+   elenco" e "Ficha completa"). Agora é um painel só: em Cartões cada
+   jogador é uma peça com anel de over, barras da semana e chips do que
+   pesa no bolso; em Lista, uma tabela única e ordenável para comparar. */
+function anelOver(p,px){
+  const o=over(p),k=clamp((o-40)/59,0,1),kp=clamp((p.pot-40)/59,0,1),r=px/2-5,c=2*Math.PI*r;
+  const cor={a:'var(--teal)',b:'#5CD6C0',c:'#E8EDF2',d:'var(--amber)',e:'var(--red)'}[ovClass(o)];
+  return `<svg viewBox="0 0 ${px} ${px}" width="${px}" height="${px}" class="ec-anel">
+    <circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="5"/>
+    <circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="5" stroke-dasharray="${(c*kp).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${px/2} ${px/2})"/>
+    <circle cx="${px/2}" cy="${px/2}" r="${r}" fill="none" stroke="${cor}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(c*k).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${px/2} ${px/2})" class="ec-anel-v"/>
+    <text x="${px/2}" y="${px/2+7}" text-anchor="middle" class="ec-anel-n" fill="${cor}">${o}</text></svg>`;
+}
+function _ecBarra(rot,ic,v,cls){
+  const pct=Math.round(clamp(v,0,1)*100);
+  return `<div class="ec-b" title="${rot}"><span class="ec-b-r">${icone(ic)}${rot}</span><i><u class="${cls||''}" style="width:${pct}%"></u></i><b class="num">${pct}</b></div>`;
+}
+function _ecDados(t,p){
+  const outros=t.titulares.filter(i=>i!==p.id);
+  const ent=outros.length&&typeof dupla==='function'?outros.reduce((s,i)=>s+dupla(t,p.id,i),0)/outros.length:null;
+  const men=typeof mentalDe==='function'?mentalDe(p):p.moral;
+  return {ent,men,vence:p.contrato<=1,fun:p.roleAtual||p.role,maps:(p.temp&&p.temp.maps)||0};
+}
+function cardElenco(t,p,titular,editavel){
+  const d=_ecDados(t,p);
+  const bts=!editavel?'':titular
+    ?`${p.id!==t.igl?`<button class="btn ghost sm" data-igl="${p.id}">Fazer IGL</button>`:''}<button class="btn ghost sm" data-banco="${p.id}">Banco</button>`
+    :`<button class="btn sm" data-tit="${p.id}">Escalar</button>`;
+  return `<div class="ec ${titular?'':'ec-res'} ${p.lesao?'ec-les':''} ec-${d.fun}">
+    <div class="ec-top jrow" data-p="${p.id}">
+      <div class="ec-ret">${retrato(p,48)}${p.igl?'<em class="ec-igl">IGL</em>':''}</div>
+      <div class="ec-id"><b>${esc(p.nome)}</b>
+        <span class="ec-sub">${bandeira(p.pais)} ${p.idade} anos</span>
+        <span class="tag ${d.fun}">${esc(d.fun)}</span></div>
+      <div class="ec-ov">${anelOver(p,50)}<span class="ec-pot">pot <b class="num">${p.pot}</b></span></div>
+    </div>
+    ${p.lesao?`<div class="ec-alerta">${icone('lesao')} lesionado · ${p.lesao} semana${p.lesao>1?'s':''}</div>`:''}
+    <div class="ec-bars">
+      ${_ecBarra('Forma','fogo',p.forma,p.forma>=0.7?'g':p.forma<0.4?'r':'')}
+      ${_ecBarra('Desgaste','relogio',p.fadiga,p.fadiga>0.7?'r':p.fadiga>0.5?'a':'n')}
+      ${_ecBarra('Mental','mente',d.men,d.men>=0.7?'g':d.men<0.4?'r':'')}
+    </div>
+    <div class="ec-chips">
+      ${d.ent==null?'':`<span class="ec-chip" title="Entrosamento médio com os titulares"><i class="ec-dot" style="background:${typeof corDaDupla==='function'?corDaDupla(d.ent):'#888'}"></i>entros. <b class="num">${Math.round(d.ent)}</b></span>`}
+      <span class="ec-chip" title="Mapas jogados na temporada">${icone('mapa')}<b class="num">${d.maps}</b> mapas</span>
+      <span class="ec-chip ${d.vence?'r':''}" title="${d.vence?'O contrato acaba nesta temporada':'Anos de contrato'}">${icone(d.vence?'alerta':'contrato')}<b class="num">${p.contrato}a</b></span>
+      <span class="ec-chip" title="Salário">${icone('dinheiro')}<b class="num">${money(p.salario||0)}</b></span>
+    </div>
+    ${bts?`<div class="ec-bt">${bts}</div>`:''}
+  </div>`;
+}
+function linhaListaElenco(t,p,titular,editavel){
+  const d=_ecDados(t,p),m=v=>`<div class="ec-mini"><i style="width:${Math.round(clamp(v,0,1)*100)}%"></i></div>`;
+  return `<tr class="${titular?'me':''}">
+    <td><span class="linha-t jrow" data-p="${p.id}">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}${p.igl?' <span class="pill">IGL</span>':''}${p.lesao?' <span class="badge no">lesão</span>':''}
+      <div class="dim el-sub">${p.idade}a</div></span></span></td>
+    <td><span class="tag ${d.fun}">${esc(d.fun.slice(0,3))}</span></td>
+    <td class="c">${ovTag(p)}<span class="ec-potl">→${p.pot}</span></td>
+    <td class="ec-tdb" data-v="${Math.round(p.forma*100)}"><span class="num">${Math.round(p.forma*100)}</span>${m(p.forma)}</td>
+    <td class="ec-tdb ec-des" data-v="${Math.round(p.fadiga*100)}"><span class="num">${Math.round(p.fadiga*100)}</span>${m(p.fadiga)}</td>
+    <td class="ec-tdb" data-v="${Math.round(d.men*100)}"><span class="num">${Math.round(d.men*100)}</span>${m(d.men)}</td>
+    <td class="c num">${d.ent==null?'—':`<span class="vm-pill" style="background:${typeof corDaDupla==='function'?corDaDupla(d.ent):'transparent'}">${Math.round(d.ent)}</span>`}</td>
+    <td class="c num">${d.maps}</td>
+    <td class="c num ${d.vence?'dn':''}">${d.vence?'⚠ ':''}${p.contrato}a</td>
+    <td class="r num">${money(p.salario||0)}</td>
+    <td class="r el-bt">${!editavel?'':titular?`<button class="btn ghost sm" data-igl="${p.id}">IGL</button><button class="btn ghost sm" data-banco="${p.id}">Banco</button>`
+      :`<button class="btn ghost sm" data-tit="${p.id}">Escalar</button>`}</td></tr>`;
+}
+function painelElenco(t,editavel){
+  const vista=Prefs.get('elencoVista')==='lista'?'lista':'cartoes';
+  const tit=t.titulares.map(P).filter(Boolean),res=t.elenco.filter(i=>!t.titulares.includes(i)).map(P).filter(Boolean);
+  const folha=t.elenco.reduce((s,i)=>s+(P(i).salario||0),0);
+  const cab=`<div class="ec-cab"><div><div class="eyebrow">Painel do elenco</div>
+      <span class="dim">${t.elenco.length} jogadores · folha ${money(folha)}/mês · forma, desgaste e mental são da semana</span></div>
+    <div class="ec-vista"><button class="${vista==='cartoes'?'on':''}" data-elvista="cartoes">${icone('elenco')} Cartões</button><button class="${vista==='lista'?'on':''}" data-elvista="lista">${icone('pasta')} Lista</button></div></div>`;
+  if(vista==='lista'){
+    const TH=`<thead><tr><th>Jogador</th><th>Função</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
+      <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c">Mapas</th><th class="c">Contrato</th><th class="r">Salário</th><th class="sem-ord"></th></tr></thead>`;
+    return `<div class="card ec-painel">${cab}<div class="rolagem"><table class="wide tb ordenavel ec-tab">${TH}<tbody>
+      ${tit.map(p=>linhaListaElenco(t,p,true,editavel)).join('')}${res.map(p=>linhaListaElenco(t,p,false,editavel)).join('')}</tbody></table></div>
+      <p class="dim ec-nota">Linhas destacadas são os titulares. Clique no nome para abrir a ficha; nos títulos, para ordenar.</p></div>`;
+  }
+  return `<div class="card ec-painel">${cab}
+    <div class="ec-grupo"><span class="ec-gt">${icone('estrela')} Titulares <b class="num">${tit.length}</b></span></div>
+    <div class="ec-grade">${tit.map(p=>cardElenco(t,p,true,editavel)).join('')}</div>
+    <div class="ec-grupo"><span class="ec-gt">${icone('ciclo')} Banco <b class="num">${res.length}</b></span></div>
+    ${res.length?`<div class="ec-grade">${res.map(p=>cardElenco(t,p,false,editavel)).join('')}</div>`
+      :`<div class="ec-vazio">${icone('elenco')} Ninguém no banco. Sem reserva, uma lesão ou um jogador esgotado entra em quadra do mesmo jeito. Vale olhar o <a href="#" data-ir-tela="mercado">Mercado</a> ou a <a href="#" data-ir-tela="base">Base</a>.</div>`}
+  </div>`;
+}
 function vElenco(){
   const t=meu();
-  const tit=t.titulares.map(P),res=t.elenco.filter(i=>!t.titulares.includes(i)).map(P);
-  const maxSal=Math.max(1,...t.elenco.map(i=>P(i).salario||0));
-  const TH=`<thead><tr><th></th><th>Jogador</th><th class="c">Over</th><th>Forma</th><th>Desgaste</th><th>Mental</th>
-    <th class="c" title="Entrosamento médio com os titulares">Entros.</th><th class="c" title="Mapas jogados na temporada">Mapas</th>
-    <th class="c">Contrato</th><th>Salário</th><th></th></tr></thead>`;
+  const manda=typeof tecnicoComanda==='function'&&tecnicoComanda(t);
   return `<div class="eyebrow">Elenco e escalação</div><h2 class="sec">Line-up</h2>
-  ${typeof tecnicoComanda==='function'&&tecnicoComanda(t)
+  ${manda
     ?`<div class="card ti-aviso">${icone('info')} <span>Quem escala é ${esc((tecnicoAtual(t)||{nome:'o interino'}).nome)}. Para mudar o cinco, interfira em <a href="#" data-ir-tela="tecnico">Comando técnico</a>.</span></div>`+escalacaoHTML(t,{editavel:false})
     :escalacaoHTML(t,{editavel:true,botoes:'<button class="btn ghost sm" id="autoEsc">Escalação automática</button>'})}
   ${resumoElenco(t)}
-  <div class="card"><div class="split"><div><div class="eyebrow">A semana do elenco</div>
-    <span class="dim">Forma, desgaste e mental são da semana; o entrosamento é a média das duplas dele com os outros titulares.</span></div></div>
-    <div class="rolagem"><table class="wide el-tab">${TH}<tbody>${tit.map(p=>linhaElenco(t,p,true,maxSal)).join('')}
-      ${res.length?`<tr class="el-div"><td colspan="11">Banco</td></tr>`+res.map(p=>linhaElenco(t,p,false,maxSal)).join(''):''}</tbody></table></div>
-  </div>
-  <div class="card flat"><div class="eyebrow">Ficha completa</div>
-    <table class="tb ordenavel"><thead>${THJ}</thead><tbody>${t.elenco.map(i=>linhaJog(P(i),{me:t.titulares.includes(i)})).join('')}</tbody></table>
-    <p class="dim" style="margin-top:8px">Linhas destacadas = titulares. Clique num jogador para abrir a ficha.</p></div>`;
+  ${painelElenco(t,!manda)}`;
 }
 /* ============================================================
    TÁTICAS (pacote V11)

@@ -38,6 +38,7 @@ function ligarEventos(){
   on('[data-mgrfoto]',()=>{if(typeof modalFotoManager==='function')modalFotoManager();});
   on('[data-avancar]',()=>{const b=$('#btnNext');if(b)b.click();});
   on('[data-eord]',el=>{elencoOrd=el.dataset.eord;render();});
+  on('[data-elvista]',el=>{Prefs.set('elencoVista',el.dataset.elvista);render();});
   on('[data-efil]',el=>{elencoFiltro=el.dataset.efil;render();});
   on('[data-pano]',el=>{premioAno=+el.dataset.pano;render();});
   on('[data-rever]',el=>{const r=(G.premios||[]).find(x=>x.ano===+el.dataset.rever);if(r&&typeof abrirCerimonia==='function')abrirCerimonia(r,null);});
