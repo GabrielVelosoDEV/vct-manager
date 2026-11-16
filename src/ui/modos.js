@@ -229,3 +229,136 @@ function medidoresDif(k){
   const m=(rot,v,max,inv)=>{const f=clamp(v/max,0,1);return `<span class="cr-med"><em>${rot}</em><i><u class="${inv?'inv':''}" style="width:${Math.round(f*100)}%"></u></i></span>`;};
   return `<span class="cr-meds">${m('Caixa',d.caixa,1.5)}${m('Cobrança',d.cobranca,1.3,true)}${m('Salários',d.salario-0.8,0.3,true)}</span>`;
 }
+
+/* ============================================================
+   CABEÇALHO COM IMAGEM POR MODO
+   As telas de trabalho de cada modo abrem com uma faixa de foto do
+   ambiente, o ícone do modo e dois ou três números da tela. Para as
+   telas que já começam com eyebrow + título, a faixa toma o lugar
+   deles; nas que não têm título, entra antes do conteúdo.
+   ============================================================ */
+const CAB_MODO={
+  treinador:{
+    elenco:{img:['estrutura','gh'],ic:'elenco',sub:'Quem joga, quem espera e como cada um chega à semana.',
+      chips:t=>{const ti=t.titulares.map(P).filter(Boolean),om=ti.length?Math.round(ti.reduce((s,p)=>s+over(p),0)/ti.length):0,les=t.elenco.map(P).filter(p=>p&&p.lesao).length;
+        return [['elenco',t.elenco.length+' no elenco'],['estrela','over titular '+om],les?['lesao',les+' lesionado'+(les>1?'s':'')]:['base','ninguém lesionado']];}},
+    vestiario:{img:['estrutura','mente'],ic:'vestiario',sub:'Entrosamento das duplas, moral e a atividade da semana. O time joga como convive.',
+      chips:t=>{const js=t.elenco.map(P).filter(Boolean),mo=js.length?Math.round(js.reduce((s,p)=>s+(p.moral||0),0)/js.length*100):0;
+        return [['coracao','moral média '+mo],['elenco',js.length+' no vestiário']];}},
+    preparacao:{img:['estrutura','treino'],ic:'alvo',sub:'Plano da semana, táticas, comps e o preparo de cada mapa para o próximo jogo.',
+      chips:t=>{const a=typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null;return [a?['mira','próximo: '+(a.tag||a.nome)]:['relogio','sem jogo nesta semana'],['tatica','agressividade '+t.tatica.agres]];}},
+    mercado:{img:['cenas','sala-negociacao'],ic:'troca',sub:'Scout, propostas, comissão técnica e contratos. Tudo que entra e sai do clube.',
+      chips:t=>[[G.janela?'troca':'cadeado',G.janela?'janela aberta':'janela fechada'],['dinheiro','caixa '+money(t.caixa)],['contrato','folga '+money(typeof folgaSalarial==='function'?folgaSalarial(t):0)+'/mês']]},
+    financas:{img:['cenas','sala-diretoria'],ic:'dinheiro',sub:'De onde vem e para onde vai o dinheiro, e quanto a diretoria deixa gastar.',
+      chips:t=>[['dinheiro','caixa '+money(t.caixa)]]},
+    base:{img:['estrutura','academia'],ic:'base',sub:'A categoria de base, o radar das rankeds e as promessas que podem subir.',chips:null},
+    historia:{img:['cenas','palco-premios'],ic:'trofeu',sub:'Títulos, campanhas e quem fez história com essa camisa.',chips:null}
+  },
+  jogador:{
+    talentos:{img:['cenas','ativ-sessao'],ic:'arvore',titulo:'Talentos',eyebrow:'Carreira',sub:'Onde os pontos do seu auge viram jeito de jogar.',chips:null},
+    contrato:{img:['cenas','sala-negociacao'],ic:'troca',titulo:'Contrato e mercado',eyebrow:'Carreira',sub:'O que você assinou, quem quer você e o que dá para pedir.',
+      chips:()=>{const p=meuJogador(),c=clubeDoJogador();if(!p)return null;return [c?['clube',c.nome]:['mira','sem clube'],['dinheiro',(typeof moneyJ==='function'?moneyJ:money)(p.salario||0)+'/mês'],['contrato',(p.contrato||0)+' ano'+(p.contrato===1?'':'s')+' de contrato']];}},
+    financas:{img:['cenas','ativ-folga'],ic:'dinheiro',titulo:'Finanças',eyebrow:'Carreira',sub:'Salário, lives e patrocínio de um lado; empresário, staff e estilo de vida do outro.',
+      chips:()=>{const p=meuJogador();return p?[['dinheiro','caixa '+(typeof moneyJ==='function'?moneyJ:money)((G.voce&&G.voce.caixa)||0)],['contrato',(typeof moneyJ==='function'?moneyJ:money)(p.salario||0)+'/mês']]:null;}}
+  }
+};
+function cabecalhoModo(papel,c,eyebrow,titulo,t){
+  const chips=c.chips?c.chips(t):null;
+  return `<section class="mcab mcab-${papel}" ${t?`style="--clube:${corDoClube(t)}"`:''}>
+    ${typeof cenaFoto==='function'?cenaFoto(c.img[0],c.img[1],t,{cls:'mcab-f',foco:'placa',ansioso:true}):''}
+    <i class="mcab-tex" aria-hidden="true"></i>
+    <div class="mcab-c"><span class="mcab-ic">${icone(c.ic)}</span>
+      <div class="mcab-t"><div class="eyebrow">${eyebrow}</div><h2 class="sec">${titulo}</h2><p>${c.sub}</p>
+      ${chips&&chips.length?`<div class="mcab-chips">${chips.filter(Boolean).map(([ic,txt])=>`<span>${icone(ic)}${esc(txt)}</span>`).join('')}</div>`:''}</div></div>
+  </section>`;
+}
+/* chamado pelo render() com o html pronto da tela */
+function aplicarCabecalhoModo(html,k){
+  try{
+    const papel=typeof papelDaCarreira==='function'?papelDaCarreira():null;
+    if(papel!=='treinador'&&papel!=='jogador')return html;
+    if(papel==='treinador'&&G.manager&&G.manager.demitido)return html;
+    const c=(CAB_MODO[papel]||{})[k];if(!c)return html;
+    const t=papel==='jogador'?(typeof clubeDoJogador==='function'?clubeDoJogador():null):meu();
+    const re=/^((?:\s*<div class="guia">[\s\S]*?<\/div>)?)\s*<div class="eyebrow">([^<]*)<\/div>\s*<h2 class="sec">([^<]*)<\/h2>/;
+    const m=html.match(re);
+    if(m)return m[1]+cabecalhoModo(papel,c,m[2],m[3],t)+html.slice(m[0].length);
+    if(!c.titulo)return html;
+    const g=html.match(/^\s*<div class="guia">[\s\S]*?<\/div>/);
+    const pre=g?g[0]:'';
+    return pre+cabecalhoModo(papel,c,esc(c.eyebrow),esc(c.titulo),t)+html.slice(pre.length);
+  }catch(e){return html;}
+}
+
+/* ============================================================
+   BOAS-VINDAS DO TREINADOR E DO JOGADOR
+   A mesma ideia da chegada do dono: uma cena curta, uma vez por
+   carreira, com o que é seu agora e o que se espera de você.
+   ============================================================ */
+function _bvFechar(){const o=$('#modal .ovl');if(o)o.classList.add('sai');setTimeout(()=>{$('#modal').innerHTML='';render();},260);}
+function talvezBoasVindasModo(){
+  if(typeof document==='undefined'||$('#modal').innerHTML)return;
+  const papel=typeof papelDaCarreira==='function'?papelDaCarreira():null;
+  if(papel==='treinador'){
+    const g=G.manager;if(!g||g.demitido||g.boasVindasTr)return;
+    const t=meu();if(!t)return;
+    g.boasVindasTr=G.ano;
+    /* save antigo, já no meio da carreira: marca e não interrompe */
+    if((G.semana||1)>3||(g.historico||[]).length)return;
+    const m=typeof membroManager==='function'&&membroManager();
+    const sit=typeof situacaoManager==='function'?situacaoManager():null;
+    const meta=(sit&&sit.metas||[]).find(x=>x.peso>0)||(g.metas||[])[0];
+    const ti=t.titulares.map(P).filter(Boolean),om=ti.length?Math.round(ti.reduce((s,p)=>s+over(p),0)/ti.length):0;
+    const chefe=typeof chefeDoClube==='function'?chefeDoClube():null;
+    const md=typeof modoTreinador==='function'?modoTreinador(g.modo):{nome:''};
+    $('#modal').innerHTML=`<div class="ovl bv-ovl"><div class="bv bv-tr" style="--clube:${corDoClube(t)};--clube-rgb:${rgbDe(corDoClube(t))}">
+      ${typeof cenaFoto==='function'?cenaFoto('estrutura','analise',t,{cls:'bv-f',foco:'placa',ansioso:true}):''}
+      <div class="bv-v"></div><i class="bv-grade" aria-hidden="true"></i>
+      <div class="bv-c">
+        <div class="bv-linha"></div>
+        <div class="bv-cracha"><span class="bv-clip"></span><span class="bv-cr-top">VCT ${G.ano} · STAFF ${escudo(t,22)}</span>
+          <span class="bv-cr-foto">${m?retratoStaff(m,110):g.foto?`<img src="${g.foto}" alt="">`:''}</span>
+          <b>${esc(g.nome)}</b><em>HEAD COACH · ${esc(t.tag)}</em></div>
+        <div class="bv-ey">${esc(md.nome)} · temporada ${G.ano}</div>
+        <h1 class="bv-t">O comando é seu</h1>
+        <div class="bv-s">${esc(g.nome)}, a partir de hoje o vestiário do <b>${esc(t.nome)}</b> responde a você.</div>
+        <div class="bv-n">
+          <div><span>Over dos titulares</span><b class="num">${om}</b></div>
+          <div><span>Quem cobra</span><b>${esc(chefe?chefe.curto:'a diretoria')}</b></div>
+          <div><span>Confiança</span><b class="num">${Math.round(g.confianca||50)}</b></div>
+        </div>
+        ${meta?`<div class="bv-meta">${icone('alvo')} <span>Meta da temporada: <b>${esc(meta.texto)}</b></span></div>`:''}
+        <p class="bv-p">Você escala, monta a tática, define o treino e o veto, e joga ou simula as séries. A confiança sobe com resultado e cai com derrota; se chegar ao fundo, a diretoria te demite.</p>
+        <button class="btn bv-b" id="bvEntrar">Entrar na sala tática</button>
+      </div></div></div>`;
+    $('#bvEntrar').onclick=_bvFechar;
+    return;
+  }
+  if(papel==='jogador'){
+    const p=meuJogador();if(!p||!G.voce||G.voce.boasVindas||G.voce.aposentado)return;
+    G.voce.boasVindas=G.ano;
+    if((G.semana||1)>3||(G.voce.desde&&G.voce.desde!==G.ano))return;
+    const t=clubeDoJogador();
+    const ch=t&&typeof chanceDeJogar==='function'?chanceDeJogar():null;
+    const ini=typeof inicioJogador==='function'?inicioJogador(G.voce.inicio):{nome:''};
+    $('#modal').innerHTML=`<div class="ovl bv-ovl"><div class="bv bv-jg" style="--clube:${t?corDoClube(t):'#18E5B4'};--clube-rgb:${t?rgbDe(corDoClube(t)):'24,229,180'}">
+      ${typeof cenaFoto==='function'?cenaFoto('cenas',t?'ativ-sessao':'ativ-ranked',t,{cls:'bv-f',foco:'placa',ansioso:true}):''}
+      <div class="bv-v"></div><i class="bv-scan" aria-hidden="true"></i>
+      <div class="bv-c">
+        <div class="bv-linha"></div>
+        <div class="bv-carta">${typeof cartaJogador==='function'?cartaJogador(p,{w:170}):''}</div>
+        <div class="bv-ey">${esc(p.role)} · ${p.idade} anos · ${esc(ini.nome)}</div>
+        <h1 class="bv-t">${t?'Bem-vindo ao '+esc(t.tag||t.nome):'A ladder te espera'}</h1>
+        <div class="bv-s">${t?`<b>${esc(p.nome)}</b>, o seu nome já está no elenco do <b>${esc(t.nome)}</b>.`:`<b>${esc(p.nome)}</b>, sem clube ainda: é na ranked que os olheiros procuram.`}</div>
+        <div class="bv-n">
+          <div><span>Over</span><b class="num">${over(p)}</b></div>
+          <div><span>Potencial</span><b class="num">${p.pot}</b></div>
+          ${t?`<div><span>Salário</span><b class="num">${money(p.salario||0)}/mês</b></div>`:''}
+          ${ch?`<div><span>Chance de jogar</span><b class="num">${ch.pct}%</b></div>`:''}
+        </div>
+        <p class="bv-p">Você treina, escolhe os agentes, cuida do corpo, da fama e do contrato. O técnico decide quem joga, e é a sua semana que convence ele. A carreira acaba quando você pendurar o mouse.</p>
+        <button class="btn bv-b" id="bvEntrar">Começar a carreira</button>
+      </div></div></div>`;
+    $('#bvEntrar').onclick=_bvFechar;
+  }
+}

@@ -5593,3 +5593,68 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
   .top-din,.top-janela{padding-left:10px}
   .top-avancar{min-width:110px;padding:6px 14px}
 }
+
+/* ============================================================
+   CABEÇALHO COM IMAGEM (treinador e jogador)
+   ============================================================ */
+.mcab{--mc:var(--red);position:relative;overflow:hidden;margin-bottom:16px;border:1px solid color-mix(in srgb,var(--mc) 28%,transparent);border-radius:4px;
+  background:#0B1117;min-height:150px;animation:escSobe .45s ease both}
+.mcab-jogador{--mc:#18E5B4}
+.mcab-f{position:absolute;inset:0;opacity:.42;animation:escZoom 14s ease-out both}
+.mcab::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(9,13,18,.97) 28%,rgba(9,13,18,.7) 60%,rgba(9,13,18,.35))}
+.mcab::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;z-index:2;background:linear-gradient(90deg,var(--mc),transparent 70%)}
+.mcab-tex{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5}
+.mcab-treinador .mcab-tex{background-image:linear-gradient(rgba(255,70,85,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,70,85,.07) 1px,transparent 1px);background-size:28px 28px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 35%,#000);mask-image:linear-gradient(90deg,transparent 35%,#000)}
+.mcab-jogador .mcab-tex{background:repeating-linear-gradient(0deg,rgba(24,229,180,.05) 0 1px,transparent 1px 4px);animation:mcabScan 6s linear infinite}
+@keyframes mcabScan{to{background-position:0 120px}}
+.mcab-c{position:relative;z-index:3;display:flex;align-items:center;gap:18px;padding:22px 26px}
+.mcab-ic{width:58px;height:58px;flex:none;display:grid;place-items:center;border-radius:14px;color:#fff;
+  background:linear-gradient(145deg,var(--mc),color-mix(in srgb,var(--mc) 55%,#000));box-shadow:0 10px 26px color-mix(in srgb,var(--mc) 35%,transparent)}
+.mcab-jogador .mcab-ic{color:#06231c;clip-path:polygon(18% 0,100% 0,100% 82%,82% 100%,0 100%,0 18%);border-radius:0}
+.mcab-ic .ic{width:28px;height:28px;margin:0}
+.mcab-t .eyebrow{color:var(--mc)}
+.mcab-t h2.sec{margin:2px 0 0;font-size:40px;line-height:1}
+.mcab-t p{margin:6px 0 0;color:var(--tx2);font-size:13.5px;max-width:720px}
+.mcab-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mcab-chips span{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--tx2)}
+.mcab-chips .ic{width:13px;height:13px;margin:0;color:var(--mc)}
+.mcab-jogador .mcab-chips span{border-radius:3px}
+
+/* ============================================================
+   BOAS-VINDAS DO TREINADOR E DO JOGADOR
+   (a base .bv é a do dono; aqui troca o ouro pela cor do modo)
+   ============================================================ */
+.bv-tr,.bv-jg{--bvc:#FF4655}
+.bv-jg{--bvc:#18E5B4}
+.bv-tr,.bv-jg{border-color:color-mix(in srgb,var(--bvc) 40%,transparent)}
+.bv-tr .bv-linha,.bv-jg .bv-linha{background:linear-gradient(90deg,transparent,var(--bvc),transparent)}
+.bv-tr .bv-t,.bv-jg .bv-t{background:none;-webkit-text-fill-color:currentColor;color:#fff;text-shadow:0 0 30px color-mix(in srgb,var(--bvc) 45%,transparent);animation:escSobe .6s .45s ease both}
+.bv-tr .bv-ey,.bv-jg .bv-ey{color:var(--bvc)}
+.bv-tr .bv-n,.bv-jg .bv-n{border-color:color-mix(in srgb,var(--bvc) 30%,transparent)}
+.bv-tr .bv-n>div,.bv-jg .bv-n>div{border-left-color:color-mix(in srgb,var(--bvc) 20%,transparent)}
+.bv-tr .bv-n b,.bv-jg .bv-n b{color:#fff}
+.bv-tr .bv-b{background:linear-gradient(180deg,#ff6a76,#d7303f)!important;color:#fff!important}
+.bv-jg .bv-b{background:linear-gradient(180deg,#4ff3cb,#12b98f)!important;color:#05231b!important}
+.bv-grade{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,70,85,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,70,85,.08) 1px,transparent 1px);background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(60% 70% at 50% 40%,transparent 40%,#000);mask-image:radial-gradient(60% 70% at 50% 40%,transparent 40%,#000)}
+.bv-scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(24,229,180,.06) 0 1px,transparent 1px 4px);animation:mcabScan 5s linear infinite}
+/* o crachá */
+.bv-cracha{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;width:190px;padding:26px 16px 16px;border-radius:12px;
+  background:linear-gradient(180deg,#1a222c,#0e141a);border:1px solid color-mix(in srgb,var(--bvc) 55%,transparent);box-shadow:0 24px 50px rgba(0,0,0,.65);
+  transform-origin:50% 0;animation:bvCracha 1.1s .15s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes bvCracha{from{opacity:0;transform:translateY(-60px) rotate(-8deg)}60%{opacity:1;transform:translateY(4px) rotate(2deg)}to{transform:none}}
+.bv-clip{position:absolute;top:8px;left:50%;width:46px;height:7px;margin-left:-23px;border-radius:4px;background:#05080b}
+.bv-cr-top{display:flex;align-items:center;justify-content:space-between;width:100%;font-size:9px;letter-spacing:.2em;color:var(--bvc);font-weight:700}
+.bv-cr-top img{width:20px;height:20px}
+.bv-cr-foto{width:110px;height:120px;border-radius:10px;overflow:hidden;border:2px solid color-mix(in srgb,var(--bvc) 60%,transparent);display:grid;place-items:center;background:#0d1218}
+.bv-cr-foto img,.bv-cr-foto .retrato{width:100%!important;height:100%!important;object-fit:cover;border-radius:0!important}
+.bv-cracha b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em;line-height:1;margin-top:4px}
+.bv-cracha em{font-style:normal;font-size:9.5px;letter-spacing:.24em;color:var(--bvc);font-weight:700}
+.bv-meta{display:flex;align-items:center;gap:8px;margin-top:4px;padding:8px 14px;border-radius:8px;font-size:13px;color:var(--tx2);
+  background:color-mix(in srgb,var(--bvc) 10%,transparent);border:1px solid color-mix(in srgb,var(--bvc) 30%,transparent);animation:escSobe .6s .8s ease both}
+.bv-meta .ic{color:var(--bvc);margin:0}
+.bv-meta b{color:#fff}
+/* a carta do jogador entra girando */
+.bv-carta{filter:drop-shadow(0 20px 40px color-mix(in srgb,var(--bvc) 35%,transparent));animation:bvCarta 1.1s .15s cubic-bezier(.2,.9,.3,1.1) both}
+@keyframes bvCarta{from{opacity:0;transform:perspective(700px) rotateY(-100deg) scale(.8)}to{opacity:1;transform:none}}

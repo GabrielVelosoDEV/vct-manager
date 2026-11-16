@@ -182,7 +182,8 @@ function render(){
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
   const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:')&&!String(tela).startsWith('selecao:');
-  const html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
+  let html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
+  if(typeof aplicarCabecalhoModo==='function')html=aplicarCabecalhoModo(html,tela);
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
   v.querySelectorAll('.jrow').forEach(r=>r.onclick=()=>modalJogador(r.dataset.p));
   ligarEventos();
@@ -193,6 +194,7 @@ function render(){
   if(tela==='estrutura'&&typeof ligarEstrutura==='function')ligarEstrutura(v);
   if(tela==='tecnico'&&typeof ligarTecnico==='function')ligarTecnico(v);
   if(typeof talvezBoasVindasDono==='function')talvezBoasVindasDono();
+  if(typeof talvezBoasVindasModo==='function')talvezBoasVindasModo();
   if(tela==='empresa'&&typeof ligarEmpresa==='function')ligarEmpresa(v);
   if(tela==='donos'&&typeof ligarDonos==='function')ligarDonos(v);
   v.querySelectorAll('[data-ir-tela]').forEach(el=>el.onclick=()=>irPara(el.dataset.irTela));
