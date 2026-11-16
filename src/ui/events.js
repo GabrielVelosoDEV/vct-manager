@@ -205,6 +205,14 @@ function ligarEventos(){
   bind('#fRole','change',e=>{mFiltro.role=e.target.value;render();});
   bind('#fReg','change',e=>{mFiltro.reg=e.target.value;render();});
   bind('#fOrd','change',e=>{mFiltro.ordem=e.target.value;render();});
+  on('[data-mfso]',el=>{mFiltro.so=el.dataset.mfso;render();});
+  on('[data-mfrole]',el=>{mFiltro.role=el.dataset.mfrole;render();});
+  on('[data-mford]',el=>{mFiltro.ordem=el.dataset.mford;render();});
+  on('[data-mvista]',el=>{Prefs.set('mercVista',el.dataset.mvista);render();});
+  on('[data-mcmp]',el=>{const id=el.dataset.mcmp;if(mComparar.includes(id))mComparar=mComparar.filter(x=>x!==id);
+    else{if(mComparar.length>=3){flash('Compare até três de cada vez');return;}mComparar.push(id);}render();});
+  bind('#mCmpAbrir','click',()=>modalComparar());
+  bind('#mCmpLimpar','click',()=>{mComparar=[];render();});
 
   /* ---------- editor ---------- */
   on('[data-edaba]',el=>{edAba=el.dataset.edaba;render();});

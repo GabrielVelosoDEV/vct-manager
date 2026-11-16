@@ -5375,6 +5375,91 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .el-res-l{grid-template-columns:repeat(3,minmax(0,1fr))}
 .ec-id .tag{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;padding:2px 6px}
 
+/* ============================================================
+   MERCADO — scout em cartões, filtros em chips, comparador
+   ============================================================ */
+.mf-aviso{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:12px;border-radius:10px;font-size:13px;color:var(--tx2);
+  background:linear-gradient(90deg,rgba(255,70,85,.12),transparent 70%);border:1px solid rgba(255,70,85,.25)}
+.mf-aviso .ic{color:var(--red);width:16px;height:16px;margin:0}
+.mf{display:flex;flex-direction:column;gap:10px}
+.mf-l1,.mf-l2{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mf-l1 .ec-vista{margin-left:auto}
+.mf-busca{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;padding:0 12px;min-width:220px}
+.mf-busca .ic{width:14px;height:14px;margin:0;color:var(--dim)}
+.mf-busca input{all:unset;flex:1;padding:8px 0;font-size:13px;color:var(--tx)}
+.mf select{border-radius:999px}
+.fcs{display:inline-flex;flex-wrap:wrap;gap:5px;align-items:center}
+.fc{all:unset;cursor:pointer;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--tx2);transition:.15s;
+  --fc:var(--red)}
+.fc:hover{border-color:color-mix(in srgb,var(--fc) 60%,var(--line));color:var(--tx)}
+.fc.on{background:color-mix(in srgb,var(--fc) 22%,transparent);border-color:var(--fc);color:#fff;font-weight:600}
+.mf-ord{margin-left:auto}
+.mf-ord .dim{font-size:11px;margin-right:2px}
+.mf-n{font-size:12px}
+.sc-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:70px}
+.sc{--rc:var(--line);position:relative;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;overflow:hidden;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 10%,#151d26),#0f151c 65%);transition:transform .15s,border-color .15s,box-shadow .15s}
+.sc::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--rc),transparent)}
+.sc:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--rc) 45%,transparent);box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.sc.cmp{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+.sc.ec-Duelista{--rc:#ff5a6a}.sc.ec-Iniciador{--rc:#6aa7ff}.sc.ec-Controlador{--rc:#a78bfa}.sc.ec-Sentinela{--rc:#34d399}.sc.ec-Flex{--rc:#f5b942}
+.sc-top{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;cursor:pointer}
+.sc-ret .retrato,.sc-ret img{border-radius:12px!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--rc) 60%,transparent)}
+.sc-id{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sc-id>b{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-id .tag{align-self:flex-start;font-size:9px;padding:2px 6px}
+.sc-clube{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--tx2)}
+.sc-clube .chip{margin-left:0}
+.sc-clube .chip.g{margin-left:auto}
+.sc-int{display:grid;grid-template-columns:auto 1fr 24px;gap:8px;align-items:center;margin-top:10px;font-size:11px;color:var(--dim)}
+.sc-int i{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;display:block}
+.sc-int u{display:block;height:100%;background:var(--teal);border-radius:3px}
+.sc-int u.f-baixo,.sc-int u.f-nenhum,.sc-int u.f-frio{background:var(--red)}
+.sc-int u.f-morno,.sc-int u.f-medio{background:var(--amber)}
+.sc-int b{text-align:right;color:var(--tx2)}
+.sc-din{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sc-din>div{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.sc-din span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.sc-din b{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;letter-spacing:.02em}
+.sc-din b.dn{color:#ff8a8a}
+.sc-tag{font-style:normal;font-size:10px;color:var(--dim)}
+.sc-tag.r{color:#ff8a8a}
+.sc .ec-bt .btn .ic{width:13px;height:13px;margin:0 4px 0 0}
+.sc-cmpb.on{border-color:var(--teal);color:var(--teal)}
+/* barra do comparador */
+.cmpbar{position:sticky;bottom:14px;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px 14px;border-radius:14px;
+  background:rgba(14,20,27,.92);backdrop-filter:blur(8px);border:1px solid color-mix(in srgb,var(--teal) 50%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.5);animation:crdIn .3s}
+.cmpbar>.ic{color:var(--teal);width:18px;height:18px;margin:0}
+.cmpbar>span:first-of-type{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.cmpbar-j{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border-radius:999px;padding:3px 6px 3px 3px}
+.cmpbar-j .retrato,.cmpbar-j img{border-radius:50%!important}
+.cmpbar-x{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;text-align:center;line-height:18px;color:var(--dim)}
+.cmpbar-x:hover{background:rgba(255,90,90,.2);color:#fff}
+.cmpbar-vs{font-style:normal;font-family:'Bebas Neue',sans-serif;color:var(--teal);font-size:18px}
+.cmpbar .btn:first-of-type{margin-left:auto}
+/* comparador */
+.cp{--n:2}
+.cp-cab,.cp-l,.cp-a,.cp-bts{display:grid;grid-template-columns:140px repeat(var(--n),1fr);gap:12px;align-items:center}
+.cp-j{--rc:var(--line);display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px;border-radius:12px;text-align:center;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 18%,#141c25),#0f151c);border-top:3px solid var(--rc)}
+.cp-j.ec-Duelista{--rc:#ff5a6a}.cp-j.ec-Iniciador{--rc:#6aa7ff}.cp-j.ec-Controlador{--rc:#a78bfa}.cp-j.ec-Sentinela{--rc:#34d399}.cp-j.ec-Flex{--rc:#f5b942}
+.cp-j .retrato,.cp-j img.retrato{border-radius:14px!important}
+.cp-j>b{font-size:18px}
+.cp-l{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.cp-l b{text-align:center;font-size:15px;color:var(--tx2)}
+.cp-l b.cp-w{color:var(--teal);font-weight:800}
+.cp-l b.cp-w::after{content:' ▲';font-size:10px}
+.cp-r{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.cp-a{padding:5px 0}
+.cp-ab{display:grid;grid-template-columns:1fr 26px;gap:8px;align-items:center}
+.cp-ab i{display:block;height:7px;border-radius:4px;opacity:.55}
+.cp-ab i.w{opacity:1;box-shadow:0 0 10px currentColor}
+.cp-ab b{font-size:12px;text-align:right}
+.cp-bts{margin-top:14px}
+.cp-bts .btn{justify-content:center}
+.cp-j.cp-s0{--rc:#18E0B5}.cp-j.cp-s1{--rc:#ff7a88}.cp-j.cp-s2{--rc:#f5c15a}
+.cp-ab i.w{box-shadow:0 0 10px rgba(255,255,255,.25)}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -40586,7 +40671,13 @@ function interesseMini(p,t){
   const it=interessePor(p,t);
   return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;
 }
-function vMercadoJogadores(t){
+/* ---------- mercado: scout ----------
+   Filtros viram chips (o que se vê de uma vez, sem abrir select), os
+   jogadores viram cartões de olheiro e dá para marcar dois ou três e
+   abrir o comparador lado a lado. A Lista continua para quem prefere. */
+let mComparar=[];
+const COR_FUNCAO={Duelista:'#ff5a6a',Iniciador:'#6aa7ff',Controlador:'#a78bfa',Sentinela:'#34d399',Flex:'#f5b942'};
+function _mercLista(t){
   let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
   if(mFiltro.so==='promessas')lista=lista.filter(p=>p.idade<=21&&p.pot-over(p)>=8);
@@ -40594,17 +40685,90 @@ function vMercadoJogadores(t){
   if(mFiltro.reg)lista=lista.filter(p=>p.timeId?T(p.timeId).regiao===mFiltro.reg:p.regiaoOrigem===mFiltro.reg);
   if(mFiltro.busca)lista=lista.filter(p=>p.nome.toLowerCase().includes(mFiltro.busca.toLowerCase()));
   lista.sort((a,b)=>mFiltro.ordem==='over'?over(b)-over(a):mFiltro.ordem==='pot'?(b.pot-b.idade*1.5)-(a.pot-a.idade*1.5):a.valor-b.valor);
-  lista=lista.slice(0,60);
-  return `${G.janela?'':inscricaoEmergencia(t)?'<div class="card" style="border-left:4px solid var(--amber)">A janela está fechada, mas você tem menos de '+ELENCO_MIN+': a <b>inscrição de emergência</b> libera agentes livres até completar o elenco. Filtre por “Agentes livres”.</div>'
-    :'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode observar e montar alvos, mas contratações só na pré-temporada ou na janela do meio de ano.</div>'}
-  <div class="card flat"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <input type="text" id="fBusca" placeholder="Buscar jogador" value="${esc(mFiltro.busca)}">
-    <select id="fSo">${[['todos','Todos'],['livres','Agentes livres'],['promessas','Promessas']].map(([k,n])=>`<option value="${k}" ${mFiltro.so===k?'selected':''}>${n}</option>`).join('')}</select>
-    <select id="fRole"><option value="">Todas as funções</option>${ROLES.map(r=>`<option ${mFiltro.role===r?'selected':''}>${r}</option>`).join('')}</select>
-    <select id="fReg"><option value="">Todas as regiões</option>${REGIONS.map(r=>`<option value="${r.id}" ${mFiltro.reg===r.id?'selected':''}>${r.nome}</option>`).join('')}</select>
-    <select id="fOrd">${[['over','Ordenar por over'],['pot','Ordenar por potencial'],['valor','Ordenar por preço']].map(([k,n])=>`<option value="${k}" ${mFiltro.ordem===k?'selected':''}>${n}</option>`).join('')}</select>
-    <span class="dim">${lista.length} resultados</span></div></div>
-  <div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
+  return lista.slice(0,60);
+}
+function _mercPreco(p){
+  if(p.timeId&&recemChegado(p))return `<span class="chip" title="Assinou há ${semanasNoClube(p)} semana(s): não sai de novo nesta janela">recém-chegado</span>`;
+  const multa=p.timeId&&posturaDoClube(p).id==='intransferivel';
+  return `${p.timeId?money(precoPedido(p)):'—'}${multa?` <span class="chip r" title="${esc(posturaDoClube(p).motivo)}">multa</span>`:''}`;
+}
+function cardScout(p,t){
+  const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id),cmp=mComparar.includes(p.id);
+  const rec=p.timeId&&recemChegado(p),multa=p.timeId&&!rec&&posturaDoClube(p).id==='intransferivel';
+  const it=interessePor(p,t);
+  return `<div class="sc ec-${p.role} ${cmp?'cmp':''}">
+    <div class="sc-top jrow" data-p="${p.id}">
+      <div class="sc-ret">${retrato(p,64)}</div>
+      <div class="sc-id"><b>${esc(p.nome)}</b><span class="ec-sub">${bandeira(p.pais)} ${p.idade} anos</span>
+        <span class="tag ${p.role}">${esc(p.role)}</span></div>
+      <div class="ec-ov">${anelOver(p,50)}<span class="ec-pot">pot <b class="num">${p.pot}</b></span></div>
+    </div>
+    <div class="sc-clube">${c?`${escudo(c,22)}<span>${esc(c.nome)}</span>`:`<span class="chip t">Agente livre</span>`}
+      ${p.idade<=21&&p.pot-over(p)>=8?'<span class="chip g">promessa</span>':''}</div>
+    <div class="sc-int" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span>Interesse em vir</span><i><u class="f-${it.faixa.id}" style="width:${it.nota}%"></u></i><b class="num">${it.nota}</b></div>
+    <div class="sc-din">
+      <div><span>Pedido</span><b class="num ${multa?'dn':''}">${rec?'—':p.timeId?money(precoPedido(p)):'livre'}</b>${multa?'<em class="sc-tag r">multa</em>':rec?'<em class="sc-tag">recém-chegado</em>':''}</div>
+      <div><span>Salário</span><b class="num">${money(salarioPedido(p,t))}</b><em class="sc-tag">por mês</em></div>
+    </div>
+    <div class="ec-bt">
+      <button class="btn ${mesa?'':'ghost'} sm" data-prop="${p.id}">${icone(mesa?'balao':'aperto')} ${mesa?'Voltar à mesa':'Negociar'}</button>
+      <button class="btn ghost sm sc-cmpb ${cmp?'on':''}" data-mcmp="${p.id}" title="Comparar lado a lado">${icone(cmp?'check':'mais')} Comparar</button>
+    </div>
+  </div>`;
+}
+function filtrosMercado(n){
+  const chip=(attr,v,atual,txt,cor)=>`<button class="fc ${atual===v?'on':''}" data-${attr}="${v}" ${cor?`style="--fc:${cor}"`:''}>${txt}</button>`;
+  const vista=Prefs.get('mercVista')==='lista'?'lista':'cartoes';
+  return `<div class="card flat mf">
+    <div class="mf-l1">
+      <label class="mf-busca">${icone('olho')}<input type="text" id="fBusca" placeholder="Buscar jogador" value="${esc(mFiltro.busca)}"></label>
+      <div class="fcs">${chip('mfso','todos',mFiltro.so,'Todos')}${chip('mfso','livres',mFiltro.so,'Agentes livres')}${chip('mfso','promessas',mFiltro.so,'Promessas')}</div>
+      <select id="fReg"><option value="">Todas as regiões</option>${REGIONS.map(r=>`<option value="${r.id}" ${mFiltro.reg===r.id?'selected':''}>${r.nome}</option>`).join('')}</select>
+      <div class="ec-vista"><button class="${vista==='cartoes'?'on':''}" data-mvista="cartoes">${icone('elenco')} Cartões</button><button class="${vista==='lista'?'on':''}" data-mvista="lista">${icone('pasta')} Lista</button></div>
+    </div>
+    <div class="mf-l2">
+      <div class="fcs">${chip('mfrole','',mFiltro.role,'Todas as funções')}${ROLES.map(r=>chip('mfrole',r,mFiltro.role,r,COR_FUNCAO[r])).join('')}</div>
+      <div class="fcs mf-ord"><span class="dim">ordenar</span>${chip('mford','over',mFiltro.ordem,'Over')}${chip('mford','pot',mFiltro.ordem,'Potencial')}${chip('mford','valor',mFiltro.ordem,'Preço')}</div>
+      <span class="dim mf-n"><b class="num">${n}</b> resultados</span>
+    </div></div>`;
+}
+function barraComparar(){
+  if(!mComparar.length)return '';
+  const js=mComparar.map(P).filter(Boolean);
+  return `<div class="cmpbar">${icone('troca')}<span>Comparando</span>
+    ${js.map(p=>`<span class="cmpbar-j">${retrato(p,26)}<b>${esc(p.nome)}</b><button class="cmpbar-x" data-mcmp="${p.id}" title="Tirar">×</button></span>`).join('<i class="cmpbar-vs">vs</i>')}
+    ${js.length<2?'<span class="dim">marque mais um jogador</span>':''}
+    <button class="btn sm" id="mCmpAbrir" ${js.length<2?'disabled':''}>Comparar lado a lado</button><button class="btn ghost sm" id="mCmpLimpar">Limpar</button></div>`;
+}
+function modalComparar(){
+  const t=meu(),js=mComparar.map(P).filter(Boolean);
+  if(js.length<2)return;
+  const melhor=(f)=>{const vs=js.map(f);const mx=Math.max(...vs);return vs.map(v=>v===mx&&vs.filter(x=>x===mx).length<js.length);};
+  const linha=(rot,f,fmt,menorMelhor)=>{const vs=js.map(f),alvo=menorMelhor?Math.min(...vs):Math.max(...vs),todos=vs.every(v=>v===alvo);
+    return `<div class="cp-l"><span class="cp-r">${rot}</span>${vs.map(v=>`<b class="num ${!todos&&v===alvo?'cp-w':''}">${fmt?fmt(v):v}</b>`).join('')}</div>`;};
+  const attr=ATTRS.map(([k,n])=>{const vs=js.map(p=>p.at[k]),mx=Math.max(...vs);
+    return `<div class="cp-a"><span class="cp-r">${n}</span>${js.map((p,i)=>`<div class="cp-ab"><i style="width:${Math.round((p.at[k]-25)/74*100)}%;background:${['#18E0B5','#ff7a88','#f5c15a'][i]}" class="${vs[i]===mx&&vs.filter(x=>x===mx).length<js.length?'w':''}"></i><b class="num">${p.at[k]}</b></div>`).join('')}</div>`;}).join('');
+  const preco=p=>p.timeId&&!recemChegado(p)?precoPedido(p):0;
+  abrir(`<div class="cp" style="--n:${js.length}">
+    <div class="eyebrow">Mercado · comparador</div><h2 class="sec">Lado a lado</h2>
+    <div class="cp-cab"><span></span>${js.map(p=>{const c=p.timeId?T(p.timeId):null;return `<div class="cp-j cp-s${js.indexOf(p)}">${retrato(p,72)}<b>${esc(p.nome)}</b>
+      <span class="ec-sub">${bandeira(p.pais)} ${p.idade} anos · ${c?esc(c.tag||c.nome):'livre'}</span><span class="tag ${p.role}">${esc(p.role)}</span>${anelOver(p,58)}</div>`;}).join('')}</div>
+    ${linha('Over',p=>over(p))}${linha('Potencial',p=>p.pot)}${linha('Idade',p=>p.idade,null,true)}
+    ${linha('Interesse em vir',p=>interessePor(p,t).nota)}
+    ${linha('Pedido',preco,v=>v?money(v):'—',true)}${linha('Salário',p=>salarioPedido(p,t),money,true)}
+    <div class="eyebrow" style="margin-top:14px">Atributos</div>${attr}
+    <div class="cp-bts"><span></span>${js.map(p=>`<button class="btn sm" data-prop="${p.id}">${icone('aperto')} Negociar com ${esc(p.nome)}</button>`).join('')}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true);
+}
+function vMercadoJogadores(t){
+  const lista=_mercLista(t);
+  const vista=Prefs.get('mercVista')==='lista'?'lista':'cartoes';
+  mComparar=mComparar.filter(id=>G.jogadores[id]);
+  const aviso=G.janela?'':inscricaoEmergencia(t)?'<div class="card" style="border-left:4px solid var(--amber)">A janela está fechada, mas você tem menos de '+ELENCO_MIN+': a <b>inscrição de emergência</b> libera agentes livres até completar o elenco. Filtre por “Agentes livres”.</div>'
+    :`<div class="mf-aviso">${icone('cadeado')} <span>A janela está fechada. Dá para observar e montar alvos; contratar, só na pré-temporada ou na janela do meio do ano.</span></div>`;
+  const corpo=vista==='lista'
+    ?`<div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
     <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>{const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id);
       return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
@@ -40612,11 +40776,13 @@ function vMercadoJogadores(t){
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
       <td class="c">${interesseMini(p,t)}</td>
-      <td class="r num">${p.timeId&&recemChegado(p)?`<span class="chip" title="Assinou há ${semanasNoClube(p)} semana(s): não sai de novo nesta janela">recém-chegado</span>`
-        :`${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?` <span class="chip r" title="${esc(posturaDoClube(p).motivo)}">multa</span>`:''}`}</td>
+      <td class="r num">${_mercPreco(p)}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
       <td class="r"><button class="btn-ic ${mesa?'on':''}" data-prop="${p.id}" title="${mesa?'Voltar à mesa':'Negociar'}">${ico(mesa?'balao':'aperto')}<span>${mesa?'Mesa':'Negociar'}</span></button></td></tr>`;}).join('')}
-    </tbody></table></div>`;
+    </tbody></table></div>`
+    :lista.length?`<div class="sc-grade">${lista.map(p=>cardScout(p,t)).join('')}</div>`
+    :`<div class="ec-vazio">${icone('olho')} Ninguém com esse filtro. Afrouxe a função, a região ou a busca.</div>`;
+  return `${aviso}${filtrosMercado(lista.length)}${corpo}${barraComparar()}`;
 }
 /* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
    leitura borrada que fica nítida a cada semana, o teste e a decisão. */
@@ -53709,6 +53875,14 @@ function ligarEventos(){
   bind('#fRole','change',e=>{mFiltro.role=e.target.value;render();});
   bind('#fReg','change',e=>{mFiltro.reg=e.target.value;render();});
   bind('#fOrd','change',e=>{mFiltro.ordem=e.target.value;render();});
+  on('[data-mfso]',el=>{mFiltro.so=el.dataset.mfso;render();});
+  on('[data-mfrole]',el=>{mFiltro.role=el.dataset.mfrole;render();});
+  on('[data-mford]',el=>{mFiltro.ordem=el.dataset.mford;render();});
+  on('[data-mvista]',el=>{Prefs.set('mercVista',el.dataset.mvista);render();});
+  on('[data-mcmp]',el=>{const id=el.dataset.mcmp;if(mComparar.includes(id))mComparar=mComparar.filter(x=>x!==id);
+    else{if(mComparar.length>=3){flash('Compare até três de cada vez');return;}mComparar.push(id);}render();});
+  bind('#mCmpAbrir','click',()=>modalComparar());
+  bind('#mCmpLimpar','click',()=>{mComparar=[];render();});
 
   /* ---------- editor ---------- */
   on('[data-edaba]',el=>{edAba=el.dataset.edaba;render();});

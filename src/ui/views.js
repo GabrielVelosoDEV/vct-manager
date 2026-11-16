@@ -998,7 +998,13 @@ function interesseMini(p,t){
   const it=interessePor(p,t);
   return `<span class="int-mini f-${it.faixa.id}" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span class="int-tr"><i style="width:${it.nota}%"></i></span><b class="num">${it.nota}</b></span>`;
 }
-function vMercadoJogadores(t){
+/* ---------- mercado: scout ----------
+   Filtros viram chips (o que se vê de uma vez, sem abrir select), os
+   jogadores viram cartões de olheiro e dá para marcar dois ou três e
+   abrir o comparador lado a lado. A Lista continua para quem prefere. */
+let mComparar=[];
+const COR_FUNCAO={Duelista:'#ff5a6a',Iniciador:'#6aa7ff',Controlador:'#a78bfa',Sentinela:'#34d399',Flex:'#f5b942'};
+function _mercLista(t){
   let lista=Object.values(G.jogadores).filter(p=>p.timeId!==t.id&&!p.base);
   if(mFiltro.so==='livres')lista=lista.filter(p=>!p.timeId);
   if(mFiltro.so==='promessas')lista=lista.filter(p=>p.idade<=21&&p.pot-over(p)>=8);
@@ -1006,17 +1012,90 @@ function vMercadoJogadores(t){
   if(mFiltro.reg)lista=lista.filter(p=>p.timeId?T(p.timeId).regiao===mFiltro.reg:p.regiaoOrigem===mFiltro.reg);
   if(mFiltro.busca)lista=lista.filter(p=>p.nome.toLowerCase().includes(mFiltro.busca.toLowerCase()));
   lista.sort((a,b)=>mFiltro.ordem==='over'?over(b)-over(a):mFiltro.ordem==='pot'?(b.pot-b.idade*1.5)-(a.pot-a.idade*1.5):a.valor-b.valor);
-  lista=lista.slice(0,60);
-  return `${G.janela?'':inscricaoEmergencia(t)?'<div class="card" style="border-left:4px solid var(--amber)">A janela está fechada, mas você tem menos de '+ELENCO_MIN+': a <b>inscrição de emergência</b> libera agentes livres até completar o elenco. Filtre por “Agentes livres”.</div>'
-    :'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode observar e montar alvos, mas contratações só na pré-temporada ou na janela do meio de ano.</div>'}
-  <div class="card flat"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <input type="text" id="fBusca" placeholder="Buscar jogador" value="${esc(mFiltro.busca)}">
-    <select id="fSo">${[['todos','Todos'],['livres','Agentes livres'],['promessas','Promessas']].map(([k,n])=>`<option value="${k}" ${mFiltro.so===k?'selected':''}>${n}</option>`).join('')}</select>
-    <select id="fRole"><option value="">Todas as funções</option>${ROLES.map(r=>`<option ${mFiltro.role===r?'selected':''}>${r}</option>`).join('')}</select>
-    <select id="fReg"><option value="">Todas as regiões</option>${REGIONS.map(r=>`<option value="${r.id}" ${mFiltro.reg===r.id?'selected':''}>${r.nome}</option>`).join('')}</select>
-    <select id="fOrd">${[['over','Ordenar por over'],['pot','Ordenar por potencial'],['valor','Ordenar por preço']].map(([k,n])=>`<option value="${k}" ${mFiltro.ordem===k?'selected':''}>${n}</option>`).join('')}</select>
-    <span class="dim">${lista.length} resultados</span></div></div>
-  <div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
+  return lista.slice(0,60);
+}
+function _mercPreco(p){
+  if(p.timeId&&recemChegado(p))return `<span class="chip" title="Assinou há ${semanasNoClube(p)} semana(s): não sai de novo nesta janela">recém-chegado</span>`;
+  const multa=p.timeId&&posturaDoClube(p).id==='intransferivel';
+  return `${p.timeId?money(precoPedido(p)):'—'}${multa?` <span class="chip r" title="${esc(posturaDoClube(p).motivo)}">multa</span>`:''}`;
+}
+function cardScout(p,t){
+  const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id),cmp=mComparar.includes(p.id);
+  const rec=p.timeId&&recemChegado(p),multa=p.timeId&&!rec&&posturaDoClube(p).id==='intransferivel';
+  const it=interessePor(p,t);
+  return `<div class="sc ec-${p.role} ${cmp?'cmp':''}">
+    <div class="sc-top jrow" data-p="${p.id}">
+      <div class="sc-ret">${retrato(p,64)}</div>
+      <div class="sc-id"><b>${esc(p.nome)}</b><span class="ec-sub">${bandeira(p.pais)} ${p.idade} anos</span>
+        <span class="tag ${p.role}">${esc(p.role)}</span></div>
+      <div class="ec-ov">${anelOver(p,50)}<span class="ec-pot">pot <b class="num">${p.pot}</b></span></div>
+    </div>
+    <div class="sc-clube">${c?`${escudo(c,22)}<span>${esc(c.nome)}</span>`:`<span class="chip t">Agente livre</span>`}
+      ${p.idade<=21&&p.pot-over(p)>=8?'<span class="chip g">promessa</span>':''}</div>
+    <div class="sc-int" title="${esc(it.faixa.nome)}: ${esc(it.faixa.txt)}"><span>Interesse em vir</span><i><u class="f-${it.faixa.id}" style="width:${it.nota}%"></u></i><b class="num">${it.nota}</b></div>
+    <div class="sc-din">
+      <div><span>Pedido</span><b class="num ${multa?'dn':''}">${rec?'—':p.timeId?money(precoPedido(p)):'livre'}</b>${multa?'<em class="sc-tag r">multa</em>':rec?'<em class="sc-tag">recém-chegado</em>':''}</div>
+      <div><span>Salário</span><b class="num">${money(salarioPedido(p,t))}</b><em class="sc-tag">por mês</em></div>
+    </div>
+    <div class="ec-bt">
+      <button class="btn ${mesa?'':'ghost'} sm" data-prop="${p.id}">${icone(mesa?'balao':'aperto')} ${mesa?'Voltar à mesa':'Negociar'}</button>
+      <button class="btn ghost sm sc-cmpb ${cmp?'on':''}" data-mcmp="${p.id}" title="Comparar lado a lado">${icone(cmp?'check':'mais')} Comparar</button>
+    </div>
+  </div>`;
+}
+function filtrosMercado(n){
+  const chip=(attr,v,atual,txt,cor)=>`<button class="fc ${atual===v?'on':''}" data-${attr}="${v}" ${cor?`style="--fc:${cor}"`:''}>${txt}</button>`;
+  const vista=Prefs.get('mercVista')==='lista'?'lista':'cartoes';
+  return `<div class="card flat mf">
+    <div class="mf-l1">
+      <label class="mf-busca">${icone('olho')}<input type="text" id="fBusca" placeholder="Buscar jogador" value="${esc(mFiltro.busca)}"></label>
+      <div class="fcs">${chip('mfso','todos',mFiltro.so,'Todos')}${chip('mfso','livres',mFiltro.so,'Agentes livres')}${chip('mfso','promessas',mFiltro.so,'Promessas')}</div>
+      <select id="fReg"><option value="">Todas as regiões</option>${REGIONS.map(r=>`<option value="${r.id}" ${mFiltro.reg===r.id?'selected':''}>${r.nome}</option>`).join('')}</select>
+      <div class="ec-vista"><button class="${vista==='cartoes'?'on':''}" data-mvista="cartoes">${icone('elenco')} Cartões</button><button class="${vista==='lista'?'on':''}" data-mvista="lista">${icone('pasta')} Lista</button></div>
+    </div>
+    <div class="mf-l2">
+      <div class="fcs">${chip('mfrole','',mFiltro.role,'Todas as funções')}${ROLES.map(r=>chip('mfrole',r,mFiltro.role,r,COR_FUNCAO[r])).join('')}</div>
+      <div class="fcs mf-ord"><span class="dim">ordenar</span>${chip('mford','over',mFiltro.ordem,'Over')}${chip('mford','pot',mFiltro.ordem,'Potencial')}${chip('mford','valor',mFiltro.ordem,'Preço')}</div>
+      <span class="dim mf-n"><b class="num">${n}</b> resultados</span>
+    </div></div>`;
+}
+function barraComparar(){
+  if(!mComparar.length)return '';
+  const js=mComparar.map(P).filter(Boolean);
+  return `<div class="cmpbar">${icone('troca')}<span>Comparando</span>
+    ${js.map(p=>`<span class="cmpbar-j">${retrato(p,26)}<b>${esc(p.nome)}</b><button class="cmpbar-x" data-mcmp="${p.id}" title="Tirar">×</button></span>`).join('<i class="cmpbar-vs">vs</i>')}
+    ${js.length<2?'<span class="dim">marque mais um jogador</span>':''}
+    <button class="btn sm" id="mCmpAbrir" ${js.length<2?'disabled':''}>Comparar lado a lado</button><button class="btn ghost sm" id="mCmpLimpar">Limpar</button></div>`;
+}
+function modalComparar(){
+  const t=meu(),js=mComparar.map(P).filter(Boolean);
+  if(js.length<2)return;
+  const melhor=(f)=>{const vs=js.map(f);const mx=Math.max(...vs);return vs.map(v=>v===mx&&vs.filter(x=>x===mx).length<js.length);};
+  const linha=(rot,f,fmt,menorMelhor)=>{const vs=js.map(f),alvo=menorMelhor?Math.min(...vs):Math.max(...vs),todos=vs.every(v=>v===alvo);
+    return `<div class="cp-l"><span class="cp-r">${rot}</span>${vs.map(v=>`<b class="num ${!todos&&v===alvo?'cp-w':''}">${fmt?fmt(v):v}</b>`).join('')}</div>`;};
+  const attr=ATTRS.map(([k,n])=>{const vs=js.map(p=>p.at[k]),mx=Math.max(...vs);
+    return `<div class="cp-a"><span class="cp-r">${n}</span>${js.map((p,i)=>`<div class="cp-ab"><i style="width:${Math.round((p.at[k]-25)/74*100)}%;background:${['#18E0B5','#ff7a88','#f5c15a'][i]}" class="${vs[i]===mx&&vs.filter(x=>x===mx).length<js.length?'w':''}"></i><b class="num">${p.at[k]}</b></div>`).join('')}</div>`;}).join('');
+  const preco=p=>p.timeId&&!recemChegado(p)?precoPedido(p):0;
+  abrir(`<div class="cp" style="--n:${js.length}">
+    <div class="eyebrow">Mercado · comparador</div><h2 class="sec">Lado a lado</h2>
+    <div class="cp-cab"><span></span>${js.map(p=>{const c=p.timeId?T(p.timeId):null;return `<div class="cp-j cp-s${js.indexOf(p)}">${retrato(p,72)}<b>${esc(p.nome)}</b>
+      <span class="ec-sub">${bandeira(p.pais)} ${p.idade} anos · ${c?esc(c.tag||c.nome):'livre'}</span><span class="tag ${p.role}">${esc(p.role)}</span>${anelOver(p,58)}</div>`;}).join('')}</div>
+    ${linha('Over',p=>over(p))}${linha('Potencial',p=>p.pot)}${linha('Idade',p=>p.idade,null,true)}
+    ${linha('Interesse em vir',p=>interessePor(p,t).nota)}
+    ${linha('Pedido',preco,v=>v?money(v):'—',true)}${linha('Salário',p=>salarioPedido(p,t),money,true)}
+    <div class="eyebrow" style="margin-top:14px">Atributos</div>${attr}
+    <div class="cp-bts"><span></span>${js.map(p=>`<button class="btn sm" data-prop="${p.id}">${icone('aperto')} Negociar com ${esc(p.nome)}</button>`).join('')}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn ghost" data-close>Fechar</button></div>
+  </div>`,true);
+}
+function vMercadoJogadores(t){
+  const lista=_mercLista(t);
+  const vista=Prefs.get('mercVista')==='lista'?'lista':'cartoes';
+  mComparar=mComparar.filter(id=>G.jogadores[id]);
+  const aviso=G.janela?'':inscricaoEmergencia(t)?'<div class="card" style="border-left:4px solid var(--amber)">A janela está fechada, mas você tem menos de '+ELENCO_MIN+': a <b>inscrição de emergência</b> libera agentes livres até completar o elenco. Filtre por “Agentes livres”.</div>'
+    :`<div class="mf-aviso">${icone('cadeado')} <span>A janela está fechada. Dá para observar e montar alvos; contratar, só na pré-temporada ou na janela do meio do ano.</span></div>`;
+  const corpo=vista==='lista'
+    ?`<div class="card flat"><table class="wide merc-tab"><thead><tr><th>Jogador</th><th>Clube</th><th>Função</th><th class="c">Idade</th>
     <th class="c">Over</th><th class="c">Pot</th><th class="c">Interesse</th><th class="r">Pedido</th><th class="r">Salário</th><th></th></tr></thead>
     <tbody>${lista.map(p=>{const c=p.timeId?T(p.timeId):null,mesa=negociacaoAtivaDe(p.id);
       return `<tr class="jrow" data-p="${p.id}"><td><span class="merc-j">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}</span></span></td>
@@ -1024,11 +1103,13 @@ function vMercadoJogadores(t){
       <td><span class="tag ${p.role}">${p.role}</span></td><td class="c num">${p.idade}</td>
       <td class="c">${ovTag(p)}</td><td class="c num dim">${p.pot}</td>
       <td class="c">${interesseMini(p,t)}</td>
-      <td class="r num">${p.timeId&&recemChegado(p)?`<span class="chip" title="Assinou há ${semanasNoClube(p)} semana(s): não sai de novo nesta janela">recém-chegado</span>`
-        :`${p.timeId?money(precoPedido(p)):'—'}${p.timeId&&posturaDoClube(p).id==='intransferivel'?` <span class="chip r" title="${esc(posturaDoClube(p).motivo)}">multa</span>`:''}`}</td>
+      <td class="r num">${_mercPreco(p)}</td>
       <td class="r num">${money(salarioPedido(p,t))}</td>
       <td class="r"><button class="btn-ic ${mesa?'on':''}" data-prop="${p.id}" title="${mesa?'Voltar à mesa':'Negociar'}">${ico(mesa?'balao':'aperto')}<span>${mesa?'Mesa':'Negociar'}</span></button></td></tr>`;}).join('')}
-    </tbody></table></div>`;
+    </tbody></table></div>`
+    :lista.length?`<div class="sc-grade">${lista.map(p=>cardScout(p,t)).join('')}</div>`
+    :`<div class="ec-vazio">${icone('olho')} Ninguém com esse filtro. Afrouxe a função, a região ou a busca.</div>`;
+  return `${aviso}${filtrosMercado(lista.length)}${corpo}${barraComparar()}`;
 }
 /* Radar das rankeds (core/radar.js): contas que o olheiro acompanha, com a
    leitura borrada que fica nítida a cada semana, o teste e a decisão. */
