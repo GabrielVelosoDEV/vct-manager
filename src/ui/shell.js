@@ -218,6 +218,13 @@ function pintarSide(){
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
+  /* grupos recolhíveis: recolhido vira uma fileira de ícones (o grupo
+     continua a um clique, sem ocupar a altura toda); Sistema começa assim */
+  let fech=Prefs.get('sideFechado');if(!fech||typeof fech!=='object')fech={Circuito:true,Sistema:true};
+  const itemA=([k,n,i])=>{const av=avisoDaTela(k),on=tela===k||(k==='copa'&&String(tela).startsWith('selecao:'));
+    return `<a href="#" data-t="${k}" class="${on?'on':''}"><span class="side-ic">${ico(i)}</span><span>${n}</span>${av?`<span class="aviso">${av}</span>`:''}</a>`;};
+  const itemIc=([k,n,i])=>{const av=avisoDaTela(k),on=tela===k||(k==='copa'&&String(tela).startsWith('selecao:'));
+    return `<a href="#" data-t="${k}" class="side-mini ${on?'on':''}" title="${esc(n)}">${ico(i)}<span class="side-mini-n">${n}</span>${av?'<i class="side-ponto"></i>':''}</a>`;};
   pintarRaiz($('#side'),
     (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador()
      :t&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof sideCabecalhoDono==='function'?sideCabecalhoDono(t)
@@ -225,27 +232,60 @@ function pintarSide(){
      :`<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
      `<div class="side-nav">`+
-    grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
-      gr.itens.map(([k,n,i])=>{
-        const av=avisoDaTela(k);
-        return `<a href="#" data-t="${k}" class="${tela===k||(k==='copa'&&String(tela).startsWith('selecao:'))?'on':''}">${ico(i)}<span>${n}</span>${
-          av?`<span class="aviso">${av}</span>`:''}</a>`;
-      }).join('')).join('')+
+    grupos.map(gr=>{
+      /* o grupo da tela aberta nunca fica recolhido de verdade: a fileira mostra onde você está */
+      const recolhido=!!fech[gr.g];
+      const avs=gr.itens.reduce((s,it)=>s+(avisoDaTela(it[0])||0),0);
+      return `<button class="side-grp ${recolhido?'fech':''}" data-sgrp="${esc(gr.g)}" title="${recolhido?'Abrir':'Recolher'} ${esc(gr.g)}">
+        <span>${gr.g}</span>${recolhido&&avs?`<span class="aviso">${avs}</span>`:''}<i class="side-chev">${ico('seta_d')}</i></button>`+
+      (recolhido?`<div class="side-icons">${gr.itens.map(itemIc).join('')}</div>`:`<div class="side-itens">${gr.itens.map(itemA).join('')}</div>`);}).join('')+
     `</div>
      <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`,'side',{semFusao:true});
   $('#side').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();irPara(a.dataset.t);});
+  $('#side').querySelectorAll('[data-sgrp]').forEach(b=>b.onclick=()=>{const g=b.dataset.sgrp;fech=Object.assign({},fech);
+    if(fech[g])delete fech[g];else fech[g]=true;Prefs.set('sideFechado',fech);pintarSide();});
   $('#btnMenu').onclick=()=>sairParaMenu();
 }
 /* badge vermelho na sidebar: só onde existe pendência real */
 function avisoDaTela(k){
   if(k==='editor'){const n=edValidar().erros.length;return n?n:0;}
+  const t=meu();if(!t)return 0;
+  try{
+    /* propostas por jogadores seus e respostas de pedidos de reforço */
+    if(k==='mercado'){
+      const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
+      const resp=typeof pedidosReforco==='function'?pedidosReforco().filter(pedidoAtivo).reduce((s,x)=>s+x.respostas.length,0):0;
+      return pend+resp;}
+    /* lesionados no elenco */
+    if(k==='elenco')return t.elenco.map(P).filter(p=>p&&p.lesao).length;
+    /* contas do radar esperando a sua decisão */
+    if(k==='base'&&typeof radarRanked==='function')return radarRanked().contas.filter(c=>c.estado==='decisao').length;
+  }catch(e){}
   return 0;
 }
 
+/* cor do circuito no chip da agenda */
+function corDaAgenda(nome){
+  const n=String(nome||'');
+  return /Champions/i.test(n)?'#f5c15a':/Masters/i.test(n)?'#a78bfa':/Kickoff/i.test(n)?'#18E0B5':/Stage|Split/i.test(n)?'#6aa7ff':/World Cup|Copa/i.test(n)?'#ff7a88':'#8296A6';
+}
+/* o que vem no próximo clique de Avançar, dito embaixo do botão */
+function proximoDoAvancar(t){
+  try{
+    if(typeof usarTurnos==='function'&&usarTurnos())return {txt:'próximo dia'};
+    const adv=t&&typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null;
+    if(adv)return {txt:'vs '+(adv.tag||adv.nome),adv};
+  }catch(e){}
+  return {txt:'fim da semana'};
+}
 function pintarTop(){
   const t=meu();
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
+  const agenda=b?nomeBloco(b):proximaAgenda();
+  const jog=typeof modoJogador==='function'&&modoJogador();
+  const prox=proximoDoAvancar(t);
+  const caixa=t?t.caixa:0;
   pintarRaiz($('#top'),`
     <div class="top-hist">
       <button id="hVolta" ${histPos<=0?'disabled':''} title="Tela anterior">${ico('seta_e')}</button>
@@ -253,20 +293,22 @@ function pintarTop(){
     </div>
     <div class="top-titulo">${esc(nomeTela(tela))}</div>
     <div class="top-spacer"></div>
-    <div class="top-bit">Temporada<strong>${G.ano}</strong></div>
-    <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
-      ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
-      G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
-      turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></div>
+    <div class="top-pill top-relogio" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
+      ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">
+      <span class="top-pic">${ico('agenda')}</span>
+      <span class="top-pt"><em>${G.ano} · semana ${G.semana||1}${G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}</em>
+        <strong>${turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></span></div>
     ${janelaAberta(G.ano,G.semana||1)?(()=>{const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
-      return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
-        d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
-    <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
-    ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
-      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-bit top-valor">Valor<strong>${money(valorDaOrg(t))}</strong></div>`:''}<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
+      return `<div class="top-pill top-janela ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">
+        <span class="top-pic">${ico('troca')}</span><span class="top-pt"><em>janela aberta</em><strong>${d<=1?'último dia':d+' dias'}</strong></span></div>`;})():''}
+    <div class="top-pill top-agenda" style="--ag:${corDaAgenda(agenda)}" title="Agenda"><span class="top-pdot"></span>
+      <span class="top-pt"><em>${b?'agora':'próximo'}</em><strong>${esc(agenda)}</strong></span></div>
+    ${jog?`<div class="top-pill top-din"><span class="top-pic">${ico('dinheiro')}</span><span class="top-pt"><em>salário</em><strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></span></div>`
+      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-pill top-din top-valor"><span class="top-pic">${ico('grafico')}</span><span class="top-pt"><em>valor</em><strong>${money(valorDaOrg(t))}</strong></span></div>`:''}
+        <div class="top-pill top-din ${caixa<0?'neg':''}"><span class="top-pic">${ico('dinheiro')}</span><span class="top-pt"><em>caixa</em><strong>${t?money(caixa):'—'}</strong></span></div>`}
     <div class="top-acoes">
-      <button class="btn ghost sm" id="btnSave">Salvar</button>
-      <button class="btn" id="btnNext">Avançar</button>
+      <button class="btn-ic2" id="btnSave" title="Salvar a partida">${ico('disco')}</button>
+      <button class="btn top-avancar" id="btnNext"><b>Avançar</b><span>${prox.adv?escudo(prox.adv,14)+' ':''}${esc(prox.txt)}</span></button>
       <button class="btn-fim" id="btnFim" title="Avançar até o próximo jogo do seu clube">${ico('duplo')}</button>
     </div>`,'top',{semFusao:true});
   $('#hVolta').onclick=()=>{if(histPos>0){histPos--;irPara(hist[histPos],true);}};

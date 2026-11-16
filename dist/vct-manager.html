@@ -5460,6 +5460,80 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .cp-j.cp-s0{--rc:#18E0B5}.cp-j.cp-s1{--rc:#ff7a88}.cp-j.cp-s2{--rc:#f5c15a}
 .cp-ab i.w{box-shadow:0 0 10px rgba(255,255,255,.25)}
 
+/* ============================================================
+   SIDEBAR — ícones maiores, grupos recolhíveis, badges
+   (só no desktop; o layout estreito continua como era)
+   ============================================================ */
+@media(min-width:1101px){
+  #side .side-grp{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;
+    padding:14px 16px 6px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#56687A}
+  #side .side-grp:hover{color:var(--tx2)}
+  .side-chev{display:inline-flex;margin-left:auto;transition:transform .2s;opacity:.6}
+  .side-chev svg{width:11px;height:11px}
+  .side-grp:not(.fech) .side-chev{transform:rotate(90deg)}
+  .side-grp .aviso{background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:8px;display:grid;place-items:center;padding:0 4px;letter-spacing:0}
+  #side .side-itens a{padding:6px 12px 6px 13px;margin:1px 8px;border-radius:8px;border-left:0;gap:10px}
+  #side .side-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;flex:none;background:rgba(255,255,255,.03);transition:.15s}
+  #side .side-itens a svg{width:18px;height:18px}
+  #side .side-itens a:hover{background:rgba(255,255,255,.04)}
+  #side .side-itens a:hover .side-ic{background:rgba(255,255,255,.07)}
+  #side .side-itens a.on{background:linear-gradient(90deg,rgba(255,70,85,.16),transparent 90%);box-shadow:inset 3px 0 0 var(--red)}
+  #side .side-itens a.on .side-ic{background:var(--red);box-shadow:0 4px 14px rgba(255,70,85,.35)}
+  #side .side-itens a.on svg{color:#fff;opacity:1}
+  #side a .aviso{border-radius:9px;min-width:18px;height:18px;font-size:10px;animation:sidePulso 2.4s ease-in-out infinite}
+  @keyframes sidePulso{0%,100%{box-shadow:0 0 0 0 rgba(255,70,85,.5)}50%{box-shadow:0 0 0 5px rgba(255,70,85,0)}}
+  .side-icons{display:flex;flex-wrap:wrap;gap:4px;padding:2px 14px 6px}
+  #side a.side-mini{position:relative;display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:9px;border-left:0;background:rgba(255,255,255,.03)}
+  #side a.side-mini svg{width:17px;height:17px}
+  #side a.side-mini:hover{background:rgba(255,255,255,.08)}
+  #side a.side-mini.on{background:var(--red)}
+  #side a.side-mini.on svg{color:#fff}
+  .side-ponto{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--bg2)}
+  /* cada modo pinta o item ativo com a sua cor */
+  body.tema-dono #side .side-itens a.on{background:linear-gradient(90deg,var(--ac-soft),transparent 90%);box-shadow:inset 3px 0 0 var(--ac)}
+  body.tema-dono #side .side-itens a.on .side-ic,body.tema-dono #side a.side-mini.on{background:var(--ac);box-shadow:0 4px 14px rgba(230,190,110,.3)}
+  body.tema-dono #side .side-itens a.on svg,body.tema-dono #side a.side-mini.on svg{color:#1a140a}
+  body.tema-jogador #side .side-itens a.on{background:linear-gradient(90deg,rgba(24,229,180,.14),transparent 90%);box-shadow:inset 3px 0 0 #18E5B4}
+  body.tema-jogador #side .side-itens a.on .side-ic,body.tema-jogador #side a.side-mini.on{background:#18E5B4;box-shadow:0 4px 14px rgba(24,229,180,.3)}
+  body.tema-jogador #side .side-itens a.on svg,body.tema-jogador #side a.side-mini.on svg{color:#06231c}
+  body.tema-dono #side .side-grp{color:#8A7550}
+  body.tema-jogador #side .side-grp{color:#4F7C72}
+  body.tema-treinador #side .side-grp{color:#7D5560}
+}
+@media(min-width:1101px){.side-mini-n{display:none}}
+@media(max-width:1100px){.side-itens,.side-icons{display:contents}.side-ponto{display:none}}
+
+/* ============================================================
+   TOPBAR — relógio, agenda com a cor do circuito, dinheiro em
+   chip e o Avançar dizendo o que vem
+   ============================================================ */
+@media(min-width:1101px){
+  .top-pill{display:flex;align-items:center;gap:9px;flex:none;padding:5px 12px 5px 6px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+  .top-pic{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--tx2)}
+  .top-pic svg{width:15px;height:15px}
+  .top-pt{display:flex;flex-direction:column;line-height:1.15}
+  .top-pt em{font-style:normal;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .top-pt strong{font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.01em;white-space:nowrap}
+  .top-agenda{padding-left:12px;border-color:color-mix(in srgb,var(--ag) 40%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--ag) 14%,transparent),rgba(255,255,255,.02))}
+  .top-pdot{width:9px;height:9px;border-radius:50%;background:var(--ag);box-shadow:0 0 0 3px color-mix(in srgb,var(--ag) 25%,transparent),0 0 12px var(--ag);animation:topPulso 2.2s ease-in-out infinite}
+  @keyframes topPulso{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--ag) 10%,transparent),0 0 6px var(--ag)}}
+  .top-agenda strong{color:var(--ag);font-family:inherit;font-weight:700}
+  .top-janela .top-pic{color:var(--teal)}
+  .top-janela.aviso{border-color:rgba(245,185,66,.45)}
+  .top-janela.aviso .top-pic,.top-janela.aviso strong{color:var(--amber)}
+  .top-din .top-pic{color:#5fd38d;background:rgba(95,211,141,.1)}
+  .top-din.neg .top-pic,.top-din.neg strong{color:#ff7a7a}
+  .top-valor .top-pic{color:var(--ouro);background:rgba(230,190,110,.1)}
+  .btn-ic2{all:unset;cursor:pointer;display:grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line2);color:var(--tx2);transition:.15s}
+  .btn-ic2 svg{width:16px;height:16px}
+  .btn-ic2:hover{color:var(--tx);border-color:var(--tx2)}
+  .top-avancar{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 18px 6px 16px;min-width:128px;line-height:1.1}
+  .top-avancar b{font-size:13px;letter-spacing:.14em}
+  .top-avancar span{display:inline-flex;align-items:center;gap:4px;font-size:10px;letter-spacing:.04em;text-transform:none;font-weight:600;opacity:.85}
+  .top-avancar span img{width:14px;height:14px}
+  .top-avancar{box-shadow:0 6px 20px -6px rgba(255,70,85,.6)}
+}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -38350,6 +38424,13 @@ function pintarSide(){
     if(!grupos.length||grupos[grupos.length-1].g!==g)grupos.push({g,itens:[]});
     grupos[grupos.length-1].itens.push([k,n,i]);
   });
+  /* grupos recolhíveis: recolhido vira uma fileira de ícones (o grupo
+     continua a um clique, sem ocupar a altura toda); Sistema começa assim */
+  let fech=Prefs.get('sideFechado');if(!fech||typeof fech!=='object')fech={Circuito:true,Sistema:true};
+  const itemA=([k,n,i])=>{const av=avisoDaTela(k),on=tela===k||(k==='copa'&&String(tela).startsWith('selecao:'));
+    return `<a href="#" data-t="${k}" class="${on?'on':''}"><span class="side-ic">${ico(i)}</span><span>${n}</span>${av?`<span class="aviso">${av}</span>`:''}</a>`;};
+  const itemIc=([k,n,i])=>{const av=avisoDaTela(k),on=tela===k||(k==='copa'&&String(tela).startsWith('selecao:'));
+    return `<a href="#" data-t="${k}" class="side-mini ${on?'on':''}" title="${esc(n)}">${ico(i)}<span class="side-mini-n">${n}</span>${av?'<i class="side-ponto"></i>':''}</a>`;};
   pintarRaiz($('#side'),
     (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador()
      :t&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof sideCabecalhoDono==='function'?sideCabecalhoDono(t)
@@ -38357,27 +38438,60 @@ function pintarSide(){
      :`<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
      `<div class="side-nav">`+
-    grupos.map(gr=>`<div class="side-grp">${gr.g}</div>`+
-      gr.itens.map(([k,n,i])=>{
-        const av=avisoDaTela(k);
-        return `<a href="#" data-t="${k}" class="${tela===k||(k==='copa'&&String(tela).startsWith('selecao:'))?'on':''}">${ico(i)}<span>${n}</span>${
-          av?`<span class="aviso">${av}</span>`:''}</a>`;
-      }).join('')).join('')+
+    grupos.map(gr=>{
+      /* o grupo da tela aberta nunca fica recolhido de verdade: a fileira mostra onde você está */
+      const recolhido=!!fech[gr.g];
+      const avs=gr.itens.reduce((s,it)=>s+(avisoDaTela(it[0])||0),0);
+      return `<button class="side-grp ${recolhido?'fech':''}" data-sgrp="${esc(gr.g)}" title="${recolhido?'Abrir':'Recolher'} ${esc(gr.g)}">
+        <span>${gr.g}</span>${recolhido&&avs?`<span class="aviso">${avs}</span>`:''}<i class="side-chev">${ico('seta_d')}</i></button>`+
+      (recolhido?`<div class="side-icons">${gr.itens.map(itemIc).join('')}</div>`:`<div class="side-itens">${gr.itens.map(itemA).join('')}</div>`);}).join('')+
     `</div>
      <div class="side-pe"><button class="btn ghost sm" id="btnMenu" style="width:100%">Menu principal</button></div>`,'side',{semFusao:true});
   $('#side').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();irPara(a.dataset.t);});
+  $('#side').querySelectorAll('[data-sgrp]').forEach(b=>b.onclick=()=>{const g=b.dataset.sgrp;fech=Object.assign({},fech);
+    if(fech[g])delete fech[g];else fech[g]=true;Prefs.set('sideFechado',fech);pintarSide();});
   $('#btnMenu').onclick=()=>sairParaMenu();
 }
 /* badge vermelho na sidebar: só onde existe pendência real */
 function avisoDaTela(k){
   if(k==='editor'){const n=edValidar().erros.length;return n?n:0;}
+  const t=meu();if(!t)return 0;
+  try{
+    /* propostas por jogadores seus e respostas de pedidos de reforço */
+    if(k==='mercado'){
+      const pend=(G.propostas||[]).filter(x=>{const p=P(x.jogadorId);return p&&p.timeId===t.id;}).length;
+      const resp=typeof pedidosReforco==='function'?pedidosReforco().filter(pedidoAtivo).reduce((s,x)=>s+x.respostas.length,0):0;
+      return pend+resp;}
+    /* lesionados no elenco */
+    if(k==='elenco')return t.elenco.map(P).filter(p=>p&&p.lesao).length;
+    /* contas do radar esperando a sua decisão */
+    if(k==='base'&&typeof radarRanked==='function')return radarRanked().contas.filter(c=>c.estado==='decisao').length;
+  }catch(e){}
   return 0;
 }
 
+/* cor do circuito no chip da agenda */
+function corDaAgenda(nome){
+  const n=String(nome||'');
+  return /Champions/i.test(n)?'#f5c15a':/Masters/i.test(n)?'#a78bfa':/Kickoff/i.test(n)?'#18E0B5':/Stage|Split/i.test(n)?'#6aa7ff':/World Cup|Copa/i.test(n)?'#ff7a88':'#8296A6';
+}
+/* o que vem no próximo clique de Avançar, dito embaixo do botão */
+function proximoDoAvancar(t){
+  try{
+    if(typeof usarTurnos==='function'&&usarTurnos())return {txt:'próximo dia'};
+    const adv=t&&typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null;
+    if(adv)return {txt:'vs '+(adv.tag||adv.nome),adv};
+  }catch(e){}
+  return {txt:'fim da semana'};
+}
 function pintarTop(){
   const t=meu();
   const i=typeof blocoDaSemana==='function'?blocoDaSemana(G.semana||1):null;
   const b=i==null?null:G.calendario[i];
+  const agenda=b?nomeBloco(b):proximaAgenda();
+  const jog=typeof modoJogador==='function'&&modoJogador();
+  const prox=proximoDoAvancar(t);
+  const caixa=t?t.caixa:0;
   pintarRaiz($('#top'),`
     <div class="top-hist">
       <button id="hVolta" ${histPos<=0?'disabled':''} title="Tela anterior">${ico('seta_e')}</button>
@@ -38385,20 +38499,22 @@ function pintarTop(){
     </div>
     <div class="top-titulo">${esc(nomeTela(tela))}</div>
     <div class="top-spacer"></div>
-    <div class="top-bit">Temporada<strong>${G.ano}</strong></div>
-    <div class="top-bit" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
-      ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">Semana ${G.semana||1}${
-      G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}<strong>${
-      turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></div>
+    <div class="top-pill top-relogio" title="Semana ${G.semana||1} de ${SEMANAS_ANO}${G.semanaEmCurso?
+      ' — rodada '+(G.semanaEmCurso.feitos+1)+' de '+G.semanaEmCurso.passos+' desta semana':''}">
+      <span class="top-pic">${ico('agenda')}</span>
+      <span class="top-pt"><em>${G.ano} · semana ${G.semana||1}${G.semanaEmCurso?' · rodada '+(G.semanaEmCurso.feitos+1):''}</em>
+        <strong>${turnosNaTela()?rotuloTurno(G.ano,G.semana||1,G.turno||0):rotuloSemana(G.ano,G.semana||1)}</strong></span></div>
     ${janelaAberta(G.ano,G.semana||1)?(()=>{const d=diasAteFecharJanela(G.ano,G.semana||1,G.turno||0);
-      return `<div class="top-bit ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">Janela<strong>${
-        d<=1?'último dia':d+' dias'}</strong></div>`;})():''}
-    <div class="top-bit">Agenda<strong>${esc(b?nomeBloco(b):proximaAgenda())}</strong></div>
-    ${typeof modoJogador==='function'&&modoJogador()?`<div class="top-bit">Salário<strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></div>`
-      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-bit top-valor">Valor<strong>${money(valorDaOrg(t))}</strong></div>`:''}<div class="top-bit">Caixa<strong>${t?money(t.caixa):'—'}</strong></div>`}
+      return `<div class="top-pill top-janela ${d<=7?'aviso':''}" title="A janela de transferências fecha em ${d} dia(s)">
+        <span class="top-pic">${ico('troca')}</span><span class="top-pt"><em>janela aberta</em><strong>${d<=1?'último dia':d+' dias'}</strong></span></div>`;})():''}
+    <div class="top-pill top-agenda" style="--ag:${corDaAgenda(agenda)}" title="Agenda"><span class="top-pdot"></span>
+      <span class="top-pt"><em>${b?'agora':'próximo'}</em><strong>${esc(agenda)}</strong></span></div>
+    ${jog?`<div class="top-pill top-din"><span class="top-pic">${ico('dinheiro')}</span><span class="top-pt"><em>salário</em><strong>${meuJogador()&&meuJogador().timeId?money(meuJogador().salario)+'/mês':'—'}</strong></span></div>`
+      :`${t&&typeof empresaAtiva==='function'&&empresaAtiva()?`<div class="top-pill top-din top-valor"><span class="top-pic">${ico('grafico')}</span><span class="top-pt"><em>valor</em><strong>${money(valorDaOrg(t))}</strong></span></div>`:''}
+        <div class="top-pill top-din ${caixa<0?'neg':''}"><span class="top-pic">${ico('dinheiro')}</span><span class="top-pt"><em>caixa</em><strong>${t?money(caixa):'—'}</strong></span></div>`}
     <div class="top-acoes">
-      <button class="btn ghost sm" id="btnSave">Salvar</button>
-      <button class="btn" id="btnNext">Avançar</button>
+      <button class="btn-ic2" id="btnSave" title="Salvar a partida">${ico('disco')}</button>
+      <button class="btn top-avancar" id="btnNext"><b>Avançar</b><span>${prox.adv?escudo(prox.adv,14)+' ':''}${esc(prox.txt)}</span></button>
       <button class="btn-fim" id="btnFim" title="Avançar até o próximo jogo do seu clube">${ico('duplo')}</button>
     </div>`,'top',{semFusao:true});
   $('#hVolta').onclick=()=>{if(histPos>0){histPos--;irPara(hist[histPos],true);}};
