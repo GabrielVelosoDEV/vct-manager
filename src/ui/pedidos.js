@@ -68,7 +68,7 @@ function vMercadoPedidos(t){
       :'<p class="dim">Nenhum clube com a carência que os seus jogadores cobrem, com esse filtro.</p>'}
   </div>`;
 
-  return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada: dá para publicar pedidos e ver quem procura o quê, mas respostas e ofertas só com a janela aberta.</div>'}
+  return `${G.janela?'':`<div class="mf-aviso">${icone('cadeado')} <span>A janela está fechada: dá para publicar pedidos e ver quem procura o quê, mas respostas e ofertas só com a janela aberta.</span></div>`}
     ${form}${ativos.map(blocoPedido).join('')}${passados.map(blocoPedido).join('')}${cxNec}`;
 }
 function ligarPedidos(v,on){

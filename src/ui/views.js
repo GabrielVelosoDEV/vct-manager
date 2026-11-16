@@ -878,7 +878,7 @@ function vMercadoSaidas(t){
     </tr>`).join('')}</tbody></table>
     <p class="dim" style="margin-top:6px">Voltam na virada de temporada, a menos que o clube exerça a opção.</p></div>`:'';
 
-  return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode anunciar, mas proposta só chega com a janela aberta.</div>'}
+  return `${G.janela?'':`<div class="mf-aviso">${icone('cadeado')} <span>A janela está fechada. Você pode anunciar, mas proposta só chega com a janela aberta.</span></div>`}
   ${cxPedidos}${cxPropostas}${cxComigo}${cxFora}
   <div class="card flat"><div class="eyebrow">Seu elenco</div>
     ${curto?avisoWO(t):t.elenco.length===ELENCO_MIN?`<p class="dim">Você está com ${ELENCO_MIN}: pode vender, mas contrate o substituto antes do próximo jogo — quem entra em quadra com menos de ${ELENCO_MIN} perde por W.O.</p>`:''}
@@ -904,16 +904,20 @@ function vMercadoSaidas(t){
 function vMercadoStaff(t){
   const lista=Object.values(G.staff||{}).filter(m=>m.timeId!==t.id)
     .sort((a,b)=>overStaff(b)-overStaff(a)).slice(0,60);
-  return `${G.janela?'':'<div class="card" style="border-left:4px solid var(--red)">A janela está fechada. Você pode observar, mas contratar só na pré-temporada ou na janela do meio de ano.</div>'}
+  return `${G.janela?'':`<div class="mf-aviso">${icone('cadeado')} <span>A janela está fechada. Você pode observar, mas contratar só na pré-temporada ou na janela do meio de ano.</span></div>`}
   <div class="card flat"><div class="eyebrow">Sua comissão hoje</div>
-    <table><tbody>${comissaoDe(t).map(({cargo,membro})=>`<tr>
-      <td>${cargo.nome}</td>
-      <td>${membro?`<span class="linha-t">${retratoStaff(membro,24)}<b>${esc(membro.nome)}</b></span>`:'<span class="dn">vago</span>'}</td>
-      <td class="c">${membro?`<span class="ov ${ovClass(overStaff(membro))}">${overStaff(membro)}</span>`:'—'}</td>
-      <td class="r num dim">${membro?money(membro.salario)+'/mês':''}</td>
-      <td class="r">${membro&&membro.voce?'<span class="chip t">você</span>':membro?`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`:''}</td>
-    </tr>`).join('')}</tbody></table>
-    <p class="dim" style="margin-top:8px">${esc(CARGOS.map(c=>c.curto+': '+c.efeito.toLowerCase()).join(' · '))}</p>
+    <div class="cm-grade">${comissaoDe(t).map(({cargo,membro})=>{const o=membro?overStaff(membro):0;
+      const cor={a:'var(--teal)',b:'#5CD6C0',c:'#E8EDF2',d:'var(--amber)',e:'var(--red)'}[ovClass(o)];
+      return membro?`<div class="cm ${membro.voce?'voce':''}">
+        <span class="cm-cargo">${esc(cargo.nome)}${membro.voce?' · você':''}</span>
+        <div class="cm-top">${retratoStaff(membro,64)}<div class="cm-id"><b>${esc(membro.nome)}</b><span class="ec-sub">${membro.pais?bandeira(membro.pais):''} ${membro.idade} anos</span></div>
+          <div class="ec-ov">${anelSimples(o,54,cor)}</div></div>
+        <div class="cm-ef">${esc(cargo.efeito)}</div>
+        <div class="cm-pe"><span class="ec-chip">${icone('dinheiro')}<b class="num">${money(membro.salario)}</b>/mês</span>
+          ${membro.voce?'':`<button class="btn ghost sm" data-dispstaff="${membro.id}">Dispensar</button>`}</div></div>`
+      :`<div class="cm vago"><span class="cm-cargo">${esc(cargo.nome)}</span>
+        <div class="cm-top"><span class="cm-vago-ic">${icone('gravata')}</span><div class="cm-id"><b class="dn">Vago</b><span class="ec-sub">a vaga vale nível 1</span></div></div>
+        <div class="cm-ef">${esc(cargo.efeito)}</div><div class="cm-pe"><span class="dim">contrate na lista abaixo</span></div></div>`;}).join('')}</div>
   </div>
   <div class="card flat"><table class="wide tb ordenavel merc-tab"><thead><tr><th></th><th>Nome</th><th>Cargo</th><th>Clube</th>
     <th class="c">Idade</th><th class="c">Over</th><th class="c">Pot</th><th class="r">Pedido</th>
@@ -934,6 +938,23 @@ function vMercadoStaff(t){
 /* ---------- contratos ----------
    Quem vence, quanto cada um quer ficar e quem já está sendo sondado. Do
    outro lado, quem está no último ano nos outros clubes: alvo de pré-contrato. */
+/* Linha do tempo dos contratos: cada jogador é uma faixa que vai de hoje
+   até a virada em que o contrato acaba. A marca da semana do pré-contrato
+   mostra até quando dá para renovar sem risco. */
+function linhaDoTempoContratos(t,meus){
+  const anos=4,fr=((G.semana||1)-1)/SEMANAS_ANO,pre=(SEMANA_PRECONTRATO-1)/SEMANAS_ANO;
+  const X=v=>(v/anos*100).toFixed(2)+'%';
+  const cab=Array.from({length:anos},(_,i)=>`<span style="left:${X(i)};width:${X(1)}">${G.ano+i}</span>`).join('');
+  const lin=meus.map(p=>{const fim=p.contrato,cls=fim<=1?'r':fim<=2?'a':'g';
+    return `<div class="ctl-l"><span class="ctl-j jrow" data-p="${p.id}">${retrato(p,26)}<b>${esc(p.nome)}</b></span>
+      <div class="ctl-pista"><i class="ctl-b ${cls}" style="left:${X(fr)};width:calc(${X(fim)} - ${X(fr)})"><span class="num">${money(p.salario)}/mês</span></i>
+        ${fim<=1?`<i class="ctl-pre" style="left:${X(pre)}" title="Semana ${SEMANA_PRECONTRATO}: outro clube já pode assinar pré-contrato"></i>`:''}
+        <em class="ctl-fim" style="left:${X(fim)}">${fim<=1?'acaba':''}</em></div></div>`;}).join('');
+  return `<div class="card ctl"><div class="split"><div class="eyebrow">Linha do tempo dos contratos</div>
+      <span class="ctl-leg"><span><i class="r"></i>último ano</span><span><i class="a"></i>2 anos</span><span><i class="g"></i>3 anos ou mais</span><span><i class="pre"></i>pré-contrato liberado</span></span></div>
+    <div class="ctl-cab"><span class="ctl-j"></span><div class="ctl-pista ctl-anos">${cab}<i class="ctl-hoje" style="left:${X(fr)}"><b>hoje</b></i></div></div>
+    ${lin}</div>`;
+}
 function vMercadoContratos(t){
   const meus=t.elenco.map(P).filter(Boolean).sort((a,b)=>a.contrato-b.contrato||over(b)-over(a));
   const situacao=p=>{
@@ -947,7 +968,7 @@ function vMercadoContratos(t){
   const outros=Object.values(G.jogadores).filter(p=>p.timeId&&p.timeId!==t.id&&p.contrato<=1&&!p.base&&!p.emprestimo)
     .sort((a,b)=>over(b)-over(a)).slice(0,30);
   const aberto=janelaPreContrato();
-  return `<div class="card flat"><div class="eyebrow">Seus contratos</div>
+  return `${linhaDoTempoContratos(t,meus)}<div class="card flat"><div class="eyebrow">Seus contratos</div>
     <p class="dim" style="margin-bottom:8px">Da semana ${SEMANA_PRECONTRATO} em diante, quem está no último ano pode assinar
     pré-contrato com outro clube e sair de graça. Renove antes.</p>
     <table class="wide tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário</th><th class="c">Contrato</th>
@@ -1322,6 +1343,44 @@ function barrasFinanceiras(t){
       <div class="fin-leg">${l.map(x=>`<span><i style="background:${x[2]}"></i>${esc(x[0])} <b class="num">${money(x[1])}</b></span>`).join('')}</div></div>`;};
   return barra('Entradas do ano',rec)+barra('Saídas do ano',des);
 }
+/* Orçamento em cascata: da receita do ano até a folga para contratar, com
+   o medidor de quanto do teto de folha já está usado. */
+function orcamentoVisual(t,rec,folha){
+  const cust=custeioAnual(t),livre=receitaLivre(t),teto=livre*tetoFolhaDe(t),f12=folha*12,folga=Math.max(0,teto-f12);
+  const mx=Math.max(rec,livre,teto,f12,1);
+  const W=560,H=210,pb=34,pt=22,bw=64,gap=(W-bw*6)/7;
+  const Y=v=>pt+(1-v/mx)*(H-pt-pb);
+  const col=(i,de,ate,cls,rot,val)=>{const x=gap+i*(bw+gap),y1=Y(Math.max(de,ate)),y2=Y(Math.min(de,ate));
+    return `<g class="wf ${cls}"><rect x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${bw}" height="${Math.max(2,y2-y1).toFixed(1)}" rx="5"/>
+      <text x="${(x+bw/2).toFixed(1)}" y="${(y1-6).toFixed(1)}" text-anchor="middle" class="wf-v">${val}</text>
+      <text x="${(x+bw/2).toFixed(1)}" y="${H-pb+16}" text-anchor="middle" class="wf-r">${rot}</text></g>`;};
+  const lig=(i,v)=>{const x1=gap+i*(bw+gap)+bw,x2=x1+gap;return `<line x1="${x1}" x2="${x2}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="wf-l"/>`;};
+  const uso=teto>0?f12/teto:1;
+  const corUso=uso>1?'var(--red)':uso>0.85?'var(--amber)':'var(--teal)';
+  const r=62,c=Math.PI*r;
+  return `<div class="card orc"><div class="split"><div><div class="eyebrow">Orçamento</div>
+      <div class="dim">Da receita do ano até o que sobra para contratar. Custeio é o que a estrutura e os scrims cobram de qualquer jeito;
+      do que sobra sai o teto de folha que a diretoria respeita.</div></div></div>
+    <div class="orc-g">
+      <svg viewBox="0 0 ${W} ${H}" class="wf-svg" role="img" aria-label="Orçamento em cascata">
+        <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" class="wf-z"/>
+        ${col(0,0,rec,'rec','Receita',money(rec))}${lig(0,rec)}
+        ${col(1,rec,rec-cust,'neg','Custeio','−'+money(cust))}
+        ${col(2,0,livre,'livre','Livre',money(livre))}${lig(2,livre)}
+        ${col(3,0,teto,'teto','Teto folha',money(teto))}
+        ${col(4,0,f12,'folha','Folha/ano',money(f12))}${lig(4,f12)}
+        ${col(5,f12,f12+folga,'folga','Folga',folga>0?'+'+money(folga):'0')}
+      </svg>
+      <div class="orc-gauge">
+        <svg viewBox="0 0 160 96" width="190"><path d="M18 86 A62 62 0 0 1 142 86" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="14" stroke-linecap="round"/>
+          <path d="M18 86 A62 62 0 0 1 142 86" fill="none" stroke="${corUso}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${(c*Math.min(1,uso)).toFixed(1)} ${c.toFixed(1)}" class="orc-arc"/>
+          <text x="80" y="66" text-anchor="middle" class="orc-n" fill="${corUso}">${Math.round(uso*100)}%</text><text x="80" y="84" text-anchor="middle" class="orc-t">do teto usado</text></svg>
+        <div class="orc-l"><span>Folga para contratar</span><b class="num ${folgaSalarial(t)>0?'up':'dn'}">${money(folgaSalarial(t))}/mês</b></div>
+        ${t.tier===1?`<div class="orc-l" title="Sobe quando os clubes do Tier 1 guardam dinheiro demais e cede quando apertam"><span>Índice salarial do Tier 1</span><b class="num">×${indiceSalarial(1).toFixed(2)}</b></div>`:''}
+        ${fatorRiqueza(t)>1?`<div class="orc-l" title="Com mais de três anos de receita no caixa, os jogadores pedem mais"><span>Acréscimo de clube rico</span><b class="num">+${Math.round((fatorRiqueza(t)-1)*100)}%</b></div>`:''}
+      </div>
+    </div></div>`;
+}
 function vFinancas(){
   const t=meu();
   const folha=t.elenco.reduce((s,i)=>s+P(i).salario,0)+folhaStaff(t);
@@ -1342,22 +1401,7 @@ function vFinancas(){
       <p class="dim" style="font-size:11.5px;margin:4px 0 0">A projeção não conta premiação nem negócio: é o que sobra se nada mudar.</p></div>
     <div class="card">${barrasFinanceiras(t)}</div>
   </div>
-  <div class="card flat"><div class="split">
-    <div><div class="eyebrow">Orçamento</div>
-      <div class="dim">Custeio é o que a estrutura e os scrims cobram todo ano, aconteça o que
-      acontecer. O que sobra dele é o que sustenta salário — e é esse teto que a diretoria de
-      qualquer clube respeita na hora de contratar.</div></div>
-    <div style="min-width:260px">
-      <table><tbody>
-        <tr><td>Custeio anual</td><td class="r num">${money(custeioAnual(t))}</td></tr>
-        <tr><td>Receita livre</td><td class="r num">${money(receitaLivre(t))}</td></tr>
-        <tr><td>Teto de folha</td><td class="r num">${money(receitaLivre(t)*tetoFolhaDe(t))}</td></tr>
-        <tr><td>Folga para contratar</td><td class="r num">${money(folgaSalarial(t))}/mês</td></tr>
-        ${t.tier===1?`<tr><td title="Sobe quando os clubes do Tier 1 guardam dinheiro demais e cede quando apertam">Índice salarial do Tier 1</td><td class="r num">×${indiceSalarial(1).toFixed(2)}</td></tr>`:''}
-        ${fatorRiqueza(t)>1?`<tr><td title="Com mais de três anos de receita no caixa, os jogadores pedem mais">Acréscimo de clube rico</td><td class="r num">+${Math.round((fatorRiqueza(t)-1)*100)}%</td></tr>`:''}
-      </tbody></table>
-    </div>
-  </div></div>
+  ${orcamentoVisual(t,rec,folha)}
   <div class="card"><div class="split">
     <div><div class="eyebrow">Torcida</div>
       <div class="dim">Cresce com vitória e título, encolhe sozinha quando o clube some.
@@ -1365,20 +1409,22 @@ function vFinancas(){
     <div style="min-width:200px">${medidor('<span class="dim">de '+TORCIDA_MAX+'</span>',(t.torcida||0)/TORCIDA_MAX,100)}</div>
   </div></div>
 ${blocoPatrocinios(t)}
-  <div class="card flat"><div class="eyebrow">Folha salarial</div>
-    <table class="tb ordenavel"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th class="r">% da folha</th><th class="c">Contrato</th><th></th></tr></thead>
-    <tbody>${t.elenco.map(i=>{const p=P(i);return `<tr class="jrow" data-p="${p.id}"><td><b>${esc(p.nome)}</b></td><td class="c">${ovTag(p)}</td>
-      <td class="r num">${money(p.salario)}</td><td class="r num dim">${(p.salario/folha*100).toFixed(1)}%</td>
-      <td class="c num ${p.contrato<=1?'dn':''}">${p.contrato}a</td>
-      <td class="r"><button class="btn ghost sm" data-renov="${p.id}">Renovar</button>
+  <div class="card flat"><div class="split"><div class="eyebrow">Folha salarial</div><span class="dim">${money(folha)}/mês com a comissão · a barra é o peso de cada um na folha</span></div>
+    <table class="tb ordenavel fs-tab"><thead><tr><th>Jogador</th><th class="c">Over</th><th class="r">Salário/mês</th><th>Peso na folha</th><th class="c">Contrato</th><th class="sem-ord"></th></tr></thead>
+    <tbody>${t.elenco.map(P).sort((a,b)=>b.salario-a.salario).map(p=>{const pct=p.salario/folha*100,mx=Math.max(...t.elenco.map(i=>P(i).salario))/folha*100;
+      return `<tr><td><span class="linha-t jrow" data-p="${p.id}">${retrato(p,30)}<span><b>${esc(p.nome)}</b> ${bandeira(p.pais)}<div class="dim el-sub">${esc(p.roleAtual||p.role)} · ${p.idade}a</div></span></span></td><td class="c">${ovTag(p)}</td>
+      <td class="r num"><b>${money(p.salario)}</b></td>
+      <td class="fs-peso" data-v="${pct.toFixed(1)}"><span class="fs-b"><i style="width:${Math.round(pct/Math.max(1,mx)*100)}%"></i></span><span class="num dim">${pct.toFixed(1)}%</span></td>
+      <td class="c"><span class="ec-chip ${p.contrato<=1?'r':''}">${icone(p.contrato<=1?'alerta':'contrato')}<b class="num">${p.contrato}a</b></span></td>
+      <td class="r el-bt"><button class="btn ghost sm" data-renov="${p.id}">Renovar</button>
       <button class="btn ghost sm" data-disp="${p.id}">Dispensar</button></td></tr>`;}).join('')}</tbody></table></div>
   <div class="card"><div class="eyebrow">Premiações que você pode disputar</div>
-    <table><thead><tr><th>Competição</th><th class="r">Campeão</th><th class="r">Vice</th></tr></thead><tbody>
+    <table class="pr-tab"><thead><tr><th>Competição</th><th></th><th class="r">Campeão</th><th class="r">Vice</th></tr></thead><tbody>
       ${['champions','masters1',(t.tier===1?'stage2_':'split2_')+t.regiao,(t.tier===1?'kickoff_':'asc_')+t.regiao]
         .map(id=>{const tor=torneio(id);if(!tor||!tor.premio)return '';
           const p=premiosDoStage({torneioId:id});
-          return `<tr><td>${torneioInline(id,20)}</td><td class="r num">${money(p[0]||0)}</td>
-            <td class="r num">${p[1]?money(p[1]):'—'}</td></tr>`;}).join('')}
+          return `<tr><td>${torneioInline(id,20)}</td><td class="pr-b"><i style="width:${Math.round((p[0]||0)/1000000*100)}%"></i></td><td class="r num"><b>${money(p[0]||0)}</b></td>
+            <td class="r num dim">${p[1]?money(p[1]):'—'}</td></tr>`;}).join('')}
     </tbody></table>
     <p class="dim" style="margin-top:8px">Os valores saem do catálogo de torneios e são editáveis
     no Banco de dados › Torneios.</p></div>`;
