@@ -425,7 +425,7 @@ function mercadoNaJanela(){
     &&!p.preContrato&&!ocupados.has(p.id)&&!recemChegado(p)&&(!p.timeId||p.contrato<=2||emCrise(G.times[p.timeId])||p.pedidoSaida));
   let feitos=0;
   for(const t of Object.values(G.times)){
-    if(t.id===G.meuTime||rnd()>chance*fracaoMercado())continue;
+    if(t.id===G.meuTime||rnd()>chance*fracaoMercado()*(typeof apetiteDeCompra==='function'?apetiteDeCompra(t)/0.5:1))continue;
     const r=tentarReforco(t,cand);
     if(r){feitos++;autoEscalar(t);}
   }

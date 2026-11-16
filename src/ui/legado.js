@@ -15,19 +15,27 @@ function cardConquistas(c){
   if(!c)return '';
   const pr=c.premios||[];
   return `<div class="card"><div class="eyebrow">Conquistas</div>
-    <div class="jg-st">${[['títulos',c.titulos],['internacionais',c.intl],['prêmios do ano',pr.length],['MVP de torneio',c.mvpTorneios]].map(([r,v])=>`<div><b class="num">${v||0}</b><span>${r}</span></div>`).join('')}</div>
+    <div class="cqj">${[['trofeu','títulos',c.titulos,'#f5c15a'],['mundo','internacionais',c.intl,'#a78bfa'],['medalha','prêmios do ano',pr.length,'#18E5B4'],['estrela','MVP de torneio',c.mvpTorneios,'#ff7a88']].map(([ic,r,v,cor])=>
+      `<div class="cqj-m ${v?'on':''}" style="--mc:${cor}"><span class="cqj-ic">${icone(ic)}</span><b class="num">${v||0}</b><em>${r}</em></div>`).join('')}</div>
     ${pr.length?`<div class="lg-premios">${pr.slice().reverse().map(x=>`<span class="chip">${x.ano} · ${esc(x.rot||x.tipo)}</span>`).join('')}</div>`:''}
     ${c.recordes&&c.recordes.length?`<div class="lg-rec">${c.recordes.map(r=>`<div><span class="dim">${esc(r.rot)}</span><b class="num">${r.v}</b>${r.ano?`<i class="dim">${r.ano}</i>`:''}</div>`).join('')}</div>`:''}
     ${c.copa&&(c.copa.ouro.length||c.copa.prata.length||c.copa.bronze.length)?`<p class="cpx-cq">World Cup: ${c.copa.ouro.map(a=>'🥇 '+a).concat(c.copa.prata.map(a=>'🥈 '+a),c.copa.bronze.map(a=>'🥉 '+a)).join(' · ')}${c.copa.mvp.length?' · MVP da Copa '+c.copa.mvp.join(', '):''}</p>`:''}
     ${(c.selecao||[]).length?`<p class="dim">Pela seleção: ${c.selecao.map(x=>`${x.tipo==='copa'?'World Cup':'eliminatórias'} ${x.ano}${x.titular?'':' (reserva)'}`).join(' · ')}.</p>`:''}
     ${(c.convocacoes||[]).length?`<p class="dim">Eventos internacionais: ${c.convocacoes.map(x=>`${esc(x.nome)} ${x.ano}${x.titular?'':' (banco)'}`).join(' · ')}.</p>`:''}
-    <p class="dim">Pontos de Hall da Fama: <b>${c.lenda}</b> de ${typeof LENDA_CORTE!=='undefined'?LENDA_CORTE:14} para entrar na aposentadoria.</p></div>`;
+    ${(()=>{const corte=typeof LENDA_CORTE!=='undefined'?LENDA_CORTE:14,pct=Math.min(100,Math.round((c.lenda||0)/corte*100));
+      return `<div class="hfj"><span class="hfj-r">${icone('coroa')} Hall da Fama</span><span class="hfj-b"><i style="width:${pct}%"></i></span><b class="num">${c.lenda||0}<em>/${corte}</em></b></div>`;})()}</div>`;
 }
 /* o fim da carreira, no Meu jogador */
 function cardFimDeCarreira(p){
   const longe=(p.pico||over(p))-over(p);
+  const ini=G.voce&&G.voce.desde?p.idade-(G.ano-G.voce.desde):p.idade;
+  const X=v=>Math.round(clamp((v-15)/(40-15),0,1)*100);
   return `<div class="card"><div class="eyebrow">Fim de carreira</div>
-    <p>${p.idade} anos · over ${over(p)} (auge ${Math.round(p.pico||over(p))}).${p.idade>=33&&longe>=8?' O corpo já está pedindo.':''}</p>
+    <div class="fcj"><span class="fcj-z" style="left:${X(35)}%;width:${100-X(35)}%"></span>
+      <span class="fcj-p" style="left:${X(ini)}%;width:${Math.max(1,X(p.idade)-X(ini))}%"></span>
+      <i class="fcj-h" style="left:${X(p.idade)}%"><b>${p.idade}</b></i>
+      ${[15,20,25,30,35,40].map(a=>`<em style="left:${X(a)}%">${a}</em>`).join('')}</div>
+    <p>Over ${over(p)} · auge ${Math.round(p.pico||over(p))}.${p.idade>=33&&longe>=8?' O corpo já está pedindo.':''}</p>
     <p class="dim">Você decide quando parar. Aos 40, ou a partir dos 35 com 12 pontos abaixo do auge, o corpo decide por você na virada da temporada. Depois de parar dá para seguir como técnico no mesmo save; os clubes por onde você passou chamam primeiro.</p>
     <button class="btn ghost sm" data-lgaposentar="1">Pendurar o mouse…</button></div>`;
 }

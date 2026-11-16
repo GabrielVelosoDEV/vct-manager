@@ -192,7 +192,7 @@ function vEscritorio(){
 /* ---------- cabeçalho das telas do dono ---------- */
 function cabecalhoDono(eyebrow,titulo,sub,icone_){
   const t=meu();
-  return `<div class="esc-cab" style="--clube:${corDoClube(t)}">
+  return `<div class="escr-cab" style="--clube:${corDoClube(t)}">
     ${typeof cenaFoto==='function'?cenaFoto('cenas','sala-diretoria',t,{cls:'esc-cab-f',foco:'placa'}):''}
     <div class="esc-cab-c"><span class="esc-cab-ic">${icone(icone_||'predio')}</span>
       <div><div class="eyebrow">${esc(eyebrow)}</div><h2 class="sec">${esc(titulo)}</h2>${sub?`<p class="dim">${sub}</p>`:''}</div></div></div>`;

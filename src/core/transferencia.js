@@ -157,16 +157,63 @@ function contratoPesado(p){
    vendendo para a IA. A decisão é do DONO, uma por jogador e por mês — se
    cada comprador sorteasse a sua, com oitenta clubes alguém sempre ouvia
    sim. Sorteio fixo (não gasta o gerador do motor). */
+/* Pilar: titular entre os três melhores do elenco. É em volta dele que o
+   clube monta o time, e é o último que ele aceita vender. */
+function pilarDoClube(p,t){
+  t=t||(p&&p.timeId?G.times[p.timeId]:null);
+  if(!t||!(t.titulares||[]).includes(p.id))return false;
+  const ordem=(t.elenco||[]).map(i=>G.jogadores[i]).filter(Boolean).sort((a,b)=>over(b)-over(a));
+  return ordem.slice(0,3).some(x=>x.id===p.id);
+}
 function disposicaoDeVender(p){
   const t=p&&p.timeId?G.times[p.timeId]:null;if(!t)return 1;
   if(recemChegado(p))return 0;
   if((typeof emCrise==='function'&&emCrise(t))||(p.pedidoSaida&&!p.pedidoSaida.negado))return 1;
   if(chegouHaPouco(p))return 0;
   let d=1;
-  if((t.titulares||[]).includes(p.id))d*=0.55;
+  const titular=(t.titulares||[]).includes(p.id);
+  /* Os clubes querem manter a base: titular só sai por muito, o pilar quase
+     nunca, e quem acabou de ganhar não desmonta o time campeão. Antes o
+     titular valia 0.55 e, numa só pré-temporada, 36 dos 50 melhores do
+     mundo trocavam de clube. */
+  if(titular)d*=0.35;
+  if(pilarDoClube(p,t))d*=0.2;
+  /* quem já perdeu um titular no semestre não abre mão de outro */
+  const sn=typeof _semanaNeg==='function'?_semanaNeg():0;
+  if(titular&&t.ultVendaTit!=null&&sn-t.ultVendaTit<26)d*=0.15;
+  if(titular&&titulosRecentes(t)>0)d*=0.5;
   d*=(p.contrato||0)>=3?0.25:(p.contrato===2?0.65:1);
   if(contratoPesado(p))d*=0.6;
+  /* reserva e jogador infeliz saem com facilidade: é aí que o mercado anda */
+  if(!titular)d=Math.min(1,d*1.4);
+  if((p.moral||1)<0.4)d=Math.min(1,d*1.6);
   return d;
+}
+/* A multa de um titular não é porta aberta para os oitenta clubes: em cada
+   temporada só uma parte dos titulares fica, de fato, "comprável pela multa"
+   (o jogador quer sair, o empresário mexe, um clube faz a loucura). A decisão
+   é por JOGADOR — se fosse por comprador, com oitenta clubes alguém sempre
+   pagava, e todas as estrelas do mundo saíam assim. */
+function multaAbertaNoAno(p){
+  const t=p&&p.timeId?G.times[p.timeId]:null;
+  if(!t||!(t.titulares||[]).includes(p.id))return true;
+  const chance=pilarDoClube(p,t)?0.06:0.14;
+  return (_hashTxt(p.id+'|multaAno|'+G.ano)%1000)/1000<chance;
+}
+/* Apetite de compra do clube, de 0 a 1. Quem acabou de ganhar segura o
+   elenco; quem tem nome e dinheiro e não ganha é quem mais vai ao mercado;
+   elenco curto obriga. Sorteio fixo por clube e temporada fica com quem chama. */
+function apetiteDeCompra(t){
+  if(!t)return 0;
+  let a=0.5;
+  const tit=titulosRecentes(t);
+  if(tit)a-=0.3*Math.min(2,tit);
+  else if((t.prestigio||0)>=70)a+=0.25;          /* tentou, não ganhou */
+  const tp=t.temporada||{};
+  if((tp.v||0)+(tp.d||0)>=6&&(tp.v||0)<(tp.d||0))a+=0.15;   /* campanha ruim */
+  if((t.elenco||[]).length<6)a+=0.3;
+  if(typeof emCrise==='function'&&emCrise(t))a-=0.3;
+  return clamp(a,0.05,1);
 }
 function topaVender(t,p){
   if(p&&p.voce)return false;   /* modo jogador: propostas por você são da J5 */
@@ -480,6 +527,7 @@ function avaliarProposta(p,destino,taxa,sal,anos){
    em mercadovivo.js). Sem ela, tudo à vista como sempre. */
 function executarProposta(p,destino,taxa,sal,anos,parcela){
   const origem=p.timeId?G.times[p.timeId]:null;
+  if(origem&&(origem.titulares||[]).includes(p.id))origem.ultVendaTit=typeof _semanaNeg==='function'?_semanaNeg():0;
   const depois=origem&&parcela>0?Math.min(taxa,Math.round(parcela)):0;
   destino.caixa-=taxa-depois;if(origem)origem.caixa+=taxa-depois;
   if(depois&&typeof agendarParcela==='function')agendarParcela(destino,origem,depois,p);
@@ -565,14 +613,19 @@ function tentarReforco(t,candidatos){
   for(const p of candidatos){
     if(p.timeId===t.id)continue;
     if(t.elenco.length>=9)break;
-    /* só interessa quem melhora a escalação de verdade */
+    /* só interessa quem melhora a escalação de verdade. Tirar o titular de
+       outro clube pede salto grande; reserva, promessa e agente livre, não */
     const ganho=Math.max(overComo(p,car.role),over(p))-car.alvo;
-    if(ganho<2)continue;
+    const titularFora=!!(p.timeId&&G.times[p.timeId]&&(G.times[p.timeId].titulares||[]).includes(p.id));
+    if(ganho<(titularFora&&over(p)>=80?5:2))continue;
     /* o dono não quer vender agora (contrato, salário, adaptação): sobra a
        multa, e só para um salto grande — nunca para quem chegou neste ano */
     let forcaMulta=false;
     if(p.timeId&&!topaVender(t,p)){
       if(chegouHaPouco(p)||ganho<MULTA_SALTO)continue;
+      /* pagar a multa de um pilar é raro: uma chance pequena por clube e
+         temporada, e só para quem está com fome de mercado */
+      if(!multaAbertaNoAno(p))continue;
       forcaMulta=true;
     }
     const d=detalharPedido(p,t);
@@ -584,7 +637,9 @@ function tentarReforco(t,candidatos){
     if(p.timeId&&taxa>=multaDe(p)&&ganho<5)continue;
     if(recusasDuras(p,t,3).length)continue;
     /* nota do negócio: ganho esportivo por real gasto */
-    avaliados.push({p,d,taxa,nota:ganho/(1+(taxa+d.pedido*12)/500000)});
+    /* o mercado anda mais entre promessas, reservas e quem está sem clube */
+    const peso=(p.idade<=21?1.35:1)*(!p.timeId?1.15:titularFora?0.6:1.15);
+    avaliados.push({p,d,taxa,nota:peso*ganho/(1+(taxa+d.pedido*12)/500000)});
   }
   if(!avaliados.length)return null;
   avaliados.sort((a,b)=>b.nota-a.nota);
@@ -615,7 +670,10 @@ function mercadoTransferencias(){
     .sort((a,b)=>atratividade(b)-atratividade(a));
   let fechados=0;
   for(const t of clubes){
-    for(let n=0;n<2;n++){
+    /* apetite decide se o clube vai ao mercado e se faz a segunda compra */
+    const ap=apetiteDeCompra(t),sorte=(_hashTxt(t.id+'|virada|'+G.ano)%1000)/1000;
+    const maximo=sorte<ap*0.45?2:sorte<ap?1:0;
+    for(let n=0;n<maximo;n++){
       /* candidatos: quem está em outro clube da IA, mais os agentes livres.
          Seu elenco fica de fora: a IA não tira jogador seu pelas suas costas. */
       const cand=Object.values(G.jogadores).filter(p=>{

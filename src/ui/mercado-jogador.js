@@ -21,6 +21,7 @@ function _cartaoProposta(pr){
       <button class="btn ghost sm" data-mjrecusar="${pr.id}">Recusar</button>
       <span class="dim">${pr.acordo?'acordo fechado · ':''}${pr.tipo!=='teste'?`paciência ${pr.paciencia} · `:''}vale mais ${resta} semana${resta===1?'':'s'}</span></div></div>`;
 }
+function _nivelEmp(n){n=+n||1;return `<span class="emj-st" title="nível ${n} de 5">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function vJContrato(){
   const p=meuJogador();
   if(!p)return `<div class="card flat">${vazio('<b>Sem jogador nesta carreira.</b>','elenco')}</div>`;
@@ -31,9 +32,16 @@ function vJContrato(){
   const cand=e?[]:candidatosEmpresario();
   return `<div class="grid g2 cx-linha">
     <div class="card"><div class="eyebrow">Seu contrato</div>
-      ${t?`<div class="mj-prop-top">${escudo(t,44)}<div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div></div>
-        <div class="mj-num">${lin('Salário',moneyJ(p.salario)+'/mês')}${lin('Restam',p.contrato+' ano'+(p.contrato===1?'':'s'))}${lin('Multa',moneyJ(multaDe(p)))}
-          ${lin('Cláusulas',[cl.titular?'titular':'',cl.bonusTitulo?'bônus por título '+moneyJ(cl.bonusTitulo):''].filter(Boolean).join(' · ')||'nenhuma')}</div>
+      ${t?`<div class="ctj" style="--clube:${corDoClube(t)}">
+          <div class="ctj-top">${escudo(t,52)}<div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div>
+            <span class="ctj-sel">${icone('contrato')} contrato</span></div>
+          <div class="ctj-anos">${Array.from({length:Math.max(1,Math.min(4,p.contrato))},(_,i)=>`<i class="${i===0?'agora':''} ${p.contrato<=1?'fim':''}"><b>${G.ano+i}</b></i>`).join('')}<span>${p.contrato} ano${p.contrato===1?'':'s'} restando</span></div>
+          <div class="ctj-nums">
+            <div><span>${icone('dinheiro')} Salário</span><b class="num">${moneyJ(p.salario)}</b><em>por mês</em></div>
+            <div><span>${icone('cadeado')} Multa</span><b class="num">${moneyJ(multaDe(p))}</b><em>para sair antes</em></div>
+          </div>
+          <div class="ctj-cl">${cl.titular?`<span class="chip t">${icone('estrela')} cláusula de titular</span>`:''}${cl.bonusTitulo?`<span class="chip t">${icone('trofeu')} bônus por título ${moneyJ(cl.bonusTitulo)}</span>`:''}${!cl.titular&&!cl.bonusTitulo?'<span class="dim">sem cláusulas especiais</span>':''}</div>
+        </div>
         ${p.preContrato?`<p><b>Pré-contrato assinado</b> com o ${esc((G.times[p.preContrato.clubeId]||{}).nome||'')}: você se apresenta na virada.</p>`:''}
         ${p.contrato<=1?`<p class="dim">Último ano. ${props.some(x=>x.tipo==='renovacao')?'Tem renovação na mesa.':'A renovação, se vier, chega a partir da semana 18.'} Sem renovar, você sai livre na virada.</p>`:''}
         ${cl.titular?`<p class="dim">Com a cláusula de titular, ${BANCO_LIBERA_CLAUSULA} semanas seguidas no banco liberam a saída sem multa (hoje: ${G.voce.semBanco||0}).</p>`:''}
@@ -44,12 +52,14 @@ function vJContrato(){
       <label class="sj-auto" style="text-align:left;max-width:none;margin-top:10px"><input type="checkbox" id="mjAuto" ${G.voce.autoContrato===true?'checked':''}> Assistente de contrato (desligado = só você decide): aceita a renovação do meu clube; livre, faz os testes e fica com a melhor proposta; e, depois de 8 semanas no banco, aceita uma saída para jogar</label>
     </div>
     <div class="card"><div class="eyebrow">Empresário</div>
-      ${e?`<p><b>${esc(e.nome)}</b> · ${esc(EMPRESARIO_NIVEIS[e.nivel].nome)} · ${Math.round(e.comissao*100)}% do salário</p>
+      ${e?`<div class="emj on"><span class="emj-ic">${icone('maleta')}</span><div><b>${esc(e.nome)}</b>${_nivelEmp(e.nivel)}
+          <em>${esc(EMPRESARIO_NIVEIS[e.nivel].nome)} · ${Math.round(e.comissao*100)}% do salário</em></div></div>
         <p class="dim">Traz mais propostas e negocia um teto mais alto (+${e.nivel*4}% no que o clube aceita pagar).</p>
         <button class="btn ghost sm" data-mjemp="demitir">Dispensar</button>`
       :`<p class="dim">Sem empresário as propostas chegam mais devagar e o teto é o do clube. Ele cobra luvas para assinar e uma comissão do salário.</p>
-        <div class="mj-emps">${cand.map(c=>`<div class="mj-emp ${c.aceita?'':'off'}"><b>${esc(c.nome)}</b><span>${esc(c.rot)} · ${Math.round(c.comissao*100)}% · luvas ${moneyJ(c.luvas)}</span>
-          ${c.aceita?`<button class="btn sm" data-mjemp="${c.nivel}">Contratar</button>`:`<span class="dim">só com over ${c.minOver}</span>`}</div>`).join('')}</div>`}
+        <div class="emj-l">${cand.map(c=>`<div class="emj ${c.aceita?'':'off'}"><span class="emj-ic">${icone(c.aceita?'maleta':'cadeado')}</span>
+          <div><b>${esc(c.nome)}</b>${_nivelEmp(c.nivel)}<em>${esc(c.rot)} · ${Math.round(c.comissao*100)}% · luvas ${moneyJ(c.luvas)}</em></div>
+          ${c.aceita?`<button class="btn sm" data-mjemp="${c.nivel}">Contratar</button>`:`<span class="emj-lock">over ${c.minOver}</span>`}</div>`).join('')}</div>`}
     </div></div>
   <div class="card"><div class="eyebrow">Propostas</div>
     ${props.length?`<div class="mj-props">${props.map(_cartaoProposta).join('')}</div>`
@@ -162,7 +172,8 @@ function vJFinancas(){
     <div class="grid g2 cx-linha">
       <div class="card jx-setup"><span class="jx-setup-f com-cena">${fotoP('equip')}</span><div class="eyebrow">Setup</div>
         ${SETUP_ITENS.map(it=>{const n=s[it.id]||0, prox=it.niveis[n];
-          return `<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${n?esc(it.niveis[n-1].txt):'o básico'}</span><p class="dim">${esc(it.desc)} Nível ${n}/${it.niveis.length}.</p></div>
+          return `<div class="mj-item"><div><b>${esc(it.nome)}</b> <span class="dim">${n?esc(it.niveis[n-1].txt):'o básico'}</span><p class="dim">${esc(it.desc)}</p>
+            <span class="jx-pips">${it.niveis.map((_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}<em>nível ${n}/${it.niveis.length}</em></span></div>
             ${prox?`<button class="btn sm" data-mjsetup="${it.id}">${esc(prox.txt)} · ${moneyJ(prox.preco)}</button>`:'<span class="chip up">no topo</span>'}</div>`;}).join('')}
       </div>
       <div class="card"><div class="eyebrow">Staff pessoal</div>
@@ -172,7 +183,10 @@ function vJFinancas(){
         <div class="dj-modos">${ESTILOS_VIDA.map(e=>`<button class="nj-papel ${ev.id===e.id?'on':''}" data-mjvida="${e.id}"><b>${esc(e.nome)}</b><span>${esc(e.desc)}</span><i>${moneyJ(e.mes)}/mês</i></button>`).join('')}</div>
       </div></div>
     <div class="card"><div class="eyebrow">Extrato</div>
-      ${ext.length?`<table class="tbl"><tbody>${ext.map(x=>`<tr><td class="dim">${x.ano} · sem ${x.semana}</td><td>${esc(x.txt)}</td><td class="num ${x.valor<0?'dn':'up'}">${x.valor>0?'+':''}${moneyJ(x.valor)}</td></tr>`).join('')}</tbody></table>`
+      ${ext.length?(()=>{const mxv=Math.max(1,...ext.map(x=>Math.abs(x.valor)));
+        return `<div class="jxe">${ext.map(x=>`<div class="jxe-l"><span class="jxe-d">${x.ano}<b>S${x.semana}</b></span><span class="jxe-t">${esc(x.txt)}</span>
+          <span class="jxe-b"><i class="${x.valor<0?'n':'p'}" style="width:${Math.round(Math.abs(x.valor)/mxv*50)}%"></i></span>
+          <b class="num ${x.valor<0?'dn':'up'}">${x.valor>0?'+':''}${moneyJ(x.valor)}</b></div>`).join('')}</div>`;})()
         :vazio('<b>Nada ainda.</b> A primeira semana fecha com o salário.','dinheiro')}</div>`;
 }
 

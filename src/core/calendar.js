@@ -131,7 +131,9 @@ function montarBloco(b){
      que o Masters faz de verdade desde 2025. */
   if(b.montar==='m1Suico'||b.montar==='m2Suico'){
     const key=b.montar==='m1Suico'?'masters1':'masters2';
-    const times=G.qual[key].slice();
+    /* saves de antes da correção podem ter clubes do Challengers na lista */
+    const times=G.qual[key].filter(id=>G.times[id]&&(G.times[id].tierAno||G.times[id].tier)===1);
+    G.qual[key]=times.slice();
     b.stages=times.length>=4?[novoStage({id:key+'_sw',nome:(key==='masters1'?'Masters I':'Masters II')+' · Fase suíça',
       tipo:'swiss',bo:3,rotulo:'Fase suíça',regiao:'INT',tier:1,times,rodadasMax:3})]:[];
   }
@@ -203,7 +205,9 @@ function fimDeBloco(b){
   if(k==='kickoff'){
     b.stages.forEach(s=>{
       encerrarStage(s);
-      G.qual.masters1.push(s.ranking[0],s.ranking[1]);
+      /* só a liga principal dá vaga no Masters: o bloco do Kickoff também
+         tem os playoffs do Challengers, e os campeões deles iam junto */
+      if(s.tier===1)G.qual.masters1.push(s.ranking[0],s.ranking[1]);
     });
   }
   if(k==='masters1'||k==='masters2'){

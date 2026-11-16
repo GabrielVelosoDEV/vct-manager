@@ -531,7 +531,7 @@ function rodapeMVP(s){
    saldo positivo, para a esquerda negativo (lê-se sem ler o número) */
 function saldoRounds(v,mx){
   const pct=Math.round(Math.min(1,Math.abs(v)/Math.max(1,mx))*50);
-  return `<span class="sr"><span class="sr-b"><i class="${v>=0?'p':'n'}" style="width:${pct}%"></i></span><span class="sr-n ${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${v}</span></span>`;
+  return `<span class="srd"><span class="srd-b"><i class="${v>=0?'p':'n'}" style="width:${pct}%"></i></span><span class="srd-n ${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${v}</span></span>`;
 }
 /* ---------- fase de grupos ---------- */
 function corpoGrupos(s,t){

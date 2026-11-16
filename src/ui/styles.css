@@ -4840,9 +4840,9 @@ body.tema-dono ::selection{background:var(--ac);color:var(--ac-tx)}
 .esc-fat-l>div{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center}
 .esc-fat-l i{width:10px;height:10px;border-radius:2px;display:block}
 /* cabeçalho das telas do dono */
-.esc-cab{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid rgba(226,180,90,.18);background:#0D141B;animation:escSobe .45s ease both}
+.escr-cab{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid rgba(226,180,90,.18);background:#0D141B;animation:escSobe .45s ease both}
 .esc-cab-f{position:absolute;inset:0;opacity:.28}
-.esc-cab::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,20,.95) 30%,rgba(10,15,20,.55));z-index:0}
+.escr-cab::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,20,.95) 30%,rgba(10,15,20,.55));z-index:0}
 .esc-cab-c{position:relative;display:flex;align-items:center;gap:16px;padding:18px 22px}
 .esc-cab-c h2.sec{margin:0;font-size:36px;color:#F4EAD5}
 .esc-cab-c p{margin-top:4px;max-width:760px}
@@ -5500,14 +5500,14 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
   .top-avancar{box-shadow:0 6px 20px -6px rgba(255,70,85,.6)}
 }
 /* saldo de rounds */
-.sr{display:inline-flex;align-items:center;gap:8px;justify-content:center}
-.sr-b{position:relative;width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.06)}
-.sr-b::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.25)}
-.sr-b i{position:absolute;top:0;bottom:0;border-radius:3px}
-.sr-b i.p{left:50%;background:var(--teal)}
-.sr-b i.n{right:50%;background:var(--red)}
-.sr-n{min-width:30px;text-align:right}
-.sr-n.up{color:var(--teal)}.sr-n.dn{color:#ff7a7a}
+.srd{display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.srd-b{position:relative;width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.06)}
+.srd-b::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.25)}
+.srd-b i{position:absolute;top:0;bottom:0;border-radius:3px}
+.srd-b i.p{left:50%;background:var(--teal)}
+.srd-b i.n{right:50%;background:var(--red)}
+.srd-n{min-width:30px;text-align:right}
+.srd-n.up{color:var(--teal)}.srd-n.dn{color:#ff7a7a}
 /* líderes: barra relativa ao primeiro */
 .lid-tab td{padding:8px 10px}
 .lid-tab .lid-bt{width:32%}
@@ -5658,3 +5658,86 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 /* a carta do jogador entra girando */
 .bv-carta{filter:drop-shadow(0 20px 40px color-mix(in srgb,var(--bvc) 35%,transparent));animation:bvCarta 1.1s .15s cubic-bezier(.2,.9,.3,1.1) both}
 @keyframes bvCarta{from{opacity:0;transform:perspective(700px) rotateY(-100deg) scale(.8)}to{opacity:1;transform:none}}
+
+/* ============================================================
+   MODO JOGADOR — miolo das telas
+   ============================================================ */
+/* conquistas em medalhas */
+.cqj{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+.cqj-m{--mc:#888;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:10px;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);opacity:.6}
+.cqj-m.on{opacity:1;background:linear-gradient(180deg,color-mix(in srgb,var(--mc) 14%,transparent),transparent);border-color:color-mix(in srgb,var(--mc) 35%,transparent)}
+.cqj-ic{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.05);color:var(--mc)}
+.cqj-m.on .cqj-ic{background:color-mix(in srgb,var(--mc) 22%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--mc) 35%,transparent)}
+.cqj-ic .ic{width:20px;height:20px;margin:0}
+.cqj-m b{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1}
+.cqj-m em{font-style:normal;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);text-align:center}
+.hfj{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:14px;padding:10px 12px;border-radius:8px;background:rgba(230,190,110,.06);border:1px solid rgba(230,190,110,.2)}
+.hfj-r{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#E2B45A}
+.hfj-r .ic{margin:0;width:14px;height:14px}
+.hfj-b{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.hfj-b i{display:block;height:100%;background:linear-gradient(90deg,#C99A45,#F6DE9C)}
+.hfj b{font-size:15px}.hfj b em{font-style:normal;color:var(--dim);font-size:11px}
+/* fim de carreira: régua da idade */
+.fcj{position:relative;height:42px;margin:16px 0 8px;border-bottom:1px solid rgba(255,255,255,.1)}
+.fcj-z{position:absolute;top:8px;height:12px;border-radius:3px;background:repeating-linear-gradient(135deg,rgba(255,90,90,.25) 0 6px,rgba(255,90,90,.08) 6px 12px)}
+.fcj-p{position:absolute;top:8px;height:12px;border-radius:3px;background:linear-gradient(90deg,rgba(24,229,180,.3),#18E5B4)}
+.fcj-h{position:absolute;top:2px;width:2px;height:24px;background:#fff;margin-left:-1px}
+.fcj-h b{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:11px;color:#18E5B4}
+.fcj em{position:absolute;bottom:-1px;transform:translateX(-50%);font-style:normal;font-size:9.5px;color:var(--dim)}
+/* contrato do jogador */
+.ctj{--clube:#18E5B4;position:relative;padding:14px;border-radius:10px;background:linear-gradient(160deg,color-mix(in srgb,var(--clube) 12%,#141c25),#0f151c 70%);
+  border:1px solid color-mix(in srgb,var(--clube) 30%,transparent)}
+.ctj-top{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.ctj-top>div{display:flex;flex-direction:column}
+.ctj-sel{display:inline-flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);border:1px dashed rgba(255,255,255,.2);padding:4px 8px;border-radius:4px}
+.ctj-sel .ic{margin:0;width:12px;height:12px}
+.ctj-anos{display:flex;align-items:center;gap:4px;margin-top:14px}
+.ctj-anos i{flex:0 0 64px;height:28px;border-radius:5px;background:linear-gradient(90deg,#14a884,#18E5B4);display:grid;place-items:center;font-style:normal}
+.ctj-anos i.fim{background:linear-gradient(90deg,#c43a48,var(--red))}
+.ctj-anos i b{font-size:11px;color:#06231c}
+.ctj-anos i.fim b{color:#fff}
+.ctj-anos span{margin-left:8px;font-size:12px;color:var(--tx2)}
+.ctj-nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.ctj-nums>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:8px;background:rgba(0,0,0,.25)}
+.ctj-nums span{display:inline-flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.ctj-nums span .ic{margin:0;width:12px;height:12px}
+.ctj-nums b{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.ctj-nums em{font-style:normal;font-size:11px;color:var(--dim)}
+.ctj-cl{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:12px}
+.ctj-cl .chip .ic{margin:0 4px 0 0;width:12px;height:12px}
+/* empresários */
+.emj-l{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.emj{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);transition:.15s}
+.emj:hover{border-color:rgba(24,229,180,.4)}
+.emj.on{border-color:rgba(24,229,180,.5);background:rgba(24,229,180,.07)}
+.emj.off{opacity:.5}
+.emj-ic{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;background:rgba(24,229,180,.12);color:#18E5B4}
+.emj.off .emj-ic{background:rgba(255,255,255,.05);color:var(--dim)}
+.emj-ic .ic{margin:0;width:18px;height:18px}
+.emj>div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.emj b{font-size:14px}
+.emj-st{color:#f5c15a;font-size:11px;letter-spacing:2px}
+.emj-st i{font-style:normal;color:rgba(255,255,255,.12)}
+.emj em{font-style:normal;font-size:11.5px;color:var(--dim)}
+.emj-lock{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+/* setup: níveis */
+.jx-pips{display:inline-flex;align-items:center;gap:4px;margin-top:6px}
+.jx-pips i{width:18px;height:5px;border-radius:3px;background:rgba(255,255,255,.1)}
+.jx-pips i.on{background:#18E5B4;box-shadow:0 0 6px rgba(24,229,180,.5)}
+.jx-pips em{font-style:normal;font-size:10.5px;color:var(--dim);margin-left:4px}
+/* extrato em barras */
+.jxe{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.jxe-l{display:grid;grid-template-columns:70px 1fr 180px 80px;gap:12px;align-items:center;padding:7px 10px;border-radius:6px}
+.jxe-l:hover{background:rgba(255,255,255,.03)}
+.jxe-d{font-size:10px;color:var(--dim);display:flex;flex-direction:column;line-height:1.1}
+.jxe-d b{font-size:13px;color:var(--tx2)}
+.jxe-t{font-size:12.5px;color:var(--tx2)}
+.jxe-b{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.05)}
+.jxe-b::after{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,.2)}
+.jxe-b i{position:absolute;top:0;bottom:0;border-radius:3px}
+.jxe-b i.p{left:50%;background:#18E5B4}.jxe-b i.n{right:50%;background:var(--red)}
+.jxe-l>b{text-align:right}
+.emj-st{display:inline-flex;gap:3px;margin:3px 0 2px}
+.emj-st i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}
+.emj-st i.on{background:#f5c15a}
