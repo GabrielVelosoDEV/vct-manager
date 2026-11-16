@@ -32,7 +32,7 @@ const args=new Set(process.argv.slice(2));
 const TUDO=args.has('--tudo'), CHECAR=args.has('--checar'), RENOMEAR=args.has('--renomear');
 
 /* a mesma regra de ASSETS.slug em src/data/assets.js */
-const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'')
+const slug=s=>String(s).replace(/[ıİ]/g,c=>c==='ı'?'i':'I').replace(/[øØ]/g,'o').replace(/[łŁ]/g,'l').replace(/ß/g,'ss').replace(/[đĐ]/g,'d').normalize('NFD').replace(/[̀-ͯ]/g,'')
   .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
 
 /* Ordem de preferência quando o mesmo nome existe em dois formatos. */

@@ -34,6 +34,12 @@ function migrarDonos(){
     const t=G.times[id];
     if(t.dono&&!t.dono.tipo)t.dono=Object.assign({tipo:'pessoa',perfil:'paciente'},t.dono);
     if(!t.dono)t.dono=novoDono(t.tag,t.nome,null);
+    /* dono da base que ainda é o do começo do mundo (desde null): se a base
+       ganhou nome depois (pesquisa nova), o save passa a mostrar o novo */
+    else if(t.dono.desde==null&&!t.dono.voce&&!t.dono.exId){
+      const d=dadoDono(t.tagOriginal||t.tag);
+      if(d&&(d.nome!==t.dono.nome||d.tipo!==t.dono.tipo)){const perfil=t.dono.perfil;t.dono=novoDono(t.tagOriginal||t.tag,t.nome,null);if(perfil&&!t.dono.base)t.dono.perfil=perfil;}
+    }
   }
   if(G.manager&&G.manager.papel==='diretoria')G.manager.papel='dono';
   if(G.manager&&G.manager.papel==='dono'&&!G.manager.variante)G.manager.variante='livre';

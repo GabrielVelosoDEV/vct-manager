@@ -2,8 +2,9 @@
    DONOS DAS ORGANIZAÇÕES
    ------------------------------------------------------------
    Tier 1: a lista que você montou (donostier1.docx, 15/11/2026).
-   Challengers e entrantes: pesquisa de 15/11/2026, a conferir —
-   quem não foi confirmado entra como a própria organização.
+   Challengers e entrantes: pesquisa de 15/11 e 16/11/2026 — quem não
+   foi confirmado entra como a própria organização ('org'), com o
+   retrato corporativo feito da logo do clube.
 
    tipo     'pessoa'  o rosto do clube é uma pessoa (nome e foto)
             'empresa' controlado por uma empresa: mostra a empresa
@@ -43,7 +44,7 @@ const DONOS={
   G2   :{tipo:'pessoa', nome:'Jens Hilgers', empresa:'G Esports Holding GmbH', perfil:'investidor'},
   ENVY :{tipo:'pessoa', nome:'Mike "Hastr0" Rufail', empresa:'Envy Gaming', perfil:'paciente'},
 /* ---------------- VCT EMEA ---------------- */
-  BBL  :{tipo:'org',    nome:'BBL Esports', junto:'fundadores turcos da organização', perfil:'economico'},
+  BBL  :{tipo:'pessoa', nome:'Okan İlker Demirel', empresa:'BBL Esports', junto:'Ferit "WTCN" Karakaya, entre os fundadores', perfil:'midiatico'},
   FNC  :{tipo:'pessoa', nome:'Sam Mathews', empresa:'Fnatic Ltd.', perfil:'paciente'},
   FUT  :{tipo:'empresa',nome:'Futbolist Sportif Hizmetler A.Ş.', junto:'empresários turcos', perfil:'economico'},
   KC   :{tipo:'pessoa', nome:'Kameto', empresa:'Karmine Corp SAS', junto:'Prime', perfil:'midiatico'},
@@ -53,8 +54,8 @@ const DONOS={
   VIT  :{tipo:'pessoa', nome:'Nicolas Maurer', empresa:'Team Vitality', junto:'Fabien Devide', perfil:'ambicioso'},
   GX   :{tipo:'empresa',nome:'JRJ Group', junto:'grupo empresarial', perfil:'investidor'},
   M8   :{tipo:'pessoa', nome:'Squeezie', empresa:'OZI', junto:'Gotaga e Brawks', perfil:'midiatico'},
-  PCF  :{tipo:'org',    nome:'PCIFIC Esports', junto:'proprietários não confirmados', perfil:'economico'},
-  EF   :{tipo:'org',    nome:'Eternal Fire', junto:'fundada por jogadores e empresários turcos', perfil:'paciente'},
+  PCF  :{tipo:'pessoa', nome:'Kaan Karapınar', empresa:'PCIFIC Esports', perfil:'ambicioso'},
+  EF   :{tipo:'pessoa', nome:'Furkan Güven', empresa:'Eternal Fire', perfil:'ambicioso'},
   AUR  :{tipo:'org',    nome:'Aurora Gaming', perfil:'ambicioso'},
 /* ---------------- VCT Pacific ---------------- */
   DFM  :{tipo:'pessoa', nome:'Nobuyuki Umezaki', empresa:'DetonatioN Inc.', perfil:'paciente'},
@@ -66,10 +67,10 @@ const DONOS={
   T1   :{tipo:'empresa',nome:'SK Telecom', empresa:'SK Telecom CS T1', junto:'Comcast', perfil:'paciente'},
   TS   :{tipo:'pessoa', nome:'John Yao', empresa:'Secret Esports LLC', perfil:'economico'},
   ZETA :{tipo:'empresa',nome:'GANYMEDE Inc.', junto:'grupo fundador', perfil:'midiatico'},
-  FS   :{tipo:'org',    nome:'FULL SENSE', junto:'proprietários não confirmados', perfil:'economico'},
+  FS   :{tipo:'pessoa', nome:'Intouchaya "Jijung" Chinpinkyo', empresa:'FULL SENSE', perfil:'paciente'},
   NS   :{tipo:'empresa',nome:'Nongshim Corporation', perfil:'paciente'},
   VL   :{tipo:'empresa',nome:'CELLORB Inc.', perfil:'economico'},
-  CR   :{tipo:'org',    nome:'Crazy Raccoon', perfil:'ambicioso'},
+  CR   :{tipo:'pessoa', nome:'Daichi "Ozizi" Takano', empresa:'Samurai Kobo Co., Ltd.', perfil:'midiatico'},
 /* ---------------- VCT China ---------------- */
   AG   :{tipo:'empresa',nome:'Orinno Capital', perfil:'investidor'},
   BLG  :{tipo:'empresa',nome:'Bilibili Inc.', perfil:'ambicioso'},
@@ -86,7 +87,7 @@ const DONOS={
 /* ---------------- Challengers (a conferir) ---------------- */
   M80  :{tipo:'pessoa', nome:'Marco Mereu', empresa:'M80', perfil:'economico'},
   SRB  :{tipo:'empresa',nome:'Shopify', perfil:'investidor'},
-  RED  :{tipo:'org',    nome:'RED Canids', perfil:'midiatico'},
+  RED  :{tipo:'pessoa', nome:'Felippe Corradini', empresa:'RED Canids', perfil:'ambicioso'},
   FX   :{tipo:'empresa',nome:'W7M Investments Group', junto:'o Fluxo de Nobru', perfil:'midiatico'},
   '2G' :{tipo:'org',    nome:'2Game Esports', perfil:'economico'},
   BST  :{tipo:'pessoa', nome:'Papo', empresa:'BESTIA', perfil:'midiatico'},
@@ -94,17 +95,17 @@ const DONOS={
   NBG  :{tipo:'org',    nome:'Nightblood Gaming', perfil:'economico'},
   EP   :{tipo:'org',    nome:'Enterprise Esports', perfil:'economico'},
   FF   :{tipo:'org',    nome:'Fire Flux Esports', perfil:'economico'},
-  JL   :{tipo:'org',    nome:'Joblife', perfil:'economico'},
+  JL   :{tipo:'pessoa', nome:'Toma "Tomy" Abdellaoui', empresa:'Joblife', junto:'Samuel "Impulse" Benitah', perfil:'ambicioso'},
   SGE  :{tipo:'empresa',nome:'Eintracht Frankfurt', junto:'o clube de futebol', perfil:'paciente'},
   MISA :{tipo:'org',    nome:'Misa Esports', perfil:'economico'},
-  MDR  :{tipo:'org',    nome:'Mandatory', perfil:'midiatico'},
+  MDR  :{tipo:'pessoa', nome:'Adrien "ZeratoR" Nougaret', empresa:'Mandatory', perfil:'midiatico'},
   MIR  :{tipo:'org',    nome:'MIR', perfil:'economico'},
-  ONG  :{tipo:'org',    nome:'ONSIDE GAMING', perfil:'economico'},
+  ONG  :{tipo:'empresa',nome:'Onside Company', perfil:'midiatico'},
   DK   :{tipo:'empresa',nome:'Dplus', perfil:'paciente'},
-  FL   :{tipo:'org',    nome:'FENNEL', perfil:'midiatico'},
-  RC   :{tipo:'org',    nome:'REJECT', perfil:'paciente'},
-  GAM  :{tipo:'org',    nome:'GAM Esports', perfil:'economico'},
-  QTD  :{tipo:'org',    nome:'QT DIG∞', perfil:'economico'},
+  FL   :{tipo:'pessoa', nome:'Ryo Takashima', empresa:'Fennel Inc.', perfil:'midiatico'},
+  RC   :{tipo:'pessoa', nome:'Shoya Kozan', empresa:'REJECT Inc.', perfil:'investidor'},
+  GAM  :{tipo:'pessoa', nome:'TK Nguyen', empresa:'GAM Esports', perfil:'midiatico'},
+  QTD  :{tipo:'empresa',nome:'QTnet Inc.', perfil:'economico'},
   XIP  :{tipo:'org',    nome:'Xipto Esports', perfil:'economico'},
   RA   :{tipo:'org',    nome:'Rare Atom', perfil:'economico'},
   WOL  :{tipo:'empresa',nome:'Fosun International', perfil:'investidor'},
@@ -119,8 +120,8 @@ const DONOS={
   '9Z' :{tipo:'pessoa', nome:'Frankkaster', empresa:'9z Team', perfil:'midiatico'},
   LNS  :{tipo:'pessoa', nome:'Thyak', empresa:'Lyon Gaming', perfil:'ambicioso'},
   NIP  :{tipo:'empresa',nome:'NIP Group', perfil:'investidor'},
-  FLC  :{tipo:'org',    nome:'Team Falcons', perfil:'ambicioso'},
+  FLC  :{tipo:'pessoa', nome:'Mosaad Aldossary', empresa:'Team Falcons', perfil:'ambicioso'},
   FAZE :{tipo:'empresa',nome:'GameSquare', perfil:'midiatico'},
-  SPT  :{tipo:'org',    nome:'Team Spirit', perfil:'paciente'},
+  SPT  :{tipo:'pessoa', nome:'Nikita "Cheshir" Chukalin', empresa:'Team Spirit', perfil:'paciente'},
   HLE  :{tipo:'empresa',nome:'Hanwha Life', perfil:'ambicioso'}
 };

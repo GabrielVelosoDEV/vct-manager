@@ -45,7 +45,9 @@ const ASSETS={
   /* arte da World Cup: assets/copa/ (logo, trofeu, sede-japao…) */
   copa(nome){return this.tem('copa',nome)?this.arq('copa',nome):'';},
   slug(s){
-    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    /* letras sem decomposição (turco ı, nórdico ø, polonês ł…) viram a base latina */
+    return String(s).replace(/[ıİ]/g,c=>c==='ı'?'i':'I').replace(/[øØ]/g,'o').replace(/[łŁ]/g,'l').replace(/ß/g,'ss').replace(/[đĐ]/g,'d')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
   },
   /* ordem de resolução: pacote de imagens do Editor → caminho manual do

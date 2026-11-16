@@ -15,7 +15,12 @@ function retratoDono(d,t,px){
   let src='';
   if(d.voce&&d.foto)src=d.foto;
   else if(d.exId&&G.jogadores[d.exId]&&typeof retrato==='function')return retrato(G.jogadores[d.exId],px);
-  else if(d.tipo==='pessoa'&&ASSETS.tem('donos',d.nome))src=ASSETS.arq('donos',d.nome);
+  else if(ASSETS.tem('donos',d.nome))src=ASSETS.arq('donos',d.nome);
+  /* empresa ou organização sem foto: o "retrato corporativo" — a logo do
+     clube numa placa de vidro sobre a fachada de um prédio, nas cores dele */
+  if(!src&&d.tipo!=='pessoa'&&t&&typeof ASSETS.logo==='function')
+    return `<span class="dono-ret dono-corp ${px<40?'p':''}" style="width:${px}px;height:${px}px;--c:${cor}" title="${esc(d.nome)}">
+      <i class="dono-corp-f"></i><img src="${ASSETS.logo(t)}" alt="" onerror="this.style.display='none'"><b>${d.tipo==='empresa'?'GROUP':'ORG'}</b></span>`;
   return `<img class="dono-ret" src="${src||fb}" alt="" style="width:${px}px;height:${px}px" onerror="this.onerror=null;this.src='${fb}'">`;
 }
 function cardDono(t){
