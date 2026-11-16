@@ -13,7 +13,7 @@
    ============================================================ */
 
 const NAV_JOGADOR=[
-  ['inicio','Central','Carreira','casa'],
+  ['inicio','Minha carreira','Carreira','mira'],
   ['perfil','Meu jogador','Carreira','elenco'],
   ['semana','Semana e treinos','Carreira','mira'],
   ['talentos','Talentos','Carreira','arvore'],
@@ -29,7 +29,8 @@ const NAV_JOGADOR=[
   ['news','Notícias','Circuito','jornal'],
   ['config','Configurações','Sistema','engrenagem']
 ];
-function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof navDoDono==='function'?navDoDono():NAV;}
+function navAtual(){if(typeof modoJogador==='function'&&modoJogador())return G.voce.aposentado&&typeof NAV_APOSENTADO!=='undefined'?NAV_APOSENTADO:NAV_JOGADOR;return typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof navDoDono==='function'?navDoDono()
+  :typeof papelDaCarreira==='function'&&papelDaCarreira()==='treinador'&&typeof navDoTreinador==='function'?navDoTreinador():NAV;}
 /* telas do modo jogador: chave → função de pintura */
 function telaDoJogador(k){
   /* depois de parar, só o legado e o circuito (ui/legado.js) */
@@ -54,6 +55,7 @@ function _jHero(p,t){
   const sit=_jSituacao(p,t), md=_jMedia(p), o=over(p);
   const fam=(p.agentes||[]).slice(0,3);
   return `<section class="cx-hero jg-hero" style="--clube:${cor};--clube-rgb:${rgbDe(cor)}">
+    ${typeof cenaFoto==='function'?cenaFoto('cenas','ativ-ranked',t,{cls:'jg-hero-f',foco:'placa',ansioso:true}):''}<i class="jg-hero-v"></i><i class="jg-hero-scan"></i>
     <div class="jg-hero-in">
       <div class="jg-carta">${cartaJogador(p,{w:150})}</div>
       <div class="jg-quem">
@@ -187,5 +189,5 @@ function sideCabecalhoJogador(){
   if(!p&&G.voce&&G.voce.aposentado)return `<div class="side-org"><div class="n"><b>${esc(G.voce.aposentado.nome)}</b><span>aposentado · ${G.voce.aposentado.ano}</span></div></div>`;
   if(!p)return '';
   const t=clubeDoJogador();
-  return `<div class="side-org">${t?escudo(t,34):''}<div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.nome:'sem clube')} · over ${over(p)}</span></div></div>`;
+  return `<div class="side-org side-jg"><div class="side-jg-r">${typeof retrato==='function'?retrato(p,38):''}</div><div class="n"><b>${esc(p.nome)}</b><span>${esc(t?t.tag:'sem clube')} · over ${over(p)}</span></div>${t?`<span class="side-tr-esc">${escudo(t,22)}</span>`:''}</div>`;
 }

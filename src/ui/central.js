@@ -267,7 +267,7 @@ function vInicio(){
   if(typeof timePerdido==='function'&&timePerdido())return telaFimDono(G.manager.empresa.perdeu);
   return `${faixaCircuito()}${typeof guiaPassosHTML==='function'?guiaPassosHTML():''}
   ${typeof avisoWO==='function'?avisoWO(t):''}
-  ${heroClube(t,rr)}
+  ${sit&&sit.papel==='Treinador'&&!sit.demitido&&typeof salaTaticaHero==='function'?salaTaticaHero(t,rr,sit):heroClube(t,rr)}
   ${typeof cardCopaCentral==='function'?cardCopaCentral():''}
   ${typeof cardConviteSelecao==='function'?cardConviteSelecao():''}
   ${typeof cardColetiva==='function'?cardColetiva():''}
@@ -276,7 +276,7 @@ function vInicio(){
   ${typeof cardAgendaDono==='function'?cardAgendaDono():''}
   ${typeof cardEmpresa==='function'?cardEmpresa(t):''}
   ${typeof cardTecnicoIA==='function'?cardTecnicoIA(t):''}
-  ${sit?`<div class="card mgr ${sit.livre?'':sit.tom}">
+  ${sit&&!(sit.papel==='Treinador'&&!sit.demitido&&typeof salaTaticaHero==='function')?`<div class="card mgr ${sit.livre?'':sit.tom}">
     <div class="split">
       <div class="mgr-quem">${retratoManager(52)}<div><div class="eyebrow">${esc(G.manager.nome)} · ${esc(sit.papel)}${(()=>{const mm=typeof membroManager==='function'&&membroManager();
           return mm?` · coach <b class="num">${overStaff(mm)}</b>${G.manager.modo==='lenda'?' · lenda':''}`:'';})()}</div>

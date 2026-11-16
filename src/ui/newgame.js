@@ -62,10 +62,15 @@ function telaNovoJogo(){
      de abertura e no mesmo ponto da rolagem */
   const antes=$('#modal .ovl.nj-ovl');
   const rolA=antes?antes.scrollTop:0,rolB=antes&&antes.querySelector('.box')?antes.querySelector('.box').scrollTop:0;
-  pintarModal(`<div class="ovl nj-ovl ${antes?'sem-entrada':''}"><div class="box wide">
-    <div class="eyebrow">Novo jogo</div><h2 class="sec">Quem é você</h2>
+  const trocouModo=antes&&!antes.classList.contains('nj-m-'+escPapel);
+  pintarModal(`<div class="ovl nj-ovl nj-m-${escPapel} ${antes?'sem-entrada':''} ${trocouModo?'nj-troca':''}"><div class="box wide nj-box">
+    <div class="nj-topo"><div class="eyebrow">Novo jogo</div><h2 class="sec">Escolha o seu modo</h2>
+      <p class="dim">O mesmo circuito, três jeitos de viver. Você pode trocar de modo antes de começar.</p></div>
+    ${portaisDeModo(selT)}
+    <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">1</span><div><b>${MODO_NJ[escPapel].secVoce}</b><span>${MODO_NJ[escPapel].secVoceSub}</span></div></div>
     <div class="nj-perfil">
-      <div class="nj-foto">
+      <div class="nj-foto nj-foto-${escPapel}">
+        <span class="nj-foto-selo">${icone(MODO_NJ[escPapel].ic)} ${MODO_NJ[escPapel].selo}</span>
         <label class="nj-foto-img" title="Escolher foto">${escFoto?`<img src="${escFoto}" alt="">`:`<span>${icone('mais')}<b>Sua foto</b></span>`}
           <input type="file" id="njFoto" accept="image/*" hidden></label>
         ${escFoto?'<button class="btn ghost sm" id="njFotoTira">Tirar a foto</button>':'<span class="dim">opcional · PNG ou JPG</span>'}
@@ -78,16 +83,11 @@ function telaNovoJogo(){
         <label>Gênero<select id="njGenero"><option value="m" ${escGenero==='m'?'selected':''}>Masculino</option><option value="f" ${escGenero==='f'?'selected':''}>Feminino</option></select></label>
       </div>
     </div>
-    <div class="eyebrow" style="margin-top:14px">Papel</div>
-    <div class="nj-papeis">${PAPEIS.map(p=>`
-        <button class="nj-papel ${escPapel===p.id?'on':''}" data-papel="${p.id}">
-          <b>${esc(p.nome)}</b>
-          <span>${esc(p.resumo)}</span>
-          <i>${esc(p.detalhe)}${p.id==='treinador'?' Você é o head coach: o coach do clube vai para o mercado.':p.id==='dono'?' O dono de antes sai; o coach continua no cargo.':' O coach do clube continua no cargo.'}</i>
-        </button>`).join('')}</div>
+    </section>
+    <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">2</span><div><b>${MODO_NJ[escPapel].sec2}</b><span>${MODO_NJ[escPapel].sec2Sub}</span></div></div>
     ${escPapel==='jogador'?blocoJogadorNJ():''}
     ${escPapel==='dono'?`
-    <div class="eyebrow" style="margin-top:14px">Como você comanda</div>
+    <div class="eyebrow" style="margin-top:4px">Como você comanda</div>
     <div class="nj-papeis">${VARIANTES_DONO.map(v=>`
         <button class="nj-papel ${escVariante===v.id?'on':''} ${v.emBreve?'nj-embreve':''}" data-variante="${v.id}" ${v.emBreve?'disabled':''}>
           <b>${esc(v.nome)}${v.emBreve?' <span class="nj-ov">em construção</span>':''}</b>
@@ -101,7 +101,7 @@ function telaNovoJogo(){
       <button class="nj-papel ${escComeco==='criar'?'on':''}" data-comeco="criar"><b>Criar a sua</b><span>Monte a sua organização: origem do dinheiro, compra de vaga, fusão ou fundação do zero, nome, escudo e sede.</span></button>
     </div>`:''}
     ${escPapel==='treinador'?`
-    <div class="eyebrow" style="margin-top:14px">Trajetória</div>
+    <div class="eyebrow" style="margin-top:4px">Trajetória</div>
     <div class="nj-papeis">${MODOS_TREINADOR.map(md=>`
         <button class="nj-papel ${escModo===md.id?'on':''}" data-modo="${md.id}">
           <b>${esc(md.nome)} <span class="nj-ov">coach ${md.over[escTier]}${md.id==='carreira'?' → até '+md.pot:''}</span></b>
@@ -113,7 +113,9 @@ function telaNovoJogo(){
     <div class="eyebrow" style="margin-top:14px">Seleção (Valorant World Cup)</div>
     <p class="dim" style="margin:-2px 0 8px">Comande só o clube ou o clube e uma seleção. Sem seleção agora, convites de federação chegam no começo de cada ciclo da Copa.</p>
     <select id="njSelecao" class="nj-selecao"><option value="">Só o clube</option>${(typeof rankingPaises==='function'&&G&&G.copa?rankingPaises():COPA_SELECOES.map(s=>({pais:s[0],nome:(PAISES[s[0]]||s[0]),sigla:s[1]}))).map(r=>`<option value="${r.pais}" ${escSelecao===r.pais?'selected':''}>${esc(r.nome)} (${esc(r.sigla)})${r.pos?' · '+r.pos+'º no ranking':''}</option>`).join('')}</select>`:''}
-    <div class="eyebrow" style="margin-top:16px">Dificuldade</div>
+    </section>
+    <section class="nj-sec"><div class="nj-sec-h"><span class="nj-n">3</span><div><b>Dificuldade${escPapel==='jogador'?'':' e modo de jogo'}</b><span>${MODO_NJ[escPapel].sec3Sub}</span></div></div>
+    <div class="eyebrow" style="margin-top:4px">Dificuldade</div>
     <div class="nj-papeis">${Object.entries(DIFICULDADES).map(([k,d])=>`
       <button class="nj-papel ${escDif===k?'on':''}" data-dif="${k}"><b>${esc(d.nome)}</b><span>${esc(d.resumo)}</span></button>`).join('')}</div>
     ${escPapel==='jogador'?'':`<div class="eyebrow" style="margin-top:16px">Modo de jogo</div>
@@ -124,15 +126,16 @@ function telaNovoJogo(){
     ${escCenario?`<div class="nj-cenarios">${DESAFIOS.map(d=>`<button class="nj-cen ${escCenario===d.id?'on':''}" data-cenario="${d.id}">
         <span class="nj-cen-ic">${icone(d.ic,escCenario===d.id?'ouro':'')}</span><b>${esc(d.nome)}</b>
         <span>${esc(d.resumo)}</span><i>${icone('alvo')} ${esc(d.objetivo)}</i></button>`).join('')}</div>`:''}`}
+    </section>
+    <section class="nj-sec nj-sec-clube"><div class="nj-sec-h"><span class="nj-n">4</span><div><b>${MODO_NJ[escPapel].sec4}</b><span>${MODO_NJ[escPapel].sec4Sub}</span></div></div>
     ${escPapel==='dono'&&escComeco==='criar'?`
-    <h2 class="sec" style="margin-top:18px">Criar a sua organização</h2>
+    <h2 class="sec" style="margin-top:4px">Criar a sua organização</h2>
     <p class="dim">Cinco passos: de onde vem o seu dinheiro, como você entra no circuito (compra de vaga, fusão ou fundação do zero), a cara da equipe, o dinheiro e o resumo.</p>
     <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" id="njCriarOrg">Montar a organização ›</button></div>`
     :escPapel==='jogador'&&inicioJogador(escJ.inicio).tier===0?`
-    <h2 class="sec" style="margin-top:18px">Começar na ranked</h2>
+    <h2 class="sec" style="margin-top:4px">Começar na ranked</h2>
     <p class="dim">Sem clube. As semanas passam com você na ranked até chegar um convite para teste.</p>
     <div style="display:flex;justify-content:flex-end"><button class="btn nj-assumir" data-pick="">Começar a carreira ›</button></div>`:`
-    <h2 class="sec" style="margin-top:18px">${escPapel==='jogador'?'Escolha o seu clube':'Escolha seu clube'}</h2>
     <p class="dim">${escPapel==='jogador'?'Você assina com o clube e a IA o dirige: escalação, comp, mercado e treino coletivo são do técnico dele.':'Você assume a gestão esportiva: escalação, táticas, treino, mercado, base e finanças. O circuito roda sozinho ao seu redor.'}</p>
     <div class="tabs" style="margin-top:14px">${REGIONS.map(r=>`<button data-rg="${r.id}" class="${escRegiao===r.id?'on':''}">${r.nome}</button>`).join('')}</div>
     ${escPapel==='jogador'?'':`<div class="tabs">${[[1,'Liga principal (Tier 1)'],[2,'Challengers (Tier 2) — modo difícil']].map(([k,n])=>`<button data-tr="${k}" class="${escTier===k?'on':''}">${n}</button>`).join('')}</div>`}
@@ -147,9 +150,10 @@ function telaNovoJogo(){
             <div class="nj-prev-k"><span>Prestígio <b class="num">${Math.round(t.prestigio)}</b></span><span>Over <b class="num">${ov}</b></span>
               <span>Caixa <b class="num">${money(t.caixa)}</b></span><span>Folha <b class="num">${money(fo)}/mês</b></span></div></div></div>
           <div class="nj-prev-cartas">${t.titulares.map(P).filter(Boolean).map(p=>cartaJogador(p,{w:66})).join('')}</div>
-          <button class="btn nj-assumir" data-pick="${t.id}">${escPapel==='jogador'?'Assinar com o '+esc(t.nome):'Assumir o '+esc(t.nome)} ›</button></div>`;})()
+          <button class="btn nj-assumir" data-pick="${t.id}">${escPapel==='jogador'?'Assinar contrato com o '+esc(t.nome):escPapel==='dono'?'Assumir a organização '+esc(t.nome):'Assumir o comando do '+esc(t.nome)} ›</button></div>`;})()
         :'<div class="nj-prev vazio">'+vazio('<b>Escolha um clube</b> na grade para ver o elenco.','clube')+'</div>'}
     </div>`}
+    </section>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
       <span class="dim">Times e elencos vêm da base de dados (${Base.reg&&Base.reg.editada?'editada por você':'original'}).
         Para mudar, use o Banco de dados do menu principal.</span>

@@ -165,7 +165,7 @@ function render(){
   if(modo==='menu'&&telaMenu==='banco')Base.abrirEdicao();
   else Base.fecharEdicao();
   if(modo==='menu'){renderMenu(trocouModo);return;}
-  if(typeof aplicarTemaDono==='function')aplicarTemaDono();
+  if(typeof aplicarTemaModo==='function')aplicarTemaModo();else if(typeof aplicarTemaDono==='function')aplicarTemaDono();
   pintarSide();pintarTop();
   const v=$('#view');
   /* Táticas, Treino e Comps viraram abas de Treinamento & Preparação: o
@@ -221,6 +221,7 @@ function pintarSide(){
   pintarRaiz($('#side'),
     (typeof modoJogador==='function'&&modoJogador()?sideCabecalhoJogador()
      :t&&typeof temaDonoAtivo==='function'&&temaDonoAtivo()&&typeof sideCabecalhoDono==='function'?sideCabecalhoDono(t)
+     :t&&typeof papelDaCarreira==='function'&&papelDaCarreira()==='treinador'&&!(G.manager&&G.manager.demitido)&&typeof sideCabecalhoTreinador==='function'?sideCabecalhoTreinador(t)
      :`<div class="side-org">${t?escudo(t,34):''}<div class="n">
        <b>${esc(t?t.tag:'VCT')}</b><span>${esc(t?t.nome:'sem clube')}</span></div></div>`)+
      `<div class="side-nav">`+

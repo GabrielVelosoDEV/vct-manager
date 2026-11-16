@@ -6,7 +6,7 @@ Salve cada imagem aqui em `assets/donos/` com o nome exato da lista. O nome é o
 nome do dono em minúsculas, sem acento, com hífen no lugar de espaço e símbolo.
 PNG, JPG ou WebP servem: troque só a extensão.
 
-37/40 com imagem.
+40/40 com imagem.
 
 - [x] `matthew-nadeshot-haag.png` — Matthew "Nadeshot" Haag (100T, 100 Thieves LLC)
 - [x] `jack-etienne.png` — Jack Etienne (C9, Cloud9 Esports Inc.)
@@ -18,15 +18,15 @@ PNG, JPG ou WebP servem: troque só a extensão.
 - [x] `rob-moore.png` — Rob Moore (SEN, Sentinels Corporation)
 - [x] `jens-hilgers.png` — Jens Hilgers (G2, G Esports Holding GmbH)
 - [x] `mike-hastr0-rufail.png` — Mike "Hastr0" Rufail (ENVY, Envy Gaming)
-- [ ] `okan-ilker-demirel.png` — Okan İlker Demirel (BBL, BBL Esports)
+- [x] `okan-ilker-demirel.png` — Okan İlker Demirel (BBL, BBL Esports)
 - [x] `sam-mathews.png` — Sam Mathews (FNC, Fnatic Ltd.)
 - [x] `kameto.png` — Kameto (KC, Karmine Corp SAS)
 - [x] `maksym-krippa.png` — Maksym Krippa (NAVI, Natus Vincere Esport CY Ltd.)
 - [x] `antonio-catena.png` — Antonio Catena (TH, Team Heretics S.L.)
 - [x] `nicolas-maurer.png` — Nicolas Maurer (VIT, Team Vitality)
 - [x] `squeezie.png` — Squeezie (M8, OZI)
-- [ ] `kaan-karapinar.png` — Kaan Karapınar (PCF, PCIFIC Esports)
-- [ ] `furkan-guven.png` — Furkan Güven (EF, Eternal Fire)
+- [x] `kaan-karapinar.png` — Kaan Karapınar (PCF, PCIFIC Esports)
+- [x] `furkan-guven.png` — Furkan Güven (EF, Eternal Fire)
 - [x] `nobuyuki-umezaki.png` — Nobuyuki Umezaki (DFM, DetonatioN Inc.)
 - [x] `kevin-chou.png` — Kevin Chou (GEN, KSV eSports Korea)
 - [x] `rushindra-sinha.png` — Rushindra Sinha (GE, Global Esports)
