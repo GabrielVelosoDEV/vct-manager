@@ -3921,7 +3921,12 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .btn.cpx-faixa-btn{background:linear-gradient(180deg,var(--cp-ouro2),var(--cp-ouro));color:#1A1206}
 
 /* carta de campeão do mundo (assets/cartas/worldchampions.png) */
-.carta.c-worldchampions{--cor:#E2B45A;--cor2:#7A1E22;--brilho:rgba(255,226,160,.28)}
+.carta.c-worldchampions{
+  --cor:#E2B45A;
+  --cor2:#7A1E22;
+  --brilho:rgba(255,226,160,.28);
+  background:transparent;
+}
 .carta.c-worldchampions .carta-fundo{left:13%;right:13%;top:12%;bottom:22%;background:radial-gradient(80% 70% at 50% 25%,rgba(226,180,90,.45),rgba(122,30,34,.55) 60%,#1a0d0e)}
 .carta.c-worldchampions .carta-foto{left:10%;width:80%;bottom:21%}
 .carta.c-worldchampions .carta-ovr,.carta.c-worldchampions .carta-funcao{display:none}
