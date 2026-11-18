@@ -121,7 +121,7 @@ function cartaJogador(p,opt){
     title="${esc(nome)} · ${sel?esc(sel.nome)+' · ':''}${mundial?'carta de campeão do mundo ('+p.copa.ouro.join(', ')+')':'carta '+c.nome+' ('+c.min+'–'+Math.min(c.max,99)+')'}">
     <div class="carta-fundo">${sel?fundoSel:time?`<img class="carta-escudo" alt="" src="${ASSETS.logo(time)}" onerror="this.remove()">`:''}</div>
     <img class="carta-foto" alt="" loading="lazy" src="${cad.src}"
-      onload="if(this.src.indexOf('/rostos/')>=0)this.classList.add('opaca')" onerror="${cad.on}">
+      onload="this.classList.add('opaca')" onerror="${cad.on}">
     <img class="carta-moldura" alt="" src="${ASSETS.carta(c)}"${filtro} onerror="this.classList.add('sem')">${selo}
     <div class="carta-ov">${o}</div><div class="carta-ovr">OVR</div>
     <div class="carta-nome" style="font-size:${fn}cqw">${esc(nome)}</div>
