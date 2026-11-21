@@ -8,15 +8,17 @@
    `ini` e `fim` são semanas do ano. Todo bloco cabe no intervalo dele por
    construção — ver rodadasPorSemana(), que aperta o ritmo quando falta tempo
    em vez de deixar um torneio vazar para o mês seguinte. */
+/* quantos clubes de cada região vão a cada Masters */
+const VAGAS_MASTERS=4;
 const TEMPORADA=[
   {nome:'Pré-temporada',          ini:1,  fim:4,  endKey:'preseason'},
   {nome:'Kickoff · Grupos',       ini:5,  fim:7,  endKey:'kickGrupos',montar:'kickGrupos'},
   {nome:'Kickoff · Playoffs',     ini:8,  fim:9,  endKey:'kickoff',   montar:'kickPO'},
-  {nome:'Masters I · Suíço',      ini:11, fim:12, endKey:'m1Suico',   montar:'m1Suico'},
+  {nome:'Masters I · Suíço',      ini:10, fim:12, endKey:'m1Suico',   montar:'m1Suico'},
   {nome:'Masters I · Playoffs',   ini:13, fim:14, endKey:'masters1',  montar:'m1PO'},
   {nome:'Stage 1 · Grupos',       ini:16, fim:20, endKey:'stage1',    montar:'stage1'},
   {nome:'Stage 1 · Playoffs',     ini:21, fim:23, endKey:'po1',       montar:'po1'},
-  {nome:'Masters II · Suíço',     ini:25, fim:26, endKey:'m2Suico',   montar:'m2Suico'},
+  {nome:'Masters II · Suíço',     ini:24, fim:26, endKey:'m2Suico',   montar:'m2Suico'},
   {nome:'Masters II · Playoffs',  ini:27, fim:28, endKey:'masters2',  montar:'m2PO'},
   {nome:'Pausa do meio do ano',   ini:29, fim:30, endKey:'window'},
   {nome:'Stage 2 · Grupos',       ini:31, fim:35, endKey:'stage2',    montar:'stage2'},
@@ -131,11 +133,21 @@ function montarBloco(b){
      que o Masters faz de verdade desde 2025. */
   if(b.montar==='m1Suico'||b.montar==='m2Suico'){
     const key=b.montar==='m1Suico'?'masters1':'masters2';
-    /* saves de antes da correção podem ter clubes do Challengers na lista */
+    /* As vagas saem de novo dos playoffs regionais que deram acesso: assim um
+       save de antes das quatro vagas, ou com clube do Challengers na lista,
+       chega ao Masters com o formato certo. */
+    const pre=key==='masters1'?'kick_':'po1_';
+    const daChave=REGIONS.flatMap(R=>{const st=acharStage(pre+R.id);return st&&st.feito?(st.ranking||[]).slice(0,VAGAS_MASTERS):[];});
+    if(daChave.length)G.qual[key]=daChave;
     const times=G.qual[key].filter(id=>G.times[id]&&(G.times[id].tierAno||G.times[id].tier)===1);
     G.qual[key]=times.slice();
+    /* Masters de 16 (os quatro melhores de cada região): três vitórias
+       classificam para os playoffs de oito, três derrotas eliminam. Saves com
+       a lista antiga, de oito, seguem com a suíça de semear. */
+    const grande=times.length>=12;
     b.stages=times.length>=4?[novoStage({id:key+'_sw',nome:(key==='masters1'?'Masters I':'Masters II')+' · Fase suíça',
-      tipo:'swiss',bo:3,rotulo:'Fase suíça',regiao:'INT',tier:1,times,rodadasMax:3})]:[];
+      tipo:'swiss',bo:3,rotulo:'Fase suíça',regiao:'INT',tier:1,times,
+      ...(grande?{vence:3,cai:3,rodadasMax:5}:{rodadasMax:3})})]:[];
   }
   if(b.montar==='m1PO'||b.montar==='m2PO'){
     const key=b.montar==='m1PO'?'masters1':'masters2';
@@ -207,13 +219,16 @@ function fimDeBloco(b){
       encerrarStage(s);
       /* só a liga principal dá vaga no Masters: o bloco do Kickoff também
          tem os playoffs do Challengers, e os campeões deles iam junto */
-      if(s.tier===1)G.qual.masters1.push(s.ranking[0],s.ranking[1]);
+      if(s.tier===1)G.qual.masters1.push(...s.ranking.slice(0,VAGAS_MASTERS));
     });
   }
   if(k==='masters1'||k==='masters2'){
     const s=b.stages[0];if(!s)return;
     encerrarStage(s);
-    s.ranking.forEach((id,i)=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+[9,7,5,4,2,2,1,1][i];});
+    s.ranking.forEach((id,i)=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+([9,7,5,4,2,2,1,1][i]||0);});
+    /* quem caiu na fase suíça também soma um ponto de circuito */
+    const sw=acharStage(k+'_sw');
+    if(sw)(sw.ranking||[]).filter(id=>!s.ranking.includes(id)).forEach(id=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+0.5;});
     /* A Riot mexe no pool depois dos torneios internacionais. É aqui que o
        mapa que você treinou meia temporada pode sair de circulação — e é isso
        que faz o treino de mapa ser aposta e não acúmulo. */
@@ -225,7 +240,7 @@ function fimDeBloco(b){
       encerrarStage(s);
       if(s.tier===1){
         s.ranking.forEach((id,i)=>{G.regioes[s.regiao].pontos[id]=(G.regioes[s.regiao].pontos[id]||0)+(PTS_PO[i]||0);});
-        if(k==='po1'){G.qual.masters2.push(s.ranking[0],s.ranking[1]);}
+        if(k==='po1'){G.qual.masters2.push(...s.ranking.slice(0,VAGAS_MASTERS));}
       }
     });
   }

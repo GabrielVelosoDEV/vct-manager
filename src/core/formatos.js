@@ -169,18 +169,26 @@ function avancarDE(s,vencedores,perdedores,fase){
 }
 
 /* ---------- fase suíça ----------
-   Usada nos Masters, e só para semear: todo mundo passa, mas passa numerado.
-   Cada rodada junta quem tem a mesma campanha, o que faz a última rodada
-   valer alguma coisa mesmo para quem já está classificado. */
+   Usada nos Masters. Cada rodada junta quem tem a mesma campanha. Com
+   `vence`/`cai` (o formato dos Masters de 16: três vitórias classificam,
+   três derrotas eliminam) quem chega a um dos dois para de jogar, e a fase
+   acaba quando ninguém mais está em disputa. Sem eles, todo mundo joga
+   todas as rodadas e todo mundo passa — só numerado (saves antigos). */
 function montarSwiss(s){
   s.suico={};
   s.times.forEach(id=>s.suico[id]={v:0,d:0,adv:[]});
-  s.rodadasMax=s.rodadasMax||Math.max(3,Math.ceil(Math.log2(s.times.length)));
+  s.rodadasMax=s.rodadasMax||(s.vence&&s.cai?s.vence+s.cai-1:Math.max(3,Math.ceil(Math.log2(s.times.length))));
   return s;
+}
+/* ainda joga: nem classificou nem foi eliminado */
+function emDisputaSwiss(s,id){
+  const x=s.suico[id];if(!x)return false;
+  return !(s.vence&&x.v>=s.vence)&&!(s.cai&&x.d>=s.cai);
 }
 function paresSwiss(s){
   const grupos={};
   for(const id of s.times){
+    if(!emDisputaSwiss(s,id))continue;
     const k=s.suico[id].v+'-'+s.suico[id].d;
     (grupos[k]=grupos[k]||[]).push(id);
   }
@@ -202,8 +210,13 @@ function paresSwiss(s){
 function ordenarSwiss(s){
   return s.times.slice().sort((x,y)=>{
     const a=s.suico[x],b=s.suico[y],ta=s.tabela[x],tb=s.tabela[y];
-    return b.v-a.v||(tb.mv-tb.md)-(ta.mv-ta.md)||(tb.rv-tb.rd)-(ta.rv-ta.rd);
+    return b.v-a.v||a.d-b.d||(tb.mv-tb.md)-(ta.mv-ta.md)||(tb.rv-tb.rd)-(ta.rv-ta.rd);
   });
+}
+/* quem a fase suíça manda para os playoffs */
+function classificadosSwiss(s){
+  const rk=ordenarSwiss(s);
+  return s.vence?rk.filter(id=>s.suico[id].v>=s.vence):rk;
 }
 
 /* ============================================================

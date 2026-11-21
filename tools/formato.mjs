@@ -59,9 +59,16 @@ while(!(G.ano===alvo-1&&G.semana>=47)){
     if(s.tipo==='swiss'){
       const jogos={};
       s.resultados.forEach(r=>{jogos[r.a]=(jogos[r.a]||0)+1;jogos[r.b]=(jogos[r.b]||0)+1;});
+      if(s.vence){
+        /* Masters de 16: todo mundo termina com 3 vitórias ou 3 derrotas, e passam 8 */
+        const soltos=s.times.filter(id=>{const x=s.suico[id];return !(x.v===s.vence&&x.d<s.cai)&&!(x.d===s.cai&&x.v<s.vence);});
+        if(soltos.length)erros.push(s.id+': '+soltos.map(i=>G.times[i].tag+' '+s.suico[i].v+'-'+s.suico[i].d).join(',')+' sem decidir');
+        if((s.classificados||[]).length!==s.times.length/2)erros.push(s.id+': '+(s.classificados||[]).length+' classificados de '+s.times.length);
+      }else{
       const errados=s.times.filter(id=>(jogos[id]||0)!==s.rodadasMax);
       if(errados.length)erros.push(s.id+': '+errados.map(i=>G.times[i].tag+':'+(jogos[i]||0)).join(',')+
         ' fora das '+s.rodadasMax+' rodadas');
+      }
     }
   }
 }

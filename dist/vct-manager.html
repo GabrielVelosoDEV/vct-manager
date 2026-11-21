@@ -3955,8 +3955,26 @@ img.bandeira{height:.9em;width:auto;vertical-align:-.08em;border-radius:2px;box-
 .btn.cpx-faixa-btn{background:linear-gradient(180deg,var(--cp-ouro2),var(--cp-ouro));color:#1A1206}
 
 /* carta de campeão do mundo (assets/cartas/worldchampions.png) */
-.carta.c-worldchampions{--cor:#E2B45A;--cor2:#7A1E22;--brilho:rgba(255,226,160,.28)}
-.carta.c-worldchampions .carta-fundo{left:13%;right:13%;top:12%;bottom:22%;background:radial-gradient(80% 70% at 50% 25%,rgba(226,180,90,.45),rgba(122,30,34,.55) 60%,#1a0d0e)}
+.carta.c-worldchampions{
+  --cor:#E2B45A;
+  --cor2:#7A1E22;
+  --brilho:rgba(255,226,160,.28);
+  background:transparent;
+}
+.carta.c-worldchampions .carta-fundo{
+  left:13%;
+  right:13%;
+  top:12%;
+  bottom:22%;
+  background:
+    radial-gradient(
+      ellipse 75% 75% at 50% 35%,
+      rgba(226,180,90,.32) 0%,
+      rgba(122,30,34,.35) 45%,
+      rgba(26,13,14,.15) 72%,
+      transparent 100%
+    );
+}
 .carta.c-worldchampions .carta-foto{left:10%;width:80%;bottom:21%}
 .carta.c-worldchampions .carta-ovr,.carta.c-worldchampions .carta-funcao{display:none}
 .carta.c-worldchampions .carta-ov{font-size:7.4cqw;color:#F3D58E;text-shadow:0 0 8px rgba(226,180,90,.55),0 1px 0 #000}
@@ -5776,6 +5794,9 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .emj-st{display:inline-flex;gap:3px;margin:3px 0 2px}
 .emj-st i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}
 .emj-st i.on{background:#f5c15a}
+/* fase suíça dos Masters de 16: quem passou e quem caiu */
+.sui-seed.passa{border-left:3px solid var(--teal);background:linear-gradient(90deg,rgba(24,224,181,.12),var(--surf2) 70%)}
+.sui-seed.cai{opacity:.5;border-left:3px solid var(--red)}
 
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
@@ -21628,18 +21649,26 @@ function avancarDE(s,vencedores,perdedores,fase){
 }
 
 /* ---------- fase suíça ----------
-   Usada nos Masters, e só para semear: todo mundo passa, mas passa numerado.
-   Cada rodada junta quem tem a mesma campanha, o que faz a última rodada
-   valer alguma coisa mesmo para quem já está classificado. */
+   Usada nos Masters. Cada rodada junta quem tem a mesma campanha. Com
+   `vence`/`cai` (o formato dos Masters de 16: três vitórias classificam,
+   três derrotas eliminam) quem chega a um dos dois para de jogar, e a fase
+   acaba quando ninguém mais está em disputa. Sem eles, todo mundo joga
+   todas as rodadas e todo mundo passa — só numerado (saves antigos). */
 function montarSwiss(s){
   s.suico={};
   s.times.forEach(id=>s.suico[id]={v:0,d:0,adv:[]});
-  s.rodadasMax=s.rodadasMax||Math.max(3,Math.ceil(Math.log2(s.times.length)));
+  s.rodadasMax=s.rodadasMax||(s.vence&&s.cai?s.vence+s.cai-1:Math.max(3,Math.ceil(Math.log2(s.times.length))));
   return s;
+}
+/* ainda joga: nem classificou nem foi eliminado */
+function emDisputaSwiss(s,id){
+  const x=s.suico[id];if(!x)return false;
+  return !(s.vence&&x.v>=s.vence)&&!(s.cai&&x.d>=s.cai);
 }
 function paresSwiss(s){
   const grupos={};
   for(const id of s.times){
+    if(!emDisputaSwiss(s,id))continue;
     const k=s.suico[id].v+'-'+s.suico[id].d;
     (grupos[k]=grupos[k]||[]).push(id);
   }
@@ -21661,8 +21690,13 @@ function paresSwiss(s){
 function ordenarSwiss(s){
   return s.times.slice().sort((x,y)=>{
     const a=s.suico[x],b=s.suico[y],ta=s.tabela[x],tb=s.tabela[y];
-    return b.v-a.v||(tb.mv-tb.md)-(ta.mv-ta.md)||(tb.rv-tb.rd)-(ta.rv-ta.rd);
+    return b.v-a.v||a.d-b.d||(tb.mv-tb.md)-(ta.mv-ta.md)||(tb.rv-tb.rd)-(ta.rv-ta.rd);
   });
+}
+/* quem a fase suíça manda para os playoffs */
+function classificadosSwiss(s){
+  const rk=ordenarSwiss(s);
+  return s.vence?rk.filter(id=>s.suico[id].v>=s.vence):rk;
 }
 
 /* ============================================================
@@ -21968,7 +22002,8 @@ function avancarStage(s){
   }
   if(s.tipo==='swiss'){
     s.idx++;
-    if(s.idx>=s.rodadasMax){s.feito=true;s.ranking=ordenarSwiss(s);s.classificados=s.ranking.slice();}
+    const vivos=s.times.filter(id=>emDisputaSwiss(s,id)).length;
+    if(s.idx>=s.rodadasMax||vivos<2){s.feito=true;s.ranking=ordenarSwiss(s);s.classificados=classificadosSwiss(s);}
     return;
   }
   if(s.tipo==='de'){
@@ -25445,15 +25480,17 @@ function relatorioDaSemana(t,antes){
    `ini` e `fim` são semanas do ano. Todo bloco cabe no intervalo dele por
    construção — ver rodadasPorSemana(), que aperta o ritmo quando falta tempo
    em vez de deixar um torneio vazar para o mês seguinte. */
+/* quantos clubes de cada região vão a cada Masters */
+const VAGAS_MASTERS=4;
 const TEMPORADA=[
   {nome:'Pré-temporada',          ini:1,  fim:4,  endKey:'preseason'},
   {nome:'Kickoff · Grupos',       ini:5,  fim:7,  endKey:'kickGrupos',montar:'kickGrupos'},
   {nome:'Kickoff · Playoffs',     ini:8,  fim:9,  endKey:'kickoff',   montar:'kickPO'},
-  {nome:'Masters I · Suíço',      ini:11, fim:12, endKey:'m1Suico',   montar:'m1Suico'},
+  {nome:'Masters I · Suíço',      ini:10, fim:12, endKey:'m1Suico',   montar:'m1Suico'},
   {nome:'Masters I · Playoffs',   ini:13, fim:14, endKey:'masters1',  montar:'m1PO'},
   {nome:'Stage 1 · Grupos',       ini:16, fim:20, endKey:'stage1',    montar:'stage1'},
   {nome:'Stage 1 · Playoffs',     ini:21, fim:23, endKey:'po1',       montar:'po1'},
-  {nome:'Masters II · Suíço',     ini:25, fim:26, endKey:'m2Suico',   montar:'m2Suico'},
+  {nome:'Masters II · Suíço',     ini:24, fim:26, endKey:'m2Suico',   montar:'m2Suico'},
   {nome:'Masters II · Playoffs',  ini:27, fim:28, endKey:'masters2',  montar:'m2PO'},
   {nome:'Pausa do meio do ano',   ini:29, fim:30, endKey:'window'},
   {nome:'Stage 2 · Grupos',       ini:31, fim:35, endKey:'stage2',    montar:'stage2'},
@@ -25568,11 +25605,21 @@ function montarBloco(b){
      que o Masters faz de verdade desde 2025. */
   if(b.montar==='m1Suico'||b.montar==='m2Suico'){
     const key=b.montar==='m1Suico'?'masters1':'masters2';
-    /* saves de antes da correção podem ter clubes do Challengers na lista */
+    /* As vagas saem de novo dos playoffs regionais que deram acesso: assim um
+       save de antes das quatro vagas, ou com clube do Challengers na lista,
+       chega ao Masters com o formato certo. */
+    const pre=key==='masters1'?'kick_':'po1_';
+    const daChave=REGIONS.flatMap(R=>{const st=acharStage(pre+R.id);return st&&st.feito?(st.ranking||[]).slice(0,VAGAS_MASTERS):[];});
+    if(daChave.length)G.qual[key]=daChave;
     const times=G.qual[key].filter(id=>G.times[id]&&(G.times[id].tierAno||G.times[id].tier)===1);
     G.qual[key]=times.slice();
+    /* Masters de 16 (os quatro melhores de cada região): três vitórias
+       classificam para os playoffs de oito, três derrotas eliminam. Saves com
+       a lista antiga, de oito, seguem com a suíça de semear. */
+    const grande=times.length>=12;
     b.stages=times.length>=4?[novoStage({id:key+'_sw',nome:(key==='masters1'?'Masters I':'Masters II')+' · Fase suíça',
-      tipo:'swiss',bo:3,rotulo:'Fase suíça',regiao:'INT',tier:1,times,rodadasMax:3})]:[];
+      tipo:'swiss',bo:3,rotulo:'Fase suíça',regiao:'INT',tier:1,times,
+      ...(grande?{vence:3,cai:3,rodadasMax:5}:{rodadasMax:3})})]:[];
   }
   if(b.montar==='m1PO'||b.montar==='m2PO'){
     const key=b.montar==='m1PO'?'masters1':'masters2';
@@ -25644,13 +25691,16 @@ function fimDeBloco(b){
       encerrarStage(s);
       /* só a liga principal dá vaga no Masters: o bloco do Kickoff também
          tem os playoffs do Challengers, e os campeões deles iam junto */
-      if(s.tier===1)G.qual.masters1.push(s.ranking[0],s.ranking[1]);
+      if(s.tier===1)G.qual.masters1.push(...s.ranking.slice(0,VAGAS_MASTERS));
     });
   }
   if(k==='masters1'||k==='masters2'){
     const s=b.stages[0];if(!s)return;
     encerrarStage(s);
-    s.ranking.forEach((id,i)=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+[9,7,5,4,2,2,1,1][i];});
+    s.ranking.forEach((id,i)=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+([9,7,5,4,2,2,1,1][i]||0);});
+    /* quem caiu na fase suíça também soma um ponto de circuito */
+    const sw=acharStage(k+'_sw');
+    if(sw)(sw.ranking||[]).filter(id=>!s.ranking.includes(id)).forEach(id=>{const R=G.times[id].regiao;G.regioes[R].pontos[id]=(G.regioes[R].pontos[id]||0)+0.5;});
     /* A Riot mexe no pool depois dos torneios internacionais. É aqui que o
        mapa que você treinou meia temporada pode sair de circulação — e é isso
        que faz o treino de mapa ser aposta e não acúmulo. */
@@ -25662,7 +25712,7 @@ function fimDeBloco(b){
       encerrarStage(s);
       if(s.tier===1){
         s.ranking.forEach((id,i)=>{G.regioes[s.regiao].pontos[id]=(G.regioes[s.regiao].pontos[id]||0)+(PTS_PO[i]||0);});
-        if(k==='po1'){G.qual.masters2.push(s.ranking[0],s.ranking[1]);}
+        if(k==='po1'){G.qual.masters2.push(...s.ranking.slice(0,VAGAS_MASTERS));}
       }
     });
   }
@@ -40563,7 +40613,7 @@ function descreverFormato(s){
   if(s.tipo==='grupos')return (s.grupos||[]).length+' grupos de '+
     ((s.grupos&&s.grupos[0]&&s.grupos[0].times.length)||0)+', passam '+s.passam+' de cada · MD'+s.bo;
   if(s.tipo==='de')return 'Dupla eliminação · '+s.times.length+' equipes · MD'+s.bo+', grande final MD5';
-  if(s.tipo==='swiss')return 'Fase suíça · '+s.rodadasMax+' rodadas · MD'+s.bo;
+  if(s.tipo==='swiss')return 'Fase suíça · '+(s.vence?s.times.length+' equipes · '+s.vence+' vitórias passam, '+s.cai+' derrotas eliminam':s.rodadasMax+' rodadas')+' · MD'+s.bo;
   if(s.tipo==='rr')return 'Pontos corridos · turno único · MD'+s.bo;
   return 'Mata-mata · MD'+s.bo;
 }
@@ -40711,10 +40761,11 @@ function corpoSwiss(s,t){
   const desenho=typeof suicoDesenhado==='function'?suicoDesenhado(s):'';
   return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">Campanha</th><th class="c">Mapas</th></tr></thead>
     <tbody>${ord.map((id,i)=>{const su=s.suico[id],x=s.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      const z=s.vence?(su.v>=s.vence?'po':su.d>=s.cai?'cai':''):'';
+      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
       <td class="c num"><b>${su.v}–${su.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td></tr>`;}).join('')}
     </tbody></table>
-    </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
+    </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. ${s.vence?`${s.vence} vitórias classificam para os playoffs; ${s.cai} derrotas eliminam.`:'Todos avançam — o que a fase decide é o chaveamento.'}</p>`;
 }
 /* ---------- pontos corridos (formato antigo, ainda usado por saves velhos) ---------- */
 function corpoTabela(s,t){
@@ -46138,7 +46189,7 @@ function suicoDesenhado(s){
   };
   const ord=s.feito&&s.ranking.length?s.ranking:ordenarSwiss(s);
   const final=`<div class="sui-col sui-fim"><div class="bk-col">${s.feito?'Classificação final':'Campanha agora'}</div>
-    ${ord.map((id,i)=>{const su=s.suico[id];return `<div class="sui-seed ${eu&&id===eu.id?'me':''}">
+    ${ord.map((id,i)=>{const su=s.suico[id];const z=s.vence?(su.v>=s.vence?'passa':su.d>=s.cai?'cai':''):'';return `<div class="sui-seed ${eu&&id===eu.id?'me':''} ${z}" ${z?`title="${z==='passa'?'classificado para os playoffs':'eliminado'}"`:''}>
       <span class="num">${i+1}</span>${escudo(G.times[id],18)}<b>${esc(tagT(id))}</b><span class="num dim">${su.v}–${su.d}</span></div>`;}).join('')}</div>`;
   return `<div class="bk-palco bkr-INT"><div class="sui">
     ${cols.map(c=>`<div class="sui-col ${c.agora?'agora':''}"><div class="bk-col">${esc(c.nome)}</div>
@@ -49780,7 +49831,7 @@ function cartaJogador(p,opt){
     title="${esc(nome)} · ${sel?esc(sel.nome)+' · ':''}${mundial?'carta de campeão do mundo ('+p.copa.ouro.join(', ')+')':'carta '+c.nome+' ('+c.min+'–'+Math.min(c.max,99)+')'}">
     <div class="carta-fundo">${sel?fundoSel:time?`<img class="carta-escudo" alt="" src="${ASSETS.logo(time)}" onerror="this.remove()">`:''}</div>
     <img class="carta-foto" alt="" loading="lazy" src="${cad.src}"
-      onload="if(this.src.indexOf('/rostos/')>=0)this.classList.add('opaca')" onerror="${cad.on}">
+      onload="this.classList.add('opaca')" onerror="${cad.on}">
     <img class="carta-moldura" alt="" src="${ASSETS.carta(c)}"${filtro} onerror="this.classList.add('sem')">${selo}
     <div class="carta-ov">${o}</div><div class="carta-ovr">OVR</div>
     <div class="carta-nome" style="font-size:${fn}cqw">${esc(nome)}</div>

@@ -5760,3 +5760,6 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .emj-st{display:inline-flex;gap:3px;margin:3px 0 2px}
 .emj-st i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}
 .emj-st i.on{background:#f5c15a}
+/* fase suíça dos Masters de 16: quem passou e quem caiu */
+.sui-seed.passa{border-left:3px solid var(--teal);background:linear-gradient(90deg,rgba(24,224,181,.12),var(--surf2) 70%)}
+.sui-seed.cai{opacity:.5;border-left:3px solid var(--red)}

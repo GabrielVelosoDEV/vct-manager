@@ -209,7 +209,8 @@ function avancarStage(s){
   }
   if(s.tipo==='swiss'){
     s.idx++;
-    if(s.idx>=s.rodadasMax){s.feito=true;s.ranking=ordenarSwiss(s);s.classificados=s.ranking.slice();}
+    const vivos=s.times.filter(id=>emDisputaSwiss(s,id)).length;
+    if(s.idx>=s.rodadasMax||vivos<2){s.feito=true;s.ranking=ordenarSwiss(s);s.classificados=classificadosSwiss(s);}
     return;
   }
   if(s.tipo==='de'){

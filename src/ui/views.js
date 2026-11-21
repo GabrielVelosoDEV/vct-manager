@@ -467,7 +467,7 @@ function descreverFormato(s){
   if(s.tipo==='grupos')return (s.grupos||[]).length+' grupos de '+
     ((s.grupos&&s.grupos[0]&&s.grupos[0].times.length)||0)+', passam '+s.passam+' de cada · MD'+s.bo;
   if(s.tipo==='de')return 'Dupla eliminação · '+s.times.length+' equipes · MD'+s.bo+', grande final MD5';
-  if(s.tipo==='swiss')return 'Fase suíça · '+s.rodadasMax+' rodadas · MD'+s.bo;
+  if(s.tipo==='swiss')return 'Fase suíça · '+(s.vence?s.times.length+' equipes · '+s.vence+' vitórias passam, '+s.cai+' derrotas eliminam':s.rodadasMax+' rodadas')+' · MD'+s.bo;
   if(s.tipo==='rr')return 'Pontos corridos · turno único · MD'+s.bo;
   return 'Mata-mata · MD'+s.bo;
 }
@@ -615,10 +615,11 @@ function corpoSwiss(s,t){
   const desenho=typeof suicoDesenhado==='function'?suicoDesenhado(s):'';
   return `${desenho}<details class="sorteio"${desenho?'':' open'}><summary>Tabela da fase suíça</summary><table class="tb"><thead><tr><th>#</th><th>Equipe</th><th class="c">Campanha</th><th class="c">Mapas</th></tr></thead>
     <tbody>${ord.map((id,i)=>{const su=s.suico[id],x=s.tabela[id];
-      return `<tr class="${id===t.id?'me':''}"><td>${selo(i+1)}</td><td>${celClube(id,22)}</td>
+      const z=s.vence?(su.v>=s.vence?'po':su.d>=s.cai?'cai':''):'';
+      return `<tr class="${id===t.id?'me':''} ${z?'z-'+z:''}"><td>${selo(i+1,z)}</td><td>${celClube(id,22)}</td>
       <td class="c num"><b>${su.v}–${su.d}</b></td><td class="c num dim">${x.mv}–${x.md}</td></tr>`;}).join('')}
     </tbody></table>
-    </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. Todos avançam — o que a fase decide é o chaveamento.</p>`;
+    </details><p class="dim" style="margin-top:6px">Cada rodada junta quem tem a mesma campanha. ${s.vence?`${s.vence} vitórias classificam para os playoffs; ${s.cai} derrotas eliminam.`:'Todos avançam — o que a fase decide é o chaveamento.'}</p>`;
 }
 /* ---------- pontos corridos (formato antigo, ainda usado por saves velhos) ---------- */
 function corpoTabela(s,t){

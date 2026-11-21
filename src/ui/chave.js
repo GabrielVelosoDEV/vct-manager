@@ -242,7 +242,7 @@ function suicoDesenhado(s){
   };
   const ord=s.feito&&s.ranking.length?s.ranking:ordenarSwiss(s);
   const final=`<div class="sui-col sui-fim"><div class="bk-col">${s.feito?'Classificação final':'Campanha agora'}</div>
-    ${ord.map((id,i)=>{const su=s.suico[id];return `<div class="sui-seed ${eu&&id===eu.id?'me':''}">
+    ${ord.map((id,i)=>{const su=s.suico[id];const z=s.vence?(su.v>=s.vence?'passa':su.d>=s.cai?'cai':''):'';return `<div class="sui-seed ${eu&&id===eu.id?'me':''} ${z}" ${z?`title="${z==='passa'?'classificado para os playoffs':'eliminado'}"`:''}>
       <span class="num">${i+1}</span>${escudo(G.times[id],18)}<b>${esc(tagT(id))}</b><span class="num dim">${su.v}–${su.d}</span></div>`;}).join('')}</div>`;
   return `<div class="bk-palco bkr-INT"><div class="sui">
     ${cols.map(c=>`<div class="sui-col ${c.agora?'agora':''}"><div class="bk-col">${esc(c.nome)}</div>
