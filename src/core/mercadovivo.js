@@ -162,9 +162,25 @@ function propostasEspontaneas(){
       :pr.tipo==='troca'?textoProposta(pr).replace('📨','📞').replace('fez uma proposta','ligou')+' Ele nem estava à venda.'
       :'📞 '+alvo.nome+' ligou por '+p.nome+', que nem estava à venda: '+money(pr.taxa)+(pr.parcela?' ('+money(pr.parcela)+' em seis meses)':'')+(pr.revenda?' e '+pr.revenda+'% de revenda':'')+'.',
       {c:'mercado',p:[p.id],t:[alvo.id],imp:pr.tipo==='multa'?2:1});
+    /* Uma estrela não recebe uma ligação só: quando um clube grande se mexe,
+       os outros grandes que a querem entram junto, e aí dá para leiloar. */
+    if(pr.tipo==='compra'&&over(p)>=ESTRELA_DISPUTADA&&alvo.tier===1&&propostasDe(p.id).filter(x=>x.tipo==='compra').length===1){
+      const rivais=cand.filter(x=>x.t.tier===1&&x.t.prestigio>=62).slice(0,3);
+      const entraram=[];
+      for(const x of rivais){
+        if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR||entraram.length>=2)break;
+        if(rnd()>0.45)continue;
+        const o=montarEspontanea(p,x.t,x.n);
+        if(o&&o.tipo==='compra'){G.propostas.push(o);entraram.push(x.t);novas++;}
+      }
+      if(entraram.length)noticia('🔨 Disputa por '+p.nome+': '+[alvo,...entraram].map(t=>t.nome).join(', ')+' querem o jogador. Dá para abrir um leilão em Mercado › Saídas.',
+        {c:'mercado',p:[p.id],t:[alvo.id,...entraram.map(t=>t.id)],imp:2});
+    }
   }
   return novas;
 }
+/* over a partir do qual uma venda vira disputa entre clubes grandes */
+const ESTRELA_DISPUTADA=85;
 /* ---------- rumores ----------
    Antes do telefone tocar, a imprensa fala: "o clube X monitora o seu
    jogador". O rumor aponta quem tem interesse de verdade (a mesma conta das

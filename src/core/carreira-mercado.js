@@ -153,20 +153,48 @@ function _piorTitularDaFuncao(t,p){
   return lista.length?Math.min(...lista.map(q=>over(q))):60;
 }
 /* quanto o clube t quer você: >0 quer. Mais alto, mais quer. */
+/* Quanto o jogador "pertence" ao topo: 0 até over 76, 1 a partir de 91. É o
+   que faz o interesse mudar de dono conforme você cresce: o garoto é disputado
+   por quem precisa dele (Challengers, clube médio), o craque por quem pode
+   pagar e ganhar com ele (clube grande, de qualquer região). */
+function _nivelTopo(p){return Math.max(0,Math.min(1,(over(p)-76)/15));}
+/* Semanas que um clube espera para voltar depois de mandar proposta (aceita
+   ou não, recusada ou vencida): sem isto o mesmo clube reaparecia a cada três
+   ou quatro semanas, porque ele continuava sendo o mais interessado. */
+const ESPERA_CLUBE=20;
+function _esperandoClube(tid){
+  const u=G.voce&&G.voce.ultProp&&G.voce.ultProp[tid];
+  return u!=null&&_sAbs()-u<ESPERA_CLUBE;
+}
 function interesseDoClube(t,p){
   if(!t||t.id===p.timeId||(t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return -99;
-  /* da ranked, o olheiro chama para testar quem está perto do nível: o
-     teste é justamente para ver de perto */
-  const ganho=over(p)-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  if(_esperandoClube(t.id))return -99;
   /* clube que já te testou há pouco não chama de novo */
   const ult=G.voce&&G.voce.testados&&G.voce.testados[t.id];
   if(!p.timeId&&ult&&_sAbs()-ult<12)return -99;
+  const k=_nivelTopo(p), ov=over(p);
+  const atual=p.timeId&&G.times[p.timeId];
+  /* Challengers não tem como competir por quem já é de Tier 1 de verdade;
+     para quem joga lá, ele só aparece se o jogador ainda é de nível médio */
+  if(t.tier===2&&ov>=84&&(!atual||atual.tier===1))return -99;
   const sal=salario(p,t);
   const folga=typeof folgaSalarial==='function'?folgaSalarial(t):sal;
-  if(folga<sal*0.75)return -99;
+  /* por um craque o clube grande estica a folha */
+  if(folga<sal*(0.75-0.3*k*(t.tier===1?1:0)))return -99;
   /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
-  if(t.tier===1&&over(p)<74)return -99;
-  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
+  if(t.tier===1&&ov<74)return -99;
+  /* da ranked, o olheiro chama para testar quem está perto do nível: o
+     teste é justamente para ver de perto */
+  const ganho=ov-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  /* clube grande quer o craque mesmo para trocar um bom titular, mas ninguém
+     contrata quem não melhora o time */
+  if(ganho<(k>=0.6?0:-1))return -99;
+  /* o ganho conta até um ponto: o clube fraco "precisa mais", mas não é ele
+     que vai levar o melhor jogador do mundo */
+  const precisa=Math.min(ganho,6-3*k);
+  const nome=((t.prestigio||50)-55)/6*(0.4+1.6*k);       /* o peso do nome do clube */
+  const divisao=t.tier===2?(1-k)*1.2-(ov>=76&&atual&&atual.tier===1?(ov-75)*0.8:0):k*2;
+  return precisa+2+nome+divisao+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
 }
 /* De onde vem o interesse: primeiro os clubes do seu país, depois os da sua
    região. Clube de outra região só olha quem é de nível mundial — ninguém
@@ -184,11 +212,16 @@ function clubesInteressadosJogador(p,n){
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
 
-/* um dos que querem, puxado para o topo da lista (o clube do seu país vem antes) */
+/* Um dos que querem. Sorteio pelo interesse (quem quer mais tem mais chance),
+   mas sem cravar sempre o primeiro: antes era r², e o topo da lista levava
+   quase todas. Clube que já mandou proposta há pouco nem entra (ESPERA_CLUBE). */
 function _escolherInteressado(p,n,chave){
   const l=clubesInteressadosJogador(p,n);if(!l.length)return null;
-  const r=_sorteMerc(chave);
-  return l[Math.min(l.length-1,Math.floor(r*r*l.length))];
+  const pesos=l.map(x=>Math.exp((x.i-l[0].i)/2.5));
+  const tot=pesos.reduce((a,b)=>a+b,0);
+  let r=_sorteMerc(chave)*tot;
+  for(let i=0;i<l.length;i++){r-=pesos[i];if(r<=0)return l[i];}
+  return l[l.length-1];
 }
 /* ---------- propostas ---------- */
 function propostasJogador(){
@@ -205,6 +238,7 @@ function _novaProposta(tipo,t,p,extra){
     anos:tipo==='renovacao'?2:2+(_sorteMerc('anos'+t.id)<0.4?1:0),multa:'padrao',titular:false,bonusTitulo:0,
     paciencia:PACIENCIA_CLUBE,validoAte:_sAbs()+PROPOSTA_VALIDADE,criada:_sAbs()},extra||{});
   propostasJogador().push(pr);
+  if(tipo!=='renovacao'&&!pr.doLeilao)(G.voce.ultProp=G.voce.ultProp||{})[t.id]=_sAbs();
   return pr;
 }
 function _jaTem(tipo,tid){return propostasJogador().some(x=>x.tipo===tipo&&x.clubeId===tid);}
@@ -222,6 +256,7 @@ function gerarPropostasSemana(p){
       if(typeof noticia==='function')noticia(`${t.nome} não pretende renovar com ${p.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});}
   }
   /* livre: convites para teste e contratos */
+  if(!t&&over(p)>=84&&talvezAbrirLeilao(p))return;
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
@@ -240,8 +275,10 @@ function gerarPropostasSemana(p){
   /* com clube: na janela, no último ano ou pedindo para sair */
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
-    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=_escolherInteressado(p,5,'qualt');
+    /* clube grande disputando um craque vira leilão (abaixo) */
+    if(talvezAbrirLeilao(p))return;
+    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002+_nivelTopo(p)*0.05){
+      const c=_escolherInteressado(p,6,'qualt');
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -309,6 +346,8 @@ function clubeTopaVender(pr){
   if(pr.preContrato)return{ok:true,pre:true};
   const multa=typeof multaDe==='function'?multaDe(p):0;
   if(pr.taxa>=multa)return{ok:true,multa:true};
+  /* lance de leilão perto da multa: a disputa já fez o preço */
+  if(pr.leilao&&pr.taxa>=multa*0.9)return{ok:true};
   let d=typeof disposicaoDeVender==='function'?disposicaoDeVender(p):0.5;
   if(p.pedidoSaida&&!p.pedidoSaida.negado)d=Math.max(d,0.8);
   d*=Math.min(1.3,pr.taxa/Math.max(1,p.valor||valor(p)));
@@ -316,6 +355,8 @@ function clubeTopaVender(pr){
 }
 function _aplicarContrato(p,pr){
   p.contrato=pr.anos;p.salario=pr.salario;
+  if(pr.luvas>0){const t=G.times[pr.clubeId];lancar(pr.luvas,'Luvas'+(t?' do '+t.nome:''),'luvas');
+    const emp=G.voce.empresario;if(emp&&emp.comissao)lancar(-Math.round(pr.luvas*emp.comissao),'Comissão do empresário nas luvas','sai');}
   if(typeof multaPadrao==='function')p.multa=Math.round(multaPadrao(p,pr.anos)*({baixa:.7,padrao:1,alta:1.5}[pr.multa]||1)/5000)*5000;
   p.clausulas={titular:!!pr.titular,bonusTitulo:pr.bonusTitulo||0};
   G.voce.semBanco=0;
@@ -436,6 +477,7 @@ function financasSemana(p,t){
   /* banco com cláusula de titular conta semana */
   if(t){G.voce.semBanco=(t.titulares||[]).includes(p.id)?0:(G.voce.semBanco||0)+1;}
   gerarPropostasSemana(p);
+  if(typeof assistenteLeilao==='function')assistenteLeilao();
   assistenteDeContrato(p);
 }
 /* parte dos prêmios do clube (competition.js pagar): metade do prêmio é dos

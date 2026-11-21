@@ -251,6 +251,10 @@ function pintarSide(){
 /* badge vermelho na sidebar: só onde existe pendência real */
 function avisoDaTela(k){
   if(k==='editor'){const n=edValidar().erros.length;return n?n:0;}
+  /* modo jogador: propostas na mesa e leilão aberto */
+  if(k==='contrato'&&typeof modoJogador==='function'&&modoJogador()){
+    try{return (typeof propostasJogador==='function'?propostasJogador().length:0)+(typeof leilaoAtual==='function'&&leilaoAtual()?1:0);}catch(e){return 0;}
+  }
   const t=meu();if(!t)return 0;
   try{
     /* propostas por jogadores seus e respostas de pedidos de reforço */

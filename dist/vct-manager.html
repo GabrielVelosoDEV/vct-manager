@@ -5798,6 +5798,53 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .sui-seed.passa{border-left:3px solid var(--teal);background:linear-gradient(90deg,rgba(24,224,181,.12),var(--surf2) 70%)}
 .sui-seed.cai{opacity:.5;border-left:3px solid var(--red)}
 
+/* ============================================================
+   LEILÃO PELO JOGADOR
+   ============================================================ */
+.lei{position:relative;overflow:hidden;border-color:rgba(245,193,90,.45);background:linear-gradient(160deg,rgba(245,193,90,.1),var(--panel) 45%)}
+.lei-luz{position:absolute;inset:-40% 40% auto -10%;height:140%;background:radial-gradient(closest-side,rgba(245,193,90,.16),transparent);pointer-events:none;animation:leiLuz 6s ease-in-out infinite alternate}
+@keyframes leiLuz{to{transform:translateX(30%)}}
+.lei-cab{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.lei-ic{width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#f5c15a,#b9862c);color:#1a1206;box-shadow:0 10px 24px rgba(245,193,90,.3)}
+.lei-ic .ic{width:26px;height:26px;margin:0}
+.lei-cab h2.sec{margin:2px 0 0}
+.lei-cab .eyebrow{color:#f5c15a}
+.lei-rd{display:flex;flex-direction:column;align-items:center;padding:8px 16px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid rgba(245,193,90,.3)}
+.lei-rd b{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:#f5c15a}
+.lei-rd span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lei-rd em{font-style:normal;font-size:11px;color:var(--tx2);margin-top:3px}
+.lei-g{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.lei-c{position:relative;display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--clube) 14%,#151d26),#0f151c 70%);transition:transform .2s,opacity .2s}
+.lei-c.lid{border-color:#f5c15a;box-shadow:0 0 0 1px #f5c15a inset,0 12px 30px rgba(245,193,90,.18);transform:translateY(-3px)}
+.lei-c.saiu{opacity:.45;filter:grayscale(.6)}
+.lei-c.dono{border-style:dashed}
+.lei-cor{position:absolute;top:-1px;right:12px;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:0 0 6px 6px;background:#f5c15a;color:#1a1206}
+.lei-cor .ic{width:12px;height:12px;margin:0}
+.lei-cor.fora{background:#444c55;color:#cfd6dd}
+.lei-cor.up{background:var(--teal);color:#06231c}
+.lei-top{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;margin-top:6px}
+.lei-top>div{display:flex;flex-direction:column;min-width:0}
+.lei-top b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lei-n{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:6px}
+.lei-n>div{display:flex;flex-direction:column;gap:1px;padding:7px 8px;border-radius:8px;background:rgba(0,0,0,.25)}
+.lei-n span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.lei-n b{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1}
+.lei-n em{font-style:normal;font-size:10px;color:var(--dim)}
+.lei-tot{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:11px;color:var(--dim)}
+.lei-tot i{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;display:block}
+.lei-tot u{display:block;height:100%;background:linear-gradient(90deg,#b9862c,#f5c15a);transition:width .5s}
+.lei-tot b{color:var(--tx)}
+.lei-tx{font-size:11.5px;margin:0}
+.lei-c .btn{margin-top:auto}
+.lei-pe{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.lei-pe .btn .ic{width:14px;height:14px;margin:0 6px 0 0}
+.lei-log{margin-left:auto;font-size:12px}
+.lei-aviso{border-color:rgba(245,193,90,.5);background:linear-gradient(90deg,rgba(245,193,90,.12),var(--panel) 60%)}
+.lei-aviso .eyebrow{color:#f5c15a;display:inline-flex;align-items:center;gap:6px}
+.lei-aviso .eyebrow .ic{width:14px;height:14px;margin:0}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -27992,9 +28039,25 @@ function propostasEspontaneas(){
       :pr.tipo==='troca'?textoProposta(pr).replace('📨','📞').replace('fez uma proposta','ligou')+' Ele nem estava à venda.'
       :'📞 '+alvo.nome+' ligou por '+p.nome+', que nem estava à venda: '+money(pr.taxa)+(pr.parcela?' ('+money(pr.parcela)+' em seis meses)':'')+(pr.revenda?' e '+pr.revenda+'% de revenda':'')+'.',
       {c:'mercado',p:[p.id],t:[alvo.id],imp:pr.tipo==='multa'?2:1});
+    /* Uma estrela não recebe uma ligação só: quando um clube grande se mexe,
+       os outros grandes que a querem entram junto, e aí dá para leiloar. */
+    if(pr.tipo==='compra'&&over(p)>=ESTRELA_DISPUTADA&&alvo.tier===1&&propostasDe(p.id).filter(x=>x.tipo==='compra').length===1){
+      const rivais=cand.filter(x=>x.t.tier===1&&x.t.prestigio>=62).slice(0,3);
+      const entraram=[];
+      for(const x of rivais){
+        if(propostasDe(p.id).length>=MAX_PROPOSTAS_POR_JOGADOR||entraram.length>=2)break;
+        if(rnd()>0.45)continue;
+        const o=montarEspontanea(p,x.t,x.n);
+        if(o&&o.tipo==='compra'){G.propostas.push(o);entraram.push(x.t);novas++;}
+      }
+      if(entraram.length)noticia('🔨 Disputa por '+p.nome+': '+[alvo,...entraram].map(t=>t.nome).join(', ')+' querem o jogador. Dá para abrir um leilão em Mercado › Saídas.',
+        {c:'mercado',p:[p.id],t:[alvo.id,...entraram.map(t=>t.id)],imp:2});
+    }
   }
   return novas;
 }
+/* over a partir do qual uma venda vira disputa entre clubes grandes */
+const ESTRELA_DISPUTADA=85;
 /* ---------- rumores ----------
    Antes do telefone tocar, a imprensa fala: "o clube X monitora o seu
    jogador". O rumor aponta quem tem interesse de verdade (a mesma conta das
@@ -28950,8 +29013,10 @@ function disputaPropostas(){
     }
   }
 }
-let _seqProp=0;
-function novoIdProposta(){return 'pr'+(G.ano||0)+'_'+(++_seqProp)+'_'+Math.floor(rnd()*1e6).toString(36);}
+/* o contador mora no save: um contador do módulo seguia contando entre um
+   mundo e outro (e recomeçava do zero ao carregar), e a mesma semente podia
+   dar ids diferentes — e ordem diferente onde as propostas são ordenadas */
+function novoIdProposta(){G.seqProp=(G.seqProp||0)+1;return 'pr'+(G.ano||0)+'_'+G.seqProp+'_'+Math.floor(rnd()*1e6).toString(36);}
 
 function montarCompra(p,alvo,ganho){
   const pedido=p.anuncio.pedido||pedidoDeVenda(p);
@@ -32667,20 +32732,48 @@ function _piorTitularDaFuncao(t,p){
   return lista.length?Math.min(...lista.map(q=>over(q))):60;
 }
 /* quanto o clube t quer você: >0 quer. Mais alto, mais quer. */
+/* Quanto o jogador "pertence" ao topo: 0 até over 76, 1 a partir de 91. É o
+   que faz o interesse mudar de dono conforme você cresce: o garoto é disputado
+   por quem precisa dele (Challengers, clube médio), o craque por quem pode
+   pagar e ganhar com ele (clube grande, de qualquer região). */
+function _nivelTopo(p){return Math.max(0,Math.min(1,(over(p)-76)/15));}
+/* Semanas que um clube espera para voltar depois de mandar proposta (aceita
+   ou não, recusada ou vencida): sem isto o mesmo clube reaparecia a cada três
+   ou quatro semanas, porque ele continuava sendo o mais interessado. */
+const ESPERA_CLUBE=20;
+function _esperandoClube(tid){
+  const u=G.voce&&G.voce.ultProp&&G.voce.ultProp[tid];
+  return u!=null&&_sAbs()-u<ESPERA_CLUBE;
+}
 function interesseDoClube(t,p){
   if(!t||t.id===p.timeId||(t.elenco||[]).length>=(typeof ELENCO_MAX!=='undefined'?ELENCO_MAX:9))return -99;
-  /* da ranked, o olheiro chama para testar quem está perto do nível: o
-     teste é justamente para ver de perto */
-  const ganho=over(p)-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  if(_esperandoClube(t.id))return -99;
   /* clube que já te testou há pouco não chama de novo */
   const ult=G.voce&&G.voce.testados&&G.voce.testados[t.id];
   if(!p.timeId&&ult&&_sAbs()-ult<12)return -99;
+  const k=_nivelTopo(p), ov=over(p);
+  const atual=p.timeId&&G.times[p.timeId];
+  /* Challengers não tem como competir por quem já é de Tier 1 de verdade;
+     para quem joga lá, ele só aparece se o jogador ainda é de nível médio */
+  if(t.tier===2&&ov>=84&&(!atual||atual.tier===1))return -99;
   const sal=salario(p,t);
   const folga=typeof folgaSalarial==='function'?folgaSalarial(t):sal;
-  if(folga<sal*0.75)return -99;
+  /* por um craque o clube grande estica a folha */
+  if(folga<sal*(0.75-0.3*k*(t.tier===1?1:0)))return -99;
   /* tier: o Tier 1 só olha quem já joga em nível de Tier 1 */
-  if(t.tier===1&&over(p)<74)return -99;
-  return ganho+2+(t.tier===2?1:0)+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
+  if(t.tier===1&&ov<74)return -99;
+  /* da ranked, o olheiro chama para testar quem está perto do nível: o
+     teste é justamente para ver de perto */
+  const ganho=ov-_piorTitularDaFuncao(t,p)+(p.timeId?0:5);
+  /* clube grande quer o craque mesmo para trocar um bom titular, mas ninguém
+     contrata quem não melhora o time */
+  if(ganho<(k>=0.6?0:-1))return -99;
+  /* o ganho conta até um ponto: o clube fraco "precisa mais", mas não é ele
+     que vai levar o melhor jogador do mundo */
+  const precisa=Math.min(ganho,6-3*k);
+  const nome=((t.prestigio||50)-55)/6*(0.4+1.6*k);       /* o peso do nome do clube */
+  const divisao=t.tier===2?(1-k)*1.2-(ov>=76&&atual&&atual.tier===1?(ov-75)*0.8:0):k*2;
+  return precisa+2+nome+divisao+Math.min(3,(typeof famaJogador==='function'?famaJogador():0)/20)+_pesoGeografico(t,p);
 }
 /* De onde vem o interesse: primeiro os clubes do seu país, depois os da sua
    região. Clube de outra região só olha quem é de nível mundial — ninguém
@@ -32698,11 +32791,16 @@ function clubesInteressadosJogador(p,n){
     .sort((a,b)=>b.i-a.i||(_sorteMerc('ord'+a.t.id)-_sorteMerc('ord'+b.t.id))).slice(0,n||6);
 }
 
-/* um dos que querem, puxado para o topo da lista (o clube do seu país vem antes) */
+/* Um dos que querem. Sorteio pelo interesse (quem quer mais tem mais chance),
+   mas sem cravar sempre o primeiro: antes era r², e o topo da lista levava
+   quase todas. Clube que já mandou proposta há pouco nem entra (ESPERA_CLUBE). */
 function _escolherInteressado(p,n,chave){
   const l=clubesInteressadosJogador(p,n);if(!l.length)return null;
-  const r=_sorteMerc(chave);
-  return l[Math.min(l.length-1,Math.floor(r*r*l.length))];
+  const pesos=l.map(x=>Math.exp((x.i-l[0].i)/2.5));
+  const tot=pesos.reduce((a,b)=>a+b,0);
+  let r=_sorteMerc(chave)*tot;
+  for(let i=0;i<l.length;i++){r-=pesos[i];if(r<=0)return l[i];}
+  return l[l.length-1];
 }
 /* ---------- propostas ---------- */
 function propostasJogador(){
@@ -32719,6 +32817,7 @@ function _novaProposta(tipo,t,p,extra){
     anos:tipo==='renovacao'?2:2+(_sorteMerc('anos'+t.id)<0.4?1:0),multa:'padrao',titular:false,bonusTitulo:0,
     paciencia:PACIENCIA_CLUBE,validoAte:_sAbs()+PROPOSTA_VALIDADE,criada:_sAbs()},extra||{});
   propostasJogador().push(pr);
+  if(tipo!=='renovacao'&&!pr.doLeilao)(G.voce.ultProp=G.voce.ultProp||{})[t.id]=_sAbs();
   return pr;
 }
 function _jaTem(tipo,tid){return propostasJogador().some(x=>x.tipo===tipo&&x.clubeId===tid);}
@@ -32736,6 +32835,7 @@ function gerarPropostasSemana(p){
       if(typeof noticia==='function')noticia(`${t.nome} não pretende renovar com ${p.nome}.`,{c:'mercado',p:[p.id],t:[t.id]});}
   }
   /* livre: convites para teste e contratos */
+  if(!t&&over(p)>=84&&talvezAbrirLeilao(p))return;
   if(!t){
     const radar=G.voce.radar||0;
     if(lista.filter(x=>x.tipo==='teste'||x.tipo==='livre').length<3&&_sorteMerc('livre')<0.22+radar*0.015+emp*0.05+fama*0.002){
@@ -32754,8 +32854,10 @@ function gerarPropostasSemana(p){
   /* com clube: na janela, no último ano ou pedindo para sair */
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   if(G.janela||p.contrato<=1||pediu){
-    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002){
-      const c=_escolherInteressado(p,5,'qualt');
+    /* clube grande disputando um craque vira leilão (abaixo) */
+    if(talvezAbrirLeilao(p))return;
+    if(lista.filter(x=>x.tipo==='transferencia').length<2&&_sorteMerc('transf')<0.07+emp*0.035+(pediu?0.18:0)+fama*0.002+_nivelTopo(p)*0.05){
+      const c=_escolherInteressado(p,6,'qualt');
       if(c&&!_jaTem('transferencia',c.t.id)){
         const taxa=Math.round((p.valor||valor(p))*(0.8+_sorteMerc('taxa'+c.t.id)*0.4)/5000)*5000;
         _novaProposta('transferencia',c.t,p,{taxa,preContrato:p.contrato<=1&&!G.janela});
@@ -32823,6 +32925,8 @@ function clubeTopaVender(pr){
   if(pr.preContrato)return{ok:true,pre:true};
   const multa=typeof multaDe==='function'?multaDe(p):0;
   if(pr.taxa>=multa)return{ok:true,multa:true};
+  /* lance de leilão perto da multa: a disputa já fez o preço */
+  if(pr.leilao&&pr.taxa>=multa*0.9)return{ok:true};
   let d=typeof disposicaoDeVender==='function'?disposicaoDeVender(p):0.5;
   if(p.pedidoSaida&&!p.pedidoSaida.negado)d=Math.max(d,0.8);
   d*=Math.min(1.3,pr.taxa/Math.max(1,p.valor||valor(p)));
@@ -32830,6 +32934,8 @@ function clubeTopaVender(pr){
 }
 function _aplicarContrato(p,pr){
   p.contrato=pr.anos;p.salario=pr.salario;
+  if(pr.luvas>0){const t=G.times[pr.clubeId];lancar(pr.luvas,'Luvas'+(t?' do '+t.nome:''),'luvas');
+    const emp=G.voce.empresario;if(emp&&emp.comissao)lancar(-Math.round(pr.luvas*emp.comissao),'Comissão do empresário nas luvas','sai');}
   if(typeof multaPadrao==='function')p.multa=Math.round(multaPadrao(p,pr.anos)*({baixa:.7,padrao:1,alta:1.5}[pr.multa]||1)/5000)*5000;
   p.clausulas={titular:!!pr.titular,bonusTitulo:pr.bonusTitulo||0};
   G.voce.semBanco=0;
@@ -32950,6 +33056,7 @@ function financasSemana(p,t){
   /* banco com cláusula de titular conta semana */
   if(t){G.voce.semBanco=(t.titulares||[]).includes(p.id)?0:(G.voce.semBanco||0)+1;}
   gerarPropostasSemana(p);
+  if(typeof assistenteLeilao==='function')assistenteLeilao();
   assistenteDeContrato(p);
 }
 /* parte dos prêmios do clube (competition.js pagar): metade do prêmio é dos
@@ -33001,6 +33108,187 @@ function assistenteDeContrato(p){
   if(livre&&_sAbs()-livre.criada>=2){aceitarPropostaJogador(livre.id);return;}
   const teste=lista.find(x=>x.tipo==='teste'&&_sAbs()-x.criada>=1);
   if(teste)simularTeste(teste.id);
+}
+
+
+/* ===== src/core/leilao.js ===== */
+/* ============================================================
+   MODO JOGADOR — O LEILÃO POR UM CRAQUE
+   ------------------------------------------------------------
+   Quando dois ou mais clubes grandes querem o mesmo jogador de
+   nível alto, não chegam propostas soltas: abre uma disputa.
+   Cada clube põe na mesa salário, luvas, anos e a taxa que paga
+   ao seu clube atual. A cada rodada que você pede, quem ainda
+   pode sobe o lance; quem chegou ao teto sai. O seu clube pode
+   entrar para cobrir com uma renovação. Você escolhe a qualquer
+   momento, ou deixa a disputa fechar: o que estiver na mesa vira
+   proposta normal por duas semanas.
+
+   Sorteios por (ano, semana, assunto, rodada), como o resto do
+   mercado do jogador: o gerador do mundo não é tocado.
+   ============================================================ */
+const LEILAO_OVER=84;          /* a partir de que over clube grande disputa */
+const LEILAO_RODADAS=3;        /* quantas vezes dá para pedir mais */
+const LEILAO_VALIDADE=3;       /* semanas que a mesa fica aberta */
+const LEILAO_ESPERA=26;        /* semanas entre um leilão e outro */
+const LEILAO_PRESTIGIO=62;     /* "clube grande" */
+
+function leilaoAtual(){
+  const l=G.voce&&G.voce.leilao;
+  if(!l)return null;
+  if(l.validoAte<_sAbs()){fecharLeilao('prazo');return null;}
+  return l;
+}
+/* valor do pacote para comparar lances: o que você leva no contrato inteiro */
+function valorLance(x){return x.salario*12*x.anos+(x.luvas||0);}
+function melhorLance(l){
+  const vivos=(l||{}).lances?l.lances.filter(x=>!x.saiu):[];
+  return vivos.sort((a,b)=>valorLance(b)-valorLance(a))[0]||null;
+}
+/* quanto cada clube pode chegar: nome, caixa e o quanto precisa de você */
+function _tetoLeilaoJ(t,p){
+  const base=salario(p,t);
+  const nome=Math.max(0,(t.prestigio-55)/100);
+  const precisa=Math.max(0,Math.min(0.15,(over(p)-_piorTitularDaFuncao(t,p))/60));
+  const caixa=Math.max(0,Math.min(0.12,(t.caixa||0)/Math.max(1,receitaAnual(t))*0.05));
+  const sorte=_sorteMerc('teto'+t.id)*0.12;
+  const k=1.12+nome+precisa+caixa+sorte+nivelEmpresario()*0.04;
+  return{salario:Math.round(base*k/100)*100,luvas:Math.round(base*k*(3+_sorteMerc('lv'+t.id)*3)/500)*500};
+}
+/* Abre o leilão se a situação pede. Devolve true se abriu (ou se já há um). */
+function talvezAbrirLeilao(p){
+  if(!G.voce||!p||over(p)<LEILAO_OVER)return false;
+  if(leilaoAtual())return true;
+  if(G.voce.leilaoUlt!=null&&_sAbs()-G.voce.leilaoUlt<LEILAO_ESPERA)return false;
+  const t=p.timeId?G.times[p.timeId]:null;
+  const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
+  /* com clube: só quando dá para sair (janela, último ano ou pedido de saída) */
+  if(t&&!(G.janela||p.contrato<=1||pediu))return false;
+  const grandes=clubesInteressadosJogador(p,10)
+    .filter(x=>x.t.tier===1&&x.t.prestigio>=LEILAO_PRESTIGIO).slice(0,4);
+  if(grandes.length<2)return false;
+  const chance=0.22+_nivelTopo(p)*0.2+(pediu?0.25:0)+(t?0:0.3)+nivelEmpresario()*0.05;
+  if(_sorteMerc('leilao')>chance)return false;
+  abrirLeilaoJogador(p,grandes.map(x=>x.t));
+  return true;
+}
+function abrirLeilaoJogador(p,clubes){
+  const dono=p.timeId?G.times[p.timeId]:null;
+  const pre=!!(dono&&p.contrato<=1&&!G.janela);
+  const multa=dono&&typeof multaDe==='function'?multaDe(p):0;
+  const lances=clubes.map(t=>{
+    const teto=_tetoLeilaoJ(t,p);
+    const f=0.86+_sorteMerc('ini'+t.id)*0.08;
+    return{tid:t.id,salario:Math.round(teto.salario*f/100)*100,luvas:Math.round(teto.luvas*(0.45+_sorteMerc('ilv'+t.id)*0.2)/500)*500,
+      anos:3+(_sorteMerc('an'+t.id)<0.3?1:0),
+      taxa:dono&&!pre?Math.round(multa*(0.75+_sorteMerc('tx'+t.id)*0.15)/5000)*5000:0,
+      teto,saiu:false,subiu:false};
+  });
+  G.voce.leilao={id:'lei'+_sAbs(),criada:_sAbs(),validoAte:_sAbs()+LEILAO_VALIDADE,rodada:0,max:LEILAO_RODADAS,
+    dono:dono?dono.id:null,pre,lances,log:[`${clubes.length} clubes abriram a disputa.`]};
+  G.voce.leilaoUlt=_sAbs();
+  for(const t of clubes)(G.voce.ultProp=G.voce.ultProp||{})[t.id]=_sAbs();
+  if(typeof noticia==='function')noticia(`🔨 Leilão por ${p.nome}: ${clubes.map(t=>t.nome).join(', ')} disputam o jogador.`,
+    {c:'mercado',p:[p.id],t:clubes.map(t=>t.id),imp:2});
+  return G.voce.leilao;
+}
+/* Mais uma rodada: cada clube que ainda está na mesa olha o melhor lance e
+   decide se cobre. Quem não alcança sai; quem já lidera às vezes não mexe. */
+function rodadaLeilao(){
+  const l=leilaoAtual(),p=meuJogador();
+  if(!l||!p)return{ok:false,motivo:'Não há leilão aberto.'};
+  if(l.rodada>=l.max)return{ok:false,motivo:'Os clubes já deram o último lance.'};
+  l.rodada++;
+  const lider=melhorLance(l);
+  const msgs=[];
+  for(const x of l.lances){
+    x.subiu=false;
+    if(x.saiu||x.dono)continue;
+    const t=G.times[x.tid];
+    if(x===lider){
+      /* quem lidera às vezes adoça para fechar logo */
+      if(_sorteMerc('lid'+l.rodada+x.tid)<0.35&&x.luvas<x.teto.luvas){x.luvas=Math.min(x.teto.luvas,Math.round(x.luvas*1.15/500)*500);x.subiu=true;msgs.push(`${t.tag} adoçou as luvas`);}
+      continue;
+    }
+    const alvo=valorLance(lider)*(1.04+_sorteMerc('st'+l.rodada+x.tid)*0.05);
+    /* cansa: a cada rodada fica mais fácil desistir */
+    const desiste=_sorteMerc('ds'+l.rodada+x.tid)<0.08+l.rodada*0.06;
+    const salMax=x.teto.salario,lvMax=x.teto.luvas;
+    if(desiste||salMax*12*x.anos+lvMax<alvo){x.saiu=true;msgs.push(`${t.tag} saiu`);continue;}
+    /* sobe primeiro o salário, depois as luvas, até alcançar o alvo */
+    let sal=x.salario,lv=x.luvas;
+    sal=Math.min(salMax,Math.max(sal,Math.round((alvo-lv)/(12*x.anos)/100)*100));
+    if(sal*12*x.anos+lv<alvo)lv=Math.min(lvMax,Math.round((alvo-sal*12*x.anos)/500)*500);
+    x.salario=sal;x.luvas=lv;x.subiu=true;
+    if(x.taxa){const multa=multaDe(p);x.taxa=Math.min(multa,Math.round(x.taxa*1.06/5000)*5000);}
+    msgs.push(`${t.tag} cobriu`);
+  }
+  const vivos=l.lances.filter(x=>!x.saiu);
+  l.log.unshift(`Rodada ${l.rodada}: ${msgs.join(' · ')||'ninguém mexeu'}.`);
+  if(vivos.length<=1&&!l.lances.some(x=>x.dono))l.log.unshift('Sobrou um clube na mesa.');
+  return{ok:true,msg:msgs.join(' · ')||'Ninguém mexeu.'};
+}
+/* O seu clube entra para cobrir com uma renovação. Uma vez por leilão. */
+function clubeCobreLeilao(){
+  const l=leilaoAtual(),p=meuJogador();
+  if(!l||!p||!l.dono)return{ok:false,motivo:'Você não tem clube para cobrir.'};
+  if(l.lances.some(x=>x.dono))return{ok:false,motivo:'O seu clube já fez a oferta dele.'};
+  const t=G.times[l.dono],lider=melhorLance(l);
+  const quer=over(p)>=_piorTitularDaFuncao(t,p)-2&&(typeof confTecnico!=='function'||confTecnico()>=45);
+  const teto=_tetoLeilaoJ(t,p);
+  /* o seu clube não tem os mesmos bolsos: cobre até 90% do melhor lance */
+  if(!quer){l.log.unshift(`${t.tag} não quis entrar na disputa.`);return{ok:true,msg:`${t.nome} não vai cobrir.`};}
+  const alvo=Math.min(valorLance(lider)*0.92,teto.salario*12*3+teto.luvas);
+  const anos=3,sal=Math.min(teto.salario,Math.round(alvo/(12*anos)*0.85/100)*100);
+  const luvas=Math.max(0,Math.round((alvo-sal*12*anos)/500)*500);
+  l.lances.push({tid:t.id,dono:true,salario:sal,luvas,anos,taxa:0,teto,saiu:false,subiu:true});
+  l.log.unshift(`${t.tag} quer renovar: ${moneyJ(sal)}/mês e ${moneyJ(luvas)} de luvas.`);
+  return{ok:true,msg:`${t.nome} entrou para segurar você.`};
+}
+/* Aceitar um lance: vira proposta e passa pelo caminho de sempre. */
+function aceitarLance(tid){
+  const l=leilaoAtual(),p=meuJogador();
+  if(!l||!p)return{ok:false,motivo:'Não há leilão aberto.'};
+  const x=l.lances.find(y=>y.tid===tid&&!y.saiu);
+  if(!x)return{ok:false,motivo:'Esse clube não está mais na mesa.'};
+  const tipo=x.dono?'renovacao':p.timeId?'transferencia':'livre';
+  /* lance de leilão não espera: o clube dono aceita a taxa que chegou na multa
+     ou perto dela, que é o que a disputa produz */
+  const pr=_novaProposta(tipo,G.times[tid],p,{salario:x.salario,anos:x.anos,luvas:x.luvas,taxa:x.taxa,preContrato:l.pre&&!x.dono,leilao:true});
+  if(tipo==='transferencia'&&!pr.preContrato&&x.taxa<multaDe(p)&&x.taxa>=multaDe(p)*0.8)pr.taxa=multaDe(p);
+  const r=aceitarPropostaJogador(pr.id);
+  if(r.ok){fecharLeilao('aceito',tid);}
+  else _retirar(pr);
+  return r;
+}
+/* Fecha: o que sobrou vira proposta comum por duas semanas (ou some, se você
+   escolheu). */
+function fecharLeilao(motivo,escolhido){
+  const l=G.voce&&G.voce.leilao;if(!l)return;
+  G.voce.leilao=null;
+  const p=meuJogador();
+  if(motivo==='aceito'||!p)return;
+  for(const x of l.lances){
+    if(x.saiu||x.dono||x.tid===escolhido)continue;
+    const t=G.times[x.tid];if(!t)continue;
+    _novaProposta(p.timeId?'transferencia':'livre',t,p,{salario:x.salario,anos:x.anos,luvas:x.luvas,taxa:x.taxa,
+      preContrato:l.pre,validoAte:_sAbs()+2,doLeilao:l.id});
+  }
+}
+function encerrarLeilao(){
+  const l=leilaoAtual();if(!l)return{ok:false,motivo:'Não há leilão aberto.'};
+  fecharLeilao('encerrado');
+  return{ok:true,msg:'Leilão encerrado. Os lances que sobraram ficam na mesa por duas semanas.'};
+}
+/* Assistente de contrato: deixa a disputa correr até o fim e fica com o
+   melhor pacote (o seu clube, se ele cobrir perto). */
+function assistenteLeilao(){
+  const l=leilaoAtual();if(!l||G.voce.autoContrato!==true)return;
+  while(l.rodada<l.max&&l.lances.filter(x=>!x.saiu).length>1)rodadaLeilao();
+  if(l.dono&&!l.lances.some(x=>x.dono))clubeCobreLeilao();
+  const melhor=melhorLance(l),meu=l.lances.find(x=>x.dono);
+  const escolha=meu&&melhor&&valorLance(meu)>=valorLance(melhor)*0.9?meu:melhor;
+  if(escolha)aceitarLance(escolha.tid);
 }
 
 
@@ -38812,6 +39100,10 @@ function pintarSide(){
 /* badge vermelho na sidebar: só onde existe pendência real */
 function avisoDaTela(k){
   if(k==='editor'){const n=edValidar().erros.length;return n?n:0;}
+  /* modo jogador: propostas na mesa e leilão aberto */
+  if(k==='contrato'&&typeof modoJogador==='function'&&modoJogador()){
+    try{return (typeof propostasJogador==='function'?propostasJogador().length:0)+(typeof leilaoAtual==='function'&&leilaoAtual()?1:0);}catch(e){return 0;}
+  }
   const t=meu();if(!t)return 0;
   try{
     /* propostas por jogadores seus e respostas de pedidos de reforço */
@@ -50812,6 +51104,7 @@ function vJCentral(){
        :`<div class="card"><div class="eyebrow">Ranked</div>${vazio('<b>Você ainda não tem clube.</b> Jogue ranked, faça lives e treine: os convites para teste e as propostas aparecem em Contrato e mercado.','jogar')+'<button class="btn sm" data-ir="contrato" style="margin-top:8px">Contrato e mercado ›</button>'}</div>`}
     ${typeof _jCardSemana==='function'?_jCardSemana(p):''}
     ${typeof _jCardMidia==='function'?_jCardMidia(p):''}
+    ${typeof leilaoAtual==='function'&&leilaoAtual()?(()=>{const l=leilaoAtual(),v=l.lances.filter(x=>!x.saiu);return `<div class="card rl-ev lei-aviso"><div class="split"><div class="eyebrow">${icone('martelo')} Leilão aberto</div><button class="btn sm" data-ir="contrato">Ver a disputa ›</button></div><p>${v.map(x=>`<b>${esc(G.times[x.tid].nome)}</b>`).join(', ')} disputam você. A mesa fica aberta mais ${l.validoAte-semAbs()} semana(s).</p></div>`;})():''}
     ${typeof propostasJogador==='function'&&propostasJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">Propostas</div><button class="btn sm" data-ir="contrato">Ver ›</button></div><p>${propostasJogador().map(x=>`${esc(_TIPO_PROP[x.tipo]||x.tipo)}: <b>${esc(G.times[x.clubeId].nome)}</b>`).join(' · ')}</p></div>`:''}
     ${typeof eventosJogador==='function'&&eventosJogador().length?`<div class="card rl-ev"><div class="split"><div class="eyebrow">No vestiário</div><button class="btn sm" data-ir="relacoes">Responder ›</button></div>${eventosJogador().map(e=>`<p>${esc(e.txt)}</p>`).join('')}</div>`:''}
     <div class="grid g2 cx-linha">${_jTemporada(p)}${_jNoticiasSobre(p)}</div>`;
@@ -51488,6 +51781,37 @@ function _cartaoProposta(pr){
       <button class="btn ghost sm" data-mjrecusar="${pr.id}">Recusar</button>
       <span class="dim">${pr.acordo?'acordo fechado · ':''}${pr.tipo!=='teste'?`paciência ${pr.paciencia} · `:''}vale mais ${resta} semana${resta===1?'':'s'}</span></div></div>`;
 }
+/* ---------- o leilão ---------- */
+function cardLeilao(){
+  const l=typeof leilaoAtual==='function'?leilaoAtual():null;
+  if(!l)return '';
+  const p=meuJogador(),lider=melhorLance(l),resta=l.validoAte-semAbs();
+  const vivos=l.lances.filter(x=>!x.saiu);
+  const mx=Math.max(1,...l.lances.map(valorLance));
+  const lance=x=>{const t=G.times[x.tid],v=valorLance(x),lid=x===lider&&!x.saiu;
+    return `<div class="lei-c ${x.saiu?'saiu':''} ${lid?'lid':''} ${x.dono?'dono':''}" style="--clube:${corDoClube(t)}">
+      ${lid?`<span class="lei-cor">${icone('coroa')} melhor lance</span>`:x.saiu?'<span class="lei-cor fora">saiu da disputa</span>':x.subiu&&l.rodada?`<span class="lei-cor up">${icone('sobe')} subiu</span>`:''}
+      <div class="lei-top">${escudo(t,48)}<div><b>${esc(t.nome)}</b><span class="dim">${x.dono?'o seu clube · renovação':`Tier ${t.tier} · ${esc(nomeLiga(t))}`}</span></div></div>
+      <div class="lei-n"><div><span>Salário</span><b class="num">${moneyJ(x.salario)}</b><em>por mês</em></div>
+        <div><span>Luvas</span><b class="num">${moneyJ(x.luvas)}</b><em>na assinatura</em></div>
+        <div><span>Contrato</span><b class="num">${x.anos}</b><em>anos</em></div></div>
+      <div class="lei-tot"><span>Pacote inteiro</span><i><u style="width:${Math.round(v/mx*100)}%"></u></i><b class="num">${moneyJ(v)}</b></div>
+      ${x.taxa?`<p class="dim lei-tx">${moneyJ(x.taxa)} ao seu clube${x.taxa>=multaDe(p)?' (a multa inteira)':''}</p>`:''}
+      ${x.saiu?'':`<button class="btn sm" data-leiaceita="${x.tid}">Fechar com o ${esc(t.tag||t.nome)}</button>`}
+    </div>`;};
+  return `<section class="card lei"><i class="lei-luz" aria-hidden="true"></i>
+    <div class="lei-cab"><span class="lei-ic">${icone('martelo')}</span><div><div class="eyebrow">Leilão${l.pre?' · pré-contrato':''}</div>
+      <h2 class="sec">${vivos.length} clube${vivos.length===1?'':'s'} disputando você</h2>
+      <p class="dim">Peça mais uma rodada e quem ainda alcança cobre o melhor lance; quem chega ao teto sai. ${l.dono?'O seu clube pode entrar para segurar você com uma renovação.':''}</p></div>
+      <div class="lei-rd"><b class="num">${l.rodada}/${l.max}</b><span>rodadas</span><em>${resta} semana${resta===1?'':'s'} na mesa</em></div></div>
+    <div class="lei-g">${l.lances.slice().sort((a,b)=>(a.saiu-b.saiu)||valorLance(b)-valorLance(a)).map(lance).join('')}</div>
+    <div class="lei-pe">
+      <button class="btn" data-leirodada="1" ${l.rodada>=l.max||vivos.filter(x=>!x.dono).length<2?'disabled':''}>${icone('martelo')} Pedir mais uma rodada</button>
+      ${l.dono&&!l.lances.some(x=>x.dono)?`<button class="btn ghost" data-leicobre="1">Ouvir o ${esc((G.times[l.dono]||{}).tag||'meu clube')}</button>`:''}
+      <button class="btn ghost" data-leifecha="1">Encerrar o leilão</button>
+      <span class="dim lei-log">${esc(l.log[0]||'')}</span></div>
+  </section>`;
+}
 function _nivelEmp(n){n=+n||1;return `<span class="emj-st" title="nível ${n} de 5">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function vJContrato(){
   const p=meuJogador();
@@ -51497,7 +51821,7 @@ function vJContrato(){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
   const cand=e?[]:candidatosEmpresario();
-  return `<div class="grid g2 cx-linha">
+  return `${cardLeilao()}<div class="grid g2 cx-linha">
     <div class="card"><div class="eyebrow">Seu contrato</div>
       ${t?`<div class="ctj" style="--clube:${corDoClube(t)}">
           <div class="ctj-top">${escudo(t,52)}<div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div>
@@ -51660,6 +51984,10 @@ function vJFinancas(){
 function ligarMercadoJogador(v,on){
   const depois=r=>{flash(r.ok?(r.msg||'Feito.'):r.motivo);render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
   on('[data-mjaceitar]',el=>depois(aceitarPropostaJogador(el.dataset.mjaceitar)));
+  on('[data-leirodada]',()=>depois(rodadaLeilao()));
+  on('[data-leicobre]',()=>depois(clubeCobreLeilao()));
+  on('[data-leifecha]',()=>depois(encerrarLeilao()));
+  on('[data-leiaceita]',el=>depois(aceitarLance(el.dataset.leiaceita)));
   on('[data-mjrecusar]',el=>depois(recusarPropostaJogador(el.dataset.mjrecusar)));
   on('[data-mjneg]',el=>modalNegociar(el.dataset.mjneg));
   on('[data-mjteste]',el=>jogarTeste(el.dataset.mjteste));

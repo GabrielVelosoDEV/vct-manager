@@ -21,6 +21,37 @@ function _cartaoProposta(pr){
       <button class="btn ghost sm" data-mjrecusar="${pr.id}">Recusar</button>
       <span class="dim">${pr.acordo?'acordo fechado · ':''}${pr.tipo!=='teste'?`paciência ${pr.paciencia} · `:''}vale mais ${resta} semana${resta===1?'':'s'}</span></div></div>`;
 }
+/* ---------- o leilão ---------- */
+function cardLeilao(){
+  const l=typeof leilaoAtual==='function'?leilaoAtual():null;
+  if(!l)return '';
+  const p=meuJogador(),lider=melhorLance(l),resta=l.validoAte-semAbs();
+  const vivos=l.lances.filter(x=>!x.saiu);
+  const mx=Math.max(1,...l.lances.map(valorLance));
+  const lance=x=>{const t=G.times[x.tid],v=valorLance(x),lid=x===lider&&!x.saiu;
+    return `<div class="lei-c ${x.saiu?'saiu':''} ${lid?'lid':''} ${x.dono?'dono':''}" style="--clube:${corDoClube(t)}">
+      ${lid?`<span class="lei-cor">${icone('coroa')} melhor lance</span>`:x.saiu?'<span class="lei-cor fora">saiu da disputa</span>':x.subiu&&l.rodada?`<span class="lei-cor up">${icone('sobe')} subiu</span>`:''}
+      <div class="lei-top">${escudo(t,48)}<div><b>${esc(t.nome)}</b><span class="dim">${x.dono?'o seu clube · renovação':`Tier ${t.tier} · ${esc(nomeLiga(t))}`}</span></div></div>
+      <div class="lei-n"><div><span>Salário</span><b class="num">${moneyJ(x.salario)}</b><em>por mês</em></div>
+        <div><span>Luvas</span><b class="num">${moneyJ(x.luvas)}</b><em>na assinatura</em></div>
+        <div><span>Contrato</span><b class="num">${x.anos}</b><em>anos</em></div></div>
+      <div class="lei-tot"><span>Pacote inteiro</span><i><u style="width:${Math.round(v/mx*100)}%"></u></i><b class="num">${moneyJ(v)}</b></div>
+      ${x.taxa?`<p class="dim lei-tx">${moneyJ(x.taxa)} ao seu clube${x.taxa>=multaDe(p)?' (a multa inteira)':''}</p>`:''}
+      ${x.saiu?'':`<button class="btn sm" data-leiaceita="${x.tid}">Fechar com o ${esc(t.tag||t.nome)}</button>`}
+    </div>`;};
+  return `<section class="card lei"><i class="lei-luz" aria-hidden="true"></i>
+    <div class="lei-cab"><span class="lei-ic">${icone('martelo')}</span><div><div class="eyebrow">Leilão${l.pre?' · pré-contrato':''}</div>
+      <h2 class="sec">${vivos.length} clube${vivos.length===1?'':'s'} disputando você</h2>
+      <p class="dim">Peça mais uma rodada e quem ainda alcança cobre o melhor lance; quem chega ao teto sai. ${l.dono?'O seu clube pode entrar para segurar você com uma renovação.':''}</p></div>
+      <div class="lei-rd"><b class="num">${l.rodada}/${l.max}</b><span>rodadas</span><em>${resta} semana${resta===1?'':'s'} na mesa</em></div></div>
+    <div class="lei-g">${l.lances.slice().sort((a,b)=>(a.saiu-b.saiu)||valorLance(b)-valorLance(a)).map(lance).join('')}</div>
+    <div class="lei-pe">
+      <button class="btn" data-leirodada="1" ${l.rodada>=l.max||vivos.filter(x=>!x.dono).length<2?'disabled':''}>${icone('martelo')} Pedir mais uma rodada</button>
+      ${l.dono&&!l.lances.some(x=>x.dono)?`<button class="btn ghost" data-leicobre="1">Ouvir o ${esc((G.times[l.dono]||{}).tag||'meu clube')}</button>`:''}
+      <button class="btn ghost" data-leifecha="1">Encerrar o leilão</button>
+      <span class="dim lei-log">${esc(l.log[0]||'')}</span></div>
+  </section>`;
+}
 function _nivelEmp(n){n=+n||1;return `<span class="emj-st" title="nível ${n} de 5">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;}
 function vJContrato(){
   const p=meuJogador();
@@ -30,7 +61,7 @@ function vJContrato(){
   const pediu=p.pedidoSaida&&!p.pedidoSaida.negado;
   const lin=(r,v)=>`<div><span class="dim">${r}</span><b>${v}</b></div>`;
   const cand=e?[]:candidatosEmpresario();
-  return `<div class="grid g2 cx-linha">
+  return `${cardLeilao()}<div class="grid g2 cx-linha">
     <div class="card"><div class="eyebrow">Seu contrato</div>
       ${t?`<div class="ctj" style="--clube:${corDoClube(t)}">
           <div class="ctj-top">${escudo(t,52)}<div><b class="mj-clube">${esc(t.nome)}</b><span class="dim">Tier ${t.tier} · ${esc(nomeLiga(t))}</span></div>
@@ -193,6 +224,10 @@ function vJFinancas(){
 function ligarMercadoJogador(v,on){
   const depois=r=>{flash(r.ok?(r.msg||'Feito.'):r.motivo);render();if(typeof pintarSide==='function')pintarSide();if(typeof pintarTop==='function')pintarTop();};
   on('[data-mjaceitar]',el=>depois(aceitarPropostaJogador(el.dataset.mjaceitar)));
+  on('[data-leirodada]',()=>depois(rodadaLeilao()));
+  on('[data-leicobre]',()=>depois(clubeCobreLeilao()));
+  on('[data-leifecha]',()=>depois(encerrarLeilao()));
+  on('[data-leiaceita]',el=>depois(aceitarLance(el.dataset.leiaceita)));
   on('[data-mjrecusar]',el=>depois(recusarPropostaJogador(el.dataset.mjrecusar)));
   on('[data-mjneg]',el=>modalNegociar(el.dataset.mjneg));
   on('[data-mjteste]',el=>jogarTeste(el.dataset.mjteste));

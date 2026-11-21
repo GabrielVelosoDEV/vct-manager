@@ -5763,3 +5763,50 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 /* fase suíça dos Masters de 16: quem passou e quem caiu */
 .sui-seed.passa{border-left:3px solid var(--teal);background:linear-gradient(90deg,rgba(24,224,181,.12),var(--surf2) 70%)}
 .sui-seed.cai{opacity:.5;border-left:3px solid var(--red)}
+
+/* ============================================================
+   LEILÃO PELO JOGADOR
+   ============================================================ */
+.lei{position:relative;overflow:hidden;border-color:rgba(245,193,90,.45);background:linear-gradient(160deg,rgba(245,193,90,.1),var(--panel) 45%)}
+.lei-luz{position:absolute;inset:-40% 40% auto -10%;height:140%;background:radial-gradient(closest-side,rgba(245,193,90,.16),transparent);pointer-events:none;animation:leiLuz 6s ease-in-out infinite alternate}
+@keyframes leiLuz{to{transform:translateX(30%)}}
+.lei-cab{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.lei-ic{width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#f5c15a,#b9862c);color:#1a1206;box-shadow:0 10px 24px rgba(245,193,90,.3)}
+.lei-ic .ic{width:26px;height:26px;margin:0}
+.lei-cab h2.sec{margin:2px 0 0}
+.lei-cab .eyebrow{color:#f5c15a}
+.lei-rd{display:flex;flex-direction:column;align-items:center;padding:8px 16px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid rgba(245,193,90,.3)}
+.lei-rd b{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:#f5c15a}
+.lei-rd span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lei-rd em{font-style:normal;font-size:11px;color:var(--tx2);margin-top:3px}
+.lei-g{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.lei-c{position:relative;display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--clube) 14%,#151d26),#0f151c 70%);transition:transform .2s,opacity .2s}
+.lei-c.lid{border-color:#f5c15a;box-shadow:0 0 0 1px #f5c15a inset,0 12px 30px rgba(245,193,90,.18);transform:translateY(-3px)}
+.lei-c.saiu{opacity:.45;filter:grayscale(.6)}
+.lei-c.dono{border-style:dashed}
+.lei-cor{position:absolute;top:-1px;right:12px;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:0 0 6px 6px;background:#f5c15a;color:#1a1206}
+.lei-cor .ic{width:12px;height:12px;margin:0}
+.lei-cor.fora{background:#444c55;color:#cfd6dd}
+.lei-cor.up{background:var(--teal);color:#06231c}
+.lei-top{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;margin-top:6px}
+.lei-top>div{display:flex;flex-direction:column;min-width:0}
+.lei-top b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lei-n{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:6px}
+.lei-n>div{display:flex;flex-direction:column;gap:1px;padding:7px 8px;border-radius:8px;background:rgba(0,0,0,.25)}
+.lei-n span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.lei-n b{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1}
+.lei-n em{font-style:normal;font-size:10px;color:var(--dim)}
+.lei-tot{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:11px;color:var(--dim)}
+.lei-tot i{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;display:block}
+.lei-tot u{display:block;height:100%;background:linear-gradient(90deg,#b9862c,#f5c15a);transition:width .5s}
+.lei-tot b{color:var(--tx)}
+.lei-tx{font-size:11.5px;margin:0}
+.lei-c .btn{margin-top:auto}
+.lei-pe{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.lei-pe .btn .ic{width:14px;height:14px;margin:0 6px 0 0}
+.lei-log{margin-left:auto;font-size:12px}
+.lei-aviso{border-color:rgba(245,193,90,.5);background:linear-gradient(90deg,rgba(245,193,90,.12),var(--panel) 60%)}
+.lei-aviso .eyebrow{color:#f5c15a;display:inline-flex;align-items:center;gap:6px}
+.lei-aviso .eyebrow .ic{width:14px;height:14px;margin:0}

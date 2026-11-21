@@ -199,8 +199,10 @@ function disputaPropostas(){
     }
   }
 }
-let _seqProp=0;
-function novoIdProposta(){return 'pr'+(G.ano||0)+'_'+(++_seqProp)+'_'+Math.floor(rnd()*1e6).toString(36);}
+/* o contador mora no save: um contador do módulo seguia contando entre um
+   mundo e outro (e recomeçava do zero ao carregar), e a mesma semente podia
+   dar ids diferentes — e ordem diferente onde as propostas são ordenadas */
+function novoIdProposta(){G.seqProp=(G.seqProp||0)+1;return 'pr'+(G.ano||0)+'_'+G.seqProp+'_'+Math.floor(rnd()*1e6).toString(36);}
 
 function montarCompra(p,alvo,ganho){
   const pedido=p.anuncio.pedido||pedidoDeVenda(p);
