@@ -68,7 +68,7 @@ Object.assign(GP.HABS, {
       const ang = e.ang, x = e.x, y = e.y, L = 30, a = [x, y], b = [x + Math.cos(ang) * L, y + Math.sin(ang) * L];
       GP._fx(J, {x, y, ang, img: 'q_rastro', ag: 'omen', rastro: L, dur: 1.2});
       GP._area(J, {x, y, r: 0, ate: J.t + 0.4, aoFim: J => {
-        for (const o of GP._inimigosDe(J, e)) if (GP._distSeg(o.x, o.y, a, b) < 1.8) GP._miope(J, o, 2);
+        for (const o of GP._inimigosDe(J, e)) if (GP._distSeg(o.x, o.y, a, b) < 2.2) GP._miope(J, o, 2.6);
       }});
     }},
     e: {nome: 'Dark Cover', cargas: 2, usar(J, e) { GP._fumaca(J, e, GP._noCursor(J, e, 40), 3.2, 15, 'e_area', 'omen'); }},
@@ -92,10 +92,10 @@ Object.assign(GP.HABS, {
       const p = GP._noCursor(J, e, 40);
       GP._area(J, {x: p.x, y: p.y, r: 0.5, ate: J.t + 1, objeto: true, img: 'c_objeto', ag: 'astra', escala: 1.2, aoFim: J => {
         GP._fx(J, {x: p.x, y: p.y, img: 'q_area', ag: 'astra', r: 4.5, dur: 0.6});
-        for (const o of GP._noRaio(J, e, p.x, p.y, 4.5, false)) GP._concussao(J, o, 3.5);
+        for (const o of GP._noRaio(J, e, p.x, p.y, 4.8, false)) GP._concussao(J, o, 3.8);
       }});
     }},
-    e: {nome: 'Nebula', cargas: 2, usar(J, e) { GP._fumaca(J, e, GP._noCursor(J, e, 40), 3.4, 14, 'e_area', 'astra'); }},
+    e: {nome: 'Nebula', cargas: 3, usar(J, e) { GP._fumaca(J, e, GP._noCursor(J, e, 40), 3.4, 15, 'e_area', 'astra'); }},
     x: {nome: 'Cosmic Divide', cargas: 1, usar(J, e) {
       const p = GP._noCursor(J, e, 20), L = 70, ang = e.ang;
       GP._paredeReta(J, e, {x: p.x - Math.cos(ang) * L / 2, y: p.y - Math.sin(ang) * L / 2}, ang, L, {ate: J.t + 20, esconde: true, seguraBala: true, img: 'x_parede', ag: 'astra', alto: 1.2, nome: 'Cosmic Divide'});
@@ -107,7 +107,7 @@ Object.assign(GP.HABS, {
       const alvo = GP._pontoMirado(J, e, 18);
       GP._lancar(J, e, {vel: 18, alcance: alvo.d, img: 'c_projetil', ag: 'harbor', aoParar: (J, p) => GP._area(J, {x: p.x, y: p.y, r: 3.5, ate: J.t + 0.9, img: 'c_area', ag: 'harbor', alfa: 0.6, aoFim: J => {
         GP._fx(J, {x: p.x, y: p.y, img: 'c_clarao', ag: 'harbor', r: 3.6, dur: 0.7});
-        for (const o of GP._noRaio(J, e, p.x, p.y, 3.5, false)) { GP._miope(J, o, 3); GP._ef(o).lento = J.t + 3; }
+        for (const o of GP._noRaio(J, e, p.x, p.y, 3.8, false)) { GP._miope(J, o, 3.5); GP._ef(o).lento = J.t + 3.5; }
       }})});
     }},
     q: {nome: 'High Tide', cargas: 1, usar(J, e) {

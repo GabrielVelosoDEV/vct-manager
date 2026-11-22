@@ -135,7 +135,7 @@ GP.HABS = {
       GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: 'q_projetil', aoParar: (J, p) => {
         GP._area(J, {x: p.x, y: p.y, r: 0.5, ate: J.t + 0.45, objeto: true, img: 'q_projetil', ag: 'raze', aoFim: J => {
           GP._fx(J, {x: p.x, y: p.y, img: 'q_clarao', ag: 'raze', r: 2.2, dur: 0.45});
-          GP._explosao(J, p.dono, p.x, p.y, 3.5, 40, 'Blast Pack');
+          GP._explosao(J, p.dono, p.x, p.y, 3.2, 30, 'Blast Pack');
           /* empurra quem estiver perto (a própria Raze inclusive): é o pulo dela */
           for (const o of J.ents) { const d = Math.hypot(o.x - p.x, o.y - p.y); if (o.vivo && d < 3.5) GP._arrancar(J, o, Math.atan2(o.y - p.y, o.x - p.x) + (d < 0.05 ? o.ang : 0), 6.5 * (1 - d / 5), 0.3); }
         }});
@@ -145,13 +145,13 @@ GP.HABS = {
       const alvo = GP._pontoMirado(J, e, 14);
       GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: 'e_projetil', aoParar: (J, p) => {
         GP._fx(J, {x: p.x, y: p.y, img: 'e_clarao', ag: 'raze', r: 2.4, dur: 0.45});
-        GP._explosao(J, p.dono, p.x, p.y, 4, 55, 'Paint Shells');
+        GP._explosao(J, p.dono, p.x, p.y, 3.6, 40, 'Paint Shells');
         for (let k = 0; k < 4; k++) {
           const a = k * Math.PI / 2 + J.rnd() * 0.8, d = GP._ateParede(J.m, p.x, p.y, a, 2.6);
           const sx = p.x + Math.cos(a) * d, sy = p.y + Math.sin(a) * d;
           GP._area(J, {x: sx, y: sy, r: 0.3, ate: J.t + 0.7 + k * 0.08, objeto: true, img: 'e_projetil', ag: 'raze', escala: 0.45, aoFim: J => {
             GP._fx(J, {x: sx, y: sy, img: 'e_clarao', ag: 'raze', r: 1.6, dur: 0.4});
-            GP._explosao(J, p.dono, sx, sy, 2.5, 55, 'Paint Shells');
+            GP._explosao(J, p.dono, sx, sy, 2.2, 30, 'Paint Shells');   /* Etapa 5: era 55 em 2,5 m */
           }});
         }
       }});
@@ -159,7 +159,7 @@ GP.HABS = {
     x: {nome: 'Showstopper', cargas: 1, usar(J, e) {
       GP._lancar(J, e, {vel: 36, alcance: 60, img: 'x_projetil', escala: 1.2, acertaGente: true, aoParar: (J, p) => {
         GP._fx(J, {x: p.x, y: p.y, img: 'x_clarao', ag: 'raze', r: 4.5, dur: 0.6});
-        GP._explosao(J, p.dono, p.x, p.y, 5, 150, 'Showstopper', 0.3);
+        GP._explosao(J, p.dono, p.x, p.y, 4, 130, 'Showstopper', 0.2);
       }});
     }},
   },
@@ -283,12 +283,24 @@ GP.resetarHabilidades = function (J) {
 };
 
 GP._orbePerto = (J, e) => GP._hab(J).orbes.find(o => !o.usado && J.t < o.ate && Math.hypot(o.x - e.x, o.y - e.y) < 5);
+/* aliado caído neste round, perto (a ult da Sage) */
+GP._caidoPerto = (J, e, r) => {
+  const ini = J.round && J.round.inicio || 0;
+  let best = null, bd = r || 10;
+  for (const o of J.ents) {
+    if (o.vivo || o === e || o.time !== e.time || (o._morreuEm || 0) < ini) continue;
+    const d = Math.hypot(o.x - e.x, o.y - e.y);
+    if (d < bd && GP.linhaLivre(J.m, e.x, e.y, o.x, o.y)) { bd = d; best = o; }
+  }
+  return best;
+};
 
 /* aperte a tecla: dá para usar agora? (para a HUD também) */
 GP.podeUsar = function (J, e, k) {
   const H = GP.HABS[e.agente], h = H && H[k];
   if (!h || h.semDuelo || !e.vivo || J.round.fase !== 'ativo') return false;
   if (h.precisa === 'orbe' && !GP._orbePerto(J, e)) return false;
+  if (h.precisa === 'caido' && !GP._caidoPerto(J, e)) return false;
   if (e.ef && e.ef.supr > J.t) return false;
   if (h.precisa === 'abate' && !(e.ef && e.ef.ultimoAbate > J.t - 3)) return false;
   return (e.cargas[k] || 0) > 0;
@@ -400,7 +412,9 @@ GP.passoHabilidades = function (J, dt) {
     if ((alvo && Math.hypot(alvo.x - r.x, alvo.y - r.y) < 1.3) || t > r.ate) {
       r.fim = true;
       GP._fx(J, {x: r.x, y: r.y, img: 'q_clarao', ag: 'raze', r: 2.2, dur: 0.45});
-      GP._explosao(J, r.dono, r.x, r.y, 3, 125, 'Boom Bot', 0.5);
+      /* Etapa 5: sem alvo o robô se apaga (antes explodia sozinho no fim do tempo) */
+      /* e o dano caiu (era 125 em 3 m): aqui ninguém atira no robô, então ele não tinha resposta */
+      if (alvo) GP._explosao(J, r.dono, r.x, r.y, 2.2, 70, 'Boom Bot', 0.5);
     } else if (J.t - (r.som || 0) > 0.4) { r.som = J.t; J.sons.push({x: r.x, y: r.y, t: J.t, dono: r.dono.id, time: r.dono.time, r: 14}); }
   }
   H.robos = H.robos.filter(r => !r.fim);

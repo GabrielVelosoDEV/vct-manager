@@ -53,10 +53,26 @@ GP.coberturas = function (m) {
   }
   return (m._cob = out);
 };
-GP._objetosDeCobertura = function (g, m, S) {
+/* Etapa 5: a parte do bomb que deixou de ser área de planta (ajustes-mapas.js)
+   ganha um tracejado escuro por cima da tinta amarela da pintura */
+GP._plantaCortada = function (g, m, S) {
+  if (!m.cortes || !m.cortes.length) return;
+  const c = m.cel * S;
+  g.save();
+  g.fillStyle = 'rgba(12,16,22,.26)';
+  for (const i of m.cortes) g.fillRect((i % m.W) * c, (i / m.W | 0) * c, c + 0.5, c + 0.5);
+  g.strokeStyle = 'rgba(12,16,22,.38)'; g.lineWidth = Math.max(1, c * 0.18);
+  g.beginPath();
+  for (const i of m.cortes) { const x = (i % m.W) * c, y = (i / m.W | 0) * c; if (((i % m.W) + (i / m.W | 0)) % 3 === 0) { g.moveTo(x, y + c); g.lineTo(x + c, y); } }
+  g.stroke();
+  g.restore();
+};
+GP._objetosDeCobertura = function (g, m, S, so) {
   const ob = GP.manifesto ? GP.manifesto().objetos || {} : {};
   const dec = GP.manifesto ? (GP.manifesto().decoracao || {})[m.nome] || {} : {};
-  for (const o of GP.coberturas(m)) {
+  /* só = as coberturas novas da Etapa 5 (as do minimapa já estão na pintura) */
+  for (const o0 of so || GP.coberturas(m)) {
+    const o = so ? {tipo: o0.w / o0.h > 1.3 || o0.h / o0.w > 1.3 ? 'caixa2' : 'caixa', x: o0.x, y: o0.y, w: o0.w, h: o0.h, deitado: o0.h > o0.w * 1.15} : o0;
     /* a caixa com a cara do mapa, se já chegou; senão a genérica */
     const ent = (Math.max(o.w, o.h) >= 2.6 ? dec.caixa_grande : null) || dec.caixa || ob[o.tipo] || ob.caixa; if (!ent) continue;
     const im = GP.imagem(ent.src); if (!im) continue;
@@ -224,6 +240,8 @@ GP.desenharMapa = function (m) {
   const pintura = GP.pinturaDoMapa(m.nome, m);
   if (pintura) {
     if (GP.CAIXAS_POR_CIMA.includes(m.nome)) GP._objetosDeCobertura(g, m, S);
+    else if (m.extras && m.extras.length) GP._objetosDeCobertura(g, m, S, m.extras);
+    GP._plantaCortada(g, m, S);
     return {tela, mini: GP._miniDaGrade(m, tema), tema, pintura};
   }
   const img = g.createImageData(TW, TH), d = img.data;

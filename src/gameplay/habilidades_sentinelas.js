@@ -59,7 +59,15 @@ Object.assign(GP.HABS, {
       GP._lancar(J, e, {vel: 18, alcance: alvo.d, img: 'q_projetil', ag: 'sage', aoParar: (J, p) => GP._area(J, {x: p.x, y: p.y, r: 3.6, ate: J.t + 7, lento: true, dono: e, img: 'q_area', ag: 'sage', alfa: 0.7})});
     }},
     e: {nome: 'Healing Orb', cargas: 1, usar(J, e) { GP._fx(J, {x: e.x, y: e.y, img: 'e_clarao', ag: 'sage', r: 1.4, dur: 0.7}); GP._ef(e).cura = {ate: J.t + 5, porSeg: 12, max: 100}; }},
-    x: {nome: 'Resurrection', cargas: 0, semDuelo: true, usar() {}},
+    /* Etapa 5: a ult da Sage revive o aliado caído mais perto (até 10 m) */
+    x: {nome: 'Resurrection', cargas: 1, precisa: 'caido', usar(J, e) {
+      const o = GP._caidoPerto(J, e); if (!o) return;
+      o.vivo = true; o.hp = 100; o.escudo = 0; o._morreuEm = 0; o.vx = o.vy = 0; o.spray = 0; o._viuEm = 0; o._reagiu = false; o._susto = null;
+      if (o.ia) { o.ia.caminho = null; o.ia.lanca = null; o.ia.emLuta = false; }
+      GP._empurrar(J.m, o, o.raioCol);
+      GP._fx(J, {x: o.x, y: o.y, img: 'e_clarao', ag: 'sage', r: 2, dur: 0.9});
+      J.eventos.push({tipo: 'revive', t: J.t, de: e.id, em: o.id});
+    }},
   },
   cypher: {
     c: {nome: 'Trapwire', cargas: 2, usar(J, e) {
@@ -68,11 +76,11 @@ Object.assign(GP.HABS, {
     }},
     q: {nome: 'Cyber Cage', cargas: 2, usar(J, e) {
       const alvo = GP._pontoMirado(J, e, 18);
-      GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: 'q_objeto', ag: 'cypher', escala: 0.6, aoParar: (J, p) => GP._fumaca(J, e, p, 2.7, 7, 'q_area', 'cypher')});
+      GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: 'q_objeto', ag: 'cypher', escala: 0.6, aoParar: (J, p) => GP._fumaca(J, e, p, 2.9, 8.5, 'q_area', 'cypher')});
     }},
     e: {nome: 'Spycam', cargas: 1, usar(J, e) { const p = GP._pontoMirado(J, e, 25); GP._obj(J, {tipo: 'camera', x: p.x, y: p.y, ang: e.ang + Math.PI, dono: e, hp: 50, img: 'e_objeto', ag: 'cypher', tam: 0.9}); }},
     x: {nome: 'Neural Theft', cargas: 1, usar(J, e) {
-      GP._pulsos(J, {x: e.x, y: e.y, pulsos: [0.5, 3], aoPulso: J => { for (const o of GP._inimigosDe(J, e)) { GP._revelar(J, o, 2.5); GP._fx(J, {x: o.x, y: o.y, img: 'x_clarao', ag: 'cypher', r: 2, dur: 0.8}); } }});
+      GP._pulsos(J, {x: e.x, y: e.y, pulsos: [0.5, 3, 5.5], aoPulso: J => { for (const o of GP._inimigosDe(J, e)) { GP._revelar(J, o, 2.5); GP._fx(J, {x: o.x, y: o.y, img: 'x_clarao', ag: 'cypher', r: 2, dur: 0.8}); } }});
     }},
   },
   killjoy: {
@@ -185,13 +193,13 @@ GP.passoSentinelas = function (J, dt) {
   /* fios do Cypher */
   for (const w of H.paredes) if (w.fio) for (const o of GP._inimigosDe(J, w.dono)) {
     if (GP._distSeg(o.x, o.y, w.a, w.b) > 0.5) continue;
-    GP._ef(o).lento = t + 3.5; GP._revelar(J, o, 3.5); w.ate = t;
+    GP._ef(o).lento = t + 3.5; GP._revelar(J, o, 5); GP._concussao(J, o, 2.5); GP._prender(J, o, 1.2); w.ate = t;   /* Etapa 5: prende, revela 5 s e atordoa */
     J.sons.push({x: o.x, y: o.y, t, dono: w.dono.id, time: w.dono.time, r: 40, tiro: true});
   }
   /* Razorvine: corta quem anda dentro */
   for (const a of H.areas) if (a.navalha) for (const o of GP._noRaio(J, a.dono, a.x, a.y, a.r, false)) {
     GP._ef(o).lento = Math.max(GP._ef(o).lento || 0, t + 0.3);
-    if (Math.hypot(o.vx, o.vy) > 1.5) { o._navalha = (o._navalha || 0) + 25 * dt; if (o._navalha >= 5) { GP._habDano(J, a.dono, o, o._navalha, 'Razorvine'); o._navalha = 0; } }
+    if (Math.hypot(o.vx, o.vy) > 1.5) { o._navalha = (o._navalha || 0) + 32 * dt; if (o._navalha >= 5) { GP._habDano(J, a.dono, o, o._navalha, 'Razorvine'); o._navalha = 0; } }
   }
   for (const ob of H.objs) {
     if (ob.hp <= 0 || (ob.ate && t >= ob.ate)) { ob.fim = true; if (ob.tipo === 'casulo' && ob.preso) { const ef = GP._ef(ob.preso); ef.preso = ef.supr = ef.jam = 0; } continue; }
@@ -229,8 +237,8 @@ GP.passoSentinelas = function (J, dt) {
       for (const o of GP._noRaio(J, ob.dono, ob.x, ob.y, 16, false)) { GP._prender(J, o, 8); GP._suprimir(J, o, 8); GP._ef(o).jam = t + 8; }
     }
     if (ob.tipo === 'marca') {
-      const o = ini.find(o => Math.hypot(o.x - ob.x, o.y - ob.y) < 5 && GP.linhaLivre(m, ob.x, ob.y, o.x, o.y));
-      if (o) { ob.fim = true; GP._area(J, {x: ob.x, y: ob.y, r: 4, ate: t + 6, lento: true, dono: ob.dono, img: 'c_area', ag: 'chamber', alfa: 0.7}); }
+      const o = ini.find(o => Math.hypot(o.x - ob.x, o.y - ob.y) < 6.5 && GP.linhaLivre(m, ob.x, ob.y, o.x, o.y));
+      if (o) { ob.fim = true; GP._revelar(J, o, 2); GP._area(J, {x: ob.x, y: ob.y, r: 5, ate: t + 7, lento: true, dono: ob.dono, img: 'c_area', ag: 'chamber', alfa: 0.7}); }
     }
     if (ob.tipo === 'sensor') {
       const o = ini.find(o => Math.hypot(o.x - ob.x, o.y - ob.y) < 7 && Math.hypot(o.vx, o.vy) > 4 && GP.linhaLivre(m, ob.x, ob.y, o.x, o.y));
@@ -298,7 +306,7 @@ GP.passoSentinelas = function (J, dt) {
     const ef = e.ef, t = J.t;
     const hh = ef && ef.hhOn && ef.hh > 0, tdf = ef && ef.tdfOn && ef.tdf > 0;
     if (!hh && !tdf) return atira ? atira(J, e) : false;
-    const erro = (tdf ? 0.15 : 0.5) + GP.erroAtual(e, t) * (tdf ? 0.2 : 0.5);
+    const erro = (tdf ? 0.15 : 0.4) + GP.erroAtual(e, t) * (tdf ? 0.2 : 0.4);
     const ang = e.ang + GP._gauss(J.rnd) * (erro / 2) * Math.PI / 180;
     const ox = e.x + Math.cos(ang) * 0.3, oy = e.y + Math.sin(ang) * 0.3, dx = Math.cos(ang), dy = Math.sin(ang);
     J._atirando = e;

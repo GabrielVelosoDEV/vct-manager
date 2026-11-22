@@ -142,7 +142,7 @@ Object.assign(GP.HABS, {
   fade: {
     c: {nome: 'Prowler', cargas: 2, usar(J, e) {
       GP._bicho(J, {dono: e, x: e.x, y: e.y, ang: e.ang, vel: 7.5, ate: J.t + 3, img: 'c_objeto', ag: 'fade', tam: 1.6, persegue: 12,
-        aoAlcancar: (J, b, o) => GP._miope(J, o, 2.5)});
+        aoAlcancar: (J, b, o) => { GP._miope(J, o, 3.5); GP._revelar(J, o, 1.5); }});
     }},
     q: {nome: 'Seize', cargas: 1, usar(J, e) {
       const alvo = GP._pontoMirado(J, e, 24);
@@ -154,13 +154,13 @@ Object.assign(GP.HABS, {
     e: {nome: 'Haunt', cargas: 1, usar(J, e) {
       const alvo = GP._pontoMirado(J, e, 30);
       GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: 'e_objeto', ag: 'fade', aoParar: (J, p) => GP._pulsos(J, {x: p.x, y: p.y, pulsos: [0.5, 1.5], img: 'e_objeto', ag: 'fade', objeto: true, escala: 1.4,
-        aoPulso: J => { for (const o of GP._noRaio(J, e, p.x, p.y, 30, true)) GP._revelar(J, o, 2.5); }})});
+        aoPulso: J => { for (const o of GP._noRaio(J, e, p.x, p.y, 30, true)) GP._revelar(J, o, 3.5); }})});
     }},
     x: {nome: 'Nightfall', cargas: 1, usar(J, e) {
       GP._hab(J).fx.push({x: e.x, y: e.y, ang: e.ang, img: 'x_cone', ag: 'fade', cone: 32, dur: 1.8, t: J.t});
       const x = e.x, y = e.y, ang = e.ang;
       GP._area(J, {x, y, r: 0, ate: J.t + 0.8, aoFim: J => {
-        for (const o of GP._noLeque(J, e, x, y, ang, 32, 0.45)) { GP._revelar(J, o, 12); GP._concussao(J, o, 2); GP._habDano(J, e, o, Math.min(40, o.hp - 1), 'Nightfall'); }
+        for (const o of GP._noLeque(J, e, x, y, ang, 34, 0.5)) { GP._revelar(J, o, 12); GP._concussao(J, o, 2); GP._habDano(J, e, o, Math.min(40, o.hp - 1), 'Nightfall'); }
       }});
     }},
   },
@@ -168,7 +168,7 @@ Object.assign(GP.HABS, {
     c: {nome: 'Mosh Pit', cargas: 1, usar(J, e) {
       const alvo = GP._pontoMirado(J, e, 18);
       GP._lancar(J, e, {vel: 16, alcance: alvo.d, img: null, aoParar: (J, p) => {
-        GP._area(J, {x: p.x, y: p.y, r: 3.2, ate: J.t + 3, dps: 10, dono: e, img: 'c_area', ag: 'gekko', nome: 'Mosh Pit', aoFim: J => {
+        GP._area(J, {x: p.x, y: p.y, r: 3.2, ate: J.t + 3, dps: 13, dono: e, img: 'c_area', ag: 'gekko', nome: 'Mosh Pit', aoFim: J => {
           GP._fx(J, {x: p.x, y: p.y, img: 'x_area', ag: 'gekko', r: 3.6, dur: 0.5});
           for (const o of GP._noRaio(J, e, p.x, p.y, 3.4, false)) GP._habDano(J, e, o, 150, 'Mosh Pit');
         }});
@@ -176,12 +176,12 @@ Object.assign(GP.HABS, {
     }},
     q: {nome: 'Wingman', cargas: 1, usar(J, e) {
       GP._bicho(J, {dono: e, x: e.x, y: e.y, ang: e.ang, vel: 6, ate: J.t + 6, img: 'q_objeto', ag: 'gekko', tam: 1.4, persegue: 14, alcanca: 6, porLinha: true,
-        aoAlcancar: (J, b, o) => { GP._fx(J, {x: o.x, y: o.y, img: 'x_area', ag: 'gekko', r: 2, dur: 0.5}); for (const v of GP._noRaio(J, e, o.x, o.y, 3, true)) GP._concussao(J, v, 3); }});
+        aoAlcancar: (J, b, o) => { GP._fx(J, {x: o.x, y: o.y, img: 'x_area', ag: 'gekko', r: 2, dur: 0.5}); for (const v of GP._noRaio(J, e, o.x, o.y, 3.4, true)) GP._concussao(J, v, 3.5); }});
     }},
     e: {nome: 'Dizzy', cargas: 1, usar(J, e) {
       GP._lancar(J, e, {vel: 12, alcance: Math.min(20, GP._ateParede(J.m, e.x, e.y, e.ang, 20)), img: 'e_objeto', ag: 'gekko', escala: 1.3, aoParar: (J, p) => {
         GP._fx(J, {x: p.x, y: p.y, img: 'e_clarao', ag: 'gekko', r: 3, dur: 0.6});
-        for (const o of GP._noRaio(J, e, p.x, p.y, 22, true)) { const ef = GP._ef(o); ef.cego = Math.max(ef.cego || 0, J.t + 2); ef.cegoDur = 2; GP._revelar(J, o, 2); }
+        for (const o of GP._noRaio(J, e, p.x, p.y, 22, true)) { const ef = GP._ef(o); ef.cego = Math.max(ef.cego || 0, J.t + 2.5); ef.cegoDur = 2.5; GP._revelar(J, o, 2.5); }
       }});
     }},
     x: {nome: 'Thrash', cargas: 1, usar(J, e) {

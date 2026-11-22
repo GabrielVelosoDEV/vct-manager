@@ -39,7 +39,7 @@ GP.UTIL = {
   phoenix: {c: U('parede', 'dir', 13), q: U('flash', 'fim', 9, 22), e: U('molly', 'reto', 15, 2.4), x: U('ultEntrada', 'self')},
   reyna: {c: U('cc', 'fim', 9, 20), q: U('curaOrbe', 'self'), e: U('fugaOrbe', 'self'), x: U('arma', 'self')},
   raze: {c: U('cc', 'fim', 30, 9), e: U('molly', 'reto', 14, 4), x: U('ultAlvo', 'dir', 45)},
-  yoru: {c: U('fake', 'dir', 30), q: U('flash', 'fim', 22, 22)},
+  yoru: {c: U('fake', 'dir', 30), q: U('flash', 'fim', 22, 22), x: U('ultSelf', 'self', 0, 30)},
   neon: {c: U('parede', 'dir', 20), q: U('cc', 'reto', 24, 3.5), x: U('arma', 'self')},
   iso: {c: U('escudo', 'dir', 12), q: U('ccAlvo', 'dir', 30), e: U('buffLuta', 'self'), x: U('ultAlvo', 'dir', 36)},
   waylay: {c: U('cc', 'reto', 16, 3), q: U('dash', 'dir', 6), x: U('ultCone', 'dir', 30, 0.32)},
@@ -47,20 +47,20 @@ GP.UTIL = {
   breach: {c: U('molly', 'atras', 3, 2.8), q: U('flash', 'atras', 10, 22), e: U('cc', 'linha', 22, 1.6), x: U('ultCone', 'dir', 28, 0.42)},
   skye: {c: U('curaTime', 'self'), q: U('cc', 'linha', 27, 1.3), e: U('flash', 'fim', 28, 22), x: U('ultBusca', 'self')},
   kayo: {c: U('molly', 'reto', 18, 3), q: U('flash', 'reto', 16, 22), e: U('recon', 'fim', 40, 15), x: U('ultSelf', 'self', 0, 30)},
-  fade: {c: U('cc', 'fim', 22, 12), q: U('cc', 'reto', 24, 3.2), e: U('recon', 'reto', 30, 30), x: U('ultCone', 'dir', 32, 0.45)},
+  fade: {c: U('cc', 'fim', 22, 12), q: U('cc', 'reto', 24, 3.2), e: U('recon', 'reto', 30, 30), x: U('ultCone', 'dir', 34, 0.5)},
   gekko: {c: U('molly', 'reto', 18, 3.2), q: U('cc', 'fim', 20, 14), e: U('flash', 'fim', 20, 22), x: U('ultBicho', 'dir', 30, 0.4)},
   tejo: {c: U('drone', 'self'), q: U('cc', 'reto', 20, 4.5), e: U('molly', 'cursor', 40, 3.5), x: U('ultLinha', 'linha', 27, 2.6)},
   brimstone: {c: U('estimulo', 'self', 8, 6), q: U('molly', 'reto', 18, 3), e: U('fumaca', 'cursor', 50, 3.4), x: U('ultMolly', 'cursor', 60, 4.5)},
   viper: {c: U('molly', 'reto', 18, 2.6), q: U('fumaca', 'reto', 16, 3.3), e: U('parede', 'dir', 40), x: U('ultPit', 'self', 0, 9)},
-  omen: {q: U('cc', 'linha', 30, 1.8), e: U('fumaca', 'cursor', 40, 3.2)},
-  astra: {c: U('cc', 'cursor', 40, 4.5), q: U('cc', 'cursor', 40, 4.5), e: U('fumaca', 'cursor', 40, 3.4)},
+  omen: {q: U('cc', 'linha', 30, 2.2), e: U('fumaca', 'cursor', 40, 3.2), x: U('ultTeleporte', 'cursor', 400)},
+  astra: {c: U('cc', 'cursor', 40, 4.5), q: U('cc', 'cursor', 40, 4.8), e: U('fumaca', 'cursor', 40, 3.4), x: U('parede', 'dir', 40)},
   harbor: {c: U('cc', 'reto', 18, 3.5), q: U('parede', 'dir', 32), e: U('fumaca', 'cursor', 30, 3.2), x: U('ultCone', 'dir', 30, 0.4)},
   clove: {c: U('curaAbate', 'self'), q: U('cc', 'reto', 18, 3.2), e: U('fumaca', 'cursor', 40, 3.2), x: U('ultSelf', 'self', 0, 0)},
   miks: {c: U('cc', 'reto', 16, 5), q: U('buff', 'self'), e: U('fumaca', 'cursor', 35, 3.2), x: U('ultCone', 'dir', 26, 0.5)},
-  sage: {c: U('muro', 'reto', 6), q: U('cc', 'reto', 20, 3.6), e: U('curaSelf', 'self')},
+  sage: {c: U('muro', 'reto', 6), q: U('cc', 'reto', 20, 3.6), e: U('curaSelf', 'self'), x: U('ultRes', 'self')},
   cypher: {c: U('trap', 'reto', 10), q: U('fumaca', 'reto', 18, 2.7), e: U('camera', 'reto', 25), x: U('ultRecon', 'self')},
   killjoy: {c: U('enxame', 'reto', 18, 2.6), q: U('trap', 'reto', 8), e: U('torreta', 'reto', 6), x: U('ultLockdown', 'self', 0, 16)},
-  chamber: {c: U('trap', 'reto', 10), x: U('arma', 'self')},
+  chamber: {c: U('trap', 'reto', 10), q: U('arma', 'self'), x: U('arma', 'self')},
   deadlock: {c: U('cc', 'reto', 18, 3.5), q: U('trap', 'reto', 8), e: U('muro', 'reto', 5), x: U('ultAlvo', 'dir', 40)},
   vyse: {c: U('molly', 'reto', 18, 3.2), q: U('trap', 'reto', 12), e: U('rosa', 'reto', 14), x: U('ultSelf', 'self', 0, 16)},
   veto: {q: U('cc', 'reto', 18, 2.8), e: U('interceptor', 'reto', 10), x: U('buffLuta', 'self')},
@@ -208,6 +208,18 @@ GP._utilTime = function (J) {
   GP._atualizarSabe(J);
   GP._utilAtaque(J, GP._timeAtk(J));
   GP._utilDefesa(J, GP._timeDef(J));
+  GP._utilRes(J);
+};
+/* Etapa 5: a Sage revive quem caiu perto, se ninguém do outro lado está à vista */
+GP._utilRes = function (J) {
+  for (const e of J.ents) {
+    if (!GP._livre(e)) continue;
+    const k = GP._chaves(J, e, ['ultRes'])[0]; if (!k) continue;
+    const o = GP._caidoPerto(J, e); if (!o || J.t - o._morreuEm > 25) continue;
+    const sabe = GP._conhecidos(J, e.time, 2);
+    if (sabe.some(s => J.t - s.t < 2 && Math.hypot(s.x - e.x, s.y - e.y) < 18)) continue;
+    GP._pedir(J, e, k, null, Math.atan2(o.y - e.y, o.x - e.x));
+  }
 };
 
 /* manda o melhor candidato usar algo de 'tipos' para pegar 'alvos' */
@@ -254,6 +266,16 @@ GP._utilAtaque = function (J, time) {
     const spots = T.defesa[L] || [];
     const alvos = sabe.filter(s => Math.hypot(s.x - sitio.x, s.y - sitio.y) < 30).concat(spots);
     const naExecucao = A.fase === 'ir' && A.decidido && t - A.tIr < 14;
+    /* Etapa 5: flash de entrada — quem sabe de um defensor logo atrás da
+       quina joga a flash (ou o cc) antes de aparecer, como na defesa */
+    for (const e of bots) {
+      if (!GP._livre(e) || t - (e.ia.flashRepeek || 0) < 5) continue;
+      const s = sabe.find(s => t - s.t < 1.5 && Math.hypot(s.x - e.x, s.y - e.y) < 16 && !GP.linhaLivre(m, e.x, e.y, s.x, s.y));
+      if (!s) continue;
+      const k = GP._chaves(J, e, ['flash', 'cc'])[0]; if (!k) continue;
+      const r = GP._melhorMira(J, e, k, s, [s], 1);
+      if (r) { GP._pedir(J, e, k, r.ponto, r.ang); e.ia.flashRepeek = t; }
+    }
     /* recon/drone antes de entrar (um por round) */
     if (!u.recon && A.decidido && ((A.fase === 'formar' && t - inicio > 10) || naExecucao)) {
       for (const e of bots) {
@@ -304,7 +326,7 @@ GP._utilAtaque = function (J, time) {
           const Ee = T.entradas[L][Math.min(p.k, T.entradas[L].length - 1)];
           if (Math.hypot(e.x - Ee.x, e.y - Ee.y) < 5) { GP._pedir(J, e, k, sitio, Math.atan2(sitio.y - e.y, sitio.x - e.x)); u['parede' + e.id] = t; }
         }
-        if (chegando && u.flashes < 3 && t - (u.ultFlash || 0) > 1.6) {
+        if (chegando && u.flashes < 4 && t - (u.ultFlash || 0) > 1.4) {
           const r = GP._mandar(J, bots, ['flash', 'cc'], {x: (E0.x * 2 + sitio.x) / 3, y: (E0.y * 2 + sitio.y) / 3}, alvos, 1,
             e => Math.hypot(e.x - E0.x, e.y - E0.y) < 30);
           if (r) { u.flashes++; u.ultFlash = t; }
@@ -317,7 +339,8 @@ GP._utilAtaque = function (J, time) {
           if (Math.hypot(e.x - Ee.x, e.y - Ee.y) < 3.5 && GP._ateParede(m, e.x, e.y, ang, 8) > 5) GP._pedir(J, e, k, null, ang);
         }
         /* ult na execução: uma, com o time inteiro ainda de pé */
-        if (!u.ultExec && d0 < 12 && vivos.length >= 3 && inimigos.length >= 2) {
+        /* Etapa 5: até duas ults na execução contra 3 ou mais (era uma só) */
+        if ((u.ultExecN || 0) < (inimigos.length >= 3 ? 2 : 1) && t - (u.ultExec || -9) > 1.2 && d0 < 12 && vivos.length >= 3 && inimigos.length >= 2) {
           for (const e of bots) {
             if (!GP._livre(e)) continue;
             const k = GP._chaves(J, e, GP.ULT_EXECUCAO)[0]; if (!k) continue;
@@ -328,7 +351,7 @@ GP._utilAtaque = function (J, time) {
               const r = GP._melhorMira(J, e, k, sitio, alvos, 2); if (!r) continue;
               GP._pedir(J, e, k, r.ponto, r.ang);
             } else GP._pedir(J, e, k, sitio, Math.atan2(sitio.y - e.y, sitio.x - e.x));
-            u.ultExec = t; break;
+            u.ultExec = t; u.ultExecN = (u.ultExecN || 0) + 1; break;
           }
         }
       }
@@ -350,6 +373,10 @@ GP._utilAtaque = function (J, time) {
   const pp = u.pp;
   if (!pp.fumaca && t - pp.t > 0.5 && !GP._fumacaPerto(J, pp.choke, 4)) {
     if (GP._mandarNoPonto(J, bots, ['fumaca'], pp.choke, 2.5)) pp.fumaca = t;
+  }
+  /* Etapa 5: o Viper's Pit em cima da spike logo depois do plant */
+  if (!pp.pit && t - pp.t > 1.5 && inimigos.length >= 2) {
+    for (const e of bots) { const k = GP._chaves(J, e, ['ultPit'])[0]; if (k && GP._livre(e) && Math.hypot(e.x - sp.x, e.y - sp.y) < 7) { GP._pedir(J, e, k, null, e.ang); pp.pit = t; break; } }
   }
   /* alguém desarmando: molly na spike (a ult só se não tiver molly) */
   if (sp.desarmador && sp.desarme > 0.3 && t - (u.antiDef || 0) > 2.5) {
@@ -390,6 +417,7 @@ GP._utilDefesa = function (J, time) {
       let n = 0;
       if (!GP._fumacaPerto(J, E, 4) && GP._mandarNoPonto(J, bots, ['fumaca'], E, 2.5)) n++;
       if (GP._mandar(J, bots, ['molly', 'cc'], c, perto, 1)) n++;
+      if (GP._mandar(J, bots, ['flash'], c, perto, 1)) n++;
       /* parede de controlador (Viper, Harbor) ou duelista corta a entrada */
       for (const e of bots) {
         const k = GP._chaves(J, e, ['parede'])[0];
@@ -408,7 +436,7 @@ GP._utilDefesa = function (J, time) {
         const viz = juntos.filter(o => Math.hypot(o.x - s.x, o.y - s.y) < 5);
         if (viz.length < 2) continue;
         const c = viz.reduce((a, o) => ({x: a.x + o.x / viz.length, y: a.y + o.y / viz.length}), {x: 0, y: 0});
-        if (GP._mandar(J, bots, ['molly', 'cc', 'ultMolly'].slice(0, inimigos.length >= 3 ? 3 : 2), c, viz, 2)) { u.antiExec = t; break; }
+        if (GP._mandar(J, bots, ['molly', 'cc', 'flash', 'ultMolly'].slice(0, inimigos.length >= 3 ? 4 : 3), c, viz, 2)) { u.antiExec = t; break; }
       }
     }
     /* re-peek: quem sabe de um atacante colado atrás da parede joga a flash antes de aparecer */
@@ -443,6 +471,14 @@ GP._utilDefesa = function (J, time) {
       const k = GP._chaves(J, e, ['drone'])[0];
       if (k && GP._livre(e) && Math.hypot(e.x - sp.x, e.y - sp.y) < 40) { GP._pedir(J, e, k, null, Math.atan2(sp.y - e.y, sp.x - e.x), {drone: {x: sp.x, y: sp.y}}); rt.recon = t; break; }
     }
+  }
+  /* Etapa 5: o Omen longe do retake chega pela ult, atrás do bomb */
+  if (!rt.tele && t - Rt.t > 1) for (const e of bots) {
+    const k = GP._chaves(J, e, ['ultTeleporte'])[0]; if (!k || !GP._livre(e)) continue;
+    const d = Math.hypot(e.x - sp.x, e.y - sp.y); if (d < 24) continue;
+    const q = GP._pontoLivrePerto(m, sp.x + (e.x - sp.x) / d * 8, sp.y + (e.y - sp.y) / d * 8);
+    if (GP.navLivre && !GP.navLivre(m, q.x, q.y)) continue;
+    GP._pedir(J, e, k, q, Math.atan2(q.y - e.y, q.x - e.x)); rt.tele = t; break;
   }
   if (Rt.fase !== 'entrar') return;
   const perto = vivos.filter(e => Math.hypot(e.x - sp.x, e.y - sp.y) < 20);
@@ -542,7 +578,9 @@ GP._utilBot = function (J, e, dt, alvo) {
     for (const k of ['e', 'x', 'q']) {
       const info = GP._info(e, k); if (!info || !GP.podeUsar(J, e, k)) continue;
       const comeco = t - ia.lutaDesde < 1.5;
-      if ((info.tipo === 'arma' || info.tipo === 'buffLuta') && (k !== 'x' || ini >= 2) && comeco) { c.hab = k; return false; }
+      /* a Headhunter do Chamber é a arma de quem não comprou rifle */
+      const hhRifle = e.agente === 'chamber' && k === 'q' && e.armas && e.armas.primaria;
+      if ((info.tipo === 'arma' || info.tipo === 'buffLuta') && (k !== 'x' || ini >= 2) && comeco && !hhRifle) { c.hab = k; return false; }
       if ((info.tipo === 'ultAlvo' || info.tipo === 'ccAlvo') && dA > 5 && dA < info.alc && t >= ia.reacaoAte && Math.abs(GP.angDif(e.ang, Math.atan2(alvo.y - e.y, alvo.x - e.x))) < 0.08 && (k !== 'x' || ini >= 1)) {
         c.mira = {x: alvo.x, y: alvo.y}; c.hab = k; return false;
       }
@@ -650,7 +688,8 @@ GP._fumacasAtivas = J => (J.hab ? J.hab.areas : []).filter(a => a.fumaca && J.t 
 GP._caminhoBot = function (J, e, alvo) {
   const m = J.m, n = m.nav;
   const fum = e.bot && J.modo === 'partida' && !(e.ia.agressivo >= GP.CRUZA_SMOKE) && !GP._pressa(J, e) ? GP._fumacasAtivas(J) : [];
-  const bloq = fum.filter(a => Math.hypot(a.x - e.x, a.y - e.y) > a.r + 0.8 && Math.hypot(a.x - alvo.x, a.y - alvo.y) > a.r + 0.8);
+  const ign = e.ia.fumacaCruza || [];
+  const bloq = fum.filter(a => !ign.includes(a) && Math.hypot(a.x - e.x, a.y - e.y) > a.r + 0.8 && Math.hypot(a.x - alvo.x, a.y - alvo.y) > a.r + 0.8);
   e.ia.smokeNoCaminho = null;
   if (!bloq.length) return GP.caminho(m, e.x, e.y, alvo.x, alvo.y);
   const salvo = [];
@@ -679,7 +718,17 @@ GP._pararNaFumaca = function (J, e, dt) {
   const a = e.ia.smokeNoCaminho;
   if (!a || J.t >= a.ate || !J.hab || !J.hab.areas.includes(a) || GP._pressa(J, e)) { e.ia.smokeNoCaminho = null; return false; }
   const d = Math.hypot(a.x - e.x, a.y - e.y);
-  if (d > a.r + 2.2) return false;
+  if (d > a.r + 2.2) { e.ia.esperaFumaca = null; return false; }
+  /* Etapa 5: a espera tem limite — a smoke do próprio time segura 1 s, a do
+     outro de 2,5 a 5,5 s (o cauteloso espera mais); depois o bot passa */
+  if (!e.ia.esperaFumaca || e.ia.esperaFumaca.a !== a) e.ia.esperaFumaca = {a, desde: J.t};
+  const limite = a.dono && a.dono.time === e.time ? 1 : 2.5 + (1 - (e.ia.agressivo || 0.5)) * 3;
+  if (J.t - e.ia.esperaFumaca.desde > limite) {
+    (e.ia.fumacaCruza || (e.ia.fumacaCruza = [])).push(a);
+    if (e.ia.fumacaCruza.length > 6) e.ia.fumacaCruza.shift();
+    e.ia.smokeNoCaminho = null; e.ia.esperaFumaca = null; e.ia.caminhoAte = 0;
+    return false;
+  }
   const c = e.cmd;
   c.mx = c.my = 0; c.modo = 'anda';
   GP._virarPara(e, Math.atan2(a.y - e.y, a.x - e.x), e.p.giro * 0.5, dt);

@@ -33,13 +33,27 @@ GP.carregarMapa = function (nome) {
       else sitio[y * W + x] = GP.SITIO_COD[ch] || 0;
     }
   });
+  /* Etapa 5: coberturas novas e planta reduzida (data/gameplay/ajustes-mapas.js) */
+  const aj = typeof AJUSTES_MAPAS !== 'undefined' && AJUSTES_MAPAS[nome] || null, extras = [], cortes = [];
+  if (aj) {
+    const celulas = (r, f) => {
+      for (let y = Math.max(0, Math.floor(r.y / cel)); y < Math.min(H, Math.ceil((r.y + r.h) / cel)); y++)
+        for (let x = Math.max(0, Math.floor(r.x / cel)); x < Math.min(W, Math.ceil((r.x + r.w) / cel)); x++) f(y * W + x);
+    };
+    for (const r of aj.caixas || []) { celulas(r, i => { solido[i] = 1; sitio[i] = 0; }); extras.push({x: r.x, y: r.y, w: r.w, h: r.h, tipo: r.tipo || 'caixa'}); }
+    for (const r of aj.planta || []) celulas(r, i => { if (sitio[i]) cortes.push(i); sitio[i] = 0; });
+    /* corte redondo da planta: tira as células de planta a até r metros de (x, y) */
+    for (const c of aj.cortePlanta || []) celulas({x: c.x - c.r, y: c.y - c.r, w: c.r * 2, h: c.r * 2}, i => {
+      if (sitio[i] && Math.hypot((i % W + 0.5) * cel - c.x, ((i / W | 0) + 0.5) * cel - c.y) <= c.r) { sitio[i] = 0; cortes.push(i); }
+    });
+  }
   const centro = c => ({x: (c[0] + 0.5) * cel, y: (c[1] + 0.5) * cel});
   const m = {
     nome, W, H, cel, solido, sitio,
     larguraM: W * cel, alturaM: H * cel,
     spawn: d.spawn ? {atk: centro(d.spawn.atk), def: centro(d.spawn.def)} : null,
     areas: (d.areas || []).map(a => ({nome: a.nome, ...centro(a.c)})),
-    sitios: {},
+    sitios: {}, extras, cortes,
   };
   /* centro de cada área de planta (para a IA e para o desenho da letra) */
   const soma = {};

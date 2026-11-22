@@ -9,10 +9,11 @@ import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON,Set};vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/ajustes-mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+';globalThis.GP=GP;globalThis.M=MAPAS_GAMEPLAY;',ctx);
+if(process.argv.includes('--sem-ajustes'))vm.runInContext('for(const k in AJUSTES_MAPAS)delete AJUSTES_MAPAS[k];',ctx);
 const GP=ctx.GP;let falhas=0;
-for(const nome of process.argv[2]?[process.argv[2]]:Object.keys(ctx.M)){
+for(const nome of process.argv[2]&&!process.argv[2].startsWith('--')?[process.argv[2]]:Object.keys(ctx.M)){
   const J=GP.novoJogo({mapa:nome,semente:9});J.round.fase='ativo';
   const m=J.m,alvos=Object.values(m.sitios);
   for(let i=0;i<10;i++){const lado=i<5?'atk':'def',sp=m.spawn[lado];

@@ -9,7 +9,7 @@ import vm from 'node:vm';
 const raiz=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const ctx={console,Math,Uint8Array,Int32Array,Float32Array,Error,Object,Array,JSON};
 vm.createContext(ctx);
-vm.runInContext(['data/gameplay/mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js','src/gameplay/habilidades_controladores.js','src/gameplay/habilidades_sentinelas.js','data/mundo.js','data/times.js','data/elencos.js','data/agentes-reais.js','src/gameplay/elenco.js','src/gameplay/partida.js','src/gameplay/tatica.js','src/gameplay/utilidade.js','src/gameplay/estatisticas.js']
+vm.runInContext(['data/gameplay/mapas.js','data/gameplay/ajustes-mapas.js','data/gameplay/mecanicas.js','src/gameplay/grade.js','src/gameplay/armas.js','src/gameplay/motor.js','src/gameplay/mecanicas.js','src/gameplay/habilidades.js','src/gameplay/habilidades_iniciadores.js','src/gameplay/habilidades_controladores.js','src/gameplay/habilidades_sentinelas.js','data/mundo.js','data/times.js','data/elencos.js','data/agentes-reais.js','src/gameplay/elenco.js','src/gameplay/partida.js','src/gameplay/tatica.js','src/gameplay/utilidade.js','src/gameplay/estatisticas.js']
   .map(f=>readFileSync(resolve(raiz,f),'utf8')).join('\n')+'\n;globalThis.GP=GP;globalThis.MAPAS_GAMEPLAY=MAPAS_GAMEPLAY;',ctx);
 const GP=ctx.GP, MAPAS=ctx.MAPAS_GAMEPLAY;
 let falhas=0;
@@ -112,9 +112,12 @@ for(const nome of nomes){
     const hp0=b.hp+b.escudo,x0=eu.x;
     if(h.precisa==='orbe')GP._hab(J).orbes.push({x:eu.x,y:eu.y,ate:J.t+3,dono:eu});
     if(h.precisa==='abate')GP._ef(eu).ultimoAbate=J.t;
+    let caido=null;
+    if(h.precisa==='caido'){caido=GP.criarAgente({id:'aliado',time:eu.time,bot:true});caido.x=eu.x-1.5;caido.y=eu.y;caido.vivo=false;caido.hp=0;caido._morreuEm=J.t;J.ents.push(caido);}
     try{eu.cmd.hab=k;rodar(J,0.05);ok(eu.cargas[k]===h.cargas-1,ag+' '+k+': não gastou a carga');
       rodar(J,1.5);
       if(ag==='raze'&&k==='x')ok(b.hp+b.escudo<hp0-60,'raze x: o foguete não machucou');
+      if(caido)ok(caido.vivo&&caido.hp===100,ag+' '+k+': não reviveu o aliado');
       if(ag==='phoenix'&&k==='q')ok(b.ef&&b.ef.cego>0,'phoenix q: não cegou');
       if(ag==='yoru'&&k==='q')ok(b.ef&&b.ef.cego>0,'yoru q: não cegou');
       if(ag==='jett'&&k==='e')ok(Math.abs(eu.x-x0)>2||Math.abs(eu.y-melhor)>2||true,'');
