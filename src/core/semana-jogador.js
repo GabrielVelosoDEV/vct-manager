@@ -35,7 +35,12 @@ const REPETIR_RENDE=0.6;
    o XP escorria para o atributo que a função ignora (consistência de duelista
    subia 39 pontos num ano e o over quase não mexia) */
 const XP_CUSTO=15;
-function custoPonto(v,p){const piso=p?over(p)-8:0;return XP_CUSTO*Math.pow(1+Math.max(0,Math.max(v,piso)-55)/15,1.7);}
+/* Etapa 4: a curva era 1,7 e o ponto de 85 para 86 custava quatro vezes o de
+   70; no alto da carreira a barra quase não andava. Com 1,55 o topo continua
+   mais lento, mas anda — e os desafios, marcos e momentos (core/evolucao-
+   jogador.js) dão os saltos que o treino sozinho não dá. */
+const XP_CURVA=1.55;
+function custoPonto(v,p){const piso=p?over(p)-8:0;return XP_CUSTO*Math.pow(1+Math.max(0,Math.max(v,piso)-55)/15,XP_CURVA);}
 const XP_DIFICULDADE={facil:1.35,normal:1,dificil:.75};
 
 const ATIV_JOGADOR=[
@@ -64,27 +69,37 @@ function ativJogador(id){return ATIV_JOGADOR.find(a=>a.id===id);}
 
 /* ---------- o estado da semana ---------- */
 function energiaInicial(p){return Math.max(35,Math.min(ENERGIA_MAX,Math.round(ENERGIA_MAX-(p.fadiga||0)*60)));}
-function _snapTemp(p){const s=p.temp||{};return{maps:s.maps||0,k:s.k||0,d:s.d||0,a:s.a||0,acs:s.acs||0,fk:s.fk||0,cl:s.cl||0};}
+function _snapTemp(p){const s=p.temp||{};return{maps:s.maps||0,k:s.k||0,d:s.d||0,a:s.a||0,acs:s.acs||0,fk:s.fk||0,cl:s.cl||0,mvp:s.mvp||0};}
 function semanaJogador(){
   if(!G.voce)return null;
   const p=meuJogador();if(!p)return null;
   const s=G.voce.sem;
-  if(s&&s.ano===G.ano&&s.semana===G.semana)return s;
+  if(s&&s.ano===G.ano&&s.semana===G.semana){if(!s.dias)s.dias={};return s;}
   const e=energiaInicial(p);
-  G.voce.sem={ano:G.ano,semana:G.semana,ini:e,energia:e,feitas:[]};
+  G.voce.sem={ano:G.ano,semana:G.semana,ini:e,energia:e,feitas:[],dias:{}};
   if(!G.voce.tempAntes)G.voce.tempAntes=_snapTemp(p);
   if(G.voce.auto==null)G.voce.auto=true;
   return G.voce.sem;
 }
 function vezesFeita(id){const s=semanaJogador();return s?s.feitas.filter(f=>f.id===id).length:0;}
+/* temporada dia a dia: até duas atividades por dia, uma no dia de jogo */
+const ATIV_POR_DIA=2;
+function _diaAtivo(){return typeof usarDias==='function'&&usarDias();}
+function feitasHoje(dia){const s=semanaJogador(),d=dia!=null?dia:(G.turno||0);return s?s.feitas.filter(f=>(f.dia||0)===d).length:0;}
+function limiteHoje(dia){
+  const t=clubeDoJogador(), d=dia!=null?dia:(G.turno||0);
+  const jogo=t&&typeof diasDeJogoDoClube==='function'&&diasDeJogoDoClube(t.id).includes(d);
+  return jogo?1:ATIV_POR_DIA;
+}
 function custoEnergia(a){const su=typeof efeitosSetup==='function'?efeitosSetup().en:0;return Math.max(1,Math.round(a.energia*(1-Math.min(.5,efeitosTalentos().en+su))));}
 /* devolve null se dá para fazer, ou o motivo */
-function porqueNaoAtividade(id){
+function porqueNaoAtividade(id,dia){
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
   if(!a||!s||!p)return 'Indisponível.';
   if(p.lesao)return 'Você está lesionado: a semana é de recuperação.';
   if(a.grupo==='clube'&&!clubeDoJogador())return 'Sem clube, sem treino coletivo.';
   if(a.unico&&vezesFeita(id))return 'Já feito nesta semana.';
+  if(_diaAtivo()&&feitasHoje(dia)>=limiteHoje(dia))return limiteHoje(dia)===1?'Dia de jogo: só uma atividade antes da partida.':'Já são duas atividades hoje: o resto fica para amanhã.';
   if(a.precisaJogo&&!adversarioDaSemana())return 'Sem jogo do seu clube nesta semana.';
   if(s.energia<custoEnergia(a))return 'Energia insuficiente.';
   return null;
@@ -116,7 +131,9 @@ function fatorXP(p,k){
   /* setup e staff pessoal (core/carreira-mercado.js) */
   const su=typeof efeitosSetup==='function'?efeitosSetup():null;
   const setup=su?1+(su.xp[k]||0)+su.xpTodos:1;
-  return pot*idade*dif*tal*setup;
+  /* foco do split e bootcamp (core/evolucao-jogador.js) */
+  const evo=typeof multEvolucao==='function'?multEvolucao(k):1;
+  return pot*idade*dif*tal*setup*evo;
 }
 /* aplica x de XP bruto no atributo k; devolve quantos pontos subiu */
 function ganharXP(p,k,x){
@@ -157,15 +174,16 @@ function distribuirXP(p,pesos,total){
 /* nota 0 (abandonou sem fazer nada) rende 30%, abaixo do simulado; nota 1 rende 105% */
 function notaParaMult(nota){return Math.max(0.3,Math.min(1.4,0.3+nota*0.75));}
 function fazerAtividade(id,res){
-  const motivo=porqueNaoAtividade(id);
-  if(motivo)return{ok:false,motivo};
   res=res||{simulado:true};
+  const motivo=porqueNaoAtividade(id,res.dia);
+  if(motivo)return{ok:false,motivo};
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
   const n=vezesFeita(id);
   const gasto=custoEnergia(a);
   s.energia-=gasto;
-  const mult=(res.simulado?SIMULADO_RENDE:notaParaMult(res.nota||0))*Math.pow(REPETIR_RENDE,n);
-  const feito={id,gasto,simulado:!!res.simulado,nota:res.nota!=null?Math.round(res.nota*100)/100:null,mult:Math.round(mult*100)/100,resumo:res.resumo||null,xp:{},subiu:{}};
+  const med=!res.simulado&&typeof medalhaDaNota==='function'?medalhaDaNota(res.nota||0):null;
+  const mult=(res.simulado?SIMULADO_RENDE:notaParaMult(res.nota||0))*Math.pow(REPETIR_RENDE,n)*(med==='ouro'?1.1:1);
+  const feito={med,id,dia:res.dia!=null?res.dia:(G.turno||0),auto:!!res.auto,gasto,simulado:!!res.simulado,nota:res.nota!=null?Math.round(res.nota*100)/100:null,mult:Math.round(mult*100)/100,resumo:res.resumo||null,xp:{},subiu:{}};
   if(a.base&&a.xp){const r=distribuirXP(p,a.xp,a.base*mult);feito.xp=r.xp;feito.subiu=r.subiu;}
   const ef=efeitosTalentos();
   if(id==='agente'){
@@ -187,6 +205,8 @@ function fazerAtividade(id,res){
     feito.din=din;
   }
   s.feitas.push(feito);
+  /* medalha, recorde, desafios e maestria (core/evolucao-jogador.js) */
+  if(typeof aposAtividade==='function')aposAtividade(a,feito,p);
   return{ok:true,feito};
 }
 /* treino jogável: a nota sai do resumo da gameplay */
@@ -207,18 +227,26 @@ function notaDoTreino(modo,r){
 function custoSemanaJogador(p){
   const s=G.voce&&G.voce.sem;
   if(!s||s.ano!==G.ano||s.semana!==G.semana)return -0.075;   /* semana em branco: descanso */
-  const gasto=s.ini-s.energia;
+  const gasto=Math.max(0,s.ini-s.energia);
   /* nada gasto: descanso (−0,075, como o descanso do manager); 80 gastos ≈ uma
      semana de treino do manager (+0,02); 100 gastos ≈ +0,045 */
   return -0.075+gasto/100*0.12;
 }
+/* Sem nada marcado, a sua rotina (core/evolucao-jogador.js) roda os dias que
+   ainda não fecharam. No modo dia a dia cada dia já fechou na hora; aqui
+   sobra o domingo. No avanço por semana, se você marcou alguma coisa à mão,
+   a semana é sua e o assistente não mexe. */
 function semanaAutomatica(p){
   const s=semanaJogador();
-  if(!s||s.feitas.length||!G.voce.auto||p.lesao)return false;
-  /* sem clube, a ranked entra no lugar do treino do clube: é ela que traz os olheiros */
-  for(const id of (clubeDoJogador()?['coletivo','range','duelo','vod']:['ranked','range','duelo']))if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
-  s.automatica=true;
-  return true;
+  if(!s||p.lesao)return false;
+  if(typeof rotinaJogadorDoDia!=='function'){return false;}
+  const manual=s.feitas.some(f=>!f.auto);
+  if(!_diaAtivo()&&manual)return false;
+  let fez=false;
+  const rodar=()=>{for(let d=0;d<TURNOS_SEMANA;d++)if(!s.dias[d])fez=rotinaJogadorDoDia(d,true)||fez;};
+  if(typeof noFechamentoDaSemana==='function')noFechamentoDaSemana(rodar);else rodar();
+  if(fez&&!manual)s.automatica=true;
+  return fez;
 }
 function fecharSemanaJogador(p,t){
   if(!G.voce||!p||!p.voce)return null;
@@ -253,6 +281,8 @@ function fecharSemanaJogador(p,t){
     }
     rel.coletivo=foi;
   }
+  /* momentos, desafios e marcos da semana (core/evolucao-jogador.js) */
+  if(typeof evolucaoSemana==='function')evolucaoSemana(p,t,rel,{k:ag.k-a.k,d:ag.d-a.d,cl:ag.cl-a.cl,fk:ag.fk-a.fk,mvp:ag.mvp-(a.mvp||0),maps,acs:maps?(ag.acs-a.acs)/maps:0});
   /* titularidade e relações (core/relacoes.js) */
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
   /* fama, redes, entrevistas e patrocínios (core/fama.js) */

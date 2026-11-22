@@ -208,6 +208,8 @@ function avancarDia(plano){
        continua até a última */
     if(passoDeHoje())return r;
   }
+  /* o dia acabou: a rotina dele cai (core/rotina.js) */
+  if(typeof fimDoDia==='function')fimDoDia(G.turno||0);
   G.turno=(G.turno||0)+1;
   if(!r)r={tipo:'turno',turno:G.turno,semana:G.semana,novas,dia:true};
   return r;
@@ -419,6 +421,8 @@ function semana(){
     if(id===G.meuTime&&!tecIAManda&&typeof atualizarEstilo==='function')atualizarEstilo(t);
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
+    /* a rotina dos dias que ainda não caíram (core/rotina.js) */
+    if(id===G.meuTime&&typeof fecharRotinaDaSemana==='function')fecharRotinaDaSemana(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
     if(fotoAntes)G.relatorioSemana=relatorioDaSemana(t,fotoAntes);
     /* o que os minigames deram valia só para esta semana (core/minigames.js) */
@@ -485,7 +489,8 @@ function desenvolver(p,t){
   /* Cobrança dá trabalho: quem levou bronca na conversa treina com mais foco
      por algumas semanas. É o que faz a opção que CUSTA moral valer a pena. */
   const bronca=(typeof estaCobrado==='function'&&estaCobrado(p))?1.25:1;
-  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
+  const rot=typeof rotinaEvoMult==='function'?rotinaEvoMult(t):1;
+  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca*rot;
   /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
   let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
   /* modo jogador: o seu jogador evolui pelo XP da semana (treinos, atividades

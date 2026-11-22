@@ -189,7 +189,9 @@ function aplicarModoSemana(t){
 }
 /* A vantagem do estudo, só contra quem foi estudado. */
 function bonusEstudo(t,adv){
-  return t&&adv&&t.id===G.meuTime&&semanaModoDe(t)==='estudar'&&t.estudoAdv===adv.id?ESTUDO_BONUS:0;
+  const est=t&&adv&&t.id===G.meuTime&&semanaModoDe(t)==='estudar'&&t.estudoAdv===adv.id?ESTUDO_BONUS:0;
+  /* a véspera trocada para VOD na rotina (core/rotina.js) dá metade */
+  return est||(typeof bonusVodVespera==='function'?bonusVodVespera(t,adv):0);
 }
 /* O que a semana deve fazer, antes de confirmar — mesmas contas do relógio. */
 function previsaoSemana(t,id){

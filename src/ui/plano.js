@@ -84,11 +84,46 @@ function vPlano(){
     <div class="pl-grade">${['agressivo','controle','defensivo','adaptavel'].map(cartaoEstilo).join('')}</div>
     <div class="eyebrow pl-tit">A semana</div>
     <div class="pl-grade">${Object.keys(MODOS_SEMANA).map(cartaoSemana).join('')}</div>
+    ${typeof rotinaHTML==='function'?rotinaHTML(t):''}
     <div class="grid g2" style="margin-top:14px">${proximo}${relatorioSemanaHTML(G.relatorioSemana)||'<div class="card flat"><div class="eyebrow">A semana de treino</div><p class="dim">O relatório aparece depois da primeira semana.</p></div>'}</div>
     ${ult?relatorioAnalistaHTML(ult.r,{titulo:(ult.venceu?'vitória ':'derrota ')+ult.eu+'–'+ult.ele+' contra o '+ult.advTag})
       :'<div class="card flat"><div class="eyebrow">Relatório do analista</div><p class="dim">Depois do primeiro jogo, o analista conta aqui o que funcionou e o que mudar.</p></div>'}`;
 }
+/* ---------- a rotina dos sete dias (core/rotina.js) ---------- */
+function _dataDoDia(d){
+  if(typeof _calMs!=='function')return '';
+  const x=new Date(_calMs(G.semana,d));
+  return String(x.getUTCDate()).padStart(2,'0')+'/'+String(x.getUTCMonth()+1).padStart(2,'0');
+}
+function rotinaHTML(t){
+  if(!t||typeof rotinaDaSemana!=='function')return '';
+  const dias=rotinaDaSemana(t), pv=previsaoRotina(t);
+  const adv=typeof _proximoAdv==='function'?_proximoAdv(t):null;
+  const card=x=>{
+    const R=ROTINA_TIPOS[x.tipo], trava=podeTrocarDia(t,x.dia);
+    const bts=x.tipo==='jogo'?`<span class="rot-fixo">${adv&&x.dia>=(G.turno||0)?'contra o '+esc(adv.tag):'partida'}</span>`
+      :trava?`<span class="rot-fixo">${x.feito?'feito':esc(trava)}</span>`
+      :`<div class="rot-bts">${ROTINA_ESCOLHAS.map(k=>`<button class="${x.tipo===k?'on':''} ${x.padrao===k?'pad':''}" data-rotdia="${x.dia}" data-rottipo="${k}" title="${esc(ROTINA_TIPOS[k].nome)}${x.padrao===k?' (padrão da comissão)':''}">${ico(ROTINA_TIPOS[k].ic)}</button>`).join('')}</div>`;
+    return `<div class="rot-dia t-${x.tipo} ${x.hoje?'hoje':''} ${x.feito?'feito':''} ${x.trocado?'trocado':''}">
+      <div class="rot-cab"><b>${DIAS_CURTO[x.dia]}</b><span class="num">${_dataDoDia(x.dia)}</span>${x.hoje?'<em>hoje</em>':''}</div>
+      <span class="rot-ic">${ico(R.ic)}</span>
+      <b class="rot-nome">${esc(R.nome)}</b>
+      ${x.trocado?`<span class="rot-pad">no lugar de ${esc(ROTINA_TIPOS[x.padrao].curto.toLowerCase())}</span>`:'<span class="rot-pad">&nbsp;</span>'}
+      ${bts}</div>`;
+  };
+  const efeito=pv.trocas?`<span class="${pv.fadiga>0?'dn':'up'}">cansaço ${pv.fadiga>0?'+':''}${pv.fadiga} pts</span> ·
+      <span class="${pv.evolucao<1?'dn':'up'}">evolução ×${pv.evolucao.toFixed(2)}</span> ·
+      <span class="${pv.sinergia<0?'dn':'up'}">entrosamento ${pv.sinergia>0?'+':''}${pv.sinergia}</span>`
+    :'<span class="dim">a rotina que a comissão montou para o modo da semana</span>';
+  return `<div class="rot"><div class="split rot-topo"><div class="eyebrow pl-tit">A rotina dos sete dias</div>
+      <div class="rot-efeito">${efeito}${pv.trocas?` <button class="btn ghost sm" data-rotpadrao="1">Voltar ao padrão</button>`:''}</div></div>
+    <div class="rot-grade">${dias.map(card).join('')}</div>
+    <p class="dim rot-nota">Troque um dia para mexer no cansaço e no entrosamento ali mesmo, e na evolução da semana. Folga na véspera
+      tira a perna pesada do jogo; scrim entrosa os cinco; VOD na véspera dá leitura do adversário.</p></div>`;
+}
 function ligarPlano(v,on){
+  on('[data-rotdia]',el=>{const r=trocarDiaRotina(meu(),+el.dataset.rotdia,el.dataset.rottipo);render();if(!r.ok)flash(r.erro);});
+  on('[data-rotpadrao]',()=>{voltarRotinaPadrao(meu());render();});
   on('[data-estilo]',el=>{const r=definirEstilo(meu(),el.dataset.estilo);render();flash(r.ok?r.msg:r.erro);});
   on('[data-semana]',el=>{const r=definirModoSemana(meu(),el.dataset.semana);render();flash(r.ok?r.msg:r.erro);});
 }

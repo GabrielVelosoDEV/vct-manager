@@ -83,6 +83,17 @@ function aplicarTurno(r){
     flash('📨 '+(c?c.nome:'Um clube')+' fez proposta por '+(p?p.nome:'um jogador seu')+
           (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
   }else if(G.janela&&dias>0&&dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
+  avisarMomentos();
+}
+/* modo jogador: desafio cumprido, marco, título — um aviso só, o mais recente
+   (a lista inteira está em Semana e treinos) */
+function avisarMomentos(){
+  if(!G||!G.voce||typeof momentosNovos!=='function')return;
+  const l=momentosNovos().filter(m=>!m.avisado);
+  if(!l.length)return;
+  l.forEach(m=>m.avisado=true);
+  const m=l[0],rot={desafio:'Desafio cumprido',marco:'Novo marco',mvp:'Momento',titulo:'Momento',semana:'Momento',maestria:'Maestria'}[m.tipo]||'Momento';
+  flash(`${rot}: ${m.txt}${m.sub?' · '+m.sub:''}${l.length>1?` (e mais ${l.length-1} em Semana e treinos)`:''}`);
 }
 /* Etapa 7: com o motor completo, a sua série leva alguns segundos para ser
    jogada. O aviso é pintado ANTES do cálculo (que trava a tela enquanto roda),
@@ -175,6 +186,7 @@ function aplicarAvanco(r,quantas){
   if(r.parcial&&!r.dia)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
   if(r.encerrado)flash(/^fim de temporada/i.test(r.encerrado)?'Temporada encerrada.'
     :r.encerrado+(/^(pré-temporada|pausa)/i.test(r.encerrado)?' encerrada.':' encerrado.'));
+  avisarMomentos();
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre

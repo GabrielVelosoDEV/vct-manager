@@ -77,6 +77,7 @@ function vJSemana(){
         <span class="jx-en">${ico('fogo')} ${custoEnergia(a)}</span></div>
       ${tipo?`<span class="jx-tipo ${tipo}">${tipo==='gameplay'?'gameplay':'minigame'}</span>`:''}
       ${feitas?`<span class="jx-feito">${ico('check')} feito${feitas>1?' '+feitas+'×':''}</span>`:''}
+      ${a.grupo==='jogavel'||SJ_MINI[a.id]?medalhasHTML(a.id):''}
       <p class="dim">${esc(a.desc)}${extra}</p>
       ${a.xp?`<div class="jx-atrs">${Object.entries(a.xp).sort((x,y)=>y[1]-x[1]).map(([k,w])=>_sjAtrib(p,k,w)).join('')}</div>`:a.id==='live'?`<div class="jx-atrs jx-live"><span>${ico('estrela')} ${fmtSeg(seguidores())} seguidores</span></div>`:''}
       <div class="jx-at-b">${botoes}</div>
@@ -91,12 +92,12 @@ function vJSemana(){
       <p class="dim">Familiaridade com um agente do seu pool, ou um novo da sua função (com 40 ele entra no pool e o técnico pode escalar).</p></div>
       <div class="jx-at-b"><input type="hidden" id="sjAgente" value="${esc(agSel||'')}"><button class="btn sm" data-sjfazer="agente" ${motivoAg?'disabled':''}>Treinar ${esc(agSel||'')}</button></div></div>
     <div class="jx-ag-grade">${pool.map(a=>{const n=nv(a),meu=(p.agentes||[]).includes(a);return `<button class="jx-ag ${a===agSel?'on':''} ${meu?'':'novo'}" data-sjag="${esc(a)}">
-      ${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${meu?'':'<em>novo</em>'}</button>`;}).join('')}</div>
+      ${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${meu?(typeof maestriaDe==='function'?`<em class="mq t${maestriaDe(p,a).tier}">${esc(maestriaDe(p,a).nome)}</em>`:''):'<em>novo</em>'}</button>`;}).join('')}</div>
     ${motivoAg?`<div class="jx-motivo">${esc(motivoAg)}</div>`:''}</section>`;
   const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&a.id!=='agente'&&(g!=='clube'||t));return l.length?`<section class="jx-grupo"><div class="jx-grupo-t"><div class="eyebrow">${titulo}</div>${sub?`<span class="dim">${sub}</span>`:''}</div><div class="jx-at-grade">${l.map(card).join('')}</div></section>`:'';};
   const feitas=s.feitas.map((f,i)=>{const a=ativJogador(f.id);
     return `<div class="jx-tl" style="--i:${i}"><span class="jx-tl-ic">${ico(SJ_ICONE[f.id]||'mira')}</span><div><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}
-      <span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
+      <span class="dim">${f.dia!=null&&typeof DIAS_CURTO!=='undefined'?DIAS_CURTO[f.dia]+' · ':''}${f.auto?'pela rotina':f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''}${f.med?' · '+MEDALHA_NOME[f.med]:''}${f.recorde?' · recorde':''} · −${f.gasto} energia</span>
       <div class="jx-xp">${Object.entries(f.xp||{}).filter(([,v])=>v>0.05).map(([k,v])=>`<i>${esc(_NOME_ATR()[k]||k)} +${v.toFixed(1)}</i>`).join('')}${f.fam?`<i>familiaridade +${f.fam}</i>`:''}${f.seg?`<i>+${fmtSeg(f.seg)} seguidores</i>`:''}${f.din?`<i>${moneyJ(f.din)}</i>`:''}${Object.entries(f.subiu||{}).map(([k,v])=>`<i class="up">${esc(_NOME_ATR()[k]||k)} +${v}</i>`).join('')}</div></div></div>`;}).join('');
   const u=G.voce.ultimaSemana;
   const foto=t&&typeof cenaFoto==='function'?cenaFoto('estrutura','treino',t,{cls:'cn-direita',foco:'placa'}):(typeof cenaFoto==='function'?cenaFoto('cenas','ativ-ranked',null,{cls:'cn-direita'}):'');
@@ -108,16 +109,18 @@ function vJSemana(){
           ${adv?`<div class="jx-vs">${t?escudo(t,40):''}<b>${esc(t?t.tag:'')}</b><span>×</span><b>${esc(adv.tag)}</b>${escudo(adv,40)}<i class="dim">over ${overMedioTime(adv)} · ${esc(mapaNome)} no treino</i></div>`
             :`<p class="dim">Treinos no ${esc(mapaNome)}. ${t?'Sem jogo: dá para gastar a energia toda.':'Ranked e lives sobem o radar dos olheiros.'}</p>`}
           <p class="dim jx-hero-nota">Cada atividade gasta energia; o que sobra vira descanso. ${adv?'Abaixo de 40 você chega ao jogo cansado. ':''}Jogar rende mais que simular: o XP sai da sua nota.</p>
-          <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto?'checked':''}> Assistente monta a semana se eu não marcar nada</label>
+          <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto!==false?'checked':''}> A rotina roda sozinha nos dias em que eu não marcar nada</label>
         </div>
         <div class="jx-hero-carta">${typeof cartaJogador==='function'?cartaJogador(p,{w:118}):''}</div>
       </div></section>
+    ${typeof evolucaoHTML==='function'?evolucaoHTML(p):''}
+    ${typeof rotinaJHTML==='function'?rotinaJHTML(p):''}
     ${grupo('clube','Treino do clube','O técnico conta presença: faltar derruba a forma, e a forma pesa na escalação.')}
     ${grupo('jogavel','Treinos jogáveis','Abrem a gameplay por cima do manager. Esc pausa.')}
     ${grupo('clique','Fora do servidor','Minigames do vestiário: a nota vira XP.')}
     ${agentes}
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas?`<div class="jx-tls">${feitas}</div>`:vazio('<b>Nada ainda.</b> '+(G.voce.auto?'Se você avançar assim, o assistente faz uma semana padrão simulada.':'Se você avançar assim, a semana inteira vira descanso.'),'treino')}</div>
+      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas?`<div class="jx-tls">${feitas}</div>`:vazio('<b>Nada ainda.</b> '+(G.voce.auto!==false?'A rotina roda os dias que passarem sem nada marcado.':'Sem a rotina, dia sem nada marcado é descanso.'),'treino')}</div>
       <div class="card"><div class="eyebrow">Semana passada</div>${u?`
         <p>${u.auto?'O assistente montou a semana. ':''}Gastou ${Math.round(u.ini-u.energia)} de ${Math.round(u.ini)} de energia.${u.coletivo===false?' <b class="dn">Faltou ao treino do clube.</b>':''}</p>
         ${u.partidas?`<p>${u.partidas.maps} mapa${u.partidas.maps>1?'s':''} jogado${u.partidas.maps>1?'s':''}: ${_xpTexto(u.partidas.xp)} ${_subiuTexto(u.partidas.subiu)}</p>`:'<p class="dim">Sem partida sua.</p>'}`
@@ -204,6 +207,8 @@ function modalResultadoTreino(a,f,r){
     :`${r.venceu?'Retake ganho':'Retake perdido'} · ${r.kills} abate${r.kills===1?'':'s'}`;
   pintarModal(`<div class="ovl"><div class="box sj-res">
     <div class="eyebrow">${esc(a.nome)}</div><h2>${esc(linha)}</h2>
+    ${f.med?`<div class="sj-med"><i class="evj-med grande ${f.med}"></i><b>${MEDALHA_NOME[f.med]}</b>${f.recorde?'<span class="chip t">novo recorde</span>':''}${f.med==='ouro'?'<span class="dim">+10% de XP</span>':''}</div>`
+      :'<div class="sj-med"><span class="dim">Sem medalha: bronze a partir de nota 0,60, prata 0,90, ouro 1,20.</span></div>'}
     <p>Nota <b class="num">${(f.nota||0).toFixed(2)}</b> · rendeu ${Math.round(f.mult*100)}% do XP base · −${f.gasto} energia</p>
     <p>${_xpTexto(f.xp)}</p>${Object.keys(f.subiu).length?`<p>Subiu: ${_subiuTexto(f.subiu)}</p>`:''}
     <div class="dj-acoes"><button class="btn" id="sjOk">Voltar para a semana</button></div></div></div>`);
@@ -247,6 +252,7 @@ function ligarJogador(v,on){
     render();
   });
   const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
+  if(typeof ligarEvolucao==='function'){ligarEvolucao(v,on);if(v.querySelector('.evj')&&typeof marcarMomentosVistos==='function')marcarMomentosVistos();}
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
   if(typeof ligarMidia==='function')ligarMidia(v,on);

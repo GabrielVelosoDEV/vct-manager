@@ -5912,6 +5912,126 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .cal-leg .l-v{background:rgba(24,224,181,.4)}.cal-leg .l-d{background:rgba(255,70,85,.4)}.cal-leg .l-p{background:rgba(245,193,90,.45)}
 .cal-leg .l-pr{border:1px dashed rgba(255,255,255,.35)}.cal-leg .l-j{background:transparent;box-shadow:inset 0 -3px 0 rgba(24,224,181,.5)}
 
+/* ---------- Etapa 4: a rotina dos sete dias (treinador) ---------- */
+.rot{margin-top:6px}
+.rot-topo{align-items:baseline;gap:12px;flex-wrap:wrap}
+.rot-efeito{font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rot-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.rot-dia{--rc:#7f93a6;position:relative;display:flex;flex-direction:column;gap:4px;padding:10px 10px 10px;border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(var(--rc-rgb,127,147,166),.14),rgba(255,255,255,.02) 60%);border-top:3px solid var(--rc);min-height:150px}
+.rot-dia.t-jogo{--rc:var(--red);--rc-rgb:255,70,85}
+.rot-dia.t-scrim{--rc:#ff9a3d;--rc-rgb:255,154,61}
+.rot-dia.t-treino{--rc:var(--teal);--rc-rgb:31,210,180}
+.rot-dia.t-vod{--rc:#8fb4ff;--rc-rgb:143,180,255}
+.rot-dia.t-recuperacao{--rc:#c4a7ff;--rc-rgb:196,167,255}
+.rot-dia.t-folga{--rc:#e2b45a;--rc-rgb:226,180,90}
+.rot-dia.hoje{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
+.rot-dia.feito{opacity:.55}
+.rot-dia.trocado::after{content:"";position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--amber)}
+.rot-cab{display:flex;align-items:baseline;gap:6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.rot-cab span{color:var(--dim);font-size:11px}
+.rot-cab em{font-style:normal;margin-left:auto;font-size:10px;background:rgba(255,255,255,.14);padding:1px 6px}
+.rot-ic{color:var(--rc);width:26px;height:26px;margin-top:4px}
+.rot-ic svg{width:26px;height:26px}
+.rot-nome{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.04em;line-height:1}
+.rot-pad{font-size:11px;color:var(--dim);min-height:14px}
+.rot-fixo{margin-top:auto;font-size:11.5px;color:var(--dim)}
+.rot-bts{margin-top:auto;display:flex;gap:2px}
+.rot-bts button{flex:1;min-width:0;height:26px;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--dim);cursor:pointer}
+.rot-bts button svg{width:14px;height:14px}
+.rot-bts button.pad{border-color:rgba(255,255,255,.28)}
+.rot-bts button.on{background:var(--rc);color:#0b1218;border-color:var(--rc)}
+.rot-bts button:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.1)}
+.rot-nota{font-size:12px;margin:8px 0 0}
+
+/* ---------- Etapa 4: evolução e rotina do jogador ---------- */
+.evj{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;margin-bottom:18px}
+.evj-over{display:flex;align-items:center;gap:14px;margin:6px 0 10px}
+.evj-over>b{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:.9;color:var(--tx)}
+.evj-ob{flex:1;min-width:120px}
+.evj-ob span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.evj-ob u{display:block;height:10px;background:rgba(255,255,255,.08);margin-top:4px;text-decoration:none;overflow:hidden}
+.evj-ob i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#9cf3e3);transition:width .6s}
+.evj-spark{flex:none}
+.evj-marcos{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.evj-marcos i{font-style:normal;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.04em;width:34px;height:26px;display:grid;place-items:center;
+  border:1px solid var(--line);color:var(--dim)}
+.evj-marcos i.on{background:rgba(226,180,90,.18);border-color:var(--gold);color:var(--gold)}
+.evj-marcos i.prox{border-style:dashed;border-color:var(--tx2);color:var(--tx)}
+.evj-marcos span{font-size:12px;margin-left:6px}
+.evj-linha{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.evj-bloco{border:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.evj-mini{font-size:11.5px;line-height:1.35}
+.evj-foco{display:flex;flex-wrap:wrap;gap:4px}
+.evj-foco button{font-size:11.5px;padding:4px 8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--tx2);cursor:pointer}
+.evj-foco button.atual{border-color:var(--teal)}
+.evj-foco button.on{background:var(--teal);border-color:var(--teal);color:#0b1218;font-weight:600}
+.evj-dzs{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.evj-dz{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(255,70,85,.08),transparent 70%);animation:jxSobe .4s calc(var(--i,0)*.06s) both}
+.evj-dz-ic{color:var(--red);width:24px;height:24px}
+.evj-dz-ic svg{width:24px;height:24px}
+.evj-dz-t b{display:block;font-size:13px;line-height:1.25}
+.evj-dz-t .dim{font-size:11px}
+.evj-dz-t u{display:block;height:5px;background:rgba(255,255,255,.08);margin-top:5px;text-decoration:none}
+.evj-dz-t u i{display:block;height:100%;background:var(--red)}
+.evj-dz-r{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.evj-dz-r i{font-style:normal;font-size:10.5px;padding:1px 6px;background:rgba(31,210,180,.14);color:var(--teal);white-space:nowrap}
+.evj-moms{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.evj-mom{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;border:1px solid var(--line);font-size:12px}
+.evj-mom>span{width:18px;height:18px;flex:none;color:var(--gold)}
+.evj-mom>span svg{width:18px;height:18px}
+.evj-mom b{display:block;line-height:1.2}
+.evj-mom .dim{font-size:11px}
+.evj-mom.novo{border-color:var(--gold);background:rgba(226,180,90,.08)}
+.evj-marco{display:flex;align-items:center;gap:16px;padding:16px 20px;margin-bottom:14px;border:1px solid var(--gold);
+  background:radial-gradient(120% 160% at 0% 50%,rgba(226,180,90,.28),rgba(226,180,90,.04) 60%);animation:jxSobe .5s both}
+.evj-marco>span{width:44px;height:44px;color:var(--gold)}
+.evj-marco>span svg{width:44px;height:44px}
+.evj-marco h3{font-family:'Bebas Neue',sans-serif;font-size:38px;margin:0;line-height:1;letter-spacing:.04em}
+.evj-marco p{margin:2px 0 0}
+.evj-marco .btn{margin-left:auto}
+.evj-meds{display:flex;align-items:center;gap:4px;font-size:11px}
+.evj-med{font-style:normal;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 3px;border-radius:50%;font-size:10px;font-weight:700;color:#14100a}
+.evj-med.ouro{background:radial-gradient(circle at 35% 30%,#fff3c4,#e2b45a 55%,#a77a22)}
+.evj-med.prata{background:radial-gradient(circle at 35% 30%,#fff,#c4ccd6 55%,#7d8794)}
+.evj-med.bronze{background:radial-gradient(circle at 35% 30%,#ffd9b8,#c47a45 55%,#7d4320)}
+.evj-med:empty{min-width:12px;width:12px;height:12px;padding:0}
+.evj-med.grande{width:46px;height:46px}
+.sj-med{display:flex;align-items:center;gap:10px;margin:6px 0 10px}
+.sj-med b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em}
+.jx-ag em.mq{font-style:normal;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
+.jx-ag em.mq.t2{color:var(--teal)}
+.jx-ag em.mq.t3{color:var(--gold)}
+.rj{margin-bottom:18px}
+.rj-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
+.rj-dia{display:flex;flex-direction:column;gap:5px;padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.02);min-height:120px}
+.rj-dia.hoje{outline:2px solid var(--teal);outline-offset:-2px;background:rgba(31,210,180,.06)}
+.rj-dia.jogo{border-top:3px solid var(--red);background:rgba(255,70,85,.06)}
+.rj-dia.passou{opacity:.6}
+.rj-cab{display:flex;align-items:baseline;gap:5px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.rj-cab span{font-size:10.5px;color:var(--dim)}
+.rj-cab em{font-style:normal;margin-left:auto;font-size:9.5px;background:var(--teal);color:#0b1218;padding:1px 5px}
+.rj-jogo{display:flex;flex-direction:column;gap:2px;color:var(--red)}
+.rj-jogo svg{width:20px;height:20px}
+.rj-jogo b{color:var(--tx);font-size:12.5px}
+.rj-jogo .dim{font-size:10.5px}
+.rj-fixo{display:flex;align-items:center;gap:4px;font-size:11.5px;padding:3px 5px;background:rgba(255,255,255,.06)}
+.rj-fixo svg{width:12px;height:12px;flex:none}
+.rj-fixo i{font-style:normal;margin-left:auto;font-size:9.5px;color:var(--dim);text-transform:uppercase}
+.rj-feitas{display:flex;flex-direction:column;gap:3px}
+.rj-f{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--teal)}
+.rj-f svg{width:11px;height:11px;flex:none}
+.rj-f i{font-style:normal;color:var(--dim);font-size:9.5px}
+.rj-sel{display:flex;flex-direction:column;gap:4px;margin-top:auto}
+.rj-sel select{width:100%;font-size:11.5px;padding:3px 4px}
+.rj-desc{font-size:10.5px;margin-top:auto}
+.rj-agoras{display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(31,210,180,.08);border:1px solid rgba(31,210,180,.3)}
+.rj-agoras .eyebrow{font-size:9.5px}
+.rj-agora{display:flex;flex-direction:column;gap:4px;font-size:11.5px}
+.rj-agora .btn{justify-content:center}
+.rj-agora .btn svg{width:13px;height:13px}
+
 
 /* ===== src/gameplay/gameplay-embutido.css ===== */
 /* GERADO por tools/gameplay-css.mjs a partir de gameplay.css — não edite à mão */
@@ -25421,7 +25541,9 @@ function aplicarModoSemana(t){
 }
 /* A vantagem do estudo, só contra quem foi estudado. */
 function bonusEstudo(t,adv){
-  return t&&adv&&t.id===G.meuTime&&semanaModoDe(t)==='estudar'&&t.estudoAdv===adv.id?ESTUDO_BONUS:0;
+  const est=t&&adv&&t.id===G.meuTime&&semanaModoDe(t)==='estudar'&&t.estudoAdv===adv.id?ESTUDO_BONUS:0;
+  /* a véspera trocada para VOD na rotina (core/rotina.js) dá metade */
+  return est||(typeof bonusVodVespera==='function'?bonusVodVespera(t,adv):0);
 }
 /* O que a semana deve fazer, antes de confirmar — mesmas contas do relógio. */
 function previsaoSemana(t,id){
@@ -26076,6 +26198,8 @@ function avancarDia(plano){
        continua até a última */
     if(passoDeHoje())return r;
   }
+  /* o dia acabou: a rotina dele cai (core/rotina.js) */
+  if(typeof fimDoDia==='function')fimDoDia(G.turno||0);
   G.turno=(G.turno||0)+1;
   if(!r)r={tipo:'turno',turno:G.turno,semana:G.semana,novas,dia:true};
   return r;
@@ -26287,6 +26411,8 @@ function semana(){
     if(id===G.meuTime&&!tecIAManda&&typeof atualizarEstilo==='function')atualizarEstilo(t);
     /* promessa não cumprida cobra sozinha, na semana em que vence */
     if(typeof cobrarPromessas==='function')cobrarPromessas(t);
+    /* a rotina dos dias que ainda não caíram (core/rotina.js) */
+    if(id===G.meuTime&&typeof fecharRotinaDaSemana==='function')fecharRotinaDaSemana(t);
     t.elenco.forEach(pid=>desenvolver(G.jogadores[pid],t));
     if(fotoAntes)G.relatorioSemana=relatorioDaSemana(t,fotoAntes);
     /* o que os minigames deram valia só para esta semana (core/minigames.js) */
@@ -26353,7 +26479,8 @@ function desenvolver(p,t){
   /* Cobrança dá trabalho: quem levou bronca na conversa treina com mais foco
      por algumas semanas. É o que faz a opção que CUSTA moral valer a pena. */
   const bronca=(typeof estaCobrado==='function'&&estaCobrado(p))?1.25:1;
-  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca;
+  const rot=typeof rotinaEvoMult==='function'?rotinaEvoMult(t):1;
+  const mult=(efCT(nivelEst(t,'treino'))+t.staff.tecnico*0.07)*(titular?1.15:0.75)*(0.7+p.moral*0.5)*(0.85+t.tatica.scrim*0.05)*bronca*rot;
   /* o declínio da idade é freado (ou acelerado) pelo centro de performance */
   let g = taxa>0 ? gap*taxa*mult : taxa*(p.idade-29)*fatorDeclinioEst(t);
   /* modo jogador: o seu jogador evolui pelo XP da semana (treinos, atividades
@@ -26473,6 +26600,198 @@ function contratar(p,time,anos,sal){
      corte de folha continua podendo descer de cinco: aquilo é decisão de
      diretoria e o fim de temporada repõe. Vender, não. */
   if(origem&&typeof reporElenco==='function')reporElenco(origem);
+}
+
+
+/* ===== src/core/rotina.js ===== */
+/* ============================================================
+   A ROTINA DA SEMANA, DIA A DIA (Etapa 4)
+   ------------------------------------------------------------
+   Com a temporada andando um dia por vez, a semana de treino virou
+   sete dias com cara própria: o dia de jogo, a recuperação do dia
+   seguinte, a véspera com vídeo do adversário, a folga de domingo e
+   os dias de treino ou scrim no meio.
+
+   O "modo da semana" (core/plano.js) continua decidindo a carga
+   geral, e a rotina padrão sai dele. Ela já está embutida na conta
+   semanal de desenvolver (clock.js): deixar a rotina como a comissão
+   montou não muda nada. O que muda é o que VOCÊ troca: cada dia
+   trocado mexe, naquele dia, no cansaço e no entrosamento do elenco,
+   e no fim da semana na evolução — a diferença entre o dia que você
+   escolheu e o que a comissão faria.
+
+   No modo dia a dia o efeito do dia cai quando o dia acaba (uma
+   folga na quarta já tira o cansaço do jogo de quinta). No avanço
+   por semana, cai tudo no fechamento.
+
+   Só o seu clube tem rotina editável: os outros seguem o padrão,
+   que é a conta antiga, e o mundo continua idêntico.
+   ============================================================ */
+const ROTINA_TIPOS={
+  jogo:{nome:'Dia de jogo',curto:'Jogo',ic:'alvo',fixo:true,fad:0,evo:0,sin:0,moral:0,
+    desc:'Aquecimento, partida e a conversa depois.'},
+  scrim:{nome:'Scrim',curto:'Scrim',ic:'fogo',fad:.008,evo:1.3,sin:.12,moral:0,
+    desc:'Contra outro time: entrosa e evolui mais, cansa mais.'},
+  treino:{nome:'Treino',curto:'Treino',ic:'controle',fad:.004,evo:1,sin:.04,moral:0,
+    desc:'O dia normal: individual e o mapa da semana.'},
+  vod:{nome:'VOD e preparação',curto:'VOD',ic:'olho',fad:-.006,evo:.35,sin:.02,moral:0,
+    desc:'Vídeo do adversário na véspera: leitura para o jogo, perna descansada.'},
+  recuperacao:{nome:'Recuperação',curto:'Recuperar',ic:'relogio',fad:-.016,evo:.1,sin:0,moral:.002,
+    desc:'Fisioterapia, sono e treino leve.'},
+  folga:{nome:'Folga',curto:'Folga',ic:'casa',fad:-.024,evo:0,sin:-.02,moral:.006,
+    desc:'Dia livre: o cansaço baixa e o elenco agradece.'}
+};
+const ROTINA_ESCOLHAS=['scrim','treino','vod','recuperacao','folga'];
+/* quanto cada ponto de "evo" trocado vale na evolução da semana (6 dias úteis ≈ 1) */
+const ROTINA_EVO_PESO=0.16;
+/* a véspera com VOD dá metade do bônus de "Estudar o adversário" contra o próximo */
+const ROTINA_VOD_ESTUDO=0.5;
+
+/* ---------- os dias de jogo de um clube nesta semana ---------- */
+function _segueVivoNoBloco(b,id){
+  return !!b&&(b.stages||[]).some(s=>{
+    if(s.feito||!(s.times||[]).includes(id))return false;
+    if(s.tipo==='swiss')return typeof emDisputaSwiss==='function'?emDisputaSwiss(s,id):true;
+    if(s.tipo==='de')return !(s.elim||[]).includes(id);
+    if(s.tipo==='ko')return (s.vivos||[]).includes(id);
+    return true;
+  });
+}
+/* no fechamento da semana só valem os jogos que aconteceram: o plano do dia
+   já não descreve a semana que acabou */
+let _rotFechando=false;
+function diasDeJogoDoClube(id){
+  if(!G||!id||typeof planoDaSemana!=='function')return [];
+  const out=new Set();
+  if(_rotFechando){
+    for(const b of G.calendario||[])for(const s of b.stages||[])for(const r of s.resultados||[])
+      if(r.sem===G.semana&&(r.ano==null||r.ano===G.ano)&&r.dia!=null&&(r.a===id||r.b===id))out.add(r.dia);
+    return [...out].sort((a,b)=>a-b);
+  }
+  const pl=planoDaSemana(), feitos=passosFeitos(), hoje=G.turno||0;
+  const {b}=prepararSemana();
+  if(b)for(const s of b.stages||[])for(const r of s.resultados||[])
+    if(r.sem===G.semana&&(r.ano==null||r.ano===G.ano)&&r.dia!=null&&(r.a===id||r.b===id))out.add(r.dia);
+  for(let k=feitos;k<pl.passos;k++){
+    const dia=Math.max(hoje,pl.dias[k]);
+    if(k===feitos){
+      if(b&&b.stages.some(s=>!s.feito&&(s.rodadaAtual||[]).some(x=>x.includes(id))))out.add(dia);
+    }else if(_segueVivoNoBloco(b,id))out.add(dia);
+  }
+  return [...out].sort((a,b)=>a-b);
+}
+
+/* ---------- a rotina padrão (o que a comissão monta) ---------- */
+function rotinaPadrao(t){
+  const modo=typeof semanaModoDe==='function'?semanaModoDe(t):'equilibrada';
+  const jogos=new Set(diasDeJogoDoClube(t&&t.id));
+  const base=modo==='recuperar'?'recuperacao':modo==='intensa'?'scrim':'treino';
+  const dias=[];
+  for(let d=0;d<TURNOS_SEMANA;d++){
+    if(jogos.has(d)){dias.push('jogo');continue;}
+    if(d===TURNOS_SEMANA-1){dias.push(modo==='intensa'&&!jogos.has(d-1)?'treino':'folga');continue;}
+    if(jogos.has(d-1)){dias.push(modo==='intensa'?'treino':'recuperacao');continue;}
+    if(jogos.has(d+1)){dias.push(modo==='estudar'?'vod':base);continue;}
+    dias.push(modo==='estudar'&&d%2?'vod':base);
+  }
+  return dias;
+}
+/* o que vale nesta semana: as suas trocas por cima do padrão */
+function _rotinaSem(t){
+  if(!t)return null;
+  const r=t.rotina;
+  if(r&&r.ano===G.ano&&r.semana===G.semana)return r;
+  t.rotina={ano:G.ano,semana:G.semana,trocas:{},feitos:{},evo:0};
+  return t.rotina;
+}
+function rotinaDaSemana(t){
+  const pad=rotinaPadrao(t), r=t&&t.id===G.meuTime?_rotinaSem(t):null;
+  return pad.map((tipo,d)=>{
+    const troca=r&&r.trocas[d];
+    const val=tipo!=='jogo'&&troca&&ROTINA_TIPOS[troca]&&!ROTINA_TIPOS[troca].fixo?troca:tipo;
+    return {dia:d,tipo:val,padrao:tipo,trocado:val!==tipo,feito:!!(r&&r.feitos[d]),hoje:d===(G.turno||0)};
+  });
+}
+function podeTrocarDia(t,d){
+  if(!t||t.id!==G.meuTime)return 'Só a rotina do seu clube.';
+  if(d<(G.turno||0))return 'Esse dia já passou.';
+  const r=_rotinaSem(t);
+  if(r.feitos[d])return 'Esse dia já foi.';
+  if(rotinaPadrao(t)[d]==='jogo')return 'Dia de jogo não muda.';
+  return null;
+}
+function trocarDiaRotina(t,d,tipo){
+  const m=podeTrocarDia(t,d);if(m)return{ok:false,erro:m};
+  if(!ROTINA_TIPOS[tipo]||ROTINA_TIPOS[tipo].fixo)return{ok:false,erro:'Escolha inválida.'};
+  const r=_rotinaSem(t), pad=rotinaPadrao(t)[d];
+  if(tipo===pad)delete r.trocas[d];else r.trocas[d]=tipo;
+  return{ok:true,msg:DIAS_CURTO[d]+': '+ROTINA_TIPOS[tipo].nome.toLowerCase()+'.'};
+}
+function voltarRotinaPadrao(t){const r=_rotinaSem(t);if(r)for(const d of Object.keys(r.trocas))if(!r.feitos[d])delete r.trocas[d];}
+
+/* ---------- o efeito de um dia ----------
+   A diferença entre o dia escolhido e o padrão: cansaço e entrosamento na
+   hora, evolução guardada para o fechamento (desenvolver lê rotinaEvoMult). */
+function aplicarDiaRotina(t,d){
+  if(!t||t.id!==G.meuTime)return null;
+  const r=_rotinaSem(t);
+  if(r.feitos[d])return null;
+  const dia=rotinaDaSemana(t)[d];
+  r.feitos[d]=dia.tipo;
+  if(!dia.trocado)return dia;
+  const A=ROTINA_TIPOS[dia.tipo], P=ROTINA_TIPOS[dia.padrao];
+  const df=A.fad-P.fad, dm=A.moral-P.moral, ds=A.sin-P.sin;
+  const recup=typeof recuperacaoEst==='function'?recuperacaoEst(t):0;
+  for(const id of t.elenco||[]){
+    const p=G.jogadores[id];if(!p||p.lesao)continue;
+    /* o centro de saúde faz a folga render um pouco mais */
+    p.fadiga=clamp(p.fadiga+(df<0?df*(1+recup*4):df),0,1);
+    if(dm)p.moral=clamp(p.moral+dm,.15,1);
+  }
+  if(ds&&typeof mexerDupla==='function'&&typeof paresDe==='function')
+    for(const [a,b] of paresDe((t.titulares||[]).filter(id=>G.jogadores[id])))mexerDupla(t,a,b,ds);
+  r.evo+=A.evo-P.evo;
+  /* no "Estudar o adversário" o VOD já é o padrão e o bônus é o do estudo */
+  if(dia.tipo==='vod'){
+    const adv=typeof _proximoAdv==='function'?_proximoAdv(t):null;
+    if(adv)t.vodVespera={adv:adv.id,ano:G.ano,semana:G.semana};
+  }
+  return dia;
+}
+/* os dias que ainda não caíram (avanço por semana, ou o domingo) */
+function noFechamentoDaSemana(fn){
+  const antes=_rotFechando;_rotFechando=true;
+  try{return fn();}finally{_rotFechando=antes;}
+}
+function fecharRotinaDaSemana(t){
+  if(!t||t.id!==G.meuTime)return;
+  _rotFechando=true;
+  try{for(let d=0;d<TURNOS_SEMANA;d++)aplicarDiaRotina(t,d);}finally{_rotFechando=false;}
+}
+/* multiplicador da evolução da semana, lido por desenvolver */
+function rotinaEvoMult(t){
+  if(!t||t.id!==G.meuTime||!t.rotina||t.rotina.ano!==G.ano||t.rotina.semana!==G.semana)return 1;
+  return Math.max(0.3,1+t.rotina.evo*ROTINA_EVO_PESO);
+}
+/* a véspera com VOD contra este adversário (soma ao estudo, que é maior) */
+function bonusVodVespera(t,adv){
+  const v=t&&t.vodVespera;
+  if(!v||!adv||t.id!==G.meuTime||v.adv!==adv.id||v.ano!==G.ano||Math.abs(G.semana-v.semana)>1)return 0;
+  return (typeof ESTUDO_BONUS!=='undefined'?ESTUDO_BONUS:1)*ROTINA_VOD_ESTUDO;
+}
+/* o que as trocas fazem na semana, para a tela */
+function previsaoRotina(t){
+  const dias=rotinaDaSemana(t);
+  let fad=0,evo=0,sin=0;
+  for(const d of dias){if(!d.trocado)continue;const A=ROTINA_TIPOS[d.tipo],P=ROTINA_TIPOS[d.padrao];
+    fad+=A.fad-P.fad;evo+=A.evo-P.evo;sin+=A.sin-P.sin;}
+  return{fadiga:Math.round(fad*100),evolucao:Math.max(0.3,1+evo*ROTINA_EVO_PESO),sinergia:Math.round(sin*10*10)/10,trocas:dias.filter(d=>d.trocado).length};
+}
+
+/* ---------- o fim de um dia (avancarDia chama) ---------- */
+function fimDoDia(d){
+  if(G.meuTime&&G.times[G.meuTime])aplicarDiaRotina(G.times[G.meuTime],d);
+  if(G.voce&&typeof rotinaJogadorDoDia==='function')rotinaJogadorDoDia(d);
 }
 
 
@@ -32182,7 +32501,12 @@ const REPETIR_RENDE=0.6;
    o XP escorria para o atributo que a função ignora (consistência de duelista
    subia 39 pontos num ano e o over quase não mexia) */
 const XP_CUSTO=15;
-function custoPonto(v,p){const piso=p?over(p)-8:0;return XP_CUSTO*Math.pow(1+Math.max(0,Math.max(v,piso)-55)/15,1.7);}
+/* Etapa 4: a curva era 1,7 e o ponto de 85 para 86 custava quatro vezes o de
+   70; no alto da carreira a barra quase não andava. Com 1,55 o topo continua
+   mais lento, mas anda — e os desafios, marcos e momentos (core/evolucao-
+   jogador.js) dão os saltos que o treino sozinho não dá. */
+const XP_CURVA=1.55;
+function custoPonto(v,p){const piso=p?over(p)-8:0;return XP_CUSTO*Math.pow(1+Math.max(0,Math.max(v,piso)-55)/15,XP_CURVA);}
 const XP_DIFICULDADE={facil:1.35,normal:1,dificil:.75};
 
 const ATIV_JOGADOR=[
@@ -32211,27 +32535,37 @@ function ativJogador(id){return ATIV_JOGADOR.find(a=>a.id===id);}
 
 /* ---------- o estado da semana ---------- */
 function energiaInicial(p){return Math.max(35,Math.min(ENERGIA_MAX,Math.round(ENERGIA_MAX-(p.fadiga||0)*60)));}
-function _snapTemp(p){const s=p.temp||{};return{maps:s.maps||0,k:s.k||0,d:s.d||0,a:s.a||0,acs:s.acs||0,fk:s.fk||0,cl:s.cl||0};}
+function _snapTemp(p){const s=p.temp||{};return{maps:s.maps||0,k:s.k||0,d:s.d||0,a:s.a||0,acs:s.acs||0,fk:s.fk||0,cl:s.cl||0,mvp:s.mvp||0};}
 function semanaJogador(){
   if(!G.voce)return null;
   const p=meuJogador();if(!p)return null;
   const s=G.voce.sem;
-  if(s&&s.ano===G.ano&&s.semana===G.semana)return s;
+  if(s&&s.ano===G.ano&&s.semana===G.semana){if(!s.dias)s.dias={};return s;}
   const e=energiaInicial(p);
-  G.voce.sem={ano:G.ano,semana:G.semana,ini:e,energia:e,feitas:[]};
+  G.voce.sem={ano:G.ano,semana:G.semana,ini:e,energia:e,feitas:[],dias:{}};
   if(!G.voce.tempAntes)G.voce.tempAntes=_snapTemp(p);
   if(G.voce.auto==null)G.voce.auto=true;
   return G.voce.sem;
 }
 function vezesFeita(id){const s=semanaJogador();return s?s.feitas.filter(f=>f.id===id).length:0;}
+/* temporada dia a dia: até duas atividades por dia, uma no dia de jogo */
+const ATIV_POR_DIA=2;
+function _diaAtivo(){return typeof usarDias==='function'&&usarDias();}
+function feitasHoje(dia){const s=semanaJogador(),d=dia!=null?dia:(G.turno||0);return s?s.feitas.filter(f=>(f.dia||0)===d).length:0;}
+function limiteHoje(dia){
+  const t=clubeDoJogador(), d=dia!=null?dia:(G.turno||0);
+  const jogo=t&&typeof diasDeJogoDoClube==='function'&&diasDeJogoDoClube(t.id).includes(d);
+  return jogo?1:ATIV_POR_DIA;
+}
 function custoEnergia(a){const su=typeof efeitosSetup==='function'?efeitosSetup().en:0;return Math.max(1,Math.round(a.energia*(1-Math.min(.5,efeitosTalentos().en+su))));}
 /* devolve null se dá para fazer, ou o motivo */
-function porqueNaoAtividade(id){
+function porqueNaoAtividade(id,dia){
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
   if(!a||!s||!p)return 'Indisponível.';
   if(p.lesao)return 'Você está lesionado: a semana é de recuperação.';
   if(a.grupo==='clube'&&!clubeDoJogador())return 'Sem clube, sem treino coletivo.';
   if(a.unico&&vezesFeita(id))return 'Já feito nesta semana.';
+  if(_diaAtivo()&&feitasHoje(dia)>=limiteHoje(dia))return limiteHoje(dia)===1?'Dia de jogo: só uma atividade antes da partida.':'Já são duas atividades hoje: o resto fica para amanhã.';
   if(a.precisaJogo&&!adversarioDaSemana())return 'Sem jogo do seu clube nesta semana.';
   if(s.energia<custoEnergia(a))return 'Energia insuficiente.';
   return null;
@@ -32263,7 +32597,9 @@ function fatorXP(p,k){
   /* setup e staff pessoal (core/carreira-mercado.js) */
   const su=typeof efeitosSetup==='function'?efeitosSetup():null;
   const setup=su?1+(su.xp[k]||0)+su.xpTodos:1;
-  return pot*idade*dif*tal*setup;
+  /* foco do split e bootcamp (core/evolucao-jogador.js) */
+  const evo=typeof multEvolucao==='function'?multEvolucao(k):1;
+  return pot*idade*dif*tal*setup*evo;
 }
 /* aplica x de XP bruto no atributo k; devolve quantos pontos subiu */
 function ganharXP(p,k,x){
@@ -32304,15 +32640,16 @@ function distribuirXP(p,pesos,total){
 /* nota 0 (abandonou sem fazer nada) rende 30%, abaixo do simulado; nota 1 rende 105% */
 function notaParaMult(nota){return Math.max(0.3,Math.min(1.4,0.3+nota*0.75));}
 function fazerAtividade(id,res){
-  const motivo=porqueNaoAtividade(id);
-  if(motivo)return{ok:false,motivo};
   res=res||{simulado:true};
+  const motivo=porqueNaoAtividade(id,res.dia);
+  if(motivo)return{ok:false,motivo};
   const a=ativJogador(id), s=semanaJogador(), p=meuJogador();
   const n=vezesFeita(id);
   const gasto=custoEnergia(a);
   s.energia-=gasto;
-  const mult=(res.simulado?SIMULADO_RENDE:notaParaMult(res.nota||0))*Math.pow(REPETIR_RENDE,n);
-  const feito={id,gasto,simulado:!!res.simulado,nota:res.nota!=null?Math.round(res.nota*100)/100:null,mult:Math.round(mult*100)/100,resumo:res.resumo||null,xp:{},subiu:{}};
+  const med=!res.simulado&&typeof medalhaDaNota==='function'?medalhaDaNota(res.nota||0):null;
+  const mult=(res.simulado?SIMULADO_RENDE:notaParaMult(res.nota||0))*Math.pow(REPETIR_RENDE,n)*(med==='ouro'?1.1:1);
+  const feito={med,id,dia:res.dia!=null?res.dia:(G.turno||0),auto:!!res.auto,gasto,simulado:!!res.simulado,nota:res.nota!=null?Math.round(res.nota*100)/100:null,mult:Math.round(mult*100)/100,resumo:res.resumo||null,xp:{},subiu:{}};
   if(a.base&&a.xp){const r=distribuirXP(p,a.xp,a.base*mult);feito.xp=r.xp;feito.subiu=r.subiu;}
   const ef=efeitosTalentos();
   if(id==='agente'){
@@ -32334,6 +32671,8 @@ function fazerAtividade(id,res){
     feito.din=din;
   }
   s.feitas.push(feito);
+  /* medalha, recorde, desafios e maestria (core/evolucao-jogador.js) */
+  if(typeof aposAtividade==='function')aposAtividade(a,feito,p);
   return{ok:true,feito};
 }
 /* treino jogável: a nota sai do resumo da gameplay */
@@ -32354,18 +32693,26 @@ function notaDoTreino(modo,r){
 function custoSemanaJogador(p){
   const s=G.voce&&G.voce.sem;
   if(!s||s.ano!==G.ano||s.semana!==G.semana)return -0.075;   /* semana em branco: descanso */
-  const gasto=s.ini-s.energia;
+  const gasto=Math.max(0,s.ini-s.energia);
   /* nada gasto: descanso (−0,075, como o descanso do manager); 80 gastos ≈ uma
      semana de treino do manager (+0,02); 100 gastos ≈ +0,045 */
   return -0.075+gasto/100*0.12;
 }
+/* Sem nada marcado, a sua rotina (core/evolucao-jogador.js) roda os dias que
+   ainda não fecharam. No modo dia a dia cada dia já fechou na hora; aqui
+   sobra o domingo. No avanço por semana, se você marcou alguma coisa à mão,
+   a semana é sua e o assistente não mexe. */
 function semanaAutomatica(p){
   const s=semanaJogador();
-  if(!s||s.feitas.length||!G.voce.auto||p.lesao)return false;
-  /* sem clube, a ranked entra no lugar do treino do clube: é ela que traz os olheiros */
-  for(const id of (clubeDoJogador()?['coletivo','range','duelo','vod']:['ranked','range','duelo']))if(!porqueNaoAtividade(id))fazerAtividade(id,{simulado:true});
-  s.automatica=true;
-  return true;
+  if(!s||p.lesao)return false;
+  if(typeof rotinaJogadorDoDia!=='function'){return false;}
+  const manual=s.feitas.some(f=>!f.auto);
+  if(!_diaAtivo()&&manual)return false;
+  let fez=false;
+  const rodar=()=>{for(let d=0;d<TURNOS_SEMANA;d++)if(!s.dias[d])fez=rotinaJogadorDoDia(d,true)||fez;};
+  if(typeof noFechamentoDaSemana==='function')noFechamentoDaSemana(rodar);else rodar();
+  if(fez&&!manual)s.automatica=true;
+  return fez;
 }
 function fecharSemanaJogador(p,t){
   if(!G.voce||!p||!p.voce)return null;
@@ -32400,6 +32747,8 @@ function fecharSemanaJogador(p,t){
     }
     rel.coletivo=foi;
   }
+  /* momentos, desafios e marcos da semana (core/evolucao-jogador.js) */
+  if(typeof evolucaoSemana==='function')evolucaoSemana(p,t,rel,{k:ag.k-a.k,d:ag.d-a.d,cl:ag.cl-a.cl,fk:ag.fk-a.fk,mvp:ag.mvp-(a.mvp||0),maps,acs:maps?(ag.acs-a.acs)/maps:0});
   /* titularidade e relações (core/relacoes.js) */
   if(typeof relacoesSemana==='function')relacoesSemana(p,t,rel);
   /* fama, redes, entrevistas e patrocínios (core/fama.js) */
@@ -32440,6 +32789,351 @@ function bonusDoJogadorNaPartida(p,at,adv){
 function talentosDoBoneco(){
   const ef=efeitosTalentos();
   return ef.vida||ef.ult?{vida:ef.vida,ult:ef.ult}:null;
+}
+
+
+/* ===== src/core/evolucao-jogador.js ===== */
+/* ============================================================
+   MODO JOGADOR — A ROTINA DIÁRIA E A NOVA EVOLUÇÃO (Etapa 4)
+   ------------------------------------------------------------
+   A rotina: você monta uma vez o que cada dia da semana tem (até
+   duas atividades), e ela roda sozinha, dia a dia, simulada. O treino
+   do clube cai no primeiro dia livre, o VOD na véspera do jogo, e o
+   dia de jogo fica limpo. Quer render mais? Jogue a atividade do dia
+   você mesmo: a nota vira XP e medalha. Dia sem nada é descanso e
+   devolve energia.
+
+   A evolução: o treino continua enchendo a barra de cada atributo,
+   mas o topo da carreira ganha saltos que não dependem de grind:
+     · desafios — três por vez, de partida e de treino, com quatro
+       semanas para cumprir; cada um vale meio ponto em dois
+       atributos, no nível em que você estiver
+     · marcos de over (70, 75, 80, 85, 90, 95), com notícia e público
+     · momentos — MVP de série, título, semana monstruosa — dão XP na hora
+     · foco do split: dois atributos com +30% de XP
+     · bootcamp com mentor: duas semanas de +35% de XP, pago
+     · medalhas (bronze, prata, ouro) e recorde em cada treino jogado
+     · maestria de agente: Aprendiz, Sólido, Especialista e Mestre
+   ============================================================ */
+
+/* ---------- a rotina ---------- */
+const ROTINA_J_PADRAO=[['range'],['duelo'],['utilidade'],[],[],[],[]];
+const ROTINA_J_OPCOES=['range','duelo','dm','retake','utilidade','agente','ranked','live'];
+const ENERGIA_DESCANSO_DIA=6;
+function rotinaJ(){
+  if(!G.voce)return ROTINA_J_PADRAO;
+  if(!Array.isArray(G.voce.rotinaJ)||G.voce.rotinaJ.length!==TURNOS_SEMANA)G.voce.rotinaJ=ROTINA_J_PADRAO.map(d=>d.slice());
+  return G.voce.rotinaJ;
+}
+function definirRotinaJ(d,slot,id){
+  const r=rotinaJ();
+  if(d<0||d>=TURNOS_SEMANA||slot<0||slot>1)return{ok:false,motivo:'Dia inválido.'};
+  const l=r[d].slice();
+  if(!id){l.splice(slot,1);}
+  else{
+    if(!ROTINA_J_OPCOES.includes(id))return{ok:false,motivo:'Atividade inválida.'};
+    if(l.includes(id)&&l.indexOf(id)!==slot)return{ok:false,motivo:'Já está nesse dia.'};
+    l[slot]=id;
+  }
+  r[d]=l.filter(Boolean).slice(0,ATIV_POR_DIA);
+  return{ok:true};
+}
+function voltarRotinaJPadrao(){if(G.voce)G.voce.rotinaJ=ROTINA_J_PADRAO.map(d=>d.slice());}
+function _jogosDoMeuClube(){const t=clubeDoJogador();return t&&typeof diasDeJogoDoClube==='function'?diasDeJogoDoClube(t.id):[];}
+/* o primeiro dia sem jogo, de segunda a sábado: é quando o clube treina */
+function diaDoColetivo(jogos){
+  jogos=jogos||_jogosDoMeuClube();
+  for(let d=0;d<TURNOS_SEMANA-1;d++)if(!jogos.includes(d))return d;
+  return null;
+}
+/* o que a rotina põe num dia: [ids] */
+function planoDoDiaJ(d,jogos){
+  const t=clubeDoJogador();
+  jogos=jogos||_jogosDoMeuClube();
+  if(jogos.includes(d))return [];
+  const l=[];
+  if(t&&d===diaDoColetivo(jogos))l.push('coletivo');
+  if(t&&jogos.includes(d+1))l.push('vod');
+  for(const id of rotinaJ()[d]||[])if(!l.includes(id))l.push(id);
+  return l.slice(0,ATIV_POR_DIA);
+}
+/* fecha um dia: roda o que a rotina marcou e ainda não foi feito; dia vazio
+   devolve energia */
+function rotinaJogadorDoDia(d){
+  const s=semanaJogador(), p=meuJogador();
+  if(!s||!p||s.dias[d])return false;
+  s.dias[d]=true;
+  let fez=false;
+  if(G.voce.auto!==false&&!p.lesao){
+    const jogos=_jogosDoMeuClube();
+    for(const id of planoDoDiaJ(d,jogos)){
+      if(s.feitas.some(f=>f.id===id&&(f.dia||0)===d))continue;
+      if(porqueNaoAtividade(id,d))continue;
+      const alvo=id==='agente'?(G.voce.rotinaAgente&&(p.agentes||[]).includes(G.voce.rotinaAgente)?G.voce.rotinaAgente:(p.agentes||[])[0]):null;
+      const r=fazerAtividade(id,{simulado:true,auto:true,dia:d,alvo});
+      if(r.ok)fez=true;
+    }
+  }
+  if(!s.feitas.some(f=>(f.dia||0)===d))s.energia=Math.min(ENERGIA_MAX,s.energia+ENERGIA_DESCANSO_DIA);
+  return fez;
+}
+
+/* ---------- foco do split e bootcamp ---------- */
+const FOCO_MULT=1.3, FOCO_ESPERA=6;
+const BOOTCAMP_MULT=1.35, BOOTCAMP_SEMANAS=2, BOOTCAMP_ESPERA=10;
+function _semAbsJ(){return typeof semAbs==='function'?semAbs():(G.ano||0)*SEMANAS_ANO+(G.semana||1);}
+function focoAtual(){const f=G.voce&&G.voce.foco;return f&&Array.isArray(f.a)?f.a:[];}
+function porqueNaoFoco(){
+  const f=G.voce&&G.voce.foco;
+  if(f&&f.sem!=null&&_semAbsJ()-f.sem<FOCO_ESPERA)return `O foco muda de ${FOCO_ESPERA} em ${FOCO_ESPERA} semanas: faltam ${FOCO_ESPERA-(_semAbsJ()-f.sem)}.`;
+  return null;
+}
+function definirFoco(lista){
+  if(!G.voce)return{ok:false,motivo:'Sem carreira.'};
+  const ks=[...new Set(lista||[])].filter(k=>ATTRS.some(a=>a[0]===k)).slice(0,2);
+  if(ks.length!==2)return{ok:false,motivo:'Escolha dois atributos.'};
+  const m=porqueNaoFoco();
+  const atual=focoAtual();
+  if(m&&atual.length)return{ok:false,motivo:m};
+  G.voce.foco={a:ks,sem:_semAbsJ()};
+  return{ok:true,msg:'Foco do split: '+ks.map(k=>(ATTRS.find(a=>a[0]===k)||[k,k])[1]).join(' e ')+'.'};
+}
+function precoBootcamp(){const p=meuJogador();return Math.round((4000+Math.max(0,(p?over(p):60)-60)*450)/100)*100;}
+function bootcampAtivo(){const b=G.voce&&G.voce.bootcamp;return !!(b&&_semAbsJ()>=b.ini&&_semAbsJ()<b.ini+BOOTCAMP_SEMANAS);}
+function porqueNaoBootcamp(){
+  const b=G.voce&&G.voce.bootcamp;
+  if(bootcampAtivo())return 'Bootcamp em andamento.';
+  if(b&&_semAbsJ()-b.ini<BOOTCAMP_ESPERA)return `O próximo bootcamp abre em ${BOOTCAMP_ESPERA-(_semAbsJ()-b.ini)} semana(s).`;
+  if(typeof caixaJogador==='function'&&caixaJogador()<precoBootcamp())return `Custa ${typeof moneyJ==='function'?moneyJ(precoBootcamp()):precoBootcamp()}.`;
+  return null;
+}
+function iniciarBootcamp(){
+  const m=porqueNaoBootcamp();if(m)return{ok:false,motivo:m};
+  if(typeof lancar==='function')lancar(-precoBootcamp(),'Bootcamp com mentor','bootcamp');
+  G.voce.bootcamp={ini:_semAbsJ()};
+  return{ok:true,msg:`Bootcamp marcado: ${BOOTCAMP_SEMANAS} semanas de XP +${Math.round((BOOTCAMP_MULT-1)*100)}%.`};
+}
+function multEvolucao(k){
+  if(!G||!G.voce)return 1;
+  return (focoAtual().includes(k)?FOCO_MULT:1)*(bootcampAtivo()?BOOTCAMP_MULT:1);
+}
+
+/* ---------- medalhas e recordes ---------- */
+const MEDALHAS=[['ouro',1.2],['prata',0.9],['bronze',0.6]];
+const MEDALHA_NOME={ouro:'Ouro',prata:'Prata',bronze:'Bronze'};
+function medalhaDaNota(n){for(const [m,v] of MEDALHAS)if(n>=v)return m;return null;}
+function medalhasDe(id){const M=(G.voce&&G.voce.medalhas)||{};return M[id]||{ouro:0,prata:0,bronze:0,rec:null};}
+
+/* ---------- maestria de agente ---------- */
+const MAESTRIA=[{n:40,nome:'Aprendiz'},{n:60,nome:'Sólido'},{n:75,nome:'Especialista'},{n:90,nome:'Mestre'}];
+function tierMaestria(nivel){let t=-1;MAESTRIA.forEach((m,i)=>{if(nivel>=m.n)t=i;});return t;}
+function maestriaDe(p,ag){const n=typeof nivelAgente==='function'?nivelAgente(p,ag):0;const t=tierMaestria(n);return{nivel:n,tier:t,nome:t>=0?MAESTRIA[t].nome:'Novato',prox:MAESTRIA[t+1]||null};}
+function _checarMaestria(p){
+  if(!G.voce||!p)return;
+  const M=G.voce.maestria||(G.voce.maestria={});
+  const novo=!G.voce.maestriaIni;
+  for(const ag of p.agentes||[]){
+    const t=maestriaDe(p,ag).tier;
+    if(M[ag]==null||novo){M[ag]=t;continue;}
+    if(t>M[ag]){
+      M[ag]=t;
+      if(t>=2){_xpPontos(p,['util','visao'],0.3);}
+      if(typeof ganharSeguidores==='function')ganharSeguidores(t>=3?0.01:0.003,t>=3?1500:300,null);
+      _momento(p,'maestria',`${ag}: ${MAESTRIA[t].nome}`,t>=2?'+XP de utilidade e visão':'');
+      if(t>=3&&typeof noticia==='function')noticia(`${p.nome} virou referência de ${ag}: maestria de Mestre.`,{c:'carreira',p:[p.id]});
+    }
+  }
+  G.voce.maestriaIni=true;
+}
+
+/* ---------- XP em "pontos" ----------
+   Uma recompensa que vale o mesmo em qualquer nível: o XP de um ponto no
+   valor atual do atributo (o potencial e a idade continuam cobrando). */
+function _xpPontos(p,ks,pontos){
+  const sub={};
+  for(const k of ks){if(!(k in p.at))continue;const n=ganharXP(p,k,custoPonto(p.at[k],p)*pontos);if(n)sub[k]=(sub[k]||0)+n;}
+  _aposEvoluir(p);
+  return sub;
+}
+function _momento(p,tipo,txt,sub){
+  const l=G.voce.momentos||(G.voce.momentos=[]);
+  l.unshift({tipo,txt,sub:sub||'',ano:G.ano,semana:G.semana,visto:false});
+  l.length=Math.min(l.length,14);
+}
+function momentosNovos(){return ((G.voce&&G.voce.momentos)||[]).filter(m=>!m.visto);}
+function marcarMomentosVistos(){for(const m of (G.voce&&G.voce.momentos)||[])m.visto=true;}
+
+/* ---------- desafios ---------- */
+const DESAFIO_SEMANAS=4, DESAFIOS_ATIVOS=3;
+const DESAFIOS_J=[
+  {id:'abates',clube:true,atr:['mira','reflexo'],meta:()=>60,txt:n=>`Faça ${n} abates em partidas oficiais`},
+  {id:'mvp',clube:true,atr:['consist','mira'],meta:()=>2,txt:n=>`Seja o MVP de ${n} séries`},
+  {id:'clutch',clube:true,atr:['clutch','visao'],meta:()=>4,txt:n=>`Vença ${n} clutches em partidas oficiais`},
+  {id:'entrada',clube:true,atr:['reflexo','mov'],meta:()=>12,txt:n=>`Abra ${n} rounds com o primeiro abate`},
+  {id:'vitorias',clube:true,atr:['visao','util'],meta:()=>3,txt:n=>`Vença ${n} séries com o seu clube`},
+  {id:'acs',clube:true,atr:['mira','consist'],meta:p=>Math.round((180+Math.max(0,over(p)-60)*2.5)/5)*5,binario:true,
+    txt:n=>`Feche uma semana com ACS médio de ${n} ou mais (dois mapas ou mais)`},
+  {id:'ouro',atr:null,meta:()=>1,txt:(n,x)=>`Tire ouro no ${(ativJogador(x)||{}).nome||x}`},
+  {id:'medalhas',atr:['consist','mira'],meta:()=>3,txt:n=>`Ganhe ${n} medalhas de prata ou ouro nos treinos jogados`},
+  {id:'agente',atr:['util','visao'],meta:null,txt:(n,x)=>`Leve ${x} a ${n} de familiaridade`},
+  {id:'ranked',semClube:true,atr:['mira','reflexo'],meta:()=>4,txt:n=>`Jogue ${n} ranked`}
+];
+function desafioJDef(id){return DESAFIOS_J.find(d=>d.id===id);}
+function desafiosAtivos(){return (G.voce&&G.voce.desafios)||[];}
+function textoDesafio(dz){const d=desafioJDef(dz.id);return d?d.txt(dz.meta,dz.alvo):dz.id;}
+function _sorteDz(salt){return typeof _sorteRel==='function'?_sorteRel('dz|'+salt):0.5;}
+function _novoDesafio(p,n){
+  const t=clubeDoJogador(), ativos=new Set(desafiosAtivos().map(d=>d.id));
+  const ult=new Set((G.voce.dzUlt||[]).slice(0,3));
+  const cand=DESAFIOS_J.filter(d=>!ativos.has(d.id)&&(!d.clube||t)&&(!d.semClube||!t));
+  const pref=cand.filter(d=>!ult.has(d.id));
+  const pool=pref.length?pref:cand;
+  if(!pool.length)return null;
+  const d=pool[Math.floor(_sorteDz('q'+n)*pool.length)%pool.length];
+  const dz={id:d.id,prog:0,ini:_semAbsJ(),n};
+  if(d.id==='ouro'){const l=['range','duelo','dm','retake'];dz.alvo=l[Math.floor(_sorteDz('o'+n)*l.length)%l.length];dz.meta=1;}
+  else if(d.id==='agente'){
+    const ags=(p.agentes||[]).map(a=>({a,n:typeof nivelAgente==='function'?nivelAgente(p,a):0})).filter(x=>x.n<88).sort((a,b)=>a.n-b.n);
+    if(!ags.length)return null;
+    const x=ags[0];dz.alvo=x.a;dz.meta=Math.min(95,Math.ceil((x.n+10)/5)*5);
+  }else dz.meta=d.meta(p);
+  return dz;
+}
+function garantirDesafios(p){
+  if(!G.voce||!p)return;
+  if(!G.voce.desafios)G.voce.desafios=[];
+  /* vencidos saem sem castigo */
+  G.voce.desafios=G.voce.desafios.filter(dz=>_semAbsJ()-dz.ini<DESAFIO_SEMANAS&&!dz.feito);
+  /* um novo por semana (três de saída): cumprir tudo de uma vez não enche a lista */
+  const novo=G.voce.dzSem!==_semAbsJ();
+  let guarda=0, vagas=!G.voce.dzSeq?DESAFIOS_ATIVOS:(novo?1:0);
+  while(G.voce.desafios.length<DESAFIOS_ATIVOS&&vagas>0&&guarda++<6){
+    vagas--;G.voce.dzSem=_semAbsJ();
+    G.voce.dzSeq=(G.voce.dzSeq||0)+1;
+    const dz=_novoDesafio(p,G.voce.dzSeq);
+    if(dz)G.voce.desafios.push(dz);
+  }
+}
+function _recompensaDesafio(p,dz){
+  const d=desafioJDef(dz.id);
+  let atr=d.atr;
+  if(!atr){const a=ativJogador(dz.alvo);atr=a&&a.xp?Object.keys(a.xp).slice(0,2):['mira','consist'];}
+  const elite=over(p)>=85?1.2:1;
+  const sub=_xpPontos(p,atr,0.55*elite);
+  if(typeof ganharSeguidores==='function')ganharSeguidores(0.003,250,null);
+  return {atr,sub};
+}
+function _avancarDesafio(p,id,quanto,valor){
+  if(!G.voce||!G.voce.desafios)return;
+  for(const dz of G.voce.desafios){
+    if(dz.feito||dz.id!==id)continue;
+    const d=desafioJDef(id);
+    if(d.binario){if(valor>=dz.meta)dz.prog=dz.meta;else continue;}
+    else if(id==='agente')dz.prog=Math.round(valor);
+    else dz.prog=Math.min(dz.meta,dz.prog+quanto);
+    if(dz.prog>=dz.meta){
+      dz.feito=true;
+      const r=_recompensaDesafio(p,dz);
+      const nomes=Object.fromEntries(ATTRS);
+      _momento(p,'desafio',textoDesafio(dz),Object.keys(r.sub).length?Object.entries(r.sub).map(([k,v])=>`${nomes[k]||k} +${v}`).join(' · '):'XP em '+r.atr.map(k=>nomes[k]||k).join(' e '));
+      G.voce.dzFeitos=(G.voce.dzFeitos||0)+1;
+      (G.voce.dzUlt||(G.voce.dzUlt=[])).unshift(id);G.voce.dzUlt.length=Math.min(G.voce.dzUlt.length,5);
+    }
+  }
+}
+
+/* ---------- marcos de over ---------- */
+const MARCOS=[70,75,80,85,90,95];
+function _checarMarcos(p){
+  if(!G.voce||!p)return;
+  const o=over(p);
+  if(!G.voce.marcos){G.voce.marcos={};for(const m of MARCOS)if(o>=m)G.voce.marcos[m]={ini:true};return;}
+  for(const m of MARCOS){
+    if(o<m||G.voce.marcos[m])continue;
+    G.voce.marcos[m]={ano:G.ano,semana:G.semana};
+    if(typeof ganharSeguidores==='function')ganharSeguidores(m>=85?0.02:0.008,m>=85?3000:600,null);
+    _momento(p,'marco',`Over ${m}`,m>=90?'elite mundial':m>=85?'nível de estrela':m>=80?'titular de Tier 1':'um degrau acima');
+    G.voce.marcoNovo=m;
+    if(m>=80&&typeof noticia==='function')noticia(`${p.nome} chega a over ${m}${m>=90?': entre os melhores do mundo':m>=85?' e entra no radar dos gigantes':''}.`,{c:'carreira',p:[p.id]});
+  }
+}
+function proximoMarco(p){const o=over(p);return MARCOS.find(m=>m>o)||null;}
+/* over com a fração das barras de XP: anda a cada treino */
+function overExatoJ(p){
+  const w=ROLE_W[p.role]||ROLE_W.Flex;let t=0;
+  for(const k in w){const v=p.at[k]||0,x=(p.xp&&p.xp[k])||0;t+=(v+Math.min(0.99,x/custoPonto(v,p)))*w[k];}
+  return t;
+}
+
+/* ---------- depois de cada atividade ---------- */
+function aposAtividade(a,f,p){
+  if(!G.voce)return;
+  if(f.med){
+    const M=G.voce.medalhas||(G.voce.medalhas={});
+    const m=M[a.id]||(M[a.id]={ouro:0,prata:0,bronze:0,rec:null});
+    m[f.med]++;
+    if(f.nota!=null&&(m.rec==null||f.nota>m.rec)){f.recorde=m.rec!=null;m.rec=f.nota;}
+    if(f.med==='ouro')_avancarDesafio(p,'ouro',a.id===((desafiosAtivos().find(d=>d.id==='ouro')||{}).alvo)?1:0);
+    if(f.med==='ouro'||f.med==='prata')_avancarDesafio(p,'medalhas',1);
+  }
+  if(a.id==='ranked')_avancarDesafio(p,'ranked',1);
+  if(a.id==='agente'&&f.alvo){
+    const dz=desafiosAtivos().find(d=>d.id==='agente'&&d.alvo===f.alvo);
+    if(dz)_avancarDesafio(p,'agente',0,nivelAgente(p,f.alvo));
+    _checarMaestria(p);
+  }
+  _checarMarcos(p);
+}
+
+/* ---------- o fechamento da semana ----------
+   w: o que você fez nas partidas da semana {k,d,cl,fk,mvp,maps,acs} */
+function evolucaoSemana(p,t,rel,w){
+  if(!G.voce||!p)return;
+  garantirDesafios(p);
+  const vit=t?_vitoriasDaSemana(t.id):0;
+  /* desafios de partida */
+  if(w.maps){
+    _avancarDesafio(p,'abates',w.k);_avancarDesafio(p,'mvp',w.mvp);_avancarDesafio(p,'clutch',w.cl);
+    _avancarDesafio(p,'entrada',w.fk);
+    if(w.maps>=2)_avancarDesafio(p,'acs',0,w.acs);
+  }
+  if(vit)_avancarDesafio(p,'vitorias',vit);
+  for(const dz of desafiosAtivos())if(dz.id==='agente'&&!dz.feito)_avancarDesafio(p,'agente',0,nivelAgente(p,dz.alvo));
+  /* momentos */
+  const nomes=Object.fromEntries(ATTRS);
+  const subTxt=sub=>Object.entries(sub).map(([k,v])=>`${nomes[k]||k} +${v}`).join(' · ');
+  if(w.mvp>0){
+    const sub=_xpPontos(p,['mira','consist'],0.2*Math.min(2,w.mvp));
+    _momento(p,'mvp',w.mvp>1?`MVP de ${w.mvp} séries`:'MVP da série',subTxt(sub)||'XP de mira e consistência');
+  }
+  const tit=(p.carreira&&p.carreira.titulos)||0;
+  if(G.voce.titAntes==null)G.voce.titAntes=tit;
+  if(tit>G.voce.titAntes){
+    const wr=ROLE_W[p.role]||ROLE_W.Flex;
+    const top=Object.keys(wr).sort((a,b)=>wr[b]-wr[a]).slice(0,3);
+    const sub=_xpPontos(p,top,0.5);
+    if(typeof ganharSeguidores==='function')ganharSeguidores(0.015,2000,null);
+    _momento(p,'titulo','Campeão',subTxt(sub)||'XP nos atributos da função');
+  }
+  G.voce.titAntes=tit;
+  const metaAcs=desafioJDef('acs').meta(p);
+  if(w.maps>=2&&w.acs>=metaAcs+25){
+    const sub=_xpPontos(p,['mira','reflexo'],0.25);
+    _momento(p,'semana',`Semana monstruosa: ACS ${Math.round(w.acs)}`,subTxt(sub)||'XP de mira e reflexo');
+  }
+  _checarMaestria(p);
+  _checarMarcos(p);
+  garantirDesafios(p);
+  /* a curva do over, semana a semana */
+  const h=G.voce.overHist||(G.voce.overHist=[]);
+  h.push({a:G.ano,s:G.semana,o:Math.round(overExatoJ(p)*10)/10});
+  if(h.length>40)h.splice(0,h.length-40);
+}
+function _vitoriasDaSemana(id){
+  let n=0;
+  for(const b of G.calendario||[])for(const s of b.stages||[])for(const r of s.resultados||[])
+    if(r.sem===G.semana&&(r.ano==null||r.ano===G.ano)&&r.v===id)n++;
+  return n;
 }
 
 
@@ -50155,11 +50849,46 @@ function vPlano(){
     <div class="pl-grade">${['agressivo','controle','defensivo','adaptavel'].map(cartaoEstilo).join('')}</div>
     <div class="eyebrow pl-tit">A semana</div>
     <div class="pl-grade">${Object.keys(MODOS_SEMANA).map(cartaoSemana).join('')}</div>
+    ${typeof rotinaHTML==='function'?rotinaHTML(t):''}
     <div class="grid g2" style="margin-top:14px">${proximo}${relatorioSemanaHTML(G.relatorioSemana)||'<div class="card flat"><div class="eyebrow">A semana de treino</div><p class="dim">O relatório aparece depois da primeira semana.</p></div>'}</div>
     ${ult?relatorioAnalistaHTML(ult.r,{titulo:(ult.venceu?'vitória ':'derrota ')+ult.eu+'–'+ult.ele+' contra o '+ult.advTag})
       :'<div class="card flat"><div class="eyebrow">Relatório do analista</div><p class="dim">Depois do primeiro jogo, o analista conta aqui o que funcionou e o que mudar.</p></div>'}`;
 }
+/* ---------- a rotina dos sete dias (core/rotina.js) ---------- */
+function _dataDoDia(d){
+  if(typeof _calMs!=='function')return '';
+  const x=new Date(_calMs(G.semana,d));
+  return String(x.getUTCDate()).padStart(2,'0')+'/'+String(x.getUTCMonth()+1).padStart(2,'0');
+}
+function rotinaHTML(t){
+  if(!t||typeof rotinaDaSemana!=='function')return '';
+  const dias=rotinaDaSemana(t), pv=previsaoRotina(t);
+  const adv=typeof _proximoAdv==='function'?_proximoAdv(t):null;
+  const card=x=>{
+    const R=ROTINA_TIPOS[x.tipo], trava=podeTrocarDia(t,x.dia);
+    const bts=x.tipo==='jogo'?`<span class="rot-fixo">${adv&&x.dia>=(G.turno||0)?'contra o '+esc(adv.tag):'partida'}</span>`
+      :trava?`<span class="rot-fixo">${x.feito?'feito':esc(trava)}</span>`
+      :`<div class="rot-bts">${ROTINA_ESCOLHAS.map(k=>`<button class="${x.tipo===k?'on':''} ${x.padrao===k?'pad':''}" data-rotdia="${x.dia}" data-rottipo="${k}" title="${esc(ROTINA_TIPOS[k].nome)}${x.padrao===k?' (padrão da comissão)':''}">${ico(ROTINA_TIPOS[k].ic)}</button>`).join('')}</div>`;
+    return `<div class="rot-dia t-${x.tipo} ${x.hoje?'hoje':''} ${x.feito?'feito':''} ${x.trocado?'trocado':''}">
+      <div class="rot-cab"><b>${DIAS_CURTO[x.dia]}</b><span class="num">${_dataDoDia(x.dia)}</span>${x.hoje?'<em>hoje</em>':''}</div>
+      <span class="rot-ic">${ico(R.ic)}</span>
+      <b class="rot-nome">${esc(R.nome)}</b>
+      ${x.trocado?`<span class="rot-pad">no lugar de ${esc(ROTINA_TIPOS[x.padrao].curto.toLowerCase())}</span>`:'<span class="rot-pad">&nbsp;</span>'}
+      ${bts}</div>`;
+  };
+  const efeito=pv.trocas?`<span class="${pv.fadiga>0?'dn':'up'}">cansaço ${pv.fadiga>0?'+':''}${pv.fadiga} pts</span> ·
+      <span class="${pv.evolucao<1?'dn':'up'}">evolução ×${pv.evolucao.toFixed(2)}</span> ·
+      <span class="${pv.sinergia<0?'dn':'up'}">entrosamento ${pv.sinergia>0?'+':''}${pv.sinergia}</span>`
+    :'<span class="dim">a rotina que a comissão montou para o modo da semana</span>';
+  return `<div class="rot"><div class="split rot-topo"><div class="eyebrow pl-tit">A rotina dos sete dias</div>
+      <div class="rot-efeito">${efeito}${pv.trocas?` <button class="btn ghost sm" data-rotpadrao="1">Voltar ao padrão</button>`:''}</div></div>
+    <div class="rot-grade">${dias.map(card).join('')}</div>
+    <p class="dim rot-nota">Troque um dia para mexer no cansaço e no entrosamento ali mesmo, e na evolução da semana. Folga na véspera
+      tira a perna pesada do jogo; scrim entrosa os cinco; VOD na véspera dá leitura do adversário.</p></div>`;
+}
 function ligarPlano(v,on){
+  on('[data-rotdia]',el=>{const r=trocarDiaRotina(meu(),+el.dataset.rotdia,el.dataset.rottipo);render();if(!r.ok)flash(r.erro);});
+  on('[data-rotpadrao]',()=>{voltarRotinaPadrao(meu());render();});
   on('[data-estilo]',el=>{const r=definirEstilo(meu(),el.dataset.estilo);render();flash(r.ok?r.msg:r.erro);});
   on('[data-semana]',el=>{const r=definirModoSemana(meu(),el.dataset.semana);render();flash(r.ok?r.msg:r.erro);});
 }
@@ -51658,6 +52387,7 @@ function vJSemana(){
         <span class="jx-en">${ico('fogo')} ${custoEnergia(a)}</span></div>
       ${tipo?`<span class="jx-tipo ${tipo}">${tipo==='gameplay'?'gameplay':'minigame'}</span>`:''}
       ${feitas?`<span class="jx-feito">${ico('check')} feito${feitas>1?' '+feitas+'×':''}</span>`:''}
+      ${a.grupo==='jogavel'||SJ_MINI[a.id]?medalhasHTML(a.id):''}
       <p class="dim">${esc(a.desc)}${extra}</p>
       ${a.xp?`<div class="jx-atrs">${Object.entries(a.xp).sort((x,y)=>y[1]-x[1]).map(([k,w])=>_sjAtrib(p,k,w)).join('')}</div>`:a.id==='live'?`<div class="jx-atrs jx-live"><span>${ico('estrela')} ${fmtSeg(seguidores())} seguidores</span></div>`:''}
       <div class="jx-at-b">${botoes}</div>
@@ -51672,12 +52402,12 @@ function vJSemana(){
       <p class="dim">Familiaridade com um agente do seu pool, ou um novo da sua função (com 40 ele entra no pool e o técnico pode escalar).</p></div>
       <div class="jx-at-b"><input type="hidden" id="sjAgente" value="${esc(agSel||'')}"><button class="btn sm" data-sjfazer="agente" ${motivoAg?'disabled':''}>Treinar ${esc(agSel||'')}</button></div></div>
     <div class="jx-ag-grade">${pool.map(a=>{const n=nv(a),meu=(p.agentes||[]).includes(a);return `<button class="jx-ag ${a===agSel?'on':''} ${meu?'':'novo'}" data-sjag="${esc(a)}">
-      ${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${meu?'':'<em>novo</em>'}</button>`;}).join('')}</div>
+      ${retratoAgente(a,58)}<b>${esc(a)}</b><u><i style="width:${n}%"></i></u><span class="num">${n}</span>${meu?(typeof maestriaDe==='function'?`<em class="mq t${maestriaDe(p,a).tier}">${esc(maestriaDe(p,a).nome)}</em>`:''):'<em>novo</em>'}</button>`;}).join('')}</div>
     ${motivoAg?`<div class="jx-motivo">${esc(motivoAg)}</div>`:''}</section>`;
   const grupo=(g,titulo,sub)=>{const l=ATIV_JOGADOR.filter(a=>a.grupo===g&&a.id!=='agente'&&(g!=='clube'||t));return l.length?`<section class="jx-grupo"><div class="jx-grupo-t"><div class="eyebrow">${titulo}</div>${sub?`<span class="dim">${sub}</span>`:''}</div><div class="jx-at-grade">${l.map(card).join('')}</div></section>`:'';};
   const feitas=s.feitas.map((f,i)=>{const a=ativJogador(f.id);
     return `<div class="jx-tl" style="--i:${i}"><span class="jx-tl-ic">${ico(SJ_ICONE[f.id]||'mira')}</span><div><b>${esc(a?a.nome:f.id)}</b>${f.alvo?` · ${esc(f.alvo)}`:''}
-      <span class="dim">${f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''} · −${f.gasto} energia</span>
+      <span class="dim">${f.dia!=null&&typeof DIAS_CURTO!=='undefined'?DIAS_CURTO[f.dia]+' · ':''}${f.auto?'pela rotina':f.simulado?'simulado':f.nota!=null?'nota '+f.nota.toFixed(2):''}${f.med?' · '+MEDALHA_NOME[f.med]:''}${f.recorde?' · recorde':''} · −${f.gasto} energia</span>
       <div class="jx-xp">${Object.entries(f.xp||{}).filter(([,v])=>v>0.05).map(([k,v])=>`<i>${esc(_NOME_ATR()[k]||k)} +${v.toFixed(1)}</i>`).join('')}${f.fam?`<i>familiaridade +${f.fam}</i>`:''}${f.seg?`<i>+${fmtSeg(f.seg)} seguidores</i>`:''}${f.din?`<i>${moneyJ(f.din)}</i>`:''}${Object.entries(f.subiu||{}).map(([k,v])=>`<i class="up">${esc(_NOME_ATR()[k]||k)} +${v}</i>`).join('')}</div></div></div>`;}).join('');
   const u=G.voce.ultimaSemana;
   const foto=t&&typeof cenaFoto==='function'?cenaFoto('estrutura','treino',t,{cls:'cn-direita',foco:'placa'}):(typeof cenaFoto==='function'?cenaFoto('cenas','ativ-ranked',null,{cls:'cn-direita'}):'');
@@ -51689,16 +52419,18 @@ function vJSemana(){
           ${adv?`<div class="jx-vs">${t?escudo(t,40):''}<b>${esc(t?t.tag:'')}</b><span>×</span><b>${esc(adv.tag)}</b>${escudo(adv,40)}<i class="dim">over ${overMedioTime(adv)} · ${esc(mapaNome)} no treino</i></div>`
             :`<p class="dim">Treinos no ${esc(mapaNome)}. ${t?'Sem jogo: dá para gastar a energia toda.':'Ranked e lives sobem o radar dos olheiros.'}</p>`}
           <p class="dim jx-hero-nota">Cada atividade gasta energia; o que sobra vira descanso. ${adv?'Abaixo de 40 você chega ao jogo cansado. ':''}Jogar rende mais que simular: o XP sai da sua nota.</p>
-          <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto?'checked':''}> Assistente monta a semana se eu não marcar nada</label>
+          <label class="sj-auto"><input type="checkbox" id="sjAuto" ${G.voce.auto!==false?'checked':''}> A rotina roda sozinha nos dias em que eu não marcar nada</label>
         </div>
         <div class="jx-hero-carta">${typeof cartaJogador==='function'?cartaJogador(p,{w:118}):''}</div>
       </div></section>
+    ${typeof evolucaoHTML==='function'?evolucaoHTML(p):''}
+    ${typeof rotinaJHTML==='function'?rotinaJHTML(p):''}
     ${grupo('clube','Treino do clube','O técnico conta presença: faltar derruba a forma, e a forma pesa na escalação.')}
     ${grupo('jogavel','Treinos jogáveis','Abrem a gameplay por cima do manager. Esc pausa.')}
     ${grupo('clique','Fora do servidor','Minigames do vestiário: a nota vira XP.')}
     ${agentes}
     <div class="grid g2 cx-linha">
-      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas?`<div class="jx-tls">${feitas}</div>`:vazio('<b>Nada ainda.</b> '+(G.voce.auto?'Se você avançar assim, o assistente faz uma semana padrão simulada.':'Se você avançar assim, a semana inteira vira descanso.'),'treino')}</div>
+      <div class="card"><div class="eyebrow">Feito nesta semana</div>${feitas?`<div class="jx-tls">${feitas}</div>`:vazio('<b>Nada ainda.</b> '+(G.voce.auto!==false?'A rotina roda os dias que passarem sem nada marcado.':'Sem a rotina, dia sem nada marcado é descanso.'),'treino')}</div>
       <div class="card"><div class="eyebrow">Semana passada</div>${u?`
         <p>${u.auto?'O assistente montou a semana. ':''}Gastou ${Math.round(u.ini-u.energia)} de ${Math.round(u.ini)} de energia.${u.coletivo===false?' <b class="dn">Faltou ao treino do clube.</b>':''}</p>
         ${u.partidas?`<p>${u.partidas.maps} mapa${u.partidas.maps>1?'s':''} jogado${u.partidas.maps>1?'s':''}: ${_xpTexto(u.partidas.xp)} ${_subiuTexto(u.partidas.subiu)}</p>`:'<p class="dim">Sem partida sua.</p>'}`
@@ -51785,6 +52517,8 @@ function modalResultadoTreino(a,f,r){
     :`${r.venceu?'Retake ganho':'Retake perdido'} · ${r.kills} abate${r.kills===1?'':'s'}`;
   pintarModal(`<div class="ovl"><div class="box sj-res">
     <div class="eyebrow">${esc(a.nome)}</div><h2>${esc(linha)}</h2>
+    ${f.med?`<div class="sj-med"><i class="evj-med grande ${f.med}"></i><b>${MEDALHA_NOME[f.med]}</b>${f.recorde?'<span class="chip t">novo recorde</span>':''}${f.med==='ouro'?'<span class="dim">+10% de XP</span>':''}</div>`
+      :'<div class="sj-med"><span class="dim">Sem medalha: bronze a partir de nota 0,60, prata 0,90, ouro 1,20.</span></div>'}
     <p>Nota <b class="num">${(f.nota||0).toFixed(2)}</b> · rendeu ${Math.round(f.mult*100)}% do XP base · −${f.gasto} energia</p>
     <p>${_xpTexto(f.xp)}</p>${Object.keys(f.subiu).length?`<p>Subiu: ${_subiuTexto(f.subiu)}</p>`:''}
     <div class="dj-acoes"><button class="btn" id="sjOk">Voltar para a semana</button></div></div></div>`);
@@ -51828,11 +52562,148 @@ function ligarJogador(v,on){
     render();
   });
   const au=v.querySelector('#sjAuto');if(au)au.onchange=()=>{G.voce.auto=au.checked;};
+  if(typeof ligarEvolucao==='function'){ligarEvolucao(v,on);if(v.querySelector('.evj')&&typeof marcarMomentosVistos==='function')marcarMomentosVistos();}
   if(typeof ligarRelacoes==='function')ligarRelacoes(v,on);
   if(typeof ligarMercadoJogador==='function')ligarMercadoJogador(v,on);
   if(typeof ligarMidia==='function')ligarMidia(v,on);
   if(typeof ligarLegado==='function')ligarLegado(v,on);
   on('[data-tlcompra]',el=>{const r=comprarTalento(el.dataset.tlcompra);if(!r.ok)flash(r.motivo);render();});
+}
+
+
+/* ===== src/ui/evolucao.js ===== */
+/* ============================================================
+   MODO JOGADOR — a rotina diária e a evolução na tela (Etapa 4)
+   O motor mora em core/evolucao-jogador.js. Aqui: a barra do over
+   que anda a cada treino, o próximo marco, a curva das semanas,
+   os desafios, os momentos, o foco do split, o bootcamp e a rotina
+   dos sete dias.
+   ============================================================ */
+let _evjFocoSel=null;
+const EVJ_IC={desafio:'alvo',marco:'trofeu',mvp:'estrela',titulo:'trofeu',semana:'fogo',maestria:'medalha'};
+
+function _evjSpark(h,w,hh){
+  if(!h||h.length<2)return '';
+  const v=h.map(x=>x.o), min=Math.min(...v)-0.5, max=Math.max(...v)+0.5;
+  const X=i=>(i/(v.length-1))*(w-4)+2, Y=x=>hh-2-((x-min)/(max-min||1))*(hh-4);
+  const d=v.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x).toFixed(1)).join(' ');
+  return `<svg class="evj-spark" width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}" aria-hidden="true">
+    <path d="${d} L ${X(v.length-1).toFixed(1)} ${hh} L 2 ${hh} Z" fill="rgba(31,210,180,.12)"/>
+    <path d="${d}" fill="none" stroke="var(--teal)" stroke-width="2"/>
+    <circle cx="${X(v.length-1).toFixed(1)}" cy="${Y(v[v.length-1]).toFixed(1)}" r="3" fill="var(--teal)"/></svg>`;
+}
+function medalhasHTML(id){
+  if(typeof medalhasDe!=='function')return '';
+  const m=medalhasDe(id);
+  if(!m.ouro&&!m.prata&&!m.bronze)return '';
+  return `<span class="evj-meds">${['ouro','prata','bronze'].map(k=>m[k]?`<i class="evj-med ${k}" title="${MEDALHA_NOME[k]}">${m[k]}</i>`:'').join('')}${m.rec!=null?`<span class="dim">recorde ${m.rec.toFixed(2)}</span>`:''}</span>`;
+}
+
+function evolucaoHTML(p){
+  if(!p||typeof overExatoJ!=='function')return '';
+  garantirDesafios(p);
+  if(!G.voce.marcos)_checarMarcos(p);
+  const nomes=Object.fromEntries(ATTRS);
+  const ox=overExatoJ(p), o=over(p), pct=Math.round(clamp(ox-(o-0.5),0,0.999)*100);
+  const pm=proximoMarco(p), ant=[...MARCOS].reverse().find(m=>m<=o)||Math.max(50,o-5);
+  const pctM=pm?Math.round(clamp((ox-ant)/(pm-ant),0,1)*100):100;
+  const h=G.voce.overHist||[];
+  const ganho=h.length>1?Math.round((h[h.length-1].o-h[Math.max(0,h.length-9)].o)*10)/10:null;
+  /* desafios */
+  const dzs=desafiosAtivos().map((dz,i)=>{
+    const d=desafioJDef(dz.id), resta=DESAFIO_SEMANAS-(_semAbsJ()-dz.ini);
+    const atr=d.atr||(ativJogador(dz.alvo)&&ativJogador(dz.alvo).xp?Object.keys(ativJogador(dz.alvo).xp).slice(0,2):[]);
+    const pr=d.binario?(dz.prog>=dz.meta?1:0):clamp(dz.prog/dz.meta,0,1);
+    return `<div class="evj-dz" style="--i:${i}"><span class="evj-dz-ic">${ico(dz.id==='ouro'||dz.id==='medalhas'?'medalha':dz.id==='agente'?'estrela':dz.id==='ranked'?'controle':'alvo')}</span>
+      <div class="evj-dz-t"><b>${esc(textoDesafio(dz))}</b>
+        <span class="dim">${d.binario?'numa semana só':dz.id==='agente'?`hoje ${Math.round(nivelAgente(p,dz.alvo))}`:`${dz.prog} de ${dz.meta}`} · ${resta} semana${resta===1?'':'s'}</span>
+        <u><i style="width:${Math.round(pr*100)}%"></i></u></div>
+      <span class="evj-dz-r">${atr.map(k=>`<i>${esc(nomes[k]||k)}</i>`).join('')}</span></div>`;}).join('');
+  /* foco */
+  const foco=focoAtual(), sel=_evjFocoSel||foco.slice(), espera=porqueNaoFoco();
+  const focoHTML=`<div class="evj-foco">${ATTRS.map(([k,n])=>`<button class="${sel.includes(k)?'on':''} ${foco.includes(k)?'atual':''}" data-evjfoco="${k}">${esc(n)}</button>`).join('')}</div>
+    ${_evjFocoSel&&(sel.join()!==foco.join())?`<button class="btn sm" data-evjfocook="1" ${sel.length!==2||(espera&&foco.length)?'disabled':''}>Definir foco</button>`:''}
+    <span class="dim evj-mini">${foco.length?`+${Math.round((FOCO_MULT-1)*100)}% de XP em ${foco.map(k=>esc(nomes[k])).join(' e ')}.${espera?' '+esc(espera):''}`:'Escolha dois atributos: eles ganham +30% de XP no split.'}</span>`;
+  /* bootcamp */
+  const bc=bootcampAtivo(), bcM=porqueNaoBootcamp(), bcI=G.voce.bootcamp;
+  const bcHTML=bc?`<b class="up">Em andamento</b><span class="dim evj-mini">XP +${Math.round((BOOTCAMP_MULT-1)*100)}% em tudo até a semana ${bcI.ini+BOOTCAMP_SEMANAS-1-(G.ano||0)*SEMANAS_ANO}.</span>`
+    :`<button class="btn sm" data-evjboot="1" ${bcM?'disabled':''}>Marcar · ${moneyJ(precoBootcamp())}</button><span class="dim evj-mini">${bcM?esc(bcM):`${BOOTCAMP_SEMANAS} semanas com um mentor: XP +${Math.round((BOOTCAMP_MULT-1)*100)}% em tudo.`}</span>`;
+  /* momentos */
+  const moms=(G.voce.momentos||[]).slice(0,6).map(m=>`<div class="evj-mom ${m.visto?'':'novo'} t-${m.tipo}"><span>${ico(EVJ_IC[m.tipo]||'estrela')}</span>
+      <div><b>${esc(m.txt)}</b><span class="dim">${esc(m.sub||'')}${m.sub?' · ':''}sem. ${m.semana}</span></div></div>`).join('');
+  const marcoNovo=G.voce.marcoNovo;
+  return `${marcoNovo?`<section class="evj-marco"><span>${ico('trofeu')}</span><div><div class="eyebrow">Novo patamar</div><h3>Over ${marcoNovo}</h3>
+      <p class="dim">${marcoNovo>=90?'Entre os melhores do mundo.':marcoNovo>=85?'Nível de estrela: os gigantes estão olhando.':marcoNovo>=80?'Nível de titular de Tier 1.':'Um degrau acima.'}</p></div>
+      <button class="btn sm" data-evjmarco="1">Seguir</button></section>`:''}
+  <section class="card evj">
+    <div class="evj-l">
+      <div class="eyebrow">Evolução</div>
+      <div class="evj-over"><b class="num">${o}</b><div class="evj-ob"><span>até ${o+1}</span><u><i style="width:${pct}%"></i></u></div>
+        ${_evjSpark(h.slice(-16),150,44)}</div>
+      <div class="evj-marcos">${MARCOS.map(m=>`<i class="${G.voce.marcos&&G.voce.marcos[m]?'on':''} ${m===pm?'prox':''}">${m}</i>`).join('')}
+        ${pm?`<span class="dim">próximo marco: <b>${pm}</b> · ${pctM}% do caminho${ganho!=null?` · ${ganho>=0?'+':''}${ganho} em 8 semanas`:''}</span>`:'<span class="dim">todos os marcos</span>'}</div>
+      <div class="evj-linha"><div class="evj-bloco"><div class="eyebrow">Foco do split</div>${focoHTML}</div>
+        <div class="evj-bloco evj-boot"><div class="eyebrow">Bootcamp com mentor</div>${bcHTML}</div></div>
+    </div>
+    <div class="evj-r">
+      <div class="eyebrow">Desafios · ${G.voce.dzFeitos||0} cumpridos</div>
+      <div class="evj-dzs">${dzs||'<p class="dim">Os desafios aparecem no fechamento da semana.</p>'}</div>
+      <p class="dim evj-mini">Cada desafio vale meio ponto nos dois atributos marcados, no nível em que você estiver; acima de 85, um pouco mais.</p>
+      ${moms?`<div class="eyebrow" style="margin-top:12px">Momentos</div><div class="evj-moms">${moms}</div>`:''}
+    </div>
+  </section>`;
+}
+
+/* ---------- a rotina dos sete dias ---------- */
+function rotinaJHTML(p){
+  if(!p||typeof planoDoDiaJ!=='function')return '';
+  const s=semanaJogador(), t=clubeDoJogador(), jogos=_jogosDoMeuClube(), hoje=G.turno||0, dias=_diaAtivo();
+  const nomes=Object.fromEntries(ATIV_JOGADOR.map(a=>[a.id,a.nome]));
+  const r=rotinaJ();
+  const col=d=>{
+    const jogo=jogos.includes(d), feitas=s.feitas.filter(f=>(f.dia||0)===d), plano=planoDoDiaJ(d,jogos);
+    const passou=dias&&d<hoje, ehHoje=dias&&d===hoje;
+    const fixos=plano.filter(id=>id==='coletivo'||id==='vod');
+    const opt=(slot)=>{const v=r[d][slot]||'';
+      return `<select data-rjdia="${d}" data-rjslot="${slot}" ${passou?'disabled':''}><option value="">${slot?'—':'descanso'}</option>${ROTINA_J_OPCOES.map(id=>`<option value="${id}" ${v===id?'selected':''}>${esc(nomes[id]||id)}</option>`).join('')}</select>`;};
+    return `<div class="rj-dia ${jogo?'jogo':''} ${ehHoje?'hoje':''} ${passou?'passou':''}">
+      <div class="rj-cab"><b>${DIAS_CURTO[d]}</b><span class="num">${typeof _dataDoDia==='function'?_dataDoDia(d):''}</span>${ehHoje?'<em>hoje</em>':''}</div>
+      ${jogo?`<div class="rj-jogo">${ico('alvo')}<b>Dia de jogo</b><span class="dim">uma atividade, no máximo</span></div>`:''}
+      ${fixos.filter(id=>!passou&&!ehHoje&&!feitas.some(f=>f.id===id)).map(id=>`<span class="rj-fixo">${ico(SJ_ICONE[id]||'mira')} ${esc(nomes[id])}<i>${id==='coletivo'?'clube':'véspera'}</i></span>`).join('')}
+      ${feitas.length?`<div class="rj-feitas">${feitas.map(f=>`<span class="rj-f ${f.med||''}">${ico('check')} ${esc(nomes[f.id]||f.id)}${f.auto?' <i>rotina</i>':f.simulado?' <i>simulado</i>':f.med?` <i class="evj-med ${f.med}"></i>`:''}</span>`).join('')}</div>`:''}
+      ${ehHoje&&!jogo?_rjAgora(plano,feitas):''}
+      ${!jogo&&!passou?`<div class="rj-sel">${opt(0)}${(r[d]||[]).length?opt(1):''}</div>`:''}
+      ${!jogo&&passou&&!feitas.length?'<span class="dim rj-desc">descanso · +'+ENERGIA_DESCANSO_DIA+' energia</span>':''}
+    </div>`;
+  };
+  return `<section class="card rj"><div class="split"><div><div class="eyebrow">Sua rotina · vale toda semana</div>
+      <p class="dim" style="margin:4px 0 0">${dias?'Cada dia que passa roda o que está marcado, simulado (60% do XP). Jogue você mesmo a atividade de hoje para render mais e ganhar medalha. Dia vazio é descanso e devolve energia.'
+        :'No fechamento, o assistente roda a rotina da semana inteira, simulada. Marcou algo à mão? Aí a semana é sua.'}
+        ${t?' O treino do clube cai no primeiro dia livre e o VOD na véspera do jogo.':''}</p></div>
+      <button class="btn ghost sm" data-rjpadrao="1">Rotina padrão</button></div>
+    <div class="rj-grade">${Array.from({length:TURNOS_SEMANA},(_,d)=>col(d)).join('')}</div></section>`;
+}
+
+/* hoje: o que a rotina marcou, com o atalho para jogar você mesmo */
+function _rjAgora(plano,feitas){
+  const mini=typeof minigamesLigados!=='function'||minigamesLigados();
+  const l=plano.filter(id=>!feitas.some(f=>f.id===id)).map(id=>{
+    const a=ativJogador(id);if(!a)return '';
+    const m=porqueNaoAtividade(id);
+    const bt=a.grupo==='jogavel'?`<button class="btn sm" data-sjjogar="${id}" ${m?'disabled':''}>${ico('jogar')} Jogar</button>`
+      :SJ_MINI[id]&&mini?`<button class="btn sm" data-sjmini="${id}" ${m?'disabled':''}>${ico('jogar')} Jogar</button>`:'';
+    return `<div class="rj-agora"><b>${esc(a.nome)}</b>${bt}</div>`;}).join('');
+  return l?`<div class="rj-agoras"><span class="eyebrow">agora</span>${l}</div>`:'';
+}
+function ligarEvolucao(v,on){
+  on('[data-evjfoco]',el=>{const k=el.dataset.evjfoco;const sel=(_evjFocoSel||focoAtual().slice());
+    const i=sel.indexOf(k);if(i>=0)sel.splice(i,1);else{sel.push(k);if(sel.length>2)sel.shift();}
+    _evjFocoSel=sel;render();});
+  on('[data-evjfocook]',()=>{const r=definirFoco(_evjFocoSel);_evjFocoSel=null;flash(r.ok?r.msg:r.motivo);render();});
+  on('[data-evjboot]',()=>{const r=iniciarBootcamp();flash(r.ok?r.msg:r.motivo);render();});
+  on('[data-evjmarco]',()=>{G.voce.marcoNovo=null;render();});
+  on('[data-rjpadrao]',()=>{voltarRotinaJPadrao();render();});
+  v.querySelectorAll('[data-rjdia]').forEach(el=>{el.onchange=()=>{const r=definirRotinaJ(+el.dataset.rjdia,+el.dataset.rjslot,el.value);if(!r.ok)flash(r.motivo);render();};});
 }
 
 
@@ -56567,6 +57438,17 @@ function aplicarTurno(r){
     flash('📨 '+(c?c.nome:'Um clube')+' fez proposta por '+(p?p.nome:'um jogador seu')+
           (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
   }else if(G.janela&&dias>0&&dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
+  avisarMomentos();
+}
+/* modo jogador: desafio cumprido, marco, título — um aviso só, o mais recente
+   (a lista inteira está em Semana e treinos) */
+function avisarMomentos(){
+  if(!G||!G.voce||typeof momentosNovos!=='function')return;
+  const l=momentosNovos().filter(m=>!m.avisado);
+  if(!l.length)return;
+  l.forEach(m=>m.avisado=true);
+  const m=l[0],rot={desafio:'Desafio cumprido',marco:'Novo marco',mvp:'Momento',titulo:'Momento',semana:'Momento',maestria:'Maestria'}[m.tipo]||'Momento';
+  flash(`${rot}: ${m.txt}${m.sub?' · '+m.sub:''}${l.length>1?` (e mais ${l.length-1} em Semana e treinos)`:''}`);
 }
 /* Etapa 7: com o motor completo, a sua série leva alguns segundos para ser
    jogada. O aviso é pintado ANTES do cálculo (que trava a tela enquanto roda),
@@ -56659,6 +57541,7 @@ function aplicarAvanco(r,quantas){
   if(r.parcial&&!r.dia)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
   if(r.encerrado)flash(/^fim de temporada/i.test(r.encerrado)?'Temporada encerrada.'
     :r.encerrado+(/^(pré-temporada|pausa)/i.test(r.encerrado)?' encerrada.':' encerrado.'));
+  avisarMomentos();
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
      abrir antes deixaria a tela do jogo já no ano seguinte por baixo. */
   /* Na virada do ano a cerimônia de encerramento vem antes: o veredito abre

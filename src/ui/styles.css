@@ -5877,3 +5877,123 @@ td.pos .med.m1{background:linear-gradient(135deg,#ffe08a,#c9962d)}td.pos .med.m2
 .cal-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
 .cal-leg .l-v{background:rgba(24,224,181,.4)}.cal-leg .l-d{background:rgba(255,70,85,.4)}.cal-leg .l-p{background:rgba(245,193,90,.45)}
 .cal-leg .l-pr{border:1px dashed rgba(255,255,255,.35)}.cal-leg .l-j{background:transparent;box-shadow:inset 0 -3px 0 rgba(24,224,181,.5)}
+
+/* ---------- Etapa 4: a rotina dos sete dias (treinador) ---------- */
+.rot{margin-top:6px}
+.rot-topo{align-items:baseline;gap:12px;flex-wrap:wrap}
+.rot-efeito{font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rot-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.rot-dia{--rc:#7f93a6;position:relative;display:flex;flex-direction:column;gap:4px;padding:10px 10px 10px;border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(var(--rc-rgb,127,147,166),.14),rgba(255,255,255,.02) 60%);border-top:3px solid var(--rc);min-height:150px}
+.rot-dia.t-jogo{--rc:var(--red);--rc-rgb:255,70,85}
+.rot-dia.t-scrim{--rc:#ff9a3d;--rc-rgb:255,154,61}
+.rot-dia.t-treino{--rc:var(--teal);--rc-rgb:31,210,180}
+.rot-dia.t-vod{--rc:#8fb4ff;--rc-rgb:143,180,255}
+.rot-dia.t-recuperacao{--rc:#c4a7ff;--rc-rgb:196,167,255}
+.rot-dia.t-folga{--rc:#e2b45a;--rc-rgb:226,180,90}
+.rot-dia.hoje{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
+.rot-dia.feito{opacity:.55}
+.rot-dia.trocado::after{content:"";position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--amber)}
+.rot-cab{display:flex;align-items:baseline;gap:6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.rot-cab span{color:var(--dim);font-size:11px}
+.rot-cab em{font-style:normal;margin-left:auto;font-size:10px;background:rgba(255,255,255,.14);padding:1px 6px}
+.rot-ic{color:var(--rc);width:26px;height:26px;margin-top:4px}
+.rot-ic svg{width:26px;height:26px}
+.rot-nome{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.04em;line-height:1}
+.rot-pad{font-size:11px;color:var(--dim);min-height:14px}
+.rot-fixo{margin-top:auto;font-size:11.5px;color:var(--dim)}
+.rot-bts{margin-top:auto;display:flex;gap:2px}
+.rot-bts button{flex:1;min-width:0;height:26px;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--dim);cursor:pointer}
+.rot-bts button svg{width:14px;height:14px}
+.rot-bts button.pad{border-color:rgba(255,255,255,.28)}
+.rot-bts button.on{background:var(--rc);color:#0b1218;border-color:var(--rc)}
+.rot-bts button:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.1)}
+.rot-nota{font-size:12px;margin:8px 0 0}
+
+/* ---------- Etapa 4: evolução e rotina do jogador ---------- */
+.evj{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;margin-bottom:18px}
+.evj-over{display:flex;align-items:center;gap:14px;margin:6px 0 10px}
+.evj-over>b{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:.9;color:var(--tx)}
+.evj-ob{flex:1;min-width:120px}
+.evj-ob span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.evj-ob u{display:block;height:10px;background:rgba(255,255,255,.08);margin-top:4px;text-decoration:none;overflow:hidden}
+.evj-ob i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#9cf3e3);transition:width .6s}
+.evj-spark{flex:none}
+.evj-marcos{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.evj-marcos i{font-style:normal;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.04em;width:34px;height:26px;display:grid;place-items:center;
+  border:1px solid var(--line);color:var(--dim)}
+.evj-marcos i.on{background:rgba(226,180,90,.18);border-color:var(--gold);color:var(--gold)}
+.evj-marcos i.prox{border-style:dashed;border-color:var(--tx2);color:var(--tx)}
+.evj-marcos span{font-size:12px;margin-left:6px}
+.evj-linha{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.evj-bloco{border:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.evj-mini{font-size:11.5px;line-height:1.35}
+.evj-foco{display:flex;flex-wrap:wrap;gap:4px}
+.evj-foco button{font-size:11.5px;padding:4px 8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--tx2);cursor:pointer}
+.evj-foco button.atual{border-color:var(--teal)}
+.evj-foco button.on{background:var(--teal);border-color:var(--teal);color:#0b1218;font-weight:600}
+.evj-dzs{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.evj-dz{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(255,70,85,.08),transparent 70%);animation:jxSobe .4s calc(var(--i,0)*.06s) both}
+.evj-dz-ic{color:var(--red);width:24px;height:24px}
+.evj-dz-ic svg{width:24px;height:24px}
+.evj-dz-t b{display:block;font-size:13px;line-height:1.25}
+.evj-dz-t .dim{font-size:11px}
+.evj-dz-t u{display:block;height:5px;background:rgba(255,255,255,.08);margin-top:5px;text-decoration:none}
+.evj-dz-t u i{display:block;height:100%;background:var(--red)}
+.evj-dz-r{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.evj-dz-r i{font-style:normal;font-size:10.5px;padding:1px 6px;background:rgba(31,210,180,.14);color:var(--teal);white-space:nowrap}
+.evj-moms{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.evj-mom{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;border:1px solid var(--line);font-size:12px}
+.evj-mom>span{width:18px;height:18px;flex:none;color:var(--gold)}
+.evj-mom>span svg{width:18px;height:18px}
+.evj-mom b{display:block;line-height:1.2}
+.evj-mom .dim{font-size:11px}
+.evj-mom.novo{border-color:var(--gold);background:rgba(226,180,90,.08)}
+.evj-marco{display:flex;align-items:center;gap:16px;padding:16px 20px;margin-bottom:14px;border:1px solid var(--gold);
+  background:radial-gradient(120% 160% at 0% 50%,rgba(226,180,90,.28),rgba(226,180,90,.04) 60%);animation:jxSobe .5s both}
+.evj-marco>span{width:44px;height:44px;color:var(--gold)}
+.evj-marco>span svg{width:44px;height:44px}
+.evj-marco h3{font-family:'Bebas Neue',sans-serif;font-size:38px;margin:0;line-height:1;letter-spacing:.04em}
+.evj-marco p{margin:2px 0 0}
+.evj-marco .btn{margin-left:auto}
+.evj-meds{display:flex;align-items:center;gap:4px;font-size:11px}
+.evj-med{font-style:normal;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 3px;border-radius:50%;font-size:10px;font-weight:700;color:#14100a}
+.evj-med.ouro{background:radial-gradient(circle at 35% 30%,#fff3c4,#e2b45a 55%,#a77a22)}
+.evj-med.prata{background:radial-gradient(circle at 35% 30%,#fff,#c4ccd6 55%,#7d8794)}
+.evj-med.bronze{background:radial-gradient(circle at 35% 30%,#ffd9b8,#c47a45 55%,#7d4320)}
+.evj-med:empty{min-width:12px;width:12px;height:12px;padding:0}
+.evj-med.grande{width:46px;height:46px}
+.sj-med{display:flex;align-items:center;gap:10px;margin:6px 0 10px}
+.sj-med b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em}
+.jx-ag em.mq{font-style:normal;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
+.jx-ag em.mq.t2{color:var(--teal)}
+.jx-ag em.mq.t3{color:var(--gold)}
+.rj{margin-bottom:18px}
+.rj-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
+.rj-dia{display:flex;flex-direction:column;gap:5px;padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.02);min-height:120px}
+.rj-dia.hoje{outline:2px solid var(--teal);outline-offset:-2px;background:rgba(31,210,180,.06)}
+.rj-dia.jogo{border-top:3px solid var(--red);background:rgba(255,70,85,.06)}
+.rj-dia.passou{opacity:.6}
+.rj-cab{display:flex;align-items:baseline;gap:5px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.rj-cab span{font-size:10.5px;color:var(--dim)}
+.rj-cab em{font-style:normal;margin-left:auto;font-size:9.5px;background:var(--teal);color:#0b1218;padding:1px 5px}
+.rj-jogo{display:flex;flex-direction:column;gap:2px;color:var(--red)}
+.rj-jogo svg{width:20px;height:20px}
+.rj-jogo b{color:var(--tx);font-size:12.5px}
+.rj-jogo .dim{font-size:10.5px}
+.rj-fixo{display:flex;align-items:center;gap:4px;font-size:11.5px;padding:3px 5px;background:rgba(255,255,255,.06)}
+.rj-fixo svg{width:12px;height:12px;flex:none}
+.rj-fixo i{font-style:normal;margin-left:auto;font-size:9.5px;color:var(--dim);text-transform:uppercase}
+.rj-feitas{display:flex;flex-direction:column;gap:3px}
+.rj-f{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--teal)}
+.rj-f svg{width:11px;height:11px;flex:none}
+.rj-f i{font-style:normal;color:var(--dim);font-size:9.5px}
+.rj-sel{display:flex;flex-direction:column;gap:4px;margin-top:auto}
+.rj-sel select{width:100%;font-size:11.5px;padding:3px 4px}
+.rj-desc{font-size:10.5px;margin-top:auto}
+.rj-agoras{display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(31,210,180,.08);border:1px solid rgba(31,210,180,.3)}
+.rj-agoras .eyebrow{font-size:9.5px}
+.rj-agora{display:flex;flex-direction:column;gap:4px;font-size:11.5px}
+.rj-agora .btn{justify-content:center}
+.rj-agora .btn svg{width:13px;height:13px}
