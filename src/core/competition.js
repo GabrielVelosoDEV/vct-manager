@@ -164,7 +164,7 @@ function stageAplicar(s,res){
     mvp:res.mvp||null,...(res.wo?{wo:res.wo}:{})};
   s.resultados.push({a:aId,b:bId,wa,wb,v:vencedor,mapa:res.wo?'W.O.':res.mapas.map(m=>m.mapa+' '+m.sa+'-'+m.sb).join(', '),
     n:s.resultados.length,rd:s.nomeRodada||(s.tipo==='rr'||s.tipo==='grupos'?'Rodada '+(s.idx+1):''),
-    sem:res.semana||G.semana,det});
+    sem:res.semana||G.semana,dia:res.dia!=null?res.dia:null,ano:G.ano,det});
   /* Confronto direto: registrado aqui, no único lugar por onde TODO resultado
      de série passa. Espalhar isso pelos pontos que chamam simSerie deixaria
      algum torneio de fora e o histórico ficaria mentindo por omissão. */

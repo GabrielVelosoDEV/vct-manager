@@ -110,10 +110,113 @@ function avancarTurno(){
   return{tipo:'turno',turno:G.turno,semana:G.semana,novas};
 }
 
+/* ============================================================
+   A TEMPORADA DIA A DIA
+   ------------------------------------------------------------
+   Cada Avançar anda um dia. As rodadas da semana (rodadasPorSemana:
+   uma numa semana de liga, duas ou três no aperto de um playoff)
+   ganham cada uma o seu dia, de segunda a sábado; o domingo fecha a
+   semana (treino, folha, notícias), como sempre. Nos outros dias só
+   o mercado anda, com um sétimo da chance semanal — o mesmo volume
+   de negócios, em sete momentos.
+
+   O motor continua o mesmo: um dia de jogo é um passo da semana que
+   já existia para a rodada dupla (G.semanaEmCurso), e avancar() sem
+   opções continua jogando a semana inteira de uma vez (ferramentas,
+   saves antigos, o avanço rápido). */
+/* em que dia (0 = segunda) cai cada rodada da semana */
+const DIAS_DE_JOGO={0:[],1:[4],2:[2,5],3:[1,3,5],4:[0,2,4,5],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
+function diasDeJogo(passos){
+  if(DIAS_DE_JOGO[passos])return DIAS_DE_JOGO[passos].slice();
+  return Array.from({length:passos},(_,i)=>Math.min(5,Math.floor(i*6/passos)));
+}
+/* o plano da semana: quantas rodadas e em que dias. Decidido no primeiro
+   olhar da semana (prepararSemana monta o bloco se for o caso) */
+function planoDaSemana(){
+  const pl=G.diaPlano;
+  if(pl&&pl.ano===G.ano&&pl.semana===G.semana)return pl;
+  const {b}=prepararSemana();
+  const em=G.semanaEmCurso;
+  const passos=em?em.passos:(b?rodadasPorSemana(b):0);
+  G.diaPlano={ano:G.ano,semana:G.semana,passos,dias:diasDeJogo(passos)};
+  return G.diaPlano;
+}
+function passosFeitos(){return G.semanaEmCurso?G.semanaEmCurso.feitos:0;}
+/* tem rodada para jogar hoje? */
+function passoDeHoje(){
+  if(!G)return false;
+  const pl=planoDaSemana(),k=passosFeitos();
+  return k<pl.passos&&pl.dias[k]<=(G.turno||0);
+}
+/* dia (0–6) da próxima rodada desta semana, ou null */
+function diaDaProximaRodada(){
+  const pl=planoDaSemana(),k=passosFeitos();
+  return k<pl.passos?Math.max(G.turno||0,pl.dias[k]):null;
+}
+/* o seu clube joga na rodada de hoje? */
+function meuJogoHoje(){
+  if(!passoDeHoje())return false;
+  const {b}=prepararSemana();
+  return meuJogoPreparado(b);
+}
+/* Dias até o seu próximo jogo nesta semana (0 = hoje); null se não há. */
+function diasAteMeuJogo(){
+  const meu=typeof clubeDoUsuario==='function'?clubeDoUsuario():G.meuTime;
+  if(!meu)return null;
+  const hoje=G.turno||0;
+  if(passosFeitos()<planoDaSemana().passos){
+    const {b}=prepararSemana();
+    if(meuJogoPreparado(b))return Math.max(0,diaDaProximaRodada()-hoje);
+  }
+  return null;
+}
+/* o mercado de um dia (e, no primeiro dia, o começo da semana) */
+function _mercadoDoDia(){
+  if(!G.turno&&!G.turnoUsado){
+    G.janela=janelaAberta(G.ano,G.semana);
+    if(typeof limparNegociacoes==='function')limparNegociacoes();
+  }
+  G.turnoUsado=true;
+  const antes=new Set((G.propostas||[]).map(x=>x.id));
+  G._noTurno=true;G._fracaoMercado=1/TURNOS_SEMANA;
+  try{
+    if(G.janela){
+      if(typeof gerarPropostas==='function')gerarPropostas();
+      if(typeof mercadoVivo==='function')mercadoVivo();
+    }
+  }finally{G._noTurno=false;G._fracaoMercado=1;}
+  /* World Cup em novembro: os jogos de seleção marcados para o dia */
+  if(typeof copaDoDia==='function')copaDoDia(G.turno||0);
+  return (G.propostas||[]).filter(x=>!antes.has(x.id)&&G.jogadores[x.jogadorId]
+    &&G.jogadores[x.jogadorId].timeId===G.meuTime);
+}
+/* Um dia. No domingo, fecha a semana. */
+function avancarDia(plano){
+  planoDaSemana();
+  if((G.turno||0)>=TURNOS_SEMANA-1){
+    /* domingo: o que sobrou de rodada (calendário com mais de seis) e o fechamento */
+    const r=avancar(plano);
+    if(r)r.dia=true;
+    return r;
+  }
+  const novas=_mercadoDoDia();
+  let r=null;
+  if(passoDeHoje()){
+    r=avancar(plano,{umPasso:true});
+    r.novas=novas;
+    /* duas rodadas no mesmo dia (só em calendário muito apertado): o dia
+       continua até a última */
+    if(passoDeHoje())return r;
+  }
+  G.turno=(G.turno||0)+1;
+  if(!r)r={tipo:'turno',turno:G.turno,semana:G.semana,novas,dia:true};
+  return r;
+}
+
 /* `plano` é o que VOCÊ decidiu antes de a semana rodar: por enquanto o veto de
    mapa da sua partida. Vem da tela e desce até simPartida por ctx — o motor
    continua dono do sorteio, a tela só entrega escolhas. */
-function avancar(plano){
+function avancar(plano,opts){
   /* seleção esquecida em campo (tela fechada no meio de uma série): fora */
   if(G&&G.times)for(const k in G.times)if(k.startsWith('SEL-'))delete G.times[k];
   /* Continuação de uma semana de rodada dupla que parou antes do seu segundo
@@ -176,11 +279,20 @@ function avancar(plano){
             ?plano.serieFeita
             :simPartida(a,bb,bo,ctx);
           res.semana=G.semana;
+          /* o dia da semana em que a rodada caiu (calendário): no dia a dia é
+             hoje; no avanço por semana, o dia que ela teria */
+          res.dia=opts&&opts.umPasso?(G.turno||0):diasDeJogo(passos)[k];
           stageAplicar(s,res);
           resultados.push({stage:s,res});
           if(meuJogo){minhaPartida=res;if(typeof relDepoisDoJogo==='function')relDepoisDoJogo(res);}
         }
         stageAvancar(s);
+      }
+      /* dia a dia: cada rodada no seu dia; a semana só fecha no domingo */
+      if(opts&&opts.umPasso){
+        G.semanaEmCurso={passos,feitos:k+1};
+        return{tipo:'rodada',resultados,minhaPartida,parcial:true,dia:true,
+               bloco:b.nome,semana:G.semana,encerrado:null};
       }
       /* Rodada dupla: o calendário apertado põe duas rodadas na mesma semana.
          Se a próxima tem jogo seu, a semana PARA aqui — esse jogo precisa do
@@ -217,7 +329,7 @@ function fecharSemana(b,resultados,minhaPartida,idx){
   if(typeof fotoDoRanking==='function')fotoDoRanking();
   if(typeof pagarMetasDaSemana==='function')pagarMetasDaSemana();
   if(typeof radarSemanal==='function')radarSemanal();
-  G.turno=0;G.turnoUsado=false;
+  G.turno=0;G.turnoUsado=false;G.diaPlano=null;
 
   /* O bloco encerra quando o último jogo dele acabou — é aí que se paga, se
      entrega o título e se elege o melhor jogador, não numa semana qualquer

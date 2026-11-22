@@ -37,6 +37,8 @@ function ligarAcoesTopo(){
   };
   const bn=$('#btnNext');
   if(bn)bn.onclick=()=>{if(typeof relogioMarcar==='function')relogioMarcar();avancarComRitual(1);};
+  const bw=$('#btnSemana');
+  if(bw)bw.onclick=()=>{if(typeof relogioMarcar==='function')relogioMarcar();avancarDiasAte('semana');};
   const bf=$('#btnFim');
   if(bf)bf.onclick=()=>{if(typeof relogioMarcar==='function')relogioMarcar();avancarAteMeuJogo();};
 }
@@ -48,6 +50,15 @@ function ligarAcoesTopo(){
 /* Um dia de janela: só o mercado anda. */
 function usarTurnos(){
   return Prefs.get('turnosNaJanela')!==false&&typeof turnoDisponivel==='function'&&turnoDisponivel();
+}
+/* A temporada dia a dia (a preferência é a mesma da antiga janela dia a dia,
+   que ela substitui). Vale para quem tem clube ou carreira de jogador. */
+function usarDias(){
+  return Prefs.get('turnosNaJanela')!==false&&typeof avancarDia==='function'&&!!G&&!!(G.meuTime||G.voce);
+}
+/* o seu jogo é hoje? (é quando o ritual de antes da partida abre) */
+function meuDiaDeJogo(){
+  return typeof meuJogoHoje==='function'&&meuJogoHoje();
 }
 function aplicarTurno(r){
   if(!r)return;
@@ -71,7 +82,7 @@ function aplicarTurno(r){
     const x=r.novas[0],p=G.jogadores[x.jogadorId],c=G.times[x.clubeId];
     flash('📨 '+(c?c.nome:'Um clube')+' fez proposta por '+(p?p.nome:'um jogador seu')+
           (r.novas.length>1?' (e mais '+(r.novas.length-1)+')':'')+' — veja em Mercado › Saídas.');
-  }else if(dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
+  }else if(G.janela&&dias>0&&dias<=7)flash(rot+' · a janela fecha em '+dias+' dia'+(dias===1?'':'s')+'.');
 }
 /* Etapa 7: com o motor completo, a sua série leva alguns segundos para ser
    jogada. O aviso é pintado ANTES do cálculo (que trava a tela enquanto roda),
@@ -88,9 +99,11 @@ function avisoMotor(on,texto){
 function avancarComMotor(plano,depois){
   const pesado=typeof motorDisponivel==='function'&&motorDisponivel()&&!(plano&&plano.serieFeita)
     &&(Prefs.get('motorTodas')||(Prefs.get('motorMinhas')&&typeof compromissoDaSemana==='function'&&!!compromissoDaSemana()));
-  if(!pesado||typeof document==='undefined')return depois(avancar(plano));
+  /* dia a dia: joga só a rodada de hoje (e o mercado do dia) */
+  const passo=()=>usarDias()?avancarDia(plano):avancar(plano);
+  if(!pesado||typeof document==='undefined')return depois(passo());
   avisoMotor(true,Prefs.get('motorTodas')?'Jogando a rodada no motor completo…':'Jogando a sua partida no motor completo…');
-  setTimeout(()=>{let r;try{r=avancar(plano);}finally{avisoMotor(false);}depois(r);},60);
+  setTimeout(()=>{let r;try{r=passo();}finally{avisoMotor(false);}depois(r);},60);
 }
 function avancarComRitual(quantas){
   /* modo jogador: série sua pela seleção nesta semana (World Cup) abre o dia de
@@ -111,7 +124,14 @@ function avancarComRitual(quantas){
   if(typeof mandatoPendente==='function'&&mandatoPendente()&&typeof modalMandato==='function'){
     modalMandato(()=>avancarComRitual(quantas));return;
   }
-  if(usarTurnos())return aplicarTurno(avancarTurno());
+  /* dia a dia: dia sem o seu jogo anda direto (mercado, rodada dos outros,
+     fechamento de domingo); dia com o seu jogo segue para o ritual abaixo */
+  if(usarDias()&&!meuDiaDeJogo()){
+    const r=avancarDia();
+    if(r&&r.tipo==='turno')return aplicarTurno(r);
+    return aplicarAvanco(r,1);
+  }
+  if(!usarDias()&&usarTurnos())return aplicarTurno(avancarTurno());
   /* modo jogador: semana com jogo do seu clube abre o dia de jogo (ui/diadejogo.js) */
   const dj=typeof diaDeJogoDisponivel==='function'?diaDeJogoDisponivel():null;
   if(dj){
@@ -149,10 +169,10 @@ function aplicarAvanco(r,quantas){
   /* Semana sem jogo não é erro nem tempo perdido, e o aviso diz isso — junto
      com o que ela serviu para adiantar. */
   if(r.tipo==='semana'&&quantas===1&&!r.encerrado)
-    flash('Semana de treino — '+rotuloSemana(G.ano,r.semana)+'.');
+    flash(r.dia?'Semana fechada: treino, folha e notícias da '+rotuloSemana(G.ano,r.semana)+'.':'Semana de treino — '+rotuloSemana(G.ano,r.semana)+'.');
   /* Rodada dupla: a semana parou antes do seu próximo jogo, que tem o próprio
      relatório e o próprio veto. */
-  if(r.parcial)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
+  if(r.parcial&&!r.dia)flash('Tem mais um jogo seu nesta semana — avance para o veto.');
   if(r.encerrado)flash(/^fim de temporada/i.test(r.encerrado)?'Temporada encerrada.'
     :r.encerrado+(/^(pré-temporada|pausa)/i.test(r.encerrado)?' encerrada.':' encerrado.'));
   /* O veredito vem por último e por cima de tudo: é o desfecho da temporada, e
@@ -196,6 +216,7 @@ function avancarAteMeuJogo(){
   /* modo Dono: mandato, conselho e fim de carreira passam pelo ritual */
   if((typeof timePerdido==='function'&&timePerdido())||G.conselhoPendente
      ||(typeof mandatoPendente==='function'&&mandatoPendente())){avancarComRitual(1);return;}
+  if(usarDias())return avancarDiasAte('jogo');
   /* Na janela com turnos, o avanço rápido termina a semana em curso, mas para
      no turno em que chegar proposta por alguém seu: é a resposta que importa. */
   if(usarTurnos()){
@@ -234,6 +255,52 @@ function avancarAteMeuJogo(){
   aplicarAvanco(r,n);
   if(pausou)flash((n>1?n+' semanas adiantadas. ':'')+'Seu próximo jogo é agora — avance para o veto.');
   else if(n>1)flash(n+' semanas adiantadas.');
+}
+/* Avanço rápido no dia a dia. alvo: 'jogo' (até o dia do seu próximo jogo),
+   'semana' (até fechar a semana) ou {ano,semana,dia} (uma data do calendário).
+   Para antes se aparecer algo que é seu: o seu jogo (abre o ritual), proposta
+   por alguém seu, torneio encerrado, veredito, momento de Copa, conselho. */
+function avancarDiasAte(alvo,opts){
+  opts=opts||{};const data=alvo&&typeof alvo==='object';
+  if((typeof timePerdido==='function'&&timePerdido())||G.conselhoPendente
+     ||(typeof mandatoPendente==='function'&&mandatoPendente())){avancarComRitual(1);return;}
+  const semana0=G.semana,ano0=G.ano;
+  const chegou=()=>{
+    if(alvo==='semana')return G.semana!==semana0||G.ano!==ano0;
+    if(alvo&&typeof alvo==='object')return G.ano>alvo.ano||(G.ano===alvo.ano&&(G.semana>alvo.semana||(G.semana===alvo.semana&&(G.turno||0)>=alvo.dia)));
+    return false;
+  };
+  let n=0,r=null,ultimo=null,dias=0;
+  if(data&&G.ano!==alvo.ano)return;
+  const leilao0=G.voce&&typeof leilaoAtual==='function'&&leilaoAtual()?leilaoAtual().id:null;
+  const props0=G.voce&&G.voce.propostas?G.voce.propostas.length:0;
+  const copa0=G.copaMomentos?G.copaMomentos.length:0;
+  const selecao=()=>typeof jogoDeSelecaoDoUsuario==='function'&&jogoDeSelecaoDoUsuario();
+  while(n<SEMANAS_ANO*8){
+    if(chegou())break;
+    /* o seu jogo é hoje: abre o ritual (relatório, veto, dia de jogo) */
+    if((meuDiaDeJogo()&&!opts.meusJogos)||selecao()){
+      if(ultimo)aplicarAvanco(ultimo,1);else if(r)aplicarTurno(r);
+      avancarComRitual(1);
+      if(dias>1)flash(dias+' dias adiantados. Hoje tem jogo seu.');
+      return;
+    }
+    r=avancarDia();n++;dias++;
+    if(!r)break;
+    if(r.tipo!=='turno')ultimo=r;
+    /* até uma data: só para no que é obrigatório (abaixo); o resto se vê lá */
+    if(!data&&r.novas&&r.novas.length)break;
+    if(!data&&(r.minhaPartida||r.encerrado))break;
+    if(G.vereditoPendente||G.cerimoniaPendente)break;
+    if(G.copaMomentos&&G.copaMomentos.length>copa0)break;
+    if(G.conselhoPendente||G.fimDonoPendente||G.avisoEmpresaPendente||G.criseNova)break;
+    if(!data&&G.voce&&typeof leilaoAtual==='function'&&leilaoAtual()&&leilaoAtual().id!==leilao0)break;
+    if(!data&&G.voce&&(G.voce.propostas||[]).length>props0)break;
+  }
+  if(r&&r.tipo==='turno'&&!(ultimo&&(ultimo.minhaPartida||ultimo.encerrado)))aplicarTurno(r);
+  else if(ultimo)aplicarAvanco(ultimo,1);
+  else if(r)aplicarTurno(r);
+  if(dias>1)flash(dias+' dias adiantados.');
 }
 if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',boot);
 

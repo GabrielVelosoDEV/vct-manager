@@ -19,6 +19,7 @@ let hist=[],histPos=-1; /* histórico das setas da topbar */
 /* [chave, rótulo, grupo, ícone] — fonte única da sidebar e do título da topbar */
 const NAV=[
   ['inicio','Central','Clube','casa'],
+  ['calendario','Calendário','Clube','agenda'],
   ['elenco','Elenco','Clube','elenco'],
   ['vestiario','Vestiário','Clube','vestiario'],
   ['preparacao','Treinamento','Clube','tatica'],
@@ -175,13 +176,13 @@ function render(){
   const fn={inicio:escritorio?vEscritorio:vInicio,elenco:vElenco,preparacao:vPreparacao,comp:vComp,mercado:vMercado,
             base:vBase,estrutura:vEstrutura,historia:vHistoria,vestiario:vVestiario,financas:vFinancas,stats:vMundo,premios:vPremios,news:vNews,
             editor:vEditor,config:vConfig,copa:typeof vCopa==='function'?vCopa:null,
-            tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null,donos:typeof vDonos==='function'?vDonos:null}[tela]
+            calendario:typeof vCalendario==='function'?vCalendario:null,tecnico:typeof vTecnico==='function'?vTecnico:null,empresa:typeof vEmpresa==='function'?vEmpresa:null,donos:typeof vDonos==='function'?vDonos:null}[tela]
     ||(String(tela).startsWith('clube:')&&typeof vClube==='function'?(clubeVer=String(tela).slice(6),vClube):null)
     ||(String(tela).startsWith('selecao:')&&typeof vSelecao==='function'?(selecaoVer=String(tela).slice(8),vSelecao):null);
   if(typeof guiaMarcar==='function')guiaMarcar(tela);
   /* modo jogador: as telas dele mandam (ui/jogador.js); as do circuito são as mesmas */
   const fnJ=typeof modoJogador==='function'&&modoJogador()&&typeof telaDoJogador==='function'?telaDoJogador(tela):null;
-  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor'].includes(tela)&&!String(tela).startsWith('clube:')&&!String(tela).startsWith('selecao:');
+  const proibida=fnJ===null&&typeof modoJogador==='function'&&modoJogador()&&!['comp','copa','stats','premios','news','config','editor','calendario'].includes(tela)&&!String(tela).startsWith('clube:')&&!String(tela).startsWith('selecao:');
   let html=(typeof guiaBanner==='function'&&!(G.voce&&G.voce.aposentado)?guiaBanner(tela):'')+(fnJ||(proibida?vJCentral:fn||vInicio))();
   if(typeof aplicarCabecalhoModo==='function')html=aplicarCabecalhoModo(html,tela);
   const como=pintarRaiz(v,typeof iconizarHtml==='function'?iconizarHtml(html):html,'jogo|'+tela,{limpo:trocouModo});
@@ -278,6 +279,15 @@ function corDaAgenda(nome){
 /* o que vem no próximo clique de Avançar, dito embaixo do botão */
 function proximoDoAvancar(t){
   try{
+    if(typeof usarDias==='function'&&usarDias()){
+      const adv=t&&typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null;
+      if(typeof meuJogoHoje==='function'&&meuJogoHoje())return {txt:adv?'vs '+(adv.tag||adv.nome)+' hoje':'jogo hoje',adv,hoje:true};
+      if((G.turno||0)>=6)return {txt:'fechar a semana'};
+      const d=typeof diasAteMeuJogo==='function'?diasAteMeuJogo():null;
+      if(d!=null&&adv)return {txt:'vs '+(adv.tag||adv.nome)+' em '+d+' dia'+(d===1?'':'s'),adv};
+      if(typeof passoDeHoje==='function'&&passoDeHoje())return {txt:'rodada hoje'};
+      return {txt:'próximo dia'};
+    }
     if(typeof usarTurnos==='function'&&usarTurnos())return {txt:'próximo dia'};
     const adv=t&&typeof proximoAdversarioDe==='function'?proximoAdversarioDe(t):null;
     if(adv)return {txt:'vs '+(adv.tag||adv.nome),adv};
@@ -314,7 +324,8 @@ function pintarTop(){
         <div class="top-pill top-din ${caixa<0?'neg':''}"><span class="top-pic">${ico('dinheiro')}</span><span class="top-pt"><em>caixa</em><strong>${t?money(caixa):'—'}</strong></span></div>`}
     <div class="top-acoes">
       <button class="btn-ic2" id="btnSave" title="Salvar a partida">${ico('disco')}</button>
-      <button class="btn top-avancar" id="btnNext"><b>Avançar</b><span>${prox.adv?escudo(prox.adv,14)+' ':''}${esc(prox.txt)}</span></button>
+      <button class="btn top-avancar ${prox.hoje?'hoje':''}" id="btnNext"><b>Avançar</b><span>${prox.adv?escudo(prox.adv,14)+' ':''}${esc(prox.txt)}</span></button>
+      ${typeof usarDias==='function'&&usarDias()?`<button class="btn-semana" id="btnSemana" title="Pular até o fim da semana (para antes se tiver jogo seu ou proposta)">${ico('seta_d')}<span>semana</span></button>`:''}
       <button class="btn-fim" id="btnFim" title="Avançar até o próximo jogo do seu clube">${ico('duplo')}</button>
     </div>`,'top',{semFusao:true});
   $('#hVolta').onclick=()=>{if(histPos>0){histPos--;irPara(hist[histPos],true);}};
@@ -326,6 +337,7 @@ function pintarTop(){
    próximo compromisso, que é uma informação de planejamento. */
 /* A data mostrada é a do dia quando a janela anda dia a dia. */
 function turnosNaTela(){
+  if(typeof usarDias==='function'&&usarDias())return true;
   return Prefs.get('turnosNaJanela')!==false&&janelaAberta(G.ano,G.semana||1)&&!G.semanaEmCurso;
 }
 function proximaAgenda(){

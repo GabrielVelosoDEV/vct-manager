@@ -100,7 +100,7 @@ function _rodarCopaAte(alvo){
   if(G.ano<COPA_PRIMEIRA-1||(G.semana||1)<ELIM_SEM_SORTEIO-2)return null;
   G._copaPararEm=alvo;
   /* andando dia a dia pela janela, só o que é de hoje (ui: usarTurnos) */
-  if(typeof usarTurnos==='function'&&usarTurnos())G._copaHoje=G.turno||0;
+  if((typeof usarDias==='function'&&usarDias())||(typeof usarTurnos==='function'&&usarTurnos()))G._copaHoje=G.turno||0;
   try{copaSemana();return null;}
   catch(e){if(e&&e.copaPendente)return e.copaPendente;throw e;}
   finally{G._copaPararEm=null;G._copaHoje=null;}

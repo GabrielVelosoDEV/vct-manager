@@ -14,6 +14,7 @@
 
 const NAV_JOGADOR=[
   ['inicio','Minha carreira','Carreira','mira'],
+  ['calendario','Calendário','Carreira','agenda'],
   ['perfil','Meu jogador','Carreira','elenco'],
   ['semana','Semana e treinos','Carreira','mira'],
   ['talentos','Talentos','Carreira','arvore'],

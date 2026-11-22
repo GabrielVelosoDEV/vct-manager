@@ -17,6 +17,7 @@ function ligarEventos(){
   if(typeof ligarProjeto==='function'&&t)ligarProjeto(v,on);
   if(typeof ligarPlano==='function'&&t)ligarPlano(v,on);
   if(typeof ligarJogador==='function'&&typeof modoJogador==='function'&&modoJogador())ligarJogador(v,on);
+  if(typeof ligarCalendario==='function'&&tela==='calendario')ligarCalendario(v,on);
   /* Lê um campo do formulário sem confiar que ele está na tela. Um botão de um
      render anterior continua clicável enquanto alguém tiver a referência dele,
      e aí `v.querySelector('#edNome').value` estourava em cima de null. Ler por

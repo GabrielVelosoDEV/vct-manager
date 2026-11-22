@@ -30,7 +30,7 @@ function aplicarTemaDono(){
 function navDoDono(){
   const manda=typeof tecnicoComanda==='function'&&tecnicoComanda(meu());
   const ia=typeof donoComTecnico==='function'&&donoComTecnico();
-  const N=[['inicio','Escritório','Escritório','predio']];
+  const N=[['inicio','Escritório','Escritório','predio'],['calendario','Calendário','Escritório','agenda']];
   if(ia){N.push(['empresa','Empresa','Escritório','grafico']);N.push(['tecnico','Comando técnico','Escritório','tatica']);}
   N.push(['donos','Donos','Escritório','aperto']);
   N.push(['elenco','Elenco','Clube','elenco']);

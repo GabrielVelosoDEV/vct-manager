@@ -9,7 +9,7 @@
    É só interface: não toca o motor nem o gerador semeado.
    ============================================================ */
 const GUIA_TELAS={
-  inicio:'A Central resume o seu clube: quem está insatisfeito, o próximo jogo, a tabela e a manchete da semana. O botão Avançar, lá em cima, passa a semana.',
+  inicio:'A Central resume o seu clube: quem está insatisfeito, o próximo jogo, a tabela e a manchete da semana. O botão Avançar, lá em cima, passa um dia; ao lado, Semana pula até o domingo e as duas setas até o seu próximo jogo.',
   elenco:'Aqui ficam os titulares e o banco. A escalação automática monta os cinco mais fortes por função; troque à mão se quiser dar minutos a alguém.',
   taticas:'Foco tático e agressividade valem para todos os jogos. Execução rende no ataque e perde na defesa; retake é o contrário.',
   treino:'Cada jogador tem um plano por semana: atributo, agente ou descanso. Treinar cansa, mas em e-sports quem decide jogo é a cabeça: veja o Vestiário.',
@@ -56,7 +56,7 @@ function _guiaDonoAuto(){
 }
 /* modo jogador: as dicas e os primeiros passos são outros */
 const GUIA_TELAS_JOGADOR={
-  inicio:'A Central do jogador: a sua situação no clube, a chance de jogar, o próximo jogo e o que estão falando de você. O botão Avançar passa a semana.',
+  inicio:'A Central do jogador: a sua situação no clube, a chance de jogar, o próximo jogo e o que estão falando de você. O botão Avançar passa um dia; Semana pula até o domingo e as duas setas até o seu próximo jogo.',
   semana:'A semana tem energia. Treine jogando (rende mais que simular), vá ao treino do clube e guarde energia se tiver jogo. Sem nada marcado, o assistente simula uma semana padrão.',
   talentos:'Cada ponto de over acima de 65 no seu auge vale um ponto de talento. As fileiras abrem por faixa de over; a assinatura (90) é uma só.',
   relacoes:'O técnico escala pela conta de sempre mais a confiança dele em você. Uma conversa com ele por semana, uma com cada colega.',

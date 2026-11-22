@@ -83,7 +83,7 @@ function aplicarTemaModo(){
 /* ---------- Treinador: a sala tática ---------- */
 function navDoTreinador(){
   return [
-    ['inicio','Sala tática','Comando','tatica'],['elenco','Elenco','Comando','elenco'],['vestiario','Vestiário','Comando','vestiario'],['preparacao','Treinamento','Comando','alvo'],
+    ['inicio','Sala tática','Comando','tatica'],['calendario','Calendário','Comando','agenda'],['elenco','Elenco','Comando','elenco'],['vestiario','Vestiário','Comando','vestiario'],['preparacao','Treinamento','Comando','alvo'],
     ['estrutura','Estrutura','Clube','estrutura'],['base','Base','Clube','base'],['historia','História','Clube','trofeu'],
     ['mercado','Mercado','Gestão','troca'],['financas','Finanças','Gestão','dinheiro'],
     ['comp','Competições','Circuito','trofeu'],['copa','World Cup','Circuito','estrela'],['stats','Estatísticas','Circuito','grafico'],
